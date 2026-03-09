@@ -55,7 +55,7 @@
             <div class="map-icon">🗺️</div>
             <div class="study-title">오늘의 학습</div>
             <div class="target-words">목표 단어: <span class="target-count" id="target-count-display">0개</span></div>
-            <button class="start-btn" onclick="location.href='study.html'">학습 시작하기</button>
+            <button class="start-btn" id="start-btn-main" onclick="location.href='study.html'">학습 시작하기</button>
         </div>
 
         <div class="info-row">
@@ -82,14 +82,32 @@
 
     <script src="wordData.js"></script>
     <script>
+        // 날짜가 바뀌면 세션 초기화
+        const today = new Date().toLocaleDateString();
+        if (localStorage.getItem('trigger_date') !== today) {
+            localStorage.setItem('trigger_date', today);
+            localStorage.setItem('trigger_session', '1');
+        }
+
         function checkLoginStatus() {
             const savedName = localStorage.getItem('trigger_name');
+            const currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
             const modal = document.getElementById('login-modal');
             const welcomeMsg = document.getElementById('welcome-msg');
+            const startBtn = document.getElementById('start-btn-main');
 
             if (savedName) {
                 modal.style.display = 'none';
-                welcomeMsg.innerText = `환영합니다, ${savedName}님! 🔥`;
+                // 메인 화면에 세션 진행도 표시
+                if (currentSession > 5) {
+                    welcomeMsg.innerText = `환영합니다, ${savedName}님! 🔥 (오늘 5회 완수!)`;
+                    startBtn.innerText = "오늘 학습 완료";
+                    startBtn.style.borderColor = "#444";
+                    startBtn.style.color = "#666";
+                    startBtn.onclick = () => alert("오늘의 학습 세션을 모두 완료했습니다. 내일 다시 만나요!");
+                } else {
+                    welcomeMsg.innerText = `환영합니다, ${savedName}님! 🔥 (오늘 진행도: ${currentSession}/5 세션)`;
+                }
             } else {
                 modal.style.display = 'flex';
             }
@@ -104,7 +122,7 @@
             if (!agree) return alert("개인정보 수집에 동의하셔야 합니다.");
 
             localStorage.setItem('trigger_name', name);
-            if(phone) localStorage.setItem('trigger_phone', phone); // 전화번호는 있으면 저장
+            if(phone) localStorage.setItem('trigger_phone', phone); 
             
             alert("환영합니다! 정보가 성공적으로 등록되었습니다.");
             checkLoginStatus(); 
