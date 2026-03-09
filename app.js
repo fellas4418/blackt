@@ -1,66 +1,88 @@
-// app.js - Step 4: 5초 인출 마스터 테스트 엔진
-let testScore = 0;
-let testCurrent = 0;
-const TEST_TIME = 5000; // 5초 설정
+let currentIdx = 0;
+let isTestMode = false;
+let score = 0;
 
-function startTest() {
-    if (testCurrent >= wordsDB.length) {
-        showResult();
+const mainBtn = document.getElementById('main-action');
+const bar = document.getElementById('bar');
+
+// Step 2: 6초 주입 엔진
+function startStudy() {
+    if (currentIdx >= wordsDB.length) {
+        currentIdx = 0; // 테스트를 위해 인덱스 초기화
+        isTestMode = true;
+        alert("주입 완료! 이제 5초 인출 테스트를 시작합니다.");
+        startTest();
         return;
     }
 
-    const data = wordsDB[testCurrent];
-    const display = document.getElementById('display');
-    const meaningBox = document.getElementById('meanings');
-    const bar = document.getElementById('bar');
+    const data = wordsDB[currentIdx];
+    updateUI(data);
     
-    // UI 초기화: 단어만 표시
-    display.className = `mode-${data.type} test-mode`;
+    let time = 6000;
+    const interval = setInterval(() => {
+        time -= 100;
+        bar.style.width = (time / 6000 * 100) + "%";
+        
+        // 뜻 순차 하이라이트
+        const step = 6000 / data.meanings.length;
+        const activeIdx = Math.floor((6000 - time) / step);
+        const items = document.querySelectorAll('#meanings div');
+        items.forEach((item, i) => item.classList.toggle('active', i === activeIdx));
+
+        if (time <= 0) {
+            clearInterval(interval);
+            currentIdx++;
+            setTimeout(startStudy, 500);
+        }
+    }, 100);
+}
+
+// Step 4: 5초 인출 마스터 테스트 (수정됨)
+function startTest() {
+    if (currentIdx >= wordsDB.length) {
+        alert(`최종 결과: ${score} / ${wordsDB.length}`);
+        location.reload(); // 리셋
+        return;
+    }
+
+    const data = wordsDB[currentIdx];
+    updateUI(data, true);
+
+    let time = 5000; // 5초 제한 [cite: 2026-03-04]
+    const interval = setInterval(() => {
+        time -= 100;
+        bar.style.width = (time / 5000 * 100) + "%";
+        if (time <= 0) {
+            clearInterval(interval);
+            handleAnswer(false);
+        }
+    }, 100);
+    window.currentTimer = interval;
+}
+
+function updateUI(data, isTest = false) {
+    document.getElementById('display').className = `mode-${data.type}`;
     document.getElementById('target').innerText = data.word;
     document.getElementById('ipa').innerText = data.ipa;
     
-    // 객관식 보기 생성 (정답 1개 + 오답 3개 섞기)
-    const choices = generateChoices(data.meanings[0]);
-    meaningBox.innerHTML = choices.map(c => 
-        `<button class="choice-btn" onclick="checkAnswer('${c}', '${data.meanings[0]}')">${c}</button>`
-    ).join('');
-
-    // 5초 타이머 시작
-    let startTime = Date.now();
-    const timerInterval = setInterval(() => {
-        let elapsed = Date.now() - startTime;
-        let progress = (elapsed / TEST_TIME) * 100;
-        bar.style.width = (100 - progress) + "%";
-
-        if (elapsed >= TEST_TIME) {
-            clearInterval(timerInterval);
-            nextQuestion(false); // 타임아웃 오답 처리
-        }
-    }, 50);
-
-    window.currentTimer = timerInterval;
+    const mBox = document.getElementById('meanings');
+    if (!isTest) {
+        mBox.innerHTML = data.meanings.map(m => `<div>${m}</div>`).join('');
+    } else {
+        // 5초 테스트용 객관식 생성
+        const choices = [data.meanings[0], "오답1", "오답2", "오답3"].sort(() => Math.random() - 0.5);
+        mBox.innerHTML = choices.map(c => `<button class="choice-btn" onclick="handleAnswer('${c}' === '${data.meanings[0]}')">${c}</button>`).join('');
+    }
 }
 
-function checkAnswer(selected, correct) {
+function handleAnswer(isCorrect) {
     clearInterval(window.currentTimer);
-    if (selected === correct) testScore++;
-    nextQuestion(true);
+    if (isCorrect) score++;
+    currentIdx++;
+    startTest();
 }
 
-function nextQuestion(isAnswered) {
-    testCurrent++;
-    setTimeout(startTest, 500);
-}
-
-function showResult() {
-    alert(`테스트 완료! 결과: ${testScore} / ${wordsDB.length}`);
-    // 결과 전송 버튼 활성화 로직 추가 예정
-}
-
-// 보기 생성용 유틸리티 함수
-function generateChoices(correctAnswer) {
-    let choices = [correctAnswer];
-    // 실제 구현 시에는 wordsDB에서 랜덤하게 오답을 가져오도록 보완합니다.
-    choices.push("오답1", "오답2", "오답3"); 
-    return choices.sort(() => Math.random() - 0.5);
-}
+mainBtn.onclick = () => {
+    mainBtn.style.display = 'none';
+    startStudy();
+};

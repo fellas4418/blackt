@@ -3,23 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Trigger Voca 4.5</title>
+    <title>blackt V4.5</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="app-container">
-        <header class="app-header">
-            <div id="session-label">Session 1</div>
-            <div class="timer-bar-bg"><div id="progress-fill"></div></div>
-            <div id="timer-text">06s</div>
+    <div id="app">
+        <header class="header">
+            <div id="session-tag">Session 1</div>
+            <div class="progress-box"><div id="bar"></div></div>
+            <div id="timer-text">05s</div>
         </header>
-        <main id="word-card" class="card-default">
-            <h1 id="target-word">준비 완료</h1>
-            <p id="phonetic"></p>
-            <div id="meaning-container"></div>
+
+        <main id="display" class="mode-default">
+            <div class="word-group">
+                <h1 id="target">Ready?</h1>
+                <p id="ipa"></p>
+            </div>
+            <div id="meanings"></div>
         </main>
-        <footer class="app-footer">
-            <button id="start-btn">훈련 시작</button>
+
+        <footer class="footer">
+            <button id="main-action">훈련 시작</button>
         </footer>
     </div>
     <script src="wordData.js"></script>

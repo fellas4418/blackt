@@ -1,12 +1,29 @@
-:root { --noun: #38BDF8; --verb: #4ADE80; --adj: #FBBF24; --bg: #0F172A; }
-body { margin: 0; background: var(--bg); color: white; font-family: sans-serif; display: flex; justify-content: center; }
-#app-container { width: 100%; max-width: 480px; height: 100vh; display: flex; flex-direction: column; }
-.timer-bar-bg { width: 100%; height: 6px; background: #334155; }
-#progress-fill { height: 100%; width: 0%; background: #F43F5E; transition: width 0.1s linear; }
-#word-card { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-.card-noun { border-left: 10px solid var(--noun); }
-.card-verb { border-left: 10px solid var(--verb); }
-.card-adj { border-left: 10px solid var(--adj); }
-.m-item { font-size: 1.5rem; opacity: 0.2; margin: 10px; transition: 0.3s; }
-.m-item.active { opacity: 1; font-weight: bold; transform: scale(1.1); }
-#start-btn { width: 90%; margin: 20px auto; padding: 20px; border-radius: 12px; border: none; background: #38BDF8; font-weight: bold; font-size: 1.2rem; }
+:root {
+    --bg: #0F172A; --card: #1E293B;
+    --noun: #38BDF8; --verb: #4ADE80; --adj: #FBBF24; --error: #F43F5E;
+}
+
+body { margin: 0; background: var(--bg); color: #fff; font-family: 'Pretendard', sans-serif; overflow: hidden; }
+#app { width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; }
+
+.header { width: 90%; padding: 20px 0; }
+.progress-box { width: 100%; height: 8px; background: #334155; border-radius: 4px; overflow: hidden; margin-top: 10px; }
+#bar { height: 100%; width: 100%; background: var(--error); transition: width 0.1s linear; }
+
+#display { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; transition: 0.3s; }
+.mode-noun { border-top: 10px solid var(--noun); }
+.mode-verb { border-top: 10px solid var(--verb); }
+.mode-adj { border-top: 10px solid var(--adj); }
+
+#target { font-size: 4rem; margin: 0; letter-spacing: -1px; }
+#ipa { font-size: 1.2rem; color: #94A3B8; margin-top: 5px; }
+
+#meanings { width: 90%; margin-top: 40px; }
+#meanings div { font-size: 1.8rem; opacity: 0.1; margin: 15px 0; transition: 0.3s; text-align: center; }
+#meanings div.active { opacity: 1; transform: scale(1.1); font-weight: bold; }
+
+/* 테스트 모드 버튼 스타일 */
+.choice-btn { width: 100%; padding: 15px; margin: 8px 0; background: var(--card); border: 1px solid #334155; border-radius: 12px; color: white; font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
+.choice-btn:active { background: #334155; }
+
+#main-action { width: 90%; padding: 20px; margin-bottom: 30px; border-radius: 15px; border: none; background: var(--noun); font-size: 1.2rem; font-weight: bold; color: #0F172A; }
