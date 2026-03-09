@@ -79,27 +79,13 @@
                 <li class="routine-item"><span class="day-label">Day 4</span><button class="routine-action-btn" onclick="unlockDay(this, 4)">🔒 잠김</button></li>
             </ul>
         </div>
-    </div>
 
-    <div class="card routine-section">
-        <div class="routine-header">📅 7일 루틴 (80% 통과제)</div>
-        <ul class="routine-list">
-            <li class="routine-item"><span class="day-label">Day 1</span><button class="routine-action-btn active" onclick="location.href='study.html'">시작</button></li>
-            <li class="routine-item"><span class="day-label">Day 2</span><button class="routine-action-btn" onclick="unlockDay(this, 2)">🔒 잠김</button></li>
-            <li class="routine-item"><span class="day-label">Day 3</span><button class="routine-action-btn" onclick="unlockDay(this, 3)">🔒 잠김</button></li>
-            <li class="routine-item"><span class="day-label">Day 4</span><button class="routine-action-btn" onclick="unlockDay(this, 4)">🔒 잠김</button></li>
-        </ul>
+        <div style="text-align: center; margin-top: 20px;">
+            <button onclick="localStorage.clear(); location.reload();" style="background: none; border: none; color: #555; text-decoration: underline; cursor: pointer; font-size: 0.9rem;">
+                🔄 개발 테스트용: 모든 데이터 초기화
+            </button>
+        </div>
     </div>
-
-    <div style="text-align: center; margin-top: 20px;">
-        <button onclick="localStorage.clear(); location.reload();" style="background: none; border: none; color: #555; text-decoration: underline; cursor: pointer; font-size: 0.9rem;">
-            🔄 개발 테스트용: 모든 데이터 초기화
-        </button>
-    </div>
-
-</div> <script src="wordData.js"></script>
-<script>
-    // ... 기존 스크립트 그대로 유지 ...
 
     <script src="wordData.js"></script>
     <script>
@@ -109,7 +95,6 @@
             localStorage.setItem('trigger_session', '1');
         }
 
-        // ★ 오답 노트 모달 띄우기 기능
         function showWrongWords() {
             const wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
             const listContainer = document.getElementById('wrong-list');
@@ -121,7 +106,6 @@
             document.getElementById('wrong-modal').style.display = 'flex';
         }
 
-        // ★ 일차 강제 잠금 해제 기능
         function unlockDay(btn, day) {
             if(confirm(`Day ${day}의 잠금을 해제하고 미리 학습을 진행하시겠습니까?`)) {
                 btn.className = "routine-action-btn active";
@@ -140,7 +124,6 @@
             
             if (window.cooldownInterval) clearInterval(window.cooldownInterval);
 
-            // ★ 수정: 5회를 모두 완료했다면 쿨타임 무시하고 '추가 복습' 지원
             if (currentSession > 5) {
                 startBtn.disabled = false;
                 startBtn.innerText = "추가 복습하기 (자유 학습)";
@@ -151,7 +134,6 @@
                 return;
             }
 
-            // 5회 진행 중일 때 쿨타임 적용
             if (endTime && endTime - Date.now() > 0) {
                 startBtn.disabled = true;
                 startBtn.style.borderColor = "#444";
