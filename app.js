@@ -5,13 +5,18 @@ const COOL_DOWN_TIME = 10 * 60 * 1000;
 const mainBtn = document.getElementById('main-action');
 const bar = document.getElementById('bar');
 
-// [핵심 수정] 페이지 로드 시 대기 없이 '즉시' 각인 엔진 자동 시작
+// 페이지 로드 시 즉시 실행
 window.onload = () => {
+    // 단어 데이터가 아예 없을 경우 흰 화면 대신 에러를 띄워주는 안전 장치
+    if (typeof wordsDB === 'undefined' || wordsDB.length === 0) {
+        document.getElementById('target').innerText = "단어 파일 오류!";
+        return;
+    }
+
     const endTime = localStorage.getItem('blackt_cooldown');
     if (endTime && endTime - Date.now() > 0) {
         startCooldownTimer(endTime - Date.now());
     } else {
-        // 쿨타임이 아니면 버튼을 숨기고 즉시 단어 학습 시작
         if (mainBtn) mainBtn.style.display = 'none';
         startStudy(); 
     }
@@ -24,7 +29,6 @@ function playPronunciation(text) {
     window.speechSynthesis.speak(utterance);
 }
 
-// Step 2: 6초 각인 엔진
 function startStudy() {
     if (currentIdx >= wordsDB.length) {
         currentIdx = 0;
@@ -36,18 +40,16 @@ function startStudy() {
     const data = wordsDB[currentIdx];
     updateUI(data); 
     
-    // 뜻 한 번에 모두 표시
     const items = document.querySelectorAll('#meanings div');
     items.forEach(item => item.classList.add('active'));
 
-    // 자동 음성 발음 2번 (시작 즉시, 3초 뒤)
     playPronunciation(data.word);
     setTimeout(() => playPronunciation(data.word), 3000);
 
     let time = 6000;
     const interval = setInterval(() => {
         time -= 100;
-        bar.style.width = (time / 6000 * 100) + "%";
+        if(bar) bar.style.width = (time / 6000 * 100) + "%";
 
         if (time <= 0) {
             clearInterval(interval);
@@ -57,7 +59,6 @@ function startStudy() {
     }, 100);
 }
 
-// Step 4: 5초 인출 테스트
 function startTest() {
     if (currentIdx >= wordsDB.length) {
         finishSession();
@@ -70,7 +71,7 @@ function startTest() {
     let time = 5000; 
     const interval = setInterval(() => {
         time -= 100;
-        bar.style.width = (time / 5000 * 100) + "%";
+        if(bar) bar.style.width = (time / 5000 * 100) + "%";
         if (time <= 0) { clearInterval(interval); handleAnswer(false); }
     }, 100);
     window.currentTimer = interval;
@@ -122,9 +123,4 @@ function startCooldownTimer(duration) {
             if (mainBtn) mainBtn.innerText = `뇌 고착 휴식 (${mins}:${secs < 10 ? '0' : ''}${secs})`;
         }
     }, 1000);
-}
-
-// 만약을 대비한 수동 시작 버튼 로직 유지
-if(mainBtn) {
-    mainBtn.onclick = () => { mainBtn.style.display = 'none'; startStudy(); };
 }
