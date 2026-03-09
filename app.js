@@ -1,7 +1,7 @@
 // 카카오 SDK 에러 방어 로직 (키가 없어도 앱이 멈추지 않음)
 try {
     if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
-        Kakao.init('YOUR_KAKAO_JAVASCRIPT_KEY'); // 나중에 실제 키로 변경하세요
+        Kakao.init('fbb1520306ffaad0a882e993109a801c'); // 나중에 실제 키로 변경하세요
     }
 } catch (e) { console.log("카카오 초기화 대기 중"); }
 
