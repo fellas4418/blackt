@@ -80,11 +80,15 @@
             </ul>
         </div>
 
-        <div style="text-align: center; margin-top: 20px;">
-            <button onclick="localStorage.clear(); location.reload();" style="background: none; border: none; color: #555; text-decoration: underline; cursor: pointer; font-size: 0.9rem;">
-                🔄 개발 테스트용: 모든 데이터 초기화
+        <div style="text-align: center; margin-top: 30px; display: flex; flex-direction: column; gap: 12px; align-items: center;">
+            <button onclick="localStorage.setItem('trigger_session', '5'); localStorage.removeItem('blackt_cooldown'); location.reload();" style="background: none; border: none; color: var(--neon-orange); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">
+                ⏩ 5세션으로 강제 스킵 (마지막 카톡 테스트용)
+            </button>
+            <button onclick="localStorage.clear(); location.reload();" style="background: none; border: none; color: #555; text-decoration: underline; cursor: pointer; font-size: 0.85rem;">
+                🔄 모든 데이터 완전 초기화
             </button>
         </div>
+
     </div>
 
     <script src="wordData.js"></script>
@@ -124,6 +128,7 @@
             
             if (window.cooldownInterval) clearInterval(window.cooldownInterval);
 
+            // 5회 완료 후 자유학습(복습) 모드
             if (currentSession > 5) {
                 startBtn.disabled = false;
                 startBtn.innerText = "추가 복습하기 (자유 학습)";
@@ -134,6 +139,7 @@
                 return;
             }
 
+            // 쿨타임 로직
             if (endTime && endTime - Date.now() > 0) {
                 startBtn.disabled = true;
                 startBtn.style.borderColor = "#444";
