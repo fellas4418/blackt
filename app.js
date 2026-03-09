@@ -17,7 +17,7 @@ function playPronunciation(text) {
     window.speechSynthesis.speak(utterance);
 }
 
-// Step 2: 6초 각인 엔진
+// Step 2: 6초 각인 엔진 (기능 수정됨)
 function startStudy() {
     if (currentIdx >= wordsDB.length) {
         currentIdx = 0;
@@ -27,8 +27,13 @@ function startStudy() {
     }
 
     const data = wordsDB[currentIdx];
-    updateUI(data);
+    updateUI(data); // 화면에 단어/뜻 배치
     
+    // [수정 포인트] 뜻을 순차적으로 켜지 않고, 처음부터 한 번에 모두 활성화하여 보여줌
+    const items = document.querySelectorAll('#meanings div');
+    items.forEach(item => item.classList.add('active'));
+
+    // 자동 음성 발음 2번 (0초, 3초)
     playPronunciation(data.word);
     setTimeout(() => playPronunciation(data.word), 3000);
 
@@ -36,10 +41,6 @@ function startStudy() {
     const interval = setInterval(() => {
         time -= 100;
         bar.style.width = (time / 6000 * 100) + "%";
-        const step = 6000 / data.meanings.length;
-        const activeIdx = Math.floor((6000 - time) / step);
-        const items = document.querySelectorAll('#meanings div');
-        items.forEach((item, i) => item.classList.toggle('active', i === activeIdx));
 
         if (time <= 0) {
             clearInterval(interval);

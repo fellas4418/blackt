@@ -13,22 +13,22 @@
         <div class="card level-section">
             <div class="level-title">학습 레벨 선택</div>
             <div class="level-buttons">
-                <button class="level-btn active">📚 중등 기초</button>
-                <button class="level-btn">🎓 고등 심화</button>
+                <button class="level-btn active">📚 중등단어</button>
+                <button class="level-btn">🎓 고등단어</button>
             </div>
         </div>
 
         <div class="card study-section">
             <div class="map-icon">🗺️</div>
             <div class="study-title">오늘의 학습</div>
-            <div class="target-words">목표 단어: <span class="target-count">25개</span></div>
+            <div class="target-words">목표 단어: <span class="target-count" id="target-count-display">0개</span></div>
             <button class="start-btn" onclick="location.href='study.html'">학습 시작하기</button>
         </div>
 
         <div class="info-row">
             <div class="card info-card">
                 <div class="info-title title-orange">내 단어장</div>
-                <div class="info-count">175 단어</div>
+                <div class="info-count" id="total-word-count">0 단어</div>
             </div>
             <div class="card info-card">
                 <div class="info-title title-green">오답/별표</div>
@@ -41,22 +41,20 @@
             <ul class="routine-list">
                 <li class="routine-item">
                     <span class="day-label">Day 1</span>
-                    <button class="routine-action-btn active">시작</button>
+                    <button class="routine-action-btn active" onclick="location.href='study.html'">시작</button>
                 </li>
-                <li class="routine-item">
-                    <span class="day-label">Day 2</span>
-                    <button class="routine-action-btn">🔒 잠김</button>
-                </li>
-                <li class="routine-item">
-                    <span class="day-label">Day 3</span>
-                    <button class="routine-action-btn">🔒 잠김</button>
-                </li>
-                <li class="routine-item">
-                    <span class="day-label">Day 4</span>
-                    <button class="routine-action-btn">🔒 잠김</button>
-                </li>
+                <li class="routine-item"><span class="day-label">Day 2</span><button class="routine-action-btn">🔒 잠김</button></li>
+                <li class="routine-item"><span class="day-label">Day 3</span><button class="routine-action-btn">🔒 잠김</button></li>
+                <li class="routine-item"><span class="day-label">Day 4</span><button class="routine-action-btn">🔒 잠김</button></li>
             </ul>
         </div>
     </div>
+
+    <script src="wordData.js"></script>
+    <script>
+        // wordData.js에 있는 실제 단어 개수를 불러와서 화면에 자동 표시
+        document.getElementById('total-word-count').innerText = wordsDB.length + " 단어";
+        document.getElementById('target-count-display').innerText = wordsDB.length + "개";
+    </script>
 </body>
 </html>
