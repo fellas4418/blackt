@@ -5,10 +5,14 @@ const COOL_DOWN_TIME = 10 * 60 * 1000;
 const mainBtn = document.getElementById('main-action');
 const bar = document.getElementById('bar');
 
+// [기능 추가] 대시보드에서 선택한 레벨의 단어만 타겟으로 지정
+const selectedLevel = localStorage.getItem('trigger_level') || 'middle';
+const targetWords = wordsData[selectedLevel]; 
+
 // 페이지 로드 시 즉시 실행
 window.onload = () => {
-    // 단어 데이터가 아예 없을 경우 흰 화면 대신 에러를 띄워주는 안전 장치
-    if (typeof wordsDB === 'undefined' || wordsDB.length === 0) {
+    // 안전 장치: 데이터가 없을 경우
+    if (typeof targetWords === 'undefined' || targetWords.length === 0) {
         document.getElementById('target').innerText = "단어 파일 오류!";
         return;
     }
@@ -30,14 +34,15 @@ function playPronunciation(text) {
 }
 
 function startStudy() {
-    if (currentIdx >= wordsDB.length) {
+    // targetWords 기준으로 실행
+    if (currentIdx >= targetWords.length) {
         currentIdx = 0;
         alert("각인 완료! 5초 인출 테스트 시작.");
         startTest();
         return;
     }
 
-    const data = wordsDB[currentIdx];
+    const data = targetWords[currentIdx];
     updateUI(data); 
     
     const items = document.querySelectorAll('#meanings div');
@@ -60,12 +65,12 @@ function startStudy() {
 }
 
 function startTest() {
-    if (currentIdx >= wordsDB.length) {
+    if (currentIdx >= targetWords.length) {
         finishSession();
         return;
     }
 
-    const data = wordsDB[currentIdx];
+    const data = targetWords[currentIdx];
     updateUI(data, true);
 
     let time = 5000; 
@@ -99,7 +104,7 @@ function handleAnswer(isCorrect) {
 function finishSession() {
     const endTime = Date.now() + COOL_DOWN_TIME;
     localStorage.setItem('blackt_cooldown', endTime);
-    alert(`결과: ${score} / ${wordsDB.length}\n10분 휴식 시작.`);
+    alert(`결과: ${score} / ${targetWords.length}\n10분 휴식 시작.`);
     startCooldownTimer(COOL_DOWN_TIME);
 }
 

@@ -13,8 +13,8 @@
         <div class="card level-section">
             <div class="level-title">학습 레벨 선택</div>
             <div class="level-buttons">
-                <button class="level-btn active">📚 중등단어</button>
-                <button class="level-btn">🎓 고등단어</button>
+                <button class="level-btn active" id="btn-middle" onclick="selectLevel('middle')">📚 중등단어</button>
+                <button class="level-btn" id="btn-high" onclick="selectLevel('high')">🎓 고등단어</button>
             </div>
         </div>
 
@@ -39,10 +39,7 @@
         <div class="card routine-section">
             <div class="routine-header">📅 7일 루틴 (80% 통과제)</div>
             <ul class="routine-list">
-                <li class="routine-item">
-                    <span class="day-label">Day 1</span>
-                    <button class="routine-action-btn active" onclick="location.href='study.html'">시작</button>
-                </li>
+                <li class="routine-item"><span class="day-label">Day 1</span><button class="routine-action-btn active" onclick="location.href='study.html'">시작</button></li>
                 <li class="routine-item"><span class="day-label">Day 2</span><button class="routine-action-btn">🔒 잠김</button></li>
                 <li class="routine-item"><span class="day-label">Day 3</span><button class="routine-action-btn">🔒 잠김</button></li>
                 <li class="routine-item"><span class="day-label">Day 4</span><button class="routine-action-btn">🔒 잠김</button></li>
@@ -52,9 +49,25 @@
 
     <script src="wordData.js"></script>
     <script>
-        // wordData.js에 있는 실제 단어 개수를 불러와서 화면에 자동 표시
-        document.getElementById('total-word-count').innerText = wordsDB.length + " 단어";
-        document.getElementById('target-count-display').innerText = wordsDB.length + "개";
+        // 기본값은 중등단어로 설정
+        let currentLevel = localStorage.getItem('trigger_level') || 'middle';
+        
+        function selectLevel(level) {
+            currentLevel = level;
+            localStorage.setItem('trigger_level', level); // 선택한 레벨 브라우저에 저장
+            
+            // 버튼 활성화 UI 변경 (디자인 자체는 안 건드림)
+            document.getElementById('btn-middle').classList.toggle('active', level === 'middle');
+            document.getElementById('btn-high').classList.toggle('active', level === 'high');
+            
+            // 선택한 레벨에 맞춰 단어 개수 자동 업데이트
+            const count = wordsData[level].length;
+            document.getElementById('total-word-count').innerText = count + " 단어";
+            document.getElementById('target-count-display').innerText = count + "개";
+        }
+        
+        // 페이지 로드 시 마지막으로 누른 버튼 상태 유지
+        selectLevel(currentLevel);
     </script>
 </body>
 </html>
