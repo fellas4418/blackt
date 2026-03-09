@@ -1,21 +1,23 @@
 let currentIdx = 0;
 let score = 0;
+let targetWords = []; // 현재 훈련할 단어 배열
 const COOL_DOWN_TIME = 10 * 60 * 1000; 
 
 const mainBtn = document.getElementById('main-action');
 const bar = document.getElementById('bar');
 
-// [기능 추가] 대시보드에서 선택한 레벨의 단어만 타겟으로 지정
-const selectedLevel = localStorage.getItem('trigger_level') || 'middle';
-const targetWords = wordsData[selectedLevel]; 
-
-// 페이지 로드 시 즉시 실행
+// 훈련장 화면 열릴 때 즉시 실행
 window.onload = () => {
-    // 안전 장치: 데이터가 없을 경우
-    if (typeof targetWords === 'undefined' || targetWords.length === 0) {
-        document.getElementById('target').innerText = "단어 파일 오류!";
+    const selectedLevel = localStorage.getItem('trigger_level') || 'middle';
+    
+    // 데이터 꼬임 방어
+    if (typeof wordsData === 'undefined' || !wordsData[selectedLevel] || wordsData[selectedLevel].length === 0) {
+        document.getElementById('target').innerText = "데이터 오류!";
+        document.getElementById('ipa').innerText = "wordData.js 확인 필요";
         return;
     }
+
+    targetWords = wordsData[selectedLevel]; // 선택된 레벨의 단어만 장전
 
     const endTime = localStorage.getItem('blackt_cooldown');
     if (endTime && endTime - Date.now() > 0) {
@@ -34,7 +36,6 @@ function playPronunciation(text) {
 }
 
 function startStudy() {
-    // targetWords 기준으로 실행
     if (currentIdx >= targetWords.length) {
         currentIdx = 0;
         alert("각인 완료! 5초 인출 테스트 시작.");
@@ -89,7 +90,7 @@ function updateUI(data, isTest = false) {
     if (!isTest) {
         mBox.innerHTML = data.meanings.map(m => `<div>${m}</div>`).join('');
     } else {
-        const choices = [data.meanings[0], "실행하다", "일관된", "분석하다"].sort(() => Math.random() - 0.5);
+        const choices = [data.meanings[0], "오답1", "오답2", "오답3"].sort(() => Math.random() - 0.5);
         mBox.innerHTML = choices.map(c => `<button class="choice-btn" onclick="handleAnswer('${c}' === '${data.meanings[0]}')">${c}</button>`).join('');
     }
 }

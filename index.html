@@ -49,25 +49,30 @@
 
     <script src="wordData.js"></script>
     <script>
-        // 기본값은 중등단어로 설정
-        let currentLevel = localStorage.getItem('trigger_level') || 'middle';
-        
         function selectLevel(level) {
-            currentLevel = level;
-            localStorage.setItem('trigger_level', level); // 선택한 레벨 브라우저에 저장
-            
-            // 버튼 활성화 UI 변경 (디자인 자체는 안 건드림)
-            document.getElementById('btn-middle').classList.toggle('active', level === 'middle');
-            document.getElementById('btn-high').classList.toggle('active', level === 'high');
-            
-            // 선택한 레벨에 맞춰 단어 개수 자동 업데이트
-            const count = wordsData[level].length;
-            document.getElementById('total-word-count').innerText = count + " 단어";
-            document.getElementById('target-count-display').innerText = count + "개";
+            // 1. 브라우저에 선택한 레벨 저장
+            localStorage.setItem('trigger_level', level);
+
+            // 2. 버튼 파란색 테두리 변경
+            document.getElementById('btn-middle').className = "level-btn";
+            document.getElementById('btn-high').className = "level-btn";
+            document.getElementById('btn-' + level).className = "level-btn active";
+
+            // 3. 단어 개수 업데이트 (에러 방어 로직 포함)
+            if (typeof wordsData !== 'undefined' && wordsData[level]) {
+                const count = wordsData[level].length;
+                document.getElementById('total-word-count').innerText = count + " 단어";
+                document.getElementById('target-count-display').innerText = count + "개";
+            } else {
+                alert("단어 데이터(wordData.js)를 찾을 수 없습니다! 코드를 확인해주세요.");
+            }
         }
-        
-        // 페이지 로드 시 마지막으로 누른 버튼 상태 유지
-        selectLevel(currentLevel);
+
+        // 페이지를 열었을 때 자동으로 한 번 실행
+        window.onload = function() {
+            let currentLevel = localStorage.getItem('trigger_level') || 'middle';
+            selectLevel(currentLevel);
+        }
     </script>
 </body>
 </html>
