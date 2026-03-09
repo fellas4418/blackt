@@ -27,3 +27,10 @@ body { margin: 0; background: var(--bg); color: #fff; font-family: 'Pretendard',
 .choice-btn:active { background: #334155; }
 
 #main-action { width: 90%; padding: 20px; margin-bottom: 30px; border-radius: 15px; border: none; background: var(--noun); font-size: 1.2rem; font-weight: bold; color: #0F172A; }
+
+/* 기존 스타일 유지하고 아래 내용만 끝에 추가하세요 */
+#main-action:disabled {
+    cursor: not-allowed;
+    opacity: 0.8;
+    filter: grayscale(0.5);
+}

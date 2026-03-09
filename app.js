@@ -1,19 +1,30 @@
 let currentIdx = 0;
 let isTestMode = false;
 let score = 0;
+const COOL_DOWN_TIME = 10 * 60 * 1000; // 10분 설정
 
 const mainBtn = document.getElementById('main-action');
 const bar = document.getElementById('bar');
 
-// 발음 재생 함수 (Web Speech API 활용)
+// [추가] 페이지 로드 시 쿨타임 상태 확인
+window.onload = () => {
+    const endTime = localStorage.getItem('blackt_cooldown');
+    if (endTime) {
+        const remaining = endTime - Date.now();
+        if (remaining > 0) {
+            startCooldownTimer(remaining);
+        }
+    }
+};
+
 function playPronunciation(text) {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'en-US';
-    utterance.rate = 0.8; // 학습을 위해 약간 천천히
+    utterance.rate = 0.8;
     window.speechSynthesis.speak(utterance);
 }
 
-// Step 2: 6초 각인 엔진
+// Step 2: 6초 각인 엔진 (기존 유지)
 function startStudy() {
     if (currentIdx >= wordsDB.length) {
         currentIdx = 0;
@@ -26,7 +37,6 @@ function startStudy() {
     const data = wordsDB[currentIdx];
     updateUI(data);
     
-    // 발음 두 번 재생 (시작 시 한 번, 3초 후 한 번)
     playPronunciation(data.word);
     setTimeout(() => playPronunciation(data.word), 3000);
 
@@ -48,11 +58,10 @@ function startStudy() {
     }, 100);
 }
 
-// Step 4: 5초 인출 마스터 테스트
+// Step 4: 5초 인출 테스트 (기존 유지)
 function startTest() {
     if (currentIdx >= wordsDB.length) {
-        alert(`최종 결과: ${score} / ${wordsDB.length}`);
-        location.reload(); 
+        finishSession(); // 결과 보고 및 쿨타임 시작으로 변경
         return;
     }
 
@@ -80,13 +89,10 @@ function updateUI(data, isTest = false) {
     if (!isTest) {
         mBox.innerHTML = data.meanings.map(m => `<div>${m}</div>`).join('');
     } else {
-        // 오답 후보 생성 로직
         const choices = [data.meanings[0], "실행하다", "일관된", "분석하다"]
-            .filter((v, i, a) => a.indexOf(v) === i) // 중복 제거
+            .filter((v, i, a) => a.indexOf(v) === i)
             .sort(() => Math.random() - 0.5)
             .slice(0, 4);
-        
-        // 정답이 잘렸을 경우 강제 삽입
         if (!choices.includes(data.meanings[0])) choices[0] = data.meanings[0];
 
         mBox.innerHTML = choices.map(c => 
@@ -99,10 +105,41 @@ function handleAnswer(isCorrect) {
     clearInterval(window.currentTimer);
     if (isCorrect) {
         score++;
-        playPronunciation("Correct"); // 정답 시 피드백
+        playPronunciation("Correct");
     }
     currentIdx++;
     startTest();
+}
+
+// [추가] 세션 종료 및 쿨타임 기록
+function finishSession() {
+    const endTime = Date.now() + COOL_DOWN_TIME;
+    localStorage.setItem('blackt_cooldown', endTime);
+    alert(`최종 결과: ${score} / ${wordsDB.length}\n10분간 뇌 고착 휴식을 시작합니다.`);
+    startCooldownTimer(COOL_DOWN_TIME);
+}
+
+// [추가] 쿨타임 타이머 구동
+function startCooldownTimer(duration) {
+    mainBtn.style.display = 'block';
+    mainBtn.disabled = true;
+    
+    const timerInterval = setInterval(() => {
+        const remaining = localStorage.getItem('blackt_cooldown') - Date.now();
+
+        if (remaining <= 0) {
+            clearInterval(timerInterval);
+            localStorage.removeItem('blackt_cooldown');
+            mainBtn.disabled = false;
+            mainBtn.innerText = "다음 세션 시작";
+            mainBtn.style.background = "var(--noun)";
+        } else {
+            const mins = Math.floor(remaining / 60000);
+            const secs = Math.floor((remaining % 60000) / 1000);
+            mainBtn.innerText = `뇌 고착 휴식 중 (${mins}:${secs < 10 ? '0' : ''}${secs})`;
+            mainBtn.style.background = "#334155";
+        }
+    }, 1000);
 }
 
 mainBtn.onclick = () => {
