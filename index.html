@@ -5,10 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trigger Voca - Neon</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* 로그인 모달 전용 추가 스타일 (style.css 밖에서 팝업 제어) */
+        #login-modal {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 1000; transition: opacity 0.5s;
+        }
+        .login-card {
+            background: var(--card-bg-color); border: 1px solid var(--neon-blue);
+            box-shadow: var(--glow-blue); border-radius: 20px;
+            padding: 30px; width: 85%; max-width: 400px; text-align: center;
+        }
+        .login-title { font-size: 1.8rem; font-weight: bold; margin-bottom: 20px; text-shadow: var(--glow-text); }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-label { font-size: 0.9rem; color: #888; margin-bottom: 5px; display: block; }
+        .neon-input {
+            width: 100%; box-sizing: border-box; padding: 12px;
+            background: #000; border: 1px solid #444; border-radius: 10px;
+            color: #fff; font-size: 1rem; transition: 0.3s;
+        }
+        .neon-input:focus { outline: none; border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0,243,255,0.3); }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; margin: 20px 0; font-size: 0.9rem; color: #aaa; text-align: left; }
+        .login-btn {
+            width: 100%; padding: 15px; background: transparent;
+            border: 2px solid var(--neon-green); color: #fff; font-size: 1.1rem; font-weight: bold;
+            border-radius: 12px; cursor: pointer; box-shadow: var(--glow-green);
+        }
+        /* 환영 메시지 */
+        #welcome-msg { text-align: center; color: var(--neon-blue); font-size: 1.1rem; margin-bottom: 20px; text-shadow: 0 0 5px var(--neon-blue); }
+    </style>
 </head>
 <body class="dashboard-bg">
+    
+    <div id="login-modal">
+        <div class="login-card">
+            <div class="login-title">Trigger Voca</div>
+            
+            <div class="input-group">
+                <span class="input-label">이름 (실명)</span>
+                <input type="text" id="user-name" class="neon-input" placeholder="이름을 입력하세요">
+            </div>
+            
+            <div class="input-group">
+                <span class="input-label">전화번호 (- 없이 입력)</span>
+                <input type="tel" id="user-phone" class="neon-input" placeholder="01012345678">
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="agree-privacy">
+                <label for="agree-privacy">개인정보 수집 및 이용에 동의합니다.</label>
+            </div>
+            
+            <button class="login-btn" onclick="handleLogin()">시작하기</button>
+        </div>
+    </div>
+
     <div class="dashboard-container">
         <div class="logo">Trigger<br>Voca</div>
+        
+        <div id="welcome-msg"></div>
 
         <div class="card level-section">
             <div class="level-title">학습 레벨 선택</div>
@@ -49,27 +106,56 @@
 
     <script src="wordData.js"></script>
     <script>
-        function selectLevel(level) {
-            // 1. 브라우저에 선택한 레벨 저장
-            localStorage.setItem('trigger_level', level);
+        // --- 1. 로그인 로직 ---
+        function checkLoginStatus() {
+            const savedName = localStorage.getItem('trigger_name');
+            const savedPhone = localStorage.getItem('trigger_phone');
+            const modal = document.getElementById('login-modal');
+            const welcomeMsg = document.getElementById('welcome-msg');
 
-            // 2. 버튼 파란색 테두리 변경
+            if (savedName && savedPhone) {
+                // 이미 로그인(정보 입력)한 유저면 모달 숨기기
+                modal.style.display = 'none';
+                welcomeMsg.innerText = `환영합니다, ${savedName}님! 🔥`;
+            } else {
+                // 정보가 없으면 모달 띄우기
+                modal.style.display = 'flex';
+            }
+        }
+
+        function handleLogin() {
+            const name = document.getElementById('user-name').value.trim();
+            const phone = document.getElementById('user-phone').value.trim();
+            const agree = document.getElementById('agree-privacy').checked;
+
+            if (!name) return alert("이름을 입력해주세요.");
+            if (!phone || phone.length < 10) return alert("올바른 전화번호를 입력해주세요.");
+            if (!agree) return alert("개인정보 수집에 동의하셔야 학습을 시작할 수 있습니다.");
+
+            // 로컬 스토리지에 정보 저장
+            localStorage.setItem('trigger_name', name);
+            localStorage.setItem('trigger_phone', phone);
+            
+            alert("환영합니다! 정보가 성공적으로 등록되었습니다.");
+            checkLoginStatus(); // 로그인 완료 후 화면 갱신
+        }
+
+        // --- 2. 기존 레벨 선택 로직 유지 ---
+        function selectLevel(level) {
+            localStorage.setItem('trigger_level', level);
             document.getElementById('btn-middle').className = "level-btn";
             document.getElementById('btn-high').className = "level-btn";
             document.getElementById('btn-' + level).className = "level-btn active";
 
-            // 3. 단어 개수 업데이트 (에러 방어 로직 포함)
             if (typeof wordsData !== 'undefined' && wordsData[level]) {
                 const count = wordsData[level].length;
                 document.getElementById('total-word-count').innerText = count + " 단어";
                 document.getElementById('target-count-display').innerText = count + "개";
-            } else {
-                alert("단어 데이터(wordData.js)를 찾을 수 없습니다! 코드를 확인해주세요.");
             }
         }
 
-        // 페이지를 열었을 때 자동으로 한 번 실행
         window.onload = function() {
+            checkLoginStatus(); // 페이지 로드 시 로그인 상태부터 체크
             let currentLevel = localStorage.getItem('trigger_level') || 'middle';
             selectLevel(currentLevel);
         }
