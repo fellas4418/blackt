@@ -1,7 +1,9 @@
-// ★★★ 카카오 SDK 초기화 (본인 앱 키 유지 필수) ★★★
-if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
-    Kakao.init('YOUR_KAKAO_JAVASCRIPT_KEY'); 
-}
+// 카카오 SDK 에러 방어 로직 (키가 없어도 앱이 멈추지 않음)
+try {
+    if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
+        Kakao.init('YOUR_KAKAO_JAVASCRIPT_KEY'); // 나중에 실제 키로 변경하세요
+    }
+} catch (e) { console.log("카카오 초기화 대기 중"); }
 
 let currentIdx = 0;
 let score = 0;
@@ -11,6 +13,10 @@ const COOL_DOWN_TIME = 10 * 60 * 1000;
 
 const bar = document.getElementById('bar');
 const sessionTag = document.getElementById('session-tag'); 
+
+// ★ 훈련 시작 버튼(footer) 완전히 숨기기
+const footer = document.querySelector('.footer');
+if (footer) footer.style.display = 'none';
 
 const today = new Date().toLocaleDateString();
 if (localStorage.getItem('trigger_date') !== today) {
@@ -26,22 +32,14 @@ window.onload = () => {
         document.getElementById('target').innerText = "데이터 오류!";
         return;
     }
-
     targetWords = wordsData[selectedLevel]; 
     
     if (sessionTag) {
-        sessionTag.innerText = `Session ${currentSession} / 5`;
-    }
-
-    if (currentSession > 5) {
-        alert("오늘의 5회 세션을 모두 완료했습니다! 내일 다시 시도해주세요.");
-        location.href = 'index.html';
-        return;
+        sessionTag.innerText = currentSession > 5 ? `추가 복습 모드` : `Session ${currentSession} / 5`;
     }
 
     const endTime = localStorage.getItem('blackt_cooldown');
-    if (endTime && endTime - Date.now() > 0) {
-        // 훈련장 진입 시 쿨타임이면 메인으로 쫓아냄
+    if (endTime && endTime - Date.now() > 0 && currentSession <= 5) {
         alert("현재 쿨타임 중입니다. 메인 화면으로 이동합니다.");
         location.href = 'index.html';
     } else {
@@ -65,7 +63,7 @@ function startStudy() {
             return;
         } else {
             currentIdx = 0;
-            alert(`각인 2회독 완료! Session ${currentSession} 인출 테스트를 시작합니다.`);
+            alert(`각인 완료! 인출 테스트를 시작합니다.`);
             startTest();
             return;
         }
@@ -125,53 +123,53 @@ function updateUI(data, isTest = false) {
 
 function handleAnswer(isCorrect) {
     clearInterval(window.currentTimer);
-    
     if (isCorrect) {
         score++;
     } else {
-        // [복습 시스템] 틀린 단어 로컬스토리지에 오답 노트로 저장
         let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
         const currentWordData = targetWords[currentIdx];
-        
-        // 이미 틀린 단어가 중복으로 들어가는 것을 방지
         const isAlreadySaved = wrongWords.some(w => w.word === currentWordData.word);
         if (!isAlreadySaved) {
             wrongWords.push(currentWordData);
             localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
         }
     }
-    
     currentIdx++;
     startTest();
 }
 
 function shareKakao() {
-    const userName = localStorage.getItem('trigger_name') || '학습자';
-    Kakao.Share.sendDefault({
-        objectType: 'text',
-        text: `🔥 ${userName}님이 Trigger Voca 오늘의 목표 [5세션]을 완수했습니다!\n👉 마지막 정답률: ${score} / ${targetWords.length}`,
-        link: {
-            mobileWebUrl: 'https://blackt.pages.dev',
-            webUrl: 'https://blackt.pages.dev',
-        },
-        buttonTitle: '나도 도전하기',
-    });
+    try {
+        const userName = localStorage.getItem('trigger_name') || '학습자';
+        Kakao.Share.sendDefault({
+            objectType: 'text',
+            text: `🔥 ${userName}님이 Trigger Voca 오늘의 목표 [5세션]을 완수했습니다!\n👉 마지막 정답률: ${score} / ${targetWords.length}`,
+            link: { mobileWebUrl: 'https://blackt.pages.dev', webUrl: 'https://blackt.pages.dev' },
+            buttonTitle: '나도 도전하기',
+        });
+    } catch (e) {
+        alert("카카오 SDK 앱 키가 설정되지 않아 공유 기능을 실행할 수 없습니다. (에러 방어됨)");
+    }
 }
 
 function finishSession() {
-    currentSession++;
-    localStorage.setItem('trigger_session', currentSession);
+    if (currentSession <= 5) {
+        currentSession++;
+        localStorage.setItem('trigger_session', currentSession);
+    }
 
+    // 5회를 마쳤거나, 이미 복습 모드인 경우
     if (currentSession > 5) {
-        if(confirm(`최종 결과: ${score} / ${targetWords.length}\n🎉 축하합니다! 오늘 목표인 5세션을 모두 완료했습니다.\n\n확인(OK)을 누르면 카카오톡으로 결과가 공유됩니다.`)) {
-            shareKakao();
-        }
-        location.href = 'index.html'; 
+        setTimeout(() => {
+            if(confirm(`최종 결과: ${score} / ${targetWords.length}\n🎉 5세션 완수!\n확인(OK)을 누르면 카카오톡으로 결과가 공유됩니다.\n(공유 후 메인화면 이동)`)) {
+                shareKakao();
+            }
+            location.href = 'index.html'; // 카톡 실행 후 메인 복귀 보장
+        }, 300);
     } else {
-        // 10분 쿨타임 기록 후 메인 대시보드로 즉시 쫓아냄
         const endTime = Date.now() + COOL_DOWN_TIME;
         localStorage.setItem('blackt_cooldown', endTime);
-        alert(`테스트 완료! (정답: ${score}/${targetWords.length})\n10분 쿨타임이 시작되어 메인 화면으로 돌아갑니다.`);
+        alert(`테스트 완료! (정답: ${score}/${targetWords.length})\n쿨타임이 시작되어 메인 화면으로 돌아갑니다.`);
         location.href = 'index.html'; 
     }
 }
