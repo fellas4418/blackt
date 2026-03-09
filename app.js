@@ -6,14 +6,12 @@ if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
 let currentIdx = 0;
 let score = 0;
 let targetWords = []; 
-let studyLoopCount = 1; // 1세션 내 단어 반복 횟수 제어용
+let studyLoopCount = 1; 
 const COOL_DOWN_TIME = 10 * 60 * 1000; 
 
-const mainBtn = document.getElementById('main-action');
 const bar = document.getElementById('bar');
-const sessionTag = document.getElementById('session-tag'); // study.html 상단 태그
+const sessionTag = document.getElementById('session-tag'); 
 
-// 날짜 초기화 및 현재 세션 확인
 const today = new Date().toLocaleDateString();
 if (localStorage.getItem('trigger_date') !== today) {
     localStorage.setItem('trigger_date', today);
@@ -31,7 +29,6 @@ window.onload = () => {
 
     targetWords = wordsData[selectedLevel]; 
     
-    // 훈련장 화면 상단에 현재 세션 표시
     if (sessionTag) {
         sessionTag.innerText = `Session ${currentSession} / 5`;
     }
@@ -44,9 +41,10 @@ window.onload = () => {
 
     const endTime = localStorage.getItem('blackt_cooldown');
     if (endTime && endTime - Date.now() > 0) {
-        startCooldownTimer(endTime - Date.now());
+        // 훈련장 진입 시 쿨타임이면 메인으로 쫓아냄
+        alert("현재 쿨타임 중입니다. 메인 화면으로 이동합니다.");
+        location.href = 'index.html';
     } else {
-        if (mainBtn) mainBtn.style.display = 'none';
         startStudy(); 
     }
 };
@@ -59,15 +57,13 @@ function playPronunciation(text) {
 }
 
 function startStudy() {
-    // 1회독이 끝났을 때의 처리 (1세션 2회 반복 로직)
     if (currentIdx >= targetWords.length) {
         if (studyLoopCount < 2) {
             studyLoopCount++;
-            currentIdx = 0; // 인덱스 초기화 후 바로 2회독 시작 (흐름 끊기지 않게 알림 생략)
+            currentIdx = 0; 
             startStudy();
             return;
         } else {
-            // 2회독 모두 끝나면 테스트 시작
             currentIdx = 0;
             alert(`각인 2회독 완료! Session ${currentSession} 인출 테스트를 시작합니다.`);
             startTest();
@@ -129,7 +125,22 @@ function updateUI(data, isTest = false) {
 
 function handleAnswer(isCorrect) {
     clearInterval(window.currentTimer);
-    if (isCorrect) score++;
+    
+    if (isCorrect) {
+        score++;
+    } else {
+        // [복습 시스템] 틀린 단어 로컬스토리지에 오답 노트로 저장
+        let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+        const currentWordData = targetWords[currentIdx];
+        
+        // 이미 틀린 단어가 중복으로 들어가는 것을 방지
+        const isAlreadySaved = wrongWords.some(w => w.word === currentWordData.word);
+        if (!isAlreadySaved) {
+            wrongWords.push(currentWordData);
+            localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
+        }
+    }
+    
     currentIdx++;
     startTest();
 }
@@ -148,50 +159,19 @@ function shareKakao() {
 }
 
 function finishSession() {
-    // 세션 종료 후 카운트 1 증가
     currentSession++;
     localStorage.setItem('trigger_session', currentSession);
 
-    // 총 5회를 모두 마친 경우 (팝업 차단 우회용 confirm 팝업 적용)
     if (currentSession > 5) {
         if(confirm(`최종 결과: ${score} / ${targetWords.length}\n🎉 축하합니다! 오늘 목표인 5세션을 모두 완료했습니다.\n\n확인(OK)을 누르면 카카오톡으로 결과가 공유됩니다.`)) {
             shareKakao();
         }
-        location.href = 'index.html'; // 팝업 닫히면 대시보드로 자동 복귀
+        location.href = 'index.html'; 
     } else {
-        // 아직 5회가 안 끝났으면 10분 쿨타임 시작
+        // 10분 쿨타임 기록 후 메인 대시보드로 즉시 쫓아냄
         const endTime = Date.now() + COOL_DOWN_TIME;
         localStorage.setItem('blackt_cooldown', endTime);
-        alert(`결과: ${score} / ${targetWords.length}\n10분 휴식 후 다음 세션(${currentSession}/5)이 시작됩니다.`);
-        startCooldownTimer(COOL_DOWN_TIME);
+        alert(`테스트 완료! (정답: ${score}/${targetWords.length})\n10분 쿨타임이 시작되어 메인 화면으로 돌아갑니다.`);
+        location.href = 'index.html'; 
     }
-}
-
-function startCooldownTimer(duration) {
-    if (mainBtn) {
-        mainBtn.style.display = 'block';
-        mainBtn.disabled = true;
-    }
-    const timerInterval = setInterval(() => {
-        const remaining = localStorage.getItem('blackt_cooldown') - Date.now();
-        if (remaining <= 0) {
-            clearInterval(timerInterval);
-            localStorage.removeItem('blackt_cooldown');
-            if (mainBtn) {
-                mainBtn.disabled = false;
-                mainBtn.innerText = "다음 세션 시작";
-                mainBtn.style.borderColor = "var(--neon-orange)";
-                mainBtn.style.color = "#fff";
-                mainBtn.onclick = () => { mainBtn.style.display = 'none'; startStudy(); };
-            }
-        } else {
-            const mins = Math.floor(remaining / 60000);
-            const secs = Math.floor((remaining % 60000) / 1000);
-            if (mainBtn) {
-                mainBtn.innerText = `뇌 고착 휴식 (${mins}:${secs < 10 ? '0' : ''}${secs})`;
-                mainBtn.style.borderColor = "#444";
-                mainBtn.style.color = "#666";
-            }
-        }
-    }, 1000);
 }

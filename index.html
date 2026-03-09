@@ -65,7 +65,7 @@
             </div>
             <div class="card info-card">
                 <div class="info-title title-green">오답/별표</div>
-                <div class="info-count">0 단어</div>
+                <div class="info-count" id="wrong-word-count">0 단어</div>
             </div>
         </div>
 
@@ -82,11 +82,47 @@
 
     <script src="wordData.js"></script>
     <script>
-        // 날짜가 바뀌면 세션 초기화
         const today = new Date().toLocaleDateString();
         if (localStorage.getItem('trigger_date') !== today) {
             localStorage.setItem('trigger_date', today);
             localStorage.setItem('trigger_session', '1');
+        }
+
+        // 대시보드 UI 업데이트 (쿨타임 타이머 및 오답 개수 갱신)
+        function updateDashboardUI() {
+            // 1. 오답 개수 표시 업데이트
+            const wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+            document.getElementById('wrong-word-count').innerText = wrongWords.length + " 단어";
+
+            // 2. 쿨타임 상태 체크 및 타이머 구동
+            const endTime = localStorage.getItem('blackt_cooldown');
+            const startBtn = document.getElementById('start-btn-main');
+            
+            if (window.cooldownInterval) clearInterval(window.cooldownInterval);
+
+            if (endTime && endTime - Date.now() > 0) {
+                startBtn.disabled = true;
+                startBtn.style.borderColor = "#444";
+                startBtn.style.color = "#666";
+                startBtn.onclick = null; // 클릭 무효화
+                
+                window.cooldownInterval = setInterval(() => {
+                    const remaining = endTime - Date.now();
+                    if (remaining <= 0) {
+                        clearInterval(window.cooldownInterval);
+                        localStorage.removeItem('blackt_cooldown');
+                        startBtn.disabled = false;
+                        startBtn.innerText = "학습 시작하기";
+                        startBtn.style.borderColor = "var(--neon-orange)";
+                        startBtn.style.color = "#fff";
+                        startBtn.onclick = () => location.href='study.html';
+                    } else {
+                        const mins = Math.floor(remaining / 60000);
+                        const secs = Math.floor((remaining % 60000) / 1000);
+                        startBtn.innerText = `쿨타임 중 (${mins}:${secs < 10 ? '0' : ''}${secs})`;
+                    }
+                }, 1000);
+            }
         }
 
         function checkLoginStatus() {
@@ -98,7 +134,6 @@
 
             if (savedName) {
                 modal.style.display = 'none';
-                // 메인 화면에 세션 진행도 표시
                 if (currentSession > 5) {
                     welcomeMsg.innerText = `환영합니다, ${savedName}님! 🔥 (오늘 5회 완수!)`;
                     startBtn.innerText = "오늘 학습 완료";
@@ -111,6 +146,9 @@
             } else {
                 modal.style.display = 'flex';
             }
+            
+            // 로그인 상태 체크 후 대시보드 UI 연동
+            updateDashboardUI();
         }
 
         function handleLogin() {
