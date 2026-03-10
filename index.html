@@ -130,7 +130,6 @@
             container.innerHTML = html;
         }
 
-        // ★ 오답 노트 모달 띄우기
         function showWrongWords() {
             const wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
             const listContainer = document.getElementById('wrong-list');
@@ -142,7 +141,6 @@
             document.getElementById('wrong-modal').style.display = 'flex';
         }
 
-        // ★ 전체 단어장 모달 띄우기
         function showAllWords() {
             const selectedLevel = localStorage.getItem('trigger_level') || 'middle';
             const allWords = wordsData[selectedLevel] || [];
@@ -167,7 +165,8 @@
             const wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
             document.getElementById('wrong-word-count').innerText = wrongWords.length + " 단어";
 
-            const endTime = localStorage.getItem('blackt_cooldown');
+            // 타이머 데이터 로딩
+            const endTime = parseInt(localStorage.getItem('blackt_cooldown')) || 0;
             const startBtn = document.getElementById('start-btn-main');
             const currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
             const unlockedDay = parseInt(localStorage.getItem('trigger_unlocked_day')) || 1;
@@ -182,13 +181,15 @@
                 startBtn.style.color = "#fff";
                 startBtn.onclick = () => startDayStudy(unlockedDay);
             } else if (endTime && endTime - Date.now() > 0) {
+                // 버튼 즉시 비활성화 처리
                 startBtn.disabled = true;
                 startBtn.style.borderColor = "#444";
                 startBtn.style.boxShadow = "none";
                 startBtn.style.color = "#666";
                 startBtn.onclick = null; 
                 
-                window.cooldownInterval = setInterval(() => {
+                // ★ 타이머 즉시 실행 함수 (딜레이 1초 제거)
+                const updateTimerText = () => {
                     const remaining = endTime - Date.now();
                     if (remaining <= 0) {
                         clearInterval(window.cooldownInterval);
@@ -204,7 +205,12 @@
                         const secs = Math.floor((remaining % 60000) / 1000);
                         startBtn.innerText = `쿨타임 중 (${mins}:${secs < 10 ? '0' : ''}${secs})`;
                     }
-                }, 1000);
+                };
+                
+                // 함수를 1번 즉시 쏴주고, 그 다음부터 1초마다 돌립니다.
+                updateTimerText();
+                window.cooldownInterval = setInterval(updateTimerText, 1000);
+                
             } else {
                 startBtn.disabled = false;
                 startBtn.innerText = "학습 시작하기";
