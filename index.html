@@ -56,7 +56,7 @@
             <div class="map-icon">🗺️</div>
             <div class="study-title">오늘의 학습</div>
             <div class="target-words">목표 단어: <span class="target-count" id="target-count-display">0개</span></div>
-            <button class="start-btn" id="start-btn-main" onclick="location.href='study.html'">학습 시작하기</button>
+            <button class="start-btn" id="start-btn-main">학습 시작하기</button>
         </div>
 
         <div class="info-row">
@@ -71,17 +71,17 @@
         </div>
 
         <div class="card routine-section">
-            <div class="routine-header">📅 7일 루틴 (80% 통과제)</div>
+            <div class="routine-header">📅 7일 루틴 (Day 6,7은 주말 오답복습)</div>
             <ul class="routine-list" id="routine-list-container">
             </ul>
         </div>
 
         <div style="text-align: center; margin-top: 30px; display: flex; flex-direction: column; gap: 12px; align-items: center;">
             <button onclick="localStorage.setItem('trigger_session', '3'); localStorage.removeItem('blackt_cooldown'); location.reload();" style="background: none; border: none; color: var(--neon-blue); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">
-                ⏩ 3세션으로 강제 스킵 (첫 테스트 진입)
+                ⏩ 3세션으로 강제 스킵
             </button>
             <button onclick="localStorage.setItem('trigger_session', '6'); localStorage.removeItem('blackt_cooldown'); location.reload();" style="background: none; border: none; color: var(--neon-orange); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">
-                ⏩ 6세션으로 강제 스킵 (최종 테스트 진입)
+                ⏩ 6세션으로 강제 스킵
             </button>
             <button onclick="localStorage.clear(); location.reload();" style="background: none; border: none; color: #555; text-decoration: underline; cursor: pointer; font-size: 0.85rem;">
                 🔄 모든 데이터 완전 초기화
@@ -98,7 +98,12 @@
             localStorage.setItem('trigger_session', '1');
         }
 
-        // ★ Day 리스트 자동 렌더링 함수 추가
+        // ★ 수정: 몇 번째 Day인지 로컬스토리지에 저장하고 이동
+        function startDayStudy(day) {
+            localStorage.setItem('trigger_current_day', day);
+            location.href = 'study.html';
+        }
+
         function renderRoutine() {
             let unlockedDay = parseInt(localStorage.getItem('trigger_unlocked_day')) || 1;
             const container = document.getElementById('routine-list-container');
@@ -106,12 +111,13 @@
             
             let html = '';
             for(let i=1; i<=7; i++) {
+                let dayLabel = i > 5 ? `Day ${i} (복습)` : `Day ${i}`;
                 if (i < unlockedDay) {
-                    html += `<li class="routine-item"><span class="day-label">Day ${i}</span><button class="routine-action-btn" style="border-color:#444; color:#aaa;" onclick="location.href='study.html'">완료</button></li>`;
+                    html += `<li class="routine-item"><span class="day-label">${dayLabel}</span><button class="routine-action-btn" style="border-color:#444; color:#aaa;" onclick="startDayStudy(${i})">완료</button></li>`;
                 } else if (i === unlockedDay) {
-                    html += `<li class="routine-item"><span class="day-label">Day ${i}</span><button class="routine-action-btn active" onclick="location.href='study.html'">시작</button></li>`;
+                    html += `<li class="routine-item"><span class="day-label">${dayLabel}</span><button class="routine-action-btn active" onclick="startDayStudy(${i})">시작</button></li>`;
                 } else {
-                    html += `<li class="routine-item"><span class="day-label">Day ${i}</span><button class="routine-action-btn" onclick="unlockDay(this, ${i})">🔒 잠김</button></li>`;
+                    html += `<li class="routine-item"><span class="day-label">${dayLabel}</span><button class="routine-action-btn" onclick="unlockDay(this, ${i})">🔒 잠김</button></li>`;
                 }
             }
             container.innerHTML = html;
@@ -132,6 +138,7 @@
             if(confirm(`Day ${day}의 잠금을 강제로 해제하시겠습니까?`)) {
                 localStorage.setItem('trigger_unlocked_day', day);
                 renderRoutine();
+                updateDashboardUI(); // 해제 후 상단 메인 버튼도 갱신
             }
         }
 
@@ -142,6 +149,7 @@
             const endTime = localStorage.getItem('blackt_cooldown');
             const startBtn = document.getElementById('start-btn-main');
             const currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
+            const unlockedDay = parseInt(localStorage.getItem('trigger_unlocked_day')) || 1;
             
             if (window.cooldownInterval) clearInterval(window.cooldownInterval);
 
@@ -151,7 +159,7 @@
                 startBtn.style.borderColor = "var(--neon-blue)";
                 startBtn.style.boxShadow = "var(--glow-blue)";
                 startBtn.style.color = "#fff";
-                startBtn.onclick = () => location.href='study.html';
+                startBtn.onclick = () => startDayStudy(unlockedDay);
             } else if (endTime && endTime - Date.now() > 0) {
                 startBtn.disabled = true;
                 startBtn.style.borderColor = "#444";
@@ -169,15 +177,21 @@
                         startBtn.style.borderColor = "var(--neon-orange)";
                         startBtn.style.boxShadow = "var(--glow-orange)";
                         startBtn.style.color = "#fff";
-                        startBtn.onclick = () => location.href='study.html';
+                        startBtn.onclick = () => startDayStudy(unlockedDay);
                     } else {
                         const mins = Math.floor(remaining / 60000);
                         const secs = Math.floor((remaining % 60000) / 1000);
                         startBtn.innerText = `쿨타임 중 (${mins}:${secs < 10 ? '0' : ''}${secs})`;
                     }
                 }, 1000);
+            } else {
+                startBtn.disabled = false;
+                startBtn.innerText = "학습 시작하기";
+                startBtn.style.borderColor = "var(--neon-orange)";
+                startBtn.style.boxShadow = "var(--glow-orange)";
+                startBtn.style.color = "#fff";
+                startBtn.onclick = () => startDayStudy(unlockedDay);
             }
-            // ★ UI 업데이트 시 루틴 리스트도 다시 그려줌
             renderRoutine();
         }
 
