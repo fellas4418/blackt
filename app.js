@@ -27,17 +27,16 @@ function initApp() {
         const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
         const selectedLevel = localStorage.getItem('trigger_level') || 'middle';
         
-        // Day 6, 7 (주말) 복습 분기 로직
         if (currentDay === 6 || currentDay === 7) {
             targetWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
             if (targetWords.length === 0) {
-                alert("🎉 저장된 오답이 없습니다! 주말 복습이 완벽히 끝났습니다.");
-                location.href = 'index.html';
+                document.getElementById('target').innerText = "저장된 오답이 없습니다. 메인으로 돌아갑니다.";
+                setTimeout(() => { location.href = 'index.html'; }, 1500);
                 return;
             }
         } else {
             if (typeof wordsData === 'undefined' || !wordsData[selectedLevel] || wordsData[selectedLevel].length === 0) {
-                document.getElementById('target').innerText = "단어 데이터 파일 로딩 실패!";
+                document.getElementById('target').innerText = "데이터 오류!";
                 return;
             }
             targetWords = wordsData[selectedLevel]; 
@@ -49,14 +48,14 @@ function initApp() {
 
         const endTime = localStorage.getItem('blackt_cooldown');
         if (endTime && endTime - Date.now() > 0 && currentSession <= 6) {
-            alert("현재 쿨타임 중입니다. 메인 화면으로 이동합니다.");
-            location.href = 'index.html';
+            document.getElementById('target').innerText = "쿨타임 중입니다. 돌아갑니다.";
+            setTimeout(() => { location.href = 'index.html'; }, 1000);
         } else {
             startStudy(); 
         }
     } catch (err) {
         const targetEl = document.getElementById('target');
-        if(targetEl) targetEl.innerText = "로딩 에러: " + err.message;
+        if(targetEl) targetEl.innerText = "에러: " + err.message;
     }
 }
 
@@ -84,12 +83,19 @@ function startStudy() {
             return;
         } else {
             currentIdx = 0;
+            const currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
+            
+            // ★ 브라우저 멈춤 방지: alert 팝업 대신 화면 글씨로 부드럽게 트랜지션
             if (currentSession === 3 || currentSession === 6 || currentSession > 6) {
-                alert(`각인 완료! 인출(4지선다) 테스트를 시작합니다.`);
-                startTest();
+                document.getElementById('target').innerText = "4지선다 테스트 준비 중...";
+                document.getElementById('ipa').innerText = "";
+                document.getElementById('meanings').innerHTML = "";
+                setTimeout(startTest, 1200);
             } else {
-                alert(`각인 완료! (테스트 없이 쿨타임으로 넘어갑니다)`);
-                finishSession(false); 
+                document.getElementById('target').innerText = "각인 완료! 세션을 종료합니다...";
+                document.getElementById('ipa').innerText = "";
+                document.getElementById('meanings').innerHTML = "";
+                setTimeout(() => finishSession(false), 1200);
             }
             return;
         }
@@ -146,7 +152,6 @@ function updateUI(data, isTest = false) {
     if (!isTest) {
         mBox.innerHTML = data.meanings.map(m => `<div>${m}</div>`).join('');
     } else {
-        // ★ 무한 루프 방지 처리된 안전한 4지선다 오답 생성 로직
         const allOtherMeanings = targetWords.filter(w => w.word !== data.word).map(w => w.meanings.join(', '));
         let availableMeanings = [...allOtherMeanings]; 
         let wrongChoices = [];
@@ -154,19 +159,22 @@ function updateUI(data, isTest = false) {
         
         while (wrongChoices.length < 3) {
             if (availableMeanings.length > 0) {
-                // 남은 뜻 중에서 하나를 뽑고, 배열에서 삭제하여 중복 방지
                 const randomIdx = Math.floor(Math.random() * availableMeanings.length);
                 wrongChoices.push(availableMeanings[randomIdx]);
                 availableMeanings.splice(randomIdx, 1); 
             } else {
-                // 단어가 1~2개뿐이라 오답 뜻이 모자라면 안전하게 임시 문구 삽입
                 wrongChoices.push(`다른 오답 뜻 ${fallbackCount}`);
                 fallbackCount++;
             }
         }
         
         const choices = [fullMeaning, ...wrongChoices].sort(() => Math.random() - 0.5);
-        mBox.innerHTML = choices.map(c => `<button class="choice-btn" onclick="handleAnswer('${c}' === '${fullMeaning}')">${c}</button>`).join('');
+        
+        // ★ 문자열 충돌 방지를 위해 논리값(true/false) 직접 주입으로 버그 차단
+        mBox.innerHTML = choices.map(c => {
+            const isCorrect = (c === fullMeaning);
+            return `<button class="choice-btn" onclick="handleAnswer(${isCorrect})">${c}</button>`;
+        }).join('');
     }
 }
 
@@ -197,7 +205,7 @@ function executeKakaoShare() {
             link: { mobileWebUrl: 'https://blackt.pages.dev', webUrl: 'https://blackt.pages.dev' },
             buttonTitle: '나도 도전하기',
         });
-    } catch (e) { alert("카카오 공유 에러: " + e.message); }
+    } catch (e) {}
 }
 
 function shareKakao() {
@@ -217,6 +225,8 @@ function shareKakao() {
 
 function finishSession(didTest = true) {
     let currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
+    let finishedSession = currentSession;
+
     if (currentSession <= 6) {
         currentSession++;
         localStorage.setItem('trigger_session', currentSession);
@@ -229,23 +239,24 @@ function finishSession(didTest = true) {
         }
     }
 
-    if (currentSession > 6) {
+    const targetEl = document.getElementById('target');
+    const ipaEl = document.getElementById('ipa');
+    const meaningsEl = document.getElementById('meanings');
+    if(ipaEl) ipaEl.innerText = "";
+    if(meaningsEl) meaningsEl.innerHTML = "";
+
+    // ★ 브라우저 멈춤 방지: 팝업을 완전히 없애고 부드럽게 메인으로 복귀
+    if (finishedSession === 6 || finishedSession > 6) {
+        targetEl.innerText = "🎉 6세션 완수! 카카오톡 호출 중...";
         setTimeout(() => {
-            const wantShare = confirm(`최종 테스트 결과: ${score} / ${targetWords.length}\n🎉 총 6세션을 완수했습니다!\n확인(OK)을 누르면 카톡으로 공유됩니다.`);
-            if(wantShare) {
-                shareKakao();
-                setTimeout(() => { location.href = 'index.html'; }, 3000); 
-            } else { location.href = 'index.html'; }
-        }, 300);
+            shareKakao();
+            setTimeout(() => { location.href = 'index.html'; }, 3000); 
+        }, 1500);
     } else {
         const endTime = Date.now() + COOL_DOWN_TIME;
         localStorage.setItem('blackt_cooldown', endTime);
         
-        if (didTest) {
-            alert(`테스트 완료! (정답: ${score}/${targetWords.length})\n10분 쿨타임이 시작됩니다.`);
-        } else {
-            alert(`학습 완료! 10분 쿨타임이 시작됩니다.`);
-        }
-        location.href = 'index.html'; 
+        targetEl.innerText = didTest ? "테스트 완료! 메인 화면으로 돌아갑니다." : "학습 완료! 메인 화면으로 돌아갑니다.";
+        setTimeout(() => { location.href = 'index.html'; }, 1500);
     }
 }
