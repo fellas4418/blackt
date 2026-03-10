@@ -6,7 +6,7 @@
     <title>Trigger Voca - Neon</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        #login-modal, #wrong-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; transition: opacity 0.5s; }
+        #login-modal, #wrong-modal, #all-words-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; transition: opacity 0.5s; }
         .login-card { background: var(--card-bg-color); border: 1px solid var(--neon-blue); box-shadow: var(--glow-blue); border-radius: 20px; padding: 30px; width: 85%; max-width: 400px; text-align: center; max-height: 80vh; overflow-y: auto; }
         .login-title { font-size: 1.8rem; font-weight: bold; margin-bottom: 20px; text-shadow: var(--glow-text); }
         .input-group { margin-bottom: 15px; text-align: left; }
@@ -34,9 +34,17 @@
 
     <div id="wrong-modal" style="display:none; z-index: 2000;">
         <div class="login-card" style="border-color: var(--neon-green); box-shadow: 0 0 15px var(--neon-green);">
-            <div class="login-title" style="color:var(--neon-green); text-shadow: 0 0 10px var(--neon-green);">오답 노트</div>
+            <div class="login-title" style="color:var(--neon-green); text-shadow: 0 0 10px var(--neon-green);">오답 / 별표</div>
             <div id="wrong-list" style="text-align:left; color:#fff; margin-bottom:20px; font-size:1.1rem; line-height:1.8;"></div>
             <button class="login-btn" onclick="document.getElementById('wrong-modal').style.display='none'">닫기</button>
+        </div>
+    </div>
+
+    <div id="all-words-modal" style="display:none; z-index: 2000;">
+        <div class="login-card" style="border-color: var(--neon-orange); box-shadow: 0 0 15px var(--neon-orange);">
+            <div class="login-title" style="color:var(--neon-orange); text-shadow: 0 0 10px var(--neon-orange);">내 단어장 (전체)</div>
+            <div id="all-words-list" style="text-align:left; color:#fff; margin-bottom:20px; font-size:1.1rem; line-height:1.8;"></div>
+            <button class="login-btn" style="border-color: var(--neon-orange); box-shadow: 0 0 10px var(--neon-orange);" onclick="document.getElementById('all-words-modal').style.display='none'">닫기</button>
         </div>
     </div>
 
@@ -60,8 +68,8 @@
         </div>
 
         <div class="info-row">
-            <div class="card info-card">
-                <div class="info-title title-orange">내 단어장</div>
+            <div class="card info-card clickable-card" onclick="showAllWords()">
+                <div class="info-title title-orange">내 단어장 (클릭)</div>
                 <div class="info-count" id="total-word-count">0 단어</div>
             </div>
             <div class="card info-card clickable-card" onclick="showWrongWords()">
@@ -78,10 +86,10 @@
 
         <div style="text-align: center; margin-top: 30px; display: flex; flex-direction: column; gap: 12px; align-items: center;">
             <button onclick="localStorage.setItem('trigger_session', '3'); localStorage.removeItem('blackt_cooldown'); location.reload();" style="background: none; border: none; color: var(--neon-blue); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">
-                ⏩ 3세션으로 강제 스킵
+                ⏩ 3세션으로 강제 스킵 (테스트 및 쿨타임 확인용)
             </button>
             <button onclick="localStorage.setItem('trigger_session', '6'); localStorage.removeItem('blackt_cooldown'); location.reload();" style="background: none; border: none; color: var(--neon-orange); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">
-                ⏩ 6세션으로 강제 스킵
+                ⏩ 6세션으로 강제 스킵 (카톡 공유 확인용)
             </button>
             <button onclick="localStorage.clear(); location.reload();" style="background: none; border: none; color: #555; text-decoration: underline; cursor: pointer; font-size: 0.85rem;">
                 🔄 모든 데이터 완전 초기화
@@ -98,7 +106,6 @@
             localStorage.setItem('trigger_session', '1');
         }
 
-        // ★ 수정: 몇 번째 Day인지 로컬스토리지에 저장하고 이동
         function startDayStudy(day) {
             localStorage.setItem('trigger_current_day', day);
             location.href = 'study.html';
@@ -123,6 +130,7 @@
             container.innerHTML = html;
         }
 
+        // ★ 오답 노트 모달 띄우기
         function showWrongWords() {
             const wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
             const listContainer = document.getElementById('wrong-list');
@@ -134,11 +142,24 @@
             document.getElementById('wrong-modal').style.display = 'flex';
         }
 
+        // ★ 전체 단어장 모달 띄우기
+        function showAllWords() {
+            const selectedLevel = localStorage.getItem('trigger_level') || 'middle';
+            const allWords = wordsData[selectedLevel] || [];
+            const listContainer = document.getElementById('all-words-list');
+            if(allWords.length === 0) {
+                listContainer.innerHTML = "<p style='text-align:center; color:#888;'>단어 데이터가 없습니다.</p>";
+            } else {
+                listContainer.innerHTML = allWords.map(w => `<div style="padding:10px 0; border-bottom:1px solid #333;"><strong>${w.word}</strong> <span style="color:#aaa; font-size:0.8rem;">${w.ipa}</span><br><span style="color:#888; font-size:0.9rem;">${w.meanings.join(', ')}</span></div>`).join('');
+            }
+            document.getElementById('all-words-modal').style.display = 'flex';
+        }
+
         function unlockDay(btn, day) {
             if(confirm(`Day ${day}의 잠금을 강제로 해제하시겠습니까?`)) {
                 localStorage.setItem('trigger_unlocked_day', day);
                 renderRoutine();
-                updateDashboardUI(); // 해제 후 상단 메인 버튼도 갱신
+                updateDashboardUI(); 
             }
         }
 
