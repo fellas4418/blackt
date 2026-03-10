@@ -81,8 +81,11 @@
         </div>
 
         <div style="text-align: center; margin-top: 30px; display: flex; flex-direction: column; gap: 12px; align-items: center;">
-            <button onclick="localStorage.setItem('trigger_session', '5'); localStorage.removeItem('blackt_cooldown'); location.reload();" style="background: none; border: none; color: var(--neon-orange); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">
-                ⏩ 5세션으로 강제 스킵 (마지막 카톡 테스트용)
+            <button onclick="localStorage.setItem('trigger_session', '3'); localStorage.removeItem('blackt_cooldown'); location.reload();" style="background: none; border: none; color: var(--neon-blue); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">
+                ⏩ 3세션으로 강제 스킵 (첫 번째 테스트 확인)
+            </button>
+            <button onclick="localStorage.setItem('trigger_session', '6'); localStorage.removeItem('blackt_cooldown'); location.reload();" style="background: none; border: none; color: var(--neon-orange); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">
+                ⏩ 6세션으로 강제 스킵 (최종 카톡 테스트 확인)
             </button>
             <button onclick="localStorage.clear(); location.reload();" style="background: none; border: none; color: #555; text-decoration: underline; cursor: pointer; font-size: 0.85rem;">
                 🔄 모든 데이터 완전 초기화
@@ -128,8 +131,8 @@
             
             if (window.cooldownInterval) clearInterval(window.cooldownInterval);
 
-            // 5회 완료 후 자유학습(복습) 모드
-            if (currentSession > 5) {
+            // ★ 6회 완료 후 자유학습 모드
+            if (currentSession > 6) {
                 startBtn.disabled = false;
                 startBtn.innerText = "추가 복습하기 (자유 학습)";
                 startBtn.style.borderColor = "var(--neon-blue)";
@@ -139,7 +142,6 @@
                 return;
             }
 
-            // 쿨타임 로직
             if (endTime && endTime - Date.now() > 0) {
                 startBtn.disabled = true;
                 startBtn.style.borderColor = "#444";
@@ -175,9 +177,9 @@
 
             if (savedName) {
                 modal.style.display = 'none';
-                welcomeMsg.innerText = currentSession > 5 
-                    ? `환영합니다, ${savedName}님! 🔥 (오늘 5회 완수!)` 
-                    : `환영합니다, ${savedName}님! 🔥 (오늘 진행도: ${currentSession}/5 세션)`;
+                welcomeMsg.innerText = currentSession > 6 
+                    ? `환영합니다, ${savedName}님! 🔥 (오늘 6회 완수!)` 
+                    : `환영합니다, ${savedName}님! 🔥 (오늘 진행도: ${currentSession}/6 세션)`;
             } else {
                 modal.style.display = 'flex';
             }
