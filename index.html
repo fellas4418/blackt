@@ -86,10 +86,10 @@
 
         <div style="text-align: center; margin-top: 30px; display: flex; flex-direction: column; gap: 12px; align-items: center;">
             <button onclick="localStorage.setItem('trigger_session', '3'); localStorage.removeItem('blackt_cooldown'); location.reload();" style="background: none; border: none; color: var(--neon-blue); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">
-                ⏩ 3세션으로 강제 스킵 (테스트 및 쿨타임 확인용)
+                ⏩ 3세션으로 강제 스킵
             </button>
             <button onclick="localStorage.setItem('trigger_session', '6'); localStorage.removeItem('blackt_cooldown'); location.reload();" style="background: none; border: none; color: var(--neon-orange); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">
-                ⏩ 6세션으로 강제 스킵 (카톡 공유 확인용)
+                ⏩ 6세션으로 강제 스킵
             </button>
             <button onclick="localStorage.clear(); location.reload();" style="background: none; border: none; color: #555; text-decoration: underline; cursor: pointer; font-size: 0.85rem;">
                 🔄 모든 데이터 완전 초기화
@@ -108,6 +108,8 @@
 
         function startDayStudy(day) {
             localStorage.setItem('trigger_current_day', day);
+            // ★ 버그 수정: 새 Day 시작 시 반드시 세션을 1로 강제 리셋해야 사전 복습 관문이 작동함
+            localStorage.setItem('trigger_session', '1'); 
             location.href = 'study.html';
         }
 
@@ -143,7 +145,11 @@
 
         function showAllWords() {
             const selectedLevel = localStorage.getItem('trigger_level') || 'middle';
-            const allWords = wordsData[selectedLevel] || [];
+            const levelData = wordsData[selectedLevel] || {};
+            
+            // ★ 버그 수정: Day별로 쪼개진 서랍(객체) 속 데이터들을 평평한 하나의 배열(flat)로 합침
+            const allWords = Object.values(levelData).flat();
+            
             const listContainer = document.getElementById('all-words-list');
             if(allWords.length === 0) {
                 listContainer.innerHTML = "<p style='text-align:center; color:#888;'>단어 데이터가 없습니다.</p>";
@@ -165,7 +171,6 @@
             const wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
             document.getElementById('wrong-word-count').innerText = wrongWords.length + " 단어";
 
-            // 타이머 데이터 로딩
             const endTime = parseInt(localStorage.getItem('blackt_cooldown')) || 0;
             const startBtn = document.getElementById('start-btn-main');
             const currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
@@ -181,14 +186,12 @@
                 startBtn.style.color = "#fff";
                 startBtn.onclick = () => startDayStudy(unlockedDay);
             } else if (endTime && endTime - Date.now() > 0) {
-                // 버튼 즉시 비활성화 처리
                 startBtn.disabled = true;
                 startBtn.style.borderColor = "#444";
                 startBtn.style.boxShadow = "none";
                 startBtn.style.color = "#666";
                 startBtn.onclick = null; 
                 
-                // ★ 타이머 즉시 실행 함수 (딜레이 1초 제거)
                 const updateTimerText = () => {
                     const remaining = endTime - Date.now();
                     if (remaining <= 0) {
@@ -207,7 +210,6 @@
                     }
                 };
                 
-                // 함수를 1번 즉시 쏴주고, 그 다음부터 1초마다 돌립니다.
                 updateTimerText();
                 window.cooldownInterval = setInterval(updateTimerText, 1000);
                 
@@ -255,9 +257,16 @@
             document.getElementById('btn-' + level).className = "level-btn active";
 
             if (typeof wordsData !== 'undefined' && wordsData[level]) {
-                const count = wordsData[level].length;
-                document.getElementById('total-word-count').innerText = count + " 단어";
-                document.getElementById('target-count-display').innerText = count + "개";
+                const levelData = wordsData[level] || {};
+                
+                // ★ 총 단어 수 계산 (전체 합산)
+                const allWordsCount = Object.values(levelData).flat().length;
+                document.getElementById('total-word-count').innerText = allWordsCount + " 단어";
+                
+                // ★ 오늘의 목표 단어 수 계산 (현재 Day 기준)
+                const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
+                const todayCount = (levelData[currentDay] || []).length;
+                document.getElementById('target-count-display').innerText = todayCount + "개";
             }
         }
 
