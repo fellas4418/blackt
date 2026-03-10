@@ -1,9 +1,12 @@
-// 카카오 SDK 에러 방어 로직 (키가 없어도 앱이 멈추지 않음)
+// 카카오 SDK 에러 방어 및 초기화
 try {
     if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
-        Kakao.init('fbb1520306ffaad0a882e993109a801c'); // 나중에 실제 키로 변경하세요
+        // 여기에 사용자님의 실제 카카오 JavaScript 키를 넣습니다.
+        Kakao.init('fbb1520306ffaad0a882e993109a801c'); 
     }
-} catch (e) { console.log("카카오 초기화 대기 중"); }
+} catch (e) { 
+    console.log("카카오 초기화 대기 중", e); 
+}
 
 let currentIdx = 0;
 let score = 0;
@@ -140,6 +143,15 @@ function handleAnswer(isCorrect) {
 
 function shareKakao() {
     try {
+        if (typeof Kakao === 'undefined') {
+            alert("카카오 스크립트를 불러오지 못했습니다. 애드블록 등을 끄고 시도해주세요.");
+            return;
+        }
+
+        if (!Kakao.isInitialized()) {
+            Kakao.init('fbb1520306ffaad0a882e993109a801c'); 
+        }
+
         const userName = localStorage.getItem('trigger_name') || '학습자';
         Kakao.Share.sendDefault({
             objectType: 'text',
@@ -148,7 +160,8 @@ function shareKakao() {
             buttonTitle: '나도 도전하기',
         });
     } catch (e) {
-        alert("카카오 SDK 앱 키가 설정되지 않아 공유 기능을 실행할 수 없습니다. (에러 방어됨)");
+        // ★ 상세 에러 원인 표출
+        alert("카카오 공유 에러: " + e.message + "\n(도메인 등록 여부를 확인해주세요)");
     }
 }
 
@@ -158,13 +171,19 @@ function finishSession() {
         localStorage.setItem('trigger_session', currentSession);
     }
 
-    // 5회를 마쳤거나, 이미 복습 모드인 경우
     if (currentSession > 5) {
         setTimeout(() => {
-            if(confirm(`최종 결과: ${score} / ${targetWords.length}\n🎉 5세션 완수!\n확인(OK)을 누르면 카카오톡으로 결과가 공유됩니다.\n(공유 후 메인화면 이동)`)) {
+            const wantShare = confirm(`최종 결과: ${score} / ${targetWords.length}\n🎉 5세션 완수!\n확인(OK)을 누르면 카카오톡으로 결과가 공유됩니다.`);
+            
+            if(wantShare) {
                 shareKakao();
+                // ★ 팝업 킬(Kill) 방지: 카톡 창이 뜰 시간 2.5초 확보
+                setTimeout(() => {
+                    location.href = 'index.html';
+                }, 2500); 
+            } else {
+                location.href = 'index.html'; 
             }
-            location.href = 'index.html'; // 카톡 실행 후 메인 복귀 보장
         }, 300);
     } else {
         const endTime = Date.now() + COOL_DOWN_TIME;
