@@ -72,20 +72,16 @@
 
         <div class="card routine-section">
             <div class="routine-header">📅 7일 루틴 (80% 통과제)</div>
-            <ul class="routine-list">
-                <li class="routine-item"><span class="day-label">Day 1</span><button class="routine-action-btn active" onclick="location.href='study.html'">시작</button></li>
-                <li class="routine-item"><span class="day-label">Day 2</span><button class="routine-action-btn" onclick="unlockDay(this, 2)">🔒 잠김</button></li>
-                <li class="routine-item"><span class="day-label">Day 3</span><button class="routine-action-btn" onclick="unlockDay(this, 3)">🔒 잠김</button></li>
-                <li class="routine-item"><span class="day-label">Day 4</span><button class="routine-action-btn" onclick="unlockDay(this, 4)">🔒 잠김</button></li>
+            <ul class="routine-list" id="routine-list-container">
             </ul>
         </div>
 
         <div style="text-align: center; margin-top: 30px; display: flex; flex-direction: column; gap: 12px; align-items: center;">
             <button onclick="localStorage.setItem('trigger_session', '3'); localStorage.removeItem('blackt_cooldown'); location.reload();" style="background: none; border: none; color: var(--neon-blue); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">
-                ⏩ 3세션으로 강제 스킵 (첫 번째 테스트 확인)
+                ⏩ 3세션으로 강제 스킵 (첫 테스트 진입)
             </button>
             <button onclick="localStorage.setItem('trigger_session', '6'); localStorage.removeItem('blackt_cooldown'); location.reload();" style="background: none; border: none; color: var(--neon-orange); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">
-                ⏩ 6세션으로 강제 스킵 (최종 카톡 테스트 확인)
+                ⏩ 6세션으로 강제 스킵 (최종 테스트 진입)
             </button>
             <button onclick="localStorage.clear(); location.reload();" style="background: none; border: none; color: #555; text-decoration: underline; cursor: pointer; font-size: 0.85rem;">
                 🔄 모든 데이터 완전 초기화
@@ -102,22 +98,40 @@
             localStorage.setItem('trigger_session', '1');
         }
 
+        // ★ Day 리스트 자동 렌더링 함수 추가
+        function renderRoutine() {
+            let unlockedDay = parseInt(localStorage.getItem('trigger_unlocked_day')) || 1;
+            const container = document.getElementById('routine-list-container');
+            if (!container) return;
+            
+            let html = '';
+            for(let i=1; i<=7; i++) {
+                if (i < unlockedDay) {
+                    html += `<li class="routine-item"><span class="day-label">Day ${i}</span><button class="routine-action-btn" style="border-color:#444; color:#aaa;" onclick="location.href='study.html'">완료</button></li>`;
+                } else if (i === unlockedDay) {
+                    html += `<li class="routine-item"><span class="day-label">Day ${i}</span><button class="routine-action-btn active" onclick="location.href='study.html'">시작</button></li>`;
+                } else {
+                    html += `<li class="routine-item"><span class="day-label">Day ${i}</span><button class="routine-action-btn" onclick="unlockDay(this, ${i})">🔒 잠김</button></li>`;
+                }
+            }
+            container.innerHTML = html;
+        }
+
         function showWrongWords() {
             const wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
             const listContainer = document.getElementById('wrong-list');
             if(wrongWords.length === 0) {
                 listContainer.innerHTML = "<p style='text-align:center; color:#888;'>오늘 저장된 오답이 없습니다.</p>";
             } else {
-                listContainer.innerHTML = wrongWords.map(w => `<div style="padding:10px 0; border-bottom:1px solid #333;"><strong>${w.word}</strong> <span style="color:#888; font-size:0.9rem;">${w.meanings[0]}</span></div>`).join('');
+                listContainer.innerHTML = wrongWords.map(w => `<div style="padding:10px 0; border-bottom:1px solid #333;"><strong>${w.word}</strong> <span style="color:#888; font-size:0.9rem;">${w.meanings.join(', ')}</span></div>`).join('');
             }
             document.getElementById('wrong-modal').style.display = 'flex';
         }
 
         function unlockDay(btn, day) {
-            if(confirm(`Day ${day}의 잠금을 해제하고 미리 학습을 진행하시겠습니까?`)) {
-                btn.className = "routine-action-btn active";
-                btn.innerText = "시작";
-                btn.onclick = () => location.href = 'study.html';
+            if(confirm(`Day ${day}의 잠금을 강제로 해제하시겠습니까?`)) {
+                localStorage.setItem('trigger_unlocked_day', day);
+                renderRoutine();
             }
         }
 
@@ -131,7 +145,6 @@
             
             if (window.cooldownInterval) clearInterval(window.cooldownInterval);
 
-            // ★ 6회 완료 후 자유학습 모드
             if (currentSession > 6) {
                 startBtn.disabled = false;
                 startBtn.innerText = "추가 복습하기 (자유 학습)";
@@ -139,10 +152,7 @@
                 startBtn.style.boxShadow = "var(--glow-blue)";
                 startBtn.style.color = "#fff";
                 startBtn.onclick = () => location.href='study.html';
-                return;
-            }
-
-            if (endTime && endTime - Date.now() > 0) {
+            } else if (endTime && endTime - Date.now() > 0) {
                 startBtn.disabled = true;
                 startBtn.style.borderColor = "#444";
                 startBtn.style.boxShadow = "none";
@@ -167,6 +177,8 @@
                     }
                 }, 1000);
             }
+            // ★ UI 업데이트 시 루틴 리스트도 다시 그려줌
+            renderRoutine();
         }
 
         function checkLoginStatus() {
