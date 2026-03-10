@@ -1,13 +1,3 @@
-// 카카오 SDK 에러 방어 및 초기화
-try {
-    if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
-        // 여기에 사용자님의 실제 카카오 JavaScript 키를 넣습니다.
-        Kakao.init('fbb1520306ffaad0a882e993109a801c'); 
-    }
-} catch (e) { 
-    console.log("카카오 초기화 대기 중", e); 
-}
-
 let currentIdx = 0;
 let score = 0;
 let targetWords = []; 
@@ -141,17 +131,9 @@ function handleAnswer(isCorrect) {
     startTest();
 }
 
-function shareKakao() {
+// ★ 실제 카카오 공유 실행 부속 함수
+function executeKakaoShare() {
     try {
-        if (typeof Kakao === 'undefined') {
-            alert("카카오 스크립트를 불러오지 못했습니다. 애드블록 등을 끄고 시도해주세요.");
-            return;
-        }
-
-        if (!Kakao.isInitialized()) {
-            Kakao.init('fbb1520306ffaad0a882e993109a801c'); 
-        }
-
         const userName = localStorage.getItem('trigger_name') || '학습자';
         Kakao.Share.sendDefault({
             objectType: 'text',
@@ -160,8 +142,26 @@ function shareKakao() {
             buttonTitle: '나도 도전하기',
         });
     } catch (e) {
-        // ★ 상세 에러 원인 표출
-        alert("카카오 공유 에러: " + e.message + "\n(도메인 등록 여부를 확인해주세요)");
+        alert("카카오 공유 에러: " + e.message);
+    }
+}
+
+// ★ 가장 확실한 우회로: 브라우저 캐시 무시하고 JS에서 강제로 카카오망 주입
+function shareKakao() {
+    if (typeof Kakao === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js';
+        script.onload = () => {
+            Kakao.init('fbb1520306ffaad0a882e993109a801c');
+            executeKakaoShare();
+        };
+        script.onerror = () => {
+            alert("카카오 서버 접속이 완전히 차단되었습니다. 브라우저의 광고 차단(Adblock)이나 보안 설정을 확인해주세요.");
+        };
+        document.head.appendChild(script); // 스크립트 강제 주입
+    } else {
+        if (!Kakao.isInitialized()) Kakao.init('fbb1520306ffaad0a882e993109a801c');
+        executeKakaoShare();
     }
 }
 
@@ -177,10 +177,10 @@ function finishSession() {
             
             if(wantShare) {
                 shareKakao();
-                // ★ 팝업 킬(Kill) 방지: 카톡 창이 뜰 시간 2.5초 확보
+                // 팝업 킬(Kill) 방지: 카톡 창이 뜰 시간 3초 확보 (안전하게 늘림)
                 setTimeout(() => {
                     location.href = 'index.html';
-                }, 2500); 
+                }, 3000); 
             } else {
                 location.href = 'index.html'; 
             }
