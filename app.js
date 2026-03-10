@@ -1,4 +1,3 @@
-// 카카오 SDK 방어 및 초기화
 try {
     if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
         Kakao.init('fbb1520306ffaad0a882e993109a801c'); 
@@ -11,7 +10,6 @@ let targetWords = [];
 let studyLoopCount = 1; 
 const COOL_DOWN_TIME = 10 * 60 * 1000; 
 
-// ★ 무한 로딩 방지용 방탄 앱 실행 함수
 function initApp() {
     try {
         const bar = document.getElementById('bar');
@@ -26,12 +24,11 @@ function initApp() {
         }
         let currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
         
-        // ★ 5일 진도 vs 2일 복습 분기 로직
         const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
         const selectedLevel = localStorage.getItem('trigger_level') || 'middle';
         
+        // Day 6, 7 (주말) 복습 분기 로직
         if (currentDay === 6 || currentDay === 7) {
-            // Day 6, 7은 오답 노트에서 데이터 장전
             targetWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
             if (targetWords.length === 0) {
                 alert("🎉 저장된 오답이 없습니다! 주말 복습이 완벽히 끝났습니다.");
@@ -39,7 +36,6 @@ function initApp() {
                 return;
             }
         } else {
-            // Day 1~5는 새 진도 장전
             if (typeof wordsData === 'undefined' || !wordsData[selectedLevel] || wordsData[selectedLevel].length === 0) {
                 document.getElementById('target').innerText = "단어 데이터 파일 로딩 실패!";
                 return;
@@ -59,13 +55,11 @@ function initApp() {
             startStudy(); 
         }
     } catch (err) {
-        // 에러 발생 시 무한 로딩 대신 에러 원인을 화면에 강제 출력
         const targetEl = document.getElementById('target');
         if(targetEl) targetEl.innerText = "로딩 에러: " + err.message;
     }
 }
 
-// 브라우저 캐시 무시하고 안전하게 실행
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initApp);
 } else {
@@ -78,7 +72,7 @@ function playPronunciation(text) {
         utterance.lang = 'en-US';
         utterance.rate = 0.8;
         window.speechSynthesis.speak(utterance);
-    } catch(e) {} // 음성 에러는 무시하고 진행
+    } catch(e) {} 
 }
 
 function startStudy() {
@@ -152,15 +146,22 @@ function updateUI(data, isTest = false) {
     if (!isTest) {
         mBox.innerHTML = data.meanings.map(m => `<div>${m}</div>`).join('');
     } else {
+        // ★ 무한 루프 방지 처리된 안전한 4지선다 오답 생성 로직
         const allOtherMeanings = targetWords.filter(w => w.word !== data.word).map(w => w.meanings.join(', '));
+        let availableMeanings = [...allOtherMeanings]; 
         let wrongChoices = [];
+        let fallbackCount = 1;
         
         while (wrongChoices.length < 3) {
-            if (allOtherMeanings.length > 0) {
-                const randomMeaning = allOtherMeanings[Math.floor(Math.random() * allOtherMeanings.length)];
-                if(!wrongChoices.includes(randomMeaning)) wrongChoices.push(randomMeaning);
+            if (availableMeanings.length > 0) {
+                // 남은 뜻 중에서 하나를 뽑고, 배열에서 삭제하여 중복 방지
+                const randomIdx = Math.floor(Math.random() * availableMeanings.length);
+                wrongChoices.push(availableMeanings[randomIdx]);
+                availableMeanings.splice(randomIdx, 1); 
             } else {
-                wrongChoices.push(`다른 오답 뜻 ${wrongChoices.length + 1}`);
+                // 단어가 1~2개뿐이라 오답 뜻이 모자라면 안전하게 임시 문구 삽입
+                wrongChoices.push(`다른 오답 뜻 ${fallbackCount}`);
+                fallbackCount++;
             }
         }
         
