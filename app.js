@@ -1,3 +1,10 @@
+// 카카오 SDK 방어 및 초기화
+try {
+    if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
+        Kakao.init('fbb1520306ffaad0a882e993109a801c'); 
+    }
+} catch (e) { console.log("카카오 초기화 대기 중", e); }
+
 let currentIdx = 0;
 let score = 0;
 let targetWords = []; 
@@ -7,7 +14,6 @@ const COOL_DOWN_TIME = 10 * 60 * 1000;
 const bar = document.getElementById('bar');
 const sessionTag = document.getElementById('session-tag'); 
 
-// ★ 훈련 시작 버튼(footer) 완전히 숨기기
 const footer = document.querySelector('.footer');
 if (footer) footer.style.display = 'none';
 
@@ -16,6 +22,7 @@ if (localStorage.getItem('trigger_date') !== today) {
     localStorage.setItem('trigger_date', today);
     localStorage.setItem('trigger_session', '1');
 }
+// ★ 총 세션이 6회로 늘어납니다.
 let currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
 
 window.onload = () => {
@@ -28,11 +35,11 @@ window.onload = () => {
     targetWords = wordsData[selectedLevel]; 
     
     if (sessionTag) {
-        sessionTag.innerText = currentSession > 5 ? `추가 복습 모드` : `Session ${currentSession} / 5`;
+        sessionTag.innerText = currentSession > 6 ? `추가 복습 모드` : `Session ${currentSession} / 6`;
     }
 
     const endTime = localStorage.getItem('blackt_cooldown');
-    if (endTime && endTime - Date.now() > 0 && currentSession <= 5) {
+    if (endTime && endTime - Date.now() > 0 && currentSession <= 6) {
         alert("현재 쿨타임 중입니다. 메인 화면으로 이동합니다.");
         location.href = 'index.html';
     } else {
@@ -56,8 +63,15 @@ function startStudy() {
             return;
         } else {
             currentIdx = 0;
-            alert(`각인 완료! 인출 테스트를 시작합니다.`);
-            startTest();
+            // ★ 3세션과 6세션에만 4지선다 테스트 진행
+            if (currentSession === 3 || currentSession === 6 || currentSession > 6) {
+                alert(`각인 완료! Session ${currentSession} 인출(4지선다) 테스트를 시작합니다.`);
+                startTest();
+            } else {
+                // 테스트 없는 세션은 바로 종료 처리
+                alert(`각인 완료! (이번 세션은 테스트 없이 쿨타임으로 넘어갑니다)`);
+                finishSession(false); 
+            }
             return;
         }
     }
@@ -75,7 +89,6 @@ function startStudy() {
     const interval = setInterval(() => {
         time -= 100;
         if(bar) bar.style.width = (time / 6000 * 100) + "%";
-
         if (time <= 0) {
             clearInterval(interval);
             currentIdx++;
@@ -86,7 +99,7 @@ function startStudy() {
 
 function startTest() {
     if (currentIdx >= targetWords.length) {
-        finishSession();
+        finishSession(true); // 테스트를 치르고 종료함을 명시
         return;
     }
 
@@ -106,10 +119,26 @@ function updateUI(data, isTest = false) {
     document.getElementById('target').innerText = data.word;
     document.getElementById('ipa').innerText = data.ipa;
     const mBox = document.getElementById('meanings');
+    
     if (!isTest) {
         mBox.innerHTML = data.meanings.map(m => `<div>${m}</div>`).join('');
     } else {
-        const choices = [data.meanings[0], "오답1", "오답2", "오답3"].sort(() => Math.random() - 0.5);
+        // ★ 지능형 4지선다 오답 생성 로직
+        const allOtherMeanings = targetWords.map(w => w.meanings[0]).filter(m => m !== data.meanings[0]);
+        let wrongChoices = [];
+        
+        while (wrongChoices.length < 3) {
+            if (allOtherMeanings.length > 0) {
+                // 다른 단어가 있으면 거기서 뜻을 무작위로 뽑아옴
+                const randomMeaning = allOtherMeanings[Math.floor(Math.random() * allOtherMeanings.length)];
+                if(!wrongChoices.includes(randomMeaning)) wrongChoices.push(randomMeaning);
+            } else {
+                // 초고속 테스트용(단어가 1개뿐일 때) 임시 오답
+                wrongChoices.push(`오답 ${wrongChoices.length + 1}`);
+            }
+        }
+        
+        const choices = [data.meanings[0], ...wrongChoices].sort(() => Math.random() - 0.5);
         mBox.innerHTML = choices.map(c => `<button class="choice-btn" onclick="handleAnswer('${c}' === '${data.meanings[0]}')">${c}</button>`).join('');
     }
 }
@@ -131,22 +160,18 @@ function handleAnswer(isCorrect) {
     startTest();
 }
 
-// ★ 실제 카카오 공유 실행 부속 함수
 function executeKakaoShare() {
     try {
         const userName = localStorage.getItem('trigger_name') || '학습자';
         Kakao.Share.sendDefault({
             objectType: 'text',
-            text: `🔥 ${userName}님이 Trigger Voca 오늘의 목표 [5세션]을 완수했습니다!\n👉 마지막 정답률: ${score} / ${targetWords.length}`,
+            text: `🔥 ${userName}님이 Trigger Voca 최종 목표 [6세션]을 완수했습니다!\n👉 마지막 인출 테스트 정답률: ${score} / ${targetWords.length}`,
             link: { mobileWebUrl: 'https://blackt.pages.dev', webUrl: 'https://blackt.pages.dev' },
             buttonTitle: '나도 도전하기',
         });
-    } catch (e) {
-        alert("카카오 공유 에러: " + e.message);
-    }
+    } catch (e) { alert("카카오 공유 에러: " + e.message); }
 }
 
-// ★ 가장 확실한 우회로: 브라우저 캐시 무시하고 JS에서 강제로 카카오망 주입
 function shareKakao() {
     if (typeof Kakao === 'undefined') {
         const script = document.createElement('script');
@@ -155,40 +180,37 @@ function shareKakao() {
             Kakao.init('fbb1520306ffaad0a882e993109a801c');
             executeKakaoShare();
         };
-        script.onerror = () => {
-            alert("카카오 서버 접속이 완전히 차단되었습니다. 브라우저의 광고 차단(Adblock)이나 보안 설정을 확인해주세요.");
-        };
-        document.head.appendChild(script); // 스크립트 강제 주입
+        document.head.appendChild(script);
     } else {
         if (!Kakao.isInitialized()) Kakao.init('fbb1520306ffaad0a882e993109a801c');
         executeKakaoShare();
     }
 }
 
-function finishSession() {
-    if (currentSession <= 5) {
+// didTest 파라미터를 추가하여 테스트를 친 세션과 안 친 세션을 구분
+function finishSession(didTest = true) {
+    if (currentSession <= 6) {
         currentSession++;
         localStorage.setItem('trigger_session', currentSession);
     }
 
-    if (currentSession > 5) {
+    if (currentSession > 6) {
         setTimeout(() => {
-            const wantShare = confirm(`최종 결과: ${score} / ${targetWords.length}\n🎉 5세션 완수!\n확인(OK)을 누르면 카카오톡으로 결과가 공유됩니다.`);
-            
+            const wantShare = confirm(`최종 테스트 결과: ${score} / ${targetWords.length}\n🎉 총 6세션을 모두 완수했습니다!\n확인(OK)을 누르면 카카오톡으로 공유됩니다.`);
             if(wantShare) {
                 shareKakao();
-                // 팝업 킬(Kill) 방지: 카톡 창이 뜰 시간 3초 확보 (안전하게 늘림)
-                setTimeout(() => {
-                    location.href = 'index.html';
-                }, 3000); 
-            } else {
-                location.href = 'index.html'; 
-            }
+                setTimeout(() => { location.href = 'index.html'; }, 3000); 
+            } else { location.href = 'index.html'; }
         }, 300);
     } else {
         const endTime = Date.now() + COOL_DOWN_TIME;
         localStorage.setItem('blackt_cooldown', endTime);
-        alert(`테스트 완료! (정답: ${score}/${targetWords.length})\n쿨타임이 시작되어 메인 화면으로 돌아갑니다.`);
+        
+        if (didTest) {
+            alert(`인출 테스트 완료! (정답: ${score}/${targetWords.length})\n쿨타임이 시작되어 메인 화면으로 돌아갑니다.`);
+        } else {
+            alert(`학습 완료! (다음 세션을 위해 메인 화면으로 돌아갑니다)`);
+        }
         location.href = 'index.html'; 
     }
 }
