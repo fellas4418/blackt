@@ -10,9 +10,24 @@ let targetWords = [];
 let studyLoopCount = 1; 
 const COOL_DOWN_TIME = 10 * 60 * 1000; 
 
-// ★ 사전 복습(Pre-Review) 모드 제어 변수
 let isPreReviewMode = false;
 let todayWords = [];
+
+// ★ 글자 크기를 절반으로 줄여주는 시스템 메시지 전용 함수
+function showSystemMessage(text) {
+    const targetEl = document.getElementById('target');
+    const ipaEl = document.getElementById('ipa');
+    const meaningsEl = document.getElementById('meanings');
+    
+    if (targetEl) {
+        targetEl.innerHTML = text;
+        targetEl.style.fontSize = '1.5rem'; // 글자 크기 축소
+        targetEl.style.lineHeight = '1.5';
+        targetEl.style.wordBreak = 'keep-all';
+    }
+    if (ipaEl) ipaEl.innerText = "";
+    if (meaningsEl) meaningsEl.innerHTML = "";
+}
 
 function initApp() {
     try {
@@ -31,24 +46,22 @@ function initApp() {
         const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
         const selectedLevel = localStorage.getItem('trigger_level') || 'middle';
         
-        // 데이터가 Day별 객체로 변경됨
         const levelData = wordsData[selectedLevel] || {};
         
         if (currentDay === 6 || currentDay === 7) {
             targetWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
             if (targetWords.length === 0) {
-                document.getElementById('target').innerText = "저장된 오답이 없습니다. 메인으로 돌아갑니다.";
+                showSystemMessage("저장된 오답이 없습니다.<br>메인으로 돌아갑니다.");
                 setTimeout(() => { location.href = 'index.html'; }, 1500);
                 return;
             }
         } else {
             todayWords = levelData[currentDay] || [];
             if (todayWords.length === 0) {
-                document.getElementById('target').innerText = "해당 Day의 단어 데이터가 없습니다!";
+                showSystemMessage("해당 Day의 단어 데이터가 없습니다!");
                 return;
             }
 
-            // ★ 핵심 로직: 진도 시작 전 (Day 2 이상 & 1세션일 때) 전일/전전일 오답 강제 인터셉트
             if (currentDay > 1 && currentSession === 1) {
                 let savedWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
                 let preReviewWords = savedWrongs.filter(w => w.day === currentDay - 1 || w.day === currentDay - 2);
@@ -57,9 +70,9 @@ function initApp() {
                     isPreReviewMode = true;
                     targetWords = preReviewWords;
                     if (sessionTag) sessionTag.innerText = `🚨 사전 오답 복습 (Day ${currentDay-2}~${currentDay-1})`;
-                    alert(`Day ${currentDay} 진도 시작 전, 과거의 오답 및 별표 단어를 먼저 복습합니다!`);
+                    alert(`Day ${currentDay} 학습 시작 전, 과거의 오답 및 별표 단어를 먼저 복습합니다!`);
                     startStudy();
-                    return; // 사전 복습 모드로 진입하며 아래 로직 스킵
+                    return; 
                 }
             }
             targetWords = todayWords; 
@@ -71,14 +84,13 @@ function initApp() {
 
         const endTime = localStorage.getItem('blackt_cooldown');
         if (endTime && endTime - Date.now() > 0 && currentSession <= 6) {
-            document.getElementById('target').innerText = "쿨타임 중입니다. 돌아갑니다.";
-            setTimeout(() => { location.href = 'index.html'; }, 1000);
+            showSystemMessage("쿨타임 중입니다.<br>메인으로 돌아갑니다.");
+            setTimeout(() => { location.href = 'index.html'; }, 1500);
         } else {
             startStudy(); 
         }
     } catch (err) {
-        const targetEl = document.getElementById('target');
-        if(targetEl) targetEl.innerText = "에러: " + err.message;
+        showSystemMessage("에러: " + err.message);
     }
 }
 
@@ -99,7 +111,6 @@ function playPronunciation(text) {
 
 function startStudy() {
     if (currentIdx >= targetWords.length) {
-        // ★ 사전 복습 모드는 1회독 후 바로 테스트로 넘김 (시간 단축)
         if (isPreReviewMode && studyLoopCount < 1) {
             studyLoopCount++;
             currentIdx = 0; 
@@ -115,14 +126,10 @@ function startStudy() {
             const currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
             
             if (isPreReviewMode || currentSession === 3 || currentSession === 6 || currentSession > 6) {
-                document.getElementById('target').innerText = "4지선다 테스트 준비 중...";
-                document.getElementById('ipa').innerText = "";
-                document.getElementById('meanings').innerHTML = "";
+                showSystemMessage("4지선다 테스트 준비 중...");
                 setTimeout(startTest, 1200);
             } else {
-                document.getElementById('target').innerText = "각인 완료! 세션을 종료합니다...";
-                document.getElementById('ipa').innerText = "";
-                document.getElementById('meanings').innerHTML = "";
+                showSystemMessage("단어 학습 완료!<br>세션을 종료합니다...");
                 setTimeout(() => finishSession(false), 1200);
             }
             return;
@@ -170,7 +177,6 @@ function startTest() {
     window.currentTimer = interval;
 }
 
-// ★ 별표(⭐) 토글 로직 추가
 function toggleStar(wordObj) {
     let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
     const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
@@ -188,16 +194,26 @@ function toggleStar(wordObj) {
 }
 
 function updateUI(data, isTest = false) {
-    // UI에 별표 버튼 동적 삽입
-    let titleHtml = `${data.word} <button id="star-btn" style="background:none; border:none; font-size:1.5rem; cursor:pointer; vertical-align:middle; color:var(--neon-orange);">☆</button>`;
-    document.getElementById('target').innerHTML = titleHtml;
+    const targetEl = document.getElementById('target');
     
-    // 별표 상태 체크 및 이벤트 바인딩
+    // ★ 단어가 표시될 때는 CSS 기본 큰 글자 크기로 복구
+    targetEl.style.fontSize = ''; 
+    targetEl.style.lineHeight = '';
+
+    // ★ 발음 듣기(🔊) 버튼 추가
+    let titleHtml = `${data.word} 
+        <button onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}')" style="background:none; border:none; font-size:1.5rem; cursor:pointer; vertical-align:middle; color:var(--neon-blue); margin-left:10px; margin-right:5px;" title="발음 듣기">🔊</button>
+        <button id="star-btn" style="background:none; border:none; font-size:1.5rem; cursor:pointer; vertical-align:middle; color:var(--neon-orange);" title="별표">☆</button>`;
+    
+    targetEl.innerHTML = titleHtml;
+    
     const starBtn = document.getElementById('star-btn');
     let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
     const isStarred = wrongWords.some(w => w.word === data.word);
-    starBtn.innerText = isStarred ? "⭐" : "☆";
-    starBtn.onclick = () => toggleStar(data);
+    if(starBtn) {
+        starBtn.innerText = isStarred ? "⭐" : "☆";
+        starBtn.onclick = () => toggleStar(data);
+    }
 
     document.getElementById('ipa').innerText = data.ipa || '';
     const mBox = document.getElementById('meanings');
@@ -207,8 +223,8 @@ function updateUI(data, isTest = false) {
     if (!isTest) {
         mBox.innerHTML = data.meanings.map(m => `<div>${m}</div>`).join('');
     } else {
-        // 테스트 중에는 별표 버튼 숨김
-        starBtn.style.display = 'none'; 
+        if(starBtn) starBtn.style.display = 'none'; 
+        
         const allOtherMeanings = targetWords.filter(w => w.word !== data.word).map(w => w.meanings.join(', '));
         let availableMeanings = [...allOtherMeanings]; 
         let wrongChoices = [];
@@ -242,14 +258,12 @@ function handleAnswer(isCorrect) {
 
     if (isCorrect) {
         score++;
-        // ★ 사전 복습에서 정답을 맞추면 오답 노트에서 해방시켜 줌 (성취감 제공)
         if (isPreReviewMode && idx > -1) {
             wrongWords.splice(idx, 1);
             localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
         }
     } else {
         if (idx === -1) {
-            // 틀리면 오답에 '발생한 Day' 꼬리표를 달아서 저장
             wrongWords.push({ ...currentWordData, day: currentDay });
             localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
         }
@@ -264,7 +278,8 @@ function executeKakaoShare() {
         const currentDay = localStorage.getItem('trigger_current_day') || 1;
         Kakao.Share.sendDefault({
             objectType: 'text',
-            text: `🔥 ${userName}님이 Trigger Voca [Day ${currentDay}]를 완수했습니다!\n👉 최종 정답률: ${score} / ${targetWords.length}`,
+            // 용어 교체
+            text: `🔥 ${userName}님이 Trigger Voca [Day ${currentDay}]를 완수했습니다!\n👉 최종 테스트 정답률: ${score} / ${targetWords.length}`,
             link: { mobileWebUrl: 'https://blackt.pages.dev', webUrl: 'https://blackt.pages.dev' },
             buttonTitle: '나도 도전하기',
         });
@@ -287,7 +302,6 @@ function shareKakao() {
 }
 
 function finishSession(didTest = true) {
-    // ★ 사전 복습 모드 종료 처리: 대시보드로 가지 않고 바로 오늘 진도(1세션) 시작
     if (isPreReviewMode) {
         isPreReviewMode = false;
         targetWords = todayWords; 
@@ -295,7 +309,7 @@ function finishSession(didTest = true) {
         score = 0;
         studyLoopCount = 1;
         document.getElementById('session-tag').innerText = `Session 1 / 6`;
-        document.getElementById('target').innerText = "사전 복습 완료! 오늘 진도를 시작합니다.";
+        showSystemMessage("사전 복습 완료!<br>오늘 진도를 시작합니다.");
         setTimeout(startStudy, 1500);
         return;
     }
@@ -310,21 +324,14 @@ function finishSession(didTest = true) {
         if (currentSession === 7) {
             let unlockedDay = parseInt(localStorage.getItem('trigger_unlocked_day')) || 1;
             const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
-            // 해당 Day를 끝냈을 때만 다음 Day 언락
             if (unlockedDay === currentDay) {
                 localStorage.setItem('trigger_unlocked_day', unlockedDay + 1);
             }
         }
     }
 
-    const targetEl = document.getElementById('target');
-    const ipaEl = document.getElementById('ipa');
-    const meaningsEl = document.getElementById('meanings');
-    if(ipaEl) ipaEl.innerText = "";
-    if(meaningsEl) meaningsEl.innerHTML = "";
-
     if (finishedSession >= 6) {
-        targetEl.innerText = "🎉 6세션 완수! 카카오톡 호출 중...";
+        showSystemMessage("🎉 6세션 완수!<br>카카오톡 호출 중...");
         setTimeout(() => {
             shareKakao();
             setTimeout(() => { location.href = 'index.html'; }, 3000); 
@@ -333,7 +340,8 @@ function finishSession(didTest = true) {
         const endTime = Date.now() + COOL_DOWN_TIME;
         localStorage.setItem('blackt_cooldown', endTime);
         
-        targetEl.innerText = didTest ? "테스트 완료! 메인 화면으로 돌아갑니다." : "학습 완료! 메인 화면으로 돌아갑니다.";
+        // ★ 용어 교체 및 깔끔한 줄바꿈 적용
+        showSystemMessage(didTest ? "테스트 완료!<br>메인 화면으로 돌아갑니다." : "단어 학습 완료!<br>메인 화면으로 돌아갑니다.");
         setTimeout(() => { location.href = 'index.html'; }, 1500);
     }
 }
