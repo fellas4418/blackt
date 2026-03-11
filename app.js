@@ -12,10 +12,7 @@ const COOL_DOWN_TIME = 10 * 60 * 1000;
 
 let isPreReviewMode = false;
 let todayWords = [];
-
 let isMuted = localStorage.getItem('trigger_muted') === 'true';
-
-// ★ 일시중지 상태 변수 추가
 let isPaused = false;
 
 function toggleMute() {
@@ -25,7 +22,6 @@ function toggleMute() {
     if (btn) btn.innerText = isMuted ? '🔇' : '🔊';
 }
 
-// ★ 일시중지 제어 함수 추가
 function togglePause() {
     isPaused = !isPaused;
     const pauseBtn = document.getElementById('pause-btn');
@@ -37,8 +33,8 @@ function togglePause() {
             pauseBtn.style.borderColor = "var(--neon-green)";
             pauseBtn.style.color = "var(--neon-green)";
         }
-        if(exitBtn) exitBtn.style.display = "block"; // 숨겨둔 나가기 버튼 노출
-        window.speechSynthesis.pause(); // 읽어주던 음성도 일시정지
+        if(exitBtn) exitBtn.style.display = "block"; 
+        window.speechSynthesis.pause(); 
     } else {
         if(pauseBtn) {
             pauseBtn.innerText = "⏸ 일시중지";
@@ -46,7 +42,7 @@ function togglePause() {
             pauseBtn.style.color = "#fff";
         }
         if(exitBtn) exitBtn.style.display = "none";
-        window.speechSynthesis.resume(); // 음성 재생 재개
+        window.speechSynthesis.resume(); 
     }
 }
 
@@ -141,7 +137,7 @@ if (document.readyState === 'loading') {
 
 function playPronunciation(text, isManual = false) {
     if (isMuted && !isManual) return; 
-    if (isPaused && !isManual) return; // 일시중지 상태에서는 자동 재생 방지
+    if (isPaused && !isManual) return; 
 
     try {
         const utterance = new SpeechSynthesisUtterance(text);
@@ -189,7 +185,6 @@ function startStudy() {
 
     let time = 6000;
     const interval = setInterval(() => {
-        // ★ 엔진의 심장: 일시중지 상태면 타이머가 흐르지 않게 막아버립니다.
         if (isPaused) return; 
         
         time -= 100;
@@ -214,7 +209,6 @@ function startTest() {
 
     let time = 5000; 
     const interval = setInterval(() => {
-        // ★ 4지선다 테스트 중에도 일시중지가 먹히도록 처리
         if (isPaused) return;
         
         time -= 100;
@@ -247,13 +241,11 @@ function updateUI(data, isTest = false) {
     targetEl.style.fontSize = ''; 
     targetEl.style.lineHeight = '';
 
-    // ★ 위치 조정: 스피커는 단어 위, 별표는 단어 바로 우측에 찰싹 붙임
+    // ★ 단어 클릭 시 발음 재생 추가 & 별표 버튼 우측 밀착 배치
     let titleHtml = `
-        <div style="margin-bottom: 8px;">
-            <button onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)" style="background:none; border:none; font-size:1.6rem; cursor:pointer; color:var(--neon-blue);" title="발음 듣기">🔊</button>
-        </div>
-        <div>
-            ${data.word} <button id="star-btn" style="background:none; border:none; font-size:1.5rem; cursor:pointer; vertical-align:middle; color:var(--neon-orange);" title="별표">☆</button>
+        <div style="display:flex; justify-content:center; align-items:center; gap:5px;">
+            <span style="cursor:pointer;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)" title="단어 터치 시 발음 재생">${data.word}</span>
+            <button id="star-btn" style="background:none; border:none; font-size:1.6rem; cursor:pointer; color:var(--neon-orange); padding-bottom:5px;" title="별표">☆</button>
         </div>
     `;
     
@@ -264,7 +256,10 @@ function updateUI(data, isTest = false) {
     const isStarred = wrongWords.some(w => w.word === data.word);
     if(starBtn) {
         starBtn.innerText = isStarred ? "⭐" : "☆";
-        starBtn.onclick = () => toggleStar(data);
+        starBtn.onclick = (e) => { 
+            e.stopPropagation(); // 별표 누를 때 단어 터치(발음) 안 겹치게 방어
+            toggleStar(data); 
+        };
     }
 
     document.getElementById('ipa').innerText = data.ipa || '';
@@ -328,10 +323,14 @@ function executeKakaoShare() {
     try {
         const userName = localStorage.getItem('trigger_name') || '학습자';
         const currentDay = localStorage.getItem('trigger_current_day') || 1;
+        
+        // ★ 현재 도메인 주소를 동적으로 추출 (어디에 배포하든 현재 사이트 주소로 연결됨)
+        const currentUrl = window.location.origin + window.location.pathname.replace('study.html', 'index.html');
+        
         Kakao.Share.sendDefault({
             objectType: 'text',
             text: `🔥 ${userName}님이 Trigger Voca [Day ${currentDay}]를 완수했습니다!\n👉 최종 테스트 정답률: ${score} / ${targetWords.length}`,
-            link: { mobileWebUrl: 'https://blackt.pages.dev', webUrl: 'https://blackt.pages.dev' },
+            link: { mobileWebUrl: currentUrl, webUrl: currentUrl },
             buttonTitle: '나도 도전하기',
         });
     } catch (e) {}
@@ -382,7 +381,8 @@ function finishSession(didTest = true) {
     }
 
     if (finishedSession >= 6) {
-        showSystemMessage("🎉 6세션 완수!<br>카카오톡 호출 중...");
+        // ★ 문구 수정 반영
+        showSystemMessage("🎉 6세션 완수!<br>카카오톡으로 결과 공유하기!");
         setTimeout(() => {
             shareKakao();
             setTimeout(() => { location.href = 'index.html'; }, 3000); 
