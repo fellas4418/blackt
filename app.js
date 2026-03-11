@@ -399,4 +399,12 @@ function finishSession(didTest = true) {
         showSystemMessage(didTest ? "테스트 완료!<br>메인 화면으로 돌아갑니다." : "단어 학습 완료!<br>메인 화면으로 돌아갑니다.");
         setTimeout(() => { location.href = 'index.html'; }, 1500);
     }
+    // ★ PWA 서비스 워커 등록 (오프라인 모드 활성화)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+            .then(reg => console.log('오프라인 방어벽(Service Worker) 작동 완료!', reg.scope))
+            .catch(err => console.log('오프라인 방어벽 등록 실패:', err));
+    });
+}
 }
