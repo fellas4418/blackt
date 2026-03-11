@@ -6,7 +6,7 @@
     <title>Trigger Voca - Neon</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        #login-modal, #wrong-modal, #all-words-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; transition: opacity 0.5s; }
+        #login-modal, #wrong-modal, #all-words-modal, #report-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; transition: opacity 0.5s; }
         .login-card { background: var(--card-bg-color); border: 1px solid var(--neon-blue); box-shadow: var(--glow-blue); border-radius: 20px; padding: 30px; width: 85%; max-width: 400px; text-align: center; max-height: 80vh; overflow-y: auto; }
         .login-title { font-size: 1.8rem; font-weight: bold; margin-bottom: 20px; text-shadow: var(--glow-text); }
         .input-group { margin-bottom: 15px; text-align: left; }
@@ -15,9 +15,19 @@
         .neon-input:focus { outline: none; border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0,243,255,0.3); }
         .checkbox-group { display: flex; align-items: center; gap: 10px; margin: 20px 0; font-size: 0.9rem; color: #aaa; text-align: left; }
         .login-btn { width: 100%; padding: 15px; background: transparent; border: 2px solid var(--neon-green); color: #fff; font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer; box-shadow: var(--glow-green); margin-top: 10px;}
-        #welcome-msg { text-align: center; color: var(--neon-blue); font-size: 1.1rem; margin-bottom: 20px; text-shadow: 0 0 5px var(--neon-blue); }
+        #welcome-msg { text-align: center; color: var(--neon-blue); font-size: 1.1rem; margin-bottom: 10px; text-shadow: 0 0 5px var(--neon-blue); }
         .clickable-card { cursor: pointer; transition: 0.2s; }
         .clickable-card:active { transform: scale(0.95); }
+        
+        /* 통계 디자인 */
+        .stats-row { display: flex; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #333; }
+        .stat-item { text-align: center; flex: 1; }
+        .stat-label { font-size: 0.8rem; color: #aaa; margin-bottom: 5px; }
+        .stat-value { font-size: 1.2rem; font-weight: bold; color: var(--neon-blue); }
+        
+        /* 리포트 막대그래프 디자인 */
+        .report-bar-bg { width: 100%; background: #222; height: 12px; border-radius: 6px; margin-top: 5px; overflow: hidden; }
+        .report-bar-fill { height: 100%; background: var(--neon-green); width: 0%; border-radius: 6px; box-shadow: 0 0 5px var(--neon-green); transition: width 0.5s; }
     </style>
 </head>
 <body class="dashboard-bg">
@@ -48,9 +58,32 @@
         </div>
     </div>
 
+    <div id="report-modal" style="display:none; z-index: 2000;">
+        <div class="login-card" style="border-color: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue);">
+            <div class="login-title" style="color:var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue);">📊 5일 주간 리포트</div>
+            <div id="report-list" style="text-align:left; color:#fff; margin-bottom:20px; font-size:1rem; line-height:1.8;"></div>
+            <button class="login-btn" style="border-color: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue);" onclick="document.getElementById('report-modal').style.display='none'">닫기</button>
+        </div>
+    </div>
+
     <div class="dashboard-container">
         <div class="logo">Trigger<br>Voca</div>
         <div id="welcome-msg"></div>
+
+        <div class="stats-row">
+            <div class="stat-item">
+                <div class="stat-label">진행 중인 Day</div>
+                <div class="stat-value" id="stat-current-day">Day 1</div>
+            </div>
+            <div class="stat-item" style="border-left: 1px solid #444; border-right: 1px solid #444;">
+                <div class="stat-label">오늘의 세션</div>
+                <div class="stat-value" id="stat-session">1 / 6</div>
+            </div>
+            <div class="stat-item clickable-card" onclick="showWeeklyReport()">
+                <div class="stat-label">누적 리포트</div>
+                <div class="stat-value" style="color:var(--neon-green); text-decoration:underline;">보기 📊</div>
+            </div>
+        </div>
 
         <div class="card level-section">
             <div class="level-title">학습 레벨 선택</div>
@@ -106,16 +139,13 @@
             localStorage.setItem('trigger_session', '1');
         }
 
-        // ★ 버그 수정: 무조건 1세션으로 리셋하던 함정을 제거했습니다.
         function startDayStudy(day) {
             const savedDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
             const currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
             
-            // 날짜가 완전히 다른 Day로 넘어가거나, 오늘 하루 치(6세션)를 이미 다 끝냈을 때만 1세션으로 리셋
             if (savedDay !== day || currentSession > 6) {
                 localStorage.setItem('trigger_session', '1'); 
             }
-            
             localStorage.setItem('trigger_current_day', day);
             location.href = 'study.html';
         }
@@ -164,6 +194,48 @@
             document.getElementById('all-words-modal').style.display = 'flex';
         }
 
+        // ★ 주간 리포트 팝업 렌더링
+        function showWeeklyReport() {
+            const stats = JSON.parse(localStorage.getItem('trigger_stats') || '{}');
+            const listContainer = document.getElementById('report-list');
+            
+            if(Object.keys(stats).length === 0) {
+                listContainer.innerHTML = "<p style='text-align:center; color:#888;'>아직 누적된 학습 데이터가 없습니다.<br>오늘의 6세션을 완수해 보세요!</p>";
+            } else {
+                let html = '';
+                // Day 1부터 5까지의 성적을 바 그래프와 함께 출력
+                for(let i=1; i<=5; i++) {
+                    const accuracy = stats[i];
+                    if(accuracy !== undefined) {
+                        let color = accuracy >= 80 ? "var(--neon-green)" : "var(--neon-orange)";
+                        html += `
+                            <div style="margin-bottom: 15px;">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
+                                    <span>Day ${i} 진도 완료</span>
+                                    <span style="color:${color}; font-weight:bold;">${accuracy}%</span>
+                                </div>
+                                <div class="report-bar-bg">
+                                    <div class="report-bar-fill" style="width: ${accuracy}%; background:${color}; box-shadow: 0 0 5px ${color};"></div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div style="margin-bottom: 15px; opacity: 0.5;">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
+                                    <span>Day ${i} 미진행</span>
+                                    <span>-</span>
+                                </div>
+                                <div class="report-bar-bg"></div>
+                            </div>
+                        `;
+                    }
+                }
+                listContainer.innerHTML = html;
+            }
+            document.getElementById('report-modal').style.display = 'flex';
+        }
+
         function unlockDay(btn, day) {
             if(confirm(`Day ${day}의 잠금을 강제로 해제하시겠습니까?`)) {
                 localStorage.setItem('trigger_unlocked_day', day);
@@ -180,6 +252,11 @@
             const startBtn = document.getElementById('start-btn-main');
             const currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
             const unlockedDay = parseInt(localStorage.getItem('trigger_unlocked_day')) || 1;
+            const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
+            
+            // ★ 상단 통계 UI 업데이트
+            document.getElementById('stat-current-day').innerText = `Day ${currentDay}`;
+            document.getElementById('stat-session').innerText = currentSession > 6 ? '학습 완료' : `${currentSession} / 6`;
             
             if (window.cooldownInterval) clearInterval(window.cooldownInterval);
 
@@ -239,7 +316,7 @@
                 modal.style.display = 'none';
                 welcomeMsg.innerText = currentSession > 6 
                     ? `환영합니다, ${savedName}님! 🔥 (오늘 6회 완수!)` 
-                    : `환영합니다, ${savedName}님! 🔥 (오늘 진행도: ${currentSession}/6 세션)`;
+                    : `환영합니다, ${savedName}님! 🔥`;
             } else {
                 modal.style.display = 'flex';
             }

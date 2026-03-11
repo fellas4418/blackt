@@ -241,7 +241,6 @@ function updateUI(data, isTest = false) {
     targetEl.style.fontSize = ''; 
     targetEl.style.lineHeight = '';
 
-    // ★ 단어 클릭 시 발음 재생 추가 & 별표 버튼 우측 밀착 배치
     let titleHtml = `
         <div style="display:flex; justify-content:center; align-items:center; gap:5px;">
             <span style="cursor:pointer;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)" title="단어 터치 시 발음 재생">${data.word}</span>
@@ -257,7 +256,7 @@ function updateUI(data, isTest = false) {
     if(starBtn) {
         starBtn.innerText = isStarred ? "⭐" : "☆";
         starBtn.onclick = (e) => { 
-            e.stopPropagation(); // 별표 누를 때 단어 터치(발음) 안 겹치게 방어
+            e.stopPropagation(); 
             toggleStar(data); 
         };
     }
@@ -323,8 +322,6 @@ function executeKakaoShare() {
     try {
         const userName = localStorage.getItem('trigger_name') || '학습자';
         const currentDay = localStorage.getItem('trigger_current_day') || 1;
-        
-        // ★ 현재 도메인 주소를 동적으로 추출 (어디에 배포하든 현재 사이트 주소로 연결됨)
         const currentUrl = window.location.origin + window.location.pathname.replace('study.html', 'index.html');
         
         Kakao.Share.sendDefault({
@@ -366,6 +363,16 @@ function finishSession(didTest = true) {
 
     let currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
     let finishedSession = currentSession;
+    const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
+
+    // ★ 6세션 최종 완료 시점에 통계 데이터 누적 기록
+    if (finishedSession >= 6 && didTest) {
+        let stats = JSON.parse(localStorage.getItem('trigger_stats') || '{}');
+        // 오늘(Day)의 최종 정답률을 기록 (소수점 버림)
+        let accuracy = Math.floor((score / targetWords.length) * 100);
+        stats[currentDay] = accuracy;
+        localStorage.setItem('trigger_stats', JSON.stringify(stats));
+    }
 
     if (currentSession <= 6) {
         currentSession++;
@@ -373,7 +380,6 @@ function finishSession(didTest = true) {
         
         if (currentSession === 7) {
             let unlockedDay = parseInt(localStorage.getItem('trigger_unlocked_day')) || 1;
-            const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
             if (unlockedDay === currentDay) {
                 localStorage.setItem('trigger_unlocked_day', unlockedDay + 1);
             }
@@ -381,7 +387,6 @@ function finishSession(didTest = true) {
     }
 
     if (finishedSession >= 6) {
-        // ★ 문구 수정 반영
         showSystemMessage("🎉 6세션 완수!<br>카카오톡으로 결과 공유하기!");
         setTimeout(() => {
             shareKakao();
