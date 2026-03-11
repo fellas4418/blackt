@@ -401,10 +401,3 @@ function finishSession(didTest = true) {
     }
 }
 
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js')
-            .then(reg => console.log('오프라인 방어벽 작동 완료', reg.scope))
-            .catch(err => console.log('오프라인 방어벽 실패:', err));
-    });
-}
