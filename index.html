@@ -253,7 +253,6 @@
             const currentLevel = localStorage.getItem('trigger_level') || 'middle';
             let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
             
-            // ★ 오답 카운트도 레벨에 맞게 필터링
             wrongWords = wrongWords.filter(w => w.level === currentLevel);
             document.getElementById('wrong-word-count').innerText = wrongWords.length + " 단어";
 
@@ -277,30 +276,29 @@
                 startBtn.onclick = () => startDayStudy(unlockedDay);
             } else if (endTime && endTime - Date.now() > 0) {
                 
-                // ★ 쿨타임 선택적 돌파 시스템
-                startBtn.disabled = false; 
-                startBtn.style.borderColor = "var(--neon-orange)";
-                startBtn.style.boxShadow = "var(--glow-orange)";
-                startBtn.style.color = "#fff";
-                
-                startBtn.onclick = () => {
-                    if(confirm("🚨 아직 뇌의 휴식(쿨타임)이 끝나지 않았습니다!\n휴식 없이 바로 진행하면 장기 기억 효율이 떨어질 수 있습니다.\n\n그래도 강제로 다음 세션을 진행하시겠습니까?")) {
-                        localStorage.removeItem('blackt_cooldown');
-                        startDayStudy(unlockedDay);
-                    }
-                };
+                // ★ 강제 쿨타임 적용: 버튼 완전 비활성화 및 클릭 차단
+                startBtn.disabled = true; 
+                startBtn.style.borderColor = "#444";
+                startBtn.style.boxShadow = "none";
+                startBtn.style.color = "#666";
+                startBtn.onclick = null; 
                 
                 const updateTimerText = () => {
                     const remaining = endTime - Date.now();
                     if (remaining <= 0) {
                         clearInterval(window.cooldownInterval);
                         localStorage.removeItem('blackt_cooldown');
+                        startBtn.disabled = false;
                         startBtn.innerText = "학습 시작하기";
+                        startBtn.style.borderColor = "var(--neon-orange)";
+                        startBtn.style.boxShadow = "var(--glow-orange)";
+                        startBtn.style.color = "#fff";
                         startBtn.onclick = () => startDayStudy(unlockedDay);
                     } else {
                         const mins = Math.floor(remaining / 60000);
                         const secs = Math.floor((remaining % 60000) / 1000);
-                        startBtn.innerText = `쿨타임 중 (${mins}:${secs < 10 ? '0' : ''}${secs}) - 강제 진행`;
+                        // 문구를 엄격하게 변경
+                        startBtn.innerText = `뇌 휴식 중 🔒 (${mins}:${secs < 10 ? '0' : ''}${secs})`;
                     }
                 };
                 
