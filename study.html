@@ -9,10 +9,17 @@
 </head>
 <body class="study-bg">
     <div id="app">
-        <button class="back-btn" onclick="location.href='index.html'">← 메인으로 가기</button>
+        
+        <div style="position: absolute; top: 20px; left: 20px; display: flex; gap: 10px; z-index: 100;">
+            <button id="pause-btn" class="back-btn" style="position: static;" onclick="togglePause()">⏸ 일시중지</button>
+            <button id="exit-btn" class="back-btn" style="position: static; display: none; border-color: var(--neon-orange); color: var(--neon-orange);" onclick="location.href='index.html'">🚪 나가기</button>
+        </div>
         
         <header class="header">
-            <div id="session-tag">Session 1 / 6</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+                <div id="session-tag">Session 1 / 6</div>
+                <button id="mute-toggle-btn" onclick="toggleMute()" style="background:none; border:none; font-size:1.3rem; cursor:pointer; color:#fff;" title="자동 발음 켜기/끄기">🔊</button>
+            </div>
             <div class="progress-box"><div id="bar"></div></div>
         </header>
 

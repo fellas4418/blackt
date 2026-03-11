@@ -106,10 +106,17 @@
             localStorage.setItem('trigger_session', '1');
         }
 
+        // ★ 버그 수정: 무조건 1세션으로 리셋하던 함정을 제거했습니다.
         function startDayStudy(day) {
+            const savedDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
+            const currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
+            
+            // 날짜가 완전히 다른 Day로 넘어가거나, 오늘 하루 치(6세션)를 이미 다 끝냈을 때만 1세션으로 리셋
+            if (savedDay !== day || currentSession > 6) {
+                localStorage.setItem('trigger_session', '1'); 
+            }
+            
             localStorage.setItem('trigger_current_day', day);
-            // ★ 버그 수정: 새 Day 시작 시 반드시 세션을 1로 강제 리셋해야 사전 복습 관문이 작동함
-            localStorage.setItem('trigger_session', '1'); 
             location.href = 'study.html';
         }
 
@@ -146,8 +153,6 @@
         function showAllWords() {
             const selectedLevel = localStorage.getItem('trigger_level') || 'middle';
             const levelData = wordsData[selectedLevel] || {};
-            
-            // ★ 버그 수정: Day별로 쪼개진 서랍(객체) 속 데이터들을 평평한 하나의 배열(flat)로 합침
             const allWords = Object.values(levelData).flat();
             
             const listContainer = document.getElementById('all-words-list');
@@ -258,12 +263,9 @@
 
             if (typeof wordsData !== 'undefined' && wordsData[level]) {
                 const levelData = wordsData[level] || {};
-                
-                // ★ 총 단어 수 계산 (전체 합산)
                 const allWordsCount = Object.values(levelData).flat().length;
                 document.getElementById('total-word-count').innerText = allWordsCount + " 단어";
                 
-                // ★ 오늘의 목표 단어 수 계산 (현재 Day 기준)
                 const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
                 const todayCount = (levelData[currentDay] || []).length;
                 document.getElementById('target-count-display').innerText = todayCount + "개";
