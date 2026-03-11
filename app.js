@@ -13,7 +13,15 @@ const COOL_DOWN_TIME = 10 * 60 * 1000;
 let isPreReviewMode = false;
 let todayWords = [];
 
-// ★ 글자 크기를 절반으로 줄여주는 시스템 메시지 전용 함수
+let isMuted = localStorage.getItem('trigger_muted') === 'true';
+
+function toggleMute() {
+    isMuted = !isMuted;
+    localStorage.setItem('trigger_muted', isMuted);
+    const btn = document.getElementById('mute-toggle-btn');
+    if (btn) btn.innerText = isMuted ? '🔇' : '🔊';
+}
+
 function showSystemMessage(text) {
     const targetEl = document.getElementById('target');
     const ipaEl = document.getElementById('ipa');
@@ -21,7 +29,7 @@ function showSystemMessage(text) {
     
     if (targetEl) {
         targetEl.innerHTML = text;
-        targetEl.style.fontSize = '1.5rem'; // 글자 크기 축소
+        targetEl.style.fontSize = '1.5rem'; 
         targetEl.style.lineHeight = '1.5';
         targetEl.style.wordBreak = 'keep-all';
     }
@@ -35,6 +43,9 @@ function initApp() {
         const sessionTag = document.getElementById('session-tag'); 
         const footer = document.querySelector('.footer');
         if (footer) footer.style.display = 'none';
+
+        const muteBtn = document.getElementById('mute-toggle-btn');
+        if (muteBtn) muteBtn.innerText = isMuted ? '🔇' : '🔊';
 
         const today = new Date().toLocaleDateString();
         if (localStorage.getItem('trigger_date') !== today) {
@@ -100,7 +111,9 @@ if (document.readyState === 'loading') {
     initApp();
 }
 
-function playPronunciation(text) {
+function playPronunciation(text, isManual = false) {
+    if (isMuted && !isManual) return; 
+
     try {
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'en-US';
@@ -196,14 +209,17 @@ function toggleStar(wordObj) {
 function updateUI(data, isTest = false) {
     const targetEl = document.getElementById('target');
     
-    // ★ 단어가 표시될 때는 CSS 기본 큰 글자 크기로 복구
     targetEl.style.fontSize = ''; 
     targetEl.style.lineHeight = '';
 
-    // ★ 발음 듣기(🔊) 버튼 추가
-    let titleHtml = `${data.word} 
-        <button onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}')" style="background:none; border:none; font-size:1.5rem; cursor:pointer; vertical-align:middle; color:var(--neon-blue); margin-left:10px; margin-right:5px;" title="발음 듣기">🔊</button>
-        <button id="star-btn" style="background:none; border:none; font-size:1.5rem; cursor:pointer; vertical-align:middle; color:var(--neon-orange);" title="별표">☆</button>`;
+    // ★ 단어 위에 고정된 위치(flex box)로 아이콘들을 분리 배치
+    let titleHtml = `
+        <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 10px;">
+            <button onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)" style="background:none; border:none; font-size:1.6rem; cursor:pointer; color:var(--neon-blue);" title="발음 듣기">🔊</button>
+            <button id="star-btn" style="background:none; border:none; font-size:1.6rem; cursor:pointer; color:var(--neon-orange);" title="별표">☆</button>
+        </div>
+        <div>${data.word}</div>
+    `;
     
     targetEl.innerHTML = titleHtml;
     
@@ -223,6 +239,7 @@ function updateUI(data, isTest = false) {
     if (!isTest) {
         mBox.innerHTML = data.meanings.map(m => `<div>${m}</div>`).join('');
     } else {
+        // 테스트 중에는 별표 버튼만 숨기고 스피커는 유지 (필요시 들을 수 있게)
         if(starBtn) starBtn.style.display = 'none'; 
         
         const allOtherMeanings = targetWords.filter(w => w.word !== data.word).map(w => w.meanings.join(', '));
@@ -278,7 +295,6 @@ function executeKakaoShare() {
         const currentDay = localStorage.getItem('trigger_current_day') || 1;
         Kakao.Share.sendDefault({
             objectType: 'text',
-            // 용어 교체
             text: `🔥 ${userName}님이 Trigger Voca [Day ${currentDay}]를 완수했습니다!\n👉 최종 테스트 정답률: ${score} / ${targetWords.length}`,
             link: { mobileWebUrl: 'https://blackt.pages.dev', webUrl: 'https://blackt.pages.dev' },
             buttonTitle: '나도 도전하기',
@@ -340,7 +356,6 @@ function finishSession(didTest = true) {
         const endTime = Date.now() + COOL_DOWN_TIME;
         localStorage.setItem('blackt_cooldown', endTime);
         
-        // ★ 용어 교체 및 깔끔한 줄바꿈 적용
         showSystemMessage(didTest ? "테스트 완료!<br>메인 화면으로 돌아갑니다." : "단어 학습 완료!<br>메인 화면으로 돌아갑니다.");
         setTimeout(() => { location.href = 'index.html'; }, 1500);
     }
