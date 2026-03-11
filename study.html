@@ -5,34 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trigger Voca - Training</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" integrity="sha384-TiCmbV6AUnR+N00s78kCA+D+sL+uBqN8uV22OtzOqP9A1ofw3u8g+oZD+65aX2Q" crossorigin="anonymous"></script>
     <style>
-        /* ★ 단어 크기 확대 및 양옆 여백 절대 방어 */
         #target {
-            padding: 0 20px; /* 양옆 최소 20px 여백 보장 */
+            padding: 0 20px; 
             width: 100%; 
-            box-sizing: border-box; /* 패딩이 화면을 뚫고 나가지 않게 계산 */
+            box-sizing: border-box; 
             word-wrap: break-word;
             overflow-wrap: break-word;
-            font-size: 3.5rem !important; /* 글씨 시원하게 원상복구 */
+            font-size: 3.5rem !important; 
             line-height: 1.2;
+            text-align: center;
         }
-        /* 뜻 글씨 크기 대폭 확대 유지 */
+        /* ★ 단어 뜻 50% 확대 */
         #meanings div {
-            font-size: 1.8rem !important;
+            font-size: 2.6rem !important;
             font-weight: bold;
-            margin-bottom: 15px !important;
+            margin-bottom: 20px !important;
             color: #fff;
+            text-align: center;
         }
-        /* 4지선다 테스트 보기 글씨 확대 유지 */
+        /* ★ 4지선다 보기 크기 확대 */
         .choice-btn {
-            font-size: 1.4rem !important;
+            font-size: 1.6rem !important;
             padding: 20px !important;
             font-weight: bold;
         }
+        /* ★ 발음기호 선명하게 */
+        .ipa-text {
+            color: #ddd;
+            font-size: 1.4rem;
+            margin-top: 5px;
+            font-weight: normal;
+        }
     </style>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#000000">
 </head>
 <body class="study-bg">
     <div id="app">
@@ -53,7 +61,6 @@
         <main id="display" class="mode-default">
             <div class="word-group">
                 <h1 id="target">데이터 로딩 중...</h1> 
-                <p id="ipa"></p>
             </div>
             <div id="meanings"></div>
         </main>

@@ -14,6 +14,7 @@ let isPreReviewMode = false;
 let todayWords = [];
 let isMuted = localStorage.getItem('trigger_muted') === 'true';
 let isPaused = false;
+const currentLevel = localStorage.getItem('trigger_level') || 'middle';
 
 function toggleMute() {
     isMuted = !isMuted;
@@ -48,22 +49,19 @@ function togglePause() {
 
 function showSystemMessage(text) {
     const targetEl = document.getElementById('target');
-    const ipaEl = document.getElementById('ipa');
     const meaningsEl = document.getElementById('meanings');
     
     if (targetEl) {
         targetEl.innerHTML = text;
-        targetEl.style.fontSize = '1.5rem'; 
+        targetEl.style.fontSize = '1.8rem'; 
         targetEl.style.lineHeight = '1.5';
         targetEl.style.wordBreak = 'keep-all';
     }
-    if (ipaEl) ipaEl.innerText = "";
     if (meaningsEl) meaningsEl.innerHTML = "";
 }
 
 function initApp() {
     try {
-        const bar = document.getElementById('bar');
         const sessionTag = document.getElementById('session-tag'); 
         const footer = document.querySelector('.footer');
         if (footer) footer.style.display = 'none';
@@ -77,17 +75,16 @@ function initApp() {
             localStorage.setItem('trigger_session', '1');
         }
         let currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
-        
         const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
-        const selectedLevel = localStorage.getItem('trigger_level') || 'middle';
-        
-        const levelData = wordsData[selectedLevel] || {};
+        const levelData = wordsData[currentLevel] || {};
         
         if (currentDay === 6 || currentDay === 7) {
-            targetWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+            let allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+            targetWords = allWrongs.filter(w => w.level === currentLevel);
             if (targetWords.length === 0) {
+                // 수정 사항 6: 그대로 유지
                 showSystemMessage("저장된 오답이 없습니다.<br>메인으로 돌아갑니다.");
-                setTimeout(() => { location.href = 'index.html'; }, 1500);
+                setTimeout(() => { location.href = 'index.html'; }, 2000);
                 return;
             }
         } else {
@@ -98,8 +95,8 @@ function initApp() {
             }
 
             if (currentDay > 1 && currentSession === 1) {
-                let savedWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
-                let preReviewWords = savedWrongs.filter(w => w.day === currentDay - 1 || w.day === currentDay - 2);
+                let allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+                let preReviewWords = allWrongs.filter(w => w.level === currentLevel && (w.day === currentDay - 1 || w.day === currentDay - 2));
                 
                 if (preReviewWords.length > 0) {
                     isPreReviewMode = true;
@@ -119,7 +116,8 @@ function initApp() {
 
         const endTime = localStorage.getItem('blackt_cooldown');
         if (endTime && endTime - Date.now() > 0 && currentSession <= 6) {
-            showSystemMessage("쿨타임 중입니다.<br>메인으로 돌아갑니다.");
+            // 수정 사항 7: 쿨타임 중입니다.
+            showSystemMessage("쿨타임 중입니다.");
             setTimeout(() => { location.href = 'index.html'; }, 1500);
         } else {
             startStudy(); 
@@ -164,11 +162,11 @@ function startStudy() {
             const currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
             
             if (isPreReviewMode || currentSession === 3 || currentSession === 6 || currentSession > 6) {
-                showSystemMessage("4지선다 테스트 준비 중...");
-                setTimeout(startTest, 1200);
+                // 수정 사항 1: 곧 테스트를 시작합니다.
+                showSystemMessage("곧 테스트를 시작합니다.");
+                setTimeout(startTest, 2500); 
             } else {
-                showSystemMessage("단어 학습 완료!<br>세션을 종료합니다...");
-                setTimeout(() => finishSession(false), 1200);
+                finishSession(false);
             }
             return;
         }
@@ -222,14 +220,14 @@ function startTest() {
 function toggleStar(wordObj) {
     let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
     const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
-    const idx = wrongWords.findIndex(w => w.word === wordObj.word);
+    const idx = wrongWords.findIndex(w => w.word === wordObj.word && w.level === currentLevel);
     
     const starBtn = document.getElementById('star-btn');
     if (idx > -1) {
         wrongWords.splice(idx, 1); 
         if(starBtn) starBtn.innerText = "☆";
     } else {
-        wrongWords.push({ ...wordObj, day: currentDay }); 
+        wrongWords.push({ ...wordObj, day: currentDay, level: currentLevel }); 
         if(starBtn) starBtn.innerText = "⭐";
     }
     localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
@@ -242,9 +240,12 @@ function updateUI(data, isTest = false) {
     targetEl.style.lineHeight = '';
 
     let titleHtml = `
-        <div style="display:flex; justify-content:center; align-items:center; gap:5px;">
-            <span style="cursor:pointer;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)" title="단어 터치 시 발음 재생">${data.word}</span>
-            <button id="star-btn" style="background:none; border:none; font-size:1.6rem; cursor:pointer; color:var(--neon-orange); padding-bottom:5px;" title="별표">☆</button>
+        <div style="display:flex; flex-direction:column; align-items:center;">
+            <div style="display:flex; justify-content:center; align-items:center; gap:5px;">
+                <span style="cursor:pointer;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</span>
+                <button id="star-btn" style="background:none; border:none; font-size:1.6rem; cursor:pointer; color:var(--neon-orange); padding-bottom:5px;">☆</button>
+            </div>
+            <div class="ipa-text">${data.ipa || ''}</div>
         </div>
     `;
     
@@ -252,7 +253,7 @@ function updateUI(data, isTest = false) {
     
     const starBtn = document.getElementById('star-btn');
     let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
-    const isStarred = wrongWords.some(w => w.word === data.word);
+    const isStarred = wrongWords.some(w => w.word === data.word && w.level === currentLevel);
     if(starBtn) {
         starBtn.innerText = isStarred ? "⭐" : "☆";
         starBtn.onclick = (e) => { 
@@ -261,9 +262,7 @@ function updateUI(data, isTest = false) {
         };
     }
 
-    document.getElementById('ipa').innerText = data.ipa || '';
     const mBox = document.getElementById('meanings');
-    
     const fullMeaning = data.meanings ? data.meanings.join(', ') : '뜻 없음';
     
     if (!isTest) {
@@ -300,7 +299,7 @@ function handleAnswer(isCorrect) {
     const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
     let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
     const currentWordData = targetWords[currentIdx];
-    const idx = wrongWords.findIndex(w => w.word === currentWordData.word);
+    const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
 
     if (isCorrect) {
         score++;
@@ -310,7 +309,7 @@ function handleAnswer(isCorrect) {
         }
     } else {
         if (idx === -1) {
-            wrongWords.push({ ...currentWordData, day: currentDay });
+            wrongWords.push({ ...currentWordData, day: currentDay, level: currentLevel });
             localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
         }
     }
@@ -322,7 +321,7 @@ function executeKakaoShare() {
     try {
         const userName = localStorage.getItem('trigger_name') || '학습자';
         const currentDay = localStorage.getItem('trigger_current_day') || 1;
-        const currentUrl = window.location.origin + window.location.pathname.replace('study.html', 'index.html');
+        const currentUrl = window.location.origin; 
         
         Kakao.Share.sendDefault({
             objectType: 'text',
@@ -356,8 +355,9 @@ function finishSession(didTest = true) {
         score = 0;
         studyLoopCount = 1;
         document.getElementById('session-tag').innerText = `Session 1 / 6`;
-        showSystemMessage("사전 복습 완료!<br>오늘 진도를 시작합니다.");
-        setTimeout(startStudy, 1500);
+        // 수정 사항 4: 복습 완료! 오늘의 단어를 시작합니다.
+        showSystemMessage("복습 완료!<br>오늘의 단어를 시작합니다.");
+        setTimeout(startStudy, 2500);
         return;
     }
 
@@ -365,10 +365,8 @@ function finishSession(didTest = true) {
     let finishedSession = currentSession;
     const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
 
-    // ★ 6세션 최종 완료 시점에 통계 데이터 누적 기록
     if (finishedSession >= 6 && didTest) {
         let stats = JSON.parse(localStorage.getItem('trigger_stats') || '{}');
-        // 오늘(Day)의 최종 정답률을 기록 (소수점 버림)
         let accuracy = Math.floor((score / targetWords.length) * 100);
         stats[currentDay] = accuracy;
         localStorage.setItem('trigger_stats', JSON.stringify(stats));
@@ -387,24 +385,26 @@ function finishSession(didTest = true) {
     }
 
     if (finishedSession >= 6) {
+        // 수정 사항 5: 그대로 유지
         showSystemMessage("🎉 6세션 완수!<br>카카오톡으로 결과 공유하기!");
         setTimeout(() => {
             shareKakao();
             setTimeout(() => { location.href = 'index.html'; }, 3000); 
-        }, 1500);
+        }, 2500);
     } else {
         const endTime = Date.now() + COOL_DOWN_TIME;
         localStorage.setItem('blackt_cooldown', endTime);
         
-        showSystemMessage(didTest ? "테스트 완료!<br>메인 화면으로 돌아갑니다." : "단어 학습 완료!<br>메인 화면으로 돌아갑니다.");
-        setTimeout(() => { location.href = 'index.html'; }, 1500);
+        // 수정 사항 2, 3: 단어 학습 완료! / 테스트 완료!
+        showSystemMessage(didTest ? "테스트 완료!" : "단어 학습 완료!");
+        setTimeout(() => { location.href = 'index.html'; }, 2500);
     }
-    // ★ PWA 서비스 워커 등록 (오프라인 모드 활성화)
+}
+
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./service-worker.js')
-            .then(reg => console.log('오프라인 방어벽(Service Worker) 작동 완료!', reg.scope))
-            .catch(err => console.log('오프라인 방어벽 등록 실패:', err));
+            .then(reg => console.log('오프라인 방어벽 작동 완료', reg.scope))
+            .catch(err => console.log('오프라인 방어벽 실패:', err));
     });
-}
 }

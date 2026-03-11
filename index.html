@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trigger Voca - Neon</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
     <style>
         #login-modal, #wrong-modal, #all-words-modal, #report-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; transition: opacity 0.5s; }
         .login-card { background: var(--card-bg-color); border: 1px solid var(--neon-blue); box-shadow: var(--glow-blue); border-radius: 20px; padding: 30px; width: 85%; max-width: 400px; text-align: center; max-height: 80vh; overflow-y: auto; }
@@ -29,8 +31,6 @@
         .report-bar-bg { width: 100%; background: #222; height: 12px; border-radius: 6px; margin-top: 5px; overflow: hidden; }
         .report-bar-fill { height: 100%; background: var(--neon-green); width: 0%; border-radius: 6px; box-shadow: 0 0 5px var(--neon-green); transition: width 0.5s; }
     </style>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#000000">
 </head>
 <body class="dashboard-bg">
     
@@ -104,11 +104,11 @@
 
         <div class="info-row">
             <div class="card info-card clickable-card" onclick="showAllWords()">
-                <div class="info-title title-orange">내 단어장 (클릭)</div>
+                <div class="info-title title-orange">내 단어장 보기</div>
                 <div class="info-count" id="total-word-count">0 단어</div>
             </div>
             <div class="card info-card clickable-card" onclick="showWrongWords()">
-                <div class="info-title title-green">오답/별표 (클릭)</div>
+                <div class="info-title title-green">오답/별표 단어 보기</div>
                 <div class="info-count" id="wrong-word-count">0 단어</div>
             </div>
         </div>
@@ -145,7 +145,7 @@
             const savedDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
             const currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
             
-            if (savedDay !== day || currentSession > 6) {
+            if (savedDay !== day) {
                 localStorage.setItem('trigger_session', '1'); 
             }
             localStorage.setItem('trigger_current_day', day);
@@ -172,10 +172,15 @@
         }
 
         function showWrongWords() {
-            const wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
+            let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+            
+            // ★ 선택한 레벨의 오답만 필터링해서 보여줌
+            wrongWords = wrongWords.filter(w => w.level === currentLevel); 
+            
             const listContainer = document.getElementById('wrong-list');
             if(wrongWords.length === 0) {
-                listContainer.innerHTML = "<p style='text-align:center; color:#888;'>오늘 저장된 오답이 없습니다.</p>";
+                listContainer.innerHTML = "<p style='text-align:center; color:#888;'>해당 레벨의 오답이 없습니다.</p>";
             } else {
                 listContainer.innerHTML = wrongWords.map(w => `<div style="padding:10px 0; border-bottom:1px solid #333;"><strong>${w.word}</strong> <span style="color:#888; font-size:0.9rem;">${w.meanings.join(', ')}</span></div>`).join('');
             }
@@ -196,7 +201,6 @@
             document.getElementById('all-words-modal').style.display = 'flex';
         }
 
-        // ★ 주간 리포트 팝업 렌더링
         function showWeeklyReport() {
             const stats = JSON.parse(localStorage.getItem('trigger_stats') || '{}');
             const listContainer = document.getElementById('report-list');
@@ -205,7 +209,6 @@
                 listContainer.innerHTML = "<p style='text-align:center; color:#888;'>아직 누적된 학습 데이터가 없습니다.<br>오늘의 6세션을 완수해 보세요!</p>";
             } else {
                 let html = '';
-                // Day 1부터 5까지의 성적을 바 그래프와 함께 출력
                 for(let i=1; i<=5; i++) {
                     const accuracy = stats[i];
                     if(accuracy !== undefined) {
@@ -247,7 +250,11 @@
         }
 
         function updateDashboardUI() {
-            const wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
+            let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+            
+            // ★ 오답 카운트도 레벨에 맞게 필터링
+            wrongWords = wrongWords.filter(w => w.level === currentLevel);
             document.getElementById('wrong-word-count').innerText = wrongWords.length + " 단어";
 
             const endTime = parseInt(localStorage.getItem('blackt_cooldown')) || 0;
@@ -256,7 +263,6 @@
             const unlockedDay = parseInt(localStorage.getItem('trigger_unlocked_day')) || 1;
             const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
             
-            // ★ 상단 통계 UI 업데이트
             document.getElementById('stat-current-day').innerText = `Day ${currentDay}`;
             document.getElementById('stat-session').innerText = currentSession > 6 ? '학습 완료' : `${currentSession} / 6`;
             
@@ -270,27 +276,31 @@
                 startBtn.style.color = "#fff";
                 startBtn.onclick = () => startDayStudy(unlockedDay);
             } else if (endTime && endTime - Date.now() > 0) {
-                startBtn.disabled = true;
-                startBtn.style.borderColor = "#444";
-                startBtn.style.boxShadow = "none";
-                startBtn.style.color = "#666";
-                startBtn.onclick = null; 
+                
+                // ★ 쿨타임 선택적 돌파 시스템
+                startBtn.disabled = false; 
+                startBtn.style.borderColor = "var(--neon-orange)";
+                startBtn.style.boxShadow = "var(--glow-orange)";
+                startBtn.style.color = "#fff";
+                
+                startBtn.onclick = () => {
+                    if(confirm("🚨 아직 뇌의 휴식(쿨타임)이 끝나지 않았습니다!\n휴식 없이 바로 진행하면 장기 기억 효율이 떨어질 수 있습니다.\n\n그래도 강제로 다음 세션을 진행하시겠습니까?")) {
+                        localStorage.removeItem('blackt_cooldown');
+                        startDayStudy(unlockedDay);
+                    }
+                };
                 
                 const updateTimerText = () => {
                     const remaining = endTime - Date.now();
                     if (remaining <= 0) {
                         clearInterval(window.cooldownInterval);
                         localStorage.removeItem('blackt_cooldown');
-                        startBtn.disabled = false;
                         startBtn.innerText = "학습 시작하기";
-                        startBtn.style.borderColor = "var(--neon-orange)";
-                        startBtn.style.boxShadow = "var(--glow-orange)";
-                        startBtn.style.color = "#fff";
                         startBtn.onclick = () => startDayStudy(unlockedDay);
                     } else {
                         const mins = Math.floor(remaining / 60000);
                         const secs = Math.floor((remaining % 60000) / 1000);
-                        startBtn.innerText = `쿨타임 중 (${mins}:${secs < 10 ? '0' : ''}${secs})`;
+                        startBtn.innerText = `쿨타임 중 (${mins}:${secs < 10 ? '0' : ''}${secs}) - 강제 진행`;
                     }
                 };
                 
@@ -349,6 +359,8 @@
                 const todayCount = (levelData[currentDay] || []).length;
                 document.getElementById('target-count-display').innerText = todayCount + "개";
             }
+            // 레벨 선택 시 대시보드 UI(오답 수 등) 즉시 갱신
+            updateDashboardUI();
         }
 
         window.onload = function() {
