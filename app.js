@@ -205,7 +205,7 @@ function startStudy() {
     playPronunciation(data.word);
     setTimeout(() => playPronunciation(data.word), 3000);
 
-    let time = 100;
+    let time = 6000;
     const interval = setInterval(() => {
         if (isPaused) return; 
         
@@ -229,7 +229,7 @@ function startTest() {
     const data = targetWords[currentIdx];
     updateUI(data, true);
 
-    let time = 100; 
+    let time = 5000; 
     const interval = setInterval(() => {
         if (isPaused) return;
         
