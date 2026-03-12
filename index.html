@@ -68,9 +68,9 @@
     </div>
 
     <div id="all-words-modal" style="display:none; z-index: 2000;">
-        <div class="login-card" style="border-color: var(--neon-orange); box-shadow: 0 0 15px var(--neon-orange);">
+        <div class="login-card" style="border-color: var(--neon-orange); box-shadow: 0 0 15px var(--neon-orange); width: 90%; max-width: 450px;">
             <div class="login-title" style="color:var(--neon-orange); text-shadow: 0 0 10px var(--neon-orange);">전체 단어장 보기</div>
-            <div id="all-words-list" style="text-align:left; color:#fff; margin-bottom:20px; font-size:1.1rem; line-height:1.8; max-height: 50vh; overflow-y: auto;"></div>
+            <div id="all-words-list" style="text-align:left; color:#fff; margin-bottom:20px; line-height:1.6; max-height: 55vh; overflow-y: auto; padding-right: 10px;"></div>
             <button class="login-btn" style="border-color: var(--neon-orange); box-shadow: 0 0 10px var(--neon-orange);" onclick="document.getElementById('all-words-modal').style.display='none'">닫기</button>
         </div>
     </div>
@@ -136,7 +136,7 @@
             </div>
             
             <div id="pdf-download-section" style="margin-top: 15px; text-align: center; border-top: 1px dashed #555; padding-top: 15px;">
-                <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 10px;">🔒 7일 치 완료 시 전체 단어 파일(PDF)이 잠금 해제됩니다.</p>
+                <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 10px; line-height: 1.5;">🔒 7일 치 완료 시 전체 단어 파일(PDF)이<br>잠금 해제됩니다.</p>
                 <button id="pdf-btn" disabled style="background: #333; color: #666; border: 1px solid #555; padding: 10px 20px; border-radius: 8px; cursor: not-allowed; font-weight: bold;">
                     다운로드 잠김
                 </button>
@@ -181,7 +181,6 @@
             if (!container) return;
             
             let html = '';
-            // ★ 총 42일 치 (30일 진도 + 12일 복습)
             for(let i=1; i<=42; i++) {
                 let isReview = (i % 7 === 6 || i % 7 === 0);
                 let dayLabel = isReview ? `Day ${i} (복습)` : `Day ${i}`;
@@ -249,41 +248,53 @@
             document.getElementById('wrong-modal').style.display = 'flex';
         }
 
+        // ★ 중등/고등 완벽 분리 및 Day 출처 표기 적용!
         function showAllWords() {
-            const selectedLevel = localStorage.getItem('trigger_level') || 'middle';
-            const levelData = wordsData[selectedLevel] || {};
             const unlockedDay = parseInt(localStorage.getItem('trigger_unlocked_day')) || 1;
-            
             let learnedWordsHtml = '';
-            let count = 0;
-            
-            // ★ 해금된 진도(Day) 미만의 단어들만 모아서 출력
-            for(let i = 1; i < unlockedDay; i++) {
-                if (i % 7 === 6 || i % 7 === 0) continue; 
-                const dayWords = levelData[i] || [];
-                if(dayWords.length > 0) {
-                    dayWords.forEach(w => {
-                        count++;
-                        learnedWordsHtml += `<div style="padding:10px 0; border-bottom:1px solid #333;">
-                            <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
-                                <strong>${w.word}</strong>
-                                <span style="color:var(--neon-blue); font-size:0.85rem; border:1px solid var(--neon-blue); border-radius:10px; padding:2px 6px;">Day ${i}</span>
-                            </div>
-                            <span style="color:#aaa; font-size:0.8rem;">${w.ipa}</span><br>
-                            <span style="color:#888; font-size:0.9rem;">${w.meanings.join(', ')}</span>
-                        </div>`;
-                    });
+            let totalCount = 0;
+
+            const renderLevelWords = (levelKey, levelName) => {
+                const levelData = wordsData[levelKey] || {};
+                let levelHtml = '';
+                let levelCount = 0;
+                
+                for(let i = 1; i < unlockedDay; i++) {
+                    if (i % 7 === 6 || i % 7 === 0) continue; 
+                    const dayWords = levelData[i] || [];
+                    if(dayWords.length > 0) {
+                        dayWords.forEach(w => {
+                            levelCount++;
+                            levelHtml += `<div style="padding:12px 0; border-bottom:1px solid #333;">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                                    <strong style="font-size:1.1rem;">${w.word}</strong>
+                                    <span style="color:var(--neon-blue); font-size:0.8rem; border:1px solid var(--neon-blue); border-radius:10px; padding:2px 8px;">Day ${i}</span>
+                                </div>
+                                <span style="color:#aaa; font-size:0.85rem;">${w.ipa}</span><br>
+                                <span style="color:#888; font-size:0.95rem; display:inline-block; margin-top:3px;">${w.meanings.join(', ')}</span>
+                            </div>`;
+                        });
+                    }
                 }
-            }
+                
+                if (levelCount > 0) {
+                    totalCount += levelCount;
+                    return `<div style="margin-top:20px; margin-bottom:10px; font-size:1.2rem; font-weight:bold; color:var(--neon-orange); border-bottom:2px solid var(--neon-orange); padding-bottom:5px; text-align:left;">[${levelName}]</div>` + levelHtml;
+                }
+                return '';
+            };
+
+            learnedWordsHtml += renderLevelWords('middle', '📚 중등 단어');
+            learnedWordsHtml += renderLevelWords('high', '🎓 고등 단어');
             
             const listContainer = document.getElementById('all-words-list');
-            if(count === 0) {
+            if(totalCount === 0) {
                 listContainer.innerHTML = "<p style='text-align:center; color:#888; margin-top:20px;'>아직 학습을 완료한 단어가 없습니다.<br>진도를 먼저 나가주세요!</p>";
             } else {
                 listContainer.innerHTML = learnedWordsHtml;
             }
             
-            document.getElementById('total-word-count').innerText = count + " 단어 (학습완료)";
+            document.getElementById('total-word-count').innerText = totalCount + " 단어 (학습완료)";
             document.getElementById('all-words-modal').style.display = 'flex';
         }
 
@@ -295,7 +306,6 @@
                 listContainer.innerHTML = "<p style='text-align:center; color:#888;'>아직 누적된 학습 데이터가 없습니다.<br>오늘의 6세션을 완수해 보세요!</p>";
             } else {
                 let html = '';
-                // ★ 42일 리포트 출력
                 for(let i=1; i<=42; i++) {
                     let isReview = (i % 7 === 6 || i % 7 === 0);
                     let dayLabel = isReview ? `Day ${i} (복습)` : `Day ${i}`;
@@ -460,18 +470,20 @@
             document.getElementById('btn-high').className = "level-btn";
             document.getElementById('btn-' + level).className = "level-btn active";
 
-            if (typeof wordsData !== 'undefined' && wordsData[level]) {
-                const levelData = wordsData[level] || {};
+            if (typeof wordsData !== 'undefined') {
                 const unlockedDay = parseInt(localStorage.getItem('trigger_unlocked_day')) || 1;
                 
-                // ★ 해금된 단어 개수만 동기화
-                let count = 0;
-                for(let i = 1; i < unlockedDay; i++) {
-                    if (i % 7 === 6 || i % 7 === 0) continue; 
-                    count += (levelData[i] || []).length;
+                let totalCount = 0;
+                for(let l of ['middle', 'high']) {
+                    const lData = wordsData[l] || {};
+                    for(let i = 1; i < unlockedDay; i++) {
+                        if (i % 7 === 6 || i % 7 === 0) continue;
+                        totalCount += (lData[i] || []).length;
+                    }
                 }
-                document.getElementById('total-word-count').innerText = count + " 단어 (학습완료)";
+                document.getElementById('total-word-count').innerText = totalCount + " 단어 (학습완료)";
                 
+                const levelData = wordsData[level] || {};
                 const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
                 const todayCount = (levelData[currentDay] || []).length;
                 document.getElementById('target-count-display').innerText = todayCount + "개";

@@ -60,19 +60,23 @@ function showSystemMessage(text) {
     if (meaningsEl) meaningsEl.innerHTML = "";
 }
 
-// ★ 3초 카운트다운 애니메이션 함수
+// ★ 문구 먼저 띄우고 1.5초 뒤에 3초 카운트다운 시작!
 function startCountdown(message, callback) {
-    let count = 3;
-    showSystemMessage(`${message}<br><br><span style="font-size:3.5rem; color:var(--neon-orange); text-shadow: 0 0 15px var(--neon-orange);">${count}</span>`);
-    const interval = setInterval(() => {
-        count--;
-        if (count > 0) {
-            showSystemMessage(`${message}<br><br><span style="font-size:3.5rem; color:var(--neon-orange); text-shadow: 0 0 15px var(--neon-orange);">${count}</span>`);
-        } else {
-            clearInterval(interval);
-            callback();
-        }
-    }, 1000);
+    showSystemMessage(message);
+    
+    setTimeout(() => {
+        let count = 3;
+        showSystemMessage(`${message}<br><br><span style="font-size:4rem; color:var(--neon-orange); text-shadow: 0 0 15px var(--neon-orange);">${count}</span>`);
+        const interval = setInterval(() => {
+            count--;
+            if (count > 0) {
+                showSystemMessage(`${message}<br><br><span style="font-size:4rem; color:var(--neon-orange); text-shadow: 0 0 15px var(--neon-orange);">${count}</span>`);
+            } else {
+                clearInterval(interval);
+                callback();
+            }
+        }, 1000);
+    }, 1500);
 }
 
 function wakeUpTTS() {
@@ -187,7 +191,6 @@ function startStudy() {
             const currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
             
             if (isPreReviewMode || currentSession === 3 || currentSession === 6 || currentSession > 6) {
-                // ★ 곧 테스트를 시작합니다 + 카운트다운
                 startCountdown("곧 테스트를 시작합니다.", startTest); 
             } else {
                 finishSession(false);
@@ -377,7 +380,7 @@ function finishSession(didTest = true) {
         score = 0;
         studyLoopCount = 1;
         document.getElementById('session-tag').innerText = `Session 1 / 6`;
-        // ★ 사전 오답 복습 완료 + 카운트다운
+        // ★ 복습 완료 후 3초 카운트다운 적용
         startCountdown("복습 완료! 👍<br>오늘의 단어를 시작할게요.", startStudy);
         return;
     }
