@@ -248,7 +248,6 @@
             document.getElementById('wrong-modal').style.display = 'flex';
         }
 
-        // ★ 중등/고등 완벽 분리 및 Day 출처 표기 적용!
         function showAllWords() {
             const unlockedDay = parseInt(localStorage.getItem('trigger_unlocked_day')) || 1;
             let learnedWordsHtml = '';
@@ -298,6 +297,7 @@
             document.getElementById('all-words-modal').style.display = 'flex';
         }
 
+        // ★ 완료/미진행 명확히 표기 (오해 방지)
         function showWeeklyReport() {
             const stats = JSON.parse(localStorage.getItem('trigger_stats') || '{}');
             const listContainer = document.getElementById('report-list');
@@ -316,8 +316,8 @@
                         html += `
                             <div style="margin-bottom: 15px;">
                                 <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
-                                    <span>${dayLabel} 목표를 달성했어요</span>
-                                    <span style="color:${color}; font-weight:bold;">${accuracy}%</span>
+                                    <span>${dayLabel} <strong style="color:var(--neon-blue);">학습 완료</strong></span>
+                                    <span style="color:${color}; font-weight:bold; font-size:0.9rem;">정답률 ${accuracy}%</span>
                                 </div>
                                 <div class="report-bar-bg"><div class="report-bar-fill" style="width: ${accuracy}%; background:${color}; box-shadow: 0 0 5px ${color};"></div></div>
                             </div>
@@ -326,7 +326,7 @@
                         html += `
                             <div style="margin-bottom: 15px; opacity: 0.4;">
                                 <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
-                                    <span>${dayLabel} 미진행</span>
+                                    <span>${dayLabel} <strong style="color:#666;">미진행</strong></span>
                                     <span>-</span>
                                 </div>
                                 <div class="report-bar-bg"></div>

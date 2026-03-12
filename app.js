@@ -60,7 +60,6 @@ function showSystemMessage(text) {
     if (meaningsEl) meaningsEl.innerHTML = "";
 }
 
-// ★ 문구 먼저 띄우고 1.5초 뒤에 3초 카운트다운 시작!
 function startCountdown(message, callback) {
     showSystemMessage(message);
     
@@ -130,9 +129,11 @@ function initApp() {
                 if (preReviewWords.length > 0) {
                     isPreReviewMode = true;
                     targetWords = preReviewWords;
-                    if (sessionTag) sessionTag.innerText = `🚨 이전 오답을 복습할게요 (Day ${currentDay-2 < 1 ? 1 : currentDay-2}~${currentDay-1})`;
-                    alert(`Day ${currentDay} 학습 시작 전, 이전 오답 및 별표 단어를 먼저 복습해 주세요!`);
-                    startStudy();
+                    if (sessionTag) sessionTag.innerText = `🚨 이전 오답 테스트 (Day ${currentDay-2 < 1 ? 1 : currentDay-2}~${currentDay-1})`;
+                    alert(`Day ${currentDay} 학습 시작 전, 이전 오답 및 별표 단어 테스트를 진행합니다!`);
+                    
+                    // ★ 보여주는 단계 생략하고 곧바로 테스트 시작으로 꽂아버림
+                    startCountdown("🚨 사전 오답 복습 테스트를 시작합니다.", startTest);
                     return; 
                 }
             }
@@ -176,12 +177,7 @@ function playPronunciation(text, isManual = false) {
 
 function startStudy() {
     if (currentIdx >= targetWords.length) {
-        if (isPreReviewMode && studyLoopCount < 1) {
-            studyLoopCount++;
-            currentIdx = 0; 
-            startStudy();
-            return;
-        } else if (!isPreReviewMode && studyLoopCount < 2) {
+        if (studyLoopCount < 2) {
             studyLoopCount++;
             currentIdx = 0; 
             startStudy();
@@ -190,7 +186,7 @@ function startStudy() {
             currentIdx = 0;
             const currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
             
-            if (isPreReviewMode || currentSession === 3 || currentSession === 6 || currentSession > 6) {
+            if (currentSession === 3 || currentSession === 6 || currentSession > 6) {
                 startCountdown("곧 테스트를 시작합니다.", startTest); 
             } else {
                 finishSession(false);
@@ -380,7 +376,6 @@ function finishSession(didTest = true) {
         score = 0;
         studyLoopCount = 1;
         document.getElementById('session-tag').innerText = `Session 1 / 6`;
-        // ★ 복습 완료 후 3초 카운트다운 적용
         startCountdown("복습 완료! 👍<br>오늘의 단어를 시작할게요.", startStudy);
         return;
     }
@@ -427,7 +422,6 @@ function finishSession(didTest = true) {
     }
 
     if (finishedSession >= 6) {
-        // ★ 6세션 최종 완료 문구 수정
         showSystemMessage("🎉 오늘의 단어 6세션 최종 완료! 수고하셨습니다!<br>카카오톡으로 성과를 공유해 주세요.");
         setTimeout(() => {
             shareKakao();
