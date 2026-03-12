@@ -229,8 +229,16 @@
                 }
             }
             
-            document.getElementById('print-area').innerHTML = printHtml;
-            window.print(); // 기본 인쇄 창(PDF 저장 기능 포함) 호출
+            const printArea = document.getElementById('print-area');
+            printArea.innerHTML = printHtml;
+            
+            // ★ 인쇄 직전에 숨겨둔 화면을 강제로 켬
+            printArea.style.display = 'block'; 
+            
+            window.print(); // 기본 인쇄 창 호출
+            
+            // ★ 인쇄 창이 꺼지면 다시 화면을 숨김
+            printArea.style.display = 'none'; 
         }
 
         function showWrongWords() {
