@@ -47,26 +47,25 @@ function togglePause() {
     }
 }
 
-// ★ 전체적인 시스템 메시지 글씨 크기 대폭 축소 (1.8rem -> 1.2rem)
 function showSystemMessage(text) {
     const targetEl = document.getElementById('target');
     const meaningsEl = document.getElementById('meanings');
     
     if (targetEl) {
         targetEl.innerHTML = text;
-        targetEl.style.fontSize = '1.2rem'; 
-        targetEl.style.lineHeight = '1.5';
+        targetEl.style.fontSize = '1.0rem'; 
+        targetEl.style.lineHeight = '1.4';
         targetEl.style.wordBreak = 'keep-all';
     }
     if (meaningsEl) meaningsEl.innerHTML = "";
 }
 
-// ★ 카운트다운 즉시 시작 & 글씨 고정 & 숫자 폰트 극대화
+// ★ 카운트다운 숫자 크기만 다시 5rem으로 크게 원상복구!
 function startCountdown(message, callback) {
     let count = 3;
     const renderHtml = (c) => `
         <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:160px;">
-            <div style="font-size:1.2rem; margin-bottom:15px;">${message}</div>
+            <div style="font-size:1.0rem; margin-bottom:15px;">${message}</div>
             <div style="font-size:5rem; font-weight:bold; color:var(--neon-orange); text-shadow: 0 0 20px var(--neon-orange); line-height:1;">${c}</div>
         </div>
     `;
@@ -135,7 +134,6 @@ function initApp() {
                     isPreReviewMode = true;
                     targetWords = preReviewWords;
                     if (sessionTag) sessionTag.innerText = `🚨 이전 오답 테스트 (Day ${currentDay-2 < 1 ? 1 : currentDay-2}~${currentDay-1})`;
-                    alert(`Day ${currentDay} 학습 시작 전, 이전 오답 및 별표 단어 테스트를 진행합니다!`);
                     
                     startCountdown("🚨 사전 오답 테스트를 시작합니다.", startTest);
                     return; 
@@ -388,10 +386,9 @@ function finishSession(didTest = true) {
     let finishedSession = currentSession;
     const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
 
-    // ★ 진행률(Progress) & 정답률(Accuracy) 분리 저장 로직
     let stats = JSON.parse(localStorage.getItem('trigger_stats') || '{}');
     if (typeof stats[currentDay] === 'number') {
-        stats[currentDay] = { progress: 6, accuracy: stats[currentDay] }; // 구버전 데이터 호환
+        stats[currentDay] = { progress: 6, accuracy: stats[currentDay] }; 
     }
     if (!stats[currentDay]) stats[currentDay] = { progress: 0, accuracy: 0 };
     
@@ -400,7 +397,6 @@ function finishSession(didTest = true) {
     if (finishedSession >= 6 && didTest) {
         stats[currentDay].accuracy = Math.floor((score / targetWords.length) * 100);
         
-        // ★ 새로운 Day 달성 시 즉각적으로 스트릭(연속학습) 증가
         let currentStreak = parseInt(localStorage.getItem('trigger_streak')) || 0;
         let highestDay = parseInt(localStorage.getItem('trigger_highest_day')) || 0;
         if (currentDay > highestDay) {
@@ -424,8 +420,7 @@ function finishSession(didTest = true) {
     }
 
     if (finishedSession >= 6) {
-        // ★ 최종 완료 공유 문구 사이즈 축소
-        showSystemMessage("🎉 오늘의 단어 6세션 최종 완료! 수고하셨습니다!<br><span style='font-size:0.9rem; color:#aaa; display:inline-block; margin-top:15px;'>카카오톡으로 성과를 공유해 주세요.</span>");
+        showSystemMessage("🎉 오늘의 단어 6세션 최종 완료! 수고하셨습니다!<br><span style='font-size:0.8rem; color:#aaa; display:inline-block; margin-top:15px;'>카카오톡으로 성과를 공유해 주세요.</span>");
         setTimeout(() => {
             shareKakao();
             setTimeout(() => { location.href = 'index.html'; }, 3000); 
