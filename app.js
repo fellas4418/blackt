@@ -60,7 +60,21 @@ function showSystemMessage(text) {
     if (meaningsEl) meaningsEl.innerHTML = "";
 }
 
-// ★ TTS 절전모드 깨우기 함수 (쿨타임 후 발음 실종 방지)
+// ★ 3초 카운트다운 애니메이션 함수
+function startCountdown(message, callback) {
+    let count = 3;
+    showSystemMessage(`${message}<br><br><span style="font-size:3.5rem; color:var(--neon-orange); text-shadow: 0 0 15px var(--neon-orange);">${count}</span>`);
+    const interval = setInterval(() => {
+        count--;
+        if (count > 0) {
+            showSystemMessage(`${message}<br><br><span style="font-size:3.5rem; color:var(--neon-orange); text-shadow: 0 0 15px var(--neon-orange);">${count}</span>`);
+        } else {
+            clearInterval(interval);
+            callback();
+        }
+    }, 1000);
+}
+
 function wakeUpTTS() {
     window.speechSynthesis.cancel();
     let dummy = new SpeechSynthesisUtterance('');
@@ -68,7 +82,7 @@ function wakeUpTTS() {
 }
 
 function initApp() {
-    wakeUpTTS(); // 진입 시 엔진 초기화
+    wakeUpTTS(); 
     
     try {
         const sessionTag = document.getElementById('session-tag'); 
@@ -87,7 +101,6 @@ function initApp() {
         const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
         const levelData = wordsData[currentLevel] || {};
         
-        // 주말(복습일) 판별 로직 (6, 7, 13, 14 등)
         const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
         
         if (isReviewDay) {
@@ -149,7 +162,7 @@ function playPronunciation(text, isManual = false) {
     if (isPaused && !isManual) return; 
 
     try {
-        window.speechSynthesis.cancel(); // 씹힘 방지용 초기화
+        window.speechSynthesis.cancel(); 
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'en-US';
         utterance.rate = 0.8;
@@ -174,8 +187,8 @@ function startStudy() {
             const currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
             
             if (isPreReviewMode || currentSession === 3 || currentSession === 6 || currentSession > 6) {
-                showSystemMessage("곧 테스트를 시작합니다.");
-                setTimeout(startTest, 2500); 
+                // ★ 곧 테스트를 시작합니다 + 카운트다운
+                startCountdown("곧 테스트를 시작합니다.", startTest); 
             } else {
                 finishSession(false);
             }
@@ -192,7 +205,7 @@ function startStudy() {
     playPronunciation(data.word);
     setTimeout(() => playPronunciation(data.word), 3000);
 
-    let time = 6000;
+    let time = 100;
     const interval = setInterval(() => {
         if (isPaused) return; 
         
@@ -216,7 +229,7 @@ function startTest() {
     const data = targetWords[currentIdx];
     updateUI(data, true);
 
-    let time = 5000; 
+    let time = 100; 
     const interval = setInterval(() => {
         if (isPaused) return;
         
@@ -364,8 +377,8 @@ function finishSession(didTest = true) {
         score = 0;
         studyLoopCount = 1;
         document.getElementById('session-tag').innerText = `Session 1 / 6`;
-        showSystemMessage("복습 완료!<br>오늘의 단어를 시작할게요.");
-        setTimeout(startStudy, 2500);
+        // ★ 사전 오답 복습 완료 + 카운트다운
+        startCountdown("복습 완료! 👍<br>오늘의 단어를 시작할게요.", startStudy);
         return;
     }
 
@@ -379,7 +392,6 @@ function finishSession(didTest = true) {
         stats[currentDay] = accuracy;
         localStorage.setItem('trigger_stats', JSON.stringify(stats));
         
-        // ★ 연속 학습일(Streak) 증가 로직
         const todayStr = new Date().toLocaleDateString();
         let lastStudyDate = localStorage.getItem('trigger_last_study_date');
         let currentStreak = parseInt(localStorage.getItem('trigger_streak')) || 0;
@@ -392,7 +404,7 @@ function finishSession(didTest = true) {
             } else if (!lastStudyDate) {
                 currentStreak = 1;
             } else {
-                currentStreak = 1; // 하루 끊기면 초기화
+                currentStreak = 1; 
             }
             localStorage.setItem('trigger_streak', currentStreak);
             localStorage.setItem('trigger_last_study_date', todayStr);
@@ -412,11 +424,12 @@ function finishSession(didTest = true) {
     }
 
     if (finishedSession >= 6) {
-        showSystemMessage("🎉 6세션 완수!<br>카카오톡으로 오늘의 성과를 공유해 주세요.");
+        // ★ 6세션 최종 완료 문구 수정
+        showSystemMessage("🎉 오늘의 단어 6세션 최종 완료! 수고하셨습니다!<br>카카오톡으로 성과를 공유해 주세요.");
         setTimeout(() => {
             shareKakao();
             setTimeout(() => { location.href = 'index.html'; }, 3000); 
-        }, 2500);
+        }, 3000);
     } else {
         const endTime = Date.now() + COOL_DOWN_TIME;
         localStorage.setItem('blackt_cooldown', endTime);
