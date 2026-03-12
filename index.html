@@ -76,9 +76,9 @@
     </div>
 
     <div id="report-modal" style="display:none; z-index: 2000;">
-        <div class="login-card" style="border-color: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue);">
+        <div class="login-card" style="border-color: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); width: 90%; max-width: 450px;">
             <div class="login-title" style="color:var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue);">나의 학습 기록 보기</div>
-            <div id="report-list" style="text-align:left; color:#fff; margin-bottom:20px; font-size:1rem; line-height:1.8; max-height: 50vh; overflow-y: auto;"></div>
+            <div id="report-list" style="text-align:left; color:#fff; margin-bottom:20px; font-size:1rem; line-height:1.8; max-height: 55vh; overflow-y: auto; padding-right:10px;"></div>
             <button class="login-btn" style="border-color: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue);" onclick="document.getElementById('report-modal').style.display='none'">닫기</button>
         </div>
     </div>
@@ -121,7 +121,7 @@
         <div class="info-row">
             <div class="card info-card clickable-card" onclick="showAllWords()">
                 <div class="info-title title-orange">전체 단어장 보기</div>
-                <div class="info-count" id="total-word-count">0 단어 (학습완료)</div>
+                <div class="info-count" id="total-word-count">0 단어</div>
             </div>
             <div class="card info-card clickable-card" onclick="showWrongWords()">
                 <div class="info-title title-green">오답/별표 단어 보기</div>
@@ -293,49 +293,67 @@
                 listContainer.innerHTML = learnedWordsHtml;
             }
             
-            document.getElementById('total-word-count').innerText = totalCount + " 단어 (학습완료)";
+            document.getElementById('total-word-count').innerText = totalCount + " 단어";
             document.getElementById('all-words-modal').style.display = 'flex';
         }
 
-        // ★ 완료/미진행 명확히 표기 (오해 방지)
+        // ★ 누적 리포트 시각화 고도화 (진행률 / 학습 완료 / 미진행 3단 분리)
         function showWeeklyReport() {
             const stats = JSON.parse(localStorage.getItem('trigger_stats') || '{}');
             const listContainer = document.getElementById('report-list');
             
-            if(Object.keys(stats).length === 0) {
-                listContainer.innerHTML = "<p style='text-align:center; color:#888;'>아직 누적된 학습 데이터가 없습니다.<br>오늘의 6세션을 완수해 보세요!</p>";
-            } else {
-                let html = '';
-                for(let i=1; i<=42; i++) {
-                    let isReview = (i % 7 === 6 || i % 7 === 0);
-                    let dayLabel = isReview ? `Day ${i} (복습)` : `Day ${i}`;
-                    const accuracy = stats[i];
-                    
-                    if(accuracy !== undefined) {
-                        let color = accuracy >= 80 ? "var(--neon-green)" : "var(--neon-orange)";
-                        html += `
-                            <div style="margin-bottom: 15px;">
-                                <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
-                                    <span>${dayLabel} <strong style="color:var(--neon-blue);">학습 완료</strong></span>
-                                    <span style="color:${color}; font-weight:bold; font-size:0.9rem;">정답률 ${accuracy}%</span>
-                                </div>
-                                <div class="report-bar-bg"><div class="report-bar-fill" style="width: ${accuracy}%; background:${color}; box-shadow: 0 0 5px ${color};"></div></div>
-                            </div>
-                        `;
-                    } else {
-                        html += `
-                            <div style="margin-bottom: 15px; opacity: 0.4;">
-                                <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
-                                    <span>${dayLabel} <strong style="color:#666;">미진행</strong></span>
-                                    <span>-</span>
-                                </div>
-                                <div class="report-bar-bg"></div>
-                            </div>
-                        `;
-                    }
+            let html = '';
+            for(let i=1; i<=42; i++) {
+                let isReview = (i % 7 === 6 || i % 7 === 0);
+                let dayLabel = isReview ? `Day ${i} (복습)` : `Day ${i}`;
+                let dayStat = stats[i];
+                
+                // 구버전(정답률 숫자만 있는 경우) 데이터 호환 처리
+                if (typeof dayStat === 'number') {
+                    dayStat = { progress: 6, accuracy: dayStat };
                 }
-                listContainer.innerHTML = html;
+
+                // 1. 학습 완료 상태 (진행도 6)
+                if(dayStat && dayStat.progress >= 6) {
+                    let accuracy = dayStat.accuracy || 0;
+                    let color = accuracy >= 80 ? "var(--neon-green)" : "var(--neon-orange)";
+                    html += `
+                        <div style="margin-bottom: 18px;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                                <span>${dayLabel} <strong style="color:var(--neon-green);">학습 완료</strong></span>
+                                <span style="color:${color}; font-weight:bold; font-size:0.9rem;">${isReview ? '복습 완료' : `정답률 ${accuracy}%`}</span>
+                            </div>
+                            <div class="report-bar-bg"><div class="report-bar-fill" style="width: 100%; background:${color}; box-shadow: 0 0 5px ${color};"></div></div>
+                        </div>
+                    `;
+                } 
+                // 2. 진행 중 상태 (진행도 1~5) - 복습일은 진행률 바 생략
+                else if (dayStat && dayStat.progress > 0 && !isReview) {
+                    let progPercent = Math.floor((dayStat.progress / 6) * 100);
+                    html += `
+                        <div style="margin-bottom: 18px;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                                <span>${dayLabel} <strong style="color:var(--neon-blue);">${progPercent}% 진행 중</strong></span>
+                                <span style="color:#aaa; font-size:0.85rem;">${dayStat.progress} / 6 세션</span>
+                            </div>
+                            <div class="report-bar-bg"><div class="report-bar-fill" style="width: ${progPercent}%; background:var(--neon-blue); box-shadow: 0 0 5px var(--neon-blue);"></div></div>
+                        </div>
+                    `;
+                } 
+                // 3. 미진행 상태
+                else {
+                    html += `
+                        <div style="margin-bottom: 18px; opacity: 0.4;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                                <span>${dayLabel} <strong style="color:#666;">미진행</strong></span>
+                                <span>-</span>
+                            </div>
+                            <div class="report-bar-bg"></div>
+                        </div>
+                    `;
+                }
             }
+            listContainer.innerHTML = html;
             document.getElementById('report-modal').style.display = 'flex';
         }
 
@@ -481,7 +499,7 @@
                         totalCount += (lData[i] || []).length;
                     }
                 }
-                document.getElementById('total-word-count').innerText = totalCount + " 단어 (학습완료)";
+                document.getElementById('total-word-count').innerText = totalCount + " 단어";
                 
                 const levelData = wordsData[level] || {};
                 const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;

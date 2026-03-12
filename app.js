@@ -47,35 +47,40 @@ function togglePause() {
     }
 }
 
+// ★ 전체적인 시스템 메시지 글씨 크기 대폭 축소 (1.8rem -> 1.2rem)
 function showSystemMessage(text) {
     const targetEl = document.getElementById('target');
     const meaningsEl = document.getElementById('meanings');
     
     if (targetEl) {
         targetEl.innerHTML = text;
-        targetEl.style.fontSize = '1.8rem'; 
+        targetEl.style.fontSize = '1.2rem'; 
         targetEl.style.lineHeight = '1.5';
         targetEl.style.wordBreak = 'keep-all';
     }
     if (meaningsEl) meaningsEl.innerHTML = "";
 }
 
+// ★ 카운트다운 즉시 시작 & 글씨 고정 & 숫자 폰트 극대화
 function startCountdown(message, callback) {
-    showSystemMessage(message);
+    let count = 3;
+    const renderHtml = (c) => `
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:160px;">
+            <div style="font-size:1.2rem; margin-bottom:15px;">${message}</div>
+            <div style="font-size:5rem; font-weight:bold; color:var(--neon-orange); text-shadow: 0 0 20px var(--neon-orange); line-height:1;">${c}</div>
+        </div>
+    `;
     
-    setTimeout(() => {
-        let count = 3;
-        showSystemMessage(`${message}<br><br><span style="font-size:4rem; color:var(--neon-orange); text-shadow: 0 0 15px var(--neon-orange);">${count}</span>`);
-        const interval = setInterval(() => {
-            count--;
-            if (count > 0) {
-                showSystemMessage(`${message}<br><br><span style="font-size:4rem; color:var(--neon-orange); text-shadow: 0 0 15px var(--neon-orange);">${count}</span>`);
-            } else {
-                clearInterval(interval);
-                callback();
-            }
-        }, 1000);
-    }, 1500);
+    showSystemMessage(renderHtml(count));
+    const interval = setInterval(() => {
+        count--;
+        if (count > 0) {
+            showSystemMessage(renderHtml(count));
+        } else {
+            clearInterval(interval);
+            callback();
+        }
+    }, 1000);
 }
 
 function wakeUpTTS() {
@@ -132,8 +137,7 @@ function initApp() {
                     if (sessionTag) sessionTag.innerText = `🚨 이전 오답 테스트 (Day ${currentDay-2 < 1 ? 1 : currentDay-2}~${currentDay-1})`;
                     alert(`Day ${currentDay} 학습 시작 전, 이전 오답 및 별표 단어 테스트를 진행합니다!`);
                     
-                    // ★ 보여주는 단계 생략하고 곧바로 테스트 시작으로 꽂아버림
-                    startCountdown("🚨 사전 오답 복습 테스트를 시작합니다.", startTest);
+                    startCountdown("🚨 사전 오답 테스트를 시작합니다.", startTest);
                     return; 
                 }
             }
@@ -384,30 +388,28 @@ function finishSession(didTest = true) {
     let finishedSession = currentSession;
     const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
 
+    // ★ 진행률(Progress) & 정답률(Accuracy) 분리 저장 로직
+    let stats = JSON.parse(localStorage.getItem('trigger_stats') || '{}');
+    if (typeof stats[currentDay] === 'number') {
+        stats[currentDay] = { progress: 6, accuracy: stats[currentDay] }; // 구버전 데이터 호환
+    }
+    if (!stats[currentDay]) stats[currentDay] = { progress: 0, accuracy: 0 };
+    
+    stats[currentDay].progress = Math.max(stats[currentDay].progress, finishedSession);
+
     if (finishedSession >= 6 && didTest) {
-        let stats = JSON.parse(localStorage.getItem('trigger_stats') || '{}');
-        let accuracy = Math.floor((score / targetWords.length) * 100);
-        stats[currentDay] = accuracy;
-        localStorage.setItem('trigger_stats', JSON.stringify(stats));
+        stats[currentDay].accuracy = Math.floor((score / targetWords.length) * 100);
         
-        const todayStr = new Date().toLocaleDateString();
-        let lastStudyDate = localStorage.getItem('trigger_last_study_date');
+        // ★ 새로운 Day 달성 시 즉각적으로 스트릭(연속학습) 증가
         let currentStreak = parseInt(localStorage.getItem('trigger_streak')) || 0;
-        
-        if (lastStudyDate !== todayStr) {
-            let yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            if (lastStudyDate === yesterday.toLocaleDateString()) {
-                currentStreak++;
-            } else if (!lastStudyDate) {
-                currentStreak = 1;
-            } else {
-                currentStreak = 1; 
-            }
+        let highestDay = parseInt(localStorage.getItem('trigger_highest_day')) || 0;
+        if (currentDay > highestDay) {
+            currentStreak++;
             localStorage.setItem('trigger_streak', currentStreak);
-            localStorage.setItem('trigger_last_study_date', todayStr);
+            localStorage.setItem('trigger_highest_day', currentDay);
         }
     }
+    localStorage.setItem('trigger_stats', JSON.stringify(stats));
 
     if (currentSession <= 6) {
         currentSession++;
@@ -422,7 +424,8 @@ function finishSession(didTest = true) {
     }
 
     if (finishedSession >= 6) {
-        showSystemMessage("🎉 오늘의 단어 6세션 최종 완료! 수고하셨습니다!<br>카카오톡으로 성과를 공유해 주세요.");
+        // ★ 최종 완료 공유 문구 사이즈 축소
+        showSystemMessage("🎉 오늘의 단어 6세션 최종 완료! 수고하셨습니다!<br><span style='font-size:0.9rem; color:#aaa; display:inline-block; margin-top:15px;'>카카오톡으로 성과를 공유해 주세요.</span>");
         setTimeout(() => {
             shareKakao();
             setTimeout(() => { location.href = 'index.html'; }, 3000); 
