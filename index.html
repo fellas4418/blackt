@@ -297,7 +297,7 @@
             document.getElementById('all-words-modal').style.display = 'flex';
         }
 
-        // ★ 누적 리포트 시각화 고도화 (진행률 / 학습 완료 / 미진행 3단 분리)
+        // ★ 누적 리포트 시각화 - 진행률(세션수) 명확히 추가
         function showWeeklyReport() {
             const stats = JSON.parse(localStorage.getItem('trigger_stats') || '{}');
             const listContainer = document.getElementById('report-list');
@@ -308,39 +308,35 @@
                 let dayLabel = isReview ? `Day ${i} (복습)` : `Day ${i}`;
                 let dayStat = stats[i];
                 
-                // 구버전(정답률 숫자만 있는 경우) 데이터 호환 처리
                 if (typeof dayStat === 'number') {
                     dayStat = { progress: 6, accuracy: dayStat };
                 }
 
-                // 1. 학습 완료 상태 (진행도 6)
                 if(dayStat && dayStat.progress >= 6) {
                     let accuracy = dayStat.accuracy || 0;
                     let color = accuracy >= 80 ? "var(--neon-green)" : "var(--neon-orange)";
                     html += `
                         <div style="margin-bottom: 18px;">
                             <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                                <span>${dayLabel} <strong style="color:var(--neon-green);">학습 완료</strong></span>
+                                <span>${dayLabel} <strong style="color:var(--neon-green);">6/6 세션 완료</strong></span>
                                 <span style="color:${color}; font-weight:bold; font-size:0.9rem;">${isReview ? '복습 완료' : `정답률 ${accuracy}%`}</span>
                             </div>
                             <div class="report-bar-bg"><div class="report-bar-fill" style="width: 100%; background:${color}; box-shadow: 0 0 5px ${color};"></div></div>
                         </div>
                     `;
                 } 
-                // 2. 진행 중 상태 (진행도 1~5) - 복습일은 진행률 바 생략
                 else if (dayStat && dayStat.progress > 0 && !isReview) {
                     let progPercent = Math.floor((dayStat.progress / 6) * 100);
                     html += `
                         <div style="margin-bottom: 18px;">
                             <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                                <span>${dayLabel} <strong style="color:var(--neon-blue);">${progPercent}% 진행 중</strong></span>
-                                <span style="color:#aaa; font-size:0.85rem;">${dayStat.progress} / 6 세션</span>
+                                <span>${dayLabel} <strong style="color:var(--neon-blue);">${dayStat.progress}/6 세션 진행 중</strong></span>
+                                <span style="color:#aaa; font-size:0.85rem;">진행률 ${progPercent}%</span>
                             </div>
                             <div class="report-bar-bg"><div class="report-bar-fill" style="width: ${progPercent}%; background:var(--neon-blue); box-shadow: 0 0 5px var(--neon-blue);"></div></div>
                         </div>
                     `;
                 } 
-                // 3. 미진행 상태
                 else {
                     html += `
                         <div style="margin-bottom: 18px; opacity: 0.4;">

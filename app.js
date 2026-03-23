@@ -259,6 +259,15 @@ function toggleStar(wordObj) {
 }
 
 function updateUI(data, isTest = false) {
+    // 1번 수정: 데이터 안전장치 추가
+if (!data || !data.word) {
+    console.error("데이터 형식 에러:", data);
+    targetEl.innerHTML = "데이터 오류";
+    return;
+}
+// meanings가 배열이 아닐 경우를 대비한 방어 코드
+const safeMeanings = Array.isArray(data.meanings) ? data.meanings : ["뜻 정보 없음"];
+const fullMeaning = safeMeanings.join(', ');
     const targetEl = document.getElementById('target');
     targetEl.style.fontSize = ''; 
     targetEl.style.lineHeight = '';
