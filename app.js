@@ -268,6 +268,7 @@ if (!data || !data.word) {
 // meanings가 배열이 아닐 경우를 대비한 방어 코드
 const safeMeanings = Array.isArray(data.meanings) ? data.meanings : ["뜻 정보 없음"];
 const fullMeaning = safeMeanings.join(', ');
+
     const targetEl = document.getElementById('target');
     targetEl.style.fontSize = ''; 
     targetEl.style.lineHeight = '';
