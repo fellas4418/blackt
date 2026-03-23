@@ -222,7 +222,9 @@
                     printHtml += `<div class="print-day">Day ${i}</div>`;
                     dayWords.forEach(w => {
                         printHtml += `<div class="print-word">${w.word} <span style="color:#666; font-size:0.9rem;">${w.ipa}</span></div>`;
-                        printHtml += `<div class="print-meaning">${w.meanings.join(', ')}</div>`;
+                        // [추가된 안전장치] 배열 여부 체크
+                        const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
+                        printHtml += `<div class="print-meaning">${safeMeanings}</div>`;
                     });
                 }
             }
@@ -243,7 +245,11 @@
             if(wrongWords.length === 0) {
                 listContainer.innerHTML = "<p style='text-align:center; color:#888;'>해당 레벨의 오답이 없습니다.</p>";
             } else {
-                listContainer.innerHTML = wrongWords.map(w => `<div style="padding:10px 0; border-bottom:1px solid #333;"><strong>${w.word}</strong> <span style="color:#888; font-size:0.9rem;">${w.meanings.join(', ')}</span></div>`).join('');
+                listContainer.innerHTML = wrongWords.map(w => {
+                    // [추가된 안전장치] 배열 여부 체크
+                    const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
+                    return `<div style="padding:10px 0; border-bottom:1px solid #333;"><strong>${w.word}</strong> <span style="color:#888; font-size:0.9rem;">${safeMeanings}</span></div>`;
+                }).join('');
             }
             document.getElementById('wrong-modal').style.display = 'flex';
         }
@@ -264,13 +270,15 @@
                     if(dayWords.length > 0) {
                         dayWords.forEach(w => {
                             levelCount++;
+                            // [추가된 안전장치] 배열 여부 체크
+                            const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
                             levelHtml += `<div style="padding:12px 0; border-bottom:1px solid #333;">
                                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
                                     <strong style="font-size:1.1rem;">${w.word}</strong>
                                     <span style="color:var(--neon-blue); font-size:0.8rem; border:1px solid var(--neon-blue); border-radius:10px; padding:2px 8px;">Day ${i}</span>
                                 </div>
                                 <span style="color:#aaa; font-size:0.85rem;">${w.ipa}</span><br>
-                                <span style="color:#888; font-size:0.95rem; display:inline-block; margin-top:3px;">${w.meanings.join(', ')}</span>
+                                <span style="color:#888; font-size:0.95rem; display:inline-block; margin-top:3px;">${safeMeanings}</span>
                             </div>`;
                         });
                     }
@@ -509,7 +517,15 @@
             checkLoginStatus();
             selectLevel(localStorage.getItem('trigger_level') || 'middle');
         }
-    </script>
 
+        // [추가된 부분] 서비스 워커 등록 스크립트
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(reg => console.log('서비스 워커 등록 성공!', reg))
+                    .catch(err => console.log('서비스 워커 등록 실패:', err));
+            });
+        }
+    </script>
 </body>
 </html>

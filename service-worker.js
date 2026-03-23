@@ -1,4 +1,5 @@
-const CACHE_NAME = 'trigger-voca-v1';
+// 데이터나 코드를 수정해서 재배포할 때는 반드시 v1을 v2, v3로 올려주세요!
+const CACHE_NAME = 'trigger-voca-v1'; 
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
@@ -6,7 +7,9 @@ const ASSETS_TO_CACHE = [
     './style.css',
     './app.js',
     './wordData.js',
-    './manifest.json'
+    './manifest.json',
+    './icon-192.png', // 추가됨
+    './icon-512.png'  // 추가됨
 ];
 
 // 설치 단계: 리소스 캐싱

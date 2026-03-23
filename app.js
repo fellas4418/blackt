@@ -259,17 +259,20 @@ function toggleStar(wordObj) {
 }
 
 function updateUI(data, isTest = false) {
-    // 1번 수정: 데이터 안전장치 추가
-if (!data || !data.word) {
-    console.error("데이터 형식 에러:", data);
-    targetEl.innerHTML = "데이터 오류";
-    return;
-}
-// meanings가 배열이 아닐 경우를 대비한 방어 코드
-const safeMeanings = Array.isArray(data.meanings) ? data.meanings : ["뜻 정보 없음"];
-const fullMeaning = safeMeanings.join(', ');
-
+    // [중요 수정] targetEl을 데이터 검증 전에 먼저 가져와야 에러가 발생하지 않습니다.
     const targetEl = document.getElementById('target');
+    
+    // 데이터 형식 안전장치
+    if (!data || !data.word) {
+        console.error("데이터 형식 에러:", data);
+        if (targetEl) targetEl.innerHTML = "데이터 오류";
+        return;
+    }
+
+    // meanings가 배열이 아닐 경우를 대비한 방어 코드
+    const safeMeanings = Array.isArray(data.meanings) ? data.meanings : ["뜻 정보 없음"];
+    const fullMeaning = safeMeanings.join(', ');
+
     targetEl.style.fontSize = ''; 
     targetEl.style.lineHeight = '';
 
@@ -297,13 +300,18 @@ const fullMeaning = safeMeanings.join(', ');
     }
 
     const mBox = document.getElementById('meanings');
-    const fullMeaning = data.meanings ? data.meanings.join(', ') : '뜻 없음';
     
     if (!isTest) {
-        mBox.innerHTML = data.meanings.map(m => `<div>${m}</div>`).join('');
+        // 기존 data.meanings 대신 안전한 safeMeanings 사용
+        mBox.innerHTML = safeMeanings.map(m => `<div>${m}</div>`).join('');
     } else {
         if(starBtn) starBtn.style.display = 'none'; 
-        const allOtherMeanings = targetWords.filter(w => w.word !== data.word).map(w => w.meanings.join(', '));
+        
+        // [추가 안전장치] 오답 보기를 만들 때 다른 단어들의 뜻도 배열인지 확인
+        const allOtherMeanings = targetWords.filter(w => w.word !== data.word).map(w => {
+            return Array.isArray(w.meanings) ? w.meanings.join(', ') : "뜻 정보 없음";
+        });
+        
         let availableMeanings = [...allOtherMeanings]; 
         let wrongChoices = [];
         let fallbackCount = 1;

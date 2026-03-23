@@ -41,14 +41,18 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 
 /* === 훈련장 (study.html) 스타일 === */
 .study-bg { overflow: hidden; }
-#app { width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; position: relative; }
+/* [수정됨] 모바일 브라우저 주소창 높이에 맞춰 화면이 찌그러지지 않도록 100dvh 추가 */
+#app { width: 100vw; height: 100vh; height: 100dvh; display: flex; flex-direction: column; align-items: center; position: relative; }
 .back-btn { position: absolute; top: 20px; left: 20px; background: transparent; border: none; color: #888; font-size: 1rem; cursor: pointer; }
 .header { width: 90%; padding: 60px 0 20px 0; text-align: center; }
 .progress-box { width: 100%; height: 6px; background: #222; border-radius: 10px; overflow: hidden; margin-top: 10px; }
 #bar { height: 100%; width: 100%; background: var(--neon-orange); box-shadow: 0 0 10px var(--neon-orange); transition: width 0.1s linear; }
 #display { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; }
 #target { font-size: 4rem; margin: 0; text-shadow: 0 0 15px #fff; }
-#ipa { font-size: 1.2rem; color: #888; margin-top: 5px; }
+
+/* [수정됨] 자바스크립트 코드와 연결되도록 #ipa를 .ipa-text로 변경 */
+.ipa-text { font-size: 1.2rem; color: #888; margin-top: 5px; font-weight: normal; }
+
 #meanings { width: 90%; margin-top: 30px; }
 #meanings div { font-size: 1.8rem; opacity: 0.1; margin: 15px 0; transition: 0.3s; text-align: center; }
 #meanings div.active { opacity: 1; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); font-weight: bold; }
