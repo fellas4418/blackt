@@ -540,6 +540,48 @@
             }
             updateDashboardUI();
         }
+// 1. 스플래시 화면 2.4초 후 제거 로직
+window.addEventListener('load', () => {
+            setTimeout(() => {
+                const splash = document.getElementById('splash-screen');
+                if(splash) {
+                    splash.style.opacity = '0'; // 부드럽게 투명해짐
+                    setTimeout(() => splash.style.display = 'none', 500); // 완전히 사라짐
+                }
+            }, 2400); // 2.4초(2400ms) 유지
+        });
+
+        // 2. 스마트 앱 설치 버튼 로직
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // 설치가 가능한 상태가 되면 버튼을 화면에 보여줌
+            const installBtn = document.getElementById('install-app-btn');
+            if(installBtn) {
+                installBtn.style.display = 'block';
+                installBtn.addEventListener('click', () => {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            installBtn.style.display = 'none'; // 설치 승인 시 버튼 숨김
+                        }
+                        deferredPrompt = null;
+                    });
+                });
+            }
+        });
+
+        // 이미 앱으로 설치된 상태로 켜졌다면 버튼 숨기기
+        window.addEventListener('appinstalled', () => {
+            const installBtn = document.getElementById('install-app-btn');
+            if(installBtn) installBtn.style.display = 'none';
+        });
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            const installBtn = document.getElementById('install-app-btn');
+            if(installBtn) installBtn.style.display = 'none';
+        }
+
 
         window.onload = function() {
             checkLoginStatus();
