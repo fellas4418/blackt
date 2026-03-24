@@ -59,14 +59,13 @@
         <div class="login-card">
             <div class="login-title">Trigger Voca</div>
             <div class="input-group"><span class="input-label">이름 (실명)</span><input type="text" id="user-name" class="neon-input"></div>
-            <div class="input-group"><span class="input-label">전화번호 (휴대폰)</span><input type="tel" id="user-phone" class="neon-input" placeholder="010-0000-0000"></div>
             <div class="input-group">
-                <span class="input-label">전화번호 (선택)</span>
+                <span class="input-label">전화번호 (휴대폰)</span>
                 <input type="tel" id="user-phone" class="neon-input" placeholder="010-0000-0000">
-                <span style="font-size: 0.8rem; color: var(--neon-orange); margin-top:5px; display:block;">* 할인 및 혜택 알림 목적으로만 사용됩니다.</span>
+                <span style="font-size: 0.8rem; color: var(--neon-orange); margin-top:5px; display:block;">* 학습 기록 관리 및 안내 목적으로 사용됩니다.</span>
             </div>
             <div class="checkbox-group"><input type="checkbox" id="agree-privacy"><label for="agree-privacy">개인정보 수집 동의</label></div>
-            <button class="login-btn" onclick="handleLogin()">시작하기</button>
+            <button class="login-btn" id="login-submit-btn" onclick="handleLogin()">시작하기</button>
         </div>
     </div>
 
@@ -171,6 +170,7 @@
                 </button>
             </div>
         </div>
+        
         <div id="admin-menu" style="display: none; text-align: center; margin-top: 30px; border-top: 1px dashed #444; padding-top: 20px; flex-direction: column; gap: 12px; align-items: center;">
             <p style="color:var(--neon-orange); font-size:0.8rem; margin:0;">🛠️ 관리자 모드 활성화됨</p>
             <button onclick="const lvl = localStorage.getItem('trigger_level') || 'middle'; localStorage.setItem('trigger_session_' + lvl, '7'); location.reload();" style="background: none; border: none; color: var(--neon-blue); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">⏩ 현재 레벨 세션 강제 완료</button>
@@ -178,22 +178,24 @@
         </div>
     </div>
 
-    177: <script src="wordData.js"></script>
-178: <script>
-179:     // ✅ 여기부터 복사해서 넣으세요
-180:     let logoClickCount = 0;
-181:     function enableAdminMode() {
-182:         logoClickCount++;
-183:         if (logoClickCount >= 3) {
-184:             document.getElementById('admin-menu').style.display = 'flex';
-185:             alert("🛠️ 관리자 모드 활성화!");
-186:             logoClickCount = 0;
-187:         }
-188:         setTimeout(() => { logoClickCount = 0; }, 3000);
-189:     }
-190:     // ✅ 여기까지 넣으셨으면 성공!
-191:     const TOTAL_DAYS = 60;
+    <script src="wordData.js"></script>
+    <script>
+        // 로고 5회 클릭 비밀 관리자 모드 함수
+        let logoClickCount = 0;
+        function enableAdminMode() {
+            logoClickCount++;
+            if (logoClickCount >= 5) {
+                document.getElementById('admin-menu').style.display = 'flex';
+                alert("🛠️ 관리자 모드 활성화!");
+                logoClickCount = 0;
+            }
+            setTimeout(() => { logoClickCount = 0; }, 3000);
+        }
+
+        const TOTAL_DAYS = 60; 
         const todayStr = new Date().toLocaleDateString();
+        // 구글 시트 연동 URL
+        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbx5n1VzAFqVSlLt-e7lduSfi8-T7gHQ-REGvlaP6tWGdZJgFPuEEPYB4xfr1GZ5Vgek/exec";
         
         // 날짜가 바뀌면 레벨별 세션 초기화
         if (localStorage.getItem('trigger_date') !== todayStr) {
@@ -515,14 +517,17 @@
             const phone = document.getElementById('user-phone').value.trim();
             const agree = document.getElementById('agree-privacy').checked;
             const currentLevel = localStorage.getItem('trigger_level') || 'middle';
-            const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbx5n1VzAFqVSlLt-e7lduSfi8-T7gHQ-REGvlaP6tWGdZJgFPuEEPYB4xfr1GZ5Vgek/exec";
 
             if (!name || !phone) return alert("이름과 전화번호를 모두 입력해주세요.");
             if (!agree) return alert("개인정보 수집에 동의하셔야 합니다.");
 
+            const btn = document.getElementById('login-submit-btn');
+            btn.innerText = "연결 중...";
+            btn.disabled = true;
+
             try {
                 // 구글 시트로 데이터 전송
-                fetch(GOOGLE_SHEET_URL, {
+                await fetch(GOOGLE_SHEET_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     body: JSON.stringify({ name: name, phone: phone, level: currentLevel })
@@ -532,6 +537,7 @@
                 localStorage.setItem('trigger_phone', phone);
                 checkLoginStatus(); 
             } catch (e) {
+                // 전송 에러가 나도 앱은 작동하게 방어 처리
                 localStorage.setItem('trigger_name', name);
                 checkLoginStatus();
             }
@@ -630,6 +636,7 @@
             const installBtn = document.getElementById('install-app-btn');
             if (installBtn) installBtn.style.display = 'none';
         }
+        
         // 🚀 앱 공유하기 (Web Share API)
         function shareTriggerApp() {
             const shareTitle = "Trigger Voca - 뇌과학 영단어장";
