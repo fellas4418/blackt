@@ -89,15 +89,18 @@
         </div>
     </div>
 
-    <div class="dashboard-container">
-        <button id="install-app-btn" style="display:none; width: 100%; margin-bottom: 20px; padding: 15px; background: rgba(0, 243, 255, 0.1); color: var(--neon-blue); font-size: 1.1rem; font-weight: bold; border: 1px solid var(--neon-blue); border-radius: 12px; box-shadow: 0 0 15px rgba(0,243,255,0.3); cursor: pointer;">
-            📱 1초 만에 앱으로 설치하기
+    <div class="dashboard-container" style="position: relative;">
+        
+        <button onclick="shareTriggerApp()" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 255, 255, 0.05); border: 1px solid #444; border-radius: 50%; width: 45px; height: 45px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1.2rem; box-shadow: 0 0 10px rgba(255,255,255,0.05); z-index: 10;" title="추천하기">
+            🔗
         </button>
 
-        <button onclick="shareTriggerApp()" style="width: 100%; margin-bottom: 25px; padding: 12px; background: transparent; color: #fff; font-size: 1rem; border: 1px dashed #666; border-radius: 10px; cursor: pointer; transition: 0.3s;">
-            🔗 주변에 트리거 보카 추천하기
+        <div class="logo" style="margin-top: 10px;">Trigger<br>Voca</div>
+        
+        <button id="install-app-btn" style="display:none; width: 100%; margin-bottom: 25px; padding: 12px; background: rgba(0, 243, 255, 0.05); color: var(--neon-blue); font-size: 1.05rem; font-weight: bold; border: 1px dashed var(--neon-blue); border-radius: 12px; box-shadow: 0 0 15px rgba(0,243,255,0.15); cursor: pointer; transition: 0.3s;">
+            👇 터치해서 1초 만에 앱으로 설치하기
         </button>
-        <div class="logo">Trigger<br>Voca</div>
+
         <div id="welcome-msg"></div>
         <div id="streak-msg"></div>
 
@@ -594,21 +597,21 @@
             const installBtn = document.getElementById('install-app-btn');
             if (installBtn) installBtn.style.display = 'none';
         }
-        // 앱 공유하기 (Web Share API)
+        // 🚀 앱 공유하기 (Web Share API)
         function shareTriggerApp() {
             const shareTitle = "Trigger Voca - 뇌과학 영단어장";
             const shareText = "단어 암기 3시간 걸리던 거, 30분 컷! 뇌과학 6세션 루틴 앱 '트리거 보카'를 무료로 시작해 보세요.";
             const shareUrl = window.location.origin;
 
             if (navigator.share) {
-                // 모바일 기기: 네이티브 공유창 띄우기 (카톡, 문자 등 선택 가능)
+                // 스마트폰 네이티브 공유창 호출
                 navigator.share({
                     title: shareTitle,
                     text: shareText,
                     url: shareUrl
                 }).catch(console.error);
             } else {
-                // PC 등 미지원 기기: 링크 자동 복사
+                // PC 등에서 공유창 미지원 시 링크 복사
                 navigator.clipboard.writeText(shareUrl).then(() => {
                     alert("✅ 링크가 복사되었습니다! 카카오톡이나 게시판에 붙여넣기 해주세요.");
                 }).catch(() => {
