@@ -42,14 +42,13 @@
     </style>
 </head>
 <body class="dashboard-bg">
-    <div id="splash-screen" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:#000; z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; transition: opacity 0.5s;">
-        <img src="icon-512.png" alt="로고" style="width: 140px; margin-bottom: 20px; border-radius: 20px; box-shadow: 0 0 20px rgba(0,243,255,0.3);">
-        <div class="logo" style="font-size: 2.8rem; text-align: center;">Trigger<br>Voca</div>
-    </div>
 
-    <button id="install-app-btn" style="display:none; width: 85%; max-width: 400px; margin: 20px auto 0 auto; padding: 15px; background: rgba(0, 243, 255, 0.1); color: var(--neon-blue); font-size: 1.1rem; font-weight: bold; border: 1px solid var(--neon-blue); border-radius: 12px; box-shadow: var(--glow-blue); cursor: pointer;">
-        📱 1초 만에 트리거 보카 앱 설치하기
-    </button>
+    <div id="splash-screen" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease;">
+        <img src="./icon-512.png" alt="Trigger Voca Logo" style="width: 150px; height: 150px; border-radius: 20%; box-shadow: 0 0 30px rgba(0, 243, 255, 0.4); margin-bottom: 30px;">
+        <div style="font-size: 3rem; font-weight: 900; color: #fff; text-shadow: 0 0 15px var(--neon-blue), 0 0 30px var(--neon-blue); letter-spacing: 2px;">Trigger</div>
+        <div style="font-size: 2.5rem; font-weight: 700; color: #fff; text-shadow: 0 0 15px var(--neon-blue), 0 0 30px var(--neon-blue); letter-spacing: 2px;">Voca</div>
+    </div>
+    
     <div id="print-area" style="display:none;"></div>
 
     <div id="login-modal" style="display:none;">
@@ -67,10 +66,10 @@
     </div>
 
     <div id="wrong-modal" style="display:none; z-index: 2000;">
-        <div class="login-card" style="border-color: var(--neon-green); box-shadow: 0 0 15px var(--neon-green);">
+        <div class="login-card" style="border-color: var(--neon-green); box-shadow: 0 0 15px var(--neon-green); width: 90%; max-width: 450px;">
             <div class="login-title" style="color:var(--neon-green); text-shadow: 0 0 10px var(--neon-green);">오답 / 별표</div>
-            <div id="wrong-list" style="text-align:left; color:#fff; margin-bottom:20px; font-size:1.1rem; line-height:1.8;"></div>
-            <button class="login-btn" onclick="document.getElementById('wrong-modal').style.display='none'">닫기</button>
+            <div id="wrong-list" style="text-align:left; color:#fff; margin-bottom:20px; font-size:1.1rem; line-height:1.8; max-height: 55vh; overflow-y: auto; padding-right: 10px;"></div>
+            <button class="login-btn" style="border-color: var(--neon-green); box-shadow: 0 0 10px var(--neon-green);" onclick="document.getElementById('wrong-modal').style.display='none'">닫기</button>
         </div>
     </div>
 
@@ -91,6 +90,10 @@
     </div>
 
     <div class="dashboard-container">
+        <button id="install-app-btn" style="display:none; width: 100%; margin-bottom: 20px; padding: 15px; background: rgba(0, 243, 255, 0.1); color: var(--neon-blue); font-size: 1.1rem; font-weight: bold; border: 1px solid var(--neon-blue); border-radius: 12px; box-shadow: 0 0 15px rgba(0,243,255,0.3); cursor: pointer;">
+            📱 1초 만에 앱으로 설치하기
+        </button>
+
         <div class="logo">Trigger<br>Voca</div>
         <div id="welcome-msg"></div>
         <div id="streak-msg"></div>
@@ -143,7 +146,7 @@
             </div>
             
             <div id="pdf-download-section" style="margin-top: 15px; text-align: center; border-top: 1px dashed #555; padding-top: 15px;">
-                <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 10px; line-height: 1.5;">🔒 1주차 루틴(Day 7) 완료 시 이번 주 복습용<br>단어장(PDF)이 열립니다.</p>
+                <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 10px; line-height: 1.5;">🔒 1주차 루틴(Day 7) 완료 시<br>이번 주 복습용 단어장(PDF)이 열립니다.</p>
                 <button id="pdf-btn" disabled style="background: #333; color: #666; border: 1px solid #555; padding: 10px 20px; border-radius: 8px; cursor: not-allowed; font-weight: bold;">
                     다운로드 잠김
                 </button>
@@ -166,7 +169,7 @@
 
     <script src="wordData.js"></script>
     <script>
-        const TOTAL_DAYS = 60; // 1000단어 수용을 위해 60일로 변경
+        const TOTAL_DAYS = 60; 
         const todayStr = new Date().toLocaleDateString();
         
         // 날짜가 바뀌면 레벨별 세션 초기화
@@ -301,7 +304,6 @@
                 let levelHtml = '';
                 let levelCount = 0;
                 
-                // [수정] i < levelUnlockedDay 를 i <= levelUnlockedDay 로 변경하여 당일 단어도 즉시 노출
                 for(let i = 1; i <= levelUnlockedDay; i++) {
                     if (i % 7 === 6 || i % 7 === 0) continue; 
                     const dayWords = levelData[i] || [];
@@ -427,7 +429,7 @@
             wrongWords = wrongWords.filter(w => w.level === currentLevel);
             document.getElementById('wrong-word-count').innerText = wrongWords.length + " 단어";
 
-            const endTime = parseInt(localStorage.getItem('blackt_cooldown')) || 0; // 쿨다운은 레벨 무관하게 전역 적용
+            const endTime = parseInt(localStorage.getItem('blackt_cooldown')) || 0; 
             const startBtn = document.getElementById('start-btn-main');
             const currentSession = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`)) || 1;
             const unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
@@ -487,7 +489,6 @@
 
         function handleLogin() {
             const name = document.getElementById('user-name').value.trim();
-            const phone = document.getElementById('user-phone').value.trim();
             const agree = document.getElementById('agree-privacy').checked;
             
             if (!name) return alert("이름을 입력해주세요.");
@@ -526,7 +527,7 @@
                 for(let l of ['middle', 'high']) {
                     const lData = wordsData[l] || {};
                     const levelUnlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${l}`)) || 1;
-                    for(let i = 1; i < levelUnlockedDay; i++) {
+                    for(let i = 1; i <= levelUnlockedDay; i++) {
                         if (i % 7 === 6 || i % 7 === 0) continue;
                         totalCount += (lData[i] || []).length;
                     }
@@ -540,60 +541,55 @@
             }
             updateDashboardUI();
         }
-// 1. 스플래시 화면 2.4초 후 제거 로직
-window.addEventListener('load', () => {
+
+        // 스플래시 및 앱 설치 팝업 스크립트
+        window.addEventListener('load', () => {
+            // 스플래시 화면 제어 (2.4초 유지 후 페이드아웃)
             setTimeout(() => {
                 const splash = document.getElementById('splash-screen');
-                if(splash) {
-                    splash.style.opacity = '0'; // 부드럽게 투명해짐
-                    setTimeout(() => splash.style.display = 'none', 500); // 완전히 사라짐
+                if (splash) {
+                    splash.style.opacity = '0';
+                    setTimeout(() => splash.style.display = 'none', 500);
                 }
-            }, 2400); // 2.4초(2400ms) 유지
+            }, 2400);
+
+            // 서비스 워커 등록
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(reg => console.log('서비스 워커 등록 성공!', reg))
+                    .catch(err => console.log('서비스 워커 등록 실패:', err));
+            }
+
+            checkLoginStatus();
+            selectLevel(localStorage.getItem('trigger_level') || 'middle');
         });
 
-        // 2. 스마트 앱 설치 버튼 로직
+        // 앱 설치 버튼 제어
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            // 설치가 가능한 상태가 되면 버튼을 화면에 보여줌
             const installBtn = document.getElementById('install-app-btn');
-            if(installBtn) {
+            if (installBtn) {
                 installBtn.style.display = 'block';
                 installBtn.addEventListener('click', () => {
+                    installBtn.style.display = 'none';
                     deferredPrompt.prompt();
                     deferredPrompt.userChoice.then((choiceResult) => {
-                        if (choiceResult.outcome === 'accepted') {
-                            installBtn.style.display = 'none'; // 설치 승인 시 버튼 숨김
-                        }
                         deferredPrompt = null;
                     });
                 });
             }
         });
 
-        // 이미 앱으로 설치된 상태로 켜졌다면 버튼 숨기기
         window.addEventListener('appinstalled', () => {
             const installBtn = document.getElementById('install-app-btn');
-            if(installBtn) installBtn.style.display = 'none';
+            if (installBtn) installBtn.style.display = 'none';
         });
+
         if (window.matchMedia('(display-mode: standalone)').matches) {
             const installBtn = document.getElementById('install-app-btn');
-            if(installBtn) installBtn.style.display = 'none';
-        }
-
-
-        window.onload = function() {
-            checkLoginStatus();
-            selectLevel(localStorage.getItem('trigger_level') || 'middle');
-        }
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./service-worker.js')
-                    .then(reg => console.log('서비스 워커 등록 성공!', reg))
-                    .catch(err => console.log('서비스 워커 등록 실패:', err));
-            });
+            if (installBtn) installBtn.style.display = 'none';
         }
     </script>
 </body>

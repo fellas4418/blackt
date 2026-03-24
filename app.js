@@ -331,6 +331,7 @@ function updateUI(data, isTest = false) {
     }
 }
 
+// 오답을 주말 복습에서만 지우도록 수정한 부분
 function handleAnswer(isCorrect) {
     clearInterval(window.currentTimer);
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
@@ -342,14 +343,12 @@ function handleAnswer(isCorrect) {
 
     if (isCorrect) {
         score++;
-        // [수정] 평일(isPreReviewMode)에는 맞혀도 지우지 않음. 
-        // 오직 주말 복습일(isReviewDay) 본 테스트에서 정답을 맞혀야만 오답 리스트에서 최종 삭제.
+        // 평일에는 맞혀도 유지, 주말 총복습에서 정답을 맞혀야만 완전 삭제
         if (isReviewDay && idx > -1) {
             wrongWords.splice(idx, 1);
             localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
         }
     } else {
-        // 틀렸을 때 리스트에 없으면 추가
         if (idx === -1) {
             wrongWords.push({ ...currentWordData, day: currentDay, level: currentLevel });
             localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
@@ -419,7 +418,7 @@ function finishSession(didTest = true) {
         let currentStreak = parseInt(localStorage.getItem('trigger_streak')) || 0;
         let highestDay = parseInt(localStorage.getItem(`trigger_highest_day_${currentLevel}`)) || 0;
         if (currentDay > highestDay) {
-            currentStreak++; // 스트릭(연속 출석)은 레벨 상관없이 전역 유지
+            currentStreak++; 
             localStorage.setItem('trigger_streak', currentStreak);
             localStorage.setItem(`trigger_highest_day_${currentLevel}`, currentDay);
         }
