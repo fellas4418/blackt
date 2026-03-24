@@ -102,7 +102,7 @@
                 <span style="font-size: 0.8rem;">📤</span>
             </button>
         </div>
-        <div class="logo" style="margin-top: 10px; margin-bottom: 25px;">Trigger<br>Voca</div>
+        <div class="logo" onclick="enableAdminMode()" style="cursor: default; margin-top: 10px; margin-bottom: 25px;">Trigger<br>Voca</div>
         
         <button id="install-app-btn" style="display:none; width: 100%; margin-bottom: 25px; padding: 12px; background: rgba(0, 243, 255, 0.05); color: var(--neon-blue); font-size: 1.05rem; font-weight: bold; border: 1px dashed var(--neon-blue); border-radius: 12px; box-shadow: 0 0 15px rgba(0,243,255,0.15); cursor: pointer; transition: 0.3s;">
             👇 터치해서 1초 만에 앱으로 설치하기
@@ -171,12 +171,28 @@
                 </button>
             </div>
         </div>
-
+        <div id="admin-menu" style="display: none; text-align: center; margin-top: 30px; border-top: 1px dashed #444; padding-top: 20px; flex-direction: column; gap: 12px; align-items: center;">
+            <p style="color:var(--neon-orange); font-size:0.8rem; margin:0;">🛠️ 관리자 모드 활성화됨</p>
+            <button onclick="const lvl = localStorage.getItem('trigger_level') || 'middle'; localStorage.setItem('trigger_session_' + lvl, '7'); location.reload();" style="background: none; border: none; color: var(--neon-blue); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">⏩ 현재 레벨 세션 강제 완료</button>
+            <button onclick="if(confirm('모든 데이터를 초기화할까요?')) { localStorage.clear(); location.reload(); }" style="background: none; border: none; color: #555; text-decoration: underline; cursor: pointer; font-size: 0.85rem;">🔄 모든 데이터 완전 초기화</button>
+        </div>
     </div>
 
-    <script src="wordData.js"></script>
-    <script>
-        const TOTAL_DAYS = 60; 
+    177: <script src="wordData.js"></script>
+178: <script>
+179:     // ✅ 여기부터 복사해서 넣으세요
+180:     let logoClickCount = 0;
+181:     function enableAdminMode() {
+182:         logoClickCount++;
+183:         if (logoClickCount >= 3) {
+184:             document.getElementById('admin-menu').style.display = 'flex';
+185:             alert("🛠️ 관리자 모드 활성화!");
+186:             logoClickCount = 0;
+187:         }
+188:         setTimeout(() => { logoClickCount = 0; }, 3000);
+189:     }
+190:     // ✅ 여기까지 넣으셨으면 성공!
+191:     const TOTAL_DAYS = 60;
         const todayStr = new Date().toLocaleDateString();
         
         // 날짜가 바뀌면 레벨별 세션 초기화
