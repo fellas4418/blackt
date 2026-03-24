@@ -60,7 +60,6 @@ function showSystemMessage(text) {
     if (meaningsEl) meaningsEl.innerHTML = "";
 }
 
-// ★ 카운트다운 숫자 크기만 다시 5rem으로 크게 원상복구!
 function startCountdown(message, callback) {
     let count = 3;
     const renderHtml = (c) => `
@@ -102,10 +101,12 @@ function initApp() {
         const today = new Date().toLocaleDateString();
         if (localStorage.getItem('trigger_date') !== today) {
             localStorage.setItem('trigger_date', today);
-            localStorage.setItem('trigger_session', '1');
+            localStorage.setItem('trigger_session_middle', '1');
+            localStorage.setItem('trigger_session_high', '1');
         }
-        let currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
-        const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
+        
+        let currentSession = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`)) || 1;
+        const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
         const levelData = wordsData[currentLevel] || {};
         
         const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
@@ -186,7 +187,7 @@ function startStudy() {
             return;
         } else {
             currentIdx = 0;
-            const currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
+            const currentSession = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`)) || 1;
             
             if (currentSession === 3 || currentSession === 6 || currentSession > 6) {
                 startCountdown("곧 테스트를 시작합니다.", startTest); 
@@ -244,7 +245,7 @@ function startTest() {
 
 function toggleStar(wordObj) {
     let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
-    const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
+    const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
     const idx = wrongWords.findIndex(w => w.word === wordObj.word && w.level === currentLevel);
     
     const starBtn = document.getElementById('star-btn');
@@ -259,17 +260,14 @@ function toggleStar(wordObj) {
 }
 
 function updateUI(data, isTest = false) {
-    // [중요 수정] targetEl을 데이터 검증 전에 먼저 가져와야 에러가 발생하지 않습니다.
     const targetEl = document.getElementById('target');
     
-    // 데이터 형식 안전장치
     if (!data || !data.word) {
         console.error("데이터 형식 에러:", data);
         if (targetEl) targetEl.innerHTML = "데이터 오류";
         return;
     }
 
-    // meanings가 배열이 아닐 경우를 대비한 방어 코드
     const safeMeanings = Array.isArray(data.meanings) ? data.meanings : ["뜻 정보 없음"];
     const fullMeaning = safeMeanings.join(', ');
 
@@ -302,12 +300,10 @@ function updateUI(data, isTest = false) {
     const mBox = document.getElementById('meanings');
     
     if (!isTest) {
-        // 기존 data.meanings 대신 안전한 safeMeanings 사용
         mBox.innerHTML = safeMeanings.map(m => `<div>${m}</div>`).join('');
     } else {
         if(starBtn) starBtn.style.display = 'none'; 
         
-        // [추가 안전장치] 오답 보기를 만들 때 다른 단어들의 뜻도 배열인지 확인
         const allOtherMeanings = targetWords.filter(w => w.word !== data.word).map(w => {
             return Array.isArray(w.meanings) ? w.meanings.join(', ') : "뜻 정보 없음";
         });
@@ -337,7 +333,7 @@ function updateUI(data, isTest = false) {
 
 function handleAnswer(isCorrect) {
     clearInterval(window.currentTimer);
-    const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
+    const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
     let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
     const currentWordData = targetWords[currentIdx];
     const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
@@ -361,7 +357,7 @@ function handleAnswer(isCorrect) {
 function executeKakaoShare() {
     try {
         const userName = localStorage.getItem('trigger_name') || '학습자';
-        const currentDay = localStorage.getItem('trigger_current_day') || 1;
+        const currentDay = localStorage.getItem(`trigger_current_day_${currentLevel}`) || 1;
         const currentUrl = window.location.origin; 
         
         Kakao.Share.sendDefault({
@@ -400,11 +396,11 @@ function finishSession(didTest = true) {
         return;
     }
 
-    let currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
+    let currentSession = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`)) || 1;
     let finishedSession = currentSession;
-    const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
+    const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
 
-    let stats = JSON.parse(localStorage.getItem('trigger_stats') || '{}');
+    let stats = JSON.parse(localStorage.getItem(`trigger_stats_${currentLevel}`) || '{}');
     if (typeof stats[currentDay] === 'number') {
         stats[currentDay] = { progress: 6, accuracy: stats[currentDay] }; 
     }
@@ -416,23 +412,23 @@ function finishSession(didTest = true) {
         stats[currentDay].accuracy = Math.floor((score / targetWords.length) * 100);
         
         let currentStreak = parseInt(localStorage.getItem('trigger_streak')) || 0;
-        let highestDay = parseInt(localStorage.getItem('trigger_highest_day')) || 0;
+        let highestDay = parseInt(localStorage.getItem(`trigger_highest_day_${currentLevel}`)) || 0;
         if (currentDay > highestDay) {
-            currentStreak++;
+            currentStreak++; // 스트릭(연속 출석)은 레벨 상관없이 전역 유지
             localStorage.setItem('trigger_streak', currentStreak);
-            localStorage.setItem('trigger_highest_day', currentDay);
+            localStorage.setItem(`trigger_highest_day_${currentLevel}`, currentDay);
         }
     }
-    localStorage.setItem('trigger_stats', JSON.stringify(stats));
+    localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));
 
     if (currentSession <= 6) {
         currentSession++;
-        localStorage.setItem('trigger_session', currentSession);
+        localStorage.setItem(`trigger_session_${currentLevel}`, currentSession);
         
         if (currentSession === 7) {
-            let unlockedDay = parseInt(localStorage.getItem('trigger_unlocked_day')) || 1;
+            let unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
             if (unlockedDay === currentDay) {
-                localStorage.setItem('trigger_unlocked_day', unlockedDay + 1);
+                localStorage.setItem(`trigger_unlocked_day_${currentLevel}`, unlockedDay + 1);
             }
         }
     }

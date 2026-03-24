@@ -130,7 +130,7 @@
         </div>
 
         <div class="card routine-section">
-            <div class="routine-header">📅 42일 루틴 (학습 + 복습)</div>
+            <div class="routine-header">📅 60일 루틴 (학습 + 복습)</div>
             <div class="routine-scroll-box">
                 <ul class="routine-list" id="routine-list-container"></ul>
             </div>
@@ -144,13 +144,7 @@
         </div>
 
         <div style="text-align: center; margin-top: 30px; display: flex; flex-direction: column; gap: 12px; align-items: center;">
-            <button onclick="localStorage.setItem('trigger_session', '3'); localStorage.removeItem('blackt_cooldown'); location.reload();" style="background: none; border: none; color: var(--neon-blue); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">
-                ⏩ 3세션으로 강제 스킵
-            </button>
-            <button onclick="localStorage.setItem('trigger_session', '6'); localStorage.removeItem('blackt_cooldown'); location.reload();" style="background: none; border: none; color: var(--neon-orange); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">
-                ⏩ 6세션으로 강제 스킵
-            </button>
-            <button onclick="localStorage.clear(); location.reload();" style="background: none; border: none; color: #555; text-decoration: underline; cursor: pointer; font-size: 0.85rem;">
+            <button onclick="if(confirm('모든 데이터를 초기화할까요?')) { localStorage.clear(); location.reload(); }" style="background: none; border: none; color: #555; text-decoration: underline; cursor: pointer; font-size: 0.85rem;">
                 🔄 모든 데이터 완전 초기화
             </button>
         </div>
@@ -159,29 +153,36 @@
 
     <script src="wordData.js"></script>
     <script>
+        const TOTAL_DAYS = 60; // 1000단어 수용을 위해 60일로 변경
         const todayStr = new Date().toLocaleDateString();
+        
+        // 날짜가 바뀌면 레벨별 세션 초기화
         if (localStorage.getItem('trigger_date') !== todayStr) {
             localStorage.setItem('trigger_date', todayStr);
-            localStorage.setItem('trigger_session', '1');
-            localStorage.setItem('trigger_unlocked_extra_today', '0'); 
+            localStorage.setItem('trigger_session_middle', '1');
+            localStorage.setItem('trigger_session_high', '1');
+            localStorage.setItem('trigger_unlocked_extra_today_middle', '0');
+            localStorage.setItem('trigger_unlocked_extra_today_high', '0');
         }
 
         function startDayStudy(day) {
-            const savedDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
+            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
+            const savedDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
             if (savedDay !== day) {
-                localStorage.setItem('trigger_session', '1'); 
+                localStorage.setItem(`trigger_session_${currentLevel}`, '1'); 
             }
-            localStorage.setItem('trigger_current_day', day);
+            localStorage.setItem(`trigger_current_day_${currentLevel}`, day);
             location.href = 'study.html';
         }
 
         function renderRoutine() {
-            let unlockedDay = parseInt(localStorage.getItem('trigger_unlocked_day')) || 1;
+            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
+            let unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
             const container = document.getElementById('routine-list-container');
             if (!container) return;
             
             let html = '';
-            for(let i=1; i<=42; i++) {
+            for(let i=1; i<=TOTAL_DAYS; i++) {
                 let isReview = (i % 7 === 6 || i % 7 === 0);
                 let dayLabel = isReview ? `Day ${i} (복습)` : `Day ${i}`;
                 
@@ -205,12 +206,20 @@
                 pdfBtn.style.boxShadow = "var(--glow-green)";
                 pdfBtn.style.cursor = "pointer";
                 pdfBtn.onclick = generatePDF;
+            } else {
+                pdfBtn.disabled = true;
+                pdfBtn.innerText = "다운로드 잠김";
+                pdfBtn.style.background = "#333";
+                pdfBtn.style.color = "#666";
+                pdfBtn.style.borderColor = "#555";
+                pdfBtn.style.boxShadow = "none";
+                pdfBtn.onclick = null;
             }
         }
 
         function generatePDF() {
-            const unlockedDay = parseInt(localStorage.getItem('trigger_unlocked_day')) || 1;
             const currentLevel = localStorage.getItem('trigger_level') || 'middle';
+            const unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
             const levelData = wordsData[currentLevel] || {};
             
             let printHtml = `<h1 style="text-align:center;">Trigger Voca 누적 단어장 (${currentLevel === 'middle' ? '중등' : '고등'})</h1>`;
@@ -222,7 +231,6 @@
                     printHtml += `<div class="print-day">Day ${i}</div>`;
                     dayWords.forEach(w => {
                         printHtml += `<div class="print-word">${w.word} <span style="color:#666; font-size:0.9rem;">${w.ipa}</span></div>`;
-                        // [추가된 안전장치] 배열 여부 체크
                         const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
                         printHtml += `<div class="print-meaning">${safeMeanings}</div>`;
                     });
@@ -246,7 +254,6 @@
                 listContainer.innerHTML = "<p style='text-align:center; color:#888;'>해당 레벨의 오답이 없습니다.</p>";
             } else {
                 listContainer.innerHTML = wrongWords.map(w => {
-                    // [추가된 안전장치] 배열 여부 체크
                     const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
                     return `<div style="padding:10px 0; border-bottom:1px solid #333;"><strong>${w.word}</strong> <span style="color:#888; font-size:0.9rem;">${safeMeanings}</span></div>`;
                 }).join('');
@@ -255,22 +262,22 @@
         }
 
         function showAllWords() {
-            const unlockedDay = parseInt(localStorage.getItem('trigger_unlocked_day')) || 1;
             let learnedWordsHtml = '';
             let totalCount = 0;
 
             const renderLevelWords = (levelKey, levelName) => {
                 const levelData = wordsData[levelKey] || {};
+                // [핵심 수정] 레벨별로 자신의 unlockedDay를 각각 가져와야 고등단어가 미리 노출되지 않습니다.
+                const levelUnlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${levelKey}`)) || 1;
                 let levelHtml = '';
                 let levelCount = 0;
                 
-                for(let i = 1; i < unlockedDay; i++) {
+                for(let i = 1; i < levelUnlockedDay; i++) {
                     if (i % 7 === 6 || i % 7 === 0) continue; 
                     const dayWords = levelData[i] || [];
                     if(dayWords.length > 0) {
                         dayWords.forEach(w => {
                             levelCount++;
-                            // [추가된 안전장치] 배열 여부 체크
                             const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
                             levelHtml += `<div style="padding:12px 0; border-bottom:1px solid #333;">
                                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
@@ -305,13 +312,13 @@
             document.getElementById('all-words-modal').style.display = 'flex';
         }
 
-        // ★ 누적 리포트 시각화 - 진행률(세션수) 명확히 추가
         function showWeeklyReport() {
-            const stats = JSON.parse(localStorage.getItem('trigger_stats') || '{}');
+            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
+            const stats = JSON.parse(localStorage.getItem(`trigger_stats_${currentLevel}`) || '{}');
             const listContainer = document.getElementById('report-list');
             
             let html = '';
-            for(let i=1; i<=42; i++) {
+            for(let i=1; i<=TOTAL_DAYS; i++) {
                 let isReview = (i % 7 === 6 || i % 7 === 0);
                 let dayLabel = isReview ? `Day ${i} (복습)` : `Day ${i}`;
                 let dayStat = stats[i];
@@ -338,7 +345,7 @@
                     html += `
                         <div style="margin-bottom: 18px;">
                             <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                                <span>${dayLabel} <strong style="color:var(--neon-blue);">${dayStat.progress}/6 세션 진행 중</strong></span>
+                                <span>${dayLabel} <strong style="color:var(--neon-blue);">${dayStat.progress}/6 진행 중</strong></span>
                                 <span style="color:#aaa; font-size:0.85rem;">진행률 ${progPercent}%</span>
                             </div>
                             <div class="report-bar-bg"><div class="report-bar-fill" style="width: ${progPercent}%; background:var(--neon-blue); box-shadow: 0 0 5px var(--neon-blue);"></div></div>
@@ -362,8 +369,9 @@
         }
 
         function unlockDay(btn, day) {
-            let unlockedExtra = parseInt(localStorage.getItem('trigger_unlocked_extra_today')) || 0;
-            let currentUnlockedDay = parseInt(localStorage.getItem('trigger_unlocked_day')) || 1;
+            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
+            let unlockedExtra = parseInt(localStorage.getItem(`trigger_unlocked_extra_today_${currentLevel}`)) || 0;
+            let currentUnlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
             
             if (day > currentUnlockedDay + 1) {
                 alert("🚨 진도를 건너뛰고 열 수는 없습니다. 순서대로 완료해 주세요.");
@@ -376,8 +384,8 @@
             }
 
             if(confirm(`Day ${day}의 잠금을 해제하시겠습니까? (하루 1회 제한)`)) {
-                localStorage.setItem('trigger_unlocked_day', day);
-                localStorage.setItem('trigger_unlocked_extra_today', unlockedExtra + 1);
+                localStorage.setItem(`trigger_unlocked_day_${currentLevel}`, day);
+                localStorage.setItem(`trigger_unlocked_extra_today_${currentLevel}`, unlockedExtra + 1);
                 renderRoutine();
                 updateDashboardUI(); 
             }
@@ -389,11 +397,11 @@
             wrongWords = wrongWords.filter(w => w.level === currentLevel);
             document.getElementById('wrong-word-count').innerText = wrongWords.length + " 단어";
 
-            const endTime = parseInt(localStorage.getItem('blackt_cooldown')) || 0;
+            const endTime = parseInt(localStorage.getItem('blackt_cooldown')) || 0; // 쿨다운은 레벨 무관하게 전역 적용
             const startBtn = document.getElementById('start-btn-main');
-            const currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
-            const unlockedDay = parseInt(localStorage.getItem('trigger_unlocked_day')) || 1;
-            const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
+            const currentSession = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`)) || 1;
+            const unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
+            const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
             
             document.getElementById('stat-current-day').innerText = `Day ${currentDay}`;
             document.getElementById('stat-session').innerText = currentSession > 6 ? '학습 완료' : `${currentSession} / 6`;
@@ -411,7 +419,6 @@
                 startBtn.style.color = "#fff";
                 startBtn.onclick = () => startDayStudy(unlockedDay);
             } else if (endTime && endTime - Date.now() > 0) {
-                
                 startBtn.disabled = true; 
                 startBtn.style.borderColor = "#444";
                 startBtn.style.boxShadow = "none";
@@ -435,10 +442,8 @@
                         startBtn.innerText = `쉬고 있어요 🔒 (${mins}:${secs < 10 ? '0' : ''}${secs})`;
                     }
                 };
-                
                 updateTimerText();
                 window.cooldownInterval = setInterval(updateTimerText, 1000);
-                
             } else {
                 startBtn.disabled = false;
                 startBtn.innerText = "학습 시작하기";
@@ -458,20 +463,14 @@
             if (!name) return alert("이름을 입력해주세요.");
             if (!agree) return alert("개인정보 수집에 동의하셔야 합니다.");
             
-            if (phone) {
-                const phoneRegex = /^01([0|1|6|7|8|9]?)-?([0-9]{3,4})-?([0-9]{4})$/;
-                if (!phoneRegex.test(phone)) {
-                    return alert("올바른 전화번호 형식(010-0000-0000)으로 입력해 주세요.");
-                }
-            }
-            
             localStorage.setItem('trigger_name', name);
             checkLoginStatus(); 
         }
 
         function checkLoginStatus() {
             const savedName = localStorage.getItem('trigger_name');
-            const currentSession = parseInt(localStorage.getItem('trigger_session')) || 1;
+            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
+            const currentSession = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`)) || 1;
             const modal = document.getElementById('login-modal');
             const welcomeMsg = document.getElementById('welcome-msg');
 
@@ -493,12 +492,11 @@
             document.getElementById('btn-' + level).className = "level-btn active";
 
             if (typeof wordsData !== 'undefined') {
-                const unlockedDay = parseInt(localStorage.getItem('trigger_unlocked_day')) || 1;
-                
                 let totalCount = 0;
                 for(let l of ['middle', 'high']) {
                     const lData = wordsData[l] || {};
-                    for(let i = 1; i < unlockedDay; i++) {
+                    const levelUnlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${l}`)) || 1;
+                    for(let i = 1; i < levelUnlockedDay; i++) {
                         if (i % 7 === 6 || i % 7 === 0) continue;
                         totalCount += (lData[i] || []).length;
                     }
@@ -506,7 +504,7 @@
                 document.getElementById('total-word-count').innerText = totalCount + " 단어";
                 
                 const levelData = wordsData[level] || {};
-                const currentDay = parseInt(localStorage.getItem('trigger_current_day')) || 1;
+                const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${level}`)) || 1;
                 const todayCount = (levelData[currentDay] || []).length;
                 document.getElementById('target-count-display').innerText = todayCount + "개";
             }
@@ -518,7 +516,6 @@
             selectLevel(localStorage.getItem('trigger_level') || 'middle');
         }
 
-        // [추가된 부분] 서비스 워커 등록 스크립트
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./service-worker.js')
