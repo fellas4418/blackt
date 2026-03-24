@@ -44,7 +44,7 @@
 <body class="dashboard-bg">
 
     <div id="splash-screen" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease;">
-        <img src="./icon-512.png" alt="Trigger Logo" style="width: 200px; height: 200px; border-radius: 20px;">
+        <img src="./logo-origin.png" alt="Trigger Voca 원본 로고" style="width: 200px; height: 200px; border-radius: 20px;">
     </div>
 
     <script>
@@ -95,9 +95,13 @@
 
     <div class="dashboard-container" style="position: relative;">
         
-        <button onclick="shareTriggerApp()" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 255, 255, 0.05); border: 1px solid #444; border-radius: 50%; width: 45px; height: 45px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1.2rem; box-shadow: 0 0 10px rgba(255,255,255,0.05); z-index: 10;" title="추천하기">
-            🔗
+        <button onclick="shareTriggerApp()" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 255, 255, 0.08); border: 1px solid #555; border-radius: 20px; padding: 6px 14px; display: flex; justify-content: center; align-items: center; gap: 6px; cursor: pointer; transition: 0.3s; z-index: 10;">
+            <span style="color: #fff; font-size: 0.85rem; font-weight: bold;">공유하기</span>
+            <span style="font-size: 0.9rem;">📤</span>
         </button>
+        <div class="logo">
+            <img src="logo-origin.png" alt="Mini Logo" style="width: 50px; height: 50px;">
+        </div>
 
         <div class="logo" style="margin-top: 10px;">Trigger<br>Voca</div>
         
