@@ -338,13 +338,18 @@ function handleAnswer(isCorrect) {
     const currentWordData = targetWords[currentIdx];
     const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
 
+    const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
+
     if (isCorrect) {
         score++;
-        if (isPreReviewMode && idx > -1) {
+        // [수정] 평일(isPreReviewMode)에는 맞혀도 지우지 않음. 
+        // 오직 주말 복습일(isReviewDay) 본 테스트에서 정답을 맞혀야만 오답 리스트에서 최종 삭제.
+        if (isReviewDay && idx > -1) {
             wrongWords.splice(idx, 1);
             localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
         }
     } else {
+        // 틀렸을 때 리스트에 없으면 추가
         if (idx === -1) {
             wrongWords.push({ ...currentWordData, day: currentDay, level: currentLevel });
             localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));

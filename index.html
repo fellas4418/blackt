@@ -136,7 +136,7 @@
             </div>
             
             <div id="pdf-download-section" style="margin-top: 15px; text-align: center; border-top: 1px dashed #555; padding-top: 15px;">
-                <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 10px; line-height: 1.5;">🔒 7일 치 완료 시 전체 단어 파일(PDF)이<br>잠금 해제됩니다.</p>
+                <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 10px; line-height: 1.5;">🔒 1주차 루틴(Day 7) 완료 시 이번 주 복습용 단어장(PDF)이 열립니다.</p>
                 <button id="pdf-btn" disabled style="background: #333; color: #666; border: 1px solid #555; padding: 10px 20px; border-radius: 8px; cursor: not-allowed; font-weight: bold;">
                     다운로드 잠김
                 </button>
@@ -251,19 +251,36 @@
         }
 
         function showWrongWords() {
-            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
             let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
-            wrongWords = wrongWords.filter(w => w.level === currentLevel); 
-            
             const listContainer = document.getElementById('wrong-list');
-            if(wrongWords.length === 0) {
-                listContainer.innerHTML = "<p style='text-align:center; color:#888;'>해당 레벨의 오답이 없습니다.</p>";
-            } else {
-                listContainer.innerHTML = wrongWords.map(w => {
+
+            let html = '';
+            let totalCount = 0;
+
+            const renderLevelWrongs = (levelKey, levelName) => {
+                const levelWrongs = wrongWords.filter(w => w.level === levelKey);
+                if (levelWrongs.length === 0) return '';
+                
+                totalCount += levelWrongs.length;
+                let levelHtml = `<div style="margin-top:20px; margin-bottom:10px; font-size:1.2rem; font-weight:bold; color:var(--neon-green); border-bottom:2px solid var(--neon-green); padding-bottom:5px; text-align:left;">[${levelName}]</div>`;
+                
+                levelHtml += levelWrongs.map(w => {
                     const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
                     return `<div style="padding:10px 0; border-bottom:1px solid #333;"><strong>${w.word}</strong> <span style="color:#888; font-size:0.9rem;">${safeMeanings}</span></div>`;
                 }).join('');
+                return levelHtml;
+            };
+
+            html += renderLevelWrongs('middle', '📚 중등 단어');
+            html += renderLevelWrongs('high', '🎓 고등 단어');
+
+            if(totalCount === 0) {
+                listContainer.innerHTML = "<p style='text-align:center; color:#888; margin-top:20px;'>저장된 오답이나 별표 단어가 없습니다.</p>";
+            } else {
+                listContainer.innerHTML = html;
             }
+            
+            document.getElementById('wrong-word-count').innerText = totalCount + " 단어";
             document.getElementById('wrong-modal').style.display = 'flex';
         }
 
@@ -273,12 +290,12 @@
 
             const renderLevelWords = (levelKey, levelName) => {
                 const levelData = wordsData[levelKey] || {};
-                // [핵심 수정] 레벨별로 자신의 unlockedDay를 각각 가져와야 고등단어가 미리 노출되지 않습니다.
                 const levelUnlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${levelKey}`)) || 1;
                 let levelHtml = '';
                 let levelCount = 0;
                 
-                for(let i = 1; i < levelUnlockedDay; i++) {
+                // [수정] i < levelUnlockedDay 를 i <= levelUnlockedDay 로 변경하여 당일 단어도 즉시 노출
+                for(let i = 1; i <= levelUnlockedDay; i++) {
                     if (i % 7 === 6 || i % 7 === 0) continue; 
                     const dayWords = levelData[i] || [];
                     if(dayWords.length > 0) {
@@ -309,7 +326,7 @@
             
             const listContainer = document.getElementById('all-words-list');
             if(totalCount === 0) {
-                listContainer.innerHTML = "<p style='text-align:center; color:#888; margin-top:20px;'>아직 학습을 완료한 단어가 없습니다.<br>진도를 먼저 나가주세요!</p>";
+                listContainer.innerHTML = "<p style='text-align:center; color:#888; margin-top:20px;'>아직 학습을 시작한 단어가 없습니다.</p>";
             } else {
                 listContainer.innerHTML = learnedWordsHtml;
             }
