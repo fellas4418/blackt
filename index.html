@@ -59,6 +59,7 @@
         <div class="login-card">
             <div class="login-title">Trigger Voca</div>
             <div class="input-group"><span class="input-label">이름 (실명)</span><input type="text" id="user-name" class="neon-input"></div>
+            <div class="input-group"><span class="input-label">전화번호 (휴대폰)</span><input type="tel" id="user-phone" class="neon-input" placeholder="010-0000-0000"></div>
             <div class="input-group">
                 <span class="input-label">전화번호 (선택)</span>
                 <input type="tel" id="user-phone" class="neon-input" placeholder="010-0000-0000">
@@ -169,18 +170,6 @@
                     다운로드 잠김
                 </button>
             </div>
-        </div>
-
-        <div style="text-align: center; margin-top: 30px; display: flex; flex-direction: column; gap: 12px; align-items: center;">
-            <button onclick="const lvl = localStorage.getItem('trigger_level') || 'middle'; localStorage.setItem('trigger_session_' + lvl, '3'); localStorage.removeItem('blackt_cooldown'); location.reload();" style="background: none; border: none; color: var(--neon-blue); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">
-                ⏩ 현재 레벨 3세션으로 강제 스킵
-            </button>
-            <button onclick="const lvl = localStorage.getItem('trigger_level') || 'middle'; localStorage.setItem('trigger_session_' + lvl, '6'); localStorage.removeItem('blackt_cooldown'); location.reload();" style="background: none; border: none; color: var(--neon-orange); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">
-                ⏩ 현재 레벨 6세션으로 강제 스킵
-            </button>
-            <button onclick="if(confirm('모든 데이터를 초기화할까요?')) { localStorage.clear(); location.reload(); }" style="background: none; border: none; color: #555; text-decoration: underline; cursor: pointer; font-size: 0.85rem;">
-                🔄 모든 데이터 완전 초기화
-            </button>
         </div>
 
     </div>
@@ -505,15 +494,31 @@
             renderRoutine();
         }
 
-        function handleLogin() {
+        async function handleLogin() {
             const name = document.getElementById('user-name').value.trim();
+            const phone = document.getElementById('user-phone').value.trim();
             const agree = document.getElementById('agree-privacy').checked;
-            
-            if (!name) return alert("이름을 입력해주세요.");
+            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
+            const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbx5n1VzAFqVSlLt-e7lduSfi8-T7gHQ-REGvlaP6tWGdZJgFPuEEPYB4xfr1GZ5Vgek/exec";
+
+            if (!name || !phone) return alert("이름과 전화번호를 모두 입력해주세요.");
             if (!agree) return alert("개인정보 수집에 동의하셔야 합니다.");
-            
-            localStorage.setItem('trigger_name', name);
-            checkLoginStatus(); 
+
+            try {
+                // 구글 시트로 데이터 전송
+                fetch(GOOGLE_SHEET_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({ name: name, phone: phone, level: currentLevel })
+                });
+                
+                localStorage.setItem('trigger_name', name);
+                localStorage.setItem('trigger_phone', phone);
+                checkLoginStatus(); 
+            } catch (e) {
+                localStorage.setItem('trigger_name', name);
+                checkLoginStatus();
+            }
         }
 
         function checkLoginStatus() {
