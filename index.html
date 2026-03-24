@@ -144,6 +144,12 @@
         </div>
 
         <div style="text-align: center; margin-top: 30px; display: flex; flex-direction: column; gap: 12px; align-items: center;">
+            <button onclick="const lvl = localStorage.getItem('trigger_level') || 'middle'; localStorage.setItem('trigger_session_' + lvl, '3'); localStorage.removeItem('blackt_cooldown'); location.reload();" style="background: none; border: none; color: var(--neon-blue); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">
+                ⏩ 현재 레벨 3세션으로 강제 스킵
+            </button>
+            <button onclick="const lvl = localStorage.getItem('trigger_level') || 'middle'; localStorage.setItem('trigger_session_' + lvl, '6'); localStorage.removeItem('blackt_cooldown'); location.reload();" style="background: none; border: none; color: var(--neon-orange); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">
+                ⏩ 현재 레벨 6세션으로 강제 스킵
+            </button>
             <button onclick="if(confirm('모든 데이터를 초기화할까요?')) { localStorage.clear(); location.reload(); }" style="background: none; border: none; color: #555; text-decoration: underline; cursor: pointer; font-size: 0.85rem;">
                 🔄 모든 데이터 완전 초기화
             </button>
