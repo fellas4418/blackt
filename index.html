@@ -42,7 +42,14 @@
     </style>
 </head>
 <body class="dashboard-bg">
-    
+    <div id="splash-screen" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:#000; z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; transition: opacity 0.5s;">
+        <img src="icon-512.png" alt="로고" style="width: 140px; margin-bottom: 20px; border-radius: 20px; box-shadow: 0 0 20px rgba(0,243,255,0.3);">
+        <div class="logo" style="font-size: 2.8rem; text-align: center;">Trigger<br>Voca</div>
+    </div>
+
+    <button id="install-app-btn" style="display:none; width: 85%; max-width: 400px; margin: 20px auto 0 auto; padding: 15px; background: rgba(0, 243, 255, 0.1); color: var(--neon-blue); font-size: 1.1rem; font-weight: bold; border: 1px solid var(--neon-blue); border-radius: 12px; box-shadow: var(--glow-blue); cursor: pointer;">
+        📱 1초 만에 트리거 보카 앱 설치하기
+    </button>
     <div id="print-area" style="display:none;"></div>
 
     <div id="login-modal" style="display:none;">
