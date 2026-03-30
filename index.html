@@ -39,6 +39,13 @@
             .print-word { font-size: 1.2rem; font-weight: bold; margin-top: 10px; }
             .print-meaning { font-size: 1rem; color: #333; margin-bottom: 5px; }
         }
+
+        /* 신규 추가: 시험 분석 버튼 강조용 애니메이션 */
+        @keyframes pulse-blue {
+            0% { box-shadow: 0 0 5px rgba(0, 243, 255, 0.2); }
+            50% { box-shadow: 0 0 15px rgba(0, 243, 255, 0.5); }
+            100% { box-shadow: 0 0 5px rgba(0, 243, 255, 0.2); }
+        }
     </style>
 </head>
 <body class="dashboard-bg">
@@ -125,13 +132,7 @@
             </div>
         </div>
 
-        <div class="card clickable-card" style="border: 1px solid #b537f2; background: rgba(181, 55, 242, 0.08); box-shadow: 0 0 15px rgba(181, 55, 242, 0.2); margin-bottom: 20px; text-align: center; padding: 20px;" onclick="window.open('https://www.notion.so/3-26ea81fd05e580869538e10685e3cdf2', '_blank')">
-            <div style="color: #d789ff; font-size: 0.85rem; font-weight: bold; margin-bottom: 5px; letter-spacing: 1px;">PREMIUM CLASS</div>
-            <div style="font-size: 1.25rem; font-weight: 900; color: #fff; text-shadow: 0 0 10px #b537f2; margin-bottom: 8px;">단 3시간, 영문법 마스터 ⚡</div>
-            <div style="color: #bbb; font-size: 0.9rem;">단어장만으로는 부족한 3시간 초단기 영문법 완성하기 ➔</div>
-        </div>
-
-        <div class="card level-section">
+        <div class="card level-section" style="margin-bottom: 15px;">
             <div class="level-title">학습 레벨 선택</div>
             <div class="level-buttons">
                 <button class="level-btn active" id="btn-middle" onclick="selectLevel('middle')">📚 중등단어</button>
@@ -139,11 +140,17 @@
             </div>
         </div>
 
-        <div class="card study-section">
+        <div class="card study-section" style="margin-bottom: 20px; padding: 25px 20px; border: 1px solid var(--neon-orange); background: rgba(255, 153, 0, 0.05);">
             <div class="map-icon">🗺️</div>
             <div class="study-title">오늘의 학습</div>
             <div class="target-words">목표 단어: <span class="target-count" id="target-count-display">0개</span></div>
-            <button class="start-btn" id="start-btn-main">학습 시작하기</button>
+            <button class="start-btn" id="start-btn-main" style="width: 100%; height: 60px; font-size: 1.2rem;">학습 시작하기</button>
+            <p style="color: #aaa; font-size: 0.85rem; margin-top: 15px; text-align: center;">📢 완료 시 부모님께 즉시 보고됩니다.</p>
+        </div>
+
+        <div class="card clickable-card" id="exam-analysis-btn" style="border: 1px solid var(--neon-blue); background: rgba(0, 243, 255, 0.08); animation: pulse-blue 2s infinite; margin-bottom: 25px; text-align: center; padding: 20px;" onclick="alert('시험지 분석 기능을 준비 중입니다! (OCR 업데이트 예정)')">
+            <div style="font-size: 1.15rem; font-weight: bold; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); margin-bottom: 8px;">📷 15초 시험지 분석하기</div>
+            <div style="color: #bbb; font-size: 0.9rem;">내 시험지를 찍고 맞춤 단어장으로 업데이트 ➔</div>
         </div>
 
         <div class="info-row">
@@ -169,6 +176,12 @@
                     다운로드 잠김
                 </button>
             </div>
+        </div>
+
+        <div class="card clickable-card" style="border: 1px solid #b537f2; background: rgba(181, 55, 242, 0.08); box-shadow: 0 0 15px rgba(181, 55, 242, 0.2); margin-top: 20px; margin-bottom: 20px; text-align: center; padding: 20px;" onclick="window.open('https://www.notion.so/3-26ea81fd05e580869538e10685e3cdf2', '_blank')">
+            <div style="color: #d789ff; font-size: 0.85rem; font-weight: bold; margin-bottom: 5px; letter-spacing: 1px;">PREMIUM CLASS</div>
+            <div style="font-size: 1.25rem; font-weight: 900; color: #fff; text-shadow: 0 0 10px #b537f2; margin-bottom: 8px;">단 3시간, 영문법 마스터 ⚡</div>
+            <div style="color: #bbb; font-size: 0.9rem;">단어장만으로는 부족한 3시간 초단기 영문법 완성하기 ➔</div>
         </div>
         
         <div id="admin-menu" style="display: none; text-align: center; margin-top: 30px; border-top: 1px dashed #444; padding-top: 20px; flex-direction: column; gap: 12px; align-items: center;">
@@ -526,7 +539,6 @@
             btn.disabled = true;
 
             try {
-                // 구글 시트로 데이터 전송
                 await fetch(GOOGLE_SHEET_URL, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -537,7 +549,6 @@
                 localStorage.setItem('trigger_phone', phone);
                 checkLoginStatus(); 
             } catch (e) {
-                // 전송 에러가 나도 앱은 작동하게 방어 처리
                 localStorage.setItem('trigger_name', name);
                 checkLoginStatus();
             }
@@ -587,9 +598,7 @@
             updateDashboardUI();
         }
 
-        // 스플래시 및 앱 설치 팝업 스크립트
         window.addEventListener('load', () => {
-            // 스플래시 화면 제어 (2.4초 유지 후 페이드아웃)
             setTimeout(() => {
                 const splash = document.getElementById('splash-screen');
                 if (splash) {
@@ -598,7 +607,6 @@
                 }
             }, 2400);
 
-            // 서비스 워커 등록
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('./service-worker.js')
                     .then(reg => console.log('서비스 워커 등록 성공!', reg))
@@ -609,7 +617,6 @@
             selectLevel(localStorage.getItem('trigger_level') || 'middle');
         });
 
-        // 앱 설치 버튼 제어
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -637,21 +644,18 @@
             if (installBtn) installBtn.style.display = 'none';
         }
         
-        // 🚀 앱 공유하기 (Web Share API)
         function shareTriggerApp() {
             const shareTitle = "Trigger Voca - 뇌과학 영단어장";
             const shareText = "단어 암기 3시간 걸리던 거, 30분 컷! 뇌과학 6세션 루틴 앱 '트리거 보카'를 무료로 시작해 보세요.";
             const shareUrl = window.location.origin;
 
             if (navigator.share) {
-                // 스마트폰 네이티브 공유창 호출
                 navigator.share({
                     title: shareTitle,
                     text: shareText,
                     url: shareUrl
                 }).catch(console.error);
             } else {
-                // PC 등에서 공유창 미지원 시 링크 복사
                 navigator.clipboard.writeText(shareUrl).then(() => {
                     alert("✅ 링크가 복사되었습니다! 카카오톡이나 게시판에 붙여넣기 해주세요.");
                 }).catch(() => {
