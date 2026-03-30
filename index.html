@@ -99,6 +99,46 @@
             <button class="login-btn" style="border-color: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue);" onclick="document.getElementById('report-modal').style.display='none'">닫기</button>
         </div>
     </div>
+    
+    <div id="exam-setup-modal" style="display:none; z-index: 2000;">
+        <div class="login-card" style="border-color: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); width: 90%; max-width: 400px;">
+            <div class="login-title" style="color:var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); font-size: 1.5rem;">분석할 시험 선택</div>
+            
+            <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 20px;">정확한 오답 분석을 위해 시험 종류를 선택해 주세요.</p>
+
+            <div class="input-group">
+                <span class="input-label" style="color: #ddd;">학년</span>
+                <select id="exam-grade" class="neon-input" style="appearance: auto;">
+                    <option value="1학년">1학년</option>
+                    <option value="2학년">2학년</option>
+                    <option value="3학년">3학년</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <span class="input-label" style="color: #ddd;">시험 구분</span>
+                <select id="exam-type" class="neon-input" style="appearance: auto;" onchange="updateExamPeriod()">
+                    <option value="내신">학교 내신 (중간/기말)</option>
+                    <option value="모의고사">전국 모의고사</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <span class="input-label" style="color: #ddd;">시기</span>
+                <select id="exam-period" class="neon-input" style="appearance: auto;">
+                    <option value="1학기 중간">1학기 중간고사</option>
+                    <option value="1학기 기말">1학기 기말고사</option>
+                    <option value="2학기 중간">2학기 중간고사</option>
+                    <option value="2학기 기말">2학기 기말고사</option>
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 25px;">
+                <button class="login-btn" style="flex: 1; border-color: #555; color: #aaa; box-shadow: none;" onclick="document.getElementById('exam-setup-modal').style.display='none'">취소</button>
+                <button class="login-btn" style="flex: 2; border-color: var(--neon-blue); box-shadow: var(--glow-blue); color: #fff;" onclick="startCameraAnalysis()">다음 (카메라 켜기) 📷</button>
+            </div>
+        </div>
+    </div>
 
     <div class="dashboard-container" style="position: relative;">
         
@@ -145,7 +185,7 @@
             <div class="study-title">오늘의 학습</div>
             <div class="target-words">목표 단어: <span class="target-count" id="target-count-display">0개</span></div>
             <button class="start-btn" id="start-btn-main" style="width: 100%; height: 60px; font-size: 1.2rem;">학습 시작하기</button>
-            <p style="color: #aaa; font-size: 0.85rem; margin-top: 15px; text-align: center;">📢 완료 시 부모님께 즉시 보고됩니다.</p>
+            <p style="color: #aaa; font-size: 0.85rem; margin-top: 15px; text-align: center;">🔥 오늘의 목표를 달성하고 출석 도장을 찍어보세요!</p>
         </div>
 
         <div class="card clickable-card" id="exam-analysis-btn" style="border: 1px solid var(--neon-blue); background: rgba(0, 243, 255, 0.08); animation: pulse-blue 2s infinite; margin-bottom: 25px; text-align: center; padding: 20px;" onclick="alert('시험지 분석 기능을 준비 중입니다! (OCR 업데이트 예정)')">
@@ -662,6 +702,36 @@
                     alert("링크 복사에 실패했습니다. 주소창의 링크를 직접 복사해 주세요.");
                 });
             }
+        }
+
+        // 시험 정보 팝업 열기
+        function openExamSetup() {
+            document.getElementById('exam-setup-modal').style.display = 'flex';
+        }
+
+        // 시험 구분에 따라 시기 드롭다운 자동 변경
+        function updateExamPeriod() {
+            const type = document.getElementById('exam-type').value;
+            const periodSelect = document.getElementById('exam-period');
+            periodSelect.innerHTML = ''; // 기존 옵션 초기화
+
+            if (type === '내신') {
+                const periods = ['1학기 중간고사', '1학기 기말고사', '2학기 중간고사', '2학기 기말고사'];
+                periods.forEach(p => periodSelect.add(new Option(p, p)));
+            } else if (type === '모의고사') {
+                const periods = ['3월 모의고사', '6월 모의고사', '9월 모의고사', '11월 모의고사', '수능'];
+                periods.forEach(p => periodSelect.add(new Option(p, p)));
+            }
+        }
+
+        // 다음 단계: 카메라 켜기 (OCR 연결용 함수)
+        function startCameraAnalysis() {
+            const grade = document.getElementById('exam-grade').value;
+            const type = document.getElementById('exam-type').value;
+            const period = document.getElementById('exam-period').value;
+            
+            alert(`[${grade} ${type} - ${period}] 분석을 위한 카메라를 실행합니다.\n(다음 단계에서 OCR 모듈 연동 예정)`);
+            document.getElementById('exam-setup-modal').style.display = 'none';
         }
     </script>
 </body>
