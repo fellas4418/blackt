@@ -100,7 +100,7 @@
         </div>
     </div>
     
-    <div id="exam-setup-modal" style="display:none; z-index: 2000;">
+    <div id="exam-setup-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.95); justify-content: center; align-items: center; z-index: 2000; flex-direction: column;">
         <div class="login-card" style="border-color: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); width: 90%; max-width: 400px;">
             <div class="login-title" style="color:var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); font-size: 1.5rem;">분석할 시험 선택</div>
             
@@ -109,9 +109,16 @@
             <div class="input-group">
                 <span class="input-label" style="color: #ddd;">학년</span>
                 <select id="exam-grade" class="neon-input" style="appearance: auto;">
-                    <option value="1학년">1학년</option>
-                    <option value="2학년">2학년</option>
-                    <option value="3학년">3학년</option>
+                    <optgroup label="중학교">
+                        <option value="중1">중학교 1학년</option>
+                        <option value="중2">중학교 2학년</option>
+                        <option value="중3">중학교 3학년</option>
+                    </optgroup>
+                    <optgroup label="고등학교">
+                        <option value="고1" selected>고등학교 1학년</option>
+                        <option value="고2">고등학교 2학년</option>
+                        <option value="고3">고등학교 3학년</option>
+                    </optgroup>
                 </select>
             </div>
 
