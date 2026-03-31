@@ -41,7 +41,7 @@ function showSystemMessage(text) {
     if (targetEl) {
         targetEl.innerHTML = text;
         // 시스템 메시지는 작고 네온 없이 처리
-        targetEl.style.fontSize = '3rem'; 
+        targetEl.style.fontSize = '2.8rem'; 
         targetEl.style.textShadow = 'none';
         targetEl.style.color = '#aaa';
         targetEl.style.lineHeight = '1.5';
@@ -287,7 +287,7 @@ function updateUI(data, isTest = false) {
     const fullMeaning = safeMeanings.join(', ');
 
     // 단어 화면에서는 다시 스타일 복구 (크고 네온 있게)
-    targetEl.style.fontSize = '2.5rem'; 
+    targetEl.style.fontSize = '3rem'; 
     targetEl.style.textShadow = '0 0 15px #fff';
     targetEl.style.color = '#fff';
     targetEl.style.marginTop = '0px';
