@@ -116,6 +116,7 @@ function initApp() {
             targetWords = allWrongs.filter(w => w.level === currentLevel);
             if (targetWords.length === 0) {
                 showSystemMessage("저장된 오답이 없습니다.<br>메인으로 돌아갑니다.");
+                document.getElementById('target').style.fontSize = "20px";
                 setTimeout(() => { location.href = 'index.html'; }, 2000);
                 return;
             }
@@ -123,6 +124,7 @@ function initApp() {
             todayWords = levelData[currentDay] || [];
             if (todayWords.length === 0) {
                 showSystemMessage("해당 Day의 단어 데이터가 없습니다!");
+                document.getElementById('target').style.fontSize = "20px";
                 setTimeout(() => { location.href = 'index.html'; }, 2000);
                 return;
             }
