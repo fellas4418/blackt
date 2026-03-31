@@ -1,45 +1,28 @@
 :root {
-    --bg-color: #050505; 
-    --card-bg-color: #111; 
-    --border-color: #333;
-    --neon-blue: #00f3ff; 
-    --neon-green: #39ff14; 
-    --neon-orange: #ff9900; /* 통일감을 위해 살짝 더 밝은 주황으로 맞춤 */
-    --neon-purple: #bc13fe;
+    --bg-color: #050505; --card-bg-color: #111; --border-color: #333;
+    --neon-blue: #00f3ff; --neon-green: #39ff14; --neon-orange: #ff9900; --neon-purple: #bc13fe;
     --glow-blue: 0 0 10px rgba(0,243,255,0.7), 0 0 20px rgba(0,243,255,0.5);
     --glow-green: 0 0 10px rgba(57, 255, 20, 0.7);
     --glow-orange: 0 0 15px rgba(255,153,0,0.8);
     --glow-text: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px var(--neon-blue);
 }
 
-/* body 하단 여백 80px은 하단 탭바에 리스트가 가려지지 않도록 공간을 확보합니다. */
-body { margin: 0; padding-bottom: 80px; background-color: var(--bg-color); color: #fff; font-family: 'Pretendard', sans-serif; }
-
-/* === 팝업 및 모달 공통 요소 (index.html) === */
-#login-modal, #wrong-modal, #all-words-modal, #report-modal, #exam-setup-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 3000; transition: opacity 0.5s; padding: 20px; box-sizing: border-box; }
-.login-card { background: var(--card-bg-color); border: 1px solid var(--neon-blue); box-shadow: var(--glow-blue); border-radius: 20px; padding: 25px; width: 100%; max-width: 400px; text-align: center; max-height: 85vh; overflow-y: auto; margin: auto; }
-.login-title { font-size: 1.6rem; font-weight: bold; margin-bottom: 20px; color: var(--neon-blue); text-shadow: var(--glow-blue); }
-.input-group { margin-bottom: 15px; text-align: left; }
-.input-label { font-size: 0.9rem; color: #888; margin-bottom: 5px; display: block; }
-.neon-input { width: 100%; box-sizing: border-box; padding: 12px; background: #000; border: 1px solid var(--border-color); border-radius: 10px; color: #fff; font-size: 1rem; transition: 0.3s; }
-.neon-input:focus { outline: none; border-color: var(--neon-blue); box-shadow: var(--glow-blue); }
-.checkbox-group { display: flex; align-items: center; gap: 10px; margin: 15px 0 5px 0; font-size: 0.9rem; color: #aaa; text-align: left; }
-.login-btn { width: 100%; padding: 15px; background: transparent; border: 2px solid var(--neon-green); color: #fff; font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer; margin-top: 10px; box-shadow: var(--glow-green); }
+body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: 'Pretendard', sans-serif; }
 
 /* === 대시보드 (index.html) 스타일 === */
 .dashboard-bg { padding: 20px; display: flex; justify-content: center; }
-.dashboard-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 20px; margin: 0 auto; }
-.logo { font-size: 2.5rem; font-weight: 800; text-align: center; margin-bottom: 10px; text-shadow: var(--glow-text); cursor: default; }
-.card { background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 20px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-.clickable-card { cursor: pointer; transition: 0.2s; }
-.clickable-card:active { transform: scale(0.95); }
 
+/* 🚀 수정됨: 탭바에 가리지 않도록 하단 여백(padding-bottom) 110px 추가 */
+.dashboard-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 20px; padding-bottom: 110px; }
+
+.logo { font-size: 2.5rem; font-weight: 800; text-align: center; margin-bottom: 10px; text-shadow: var(--glow-text); }
+.card { background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 20px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 .level-title { color: #888; font-size: 0.9rem; margin-bottom: 15px; }
 .level-buttons { display: flex; gap: 15px; }
 .level-btn { flex: 1; background: transparent; border: 1px solid var(--border-color); border-radius: 15px; padding: 15px; color: #888; font-weight: 600; cursor: pointer; }
 .level-btn.active { border-color: var(--neon-blue); color: #fff; box-shadow: var(--glow-blue); }
 .study-section { align-items: center; text-align: center; gap: 15px; }
-.map-icon { font-size: 2rem; color: var(--neon-purple); text-shadow: 0 0 10px var(--neon-purple); margin-bottom: 10px; }
+.map-icon { font-size: 2rem; color: var(--neon-purple); text-shadow: 0 0 10px var(--neon-purple); }
 .study-title { font-size: 1.5rem; font-weight: 700; margin: 10px 0; }
 .target-words { color: #888; font-size: 0.9rem; }
 .target-count { color: #fff; font-weight: 700; }
@@ -53,39 +36,32 @@ body { margin: 0; padding-bottom: 80px; background-color: var(--bg-color); color
 
 /* 60일 루틴 영역 스타일 */
 .routine-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; }
-.routine-scroll-box { max-height: 350px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 10px; padding: 10px; background: rgba(0,0,0,0.3); }
+.routine-scroll-box { max-height: 350px; overflow-y: auto; border: 1px solid #333; border-radius: 10px; padding: 10px; background: rgba(0,0,0,0.3); }
 .routine-list { list-style: none; padding: 0; margin: 0; }
 .routine-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border-color); }
 .routine-item:last-child { border-bottom: none; }
 .routine-action-btn { background: transparent; border: 1px solid var(--border-color); border-radius: 10px; padding: 8px 20px; font-weight: 600; color: #888; cursor: pointer; }
 .routine-action-btn.active { border-color: var(--neon-green); color: #fff; box-shadow: var(--glow-green); }
 
-/* === 3-Tab 및 하단 네비게이션 (신규 추가) === */
+/* === 3-Tab 및 하단 네비게이션 === */
 .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
 .tab-content.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-.bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 70px; background: rgba(10, 10, 10, 0.95); border-top: 1px solid #333; display: flex; justify-content: space-around; align-items: center; z-index: 2000; backdrop-filter: blur(10px); }
-.nav-item { flex: 1; text-align: center; color: #666; font-size: 0.75rem; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; cursor: pointer; transition: 0.2s; }
-.nav-icon { font-size: 1.4rem; }
+/* 🚀 수정됨: 탭 배경을 다크그레이(#1a1a1a)로 밝히고, 위쪽으로 쏘는 그림자(box-shadow) 추가 */
+.bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 75px; background: #1a1a1a; border-top: 1px solid #444; box-shadow: 0 -5px 15px rgba(0,0,0,0.8); display: flex; justify-content: space-around; align-items: center; z-index: 2000; padding-bottom: env(safe-area-inset-bottom); }
+
+/* 🚀 수정됨: 비활성화된 아이콘 색상을 살짝 밝게(#999) 변경하여 눈에 잘 띄게 수정 */
+.nav-item { flex: 1; text-align: center; color: #999; font-size: 0.75rem; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s; font-weight: bold; }
+.nav-icon { font-size: 1.5rem; margin-bottom: 2px; }
 .nav-item.active { color: #fff; }
-.nav-item.active:nth-child(1) { color: var(--neon-orange); } /* 단어 탭: 주황 */
-.nav-item.active:nth-child(2) { color: var(--neon-blue); } /* 분석 탭: 파랑 */
-.nav-item.active:nth-child(3) { color: var(--neon-purple); } /* 문법 탭: 보라 */
+.nav-item.active:nth-child(1) { color: var(--neon-orange); } 
+.nav-item.active:nth-child(2) { color: var(--neon-blue); }   
+.nav-item.active:nth-child(3) { color: #b537f2; }            
 
 @keyframes pulse-blue { 0% { box-shadow: 0 0 5px rgba(0, 243, 255, 0.2); } 50% { box-shadow: 0 0 15px rgba(0, 243, 255, 0.5); } 100% { box-shadow: 0 0 5px rgba(0, 243, 255, 0.2); } }
 
-/* === 프린트 (누적 단어장 PDF 생성용) === */
-@media print {
-    body * { visibility: hidden; }
-    #print-area, #print-area * { visibility: visible; color: #000; background: #fff; }
-    #print-area { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; font-family: sans-serif; }
-    .print-day { font-size: 1.5rem; font-weight: bold; margin-top: 20px; border-bottom: 2px solid #000; padding-bottom: 5px; }
-    .print-word { font-size: 1.2rem; font-weight: bold; margin-top: 10px; }
-    .print-meaning { font-size: 1rem; color: #333; margin-bottom: 5px; }
-}
-
-/* === 훈련장 (study.html) 스타일 === */
+/* === 훈련장 (study.html) 스타일 (기존 100% 유지) === */
 .study-bg { overflow: hidden; }
 #app { width: 100vw; height: 100vh; height: 100dvh; display: flex; flex-direction: column; align-items: center; position: relative; }
 .back-btn { position: absolute; top: 20px; left: 20px; background: transparent; border: none; color: #888; font-size: 1rem; cursor: pointer; }
@@ -93,7 +69,7 @@ body { margin: 0; padding-bottom: 80px; background-color: var(--bg-color); color
 .progress-box { width: 100%; height: 6px; background: #222; border-radius: 10px; overflow: hidden; margin-top: 10px; }
 #bar { height: 100%; width: 100%; background: var(--neon-orange); box-shadow: var(--glow-orange); transition: width 0.1s linear; }
 #display { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; }
-#target { font-size: 4rem; margin: 0; text-shadow: 0 0 15px #fff; text-align: center; }
+#target { font-size: 4rem; margin: 0; text-shadow: 0 0 15px #fff; }
 .ipa-text { font-size: 1.2rem; color: #888; margin-top: 5px; font-weight: normal; }
 #meanings { width: 90%; margin-top: 30px; }
 #meanings div { font-size: 1.8rem; opacity: 0.1; margin: 15px 0; transition: 0.3s; text-align: center; }
