@@ -24,7 +24,7 @@ function showSystemMessage(text) {
     if (targetEl) {
         targetEl.innerHTML = text;
         // 시스템 메시지는 작고 네온 없이 처리
-        targetEl.style.fontSize = '1.3rem'; 
+        targetEl.style.fontSize = '1rem'; 
         targetEl.style.textShadow = 'none';
         targetEl.style.color = '#aaa';
         targetEl.style.lineHeight = '1.5';
@@ -39,7 +39,7 @@ function startCountdown(message, callback) {
     let count = 3;
     const renderHtml = (c) => `
         <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:160px;">
-            <div style="font-size:1.1rem; color:#888; margin-bottom:15px; text-shadow:none;">${message}</div>
+            <div style="font-size:0.8rem; color:#888; margin-bottom:15px; text-shadow:none;">${message}</div>
             <div style="font-size:5.5rem; font-weight:900; color:var(--neon-orange); text-shadow: 0 0 20px var(--neon-orange); line-height:1;">${c}</div>
         </div>
     `;
@@ -270,7 +270,7 @@ function updateUI(data, isTest = false) {
     const fullMeaning = safeMeanings.join(', ');
 
     // 단어 화면에서는 다시 스타일 복구 (크고 네온 있게)
-    targetEl.style.fontSize = '3.5rem'; 
+    targetEl.style.fontSize = '2.5rem'; 
     targetEl.style.textShadow = '0 0 15px #fff';
     targetEl.style.color = '#fff';
     targetEl.style.marginTop = '0px';
