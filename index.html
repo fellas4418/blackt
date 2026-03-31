@@ -100,7 +100,9 @@
                 <span style="color: #fff; font-size: 0.75rem; font-weight: bold;">공유하기</span><span style="font-size: 0.8rem;">📤</span>
             </button>
         </div>
-        <div class="logo" onclick="enableAdminMode()" style="cursor: default; margin-top: 10px; margin-bottom: 25px;">Trigger<br>Voca</div>
+        <div class="logo" id="main-header-title" onclick="enableAdminMode()" style="cursor: default; margin-top: 10px; margin-bottom: 25px;">
+            Trigger<br>Voca
+        </div>
         
 
         <div id="tab-voca" class="tab-content active">
@@ -225,13 +227,25 @@
     <script>
         // --- 🚀 신규 추가: 탭 전환 함수 ---
         function switchTab(tabId, element) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.getElementById('tab-' + tabId).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
-            element.classList.add('active');
-            window.scrollTo(0,0); // 탭 이동 시 맨 위로 올리기
-            if(tabId === 'analysis') handleGradeChange(); 
-        }
+    // 1. 모든 탭 숨기기 및 하단 버튼 상태 변경
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.getElementById('tab-' + tabId).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+    element.classList.add('active');
+    
+    // 2. 🚀 대제목 동적 변경 로직 추가
+    const headerTitle = document.getElementById('main-header-title');
+    if (tabId === 'voca') {
+        headerTitle.innerHTML = 'Trigger<br>Voca';
+    } else if (tabId === 'analysis') {
+        headerTitle.innerHTML = 'Trigger AI<br>분석';
+    } else if (tabId === 'grammar') {
+        headerTitle.innerHTML = '트리거 초단기<br>영문법';
+    }
+    
+    window.scrollTo(0,0); // 탭 이동 시 상단으로 스크롤
+    if(tabId === 'analysis') handleGradeChange(); 
+}
 
         // --- 기존 로직 ---
         let logoClickCount = 0;

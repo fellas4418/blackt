@@ -54,10 +54,18 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
     left: 0; 
     width: 100%; 
     height: 75px; 
-    background: rgba(30, 30, 30, 0.6); /* 투명도를 줘서 뒤가 살짝 비치게 */
-    backdrop-filter: blur(15px); /* 뒤쪽 배경을 흐리게 (유리 효과) */
-    -webkit-backdrop-filter: blur(15px); /* 사파리/아이폰 호환 */
-    border-top: 1px solid rgba(255, 255, 255, 0.1); /* 아주 은은한 흰색 경계선 */
+    background: rgba(30, 30, 30, 0.7); /* 반투명 유지 */
+    backdrop-filter: blur(15px); 
+    -webkit-backdrop-filter: blur(15px); 
+    
+    /* 🚀 수정 포인트: 상단 모서리 라운딩 */
+    border-top-left-radius: 25px; 
+    border-top-right-radius: 25px; 
+    
+    /* 경계선을 조금 더 밝게 하여 라운딩이 돋보이게 함 */
+    border-top: 1px solid rgba(255, 255, 255, 0.2); 
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.6); 
+    
     display: flex; 
     justify-content: space-around; 
     align-items: center; 
