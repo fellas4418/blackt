@@ -41,7 +41,7 @@ function showSystemMessage(text) {
     if (targetEl) {
         targetEl.innerHTML = text;
         // 시스템 메시지는 작고 네온 없이 처리
-        targetEl.style.fontSize = '1rem'; 
+        targetEl.style.fontSize = '3rem'; 
         targetEl.style.textShadow = 'none';
         targetEl.style.color = '#aaa';
         targetEl.style.lineHeight = '1.5';
