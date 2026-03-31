@@ -72,7 +72,7 @@
     <div id="wrong-modal" style="display:none; z-index: 4000;">
         <div class="login-card" style="border-color: var(--neon-green); box-shadow: 0 0 15px var(--neon-green); width: 90%; max-width: 450px;">
             <div class="login-title" style="color:var(--neon-green); text-shadow: 0 0 10px var(--neon-green);">오답 / 별표</div>
-            <div id="wrong-list" style="text-align:left; color:#fff; margin-bottom:20px; font-size:1.1rem; line-height:1.8; max-height: 55vh; overflow-y: auto; padding-right: 10px;"></div>
+            <div id="wrong-list" style="text-align:left; color:#fff; margin-bottom:20px; font-size:1.1rem; line-height:1.8; max-height: 200px; overflow-y: auto; padding-right: 10px;"></div>
             <button class="login-btn" style="border-color: var(--neon-green); box-shadow: 0 0 10px var(--neon-green);" onclick="document.getElementById('wrong-modal').style.display='none'">닫기</button>
         </div>
     </div>
@@ -80,7 +80,7 @@
     <div id="all-words-modal" style="display:none; z-index: 4000;">
         <div class="login-card" style="border-color: var(--neon-orange); box-shadow: 0 0 15px var(--neon-orange); width: 90%; max-width: 450px;">
             <div class="login-title" style="color:var(--neon-orange); text-shadow: 0 0 10px var(--neon-orange);">전체 단어장 보기</div>
-            <div id="all-words-list" style="text-align:left; color:#fff; margin-bottom:20px; line-height:1.6; max-height: 55vh; overflow-y: auto; padding-right: 10px;"></div>
+            <div id="all-words-list" style="text-align:left; color:#fff; margin-bottom:20px; line-height:1.6; max-height: 200px; overflow-y: auto; padding-right: 10px;"></div>
             <button class="login-btn" style="border-color: var(--neon-orange); box-shadow: 0 0 10px var(--neon-orange);" onclick="document.getElementById('all-words-modal').style.display='none'">닫기</button>
         </div>
     </div>
@@ -88,7 +88,7 @@
     <div id="report-modal" style="display:none; z-index: 4000;">
         <div class="login-card" style="border-color: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); width: 90%; max-width: 450px;">
             <div class="login-title" style="color:var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue);">나의 학습 기록 보기</div>
-            <div id="report-list" style="text-align:left; color:#fff; margin-bottom:20px; font-size:1rem; line-height:1.8; max-height: 55vh; overflow-y: auto; padding-right:10px;"></div>
+            <div id="report-list" style="text-align:left; color:#fff; margin-bottom:20px; font-size:1rem; line-height:1.8; max-height: 200px; overflow-y: auto; padding-right:10px;"></div>
             <button class="login-btn" style="border-color: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue);" onclick="document.getElementById('report-modal').style.display='none'">닫기</button>
         </div>
     </div>
@@ -160,7 +160,11 @@
             
             <div id="admin-menu" style="display: none; text-align: center; margin-top: 30px; border-top: 1px dashed #444; padding-top: 20px; flex-direction: column; gap: 12px; align-items: center;">
                 <p style="color:var(--neon-orange); font-size:0.8rem; margin:0;">🛠️ 관리자 모드 활성화됨</p>
-                <button onclick="const lvl = localStorage.getItem('trigger_level') || 'middle'; localStorage.setItem('trigger_session_' + lvl, '7'); location.reload();" style="background: none; border: none; color: var(--neon-blue); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">⏩ 현재 레벨 세션 강제 완료</button>
+                
+                <button onclick="const lvl = localStorage.getItem('trigger_level') || 'middle'; localStorage.setItem('trigger_session_' + lvl, '7'); location.reload();" style="background: none; border: none; color: var(--neon-blue); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">⏩ 1. 현재 세션만 강제 완료</button>
+                
+                <button onclick="const lvl = localStorage.getItem('trigger_level') || 'middle'; localStorage.setItem('trigger_unlocked_day_' + lvl, '6'); localStorage.setItem('trigger_current_day_' + lvl, '6'); localStorage.setItem('trigger_session_' + lvl, '1'); alert('Day 6 복습 테스트 모드로 워프했습니다!\n루틴 목록에서 Day 6 [시작]을 눌러보세요.'); location.reload();" style="background: none; border: none; color: var(--neon-purple); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">🚀 2. Day 6 (주간 복습) 타임머신</button>
+
                 <button onclick="if(confirm('모든 데이터를 초기화할까요?')) { localStorage.clear(); location.reload(); }" style="background: none; border: none; color: #555; text-decoration: underline; cursor: pointer; font-size: 0.85rem;">🔄 모든 데이터 완전 초기화</button>
             </div>
         </div>
