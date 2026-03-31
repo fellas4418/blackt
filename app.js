@@ -1,3 +1,20 @@
+// 🚀 [글로벌 해결책] 모든 시스템 메시지의 크기를 강제로 고정하는 함수
+function showSystemMessage(text) {
+    const targetEl = document.getElementById('target');
+    const meaningsEl = document.getElementById('meanings');
+    
+    if (targetEl) {
+        targetEl.innerHTML = text;
+        // 💡 중요: setProperty와 !important를 써서, 그 어떤 CSS 설정보다 우선하게 만듭니다.
+        // 여기서 16px이나 18px로 원하시는 크기를 딱 한 번만 정하면 됩니다.
+        targetEl.style.setProperty('font-size', '18px', 'important'); 
+        targetEl.style.setProperty('text-shadow', 'none', 'important');
+        targetEl.style.color = '#aaaaaa';
+        targetEl.style.lineHeight = '1.6';
+        targetEl.style.marginTop = '20px';
+    }
+    if (meaningsEl) meaningsEl.innerHTML = "";
+}
 try {
     if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
         Kakao.init('fbb1520306ffaad0a882e993109a801c'); 
