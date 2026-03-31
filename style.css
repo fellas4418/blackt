@@ -94,7 +94,15 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 #target { font-size: 4rem; margin: 0; text-shadow: 0 0 15px #fff; }
 .ipa-text { font-size: 1.2rem; color: #888; margin-top: 5px; font-weight: normal; }
 #meanings { width: 90%; margin-top: 30px; }
-#meanings div { font-size: 1.8rem; opacity: 0.1; margin: 15px 0; transition: 0.3s; text-align: center; }
+#meanings div { 
+    font-size: 1.3rem; /* 기존 1.8rem에서 축소 */
+    word-break: keep-all; /* 단어 단위로 깔끔하게 줄바꿈 */
+    line-height: 1.4; 
+    opacity: 0.1; 
+    margin: 12px 0; 
+    transition: 0.3s; 
+    text-align: center; 
+}
 #meanings div.active { opacity: 1; color: var(--neon-blue); text-shadow: var(--glow-blue); font-weight: bold; }
 .choice-btn { width: 100%; padding: 18px; margin: 10px 0; background: var(--card-bg-color); border: 1px solid #333; border-radius: 15px; color: #fff; font-size: 1.2rem; cursor: pointer; }
 .choice-btn:active { border-color: var(--neon-green); box-shadow: var(--glow-green); }
