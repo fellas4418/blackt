@@ -407,14 +407,22 @@ function finishSession(didTest = true) {
         }
     }
 
-    if (currentSession >= 6) {
-        showSystemMessage("🎉 6세션 최종 완료! 수고하셨습니다!<br><span style='font-size:0.9rem; color:#888;'>결과를 친구들에게 자랑해 보세요.</span>");
-        setTimeout(() => { shareKakao(); setTimeout(() => { location.href = 'index.html'; }, 3000); }, 2500);
-    } else {
-        localStorage.setItem('blackt_cooldown', Date.now() + COOL_DOWN_TIME);
-        showSystemMessage(didTest ? "테스트 완료! 👍" : "세션 완료! 🔥<br>조금씩 실력이 늘고 있어요.");
-        setTimeout(() => { location.href = 'index.html'; }, 2200);
-    }
+    // 🚀 [수정] 자동으로 튕겨나가지 않게 변경
+if (currentSession >= 6) {
+    // 💡 메시지를 띄우고, 버튼은 나중에 사용자가 누르게 유도
+    showSystemMessage(`
+        🎉 6세션 최종 완료! 수고하셨습니다!<br>
+        <div style="margin-top:20px; display:flex; flex-direction:column; gap:10px;">
+            <button onclick="shareKakao()" style="padding:15px; background:#fee500; color:#3c1e1e; border:none; border-radius:10px; font-weight:bold; font-size:1.1rem; cursor:pointer;">🟡 카톡으로 자랑하기</button>
+            <button onclick="location.href='index.html'" style="padding:15px; background:transparent; color:#888; border:1px solid #444; border-radius:10px; cursor:pointer;">홈으로 돌아가기</button>
+        </div>
+    `);
+} else {
+    localStorage.setItem('blackt_cooldown', Date.now() + COOL_DOWN_TIME);
+    showSystemMessage(didTest ? "테스트 완료! 👍" : "세션 완료! 🔥<br>조금씩 실력이 늘고 있어요.");
+    // 일반 세션은 2.2초 뒤에 자동 이동해도 무방함
+    setTimeout(() => { location.href = 'index.html'; }, 2200);
+}
 }
 
 function shareKakao() {
