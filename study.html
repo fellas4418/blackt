@@ -18,7 +18,18 @@
             font-size: 3.5rem !important; 
             line-height: 1.2;
             text-align: center;
+            transition: all 0.3s ease; /* 부드러운 전환 효과 추가 */
         }
+        
+        /* 🚀 신규 추가: 시스템 안내 문구(한글)용 작고 차분한 스타일 */
+        .system-msg {
+            font-size: 1.5rem !important;
+            text-shadow: none !important;
+            color: #aaaaaa !important;
+            font-weight: normal !important;
+            margin-top: 20px;
+        }
+
         /* ★ 단어 뜻 50% 확대 */
         #meanings div {
             font-size: 2.6rem !important;
@@ -74,6 +85,7 @@
     <script src="app.js"></script>
 
     <script>
+        // 서비스 워커 등록
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./service-worker.js')
@@ -81,6 +93,23 @@
                     .catch(err => console.log('학습 페이지: 서비스 워커 등록 실패:', err));
             });
         }
+
+        // 🚀 신규 추가: 화면에 한글(안내 문구)이 감지되면 자동으로 글씨를 작게 줄이는 마법의 감지기
+        window.addEventListener('DOMContentLoaded', () => {
+            const targetEl = document.getElementById('target');
+            if(targetEl) {
+                const observer = new MutationObserver(() => {
+                    const text = targetEl.innerText || "";
+                    // 글자에 한글이 포함되어 있으면(영단어가 아니면) .system-msg 클래스 적용
+                    if (/[가-힣]/.test(text)) {
+                        targetEl.classList.add('system-msg');
+                    } else {
+                        targetEl.classList.remove('system-msg');
+                    }
+                });
+                observer.observe(targetEl, { childList: true, characterData: true, subtree: true });
+            }
+        });
     </script>
 </body>
 </html>
