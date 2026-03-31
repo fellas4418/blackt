@@ -49,7 +49,22 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 /* 🚀 수정됨: 탭 배경을 다크그레이(#1a1a1a)로 밝히고, 위쪽으로 쏘는 그림자(box-shadow) 추가 */
-.bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 75px; background: #1a1a1a; border-top: 1px solid #444; box-shadow: 0 -5px 15px rgba(0,0,0,0.8); display: flex; justify-content: space-around; align-items: center; z-index: 2000; padding-bottom: env(safe-area-inset-bottom); }
+/* 🚀 수정됨: 하단 탭바를 배경과 완벽하게 분리 */
+.bottom-nav { 
+    position: fixed; 
+    bottom: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 75px; 
+    background: #181818; /* 배경보다 확실히 한 톤 밝은 그레이 */
+    border-top: 1px solid #555; /* 위쪽 경계선을 선명한 회색으로 */
+    box-shadow: 0 -4px 20px rgba(255, 255, 255, 0.08); /* 💡 핵심: 검은 그림자가 아니라 '하얀 빛'을 쏴서 화면 위로 띄움 */
+    display: flex; 
+    justify-content: space-around; 
+    align-items: center; 
+    z-index: 2000; 
+    padding-bottom: env(safe-area-inset-bottom); 
+}
 
 /* 🚀 수정됨: 비활성화된 아이콘 색상을 살짝 밝게(#999) 변경하여 눈에 잘 띄게 수정 */
 .nav-item { flex: 1; text-align: center; color: #999; font-size: 0.75rem; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s; font-weight: bold; }
