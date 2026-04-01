@@ -281,7 +281,7 @@
 
         const TOTAL_DAYS = 60; 
         const todayStr = new Date().toLocaleDateString();
-        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbx6fTVnmCNa5MvYmrTsEK-UJQTWMIhWCQiNy9m3E38Gefh86Ww6bkvlgFwfejkHpxJd/exec";
+        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxRllr2MA9hv0s1rGbaY9EyJDNXxypoXeFLpI7rs3h6rPyqMDsdmH9cWEjcOmL3FlEj/exec";
         
         if (localStorage.getItem('trigger_date') !== todayStr) {
             localStorage.setItem('trigger_date', todayStr);
@@ -650,50 +650,54 @@
         }
 
         function selectLevel(level) {
-            localStorage.setItem('trigger_level', level);
-            
-            // 1. UI 버튼 활성화 상태 변경
-            document.getElementById('btn-middle').className = "level-btn";
-            document.getElementById('btn-high').className = "level-btn";
-            document.getElementById('btn-' + level).className = "level-btn active";
+    localStorage.setItem('trigger_level', level);
+    
+    // UI 버튼 활성화
+    document.getElementById('btn-middle').className = "level-btn";
+    document.getElementById('btn-high').className = "level-btn";
+    document.getElementById('btn-' + level).className = "level-btn active";
 
-            // 🚀 [추가] 수준 버튼 클릭 시 시트에 실시간 기록 전송
-            const name = localStorage.getItem('trigger_name');
-            const phone = localStorage.getItem('trigger_phone');
-            const levelText = (level === 'high') ? '고등' : '중등';
+    // 🚀 [데이터 전송] 가로 적재를 위한 짧은 날짜 포맷 생성
+    const name = localStorage.getItem('trigger_name');
+    const phone = localStorage.getItem('trigger_phone');
+    const levelText = (level === 'high') ? '고등' : '중등';
 
-            if (name && phone) {
-                fetch(GOOGLE_SHEET_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify({ 
-                        "날짜": new Date().toLocaleString() + " (수준선택)",
-                        "이름": name, 
-                        "전화번호": phone, 
-                        "수준": levelText 
-                    })
-                });
+    if (name && phone) {
+        const now = new Date();
+        const shortDate = (now.getMonth() + 1) + "/" + now.getDate() + " " + now.getHours() + ":" + now.getMinutes();
+
+        fetch(GOOGLE_SHEET_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify({ 
+                "날짜": shortDate, 
+                "이름": name, 
+                "전화번호": phone, 
+                "수준": levelText 
+            })
+        });
+    }
+
+    // 단어 개수 계산 로직 (기존 유지)
+    if (typeof wordsData !== 'undefined') {
+        let totalCount = 0;
+        for(let l of ['middle', 'high']) {
+            const lData = wordsData[l] || {};
+            const levelUnlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${l}`)) || 1;
+            for(let i = 1; i <= levelUnlockedDay; i++) {
+                if (i % 7 === 6 || i % 7 === 0) continue;
+                totalCount += (lData[i] || []).length;
             }
-            // 2. 단어 개수 계산 로직 (기존 유지)
-            if (typeof wordsData !== 'undefined') {
-                let totalCount = 0;
-                for(let l of ['middle', 'high']) {
-                    const lData = wordsData[l] || {};
-                    const levelUnlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${l}`)) || 1;
-                    for(let i = 1; i <= levelUnlockedDay; i++) {
-                        if (i % 7 === 6 || i % 7 === 0) continue;
-                        totalCount += (lData[i] || []).length;
-                    }
-                }
-                document.getElementById('total-word-count').innerText = totalCount + " 단어";
-                
-                const levelData = wordsData[level] || {};
-                const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${level}`)) || 1;
-                const todayCount = (levelData[currentDay] || []).length;
-                document.getElementById('target-count-display').innerText = todayCount + "개";
-            }
-            updateDashboardUI();
         }
+        document.getElementById('total-word-count').innerText = totalCount + " 단어";
+        
+        const levelData = wordsData[level] || {};
+        const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${level}`)) || 1;
+        const todayCount = (levelData[currentDay] || []).length;
+        document.getElementById('target-count-display').innerText = todayCount + "개";
+    }
+    updateDashboardUI();
+}
 
         window.addEventListener('load', () => {
             const splash = document.getElementById('splash-screen');
