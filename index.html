@@ -267,21 +267,28 @@
             if(tabId === 'analysis') handleGradeChange(); 
         }
 
-        // 🚀 1. 가입 함수 (절대 안 깨지는 전송 방식)
+        // 🚀 1. 가입 함수 (전화번호 11자리 검증 추가)
         async function handleLogin() {
             const name = document.getElementById('user-name').value.trim();
-            const phone = document.getElementById('user-phone').value.trim();
+            const rawPhone = document.getElementById('user-phone').value.trim();
             const agree = document.getElementById('agree-privacy').checked;
 
-            if (!name || !phone || !agree) return alert("필수 항목을 확인해주세요.");
+            if (!name || !rawPhone || !agree) return alert("필수 항목을 확인해주세요.");
+
+            // 💡 전화번호 검증 로직 (하이픈 제거 후 010 + 8자리 확인)
+            const phone = rawPhone.replace(/-/g, ""); 
+            if (!/^010\d{8}$/.test(phone)) {
+                return alert("전화번호는 010으로 시작하는 11자리 숫자로 정확히 입력해주세요.");
+            }
 
             localStorage.setItem('trigger_name', name);
-            localStorage.setItem('trigger_phone', phone);
+            localStorage.setItem('trigger_phone', phone); // 깔끔한 번호로 저장
             checkLoginStatus(); 
 
-            // 💡 URLSearchParams: 구글 서버가 100% 인식하는 방식
             const formData = new URLSearchParams();
-            formData.append("date", new Date().toLocaleString());
+            const now = new Date();
+            const shortDate = (now.getMonth() + 1) + "/" + now.getDate() + " " + now.getHours() + ":" + now.getMinutes();
+            formData.append("date", shortDate);
             formData.append("name", name);
             formData.append("phone", phone);
             formData.append("level", "미정(가입완료)");
