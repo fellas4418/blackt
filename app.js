@@ -6,9 +6,9 @@ function showSystemMessage(text) {
     if (targetEl) {
         targetEl.innerHTML = text;
         // 💡 중요: !important를 사용하여 CSS 설정을 완전히 이기고 작게 만듭니다.
-        targetEl.style.setProperty('font-size', '18px', 'important'); 
+        targetEl.style.setProperty('font-size', '24px', 'important'); 
         targetEl.style.setProperty('text-shadow', 'none', 'important');
-        targetEl.style.setProperty('margin-top', '20px', 'important');
+        targetEl.style.setProperty('margin-top', '30px', 'important');
         targetEl.style.color = '#aaaaaa';
         targetEl.style.lineHeight = '1.6';
         targetEl.style.wordBreak = 'keep-all';
