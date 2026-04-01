@@ -302,17 +302,45 @@
 
         // 🚀 2. 수준 선택 함수 (가로 적재 전용)
         function selectLevel(level) {
+            const levelText = (level === 'high') ? '고등' : '중등';
+            const lastLoggedLevel = localStorage.getItem('trigger_last_logged_level');
+
+            // 1. UI 색상 변경 및 로컬 레벨 저장 (항상 실행)
             localStorage.setItem('trigger_level', level);
-            
             document.getElementById('btn-middle').className = "level-btn";
             document.getElementById('btn-high').className = "level-btn";
             document.getElementById('btn-' + level).className = "level-btn active";
 
+            // 2. 단어 개수 계산 로직 (항상 실행)
+            if (typeof wordsData !== 'undefined') {
+                let totalCount = 0;
+                for(let l of ['middle', 'high']) {
+                    const lData = wordsData[l] || {};
+                    const levelUnlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${l}`)) || 1;
+                    for(let i = 1; i <= levelUnlockedDay; i++) {
+                        if (i % 7 === 6 || i % 7 === 0) continue;
+                        totalCount += (lData[i] || []).length;
+                    }
+                }
+                document.getElementById('total-word-count').innerText = totalCount + " 단어";
+                const levelData = wordsData[level] || {};
+                const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${level}`)) || 1;
+                const todayCount = (levelData[currentDay] || []).length;
+                document.getElementById('target-count-display').innerText = todayCount + "개";
+            }
+            updateDashboardUI();
+
+            // 🚀 3. 핵심 방어벽: 이미 시트로 보낸 수준과 똑같으면 여기서 함수 강제 종료!
+            if (lastLoggedLevel === levelText) return; 
+
+            // 4. 진짜 바뀌었을 때만 아래 통신 코드가 실행됨
             const name = localStorage.getItem('trigger_name');
             const phone = localStorage.getItem('trigger_phone');
-            const levelText = (level === 'high') ? '고등' : '중등';
 
             if (name && phone) {
+                // 광클을 막기 위해 통신 쏘기 전에 미리 "나 이거 눌렀다"고 도장 찍어둠
+                localStorage.setItem('trigger_last_logged_level', levelText);
+
                 const now = new Date();
                 const shortDate = (now.getMonth() + 1) + "/" + now.getDate() + " " + now.getHours() + ":" + now.getMinutes();
 
@@ -328,6 +356,7 @@
                     body: formData
                 });
             }
+        }
 
             if (typeof wordsData !== 'undefined') {
                 let totalCount = 0;
