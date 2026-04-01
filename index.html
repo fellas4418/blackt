@@ -281,7 +281,7 @@
 
         const TOTAL_DAYS = 60; 
         const todayStr = new Date().toLocaleDateString();
-        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxRllr2MA9hv0s1rGbaY9EyJDNXxypoXeFLpI7rs3h6rPyqMDsdmH9cWEjcOmL3FlEj/exec";
+        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbz7f3_kIQSsXubHtztn4CPa9OXf9sEf1-3rE0ppIPf2N5S-XTJaOlZhlLbGJZqyd7_z/exec";
         
         if (localStorage.getItem('trigger_date') !== todayStr) {
             localStorage.setItem('trigger_date', todayStr);
@@ -605,26 +605,29 @@
     const phone = document.getElementById('user-phone').value.trim();
     const agree = document.getElementById('agree-privacy').checked;
 
-    if (!name || !phone) return alert("이름과 전화번호를 모두 입력해주세요.");
-    if (!agree) return alert("개인정보 수집에 동의하셔야 합니다.");
+    if (!name || !phone || !agree) return alert("필수 항목을 확인해주세요.");
 
-    const btn = document.getElementById('login-submit-btn');
-    btn.innerText = "연결 중...";
-    btn.disabled = true;
+    // 🚀 [핵심] 로딩 표시 없이 바로 저장하고 넘깁니다.
+    localStorage.setItem('trigger_name', name);
+    localStorage.setItem('trigger_phone', phone);
+    
+    // 1. 화면은 즉시 다음 단계로 넘김 (기다리지 않음)
+    checkLoginStatus(); 
 
-    try {
-        // 🚀 가입 시점에는 이름과 번호만 깔끔하게 기록
-        await fetch(GOOGLE_SHEET_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify({ 
-                "날짜": new Date().toLocaleString(),
-                "이름": name, 
-                "전화번호": phone,
-                "수준": "미정(가입완료)" 
-            })
-        });
-    } finally {
+    // 2. 데이터 전송은 "백그라운드"에서 조용히 실행 (await 제거)
+    fetch(GOOGLE_SHEET_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: JSON.stringify({ 
+            "날짜": new Date().toLocaleString(),
+            "이름": name, 
+            "전화번호": phone,
+            "수준": "미정(가입완료)" 
+        })
+    }).catch(e => console.log("전송지연 무시"));
+}
+    
+    finally {
         localStorage.setItem('trigger_name', name);
         localStorage.setItem('trigger_phone', phone);
         checkLoginStatus(); 
