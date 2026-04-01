@@ -19,13 +19,13 @@
             --glow-blue: 0 0 8px rgba(0,243,255,0.4);
             --glow-green: 0 0 8px rgba(57, 255, 20, 0.4);
             --glow-orange: 0 0 10px rgba(255,153,0,0.5);
-            /* 🚀 원장님이 가장 맘에 들어 하셨던 은은한 네온 굵기로 복구 */
             --glow-text: 0 0 5px var(--neon-blue);
         }
 
         body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: 'Pretendard', sans-serif; -webkit-font-smoothing: antialiased; padding-bottom: 90px; }
 
-        #login-modal, #wrong-modal, #all-words-modal, #report-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 3000; transition: opacity 0.5s; padding: 20px; box-sizing: border-box; }
+        /* 공통 모달 배경 */
+        #login-modal, #wrong-modal, #all-words-modal, #report-modal, #guide-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 3000; transition: opacity 0.5s; padding: 20px; box-sizing: border-box; }
 
         .login-card { background: var(--card-bg-color); border: 1px solid rgba(0, 243, 255, 0.3); box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); border-radius: 20px; padding: 25px; width: 90%; max-width: 400px; text-align: center; max-height: 80vh; overflow-y: auto; box-sizing: border-box; }
         
@@ -42,18 +42,19 @@
         #welcome-msg { text-align: center; color: var(--neon-blue); font-size: 1.1rem; margin-bottom: 6px; text-shadow: var(--glow-text); }
 
         .dashboard-bg { padding: 20px; display: flex; justify-content: center; }
-        .dashboard-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 25px; margin: 0 auto; padding-bottom: 110px; position: relative; }
+        .dashboard-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 5px; margin: 0 auto; padding-bottom: 110px; position: relative; }
 
-        /* 🚀 로고 원상 복구 및 중앙 정렬 유지 */
         .logo { font-size: 2.5rem; font-weight: 800; text-align: center; margin-bottom: 10px; margin-top: 10px; text-shadow: var(--glow-text); cursor: default; }
         
-        .card { background-color: var(--card-bg-color); border: 1px solid #222; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        /* 🚀 수정: 카드 박스 하단에 20px 여백 추가로 답답함 해결 */
+        .card { background-color: var(--card-bg-color); border: 1px solid #222; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); margin-bottom: 20px; }
         .clickable-card { cursor: pointer; transition: 0.2s; }
         .clickable-card:active { transform: scale(0.97); }
 
-        .stats-row { display: flex; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 18px; border-radius: 15px; margin-bottom: 10px; border: 1px solid #222; }
+        /* 🚀 수정: 상태바 하단 여백 및 글씨 밝기 수정 (#ccc) */
+        .stats-row { display: flex; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 18px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #222; }
         .stat-item { text-align: center; flex: 1; }
-        .stat-label { font-size: 0.75rem; color: #666; margin-bottom: 5px; }
+        .stat-label { font-size: 0.75rem; color: #ccc; margin-bottom: 5px; } /* 글씨 밝게 */
         .stat-value { font-size: 1.15rem; font-weight: bold; color: var(--neon-blue); }
 
         .level-buttons { display: flex; gap: 12px; margin-top: 15px; }
@@ -63,10 +64,11 @@
         .start-btn { width: 100%; background: rgba(255,153,0,0.1); border: 1px solid var(--neon-orange); color: #fff; font-size: 1.2rem; font-weight: 700; padding: 18px; border-radius: 16px; cursor: pointer; margin-top: 10px; box-shadow: var(--glow-orange); transition: 0.2s; }
         .start-btn:active { transform: scale(0.98); background: rgba(255,153,0,0.2); }
 
-        .info-row { display: flex; gap: 15px; margin-bottom: 10px; }
+        /* 🚀 수정: 가로 배열 박스 하단 여백 추가 */
+        .info-row { display: flex; gap: 15px; margin-bottom: 20px; }
         .info-card { flex: 1; text-align: center; padding: 22px; background: var(--card-bg-color); border: 1px solid #222; border-radius: 18px; transition: 0.2s; }
         .info-card:active { background: #1a1a1a; }
-        .info-title { font-size: 0.85rem; margin-bottom: 8px; color: #888; }
+        .info-title { font-size: 0.85rem; margin-bottom: 8px; color: #aaa; }
         .info-count { font-size: 1.4rem; font-weight: 700; color: #fff; }
 
         .routine-scroll-box { max-height: 380px; overflow-y: auto; border: 1px solid #222; border-radius: 12px; padding: 12px; background: rgba(0,0,0,0.2); }
@@ -90,14 +92,29 @@
 
         .report-bar-bg { width: 100%; background: #222; height: 12px; border-radius: 6px; margin-top: 5px; overflow: hidden; }
         .report-bar-fill { height: 100%; background: var(--neon-green); width: 0%; border-radius: 6px; box-shadow: 0 0 5px var(--neon-green); transition: width 0.5s; }
-
-        @keyframes pulse-blue { 0% { box-shadow: 0 0 5px rgba(0, 243, 255, 0.2); } 50% { box-shadow: 0 0 15px rgba(0, 243, 255, 0.5); } 100% { box-shadow: 0 0 5px rgba(0, 243, 255, 0.2); } }
     </style>
 </head>
 <body class="dashboard-bg">
 
     <div id="splash-screen" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease;">
         <img src="icon-512.png" alt="Trigger Logo" style="width: 180px; height: 180px; border-radius: 20px;">
+    </div>
+
+    <div id="guide-modal" style="display:none;">
+        <div class="login-card" style="border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.3); width: 90%; max-width: 400px; text-align:left;">
+            <div style="font-size: 1.4rem; font-weight: bold; color: #fff; margin-bottom: 20px; text-align:center;">🧠 뇌과학 학습 시스템 안내</div>
+            <div style="color: #ddd; font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px;">
+                <p><strong style="color:var(--neon-blue);">1. 6세션 반복 루틴</strong><br>
+                하루 목표 단어를 총 6번 반복합니다.<br>
+                - <span style="color:#aaa;">세션 1~5:</span> 단어와 뜻, 발음을 눈과 귀로 익힙니다.<br>
+                - <span style="color:#aaa;">세션 6:</span> 최종 객관식 테스트를 봅니다.</p>
+                <p><strong style="color:var(--neon-orange);">2. 10분 쿨타임 (장기기억 전환)</strong><br>
+                한 세션이 끝나면 뇌가 단어를 깊게 저장하도록 <strong>10분간 강제 휴식</strong>이 부여됩니다.</p>
+                <p><strong style="color:var(--neon-green);">3. 5+2 주말 복습</strong><br>
+                5일 동안 새 단어를 배우고, 6일차/7일차는 진도 없이 오답 및 전체 누적 복습만 진행합니다.</p>
+            </div>
+            <button class="login-btn" style="border-color: #fff; color: #000; background: #fff; box-shadow: none;" onclick="document.getElementById('guide-modal').style.display='none'">확인했습니다</button>
+        </div>
     </div>
 
     <div id="login-modal" style="display:none;">
@@ -113,7 +130,7 @@
         </div>
     </div>
 
-    <div id="wrong-modal" style="display:none; z-index: 4000;">
+    <div id="wrong-modal" style="display:none;">
         <div class="login-card" style="border-color: var(--neon-green); box-shadow: 0 0 15px var(--neon-green); width: 90%; max-width: 450px;">
             <div class="login-title" id="wrong-modal-title" style="color:var(--neon-green); text-shadow: 0 0 10px var(--neon-green);">오답 / 별표</div>
             <div id="wrong-list" style="text-align:left; color:#fff; margin-bottom:20px; font-size:1.1rem; line-height:1.8; max-height: 300px; overflow-y: auto; padding-right: 10px;"></div>
@@ -121,7 +138,7 @@
         </div>
     </div>
 
-    <div id="all-words-modal" style="display:none; z-index: 4000;">
+    <div id="all-words-modal" style="display:none;">
         <div class="login-card" style="border-color: var(--neon-orange); box-shadow: 0 0 15px var(--neon-orange); width: 90%; max-width: 450px;">
             <div class="login-title" id="all-words-title" style="color:var(--neon-orange); text-shadow: 0 0 10px var(--neon-orange); font-size: 1.3rem;">나의 학습 단어장</div>
             <div id="all-words-list" style="text-align:left; color:#fff; margin-bottom:20px; line-height:1.6; max-height: 300px; overflow-y: auto; padding-right: 10px;"></div>
@@ -129,9 +146,9 @@
         </div>
     </div>
 
-    <div id="report-modal" style="display:none; z-index: 4000;">
+    <div id="report-modal" style="display:none;">
         <div class="login-card" style="border-color: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); width: 90%; max-width: 450px;">
-            <div class="login-title" style="color:var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue);">나의 학습 기록 보기</div>
+            <div class="login-title" id="report-modal-title" style="color:var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue);">나의 학습 기록 보기</div>
             <div id="report-list" style="text-align:left; color:#fff; margin-bottom:20px; font-size:1rem; line-height:1.8; max-height: 300px; overflow-y: auto; padding-right:10px;"></div>
             <button class="login-btn" style="border-color: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue);" onclick="document.getElementById('report-modal').style.display='none'">닫기</button>
         </div>
@@ -151,10 +168,6 @@
         
         <div id="tab-voca" class="tab-content active">
             
-            <button id="install-app-btn" style="display:none; width: 100%; margin-bottom: 25px; padding: 12px; background: rgba(0, 243, 255, 0.05); color: var(--neon-blue); font-size: 1.05rem; font-weight: bold; border: 1px dashed var(--neon-blue); border-radius: 12px; box-shadow: 0 0 15px rgba(0,243,255,0.15); cursor: pointer; transition: 0.3s;">
-                👇 터치해서 1초 만에 앱으로 설치하기
-            </button>
-
             <div id="welcome-msg"></div>
 
             <div class="stats-row">
@@ -164,7 +177,7 @@
             </div>
 
             <div class="card level-section">
-                <div class="level-title" style="color: #888; font-size: 1.2rem; margin-bottom: 20px; font-weight: bold;">학습 레벨 선택</div>
+                <div class="level-title" style="color: #888; font-size: 0.9rem; margin-bottom: 15px; font-weight: bold;">학습 레벨 선택</div>
                 <div class="level-buttons">
                     <button class="level-btn active" id="btn-middle" onclick="selectLevel('middle')">📚 중등단어</button>
                     <button class="level-btn" id="btn-high" onclick="selectLevel('high')">🎓 고등단어</button>
@@ -172,18 +185,20 @@
             </div>
 
             <div class="card" style="padding: 25px 20px; border: 1px solid var(--neon-orange); background: rgba(255, 153, 0, 0.05); text-align: center;">
-                <div style="font-size: 1.4rem; font-weight: bold; color: var(--neon-orange); margin-bottom: 5px;">오늘의 학습</div>
-                <div style="color: #aaa; font-size: 1.2rem; margin-bottom: 20px;">목표 단어: <span id="target-count-display" style="color: #fff; font-weight: bold;">0개</span></div>
+                <div style="font-size: 1.2rem; font-weight: bold; color: var(--neon-orange); margin-bottom: 5px;">
+                    오늘의 학습 <span onclick="document.getElementById('guide-modal').style.display='flex'" style="font-size:0.8rem; cursor:pointer; color:#fff; background:#444; padding:3px 8px; border-radius:12px; margin-left:8px; vertical-align:middle; border:1px solid #666;">❓안내</span>
+                </div>
+                <div style="color: #aaa; font-size: 0.9rem; margin-bottom: 20px;">목표 단어: <span id="target-count-display" style="color: #fff; font-weight: bold;">0개</span></div>
                 <button class="start-btn" id="start-btn-main">학습 시작하기</button>
             </div>
 
             <div class="info-row">
                 <div class="info-card clickable-card" onclick="showAllWords()">
-                    <div class="info-title" style="color: #aaa; font-size: 0.9rem;">📁 나의 학습 단어장</div>
+                    <div class="info-title">📁 나의 학습 단어장</div>
                     <div class="info-count" id="total-word-count" style="color: #fff; font-size: 1.1rem; margin-top: 5px;">0 단어</div>
                 </div>
                 <div class="info-card clickable-card" onclick="showWrongWords()">
-                    <div class="info-title" style="color: #aaa; font-size: 0.9rem;">⭐ 오답/별표</div>
+                    <div class="info-title">⭐ 오답/별표</div>
                     <div class="info-count" id="wrong-word-count" style="color: #fff; font-size: 1.1rem; margin-top: 5px;">0 단어</div>
                 </div>
             </div>
@@ -291,9 +306,9 @@
             element.classList.add('active');
             
             const headerTitle = document.getElementById('main-header-title');
-            if (tabId === 'voca') { headerTitle.innerHTML = 'Trigger<br>보카'; } 
-            else if (tabId === 'analysis') { headerTitle.innerHTML = 'Trigger<br>AI 시험 분석'; } 
-            else if (tabId === 'grammar') { headerTitle.innerHTML = 'Trigger<br>3시간 영문법'; }
+            if (tabId === 'voca') { headerTitle.innerHTML = 'Trigger<br>Voca'; } 
+            else if (tabId === 'analysis') { headerTitle.innerHTML = 'Trigger AI<br>분석'; } 
+            else if (tabId === 'grammar') { headerTitle.innerHTML = '트리거 초단기<br>영문법'; }
             window.scrollTo(0,0); 
             if(tabId === 'analysis') handleGradeChange(); 
         }
@@ -633,10 +648,15 @@
             document.getElementById('all-words-modal').style.display = 'flex';
         }
 
+        // 🚀 수정: 누적 리포트 레벨별 분리 적용
         function showWeeklyReport() {
             const currentLevel = localStorage.getItem('trigger_level') || 'middle';
             const stats = JSON.parse(localStorage.getItem(`trigger_stats_${currentLevel}`) || '{}');
             const listContainer = document.getElementById('report-list');
+            
+            // 타이틀 변경
+            document.getElementById('report-modal-title').innerText = `[${currentLevel === 'high' ? '고등' : '중등'}] 누적 학습 리포트`;
+
             let html = '';
             for(let i=1; i<=TOTAL_DAYS; i++) {
                 let isReview = (i % 7 === 6 || i % 7 === 0);
