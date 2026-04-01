@@ -601,39 +601,34 @@
         }
 
         async function handleLogin() {
-    const name = document.getElementById('user-name').value.trim();
-    const phone = document.getElementById('user-phone').value.trim();
-    const agree = document.getElementById('agree-privacy').checked;
+            const name = document.getElementById('user-name').value.trim();
+            const phone = document.getElementById('user-phone').value.trim();
+            const agree = document.getElementById('agree-privacy').checked;
 
-    if (!name || !phone || !agree) return alert("필수 항목을 확인해주세요.");
+            if (!name || !phone || !agree) return alert("필수 항목을 확인해주세요.");
 
-    // 🚀 [핵심] 로딩 표시 없이 바로 저장하고 넘깁니다.
-    localStorage.setItem('trigger_name', name);
-    localStorage.setItem('trigger_phone', phone);
+            // 1. 로컬에 즉시 저장 (0.1초 입장 비결)
+            localStorage.setItem('trigger_name', name);
+            localStorage.setItem('trigger_phone', phone);
+            
+            // 2. 화면 즉시 전환
+            checkLoginStatus(); 
+
+            // 3. 시트 전송은 뒤에서 조용히 (await 없이)
+            fetch(GOOGLE_SHEET_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ 
+                    "날짜": new Date().toLocaleString(),
+                    "이름": name, 
+                    "전화번호": phone,
+                    "수준": "미정(가입완료)" 
+                })
+            }).catch(e => console.log("전송 지연 무시"));
+            
+        } // 👈 여기서 함수가 딱 끝나야 합니다! (finally는 삭제)
     
-    // 1. 화면은 즉시 다음 단계로 넘김 (기다리지 않음)
-    checkLoginStatus(); 
-
-    // 2. 데이터 전송은 "백그라운드"에서 조용히 실행 (await 제거)
-    fetch(GOOGLE_SHEET_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: JSON.stringify({ 
-            "날짜": new Date().toLocaleString(),
-            "이름": name, 
-            "전화번호": phone,
-            "수준": "미정(가입완료)" 
-        })
-    }).catch(e => console.log("전송지연 무시"));
-}
     
-    finally {
-        localStorage.setItem('trigger_name', name);
-        localStorage.setItem('trigger_phone', phone);
-        checkLoginStatus(); 
-    }
-}
-
         function checkLoginStatus() {
             const savedName = localStorage.getItem('trigger_name');
             const currentLevel = localStorage.getItem('trigger_level') || 'middle';
