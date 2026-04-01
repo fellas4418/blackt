@@ -59,7 +59,27 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 .dashboard-bg { padding: 20px; display: flex; justify-content: center; }
 .dashboard-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 25px; margin: 0 auto; padding-bottom: 110px; }
 
-.logo { font-size: 2.4rem; font-weight: 800; text-align: center; margin-bottom: 15px; text-shadow: 0 0 5px var(--neon-blue); }
+/* 🚀 'Trigger' 글자를 더 크고 묵직하게 변경 */
+/* 🚀 Trigger 글자를 키우되, 주변 레이아웃에 영향을 주지 않도록 마진 조정 */
+.logo { 
+    font-size: 3.2rem; /* Trigger 글자 크기 유지 */
+    font-weight: 900; 
+    text-align: center; 
+    margin-top: 10px !important;    /* 위쪽 여백 고정 */
+    margin-bottom: 10px !important; /* 하단 여백을 줄여서 아래 카드가 너무 밀리지 않게 함 */
+    line-height: 1.0;               /* 줄 간격을 딱 붙여서 공간 낭비 방지 */
+    letter-spacing: -1.5px;         /* 글자 사이를 약간 좁혀서 더 단단한 느낌 */
+    text-shadow: 0 0 5px var(--neon-blue);
+    display: block;
+    width: 100%;
+}
+
+/* 혹시 로고 아래 'Voca'가 너무 크다면 아래 span 처리를 해주면 더 완벽합니다 */
+.logo span {
+    font-size: 0.8em; /* Voca 부분만 살짝 줄여서 밸런스 조정 */
+    font-weight: 700;
+    color: #fff;
+}
 .card { background-color: var(--card-bg-color); border: 1px solid #222; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
 .clickable-card { cursor: pointer; transition: 0.2s; }
 .clickable-card:active { transform: scale(0.97); }
