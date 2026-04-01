@@ -158,20 +158,23 @@
                 </div>
             </div>
             
-            <div id="admin-menu" style="display: none; text-align: center; margin-top: 30px; border-top: 1px dashed #444; padding-top: 20px; flex-direction: column; gap: 12px; align-items: center;">
-                <p style="color:var(--neon-orange); font-size:0.8rem; margin:0;">🛠️ 관리자 모드 활성화됨</p>
+            <div id="admin-menu" style="display: flex; text-align: center; margin: 30px auto; border: 2px dashed var(--neon-orange); padding: 20px; flex-direction: column; gap: 12px; align-items: center; background: rgba(255,153,0,0.05); border-radius: 15px; width: 90%;">
+                <p style="color:var(--neon-orange); font-size:0.9rem; margin:0; font-weight:bold;">🛠️ 개발자 테스트 모드 (항시 활성화)</p>
                 
-                <div style="display:flex; gap:10px; margin-bottom:5px;">
-                    <button onclick="jumpToSession(3)" style="background: #222; border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">⏩ 세션 3 (중간테스트)</button>
-                    <button onclick="jumpToSession(6)" style="background: #222; border: 1px solid var(--neon-orange); color: var(--neon-orange); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">🔥 세션 6 (최종완료)</button>
+                <div style="display:flex; gap:10px; width: 100%;">
+                    <button onclick="jumpToSession(3)" style="flex:1; background: #222; border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight:bold;">⏩ 세션 3 점프</button>
+                    <button onclick="jumpToSession(6)" style="flex:1; background: #222; border: 1px solid var(--neon-orange); color: var(--neon-orange); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight:bold;">🔥 세션 6 점프</button>
                 </div>
             
-                <button onclick="localStorage.removeItem('blackt_cooldown'); alert('⏳ 쿨타임이 즉시 해제되었습니다!'); location.reload();" 
-                        style="background: #333; border: 1px solid var(--neon-green); color: var(--neon-green); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 85%;">
+                <button onclick="localStorage.removeItem('blackt_cooldown'); alert('⏳ 쿨타임 삭제 완료!'); location.reload();" 
+                        style="background: #111; border: 1px solid var(--neon-green); color: var(--neon-green); padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%;">
                     ⚡ 쿨타임(10분 휴식) 즉시 삭제
                 </button>
             
-                <button onclick="if(confirm('모든 데이터를 초기화할까요?')) { localStorage.clear(); location.reload(); }" style="background: none; border: none; color: #555; text-decoration: underline; cursor: pointer; font-size: 0.85rem; margin-top:10px;">🔄 모든 데이터 완전 초기화</button>
+                <button onclick="if(confirm('정말 모든 데이터를 초기화할까요?')) { localStorage.clear(); location.reload(); }" 
+                        style="background: none; border: none; color: #666; text-decoration: underline; cursor: pointer; font-size: 0.8rem; margin-top:5px;">
+                    🔄 데이터 완전 초기화
+                </button>
             </div>
             
             <script>
