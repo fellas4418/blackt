@@ -601,36 +601,29 @@
         }
 
         async function handleLogin() {
-            const name = document.getElementById('user-name').value.trim();
-            const phone = document.getElementById('user-phone').value.trim();
-            const agree = document.getElementById('agree-privacy').checked;
-            
-            // 🚀 [레버리지 포인트] 가입 시점에 메인 화면에서 선택된 레벨을 한글로 변환
-            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
-            const levelText = (currentLevel === 'high') ? '고등' : '중등';
+    const name = document.getElementById('user-name').value.trim();
+    const phone = document.getElementById('user-phone').value.trim();
+    const agree = document.getElementById('agree-privacy').checked;
 
-            if (!name || !phone) return alert("이름과 전화번호를 모두 입력해주세요.");
-            if (!agree) return alert("개인정보 수집에 동의하셔야 합니다.");
+    // 🚀 [해결 포인트] 저장된 값을 믿지 말고, 현재 화면에 눌려있는 버튼을 직접 확인합니다.
+    const isHighBtnActive = document.getElementById('btn-high').classList.contains('active');
+    const levelText = isHighBtnActive ? '고등' : '중등';
 
-            const btn = document.getElementById('login-submit-btn');
-            btn.innerText = "연결 중...";
-            btn.disabled = true;
+    if (!name || !phone) return alert("이름과 전화번호를 모두 입력해주세요.");
+    if (!agree) return alert("개인정보 수집에 동의하셔야 합니다.");
 
-            // 💡 안전장치: 응답이 늦어도 1.5초 뒤엔 무조건 입장
-            const forceEntry = setTimeout(() => { checkLoginStatus(); }, 1500);
-
-            try {
-                // 🚀 구글 시트 전송 데이터 구성 (시트 제목과 일치시켜야 함)
-                await fetch(GOOGLE_SHEET_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify({ 
-                        "날짜": new Date().toLocaleString(),
-                        "이름": name, 
-                        "전화번호": phone, 
-                        "수준": levelText 
-                    })
-                });
+    // ... (이하 fetch 로직은 그대로 두시면 됩니다)
+    try {
+        await fetch(GOOGLE_SHEET_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify({ 
+                "날짜": new Date().toLocaleString(),
+                "이름": name, 
+                "전화번호": phone, 
+                "수준": levelText // 💡 이제 버튼 상태에 따라 '고등' 혹은 '중등'이 정확히 찍힙니다.
+            })
+        });
             } catch (e) {
                 console.log("시트 저장 지연/오류");
             } finally {
