@@ -20,7 +20,7 @@ function showSystemMessage(text) {
 // 🚀 [수정] 카카오 초기화 및 공유 함수 정의
 try {
     if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
-        // 원장님의 자바스크립트 키 (fbb152...)를 그대로 사용합니다.
+        // 원장님의 자바스크립트 키
         Kakao.init('fbb1520306ffaad0a882e993109a801c'); 
         console.log("카카오 SDK 초기화 완료");
     }
@@ -293,7 +293,6 @@ function updateUI(data, isTest = false) {
     const starBtn = document.getElementById('star-btn');
     let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
     
-    // 🚀 [수정] 현재 레벨까지 체크하여 별표 버그 방지
     const isStarred = wrongWords.some(w => w.word === data.word && w.level === currentLevel);
     
     if(starBtn) {
@@ -323,30 +322,28 @@ function updateUI(data, isTest = false) {
         }
         
         const choices = [fullMeaning, ...wrongChoices].sort(() => Math.random() - 0.5);
-        // 🚀 [수정] 보기 버튼 크기를 1.2rem으로 고정하고 세로 정렬 최적화
-// 🚀 보기 버튼 스타일 고정 (app.js 내부 updateUI 함수 수정)
-mBox.innerHTML = choices.map(c => {
-    const isCorrect = (c === fullMeaning);
-    
-    // 글자 수에 상관없이 기본 1.1rem~1.2rem으로 고정하고, 박스 높이를 맞춥니다.
-    return `
-        <button class="choice-btn" 
-            style="
-                font-size: 1.15rem !important; 
-                height: 70px !important; /* 높이 고정 */
-                display: flex; 
-                align-items: center; 
-                justify-content: center; 
-                text-align: center;
-                padding: 5px 15px !important;
-                margin-bottom: 10px;
-                line-height: 1.2;
-                word-break: keep-all; /* 단어 단위 줄바꿈으로 깔끔하게 */
-            " 
-            onclick="handleAnswer(${isCorrect})">
-            ${c}
-        </button>`;
-}).join('');
+        
+        // 🚀 [수정] 보기 버튼 크기를 고정하고 세로 정렬 최적화
+        mBox.innerHTML = choices.map(c => {
+            const isCorrect = (c === fullMeaning);
+            return `
+                <button class="choice-btn" 
+                    style="
+                        font-size: 1.15rem !important; 
+                        height: 70px !important; 
+                        display: flex; 
+                        align-items: center; 
+                        justify-content: center; 
+                        text-align: center;
+                        padding: 5px 15px !important;
+                        margin-bottom: 10px;
+                        line-height: 1.2;
+                        word-break: keep-all;
+                    " 
+                    onclick="handleAnswer(${isCorrect})">
+                    ${c}
+                </button>`;
+        }).join('');
     }
 }
 
@@ -413,11 +410,9 @@ function finishSession(didTest = true) {
         }
     }
 
-    // 🚀 [수정] 성적표 화면 자동 노출 + 카톡 공유 버튼형
-    // 🚀 [수정] 80점 이상일 때만 자랑하기 버튼 노출 & 문구 간소화
     if (currentSession >= 6) {
         const accuracy = Math.floor((score / targetWords.length) * 100);
-        const isHighScorer = accuracy >= 80; // 💡 80점 커트라인 (원하시면 조정 가능)
+        const isHighScorer = accuracy >= 80;
 
         showSystemMessage(`
             <div style="padding: 10px; text-align:center;">
@@ -429,7 +424,7 @@ function finishSession(didTest = true) {
                 
                 <div style="display:flex; flex-direction:column; gap:12px;">
                     ${isHighScorer ? 
-                        `<button onclick="shareKakao()" style="width:100%; padding:16px; background:#fee500; color:#3c1e1e; border:none; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer;">🟡 카톡으로 성과 공유유하기</button>` 
+                        `<button onclick="shareKakao()" style="width:100%; padding:16px; background:#fee500; color:#3c1e1e; border:none; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer;">🟡 카톡으로 성과 공유하기</button>` 
                         : `<div style="color:#888; font-size:0.85rem; margin-bottom:10px;">80% 이상 득점 시 자랑하기가 활성화됩니다! 🔥</div>`
                     }
                     <button onclick="location.href='index.html'" style="width:100%; padding:12px; background:transparent; color:#666; border:none; cursor:pointer; font-size:0.9rem;">종료하기</button>
@@ -445,7 +440,7 @@ function finishSession(didTest = true) {
     }
 }
 
-// 🚀 [최종 해결] 카톡 공유 함수 (차단 방지 로직 적용)
+// 🚀 [최종 해결] 카톡 공유 함수
 function shareKakao() {
     if (typeof Kakao === 'undefined') {
         alert("카카오 SDK를 불러오지 못했습니다.");
@@ -459,13 +454,12 @@ function shareKakao() {
         const levelName = currentLevel === 'high' ? '고등' : '중등';
         const currentUrl = window.location.origin; 
 
-        // 💡 직접 실행 방식을 사용하여 브라우저 차단을 피합니다.
         Kakao.Share.sendDefault({
-            objectType: 'feed', // 'text'보다 'feed'가 가독성이 좋습니다.
+            objectType: 'feed',
             content: {
                 title: '⚡ 트리거 보카 목표 달성!',
                 description: `${userName}님이 [${levelName} Day ${currentDay}] 6세션 루틴을 완수했습니다.\n최종 정답률: ${score} / ${targetWords.length}`,
-                imageUrl: 'https://yourdomain.com/icon-512.png', // 앱 아이콘 주소로 바꾸면 더 예쁩니다.
+                imageUrl: 'https://yourdomain.com/icon-512.png',
                 link: { mobileWebUrl: currentUrl, webUrl: currentUrl },
             },
             buttons: [

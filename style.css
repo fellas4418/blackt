@@ -7,12 +7,10 @@
     --neon-orange: #ff9900; 
     --neon-purple: #bc13fe;
     
-    /* 🚀 광채 효과를 은은한 범위(5~10px)로 축소하여 눈의 피로 감소 */
+    /* 🚀 광채 효과를 은은하게 축소하여 눈 피로 감소 (유지) */
     --glow-blue: 0 0 8px rgba(0,243,255,0.4);
     --glow-green: 0 0 8px rgba(57, 255, 20, 0.4);
     --glow-orange: 0 0 10px rgba(255,153,0,0.5);
-    
-    /* 🚀 글자 광채에서 흰색 중첩을 제거하고 세련된 네온 라인만 남김 */
     --glow-text: 0 0 4px var(--neon-blue);
 }
 
@@ -23,7 +21,7 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 
 .login-card { 
     background: var(--card-bg-color); 
-    border: 1px solid rgba(0, 243, 255, 0.3); /* 테두리를 반투명하게 */
+    border: 1px solid rgba(0, 243, 255, 0.3); 
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); 
     border-radius: 20px; 
     padding: 25px; 
@@ -35,7 +33,6 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
     box-sizing: border-box;
 }
 
-/* 🚀 상단 배너: 빛 번짐 범위를 3px로 줄여 눈부심 완벽 차단 */
 .login-title { 
     font-size: 1.8rem; 
     font-weight: bold; 
@@ -59,27 +56,9 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 .dashboard-bg { padding: 20px; display: flex; justify-content: center; }
 .dashboard-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 25px; margin: 0 auto; padding-bottom: 110px; }
 
-/* 🚀 'Trigger' 글자를 더 크고 묵직하게 변경 */
-/* 🚀 Trigger 글자를 키우되, 주변 레이아웃에 영향을 주지 않도록 마진 조정 */
-.logo { 
-    font-size: 3.2rem; /* Trigger 글자 크기 유지 */
-    font-weight: 900; 
-    text-align: center; 
-    margin-top: 10px !important;    /* 위쪽 여백 고정 */
-    margin-bottom: 10px !important; /* 하단 여백을 줄여서 아래 카드가 너무 밀리지 않게 함 */
-    line-height: 1.0;               /* 줄 간격을 딱 붙여서 공간 낭비 방지 */
-    letter-spacing: -1.5px;         /* 글자 사이를 약간 좁혀서 더 단단한 느낌 */
-    text-shadow: 0 0 5px var(--neon-blue);
-    display: block;
-    width: 100%;
-}
+/* 🚀 겹침 문제 해결: 로고를 100% 원래 안정적인 상태로 복구 */
+.logo { font-size: 2.5rem; font-weight: 800; text-align: center; margin-bottom: 10px; text-shadow: var(--glow-text); cursor: default; }
 
-/* 혹시 로고 아래 'Voca'가 너무 크다면 아래 span 처리를 해주면 더 완벽합니다 */
-.logo span {
-    font-size: 0.8em; /* Voca 부분만 살짝 줄여서 밸런스 조정 */
-    font-weight: 700;
-    color: #fff;
-}
 .card { background-color: var(--card-bg-color); border: 1px solid #222; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
 .clickable-card { cursor: pointer; transition: 0.2s; }
 .clickable-card:active { transform: scale(0.97); }
@@ -90,7 +69,8 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 .stat-value { font-size: 1.15rem; font-weight: bold; color: var(--neon-blue); }
 
 /* === 수준별 버튼 & 학습 섹션 === */
-.level-buttons { display: flex; gap: 12px; }
+/* 🚀 레벨 제목과 버튼 사이 간격 추가 (margin-top) */
+.level-buttons { display: flex; gap: 12px; margin-top: 15px; }
 .level-btn { flex: 1; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; padding: 14px; color: #666; font-weight: 600; cursor: pointer; transition: 0.3s; }
 .level-btn.active { border-color: var(--neon-blue); color: #fff; box-shadow: 0 0 10px rgba(0,243,255,0.2); background: rgba(0,243,255,0.05); }
 
@@ -99,7 +79,7 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 .start-btn { width: 100%; background: transparent; border: 2px solid var(--neon-orange); color: #fff; font-size: 1.2rem; font-weight: 700; padding: 20px; border-radius: 16px; cursor: pointer; margin-top: 10px; box-shadow: var(--glow-orange); transition: 0.2s; }
 .start-btn:active { transform: scale(0.98); background: rgba(255,153,0,0.1); }
 
-/* === 단어장/오답 카드 가로 배치 수정 === */
+/* === 단어장/오답 카드 === */
 .info-row { display: flex; gap: 15px; margin-bottom: 10px; }
 .info-card { 
     flex: 1; 
@@ -114,14 +94,14 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 .info-title { font-size: 0.85rem; margin-bottom: 8px; color: #888; }
 .info-count { font-size: 1.4rem; font-weight: 700; color: #fff; }
 
-/* 🚀 루틴 영역 디자인 */
+/* === 루틴 영역 디자인 === */
 .routine-scroll-box { max-height: 380px; overflow-y: auto; border: 1px solid #222; border-radius: 12px; padding: 12px; background: rgba(0,0,0,0.2); }
 .routine-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 8px; border-bottom: 1px solid #222; }
 .day-label { font-size: 1rem; color: #ddd; }
 .routine-action-btn { background: #222; border: 1px solid #333; border-radius: 10px; padding: 8px 18px; font-weight: 600; color: #777; cursor: pointer; }
 .routine-action-btn.active { border-color: var(--neon-green); color: #fff; box-shadow: 0 0 8px rgba(57, 255, 20, 0.3); background: rgba(57, 255, 20, 0.05); }
 
-/* === 하단 네비게이션 (고급스러운 라운딩) === */
+/* === 하단 네비게이션 === */
 .bottom-nav { 
     position: fixed; 
     bottom: 0; left: 0; width: 100%; height: 75px; 
@@ -139,8 +119,20 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 .nav-item.active:nth-child(2) { color: var(--neon-blue); }   
 .nav-item.active:nth-child(3) { color: #b537f2; }            
 
-/* === 훈련장 (study.html) 스타일 === */
-#target { font-size: 3.8rem; margin: 0; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
-.ipa-text { font-size: 1.1rem; color: #666; margin-top: 8px; }
-#meanings div { font-size: 1.25rem; word-break: keep-all; line-height: 1.5; opacity: 0.1; margin: 15px 0; transition: 0.4s; text-align: center; }
-#meanings div.active { opacity: 1; color: var(--neon-blue); text-shadow: 0 0 5px var(--neon-blue); font-weight: bold; }
+/* 🚀 훈련장 화면 깨짐 방지: study.html 전용 코드를 100% 원래 코드로 완전 복구 (절대 건드리지 않음) */
+.study-bg { overflow: hidden; }
+#app { width: 100vw; height: 100vh; height: 100dvh; display: flex; flex-direction: column; align-items: center; position: relative; }
+.back-btn { position: absolute; top: 20px; left: 20px; background: transparent; border: none; color: #888; font-size: 1rem; cursor: pointer; }
+.header { width: 90%; padding: 60px 0 20px 0; text-align: center; }
+.progress-box { width: 100%; height: 6px; background: #222; border-radius: 10px; overflow: hidden; margin-top: 10px; }
+#bar { height: 100%; width: 100%; background: var(--neon-orange); box-shadow: var(--glow-orange); transition: width 0.1s linear; }
+#display { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; }
+#target { font-size: 4rem; margin: 0; text-shadow: 0 0 15px #fff; }
+.ipa-text { font-size: 1.2rem; color: #888; margin-top: 5px; font-weight: normal; }
+#meanings { width: 90%; margin-top: 30px; }
+#meanings div { font-size: 1.3rem; word-break: keep-all; line-height: 1.4; opacity: 0.1; margin: 12px 0; transition: 0.3s; text-align: center; }
+#meanings div.active { opacity: 1; color: var(--neon-blue); text-shadow: var(--glow-blue); font-weight: bold; }
+.choice-btn { width: 100%; padding: 18px; margin: 10px 0; background: var(--card-bg-color); border: 1px solid #333; border-radius: 15px; color: #fff; font-size: 1.2rem; cursor: pointer; }
+.choice-btn:active { border-color: var(--neon-green); box-shadow: var(--glow-green); }
+#main-action { width: 90%; padding: 20px; margin-bottom: 40px; border-radius: 15px; border: 2px solid var(--neon-orange); background: transparent; color: #fff; font-size: 1.3rem; font-weight: bold; box-shadow: var(--glow-orange); cursor: pointer; }
+#main-action:disabled { border-color: #444; box-shadow: none; color: #666; cursor: not-allowed; }
