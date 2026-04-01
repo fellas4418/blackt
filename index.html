@@ -158,7 +158,7 @@
                 </div>
             </div>
             
-            <div id="admin-menu" style="display: flex; text-align: center; margin: 30px auto; border: 2px dashed var(--neon-orange); padding: 20px; flex-direction: column; gap: 12px; align-items: center; background: rgba(255,153,0,0.05); border-radius: 15px; width: 90%;">
+            <div id="admin-menu" style="display: flex; text-align: center; margin: 30px auto; border: 2px dashed var(--neon-orange); padding: 20px; flex-direction: column; gap: 12px; align-items: center; background: rgba(255,153,0,0.05); border-radius: 15px; width: 90%; display: none;">
                 <p style="color:var(--neon-orange); font-size:0.9rem; margin:0; font-weight:bold;">🛠️ 개발자 테스트 모드 (항시 활성화)</p>
                 
                 <div style="display:flex; gap:10px; width: 100%;">
@@ -176,19 +176,7 @@
                     🔄 데이터 완전 초기화
                 </button>
             </div>
-            
-            <script>
-                // 🚀 관리자용 세션 점프 함수 추가
-                function jumpToSession(sessionNum) {
-                    const lvl = localStorage.getItem('trigger_level') || 'middle';
-                    localStorage.setItem('trigger_session_' + lvl, sessionNum);
-                    localStorage.removeItem('blackt_cooldown'); // 점프할 때 쿨타임도 같이 지워주는 센스!
-                    alert(`🚀 세션 ${sessionNum}으로 이동했습니다! [학습 시작하기]를 눌러보세요.`);
-                    location.reload();
-                }
-            </script>
         </div>
-
 
         <div id="tab-analysis" class="tab-content">
             <div class="card" style="border: 1px solid var(--neon-blue); background: rgba(0, 243, 255, 0.05); padding: 25px;">
@@ -224,7 +212,6 @@
             </div>
         </div>
 
-
         <div id="tab-grammar" class="tab-content">
             <div class="card" style="border: 1px solid #b537f2; background: rgba(181, 55, 242, 0.08); text-align: center; padding: 30px 20px;">
                 <div style="color: #d789ff; font-size: 0.85rem; font-weight: bold; margin-bottom: 10px; letter-spacing: 1px;">PREMIUM CLASS</div>
@@ -234,7 +221,9 @@
             </div>
         </div>
 
-    </div> <nav class="bottom-nav">
+    </div> 
+    
+    <nav class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('voca', this)">
             <span class="nav-icon">🏠</span><span>단어 학습</span>
         </div>
@@ -246,41 +235,14 @@
         </div>
     </nav>
 
+    <div id="print-area" style="display:none; padding:20px; background:#fff; color:#000;"></div>
 
     <script src="wordData.js"></script>
     <script>
-        function switchTab(tabId, element) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.getElementById('tab-' + tabId).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
-            element.classList.add('active');
-            
-            const headerTitle = document.getElementById('main-header-title');
-            if (tabId === 'voca') {
-                headerTitle.innerHTML = 'Trigger<br>Voca';
-            } else if (tabId === 'analysis') {
-                headerTitle.innerHTML = 'Trigger AI<br>분석';
-            } else if (tabId === 'grammar') {
-                headerTitle.innerHTML = '트리거 초단기<br>영문법';
-            }
-            
-            window.scrollTo(0,0); 
-            if(tabId === 'analysis') handleGradeChange(); 
-        }
-
-        let logoClickCount = 0;
-        function enableAdminMode() {
-            logoClickCount++;
-            if (logoClickCount >= 5) {
-                document.getElementById('admin-menu').style.display = 'flex';
-                alert("🛠️ 관리자 모드 활성화!");
-                logoClickCount = 0;
-            }
-            setTimeout(() => { logoClickCount = 0; }, 3000);
-        }
-
+        // --- 1. 앱 설정 및 탭 전환 ---
         const TOTAL_DAYS = 60; 
         const todayStr = new Date().toLocaleDateString();
+        // 🚀 원장님의 GAS URL (수정 금지)
         const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbw5M7Nm9_JDzAOa9FAZKWTK7Fv-qYBSZlDOGPPFG9LX0EPvJy2rQ2ZE8nGUIy_VVgWy/exec";
         
         if (localStorage.getItem('trigger_date') !== todayStr) {
@@ -291,6 +253,111 @@
             localStorage.setItem('trigger_unlocked_extra_today_high', '0');
         }
 
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            
+            const headerTitle = document.getElementById('main-header-title');
+            if (tabId === 'voca') { headerTitle.innerHTML = 'Trigger<br>Voca'; } 
+            else if (tabId === 'analysis') { headerTitle.innerHTML = 'Trigger AI<br>분석'; } 
+            else if (tabId === 'grammar') { headerTitle.innerHTML = '트리거 초단기<br>영문법'; }
+            window.scrollTo(0,0); 
+            if(tabId === 'analysis') handleGradeChange(); 
+        }
+
+        // --- 2. 🚀 가입 및 수준 선택 (가장 중요) ---
+        async function handleLogin() {
+            const name = document.getElementById('user-name').value.trim();
+            const phone = document.getElementById('user-phone').value.trim();
+            const agree = document.getElementById('agree-privacy').checked;
+
+            if (!name || !phone || !agree) return alert("필수 항목을 확인해주세요.");
+
+            // 0.1초 즉시 입장
+            localStorage.setItem('trigger_name', name);
+            localStorage.setItem('trigger_phone', phone);
+            checkLoginStatus(); 
+
+            // 백그라운드 전송 (영어 이름표 사용)
+            fetch(GOOGLE_SHEET_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ 
+                    "date": new Date().toLocaleString(),
+                    "name": name, 
+                    "phone": phone,
+                    "level": "미정(가입완료)" 
+                })
+            }).catch(e => console.log("전송 지연 무시"));
+        }
+
+        function selectLevel(level) {
+            localStorage.setItem('trigger_level', level);
+            
+            document.getElementById('btn-middle').className = "level-btn";
+            document.getElementById('btn-high').className = "level-btn";
+            document.getElementById('btn-' + level).className = "level-btn active";
+
+            const name = localStorage.getItem('trigger_name');
+            const phone = localStorage.getItem('trigger_phone');
+            const levelText = (level === 'high') ? '고등' : '중등';
+
+            if (name && phone) {
+                const now = new Date();
+                const shortDate = (now.getMonth() + 1) + "/" + now.getDate() + " " + now.getHours() + ":" + now.getMinutes();
+
+                // 가로 적재 전송 (영어 이름표 사용)
+                fetch(GOOGLE_SHEET_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({ 
+                        "date": shortDate, 
+                        "name": name, 
+                        "phone": phone, 
+                        "level": levelText 
+                    })
+                });
+            }
+
+            if (typeof wordsData !== 'undefined') {
+                let totalCount = 0;
+                for(let l of ['middle', 'high']) {
+                    const lData = wordsData[l] || {};
+                    const levelUnlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${l}`)) || 1;
+                    for(let i = 1; i <= levelUnlockedDay; i++) {
+                        if (i % 7 === 6 || i % 7 === 0) continue;
+                        totalCount += (lData[i] || []).length;
+                    }
+                }
+                document.getElementById('total-word-count').innerText = totalCount + " 단어";
+                
+                const levelData = wordsData[level] || {};
+                const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${level}`)) || 1;
+                const todayCount = (levelData[currentDay] || []).length;
+                document.getElementById('target-count-display').innerText = todayCount + "개";
+            }
+            updateDashboardUI();
+        }
+
+        function checkLoginStatus() {
+            const savedName = localStorage.getItem('trigger_name');
+            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
+            const currentSession = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`)) || 1;
+            const modal = document.getElementById('login-modal');
+            const welcomeMsg = document.getElementById('welcome-msg');
+
+            if (savedName) {
+                modal.style.display = 'none';
+                welcomeMsg.innerText = currentSession > 6 ? `환영합니다, ${savedName}님! (오늘 목표 완료!)` : `환영합니다, ${savedName}님!`;
+            } else {
+                modal.style.display = 'flex';
+            }
+            updateDashboardUI();
+        }
+
+        // --- 3. 학습 진행 및 UI 업데이트 ---
         function startDayStudy(day) {
             const currentLevel = localStorage.getItem('trigger_level') || 'middle';
             const savedDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
@@ -299,241 +366,6 @@
             }
             localStorage.setItem(`trigger_current_day_${currentLevel}`, day);
             location.href = 'study.html';
-        }
-
-        function renderRoutine() {
-            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
-            let unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
-            const container = document.getElementById('routine-list-container');
-            if (!container) return;
-            
-            let html = '';
-            for(let i=1; i<=TOTAL_DAYS; i++) {
-                let isReview = (i % 7 === 6 || i % 7 === 0);
-                let dayLabel = isReview ? `Day ${i} (복습)` : `Day ${i}`;
-                
-                if (i < unlockedDay) {
-                    html += `<li class="routine-item"><span class="day-label">${dayLabel}</span><button class="routine-action-btn" style="border-color:#444; color:#aaa;" onclick="startDayStudy(${i})">완료</button></li>`;
-                } else if (i === unlockedDay) {
-                    html += `<li class="routine-item"><span class="day-label">${dayLabel}</span><button class="routine-action-btn active" onclick="startDayStudy(${i})">시작</button></li>`;
-                } else {
-                    html += `<li class="routine-item"><span class="day-label">${dayLabel}</span><button class="routine-action-btn" onclick="unlockDay(this, ${i})">🔒 잠김</button></li>`;
-                }
-            }
-            container.innerHTML = html;
-
-            const pdfBtn = document.getElementById('pdf-btn');
-            if (unlockedDay > 7) {
-                pdfBtn.disabled = false;
-                pdfBtn.innerText = "📥 누적 단어장 다운로드 (인쇄/PDF)";
-                pdfBtn.style.background = "transparent";
-                pdfBtn.style.color = "var(--neon-green)";
-                pdfBtn.style.borderColor = "var(--neon-green)";
-                pdfBtn.style.boxShadow = "var(--glow-green)";
-                pdfBtn.style.cursor = "pointer";
-                pdfBtn.onclick = generatePDF;
-            } else {
-                pdfBtn.disabled = true;
-                pdfBtn.innerText = "다운로드 잠김";
-                pdfBtn.style.background = "#333";
-                pdfBtn.style.color = "#666";
-                pdfBtn.style.borderColor = "#555";
-                pdfBtn.style.boxShadow = "none";
-                pdfBtn.onclick = null;
-            }
-        }
-
-        function generatePDF() {
-            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
-            const unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
-            const levelData = wordsData[currentLevel] || {};
-            
-            let printHtml = `<h1 style="text-align:center;">Trigger Voca 누적 단어장 (${currentLevel === 'middle' ? '중등' : '고등'})</h1>`;
-            
-            for(let i=1; i < unlockedDay; i++) {
-                if (i % 7 === 6 || i % 7 === 0) continue; 
-                const dayWords = levelData[i] || [];
-                if(dayWords.length > 0) {
-                    printHtml += `<div class="print-day">Day ${i}</div>`;
-                    dayWords.forEach(w => {
-                        printHtml += `<div class="print-word">${w.word} <span style="color:#666; font-size:0.9rem;">${w.ipa}</span></div>`;
-                        const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
-                        printHtml += `<div class="print-meaning">${safeMeanings}</div>`;
-                    });
-                }
-            }
-            
-            const printArea = document.getElementById('print-area');
-            if(printArea) {
-                printArea.innerHTML = printHtml;
-                printArea.style.display = 'block'; 
-                window.print(); 
-                printArea.style.display = 'none'; 
-            } else {
-                alert("인쇄 기능이 준비되지 않았습니다.");
-            }
-        }
-
-        function showWrongWords() {
-            let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
-            let html = '';
-            let totalCount = 0;
-
-            const renderLevelWrongs = (levelKey, levelName) => {
-                const levelWrongs = wrongWords.filter(w => w.level === levelKey);
-                if (levelWrongs.length === 0) return '';
-                
-                totalCount += levelWrongs.length;
-                let levelHtml = `<div style="margin-top:20px; margin-bottom:10px; font-size:1.2rem; font-weight:bold; color:var(--neon-green); border-bottom:2px solid var(--neon-green); padding-bottom:5px; text-align:left;">[${levelName}]</div>`;
-                
-                levelHtml += levelWrongs.map(w => {
-                    const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
-                    return `<div style="padding:10px 0; border-bottom:1px solid #333;"><strong>${w.word}</strong> <span style="color:#888; font-size:0.9rem;">${safeMeanings}</span></div>`;
-                }).join('');
-                return levelHtml;
-            };
-
-            html += renderLevelWrongs('middle', '📚 중등 단어');
-            html += renderLevelWrongs('high', '🎓 고등 단어');
-
-            const listContainer = document.getElementById('wrong-list');
-            if(totalCount === 0) {
-                listContainer.innerHTML = "<p style='text-align:center; color:#888; margin-top:20px; font-size: 14px;'>저장된 오답이나 별표 단어가 없습니다.</p>";
-            } else {
-                listContainer.innerHTML = html;
-            }
-            
-            document.getElementById('wrong-word-count').innerText = totalCount + " 단어";
-            document.getElementById('wrong-modal').style.display = 'flex';
-        }
-
-        function showAllWords() {
-            let learnedWordsHtml = '';
-            let totalCount = 0;
-
-            const renderLevelWords = (levelKey, levelName) => {
-                const levelData = wordsData[levelKey] || {};
-                const levelUnlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${levelKey}`)) || 1;
-                let levelHtml = '';
-                let levelCount = 0;
-                
-                for(let i = 1; i <= levelUnlockedDay; i++) {
-                    if (i % 7 === 6 || i % 7 === 0) continue; 
-                    const dayWords = levelData[i] || [];
-                    if(dayWords.length > 0) {
-                        dayWords.forEach(w => {
-                            levelCount++;
-                            const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
-                            levelHtml += `<div style="padding:12px 0; border-bottom:1px solid #333;">
-                                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                                    <strong style="font-size:1.1rem;">${w.word}</strong>
-                                    <span style="color:var(--neon-blue); font-size:0.8rem; border:1px solid var(--neon-blue); border-radius:10px; padding:2px 8px;">Day ${i}</span>
-                                </div>
-                                <span style="color:#aaa; font-size:0.85rem;">${w.ipa}</span><br>
-                                <span style="color:#888; font-size:0.95rem; display:inline-block; margin-top:3px;">${safeMeanings}</span>
-                            </div>`;
-                        });
-                    }
-                }
-                
-                if (levelCount > 0) {
-                    totalCount += levelCount;
-                    return `<div style="margin-top:20px; margin-bottom:10px; font-size:1.2rem; font-weight:bold; color:var(--neon-orange); border-bottom:2px solid var(--neon-orange); padding-bottom:5px; text-align:left;">[${levelName}]</div>` + levelHtml;
-                }
-                return '';
-            };
-
-            learnedWordsHtml += renderLevelWords('middle', '📚 중등 단어');
-            learnedWordsHtml += renderLevelWords('high', '🎓 고등 단어');
-            
-            const listContainer = document.getElementById('all-words-list');
-            if(totalCount === 0) {
-                listContainer.innerHTML = "<p style='text-align:center; color:#888; margin-top:20px; font-size: 14px;'>아직 학습을 시작한 단어가 없습니다.</p>";
-            } else {
-                listContainer.innerHTML = learnedWordsHtml;
-            }
-            
-            document.getElementById('total-word-count').innerText = totalCount + " 단어";
-            document.getElementById('all-words-modal').style.display = 'flex';
-        }
-
-        function showWeeklyReport() {
-            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
-            const stats = JSON.parse(localStorage.getItem(`trigger_stats_${currentLevel}`) || '{}');
-            const listContainer = document.getElementById('report-list');
-            
-            let html = '';
-            for(let i=1; i<=TOTAL_DAYS; i++) {
-                let isReview = (i % 7 === 6 || i % 7 === 0);
-                let dayLabel = isReview ? `Day ${i} (복습)` : `Day ${i}`;
-                let dayStat = stats[i];
-                
-                if (typeof dayStat === 'number') {
-                    dayStat = { progress: 6, accuracy: dayStat };
-                }
-
-                if(dayStat && dayStat.progress >= 6) {
-                    let accuracy = dayStat.accuracy || 0;
-                    let color = accuracy >= 80 ? "var(--neon-green)" : "var(--neon-orange)";
-                    html += `
-                        <div style="margin-bottom: 18px;">
-                            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                                <span>${dayLabel} <strong style="color:var(--neon-green);">6/6 세션 완료</strong></span>
-                                <span style="color:${color}; font-weight:bold; font-size:0.9rem;">${isReview ? '복습 완료' : `정답률 ${accuracy}%`}</span>
-                            </div>
-                            <div class="report-bar-bg"><div class="report-bar-fill" style="width: 100%; background:${color}; box-shadow: 0 0 5px ${color};"></div></div>
-                        </div>
-                    `;
-                } 
-                else if (dayStat && dayStat.progress > 0 && !isReview) {
-                    let progPercent = Math.floor((dayStat.progress / 6) * 100);
-                    html += `
-                        <div style="margin-bottom: 18px;">
-                            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                                <span>${dayLabel} <strong style="color:var(--neon-blue);">${dayStat.progress}/6 진행 중</strong></span>
-                                <span style="color:#aaa; font-size:0.85rem;">진행률 ${progPercent}%</span>
-                            </div>
-                            <div class="report-bar-bg"><div class="report-bar-fill" style="width: ${progPercent}%; background:var(--neon-blue); box-shadow: 0 0 5px var(--neon-blue);"></div></div>
-                        </div>
-                    `;
-                } 
-                else {
-                    html += `
-                        <div style="margin-bottom: 18px; opacity: 0.4;">
-                            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                                <span>${dayLabel} <strong style="color:#666;">미진행</strong></span>
-                                <span>-</span>
-                            </div>
-                            <div class="report-bar-bg"></div>
-                        </div>
-                    `;
-                }
-            }
-            listContainer.innerHTML = html;
-            document.getElementById('report-modal').style.display = 'flex';
-        }
-
-        function unlockDay(btn, day) {
-            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
-            let unlockedExtra = parseInt(localStorage.getItem(`trigger_unlocked_extra_today_${currentLevel}`)) || 0;
-            let currentUnlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
-            
-            if (day > currentUnlockedDay + 1) {
-                alert("🚨 진도를 건너뛰고 열 수는 없습니다. 순서대로 완료해 주세요.");
-                return;
-            }
-            
-            if (unlockedExtra >= 1) {
-                alert("🚨 장기 기억 보호를 위해 추가 진도는 하루에 1개 Day만 더 열 수 있습니다.\n내일 다시 시도해 주세요!");
-                return;
-            }
-
-            if(confirm(`Day ${day}의 잠금을 해제하시겠습니까? (하루 1회 제한)`)) {
-                localStorage.setItem(`trigger_unlocked_day_${currentLevel}`, day);
-                localStorage.setItem(`trigger_unlocked_extra_today_${currentLevel}`, unlockedExtra + 1);
-                renderRoutine();
-                updateDashboardUI(); 
-            }
         }
 
         function updateDashboardUI() {
@@ -600,149 +432,286 @@
             renderRoutine();
         }
 
-        async function handleLogin() {
-            const name = document.getElementById('user-name').value.trim();
-            const phone = document.getElementById('user-phone').value.trim();
-            const agree = document.getElementById('agree-privacy').checked;
+        function renderRoutine() {
+            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
+            let unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
+            const container = document.getElementById('routine-list-container');
+            if (!container) return;
+            
+            let html = '';
+            for(let i=1; i<=TOTAL_DAYS; i++) {
+                let isReview = (i % 7 === 6 || i % 7 === 0);
+                let dayLabel = isReview ? `Day ${i} (복습)` : `Day ${i}`;
+                
+                if (i < unlockedDay) {
+                    html += `<li class="routine-item"><span class="day-label">${dayLabel}</span><button class="routine-action-btn" style="border-color:#444; color:#aaa;" onclick="startDayStudy(${i})">완료</button></li>`;
+                } else if (i === unlockedDay) {
+                    html += `<li class="routine-item"><span class="day-label">${dayLabel}</span><button class="routine-action-btn active" onclick="startDayStudy(${i})">시작</button></li>`;
+                } else {
+                    html += `<li class="routine-item"><span class="day-label">${dayLabel}</span><button class="routine-action-btn" onclick="unlockDay(this, ${i})">🔒 잠김</button></li>`;
+                }
+            }
+            container.innerHTML = html;
 
-            if (!name || !phone || !agree) return alert("필수 항목을 확인해주세요.");
-
-            localStorage.setItem('trigger_name', name);
-            localStorage.setItem('trigger_phone', phone);
-            checkLoginStatus(); 
-
-            fetch(GOOGLE_SHEET_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({ 
-                    "date": new Date().toLocaleString(),
-                    "name": name, 
-                    "phone": phone,
-                    "level": "미정(가입완료)" 
-                })
-            }).catch(e => console.log("전송 지연 무시"));
+            const pdfBtn = document.getElementById('pdf-btn');
+            if (unlockedDay > 7) {
+                pdfBtn.disabled = false;
+                pdfBtn.innerText = "📥 누적 단어장 다운로드 (인쇄/PDF)";
+                pdfBtn.style.background = "transparent";
+                pdfBtn.style.color = "var(--neon-green)";
+                pdfBtn.style.borderColor = "var(--neon-green)";
+                pdfBtn.style.boxShadow = "var(--glow-green)";
+                pdfBtn.style.cursor = "pointer";
+                pdfBtn.onclick = generatePDF;
+            } else {
+                pdfBtn.disabled = true;
+                pdfBtn.innerText = "다운로드 잠김";
+                pdfBtn.style.background = "#333";
+                pdfBtn.style.color = "#666";
+                pdfBtn.style.borderColor = "#555";
+                pdfBtn.style.boxShadow = "none";
+                pdfBtn.onclick = null;
+            }
         }
 
-        function selectLevel(level) {
-            localStorage.setItem('trigger_level', level);
+        function unlockDay(btn, day) {
+            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
+            let unlockedExtra = parseInt(localStorage.getItem(`trigger_unlocked_extra_today_${currentLevel}`)) || 0;
+            let currentUnlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
             
-            document.getElementById('btn-middle').className = "level-btn";
-            document.getElementById('btn-high').className = "level-btn";
-            document.getElementById('btn-' + level).className = "level-btn active";
-
-            const name = localStorage.getItem('trigger_name');
-            const phone = localStorage.getItem('trigger_phone');
-            const levelText = (level === 'high') ? '고등' : '중등';
-
-            if (name && phone) {
-                const now = new Date();
-                const shortDate = (now.getMonth() + 1) + "/" + now.getDate() + " " + now.getHours() + ":" + now.getMinutes();
-
-                fetch(GOOGLE_SHEET_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify({ 
-                        "date": shortDate, 
-                        "name": name, 
-                        "phone": phone, 
-                        "level": levelText 
-                    })
-                });
+            if (day > currentUnlockedDay + 1) {
+                alert("🚨 진도를 건너뛰고 열 수는 없습니다. 순서대로 완료해 주세요.");
+                return;
             }
+            if (unlockedExtra >= 1) {
+                alert("🚨 장기 기억 보호를 위해 추가 진도는 하루에 1개 Day만 더 열 수 있습니다.\n내일 다시 시도해 주세요!");
+                return;
+            }
+            if(confirm(`Day ${day}의 잠금을 해제하시겠습니까? (하루 1회 제한)`)) {
+                localStorage.setItem(`trigger_unlocked_day_${currentLevel}`, day);
+                localStorage.setItem(`trigger_unlocked_extra_today_${currentLevel}`, unlockedExtra + 1);
+                renderRoutine();
+                updateDashboardUI(); 
+            }
+        }
 
-            if (typeof wordsData !== 'undefined') {
-                let totalCount = 0;
-                for(let l of ['middle', 'high']) {
-                    const lData = wordsData[l] || {};
-                    const levelUnlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${l}`)) || 1;
-                    for(let i = 1; i <= levelUnlockedDay; i++) {
-                        if (i % 7 === 6 || i % 7 === 0) continue;
-                        totalCount += (lData[i] || []).length;
+        // --- 4. 기타 유틸 함수들 (단어장, 리포트, PDF, 공유, 관리자 등) ---
+        let logoClickCount = 0;
+        function enableAdminMode() {
+            logoClickCount++;
+            if (logoClickCount >= 5) {
+                document.getElementById('admin-menu').style.display = 'flex';
+                alert("🛠️ 관리자 모드 활성화!");
+                logoClickCount = 0;
+            }
+            setTimeout(() => { logoClickCount = 0; }, 3000);
+        }
+        function jumpToSession(sessionNum) {
+            const lvl = localStorage.getItem('trigger_level') || 'middle';
+            localStorage.setItem('trigger_session_' + lvl, sessionNum);
+            localStorage.removeItem('blackt_cooldown');
+            alert(`🚀 세션 ${sessionNum}으로 이동했습니다! [학습 시작하기]를 눌러보세요.`);
+            location.reload();
+        }
+
+        function generatePDF() {
+            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
+            const unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
+            const levelData = wordsData[currentLevel] || {};
+            
+            let printHtml = `<h1 style="text-align:center;">Trigger Voca 누적 단어장 (${currentLevel === 'middle' ? '중등' : '고등'})</h1>`;
+            
+            for(let i=1; i < unlockedDay; i++) {
+                if (i % 7 === 6 || i % 7 === 0) continue; 
+                const dayWords = levelData[i] || [];
+                if(dayWords.length > 0) {
+                    printHtml += `<div class="print-day" style="font-size:1.2rem; font-weight:bold; margin-top:20px; border-bottom:2px solid #000;">Day ${i}</div>`;
+                    dayWords.forEach(w => {
+                        const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
+                        printHtml += `<div style="margin:5px 0;"><strong>${w.word}</strong> <span style="color:#666;">${w.ipa}</span> - ${safeMeanings}</div>`;
+                    });
+                }
+            }
+            
+            const printArea = document.getElementById('print-area');
+            if(printArea) {
+                printArea.innerHTML = printHtml;
+                printArea.style.display = 'block'; 
+                window.print(); 
+                printArea.style.display = 'none'; 
+            } else {
+                alert("인쇄 기능이 준비되지 않았습니다.");
+            }
+        }
+
+        function showWrongWords() {
+            let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+            let html = '';
+            let totalCount = 0;
+
+            const renderLevelWrongs = (levelKey, levelName) => {
+                const levelWrongs = wrongWords.filter(w => w.level === levelKey);
+                if (levelWrongs.length === 0) return '';
+                totalCount += levelWrongs.length;
+                let levelHtml = `<div style="margin-top:20px; margin-bottom:10px; font-size:1.2rem; font-weight:bold; color:var(--neon-green); border-bottom:2px solid var(--neon-green); padding-bottom:5px; text-align:left;">[${levelName}]</div>`;
+                levelHtml += levelWrongs.map(w => {
+                    const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
+                    return `<div style="padding:10px 0; border-bottom:1px solid #333;"><strong>${w.word}</strong> <span style="color:#888; font-size:0.9rem;">${safeMeanings}</span></div>`;
+                }).join('');
+                return levelHtml;
+            };
+
+            html += renderLevelWrongs('middle', '📚 중등 단어');
+            html += renderLevelWrongs('high', '🎓 고등 단어');
+
+            const listContainer = document.getElementById('wrong-list');
+            if(totalCount === 0) {
+                listContainer.innerHTML = "<p style='text-align:center; color:#888; margin-top:20px; font-size: 14px;'>저장된 오답이나 별표 단어가 없습니다.</p>";
+            } else {
+                listContainer.innerHTML = html;
+            }
+            document.getElementById('wrong-word-count').innerText = totalCount + " 단어";
+            document.getElementById('wrong-modal').style.display = 'flex';
+        }
+
+        function showAllWords() {
+            let learnedWordsHtml = '';
+            let totalCount = 0;
+
+            const renderLevelWords = (levelKey, levelName) => {
+                const levelData = wordsData[levelKey] || {};
+                const levelUnlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${levelKey}`)) || 1;
+                let levelHtml = '';
+                let levelCount = 0;
+                
+                for(let i = 1; i <= levelUnlockedDay; i++) {
+                    if (i % 7 === 6 || i % 7 === 0) continue; 
+                    const dayWords = levelData[i] || [];
+                    if(dayWords.length > 0) {
+                        dayWords.forEach(w => {
+                            levelCount++;
+                            const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
+                            levelHtml += `<div style="padding:12px 0; border-bottom:1px solid #333;">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                                    <strong style="font-size:1.1rem;">${w.word}</strong>
+                                    <span style="color:var(--neon-blue); font-size:0.8rem; border:1px solid var(--neon-blue); border-radius:10px; padding:2px 8px;">Day ${i}</span>
+                                </div>
+                                <span style="color:#aaa; font-size:0.85rem;">${w.ipa}</span><br>
+                                <span style="color:#888; font-size:0.95rem; display:inline-block; margin-top:3px;">${safeMeanings}</span>
+                            </div>`;
+                        });
                     }
                 }
-                document.getElementById('total-word-count').innerText = totalCount + " 단어";
-                
-                const levelData = wordsData[level] || {};
-                const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${level}`)) || 1;
-                const todayCount = (levelData[currentDay] || []).length;
-                document.getElementById('target-count-display').innerText = todayCount + "개";
-            }
-            updateDashboardUI();
-        }
-    
-    
-        function checkLoginStatus() {
-            const savedName = localStorage.getItem('trigger_name');
-            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
-            const currentSession = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`)) || 1;
-            const modal = document.getElementById('login-modal');
-            const welcomeMsg = document.getElementById('welcome-msg');
+                if (levelCount > 0) {
+                    totalCount += levelCount;
+                    return `<div style="margin-top:20px; margin-bottom:10px; font-size:1.2rem; font-weight:bold; color:var(--neon-orange); border-bottom:2px solid var(--neon-orange); padding-bottom:5px; text-align:left;">[${levelName}]</div>` + levelHtml;
+                }
+                return '';
+            };
 
-            if (savedName) {
-                modal.style.display = 'none';
-                welcomeMsg.innerText = currentSession > 6 
-                    ? `환영합니다, ${savedName}님! (오늘 목표 완료!)` 
-                    : `환영합니다, ${savedName}님!`;
+            learnedWordsHtml += renderLevelWords('middle', '📚 중등 단어');
+            learnedWordsHtml += renderLevelWords('high', '🎓 고등 단어');
+            
+            const listContainer = document.getElementById('all-words-list');
+            if(totalCount === 0) {
+                listContainer.innerHTML = "<p style='text-align:center; color:#888; margin-top:20px; font-size: 14px;'>아직 학습을 시작한 단어가 없습니다.</p>";
             } else {
-                modal.style.display = 'flex';
+                listContainer.innerHTML = learnedWordsHtml;
             }
-            updateDashboardUI();
+            document.getElementById('total-word-count').innerText = totalCount + " 단어";
+            document.getElementById('all-words-modal').style.display = 'flex';
         }
 
-        function selectLevel(level) {
-    localStorage.setItem('trigger_level', level);
-    
-    // UI 버튼 활성화
-    document.getElementById('btn-middle').className = "level-btn";
-    document.getElementById('btn-high').className = "level-btn";
-    document.getElementById('btn-' + level).className = "level-btn active";
+        function showWeeklyReport() {
+            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
+            const stats = JSON.parse(localStorage.getItem(`trigger_stats_${currentLevel}`) || '{}');
+            const listContainer = document.getElementById('report-list');
+            let html = '';
+            for(let i=1; i<=TOTAL_DAYS; i++) {
+                let isReview = (i % 7 === 6 || i % 7 === 0);
+                let dayLabel = isReview ? `Day ${i} (복습)` : `Day ${i}`;
+                let dayStat = stats[i];
+                if (typeof dayStat === 'number') { dayStat = { progress: 6, accuracy: dayStat }; }
 
-    // 🚀 [데이터 전송] 가로 적재를 위한 짧은 날짜 포맷 생성
-    const name = localStorage.getItem('trigger_name');
-    const phone = localStorage.getItem('trigger_phone');
-    const levelText = (level === 'high') ? '고등' : '중등';
+                if(dayStat && dayStat.progress >= 6) {
+                    let accuracy = dayStat.accuracy || 0;
+                    let color = accuracy >= 80 ? "var(--neon-green)" : "var(--neon-orange)";
+                    html += `<div style="margin-bottom: 18px;">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                                    <span>${dayLabel} <strong style="color:var(--neon-green);">6/6 세션 완료</strong></span>
+                                    <span style="color:${color}; font-weight:bold; font-size:0.9rem;">${isReview ? '복습 완료' : `정답률 ${accuracy}%`}</span>
+                                </div>
+                                <div class="report-bar-bg"><div class="report-bar-fill" style="width: 100%; background:${color}; box-shadow: 0 0 5px ${color};"></div></div>
+                            </div>`;
+                } else if (dayStat && dayStat.progress > 0 && !isReview) {
+                    let progPercent = Math.floor((dayStat.progress / 6) * 100);
+                    html += `<div style="margin-bottom: 18px;">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                                    <span>${dayLabel} <strong style="color:var(--neon-blue);">${dayStat.progress}/6 진행 중</strong></span>
+                                    <span style="color:#aaa; font-size:0.85rem;">진행률 ${progPercent}%</span>
+                                </div>
+                                <div class="report-bar-bg"><div class="report-bar-fill" style="width: ${progPercent}%; background:var(--neon-blue); box-shadow: 0 0 5px var(--neon-blue);"></div></div>
+                            </div>`;
+                } else {
+                    html += `<div style="margin-bottom: 18px; opacity: 0.4;">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                                    <span>${dayLabel} <strong style="color:#666;">미진행</strong></span><span>-</span>
+                                </div>
+                                <div class="report-bar-bg"></div>
+                            </div>`;
+                }
+            }
+            listContainer.innerHTML = html;
+            document.getElementById('report-modal').style.display = 'flex';
+        }
 
-    if (name && phone) {
-        const now = new Date();
-        const shortDate = (now.getMonth() + 1) + "/" + now.getDate() + " " + now.getHours() + ":" + now.getMinutes();
+        function shareTriggerApp() {
+            const shareTitle = "Trigger Voca - 뇌과학 영단어장";
+            const shareText = "단어 암기 3시간 걸리던 거, 30분 컷! 뇌과학 6세션 루틴 앱 '트리거 보카'를 무료로 시작해 보세요.";
+            const shareUrl = window.location.origin;
 
-    // 🚀 영어 이름표(date, name, phone, level)로 전송
-    const now = new Date();
-            const shortDate = (now.getMonth() + 1) + "/" + now.getDate() + " " + now.getHours() + ":" + now.getMinutes();
-
-            fetch(GOOGLE_SHEET_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({ 
-                    "date": shortDate, 
-                    "name": name, 
-                    "phone": phone, 
-                    "level": levelText 
-                })
-            });
-    }
-
-    // 단어 개수 계산 로직 (기존 유지)
-    if (typeof wordsData !== 'undefined') {
-        let totalCount = 0;
-        for(let l of ['middle', 'high']) {
-            const lData = wordsData[l] || {};
-            const levelUnlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${l}`)) || 1;
-            for(let i = 1; i <= levelUnlockedDay; i++) {
-                if (i % 7 === 6 || i % 7 === 0) continue;
-                totalCount += (lData[i] || []).length;
+            if (navigator.share) {
+                navigator.share({ title: shareTitle, text: shareText, url: shareUrl }).catch(console.error);
+            } else {
+                navigator.clipboard.writeText(shareUrl).then(() => { alert("✅ 링크가 복사되었습니다!"); }).catch(() => { alert("링크 복사에 실패했습니다."); });
             }
         }
-        document.getElementById('total-word-count').innerText = totalCount + " 단어";
-        
-        const levelData = wordsData[level] || {};
-        const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${level}`)) || 1;
-        const todayCount = (levelData[currentDay] || []).length;
-        document.getElementById('target-count-display').innerText = todayCount + "개";
-    }
-    updateDashboardUI();
-}
 
+        function handleGradeChange() {
+            const grade = document.getElementById('exam-grade').value;
+            const typeSelect = document.getElementById('exam-type');
+            if (grade.startsWith('중')) {
+                typeSelect.value = '내신';
+                for (let i = 0; i < typeSelect.options.length; i++) {
+                    if (typeSelect.options[i].value === '모의고사') { typeSelect.options[i].style.display = 'none'; typeSelect.options[i].disabled = true; }
+                }
+            } else {
+                for (let i = 0; i < typeSelect.options.length; i++) {
+                    if (typeSelect.options[i].value === '모의고사') { typeSelect.options[i].style.display = 'block'; typeSelect.options[i].disabled = false; }
+                }
+            }
+            updateExamPeriod();
+        }
+
+        function updateExamPeriod() {
+            const type = document.getElementById('exam-type').value;
+            const periodSelect = document.getElementById('exam-period');
+            periodSelect.innerHTML = ''; 
+            if (type === '내신') {
+                ['1학기 중간고사', '1학기 기말고사', '2학기 중간고사', '2학기 기말고사'].forEach(p => periodSelect.add(new Option(p, p)));
+            } else if (type === '모의고사') {
+                ['3월 모의고사', '6월 모의고사', '9월 모의고사', '11월 모의고사', '수능'].forEach(p => periodSelect.add(new Option(p, p)));
+            }
+        }
+
+        function startCameraAnalysis() {
+            const grade = document.getElementById('exam-grade').value;
+            const type = document.getElementById('exam-type').value;
+            const period = document.getElementById('exam-period').value;
+            alert(`[${grade} ${type} - ${period}] 분석을 위한 카메라를 실행합니다.\n(다음 단계에서 OCR 모듈 연동 예정)`);
+        }
+
+        // --- 5. 앱 초기화 (로고 사라짐 해결) ---
         window.addEventListener('load', () => {
             const splash = document.getElementById('splash-screen');
             if (splash) {
@@ -758,15 +727,14 @@
             }
 
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./service-worker.js')
-                    .then(reg => console.log('서비스 워커 등록 성공!', reg))
-                    .catch(err => console.log('서비스 워커 등록 실패:', err));
+                navigator.serviceWorker.register('./service-worker.js').catch(err => console.log('SW fail:', err));
             }
 
             checkLoginStatus();
             selectLevel(localStorage.getItem('trigger_level') || 'middle');
         });
 
+        // --- PWA 설치 ---
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -777,86 +745,17 @@
                 installBtn.addEventListener('click', () => {
                     installBtn.style.display = 'none';
                     deferredPrompt.prompt();
-                    deferredPrompt.userChoice.then((choiceResult) => {
-                        deferredPrompt = null;
-                    });
+                    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
                 });
             }
         });
-
         window.addEventListener('appinstalled', () => {
             const installBtn = document.getElementById('install-app-btn');
             if (installBtn) installBtn.style.display = 'none';
         });
-
         if (window.matchMedia('(display-mode: standalone)').matches) {
             const installBtn = document.getElementById('install-app-btn');
             if (installBtn) installBtn.style.display = 'none';
-        }
-        
-        function shareTriggerApp() {
-            const shareTitle = "Trigger Voca - 뇌과학 영단어장";
-            const shareText = "단어 암기 3시간 걸리던 거, 30분 컷! 뇌과학 6세션 루틴 앱 '트리거 보카'를 무료로 시작해 보세요.";
-            const shareUrl = window.location.origin;
-
-            if (navigator.share) {
-                navigator.share({
-                    title: shareTitle,
-                    text: shareText,
-                    url: shareUrl
-                }).catch(console.error);
-            } else {
-                navigator.clipboard.writeText(shareUrl).then(() => {
-                    alert("✅ 링크가 복사되었습니다! 카카오톡이나 게시판에 붙여넣기 해주세요.");
-                }).catch(() => {
-                    alert("링크 복사에 실패했습니다. 주소창의 링크를 직접 복사해 주세요.");
-                });
-            }
-        }
-
-        function handleGradeChange() {
-            const grade = document.getElementById('exam-grade').value;
-            const typeSelect = document.getElementById('exam-type');
-
-            if (grade.startsWith('중')) {
-                typeSelect.value = '내신';
-                for (let i = 0; i < typeSelect.options.length; i++) {
-                    if (typeSelect.options[i].value === '모의고사') {
-                        typeSelect.options[i].style.display = 'none';
-                        typeSelect.options[i].disabled = true;
-                    }
-                }
-            } else {
-                for (let i = 0; i < typeSelect.options.length; i++) {
-                    if (typeSelect.options[i].value === '모의고사') {
-                        typeSelect.options[i].style.display = 'block';
-                        typeSelect.options[i].disabled = false;
-                    }
-                }
-            }
-            updateExamPeriod();
-        }
-
-        function updateExamPeriod() {
-            const type = document.getElementById('exam-type').value;
-            const periodSelect = document.getElementById('exam-period');
-            periodSelect.innerHTML = ''; 
-
-            if (type === '내신') {
-                const periods = ['1학기 중간고사', '1학기 기말고사', '2학기 중간고사', '2학기 기말고사'];
-                periods.forEach(p => periodSelect.add(new Option(p, p)));
-            } else if (type === '모의고사') {
-                const periods = ['3월 모의고사', '6월 모의고사', '9월 모의고사', '11월 모의고사', '수능'];
-                periods.forEach(p => periodSelect.add(new Option(p, p)));
-            }
-        }
-
-        function startCameraAnalysis() {
-            const grade = document.getElementById('exam-grade').value;
-            const type = document.getElementById('exam-type').value;
-            const period = document.getElementById('exam-period').value;
-            
-            alert(`[${grade} ${type} - ${period}] 분석을 위한 카메라를 실행합니다.\n(다음 단계에서 OCR 모듈 연동 예정)`);
         }
     </script>
 </body>
