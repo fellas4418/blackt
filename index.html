@@ -601,6 +601,7 @@
         }
 
         // 🚀 1. 가입 함수 (초고속 입장 + 데이터 순서 고정)
+        // 🚀 1. 가입 함수 (초고속 입장 + 영어 이름표 고정)
         async function handleLogin() {
             const name = document.getElementById('user-name').value.trim();
             const phone = document.getElementById('user-phone').value.trim();
@@ -613,8 +614,8 @@
             localStorage.setItem('trigger_phone', phone);
             checkLoginStatus(); 
 
-           // 🚀 영어 이름표(date, name, phone, level)로 전송
-           fetch(GOOGLE_SHEET_URL, {
+            // 백그라운드 전송
+            fetch(GOOGLE_SHEET_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 body: JSON.stringify({ 
@@ -623,13 +624,14 @@
                     "phone": phone,
                     "level": "미정(가입완료)" 
                 })
-            });
+            }).catch(e => console.log("전송 지연 무시"));
         }
 
-        // 🚀 2. 수준 선택 함수 (가로 적재 전용)
+        // 🚀 2. 수준 선택 함수 (가로 적재 전용 + 중복 제거 완료)
         function selectLevel(level) {
             localStorage.setItem('trigger_level', level);
             
+            // UI 버튼 활성화
             document.getElementById('btn-middle').className = "level-btn";
             document.getElementById('btn-high').className = "level-btn";
             document.getElementById('btn-' + level).className = "level-btn active";
