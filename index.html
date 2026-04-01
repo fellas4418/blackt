@@ -164,7 +164,7 @@
             </div>
 
             <div class="card level-section">
-                <div class="level-title" style="color: #888; font-size: 0.9rem; margin-bottom: 15px; font-weight: bold;">학습 레벨 선택</div>
+                <div class="level-title" style="color: #888; font-size: 1.2rem; margin-bottom: 20px; font-weight: bold;">학습 레벨 선택</div>
                 <div class="level-buttons">
                     <button class="level-btn active" id="btn-middle" onclick="selectLevel('middle')">📚 중등단어</button>
                     <button class="level-btn" id="btn-high" onclick="selectLevel('high')">🎓 고등단어</button>
@@ -172,8 +172,8 @@
             </div>
 
             <div class="card" style="padding: 25px 20px; border: 1px solid var(--neon-orange); background: rgba(255, 153, 0, 0.05); text-align: center;">
-                <div style="font-size: 1.2rem; font-weight: bold; color: var(--neon-orange); margin-bottom: 5px;">오늘의 학습</div>
-                <div style="color: #aaa; font-size: 0.9rem; margin-bottom: 20px;">목표 단어: <span id="target-count-display" style="color: #fff; font-weight: bold;">0개</span></div>
+                <div style="font-size: 1.4rem; font-weight: bold; color: var(--neon-orange); margin-bottom: 5px;">오늘의 학습</div>
+                <div style="color: #aaa; font-size: 1.2rem; margin-bottom: 20px;">목표 단어: <span id="target-count-display" style="color: #fff; font-weight: bold;">0개</span></div>
                 <button class="start-btn" id="start-btn-main">학습 시작하기</button>
             </div>
 
@@ -291,9 +291,9 @@
             element.classList.add('active');
             
             const headerTitle = document.getElementById('main-header-title');
-            if (tabId === 'voca') { headerTitle.innerHTML = 'Trigger<br>Voca'; } 
-            else if (tabId === 'analysis') { headerTitle.innerHTML = 'Trigger AI<br>분석'; } 
-            else if (tabId === 'grammar') { headerTitle.innerHTML = '트리거 초단기<br>영문법'; }
+            if (tabId === 'voca') { headerTitle.innerHTML = 'Trigger<br>보카'; } 
+            else if (tabId === 'analysis') { headerTitle.innerHTML = 'Trigger<br>AI 시험 분석'; } 
+            else if (tabId === 'grammar') { headerTitle.innerHTML = 'Trigger<br>3시간 영문법'; }
             window.scrollTo(0,0); 
             if(tabId === 'analysis') handleGradeChange(); 
         }
