@@ -281,7 +281,7 @@
 
         const TOTAL_DAYS = 60; 
         const todayStr = new Date().toLocaleDateString();
-        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxX-EHudQIZNomwGzA_Lzm9Q7in90euvAHtAXpF-ykoj1PExXl7whsXqTKDaiba5RPU/exec";
+        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbw5M7Nm9_JDzAOa9FAZKWTK7Fv-qYBSZlDOGPPFG9LX0EPvJy2rQ2ZE8nGUIy_VVgWy/exec";
         
         if (localStorage.getItem('trigger_date') !== todayStr) {
             localStorage.setItem('trigger_date', todayStr);
@@ -600,6 +600,7 @@
             renderRoutine();
         }
 
+        // 🚀 1. 가입 함수 (초고속 입장 + 데이터 순서 고정)
         async function handleLogin() {
             const name = document.getElementById('user-name').value.trim();
             const phone = document.getElementById('user-phone').value.trim();
@@ -607,26 +608,72 @@
 
             if (!name || !phone || !agree) return alert("필수 항목을 확인해주세요.");
 
-            // 1. 로컬에 즉시 저장 (0.1초 입장 비결)
+            // 즉시 저장 및 화면 전환
             localStorage.setItem('trigger_name', name);
             localStorage.setItem('trigger_phone', phone);
-            
-            // 2. 화면 즉시 전환
             checkLoginStatus(); 
 
-            // 3. 시트 전송은 뒤에서 조용히 (await 없이)
+            // 백그라운드 전송 (이름표를 시트와 맞춤)
             fetch(GOOGLE_SHEET_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 body: JSON.stringify({ 
-                    "날짜": new Date().toLocaleString(),
-                    "이름": name, 
-                    "전화번호": phone,
-                    "수준": "미정(가입완료)" 
+                    "date": new Date().toLocaleString(),
+                    "name": name, 
+                    "phone": phone,
+                    "level": "미정(가입완료)" 
                 })
             }).catch(e => console.log("전송 지연 무시"));
+        }
+
+        // 🚀 2. 수준 선택 함수 (가로 적재 전용)
+        function selectLevel(level) {
+            localStorage.setItem('trigger_level', level);
             
-        } // 👈 여기서 함수가 딱 끝나야 합니다! (finally는 삭제)
+            document.getElementById('btn-middle').className = "level-btn";
+            document.getElementById('btn-high').className = "level-btn";
+            document.getElementById('btn-' + level).className = "level-btn active";
+
+            const name = localStorage.getItem('trigger_name');
+            const phone = localStorage.getItem('trigger_phone');
+            const levelText = (level === 'high') ? '고등' : '중등';
+
+            if (name && phone) {
+                const now = new Date();
+                const shortDate = (now.getMonth() + 1) + "/" + now.getDate() + " " + now.getHours() + ":" + now.getMinutes();
+
+                fetch(GOOGLE_SHEET_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({ 
+                        "date": shortDate, 
+                        "name": name, 
+                        "phone": phone, 
+                        "level": levelText 
+                    })
+                });
+            }
+
+            // 단어 개수 계산 로직
+            if (typeof wordsData !== 'undefined') {
+                let totalCount = 0;
+                for(let l of ['middle', 'high']) {
+                    const lData = wordsData[l] || {};
+                    const levelUnlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${l}`)) || 1;
+                    for(let i = 1; i <= levelUnlockedDay; i++) {
+                        if (i % 7 === 6 || i % 7 === 0) continue;
+                        totalCount += (lData[i] || []).length;
+                    }
+                }
+                document.getElementById('total-word-count').innerText = totalCount + " 단어";
+                
+                const levelData = wordsData[level] || {};
+                const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${level}`)) || 1;
+                const todayCount = (levelData[currentDay] || []).length;
+                document.getElementById('target-count-display').innerText = todayCount + "개";
+            }
+            updateDashboardUI();
+        }
     
     
         function checkLoginStatus() {
