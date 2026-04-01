@@ -19,17 +19,17 @@
             --glow-blue: 0 0 8px rgba(0,243,255,0.4);
             --glow-green: 0 0 8px rgba(57, 255, 20, 0.4);
             --glow-orange: 0 0 10px rgba(255,153,0,0.5);
-            --glow-text: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px var(--neon-blue);
+            /* 🚀 원장님이 가장 맘에 들어 하셨던 은은한 네온 굵기로 복구 */
+            --glow-text: 0 0 5px var(--neon-blue);
         }
 
         body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: 'Pretendard', sans-serif; -webkit-font-smoothing: antialiased; padding-bottom: 90px; }
 
-        /* === 모달(팝업) 및 공통 입력폼 스타일 === */
         #login-modal, #wrong-modal, #all-words-modal, #report-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 3000; transition: opacity 0.5s; padding: 20px; box-sizing: border-box; }
 
         .login-card { background: var(--card-bg-color); border: 1px solid rgba(0, 243, 255, 0.3); box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); border-radius: 20px; padding: 25px; width: 90%; max-width: 400px; text-align: center; max-height: 80vh; overflow-y: auto; box-sizing: border-box; }
         
-        .login-title { font-size: 1.8rem; font-weight: bold; margin-bottom: 25px; color: #fff; text-shadow: 0 0 3px var(--neon-blue) !important; }
+        .login-title { font-size: 1.8rem; font-weight: bold; margin-bottom: 25px; color: #fff; text-shadow: var(--glow-text); }
 
         .input-group { margin-bottom: 18px; text-align: left; }
         .input-label { font-size: 0.85rem; color: #777; margin-bottom: 6px; display: block; }
@@ -39,14 +39,13 @@
         .login-btn { width: 100%; padding: 16px; background: transparent; border: 1.5px solid var(--neon-green); color: #fff; font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer; box-shadow: var(--glow-green); margin-top: 10px; transition: 0.2s;}
         .login-btn:active { transform: scale(0.98); background: rgba(57, 255, 20, 0.1); }
 
-        #welcome-msg { text-align: center; color: var(--neon-blue); font-size: 1.1rem; margin-bottom: 6px; text-shadow: 0 0 3px var(--neon-blue); }
+        #welcome-msg { text-align: center; color: var(--neon-blue); font-size: 1.1rem; margin-bottom: 6px; text-shadow: var(--glow-text); }
 
-        /* === 대시보드 (index.html) 스타일 === */
         .dashboard-bg { padding: 20px; display: flex; justify-content: center; }
         .dashboard-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 25px; margin: 0 auto; padding-bottom: 110px; position: relative; }
 
-        /* 🚀 원래 로고 크기 및 그림자 복구 */
-        .logo { font-size: 2.5rem; font-weight: 800; text-align: center; margin-bottom: 10px; text-shadow: var(--glow-text); cursor: default; }
+        /* 🚀 로고 원상 복구 및 중앙 정렬 유지 */
+        .logo { font-size: 2.5rem; font-weight: 800; text-align: center; margin-bottom: 10px; margin-top: 10px; text-shadow: var(--glow-text); cursor: default; }
         
         .card { background-color: var(--card-bg-color); border: 1px solid #222; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
         .clickable-card { cursor: pointer; transition: 0.2s; }
@@ -61,8 +60,7 @@
         .level-btn { flex: 1; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; padding: 14px; color: #666; font-weight: 600; cursor: pointer; transition: 0.3s; }
         .level-btn.active { border-color: var(--neon-blue); color: #fff; box-shadow: 0 0 10px rgba(0,243,255,0.2); background: rgba(0,243,255,0.05); }
 
-        /* 오늘의 학습 - 이중 박스 제거용 버튼 스타일 */
-        .start-btn { width: 100%; background: rgba(255,153,0,0.1); border: 1px solid var(--neon-orange); color: #fff; font-size: 1.2rem; font-weight: 700; padding: 20px; border-radius: 16px; cursor: pointer; margin-top: 15px; box-shadow: var(--glow-orange); transition: 0.2s; }
+        .start-btn { width: 100%; background: rgba(255,153,0,0.1); border: 1px solid var(--neon-orange); color: #fff; font-size: 1.2rem; font-weight: 700; padding: 18px; border-radius: 16px; cursor: pointer; margin-top: 10px; box-shadow: var(--glow-orange); transition: 0.2s; }
         .start-btn:active { transform: scale(0.98); background: rgba(255,153,0,0.2); }
 
         .info-row { display: flex; gap: 15px; margin-bottom: 10px; }
@@ -94,24 +92,6 @@
         .report-bar-fill { height: 100%; background: var(--neon-green); width: 0%; border-radius: 6px; box-shadow: 0 0 5px var(--neon-green); transition: width 0.5s; }
 
         @keyframes pulse-blue { 0% { box-shadow: 0 0 5px rgba(0, 243, 255, 0.2); } 50% { box-shadow: 0 0 15px rgba(0, 243, 255, 0.5); } 100% { box-shadow: 0 0 5px rgba(0, 243, 255, 0.2); } }
-
-        /* 🚀 훈련장(study.html) 기존 스타일 100% 원상 복구 (건드리지 않음) */
-        .study-bg { overflow: hidden; }
-        #app { width: 100vw; height: 100vh; height: 100dvh; display: flex; flex-direction: column; align-items: center; position: relative; }
-        .back-btn { position: absolute; top: 20px; left: 20px; background: transparent; border: none; color: #888; font-size: 1rem; cursor: pointer; }
-        .header { width: 90%; padding: 60px 0 20px 0; text-align: center; }
-        .progress-box { width: 100%; height: 6px; background: #222; border-radius: 10px; overflow: hidden; margin-top: 10px; }
-        #bar { height: 100%; width: 100%; background: var(--neon-orange); box-shadow: var(--glow-orange); transition: width 0.1s linear; }
-        #display { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; }
-        #target { font-size: 4rem; margin: 0; text-shadow: 0 0 15px #fff; }
-        .ipa-text { font-size: 1.2rem; color: #888; margin-top: 5px; font-weight: normal; }
-        #meanings { width: 90%; margin-top: 30px; }
-        #meanings div { font-size: 1.3rem; word-break: keep-all; line-height: 1.4; opacity: 0.1; margin: 12px 0; transition: 0.3s; text-align: center; }
-        #meanings div.active { opacity: 1; color: var(--neon-blue); text-shadow: var(--glow-blue); font-weight: bold; }
-        .choice-btn { width: 100%; padding: 18px; margin: 10px 0; background: var(--card-bg-color); border: 1px solid #333; border-radius: 15px; color: #fff; font-size: 1.2rem; cursor: pointer; }
-        .choice-btn:active { border-color: var(--neon-green); box-shadow: var(--glow-green); }
-        #main-action { width: 90%; padding: 20px; margin-bottom: 40px; border-radius: 15px; border: 2px solid var(--neon-orange); background: transparent; color: #fff; font-size: 1.3rem; font-weight: bold; box-shadow: var(--glow-orange); cursor: pointer; }
-        #main-action:disabled { border-color: #444; box-shadow: none; color: #666; cursor: not-allowed; }
     </style>
 </head>
 <body class="dashboard-bg">
@@ -158,7 +138,8 @@
     </div>
 
     <div class="dashboard-container">
-        <div style="display: flex; justify-content: flex-end; position: relative; z-index: 10; padding-right: 5px;">
+        
+        <div style="position: absolute; top: 10px; right: 5px; z-index: 100;">
             <button onclick="shareTriggerApp()" style="background: rgba(255, 255, 255, 0.08); border: 1px solid #555; border-radius: 20px; padding: 5px 12px; display: flex; align-items: center; gap: 5px; cursor: pointer;">
                 <span style="color: #fff; font-size: 0.75rem; font-weight: bold;">공유하기</span><span style="font-size: 0.8rem;">📤</span>
             </button>
@@ -190,9 +171,9 @@
                 </div>
             </div>
 
-            <div style="text-align: center; margin-bottom: 25px;">
+            <div class="card" style="padding: 25px 20px; border: 1px solid var(--neon-orange); background: rgba(255, 153, 0, 0.05); text-align: center;">
                 <div style="font-size: 1.2rem; font-weight: bold; color: var(--neon-orange); margin-bottom: 5px;">오늘의 학습</div>
-                <div style="color: #aaa; font-size: 0.9rem; margin-bottom: 15px;">목표 단어: <span id="target-count-display" style="color: #fff; font-weight: bold;">0개</span></div>
+                <div style="color: #aaa; font-size: 0.9rem; margin-bottom: 20px;">목표 단어: <span id="target-count-display" style="color: #fff; font-weight: bold;">0개</span></div>
                 <button class="start-btn" id="start-btn-main">학습 시작하기</button>
             </div>
 
@@ -404,7 +385,6 @@
 
             if (savedName) {
                 modal.style.display = 'none';
-                /* 🚀 이름 옆 중등/고등 삭제 처리 */
                 welcomeMsg.innerText = currentSession > 6 ? `환영합니다, ${savedName}님! (오늘 목표 완료!)` : `환영합니다, ${savedName}님!`;
             } else {
                 modal.style.display = 'flex';
@@ -424,7 +404,6 @@
                 welcomeMsg.innerText = session > 6 ? `환영합니다, ${name}님! (오늘 목표 완료!)` : `환영합니다, ${name}님!`;
             }
 
-            // 🚀 1. '실제 학습 완료된' 단어 개수만 합산 (1200, 2000 고정 아님)
             if (typeof wordsData !== 'undefined') {
                 const levelData = wordsData[lvl] || {};
                 let learnedTotal = 0;
@@ -438,12 +417,10 @@
                 document.getElementById('target-count-display').innerText = `${todayWords}개`;
             }
 
-            // 2. 오답 계산
             const allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
             const levelWrongs = allWrongs.filter(w => w.level === lvl);
             document.getElementById('wrong-word-count').innerText = `${levelWrongs.length} 단어`;
 
-            // 3. 상태바
             const endTime = parseInt(localStorage.getItem('blackt_cooldown')) || 0; 
             const startBtn = document.getElementById('start-btn-main');
             
@@ -611,14 +588,12 @@
             document.getElementById('wrong-modal').style.display = 'flex';
         }
 
-        // 🚀 아코디언 토글 함수
         function toggleAccordion(id) {
             const el = document.getElementById(id);
             if(el.style.display === 'none') { el.style.display = 'block'; } 
             else { el.style.display = 'none'; }
         }
 
-        // 🚀 나의 학습 단어장 아코디언(드롭다운) 로직
         function showAllWords() {
             const lvl = localStorage.getItem('trigger_level') || 'middle';
             const data = wordsData[lvl] || {};
@@ -654,7 +629,6 @@
                 listContainer.innerHTML = html;
             }
             
-            // 🚀 모달 제목 네이밍 변경 및 한 줄 출력 유지
             document.getElementById('all-words-title').innerText = `나의 학습 단어장 [${lvl === 'high' ? '고등' : '중등'}]`;
             document.getElementById('all-words-modal').style.display = 'flex';
         }
@@ -795,4 +769,3 @@
     </script>
 </body>
 </html>
-```
