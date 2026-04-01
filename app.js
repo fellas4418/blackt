@@ -1,20 +1,23 @@
-// 🚀 [글로벌 해결책] 모든 시스템 메시지의 크기를 강제로 고정하는 함수
+// 🚀 [최종 해결책] 모든 시스템 메시지의 크기를 강제로 고정하는 함수
 function showSystemMessage(text) {
     const targetEl = document.getElementById('target');
     const meaningsEl = document.getElementById('meanings');
     
     if (targetEl) {
         targetEl.innerHTML = text;
-        // 💡 중요: setProperty와 !important를 써서, 그 어떤 CSS 설정보다 우선하게 만듭니다.
-        // 여기서 16px이나 18px로 원하시는 크기를 딱 한 번만 정하면 됩니다.
+        // 💡 중요: !important를 사용하여 CSS 설정을 완전히 이기고 작게 만듭니다.
         targetEl.style.setProperty('font-size', '18px', 'important'); 
         targetEl.style.setProperty('text-shadow', 'none', 'important');
+        targetEl.style.setProperty('margin-top', '20px', 'important');
         targetEl.style.color = '#aaaaaa';
         targetEl.style.lineHeight = '1.6';
-        targetEl.style.marginTop = '20px';
+        targetEl.style.wordBreak = 'keep-all';
+        targetEl.style.fontWeight = 'normal';
     }
     if (meaningsEl) meaningsEl.innerHTML = "";
 }
+
+// 카카오 초기화
 try {
     if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
         Kakao.init('fbb1520306ffaad0a882e993109a801c'); 
@@ -33,30 +36,12 @@ let isMuted = localStorage.getItem('trigger_muted') === 'true';
 let isPaused = false;
 const currentLevel = localStorage.getItem('trigger_level') || 'middle';
 
-// 🚀 [사이즈 최적화] 시스템 메시지 출력 함수 (작고 차분하게)
-function showSystemMessage(text) {
-    const targetEl = document.getElementById('target');
-    const meaningsEl = document.getElementById('meanings');
-    
-    if (targetEl) {
-        targetEl.innerHTML = text;
-        // 시스템 메시지는 작고 네온 없이 처리
-        targetEl.style.fontSize = '2.8rem'; 
-        targetEl.style.textShadow = 'none';
-        targetEl.style.color = '#aaa';
-        targetEl.style.lineHeight = '1.5';
-        targetEl.style.wordBreak = 'keep-all';
-        targetEl.style.marginTop = '20px';
-    }
-    if (meaningsEl) meaningsEl.innerHTML = "";
-}
-
-// 🚀 [사이즈 최적화] 카운트다운 화면 (숫자만 크게, 문구는 작게)
+// 🚀 카운트다운 화면 (숫자는 크게, 문구는 작게)
 function startCountdown(message, callback) {
     let count = 3;
     const renderHtml = (c) => `
         <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:160px;">
-            <div style="font-size:0.8rem; color:#888; margin-bottom:15px; text-shadow:none;">${message}</div>
+            <div style="font-size:0.9rem; color:#888; margin-bottom:15px; text-shadow:none;">${message}</div>
             <div style="font-size:5.5rem; font-weight:900; color:var(--neon-orange); text-shadow: 0 0 20px var(--neon-orange); line-height:1;">${c}</div>
         </div>
     `;
@@ -141,7 +126,7 @@ function initApp() {
 
         const endTime = localStorage.getItem('blackt_cooldown');
         if (endTime && endTime - Date.now() > 0 && currentSession <= 6) {
-            showSystemMessage("잠시 쉬어주세요.<br>10분 뒤에 다시 열립니다.");
+            showSystemMessage("잠시 쉬어주세요.<br>곧 다시 시작할 수 있습니다.");
             setTimeout(() => { location.href = 'index.html'; }, 1800);
         } else {
             startStudy(); 
@@ -276,7 +261,6 @@ function toggleStar(wordObj) {
     localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
 }
 
-// 🚀 [사이즈 최적화] 메인 단어 학습 UI 업데이트
 function updateUI(data, isTest = false) {
     const targetEl = document.getElementById('target');
     const mBox = document.getElementById('meanings');
@@ -286,11 +270,11 @@ function updateUI(data, isTest = false) {
     const safeMeanings = Array.isArray(data.meanings) ? data.meanings : ["뜻 정보 없음"];
     const fullMeaning = safeMeanings.join(', ');
 
-    // 단어 화면에서는 다시 스타일 복구 (크고 네온 있게)
-    targetEl.style.fontSize = '3.3rem'; 
-    targetEl.style.textShadow = '0 0 15px #fff';
-    targetEl.style.color = '#fff';
-    targetEl.style.marginTop = '0px';
+    // 단어 화면 스타일 복구 (자바스크립트가 직접 조절)
+    targetEl.style.setProperty('font-size', '3.3rem', 'important'); 
+    targetEl.style.setProperty('text-shadow', '0 0 15px #fff', 'important');
+    targetEl.style.setProperty('color', '#fff', 'important');
+    targetEl.style.setProperty('margin-top', '0px', 'important');
 
     let titleHtml = `
         <div style="display:flex; flex-direction:column; align-items:center;">
@@ -306,14 +290,16 @@ function updateUI(data, isTest = false) {
     
     const starBtn = document.getElementById('star-btn');
     let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+    
+    // 🚀 [수정] 현재 레벨까지 체크하여 별표 버그 방지
     const isStarred = wrongWords.some(w => w.word === data.word && w.level === currentLevel);
+    
     if(starBtn) {
         starBtn.innerText = isStarred ? "⭐" : "☆";
         starBtn.onclick = (e) => { e.stopPropagation(); toggleStar(data); };
     }
 
     if (!isTest) {
-        // 학습 모드 뜻 크기 조정
         mBox.innerHTML = safeMeanings.map(m => `<div style="font-size:2.2rem; font-weight:bold; margin-bottom:15px;">${m}</div>`).join('');
     } else {
         if(starBtn) starBtn.style.display = 'none'; 
@@ -335,7 +321,6 @@ function updateUI(data, isTest = false) {
         }
         
         const choices = [fullMeaning, ...wrongChoices].sort(() => Math.random() - 0.5);
-        // 🚀 테스트 버튼 글자 크기 조정 (뜻이 길어질 경우 대비)
         mBox.innerHTML = choices.map(c => {
             const isCorrect = (c === fullMeaning);
             const fontSize = c.length > 15 ? '1.1rem' : '1.4rem';
@@ -407,22 +392,26 @@ function finishSession(didTest = true) {
         }
     }
 
-    // 🚀 [수정] 자동으로 튕겨나가지 않게 변경
-if (currentSession >= 6) {
-    // 💡 메시지를 띄우고, 버튼은 나중에 사용자가 누르게 유도
-    showSystemMessage(`
-        🎉 6세션 최종 완료! 수고하셨습니다!<br>
-        <div style="margin-top:20px; display:flex; flex-direction:column; gap:10px;">
-            <button onclick="shareKakao()" style="padding:15px; background:#fee500; color:#3c1e1e; border:none; border-radius:10px; font-weight:bold; font-size:1.1rem; cursor:pointer;">🟡 카톡으로 자랑하기</button>
-            <button onclick="location.href='index.html'" style="padding:15px; background:transparent; color:#888; border:1px solid #444; border-radius:10px; cursor:pointer;">홈으로 돌아가기</button>
-        </div>
-    `);
-} else {
-    localStorage.setItem('blackt_cooldown', Date.now() + COOL_DOWN_TIME);
-    showSystemMessage(didTest ? "테스트 완료! 👍" : "세션 완료! 🔥<br>조금씩 실력이 늘고 있어요.");
-    // 일반 세션은 2.2초 뒤에 자동 이동해도 무방함
-    setTimeout(() => { location.href = 'index.html'; }, 2200);
-}
+    // 🚀 [수정] 성적표 화면 자동 노출 + 카톡 공유 버튼형
+    if (currentSession >= 6) {
+        showSystemMessage(`
+            <div style="padding: 10px; text-align:center;">
+                <div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold; margin-bottom:15px;">MISSION COMPLETE!</div>
+                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; margin-bottom:20px; border:1px solid #333;">
+                    <div style="font-size:0.9rem; color:#888;">최종 테스트 정답률</div>
+                    <div style="font-size:2rem; font-weight:bold; color:var(--neon-orange);">${Math.floor((score / targetWords.length) * 100)}%</div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <button onclick="shareKakao()" style="width:100%; padding:16px; background:#fee500; color:#3c1e1e; border:none; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer;">🟡 카톡으로 성과 자랑하기</button>
+                    <button onclick="location.href='index.html'" style="width:100%; padding:12px; background:transparent; color:#666; border:none; cursor:pointer; font-size:0.9rem;">자랑 안 하고 종료하기</button>
+                </div>
+            </div>
+        `);
+    } else {
+        localStorage.setItem('blackt_cooldown', Date.now() + COOL_DOWN_TIME);
+        showSystemMessage(didTest ? "테스트 완료! 👍" : "세션 완료! 🔥<br>조금씩 실력이 늘고 있어요.");
+        setTimeout(() => { location.href = 'index.html'; }, 2200);
+    }
 }
 
 function shareKakao() {

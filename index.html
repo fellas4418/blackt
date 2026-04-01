@@ -229,29 +229,25 @@
 
     <script src="wordData.js"></script>
     <script>
-        // --- 🚀 신규 추가: 탭 전환 함수 ---
         function switchTab(tabId, element) {
-    // 1. 모든 탭 숨기기 및 하단 버튼 상태 변경
-    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-    document.getElementById('tab-' + tabId).classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
-    element.classList.add('active');
-    
-    // 2. 🚀 대제목 동적 변경 로직 추가
-    const headerTitle = document.getElementById('main-header-title');
-    if (tabId === 'voca') {
-        headerTitle.innerHTML = 'Trigger<br>Voca';
-    } else if (tabId === 'analysis') {
-        headerTitle.innerHTML = 'Trigger AI<br>분석';
-    } else if (tabId === 'grammar') {
-        headerTitle.innerHTML = '트리거 초단기<br>영문법';
-    }
-    
-    window.scrollTo(0,0); // 탭 이동 시 상단으로 스크롤
-    if(tabId === 'analysis') handleGradeChange(); 
-}
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            
+            const headerTitle = document.getElementById('main-header-title');
+            if (tabId === 'voca') {
+                headerTitle.innerHTML = 'Trigger<br>Voca';
+            } else if (tabId === 'analysis') {
+                headerTitle.innerHTML = 'Trigger AI<br>분석';
+            } else if (tabId === 'grammar') {
+                headerTitle.innerHTML = '트리거 초단기<br>영문법';
+            }
+            
+            window.scrollTo(0,0); 
+            if(tabId === 'analysis') handleGradeChange(); 
+        }
 
-        // --- 기존 로직 ---
         let logoClickCount = 0;
         function enableAdminMode() {
             logoClickCount++;
@@ -348,16 +344,18 @@
             }
             
             const printArea = document.getElementById('print-area');
-            printArea.innerHTML = printHtml;
-            printArea.style.display = 'block'; 
-            window.print(); 
-            printArea.style.display = 'none'; 
+            if(printArea) {
+                printArea.innerHTML = printHtml;
+                printArea.style.display = 'block'; 
+                window.print(); 
+                printArea.style.display = 'none'; 
+            } else {
+                alert("인쇄 기능이 준비되지 않았습니다.");
+            }
         }
 
         function showWrongWords() {
             let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
-            const listContainer = document.getElementById('wrong-list');
-
             let html = '';
             let totalCount = 0;
 
@@ -378,8 +376,9 @@
             html += renderLevelWrongs('middle', '📚 중등 단어');
             html += renderLevelWrongs('high', '🎓 고등 단어');
 
+            const listContainer = document.getElementById('wrong-list');
             if(totalCount === 0) {
-                listContainer.innerHTML = "<p style='text-align:center; color:#888; margin-top:20px; font-size: 12px;'>저장된 오답이나 별표 단어가 없습니다.</p>";
+                listContainer.innerHTML = "<p style='text-align:center; color:#888; margin-top:20px; font-size: 14px;'>저장된 오답이나 별표 단어가 없습니다.</p>";
             } else {
                 listContainer.innerHTML = html;
             }
@@ -429,7 +428,7 @@
             
             const listContainer = document.getElementById('all-words-list');
             if(totalCount === 0) {
-                listContainer.innerHTML = "<p style='text-align:center; color:#888; margin-top:20px;'>아직 학습을 시작한 단어가 없습니다.</p>";
+                listContainer.innerHTML = "<p style='text-align:center; color:#888; margin-top:20px; font-size: 14px;'>아직 학습을 시작한 단어가 없습니다.</p>";
             } else {
                 listContainer.innerHTML = learnedWordsHtml;
             }
@@ -594,19 +593,22 @@
             btn.innerText = "연결 중...";
             btn.disabled = true;
 
+            // 🚀 안전장치: 구글 시트 저장이 늦어져도 무조건 1.5초 안에 넘겨버림
+            const forceEntry = setTimeout(() => { checkLoginStatus(); }, 1500);
+
             try {
-                await fetch(GOOGLE_SHEET_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify({ name: name, phone: phone, level: currentLevel })
+                await fetch(GOOGLE_SHEET_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors', 
+                    body: JSON.stringify({ name: name, phone: phone, level: currentLevel }) 
                 });
-                
+            } catch(e) {
+                console.log("구글 시트 저장 지연/오류");
+            } finally {
+                clearTimeout(forceEntry);
                 localStorage.setItem('trigger_name', name);
                 localStorage.setItem('trigger_phone', phone);
                 checkLoginStatus(); 
-            } catch (e) {
-                localStorage.setItem('trigger_name', name);
-                checkLoginStatus();
             }
         }
 
@@ -655,19 +657,15 @@
         }
 
         window.addEventListener('load', () => {
-            // 🚀 수정됨: 로고 화면은 앱을 처음 켰을 때 딱 한 번만 보여주기
             const splash = document.getElementById('splash-screen');
             if (splash) {
                 if (sessionStorage.getItem('splash_shown')) {
-                    // 이미 본 적 있으면 0.1초 만에 바로 숨겨버림 (깜빡임 방지)
                     splash.style.display = 'none'; 
                 } else {
-                    // 처음 접속했다면 1.2초 정도만 멋있게 보여주고 숨김
                     setTimeout(() => {
                         splash.style.opacity = '0';
                         setTimeout(() => splash.style.display = 'none', 500);
                     }, 1200); 
-                    // '나 이거 봤음' 하고 브라우저에 기록 남기기
                     sessionStorage.setItem('splash_shown', 'true');
                 }
             }
@@ -729,7 +727,6 @@
             }
         }
 
-        // 시험 정보 함수
         function handleGradeChange() {
             const grade = document.getElementById('exam-grade').value;
             const typeSelect = document.getElementById('exam-type');
