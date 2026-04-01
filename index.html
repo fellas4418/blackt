@@ -243,7 +243,7 @@
         const TOTAL_DAYS = 60; 
         const todayStr = new Date().toLocaleDateString();
         // 🚀 원장님의 GAS URL (수정 금지)
-        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbw5M7Nm9_JDzAOa9FAZKWTK7Fv-qYBSZlDOGPPFG9LX0EPvJy2rQ2ZE8nGUIy_VVgWy/exec";
+        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxX0uJVTmP9IWXB4ww3cgNZUIzhTyqPGSahjvGzlgmIcmvz523ihBe43M9zRl46msUY/exec";
         
         if (localStorage.getItem('trigger_date') !== todayStr) {
             localStorage.setItem('trigger_date', todayStr);
@@ -267,7 +267,7 @@
             if(tabId === 'analysis') handleGradeChange(); 
         }
 
-        // --- 2. 🚀 가입 및 수준 선택 (가장 중요) ---
+        // 🚀 1. 가입 함수 (절대 안 깨지는 전송 방식)
         async function handleLogin() {
             const name = document.getElementById('user-name').value.trim();
             const phone = document.getElementById('user-phone').value.trim();
@@ -275,24 +275,25 @@
 
             if (!name || !phone || !agree) return alert("필수 항목을 확인해주세요.");
 
-            // 0.1초 즉시 입장
             localStorage.setItem('trigger_name', name);
             localStorage.setItem('trigger_phone', phone);
             checkLoginStatus(); 
 
-            // 백그라운드 전송 (영어 이름표 사용)
+            // 💡 URLSearchParams: 구글 서버가 100% 인식하는 방식
+            const formData = new URLSearchParams();
+            formData.append("date", new Date().toLocaleString());
+            formData.append("name", name);
+            formData.append("phone", phone);
+            formData.append("level", "미정(가입완료)");
+
             fetch(GOOGLE_SHEET_URL, {
                 method: 'POST',
                 mode: 'no-cors',
-                body: JSON.stringify({ 
-                    "date": new Date().toLocaleString(),
-                    "name": name, 
-                    "phone": phone,
-                    "level": "미정(가입완료)" 
-                })
-            }).catch(e => console.log("전송 지연 무시"));
+                body: formData
+            }).catch(e => console.log(e));
         }
 
+        // 🚀 2. 수준 선택 함수 (가로 적재 전용)
         function selectLevel(level) {
             localStorage.setItem('trigger_level', level);
             
@@ -308,16 +309,16 @@
                 const now = new Date();
                 const shortDate = (now.getMonth() + 1) + "/" + now.getDate() + " " + now.getHours() + ":" + now.getMinutes();
 
-                // 가로 적재 전송 (영어 이름표 사용)
+                const formData = new URLSearchParams();
+                formData.append("date", shortDate);
+                formData.append("name", name);
+                formData.append("phone", phone);
+                formData.append("level", levelText);
+
                 fetch(GOOGLE_SHEET_URL, {
                     method: 'POST',
                     mode: 'no-cors',
-                    body: JSON.stringify({ 
-                        "date": shortDate, 
-                        "name": name, 
-                        "phone": phone, 
-                        "level": levelText 
-                    })
+                    body: formData
                 });
             }
 
@@ -332,7 +333,6 @@
                     }
                 }
                 document.getElementById('total-word-count').innerText = totalCount + " 단어";
-                
                 const levelData = wordsData[level] || {};
                 const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${level}`)) || 1;
                 const todayCount = (levelData[currentDay] || []).length;
