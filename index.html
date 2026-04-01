@@ -664,16 +664,17 @@
         const now = new Date();
         const shortDate = (now.getMonth() + 1) + "/" + now.getDate() + " " + now.getHours() + ":" + now.getMinutes();
 
-        fetch(GOOGLE_SHEET_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify({ 
-                "날짜": shortDate, 
-                "이름": name, 
-                "전화번호": phone, 
-                "수준": levelText 
-            })
-        });
+        // selectLevel 함수 내부
+fetch(GOOGLE_SHEET_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    body: JSON.stringify({ 
+        "날짜": shortDate, 
+        "이름": name, 
+        "전화번호": phone, 
+        "수준": levelText 
+    })
+});
     }
 
     // 단어 개수 계산 로직 (기존 유지)
