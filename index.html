@@ -284,10 +284,8 @@
 
         // 🚀 통일된 짧은 날짜 포맷 함수
         function getShortDate() {
-            const now = new Date();
-            return (now.getMonth() + 1) + "/" + now.getDate() + " " + now.getHours() + ":" + now.getMinutes();
+        return new Date().toLocaleString();
         }
-
         // 🚀 철통방어 가입 함수 (010 11자리 검증 + URLSearchParams 전송)
         async function handleLogin() {
             const name = document.getElementById('user-name').value.trim();
