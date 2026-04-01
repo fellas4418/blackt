@@ -605,34 +605,31 @@
     const phone = document.getElementById('user-phone').value.trim();
     const agree = document.getElementById('agree-privacy').checked;
 
-    // 🚀 [해결 포인트] 저장된 값을 믿지 말고, 현재 화면에 눌려있는 버튼을 직접 확인합니다.
-    const isHighBtnActive = document.getElementById('btn-high').classList.contains('active');
-    const levelText = isHighBtnActive ? '고등' : '중등';
-
     if (!name || !phone) return alert("이름과 전화번호를 모두 입력해주세요.");
     if (!agree) return alert("개인정보 수집에 동의하셔야 합니다.");
 
-    // ... (이하 fetch 로직은 그대로 두시면 됩니다)
+    const btn = document.getElementById('login-submit-btn');
+    btn.innerText = "연결 중...";
+    btn.disabled = true;
+
     try {
+        // 🚀 가입 시점에는 이름과 번호만 깔끔하게 기록
         await fetch(GOOGLE_SHEET_URL, {
             method: 'POST',
             mode: 'no-cors',
             body: JSON.stringify({ 
                 "날짜": new Date().toLocaleString(),
                 "이름": name, 
-                "전화번호": phone, 
-                "수준": levelText // 💡 이제 버튼 상태에 따라 '고등' 혹은 '중등'이 정확히 찍힙니다.
+                "전화번호": phone,
+                "수준": "미정(가입완료)" 
             })
         });
-            } catch (e) {
-                console.log("시트 저장 지연/오류");
-            } finally {
-                clearTimeout(forceEntry);
-                localStorage.setItem('trigger_name', name);
-                localStorage.setItem('trigger_phone', phone);
-                checkLoginStatus(); 
-            }
-        }
+    } finally {
+        localStorage.setItem('trigger_name', name);
+        localStorage.setItem('trigger_phone', phone);
+        checkLoginStatus(); 
+    }
+}
 
         function checkLoginStatus() {
             const savedName = localStorage.getItem('trigger_name');
@@ -654,10 +651,30 @@
 
         function selectLevel(level) {
             localStorage.setItem('trigger_level', level);
+            
+            // 1. UI 버튼 활성화 상태 변경
             document.getElementById('btn-middle').className = "level-btn";
             document.getElementById('btn-high').className = "level-btn";
             document.getElementById('btn-' + level).className = "level-btn active";
 
+            // 🚀 [추가] 수준 버튼 클릭 시 시트에 실시간 기록 전송
+            const name = localStorage.getItem('trigger_name');
+            const phone = localStorage.getItem('trigger_phone');
+            const levelText = (level === 'high') ? '고등' : '중등';
+
+            if (name && phone) {
+                fetch(GOOGLE_SHEET_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({ 
+                        "날짜": new Date().toLocaleString() + " (수준선택)",
+                        "이름": name, 
+                        "전화번호": phone, 
+                        "수준": levelText 
+                    })
+                });
+            }
+            // 2. 단어 개수 계산 로직 (기존 유지)
             if (typeof wordsData !== 'undefined') {
                 let totalCount = 0;
                 for(let l of ['middle', 'high']) {
