@@ -22,11 +22,41 @@
         .clickable-card { cursor: pointer; transition: 0.2s; }
         .clickable-card:active { transform: scale(0.95); }
         
-        .stats-row { display: flex; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #333; }
+        /* 🚀 간격 조정: 요소들 사이의 여백을 25px로 대폭 확보 */
+        .stats-row { 
+            display: flex; 
+            justify-content: space-between; 
+            background: rgba(255,255,255,0.05); 
+            padding: 15px; 
+            border-radius: 12px; 
+            margin-bottom: 25px; 
+            border: 1px solid #444; 
+        }
         .stat-item { text-align: center; flex: 1; }
         .stat-label { font-size: 0.8rem; color: #aaa; margin-bottom: 5px; }
         .stat-value { font-size: 1.2rem; font-weight: bold; color: var(--neon-blue); }
         
+        /* 모든 카드 요소 하단에 강제 여백 부여 */
+        .card { margin-bottom: 25px !important; } 
+
+        /* 단어장/오답 카드 사이의 간격 부여 */
+        .info-row { 
+            display: flex; 
+            gap: 15px; 
+            margin-bottom: 25px; 
+        }
+        
+        /* 단어장/오답 카드 내부 디자인 교정 */
+        .info-card { 
+            flex: 1; 
+            padding: 20px; 
+            border-radius: 15px; 
+            border: 1px solid #333; 
+            background: rgba(255,255,255,0.03); 
+            cursor: pointer; 
+            text-align: center;
+        }
+
         .report-bar-bg { width: 100%; background: #222; height: 12px; border-radius: 6px; margin-top: 5px; overflow: hidden; }
         .report-bar-fill { height: 100%; background: var(--neon-green); width: 0%; border-radius: 6px; box-shadow: 0 0 5px var(--neon-green); transition: width 0.5s; }
         .routine-scroll-box { max-height: 350px; overflow-y: auto; border: 1px solid #333; border-radius: 10px; padding: 10px; background: rgba(0,0,0,0.3); }
@@ -69,7 +99,7 @@
 
     <div id="wrong-modal" style="display:none; z-index: 4000;">
         <div class="login-card" style="border-color: var(--neon-green); box-shadow: 0 0 15px var(--neon-green); width: 90%; max-width: 450px;">
-            <div class="login-title" style="color:var(--neon-green); text-shadow: 0 0 10px var(--neon-green);">오답 / 별표</div>
+            <div class="login-title" id="wrong-modal-title" style="color:var(--neon-green); text-shadow: 0 0 10px var(--neon-green);">오답 / 별표</div>
             <div id="wrong-list" style="text-align:left; color:#fff; margin-bottom:20px; font-size:1.1rem; line-height:1.8; max-height: 300px; overflow-y: auto; padding-right: 10px;"></div>
             <button class="login-btn" style="border-color: var(--neon-green); box-shadow: 0 0 10px var(--neon-green);" onclick="document.getElementById('wrong-modal').style.display='none'">닫기</button>
         </div>
@@ -77,7 +107,7 @@
 
     <div id="all-words-modal" style="display:none; z-index: 4000;">
         <div class="login-card" style="border-color: var(--neon-orange); box-shadow: 0 0 15px var(--neon-orange); width: 90%; max-width: 450px;">
-            <div class="login-title" style="color:var(--neon-orange); text-shadow: 0 0 10px var(--neon-orange);">전체 단어장 보기</div>
+            <div class="login-title" id="all-words-title" style="color:var(--neon-orange); text-shadow: 0 0 10px var(--neon-orange);">전체 단어장 보기</div>
             <div id="all-words-list" style="text-align:left; color:#fff; margin-bottom:20px; line-height:1.6; max-height: 300px; overflow-y: auto; padding-right: 10px;"></div>
             <button class="login-btn" style="border-color: var(--neon-orange); box-shadow: 0 0 10px var(--neon-orange);" onclick="document.getElementById('all-words-modal').style.display='none'">닫기</button>
         </div>
@@ -117,7 +147,7 @@
                 <div class="stat-item clickable-card" onclick="showWeeklyReport()"><div class="stat-label">누적 리포트</div><div class="stat-value" style="color:#ddd; text-decoration:underline; font-size: 1rem; margin-top: 3px;">보기 📊</div></div>
             </div>
 
-            <div class="card level-section" style="margin-bottom: 15px;">
+            <div class="card level-section">
                 <div class="level-title">학습 레벨 선택</div>
                 <div class="level-buttons">
                     <button class="level-btn active" id="btn-middle" onclick="selectLevel('middle')">📚 중등단어</button>
@@ -125,7 +155,7 @@
                 </div>
             </div>
 
-            <div class="card study-section" style="margin-bottom: 20px; padding: 25px 20px; border: 1px solid var(--neon-orange); background: rgba(255, 153, 0, 0.05);">
+            <div class="card study-section" style="padding: 25px 20px; border: 1px solid var(--neon-orange); background: rgba(255, 153, 0, 0.05);">
                 <div class="map-icon">🗺️</div>
                 <div class="study-title">오늘의 학습</div>
                 <div class="target-words">목표 단어: <span class="target-count" id="target-count-display">0개</span></div>
@@ -134,18 +164,18 @@
             </div>
 
             <div class="info-row">
-                <div class="card info-card clickable-card" onclick="showAllWords()" style="border-color: #333; background: rgba(255,255,255,0.03);">
+                <div class="info-card clickable-card" onclick="showAllWords()">
                     <div class="info-title" style="color: #aaa; font-size: 0.9rem;">📁 전체 단어장</div>
                     <div class="info-count" id="total-word-count" style="color: #fff; font-size: 1.1rem; margin-top: 5px;">0 단어</div>
                 </div>
-                <div class="card info-card clickable-card" onclick="showWrongWords()" style="border-color: #333; background: rgba(255,255,255,0.03);">
+                <div class="info-card clickable-card" onclick="showWrongWords()">
                     <div class="info-title" style="color: #aaa; font-size: 0.9rem;">⭐ 오답/별표</div>
                     <div class="info-count" id="wrong-word-count" style="color: #fff; font-size: 1.1rem; margin-top: 5px;">0 단어</div>
                 </div>
             </div>
 
             <div class="card routine-section">
-                <div class="routine-header">📅 60일 루틴 (학습 + 복습)</div>
+                <div class="routine-header">📅 10주 완성 도전하기</div>
                 <div class="routine-scroll-box">
                     <ul class="routine-list" id="routine-list-container"></ul>
                 </div>
@@ -236,7 +266,7 @@
 
     <script src="wordData.js"></script>
     <script>
-        const TOTAL_DAYS = 60; 
+        const TOTAL_DAYS = 70; 
         const todayStr = new Date().toLocaleDateString();
         
         // 🚀 원장님의 GAS URL 
@@ -284,9 +314,10 @@
 
         // 🚀 통일된 짧은 날짜 포맷 함수
         function getShortDate() {
-        return new Date().toLocaleString();
+            return new Date().toLocaleString();
         }
-        // 🚀 철통방어 가입 함수 (010 11자리 검증 + URLSearchParams 전송)
+
+        // 🚀 철통방어 가입 함수
         async function handleLogin() {
             const name = document.getElementById('user-name').value.trim();
             const rawPhone = document.getElementById('user-phone').value.trim();
@@ -316,7 +347,7 @@
             }).catch(e => console.log(e));
         }
 
-        // 🚀 수준 선택 중복 방지 함수
+        // 🚀 수준 선택 함수 (혼합 로직 제거)
         function selectLevel(level) {
             localStorage.setItem('trigger_level', level);
             
@@ -324,23 +355,7 @@
             document.getElementById('btn-high').className = "level-btn";
             document.getElementById('btn-' + level).className = "level-btn active";
 
-            if (typeof wordsData !== 'undefined') {
-                let totalCount = 0;
-                for(let l of ['middle', 'high']) {
-                    const lData = wordsData[l] || {};
-                    const levelUnlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${l}`)) || 1;
-                    for(let i = 1; i <= levelUnlockedDay; i++) {
-                        if (i % 7 === 6 || i % 7 === 0) continue;
-                        totalCount += (lData[i] || []).length;
-                    }
-                }
-                document.getElementById('total-word-count').innerText = totalCount + " 단어";
-                const levelData = wordsData[level] || {};
-                const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${level}`)) || 1;
-                const todayCount = (levelData[currentDay] || []).length;
-                document.getElementById('target-count-display').innerText = todayCount + "개";
-            }
-            updateDashboardUI();
+            updateDashboardUI(); // 대시보드 UI 업데이트에서 개수 등 모두 처리
 
             const name = localStorage.getItem('trigger_name');
             const phone = localStorage.getItem('trigger_phone');
@@ -373,34 +388,55 @@
 
             if (savedName) {
                 modal.style.display = 'none';
-                welcomeMsg.innerText = currentSession > 6 ? `환영합니다, ${savedName}님! (오늘 목표 완료!)` : `환영합니다, ${savedName}님!`;
+                welcomeMsg.innerText = currentSession > 6 ? `환영합니다, ${savedName}님! (오늘 목표 완료!)` : `환영합니다, ${savedName}님! [${currentLevel === 'high' ? '고등' : '중등'}]`;
             } else {
                 modal.style.display = 'flex';
             }
             updateDashboardUI();
         }
 
+        // 🚀 대시보드 UI 업데이트 (현재 탭 데이터 완벽 분리)
         function updateDashboardUI() {
-            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
-            let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
-            wrongWords = wrongWords.filter(w => w.level === currentLevel);
-            document.getElementById('wrong-word-count').innerText = wrongWords.length + " 단어";
+            const lvl = localStorage.getItem('trigger_level') || 'middle';
+            const name = localStorage.getItem('trigger_name');
+            const day = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
+            const session = parseInt(localStorage.getItem(`trigger_session_${lvl}`)) || 1;
 
+            const welcomeMsg = document.getElementById('welcome-msg');
+            if (name && welcomeMsg) {
+                welcomeMsg.innerText = session > 6 ? `환영합니다, ${name}님! (오늘 목표 완료!)` : `환영합니다, ${name}님! [${lvl === 'high' ? '고등' : '중등'}]`;
+            }
+
+            // 1. 현재 수준의 단어 총합 계산
+            if (typeof wordsData !== 'undefined') {
+                const levelData = wordsData[lvl] || {};
+                let total = 0;
+                Object.values(levelData).forEach(dayWords => { total += dayWords.length; });
+                document.getElementById('total-word-count').innerText = `${total} 단어`;
+
+                const todayWords = (levelData[day] || []).length;
+                document.getElementById('target-count-display').innerText = `${todayWords}개`;
+            }
+
+            // 2. 현재 수준의 오답 총합 계산
+            const allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+            const levelWrongs = allWrongs.filter(w => w.level === lvl);
+            document.getElementById('wrong-word-count').innerText = `${levelWrongs.length} 단어`;
+
+            // 3. 상태바 업데이트
             const endTime = parseInt(localStorage.getItem('blackt_cooldown')) || 0; 
             const startBtn = document.getElementById('start-btn-main');
-            const currentSession = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`)) || 1;
-            const unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
-            const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
+            const unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${lvl}`)) || 1;
             
-            document.getElementById('stat-current-day').innerText = `Day ${currentDay}`;
-            document.getElementById('stat-session').innerText = currentSession > 6 ? '학습 완료' : `${currentSession} / 6`;
+            document.getElementById('stat-current-day').innerText = `Day ${day}`;
+            document.getElementById('stat-session').innerText = session > 6 ? '학습 완료' : `${session} / 6`;
             
             let streak = parseInt(localStorage.getItem('trigger_streak')) || 0;
             document.getElementById('streak-msg').innerText = streak > 0 ? `🔥 연속 ${streak}일째 학습 중!` : "🔥 오늘부터 1일 차 시작!";
 
             if (window.cooldownInterval) clearInterval(window.cooldownInterval);
 
-            if (currentSession > 6) {
+            if (session > 6) {
                 startBtn.disabled = false;
                 startBtn.innerText = "추가 복습하기 (자유 학습)";
                 startBtn.style.borderColor = "var(--neon-blue)";
@@ -537,81 +573,61 @@
             }
         }
 
+        // 🚀 오답 분리 출력 로직
         function showWrongWords() {
-            let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+            const lvl = localStorage.getItem('trigger_level') || 'middle';
+            const allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+            const levelWrongs = allWrongs.filter(w => w.level === lvl);
+            
             let html = '';
-            let totalCount = 0;
-
-            const renderLevelWrongs = (levelKey, levelName) => {
-                const levelWrongs = wrongWords.filter(w => w.level === levelKey);
-                if (levelWrongs.length === 0) return '';
-                totalCount += levelWrongs.length;
-                let levelHtml = `<div style="margin-top:20px; margin-bottom:10px; font-size:1.2rem; font-weight:bold; color:var(--neon-green); border-bottom:2px solid var(--neon-green); padding-bottom:5px; text-align:left;">[${levelName}]</div>`;
-                levelHtml += levelWrongs.map(w => {
+            if (levelWrongs.length > 0) {
+                html += levelWrongs.map(w => {
                     const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
-                    return `<div style="padding:10px 0; border-bottom:1px solid #333;"><strong>${w.word}</strong> <span style="color:#888; font-size:0.9rem;">${safeMeanings}</span></div>`;
+                    return `<div style="padding:10px 0; border-bottom:1px solid #333;">
+                                <strong style="color:var(--neon-green);">${w.word}</strong> <span style="color:#888; font-size:0.9rem;">- ${safeMeanings}</span>
+                            </div>`;
                 }).join('');
-                return levelHtml;
-            };
-
-            html += renderLevelWrongs('middle', '📚 중등 단어');
-            html += renderLevelWrongs('high', '🎓 고등 단어');
-
-            const listContainer = document.getElementById('wrong-list');
-            if(totalCount === 0) {
-                listContainer.innerHTML = "<p style='text-align:center; color:#888; margin-top:20px; font-size: 14px;'>저장된 오답이나 별표 단어가 없습니다.</p>";
             } else {
-                listContainer.innerHTML = html;
+                html = '<p style="text-align:center; color:#666; margin-top:20px;">저장된 오답이 없습니다.</p>';
             }
-            document.getElementById('wrong-word-count').innerText = totalCount + " 단어";
+            
+            document.getElementById('wrong-list').innerHTML = html;
+            document.getElementById('wrong-modal-title').innerText = `[${lvl === 'high' ? '고등' : '중등'}] 오답/별표`;
             document.getElementById('wrong-modal').style.display = 'flex';
         }
 
+        // 🚀 전체 단어장 분리 출력 로직
         function showAllWords() {
-            let learnedWordsHtml = '';
+            const lvl = localStorage.getItem('trigger_level') || 'middle';
+            const data = wordsData[lvl] || {};
+            let html = '';
             let totalCount = 0;
-
-            const renderLevelWords = (levelKey, levelName) => {
-                const levelData = wordsData[levelKey] || {};
-                const levelUnlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${levelKey}`)) || 1;
-                let levelHtml = '';
-                let levelCount = 0;
-                
-                for(let i = 1; i <= levelUnlockedDay; i++) {
-                    if (i % 7 === 6 || i % 7 === 0) continue; 
-                    const dayWords = levelData[i] || [];
-                    if(dayWords.length > 0) {
-                        dayWords.forEach(w => {
-                            levelCount++;
-                            const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
-                            levelHtml += `<div style="padding:12px 0; border-bottom:1px solid #333;">
-                                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                                    <strong style="font-size:1.1rem;">${w.word}</strong>
-                                    <span style="color:var(--neon-blue); font-size:0.8rem; border:1px solid var(--neon-blue); border-radius:10px; padding:2px 8px;">Day ${i}</span>
-                                </div>
-                                <span style="color:#aaa; font-size:0.85rem;">${w.ipa}</span><br>
-                                <span style="color:#888; font-size:0.95rem; display:inline-block; margin-top:3px;">${safeMeanings}</span>
-                            </div>`;
-                        });
-                    }
+            
+            const levelUnlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${lvl}`)) || 1;
+            
+            for(let i = 1; i <= levelUnlockedDay; i++) {
+                if (i % 7 === 6 || i % 7 === 0) continue; 
+                const dayWords = data[i] || [];
+                if(dayWords.length > 0) {
+                    html += `<div style="color:var(--neon-orange); margin-top:15px; border-bottom:1px solid #444; font-weight:bold; padding-bottom: 5px;">Day ${i}</div>`;
+                    dayWords.forEach(w => {
+                        totalCount++;
+                        const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
+                        html += `<div style="padding:10px 0; border-bottom:1px solid #222; font-size:0.95rem;">
+                                    <span style="color:#fff; font-weight:bold; font-size: 1.1rem;">${w.word}</span><br>
+                                    <span style="color:#aaa; font-size:0.9rem;">${safeMeanings}</span>
+                                 </div>`;
+                    });
                 }
-                if (levelCount > 0) {
-                    totalCount += levelCount;
-                    return `<div style="margin-top:20px; margin-bottom:10px; font-size:1.2rem; font-weight:bold; color:var(--neon-orange); border-bottom:2px solid var(--neon-orange); padding-bottom:5px; text-align:left;">[${levelName}]</div>` + levelHtml;
-                }
-                return '';
-            };
-
-            learnedWordsHtml += renderLevelWords('middle', '📚 중등 단어');
-            learnedWordsHtml += renderLevelWords('high', '🎓 고등 단어');
+            }
             
             const listContainer = document.getElementById('all-words-list');
             if(totalCount === 0) {
-                listContainer.innerHTML = "<p style='text-align:center; color:#888; margin-top:20px; font-size: 14px;'>아직 학습을 시작한 단어가 없습니다.</p>";
+                listContainer.innerHTML = "<p style='text-align:center; color:#888; margin-top:20px; font-size: 14px;'>학습 기록이 없습니다.</p>";
             } else {
-                listContainer.innerHTML = learnedWordsHtml;
+                listContainer.innerHTML = html;
             }
-            document.getElementById('total-word-count').innerText = totalCount + " 단어";
+            document.getElementById('all-words-title').innerText = `[${lvl === 'high' ? '고등' : '중등'}] 전체 단어장 보기`;
             document.getElementById('all-words-modal').style.display = 'flex';
         }
 
