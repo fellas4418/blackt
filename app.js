@@ -17,12 +17,14 @@ function showSystemMessage(text) {
     if (meaningsEl) meaningsEl.innerHTML = "";
 }
 
-// 카카오 초기화
+// 🚀 [수정] 카카오 초기화 및 공유 함수 정의
 try {
     if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
+        // 원장님의 자바스크립트 키 (fbb152...)를 그대로 사용합니다.
         Kakao.init('fbb1520306ffaad0a882e993109a801c'); 
+        console.log("카카오 SDK 초기화 완료");
     }
-} catch (e) { console.log("카카오 에러", e); }
+} catch (e) { console.error("카카오 초기화 실패", e); }
 
 let currentIdx = 0;
 let score = 0;
@@ -427,7 +429,7 @@ function finishSession(didTest = true) {
                 
                 <div style="display:flex; flex-direction:column; gap:12px;">
                     ${isHighScorer ? 
-                        `<button onclick="shareKakao()" style="width:100%; padding:16px; background:#fee500; color:#3c1e1e; border:none; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer;">🟡 카톡으로 성과 자랑하기</button>` 
+                        `<button onclick="shareKakao()" style="width:100%; padding:16px; background:#fee500; color:#3c1e1e; border:none; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer;">🟡 카톡으로 성과 공유유하기</button>` 
                         : `<div style="color:#888; font-size:0.85rem; margin-bottom:10px;">80% 이상 득점 시 자랑하기가 활성화됩니다! 🔥</div>`
                     }
                     <button onclick="location.href='index.html'" style="width:100%; padding:12px; background:transparent; color:#666; border:none; cursor:pointer; font-size:0.9rem;">종료하기</button>
@@ -443,19 +445,40 @@ function finishSession(didTest = true) {
     }
 }
 
+// 🚀 [최종 해결] 카톡 공유 함수 (차단 방지 로직 적용)
 function shareKakao() {
+    if (typeof Kakao === 'undefined') {
+        alert("카카오 SDK를 불러오지 못했습니다.");
+        return;
+    }
+
     try {
         const userName = localStorage.getItem('trigger_name') || '학습자';
+        const currentLevel = localStorage.getItem('trigger_level') || 'middle';
         const currentDay = localStorage.getItem(`trigger_current_day_${currentLevel}`) || 1;
+        const levelName = currentLevel === 'high' ? '고등' : '중등';
         const currentUrl = window.location.origin; 
-        if (!Kakao.isInitialized()) Kakao.init('fbb1520306ffaad0a882e993109a801c');
+
+        // 💡 직접 실행 방식을 사용하여 브라우저 차단을 피합니다.
         Kakao.Share.sendDefault({
-            objectType: 'text',
-            text: `🔥 ${userName}님이 Day ${currentDay} 목표를 달성했습니다!\n👉 최종 정답률: ${score} / ${targetWords.length}`,
-            link: { mobileWebUrl: currentUrl, webUrl: currentUrl },
-            buttonTitle: '나도 도전하기',
+            objectType: 'feed', // 'text'보다 'feed'가 가독성이 좋습니다.
+            content: {
+                title: '⚡ 트리거 보카 목표 달성!',
+                description: `${userName}님이 [${levelName} Day ${currentDay}] 6세션 루틴을 완수했습니다.\n최종 정답률: ${score} / ${targetWords.length}`,
+                imageUrl: 'https://yourdomain.com/icon-512.png', // 앱 아이콘 주소로 바꾸면 더 예쁩니다.
+                link: { mobileWebUrl: currentUrl, webUrl: currentUrl },
+            },
+            buttons: [
+                {
+                    title: '나도 도전하기',
+                    link: { mobileWebUrl: currentUrl, webUrl: currentUrl },
+                }
+            ],
         });
-    } catch (e) {}
+    } catch (e) {
+        console.error("공유 에러:", e);
+        alert("카톡 공유 중 오류가 발생했습니다. 개발자 설정을 확인해 주세요.");
+    }
 }
 
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
