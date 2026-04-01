@@ -161,12 +161,29 @@
             <div id="admin-menu" style="display: none; text-align: center; margin-top: 30px; border-top: 1px dashed #444; padding-top: 20px; flex-direction: column; gap: 12px; align-items: center;">
                 <p style="color:var(--neon-orange); font-size:0.8rem; margin:0;">🛠️ 관리자 모드 활성화됨</p>
                 
-                <button onclick="const lvl = localStorage.getItem('trigger_level') || 'middle'; localStorage.setItem('trigger_session_' + lvl, '7'); location.reload();" style="background: none; border: none; color: var(--neon-blue); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">⏩ 1. 현재 세션만 강제 완료</button>
-                
-                <button onclick="const lvl = localStorage.getItem('trigger_level') || 'middle'; localStorage.setItem('trigger_unlocked_day_' + lvl, '6'); localStorage.setItem('trigger_current_day_' + lvl, '6'); localStorage.setItem('trigger_session_' + lvl, '1'); alert('Day 6 복습 테스트 모드로 워프했습니다!\n루틴 목록에서 Day 6 [시작]을 눌러보세요.'); location.reload();" style="background: none; border: none; color: var(--neon-purple); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: bold;">🚀 2. Day 6 (주간 복습) 타임머신</button>
-
-                <button onclick="if(confirm('모든 데이터를 초기화할까요?')) { localStorage.clear(); location.reload(); }" style="background: none; border: none; color: #555; text-decoration: underline; cursor: pointer; font-size: 0.85rem;">🔄 모든 데이터 완전 초기화</button>
+                <div style="display:flex; gap:10px; margin-bottom:5px;">
+                    <button onclick="jumpToSession(3)" style="background: #222; border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">⏩ 세션 3 (중간테스트)</button>
+                    <button onclick="jumpToSession(6)" style="background: #222; border: 1px solid var(--neon-orange); color: var(--neon-orange); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">🔥 세션 6 (최종완료)</button>
+                </div>
+            
+                <button onclick="localStorage.removeItem('blackt_cooldown'); alert('⏳ 쿨타임이 즉시 해제되었습니다!'); location.reload();" 
+                        style="background: #333; border: 1px solid var(--neon-green); color: var(--neon-green); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 85%;">
+                    ⚡ 쿨타임(10분 휴식) 즉시 삭제
+                </button>
+            
+                <button onclick="if(confirm('모든 데이터를 초기화할까요?')) { localStorage.clear(); location.reload(); }" style="background: none; border: none; color: #555; text-decoration: underline; cursor: pointer; font-size: 0.85rem; margin-top:10px;">🔄 모든 데이터 완전 초기화</button>
             </div>
+            
+            <script>
+                // 🚀 관리자용 세션 점프 함수 추가
+                function jumpToSession(sessionNum) {
+                    const lvl = localStorage.getItem('trigger_level') || 'middle';
+                    localStorage.setItem('trigger_session_' + lvl, sessionNum);
+                    localStorage.removeItem('blackt_cooldown'); // 점프할 때 쿨타임도 같이 지워주는 센스!
+                    alert(`🚀 세션 ${sessionNum}으로 이동했습니다! [학습 시작하기]를 눌러보세요.`);
+                    location.reload();
+                }
+            </script>
         </div>
 
 
