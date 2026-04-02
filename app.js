@@ -1,11 +1,9 @@
-// 🚀 [최종 해결책] 모든 시스템 메시지의 크기를 강제로 고정하는 함수
 function showSystemMessage(text) {
     const targetEl = document.getElementById('target');
     const meaningsEl = document.getElementById('meanings');
     
     if (targetEl) {
         targetEl.innerHTML = text;
-        // 💡 중요: !important를 사용하여 CSS 설정을 완전히 이기고 작게 만듭니다.
         targetEl.style.setProperty('font-size', '24px', 'important'); 
         targetEl.style.setProperty('text-shadow', 'none', 'important');
         targetEl.style.setProperty('margin-top', '30px', 'important');
@@ -17,10 +15,8 @@ function showSystemMessage(text) {
     if (meaningsEl) meaningsEl.innerHTML = "";
 }
 
-// 🚀 [수정] 카카오 초기화 및 공유 함수 정의
 try {
     if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
-        // 원장님의 자바스크립트 키
         Kakao.init('fbb1520306ffaad0a882e993109a801c'); 
         console.log("카카오 SDK 초기화 완료");
     }
@@ -38,7 +34,6 @@ let isMuted = localStorage.getItem('trigger_muted') === 'true';
 let isPaused = false;
 const currentLevel = localStorage.getItem('trigger_level') || 'middle';
 
-// 🚀 카운트다운 화면 (숫자는 크게, 문구는 작게)
 function startCountdown(message, callback) {
     let count = 3;
     const renderHtml = (c) => `
@@ -86,7 +81,9 @@ function initApp() {
         
         let currentSession = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`)) || 1;
         const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
-        const levelData = wordsData[currentLevel] || {};
+        
+        // 💡 수정됨: wordsData를 전역 변수에서 안전하게 가져옵니다.
+        const levelDataRaw = window.wordsData ? (window.wordsData[currentLevel] || []) : [];
         
         const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
         
@@ -99,7 +96,9 @@ function initApp() {
                 return;
             }
         } else {
-            todayWords = levelData[currentDay] || [];
+            // 💡 수정됨: 전체 배열에서 현재 day에 해당하는 단어만 필터링합니다.
+            todayWords = levelDataRaw.filter(wordObj => wordObj.day === currentDay);
+            
             if (todayWords.length === 0) {
                 showSystemMessage(`Day ${currentDay}의<br>단어 데이터가 없습니다.`);
                 setTimeout(() => { location.href = 'index.html'; }, 2000);
@@ -123,7 +122,7 @@ function initApp() {
         }
 
         if (sessionTag) {
-            sessionTag.innerText = currentSession > 6 ? `추가 복습 모드` : `Session ${currentSession} / 6`;
+            sessionTag.innerText = currentSession > 6 ? `자유 복습 모드` : `Session ${currentSession} / 6`;
         }
 
         const endTime = localStorage.getItem('blackt_cooldown');
@@ -269,10 +268,18 @@ function updateUI(data, isTest = false) {
     
     if (!data || !data.word) return;
 
-    const safeMeanings = Array.isArray(data.meanings) ? data.meanings : ["뜻 정보 없음"];
+    // 💡 수정됨: 단일 문자열로 된 meaning 처리를 위해 분기 추가
+    let safeMeanings = [];
+    if (Array.isArray(data.meanings)) {
+        safeMeanings = data.meanings;
+    } else if (data.meaning) {
+        safeMeanings = [data.meaning]; // 기존 배열 구조가 아닌 단일 문자열인 경우
+    } else {
+        safeMeanings = ["뜻 정보 없음"];
+    }
+
     const fullMeaning = safeMeanings.join(', ');
 
-    // 단어 화면 스타일 복구 (자바스크립트가 직접 조절)
     targetEl.style.setProperty('font-size', '3.3rem', 'important'); 
     targetEl.style.setProperty('text-shadow', '0 0 15px #fff', 'important');
     targetEl.style.setProperty('color', '#fff', 'important');
@@ -305,8 +312,11 @@ function updateUI(data, isTest = false) {
     } else {
         if(starBtn) starBtn.style.display = 'none'; 
         
+        // 💡 수정됨: 오답 보기 생성 로직 수정 (meanings vs meaning 속성 차이 대응)
         const allOtherMeanings = targetWords.filter(w => w.word !== data.word).map(w => {
-            return Array.isArray(w.meanings) ? w.meanings.join(', ') : "뜻 정보 없음";
+            if (Array.isArray(w.meanings)) return w.meanings.join(', ');
+            if (w.meaning) return w.meaning;
+            return "뜻 정보 없음";
         });
         
         let availableMeanings = [...allOtherMeanings]; 
@@ -323,7 +333,6 @@ function updateUI(data, isTest = false) {
         
         const choices = [fullMeaning, ...wrongChoices].sort(() => Math.random() - 0.5);
         
-        // 🚀 [수정] 보기 버튼 크기를 고정하고 세로 정렬 최적화
         mBox.innerHTML = choices.map(c => {
             const isCorrect = (c === fullMeaning);
             return `
@@ -440,7 +449,6 @@ function finishSession(didTest = true) {
     }
 }
 
-// 🚀 [최종 해결] 카톡 공유 함수
 function shareKakao() {
     if (typeof Kakao === 'undefined') {
         alert("카카오 SDK를 불러오지 못했습니다.");
@@ -459,7 +467,7 @@ function shareKakao() {
             content: {
                 title: '⚡ 트리거 보카 목표 달성!',
                 description: `${userName}님이 [${levelName} Day ${currentDay}] 6세션 루틴을 완수했습니다.\n최종 정답률: ${score} / ${targetWords.length}`,
-                imageUrl: 'https://yourdomain.com/icon-512.png',
+                imageUrl: 'https://yourdomain.com/icon-512.png', // 실제 이미지 경로로 수정하세요
                 link: { mobileWebUrl: currentUrl, webUrl: currentUrl },
             },
             buttons: [

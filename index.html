@@ -24,7 +24,6 @@
 
         body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: 'Pretendard', sans-serif; -webkit-font-smoothing: antialiased; padding-bottom: 90px; }
 
-        /* 공통 모달 배경 */
         #login-modal, #wrong-modal, #all-words-modal, #report-modal, #guide-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 3000; transition: opacity 0.5s; padding: 20px; box-sizing: border-box; }
 
         .login-card { background: var(--card-bg-color); border: 1px solid rgba(0, 243, 255, 0.3); box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); border-radius: 20px; padding: 25px; width: 90%; max-width: 400px; text-align: center; max-height: 80vh; overflow-y: auto; box-sizing: border-box; }
@@ -39,22 +38,21 @@
         .login-btn { width: 100%; padding: 16px; background: transparent; border: 1.5px solid var(--neon-green); color: #fff; font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer; box-shadow: var(--glow-green); margin-top: 10px; transition: 0.2s;}
         .login-btn:active { transform: scale(0.98); background: rgba(57, 255, 20, 0.1); }
 
-        #welcome-msg { text-align: center; color: var(--neon-blue); font-size: 1.1rem; margin-bottom: 6px; text-shadow: var(--glow-text); }
+        /* 🚀 환영 메시지 하단 여백 추가 (12번 반영) */
+        #welcome-msg { text-align: center; color: var(--neon-blue); font-size: 1.1rem; margin-bottom: 20px; text-shadow: var(--glow-text); }
 
         .dashboard-bg { padding: 20px; display: flex; justify-content: center; }
         .dashboard-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 5px; margin: 0 auto; padding-bottom: 110px; position: relative; }
 
         .logo { font-size: 2.5rem; font-weight: 800; text-align: center; margin-bottom: 10px; margin-top: 10px; text-shadow: var(--glow-text); cursor: default; }
         
-        /* 🚀 수정: 카드 박스 하단에 20px 여백 추가로 답답함 해결 */
         .card { background-color: var(--card-bg-color); border: 1px solid #222; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); margin-bottom: 20px; }
         .clickable-card { cursor: pointer; transition: 0.2s; }
         .clickable-card:active { transform: scale(0.97); }
 
-        /* 🚀 수정: 상태바 하단 여백 및 글씨 밝기 수정 (#ccc) */
         .stats-row { display: flex; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 18px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #222; }
         .stat-item { text-align: center; flex: 1; }
-        .stat-label { font-size: 0.75rem; color: #ccc; margin-bottom: 5px; } /* 글씨 밝게 */
+        .stat-label { font-size: 0.75rem; color: #ccc; margin-bottom: 5px; } 
         .stat-value { font-size: 1.15rem; font-weight: bold; color: var(--neon-blue); }
 
         .level-buttons { display: flex; gap: 12px; margin-top: 15px; }
@@ -64,14 +62,15 @@
         .start-btn { width: 100%; background: rgba(255,153,0,0.1); border: 1px solid var(--neon-orange); color: #fff; font-size: 1.2rem; font-weight: 700; padding: 18px; border-radius: 16px; cursor: pointer; margin-top: 10px; box-shadow: var(--glow-orange); transition: 0.2s; }
         .start-btn:active { transform: scale(0.98); background: rgba(255,153,0,0.2); }
 
-        /* 🚀 수정: 가로 배열 박스 하단 여백 추가 */
         .info-row { display: flex; gap: 15px; margin-bottom: 20px; }
         .info-card { flex: 1; text-align: center; padding: 22px; background: var(--card-bg-color); border: 1px solid #222; border-radius: 18px; transition: 0.2s; }
         .info-card:active { background: #1a1a1a; }
-        .info-title { font-size: 0.85rem; margin-bottom: 8px; color: #aaa; }
+        /* 🚀 오답/별표, 나의학습 단어장 글자 크기 통일 (7번 반영) */
+        .info-title { font-size: 0.95rem; margin-bottom: 8px; color: #aaa; }
         .info-count { font-size: 1.4rem; font-weight: 700; color: #fff; }
 
-        .routine-scroll-box { max-height: 380px; overflow-y: auto; border: 1px solid #222; border-radius: 12px; padding: 12px; background: rgba(0,0,0,0.2); }
+        /* 🚀 10주 완성 스크롤 박스 높이 축소 (6번 반영) */
+        .routine-scroll-box { max-height: 250px; overflow-y: auto; border: 1px solid #222; border-radius: 12px; padding: 12px; background: rgba(0,0,0,0.2); }
         .routine-list { list-style: none; padding: 0; margin: 0; }
         .routine-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 8px; border-bottom: 1px solid #222; }
         .day-label { font-size: 1rem; color: #ddd; }
@@ -148,7 +147,13 @@
 
     <div id="report-modal" style="display:none;">
         <div class="login-card" style="border-color: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); width: 90%; max-width: 450px;">
-            <div class="login-title" id="report-modal-title" style="color:var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue);">나의 학습 기록 보기</div>
+            <div class="login-title" id="report-modal-title" style="color:var(--neon-blue); text-shadow: none;"></div>
+            
+            <div style="display:flex; gap:10px; margin-bottom:15px; width:100%;">
+               <button id="tab-report-middle" onclick="showWeeklyReport('middle')" style="flex:1; padding:10px; border-radius:10px; background:var(--neon-blue); color:#000; font-weight:bold; border:none; cursor:pointer;">중등</button>
+               <button id="tab-report-high" onclick="showWeeklyReport('high')" style="flex:1; padding:10px; border-radius:10px; background:transparent; border:1px solid #444; color:#888; font-weight:bold; cursor:pointer;">고등</button>
+            </div>
+
             <div id="report-list" style="text-align:left; color:#fff; margin-bottom:20px; font-size:1rem; line-height:1.8; max-height: 300px; overflow-y: auto; padding-right:10px;"></div>
             <button class="login-btn" style="border-color: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue);" onclick="document.getElementById('report-modal').style.display='none'">닫기</button>
         </div>
@@ -156,7 +161,7 @@
 
     <div class="dashboard-container">
         
-        <div style="position: absolute; top: 10px; right: 5px; z-index: 100;">
+        <div style="position: absolute; top: 25px; right: 15px; z-index: 100;">
             <button onclick="shareTriggerApp()" style="background: rgba(255, 255, 255, 0.08); border: 1px solid #555; border-radius: 20px; padding: 5px 12px; display: flex; align-items: center; gap: 5px; cursor: pointer;">
                 <span style="color: #fff; font-size: 0.75rem; font-weight: bold;">공유하기</span><span style="font-size: 0.8rem;">📤</span>
             </button>
@@ -168,6 +173,10 @@
         
         <div id="tab-voca" class="tab-content active">
             
+            <button id="install-app-btn" style="display:none; width: 100%; margin-bottom: 25px; padding: 12px; background: rgba(0, 243, 255, 0.05); color: var(--neon-blue); font-size: 1.05rem; font-weight: bold; border: 1px dashed var(--neon-blue); border-radius: 12px; box-shadow: 0 0 15px rgba(0,243,255,0.15); cursor: pointer; transition: 0.3s;">
+                👇 터치해서 1초 만에 앱으로 설치하기
+            </button>
+
             <div id="welcome-msg"></div>
 
             <div class="stats-row">
@@ -185,10 +194,11 @@
             </div>
 
             <div class="card" style="padding: 25px 20px; border: 1px solid var(--neon-orange); background: rgba(255, 153, 0, 0.05); text-align: center;">
-                <div style="font-size: 1.2rem; font-weight: bold; color: var(--neon-orange); margin-bottom: 5px;">
-                    오늘의 학습 <span onclick="document.getElementById('guide-modal').style.display='flex'" style="font-size:0.8rem; cursor:pointer; color:#fff; background:#444; padding:3px 8px; border-radius:12px; margin-left:8px; vertical-align:middle; border:1px solid #666;">❓안내</span>
+                <div style="position: relative; margin-bottom: 5px; height: 30px; display: flex; align-items: center; justify-content: center;">
+                    <div style="font-size: 1.2rem; font-weight: bold; color: var(--neon-orange);">오늘의 학습</div>
+                    <span onclick="document.getElementById('guide-modal').style.display='flex'" style="position: absolute; right: 0; font-size:0.8rem; cursor:pointer; color:#fff; background:#444; padding:4px 10px; border-radius:12px; border:1px solid #666;">❓안내</span>
                 </div>
-                <div style="color: #aaa; font-size: 0.9rem; margin-bottom: 20px;">목표 단어: <span id="target-count-display" style="color: #fff; font-weight: bold;">0개</span></div>
+                <div style="color: #aaa; font-size: 1.2rem; margin-bottom: 20px;">목표 단어: <span id="target-count-display" style="color: #fff; font-weight: bold;">0개</span></div>
                 <button class="start-btn" id="start-btn-main">학습 시작하기</button>
             </div>
 
@@ -264,7 +274,7 @@
             <div class="card" style="border: 1px solid #b537f2; background: rgba(181, 55, 242, 0.08); text-align: center; padding: 30px 20px;">
                 <div style="color: #d789ff; font-size: 0.85rem; font-weight: bold; margin-bottom: 10px; letter-spacing: 1px;">PREMIUM CLASS</div>
                 <div style="font-size: 1.5rem; font-weight: 900; color: #fff; text-shadow: 0 0 10px #b537f2; margin-bottom: 15px; line-height: 1.3;">단 3시간,<br>영문법 마스터 ⚡</div>
-                <p style="color: #bbb; font-size: 0.9rem; line-height: 1.6; margin-bottom: 25px;">단어장만으로는 부족한 내신/모의고사.<br>원장님의 비기 '명주동' 패턴으로 문법 문제 오답률을 0%로 만듭니다.</p>
+                <p style="color: #bbb; font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px;">단 3시간 만에 핵심을 관통하여<br>내신과 모의고사 문법을<br>빠르고 정확하게 끝냅니다.</p>
                 <button onclick="window.open('https://www.notion.so/3-26ea81fd05e580869538e10685e3cdf2', '_blank')" style="width: 100%; padding: 15px; background: #b537f2; border: none; color: #fff; font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer; box-shadow: 0 0 15px rgba(181, 55, 242, 0.5);">수강권 구매 및 수강하기</button>
             </div>
         </div>
@@ -299,6 +309,7 @@
             localStorage.setItem('trigger_unlocked_extra_today_high', '0');
         }
 
+        // 🚀 상단 배너 타이틀 탭별 변경 (9번 반영)
         function switchTab(tabId, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.getElementById('tab-' + tabId).classList.add('active');
@@ -307,8 +318,8 @@
             
             const headerTitle = document.getElementById('main-header-title');
             if (tabId === 'voca') { headerTitle.innerHTML = 'Trigger<br>Voca'; } 
-            else if (tabId === 'analysis') { headerTitle.innerHTML = 'Trigger AI<br>분석'; } 
-            else if (tabId === 'grammar') { headerTitle.innerHTML = '트리거 초단기<br>영문법'; }
+            else if (tabId === 'analysis') { headerTitle.innerHTML = 'Trigger<br>AI 시험 분석'; } 
+            else if (tabId === 'grammar') { headerTitle.innerHTML = 'Trigger<br>3시간 영문법'; }
             window.scrollTo(0,0); 
             if(tabId === 'analysis') handleGradeChange(); 
         }
@@ -444,9 +455,10 @@
 
             if (window.cooldownInterval) clearInterval(window.cooldownInterval);
 
+            // 🚀 추가 복습하기 -> '자유 복습 모드'로 네이밍 변경 (10번 반영)
             if (session > 6) {
                 startBtn.disabled = false;
-                startBtn.innerText = "추가 복습하기 (자유 학습)";
+                startBtn.innerText = "자유 복습 모드";
                 startBtn.style.borderColor = "var(--neon-blue)";
                 startBtn.style.boxShadow = "var(--glow-blue)";
                 startBtn.style.color = "#fff";
@@ -648,14 +660,26 @@
             document.getElementById('all-words-modal').style.display = 'flex';
         }
 
-        // 🚀 수정: 누적 리포트 레벨별 분리 적용
-        function showWeeklyReport() {
-            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
+        // 🚀 누적 리포트 탭 분리, 글씨 축소, 뱃지 도입 (3, 11번 반영)
+        function showWeeklyReport(requestedLevel) {
+            const currentLevel = requestedLevel || localStorage.getItem('trigger_level') || 'middle';
             const stats = JSON.parse(localStorage.getItem(`trigger_stats_${currentLevel}`) || '{}');
             const listContainer = document.getElementById('report-list');
             
-            // 타이틀 변경
-            document.getElementById('report-modal-title').innerText = `[${currentLevel === 'high' ? '고등' : '중등'}] 누적 학습 리포트`;
+            // 탭 UI 스타일 갱신
+            document.getElementById('tab-report-middle').style.cssText = currentLevel === 'middle' 
+                ? "flex:1; padding:10px; border-radius:10px; background:var(--neon-blue); color:#000; font-weight:bold; border:none; cursor:pointer;" 
+                : "flex:1; padding:10px; border-radius:10px; background:transparent; border:1px solid #444; color:#888; font-weight:bold; cursor:pointer;";
+            document.getElementById('tab-report-high').style.cssText = currentLevel === 'high' 
+                ? "flex:1; padding:10px; border-radius:10px; background:var(--neon-blue); color:#000; font-weight:bold; border:none; cursor:pointer;" 
+                : "flex:1; padding:10px; border-radius:10px; background:transparent; border:1px solid #444; color:#888; font-weight:bold; cursor:pointer;";
+
+            // 제목 예쁜 뱃지로 교체 및 글자 크기 10% 축소
+            const levelBadge = currentLevel === 'high' 
+                ? '<span style="background:#ff9900; color:#000; padding:3px 10px; border-radius:15px; font-size:0.8rem; vertical-align:middle; margin-right:6px;">고등</span>' 
+                : '<span style="background:#00f3ff; color:#000; padding:3px 10px; border-radius:15px; font-size:0.8rem; vertical-align:middle; margin-right:6px;">중등</span>';
+            
+            document.getElementById('report-modal-title').innerHTML = `${levelBadge} <span style="font-size: 0.9em;">누적 학습 리포트</span>`;
 
             let html = '';
             for(let i=1; i<=TOTAL_DAYS; i++) {

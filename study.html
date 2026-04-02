@@ -1,91 +1,18 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trigger Voca - Training</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#000000">
-    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" integrity="sha384-TiCmbV6AUnR+N00s78kCA+D+sL+uBqN8uV22OtzOqP9A1ofw3u8g+oZD+65aX2Q" crossorigin="anonymous"></script>
-    <style>
-        #target {
-            padding: 0 20px; 
-            width: 100%; 
-            box-sizing: border-box; 
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            font-size: 3.5rem; 
-            line-height: 1.2;
-            text-align: center;
-            transition: all 0.3s ease; /* 부드러운 전환 효과 추가 */
-        }
-        
-        /* 🚀 신규 추가: 시스템 안내 문구(한글)용 작고 차분한 스타일 */
-        .system-msg {
-            font-size: 1.2rem !important;
-            text-shadow: none !important;
-            color: #aaaaaa !important;
-            font-weight: normal !important;
-            margin-top: 20px;
-        }
+<script src="wordData_M.js"></script>
+    <script src="wordData_H.js"></script>
 
-        /* ★ 단어 뜻 50% 확대 */
-        #meanings div {
-            font-size: 2.6rem !important;
-            font-weight: bold;
-            margin-bottom: 20px !important;
-            color: #fff;
-            text-align: center;
-        }
-        /* ★ 4지선다 보기 크기 확대 */
-        .choice-btn {
-            font-size: 1.6rem !important;
-            padding: 20px !important;
-            font-weight: bold;
-        }
-        /* ★ 발음기호 선명하게 */
-        .ipa-text {
-            color: #ddd;
-            font-size: 1.4rem;
-            margin-top: 5px;
-            font-weight: normal;
-        }
-    </style>
-</head>
-<body class="study-bg">
-    <div id="app">
-        
-        <div style="position: absolute; top: 20px; left: 20px; display: flex; gap: 10px; z-index: 100;">
-            <button id="pause-btn" class="back-btn" style="position: static;" onclick="togglePause()">⏸ 일시중지</button>
-            <button id="exit-btn" class="back-btn" style="position: static; display: none; border-color: var(--neon-orange); color: var(--neon-orange);" onclick="location.href='index.html'">🚪 나가기</button>
-        </div>
-        
-        <header class="header">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
-                <div id="session-tag">Session 1 / 6</div>
-                <button id="mute-toggle-btn" onclick="toggleMute()" style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:#fff;" title="자동 발음 켜기/끄기">🔊</button>
-            </div>
-            <div class="progress-box"><div id="bar"></div></div>
-        </header>
+    <script>
+        // 💡 중요: app.js가 실행되기 전에 데이터를 시스템 규격에 맞게 매핑합니다.
+        window.wordsData = {
+            middle: typeof wordData_M !== 'undefined' ? wordData_M : [],
+            high: typeof wordData_H !== 'undefined' ? wordData_H : []
+        };
+    </script>
 
-        <main id="display" class="mode-default">
-            <div class="word-group">
-                <h1 id="target"></h1> 
-            </div>
-            <div id="meanings"></div>
-        </main>
-
-        <footer class="footer" style="display: none;">
-            <button id="main-action">학습 시작</button>
-        </footer>
-    </div>
-    
-    <script src="wordData.js"></script>
     <script src="app.js"></script>
 
     <script>
-        // 서비스 워커 등록
+        // 서비스 워커 등록 (기존 코드 유지)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./service-worker.js')
@@ -94,13 +21,12 @@
             });
         }
 
-        // 🚀 신규 추가: 화면에 한글(안내 문구)이 감지되면 자동으로 글씨를 작게 줄이는 마법의 감지기
+        // 한글 감지 및 스타일 변경 (기존 코드 유지)
         window.addEventListener('DOMContentLoaded', () => {
             const targetEl = document.getElementById('target');
             if(targetEl) {
                 const observer = new MutationObserver(() => {
                     const text = targetEl.innerText || "";
-                    // 글자에 한글이 포함되어 있으면(영단어가 아니면) .system-msg 클래스 적용
                     if (/[가-힣]/.test(text)) {
                         targetEl.classList.add('system-msg');
                     } else {
@@ -111,5 +37,3 @@
             }
         });
     </script>
-</body>
-</html>
