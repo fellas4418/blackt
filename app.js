@@ -82,9 +82,6 @@ function initApp() {
         let currentSession = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`)) || 1;
         const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
         
-        // 💡 수정됨: wordsData를 전역 변수에서 안전하게 가져옵니다.
-        const levelDataRaw = window.wordsData ? (window.wordsData[currentLevel] || []) : [];
-        
         const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
         
         if (isReviewDay) {
@@ -96,8 +93,17 @@ function initApp() {
                 return;
             }
         } else {
-            // 💡 수정됨: 전체 배열에서 현재 day에 해당하는 단어만 필터링합니다.
-            todayWords = levelDataRaw.filter(wordObj => wordObj.day === currentDay);
+            // 🚀 [핵심 수정] 기존 filter() 배열 방식을 버리고, 새로운 week/day 중첩 객체 구조에서 데이터를 꺼내옵니다.
+            todayWords = [];
+            if (typeof wordsData !== 'undefined' && wordsData[currentLevel]) {
+                let week = Math.ceil(currentDay / 7);
+                let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
+                let weekData = wordsData[currentLevel]["week" + week];
+                
+                if (weekData && weekData[String(localDay)]) {
+                    todayWords = weekData[String(localDay)];
+                }
+            }
             
             if (todayWords.length === 0) {
                 showSystemMessage(`Day ${currentDay}의<br>단어 데이터가 없습니다.`);
@@ -268,12 +274,11 @@ function updateUI(data, isTest = false) {
     
     if (!data || !data.word) return;
 
-    // 💡 수정됨: 단일 문자열로 된 meaning 처리를 위해 분기 추가
     let safeMeanings = [];
     if (Array.isArray(data.meanings)) {
         safeMeanings = data.meanings;
     } else if (data.meaning) {
-        safeMeanings = [data.meaning]; // 기존 배열 구조가 아닌 단일 문자열인 경우
+        safeMeanings = [data.meaning]; 
     } else {
         safeMeanings = ["뜻 정보 없음"];
     }
@@ -312,7 +317,6 @@ function updateUI(data, isTest = false) {
     } else {
         if(starBtn) starBtn.style.display = 'none'; 
         
-        // 💡 수정됨: 오답 보기 생성 로직 수정 (meanings vs meaning 속성 차이 대응)
         const allOtherMeanings = targetWords.filter(w => w.word !== data.word).map(w => {
             if (Array.isArray(w.meanings)) return w.meanings.join(', ');
             if (w.meaning) return w.meaning;
@@ -467,7 +471,7 @@ function shareKakao() {
             content: {
                 title: '⚡ 트리거 보카 목표 달성!',
                 description: `${userName}님이 [${levelName} Day ${currentDay}] 6세션 루틴을 완수했습니다.\n최종 정답률: ${score} / ${targetWords.length}`,
-                imageUrl: 'https://yourdomain.com/icon-512.png', // 실제 이미지 경로로 수정하세요
+                imageUrl: 'https://yourdomain.com/icon-512.png', 
                 link: { mobileWebUrl: currentUrl, webUrl: currentUrl },
             },
             buttons: [

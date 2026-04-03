@@ -1,12 +1,8 @@
-<script src="wordData_M.js"></script>
-    <script src="wordData_H.js"></script>
+<script src="worddata.js"></script>
 
     <script>
-        // 💡 중요: app.js가 실행되기 전에 데이터를 시스템 규격에 맞게 매핑합니다.
-        window.wordsData = {
-            middle: typeof wordData_M !== 'undefined' ? wordData_M : [],
-            high: typeof wordData_H !== 'undefined' ? wordData_H : []
-        };
+        // 💡 중요: worddata.js에서 가져온 데이터를 app.js가 문제없이 쓸 수 있도록 연결해 줍니다.
+        window.wordsData = typeof wordsData !== 'undefined' ? wordsData : { middle: {}, high: {} };
     </script>
 
     <script src="app.js"></script>

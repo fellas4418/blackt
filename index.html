@@ -296,6 +296,19 @@
 
     <script src="wordData.js"></script>
     <script>
+        // 🚀 [핵심 수정] 바뀐 week/day 데이터 구조를 안정적으로 가져오는 헬퍼 함수 추가
+        function getWordsForDay(level, absoluteDay) {
+            if (typeof wordsData === 'undefined' || !wordsData[level]) return [];
+            let week = Math.ceil(absoluteDay / 7);
+            let localDay = absoluteDay % 7 === 0 ? 7 : absoluteDay % 7;
+            let weekData = wordsData[level]["week" + week];
+            if (!weekData) return [];
+            let dayData = weekData[String(localDay)];
+            if (!dayData) return [];
+            if (localDay === 6 || localDay === 7) return dayData.test || []; // 복습일 처리
+            return dayData;
+        }
+
         const TOTAL_DAYS = 70; 
         const todayStr = new Date().toLocaleDateString();
         
@@ -430,16 +443,16 @@
                 welcomeMsg.innerText = session > 6 ? `환영합니다, ${name}님! (오늘 목표 완료!)` : `환영합니다, ${name}님!`;
             }
 
+            // 🚀 [수정됨] 헬퍼 함수를 통해 단어 개수를 가져오도록 변경
             if (typeof wordsData !== 'undefined') {
-                const levelData = wordsData[lvl] || {};
                 let learnedTotal = 0;
                 for (let i = 1; i < unlockedDay; i++) { 
                     if (i % 7 === 6 || i % 7 === 0) continue;
-                    learnedTotal += (levelData[i] || []).length;
+                    learnedTotal += getWordsForDay(lvl, i).length;
                 }
                 document.getElementById('total-word-count').innerText = `${learnedTotal} 단어`;
 
-                const todayWords = (levelData[day] || []).length;
+                const todayWords = getWordsForDay(lvl, day).length;
                 document.getElementById('target-count-display').innerText = `${todayWords}개`;
             }
 
@@ -566,18 +579,18 @@
         function generatePDF() {
             const currentLevel = localStorage.getItem('trigger_level') || 'middle';
             const unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
-            const levelData = wordsData[currentLevel] || {};
             
             let printHtml = `<h1 style="text-align:center;">Trigger Voca 누적 단어장 (${currentLevel === 'middle' ? '중등' : '고등'})</h1>`;
             
             for(let i=1; i < unlockedDay; i++) {
                 if (i % 7 === 6 || i % 7 === 0) continue; 
-                const dayWords = levelData[i] || [];
+                // 🚀 [수정됨] 헬퍼 함수 적용
+                const dayWords = getWordsForDay(currentLevel, i);
                 if(dayWords.length > 0) {
                     printHtml += `<div class="print-day" style="font-size:1.2rem; font-weight:bold; margin-top:20px; border-bottom:2px solid #000;">Day ${i}</div>`;
                     dayWords.forEach(w => {
                         const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
-                        printHtml += `<div style="margin:5px 0;"><strong>${w.word}</strong> <span style="color:#666;">${w.ipa}</span> - ${safeMeanings}</div>`;
+                        printHtml += `<div style="margin:5px 0;"><strong>${w.word}</strong> <span style="color:#666;">${w.ipa || ''}</span> - ${safeMeanings}</div>`;
                     });
                 }
             }
@@ -623,7 +636,6 @@
 
         function showAllWords() {
             const lvl = localStorage.getItem('trigger_level') || 'middle';
-            const data = wordsData[lvl] || {};
             let html = '';
             let totalCount = 0;
             
@@ -631,7 +643,8 @@
             
             for(let i = 1; i < levelUnlockedDay; i++) {
                 if (i % 7 === 6 || i % 7 === 0) continue; 
-                const dayWords = data[i] || [];
+                // 🚀 [수정됨] 헬퍼 함수 적용
+                const dayWords = getWordsForDay(lvl, i);
                 if(dayWords.length > 0) {
                     html += `<div onclick="toggleAccordion('day-list-${i}')" style="background: rgba(255,153,0,0.1); border: 1px solid rgba(255,153,0,0.3); color:var(--neon-orange); padding: 15px; margin-top:10px; border-radius: 8px; font-weight:bold; display: flex; justify-content: space-between; cursor: pointer;">
                                 <span>Day ${i} 학습 완료</span><span>▼</span>
