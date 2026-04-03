@@ -1,35 +1,56 @@
-<script src="worddata.js"></script>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trigger Voca - Study</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="study-bg">
+    <div id="app">
+        <button class="back-btn" onclick="location.href='index.html'">← 메인으로</button>
+        
+        <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px;">
+            <button id="pause-btn" onclick="togglePause()" style="background: transparent; border: 1px solid var(--neon-blue); color: #fff; padding: 5px 10px; border-radius: 8px; cursor: pointer;">⏸ 일시중지</button>
+            <button id="mute-toggle-btn" onclick="toggleMute()" style="background: transparent; border: none; font-size: 1.2rem; cursor: pointer;">🔊</button>
+        </div>
 
+        <div class="header">
+            <div id="session-tag" style="color:var(--neon-blue); font-weight:bold; font-size:1.1rem;">Session 1 / 6</div>
+            <div class="progress-box"><div id="bar"></div></div>
+        </div>
+        
+        <div id="display">
+            <div id="target"></div>
+            <div id="meanings"></div>
+        </div>
+        
+        <div class="footer" style="display:none;"></div>
+        <button id="exit-btn" onclick="location.href='index.html'" style="display:none; position: absolute; bottom: 40px; width: 80%; padding: 15px; background: #222; color: #fff; border: 1px solid #444; border-radius: 12px;">종료하고 나가기</button>
+    </div>
+
+    <script src="worddata.js"></script>
     <script>
-        // 💡 중요: worddata.js에서 가져온 데이터를 app.js가 문제없이 쓸 수 있도록 연결해 줍니다.
         window.wordsData = typeof wordsData !== 'undefined' ? wordsData : { middle: {}, high: {} };
     </script>
-
     <script src="app.js"></script>
-
     <script>
-        // 서비스 워커 등록 (기존 코드 유지)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./service-worker.js')
-                    .then(reg => console.log('학습 페이지: 서비스 워커 등록 성공!'))
-                    .catch(err => console.log('학습 페이지: 서비스 워커 등록 실패:', err));
+                navigator.serviceWorker.register('./service-worker.js').catch(err => console.log(err));
             });
         }
-
-        // 한글 감지 및 스타일 변경 (기존 코드 유지)
         window.addEventListener('DOMContentLoaded', () => {
             const targetEl = document.getElementById('target');
             if(targetEl) {
                 const observer = new MutationObserver(() => {
                     const text = targetEl.innerText || "";
-                    if (/[가-힣]/.test(text)) {
-                        targetEl.classList.add('system-msg');
-                    } else {
-                        targetEl.classList.remove('system-msg');
-                    }
+                    if (/[가-힣]/.test(text)) targetEl.classList.add('system-msg');
+                    else targetEl.classList.remove('system-msg');
                 });
                 observer.observe(targetEl, { childList: true, characterData: true, subtree: true });
             }
         });
     </script>
+</body>
+</html>
