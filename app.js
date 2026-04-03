@@ -82,49 +82,62 @@ function initApp() {
         let currentSession = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`)) || 1;
         const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
         
-        const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
+        let week = Math.ceil(currentDay / 7);
+        let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
         
+        // 🚀 [해결 핵심] 파이썬 구조(week/day)에 맞게 데이터를 안전하게 꺼냅니다.
+        let dayData = null;
+        if (typeof wordsData !== 'undefined' && wordsData[currentLevel] && wordsData[currentLevel]["week" + week]) {
+            dayData = wordsData[currentLevel]["week" + week][String(localDay)];
+        }
+
+        if (!dayData) {
+            showSystemMessage(`Day ${currentDay}의<br>단어 데이터가 없습니다.`);
+            setTimeout(() => { location.href = 'index.html'; }, 2000);
+            return;
+        }
+
+        const isReviewDay = (localDay === 6 || localDay === 7);
+
         if (isReviewDay) {
-            let allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
-            targetWords = allWrongs.filter(w => w.level === currentLevel);
-            if (targetWords.length === 0) {
-                showSystemMessage("저장된 오답이 없습니다.<br>메인으로 돌아갑니다.");
-                setTimeout(() => { location.href = 'index.html'; }, 2000);
-                return;
+            // 🚀 [해결 핵심] Day 6, 7 복습일 로직 연동 (원장님 요청: 2세션 학습 + 1테스트)
+            if (currentSession === 1) {
+                todayWords = dayData.review_parts[0] || [];
+            } else if (currentSession === 2) {
+                todayWords = dayData.review_parts[1] || [];
+            } else {
+                todayWords = dayData.test || [];
+                // 세션 3이어도 앱 시스템 규격 유지를 위해 강제로 세션 6(테스트)으로 전환합니다.
+                if (currentSession < 6) {
+                    currentSession = 6; 
+                    localStorage.setItem(`trigger_session_${currentLevel}`, '6');
+                }
             }
         } else {
-            // 🚀 [핵심 수정] 기존 filter() 배열 방식을 버리고, 새로운 week/day 중첩 객체 구조에서 데이터를 꺼내옵니다.
-            todayWords = [];
-            if (typeof wordsData !== 'undefined' && wordsData[currentLevel]) {
-                let week = Math.ceil(currentDay / 7);
-                let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
-                let weekData = wordsData[currentLevel]["week" + week];
-                
-                if (weekData && weekData[String(localDay)]) {
-                    todayWords = weekData[String(localDay)];
-                }
-            }
-            
-            if (todayWords.length === 0) {
-                showSystemMessage(`Day ${currentDay}의<br>단어 데이터가 없습니다.`);
-                setTimeout(() => { location.href = 'index.html'; }, 2000);
-                return;
-            }
+            // Day 1 ~ 5 일반 진도
+            todayWords = dayData; 
+        }
 
-            if (currentDay > 1 && currentSession === 1) {
-                let allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
-                let preReviewWords = allWrongs.filter(w => w.level === currentLevel && (w.day === currentDay - 1 || w.day === currentDay - 2));
+        if (!todayWords || todayWords.length === 0) {
+            showSystemMessage("학습할 단어가 없습니다.");
+            setTimeout(() => { location.href = 'index.html'; }, 2000);
+            return;
+        }
+
+        targetWords = todayWords;
+
+        if (!isReviewDay && currentDay > 1 && currentSession === 1) {
+            let allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+            let preReviewWords = allWrongs.filter(w => w.level === currentLevel && (w.day === currentDay - 1 || w.day === currentDay - 2));
+            
+            if (preReviewWords.length > 0) {
+                isPreReviewMode = true;
+                targetWords = preReviewWords;
+                if (sessionTag) sessionTag.innerText = `🚨 이전 오답 테스트`;
                 
-                if (preReviewWords.length > 0) {
-                    isPreReviewMode = true;
-                    targetWords = preReviewWords;
-                    if (sessionTag) sessionTag.innerText = `🚨 이전 오답 테스트 (Day ${currentDay-2 < 1 ? 1 : currentDay-2}~${currentDay-1})`;
-                    
-                    startCountdown("사전 오답 테스트를 시작합니다.", startTest);
-                    return; 
-                }
+                startCountdown("사전 오답 테스트를 시작합니다.", startTest);
+                return; 
             }
-            targetWords = todayWords; 
         }
 
         if (sessionTag) {
@@ -140,6 +153,7 @@ function initApp() {
         }
     } catch (err) {
         showSystemMessage("에러 발생: " + err.message);
+        setTimeout(() => { location.href = 'index.html'; }, 3000);
     }
 }
 
@@ -280,7 +294,7 @@ function updateUI(data, isTest = false) {
     } else if (data.meaning) {
         safeMeanings = [data.meaning]; 
     } else {
-        safeMeanings = ["뜻 정보 없음"];
+        safeMeanings = ["뜻 확인 필요"];
     }
 
     const fullMeaning = safeMeanings.join(', ');
