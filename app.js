@@ -82,44 +82,54 @@ function initApp() {
         let currentSession = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`)) || 1;
         const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
         
-        // 🚀 [수정] 바뀐 5+2 데이터 구조에서 데이터를 가져옵니다.
-        let dayData = null;
         let week = Math.ceil(currentDay / 7);
         let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
+        
+        // 🚀 [해결 핵심] 파이썬 구조(week/day)에 맞게 데이터를 안전하게 꺼냅니다.
+        let dayData = null;
+        if (typeof wordsData !== 'undefined' && wordsData[currentLevel] && wordsData[currentLevel]["week" + week]) {
+            dayData = wordsData[currentLevel]["week" + week][String(localDay)];
+        }
 
-        if (window.wordsData && window.wordsData[currentLevel]) {
-            const weekKey = "week" + week;
-            if (window.wordsData[currentLevel][weekKey]) {
-                dayData = window.wordsData[currentLevel][weekKey][String(localDay)];
-            }
+        if (!dayData) {
+            showSystemMessage(`Day ${currentDay}의<br>단어 데이터가 없습니다.`);
+            setTimeout(() => { location.href = 'index.html'; }, 2000);
+            return;
         }
 
         const isReviewDay = (localDay === 6 || localDay === 7);
 
         if (isReviewDay) {
-            if (!dayData || !dayData.review_parts) {
-                showSystemMessage(`복습 데이터를 찾을 수 없습니다.`);
-                setTimeout(() => { location.href = 'index.html'; }, 2000);
-                return;
-            }
-            if (currentSession === 1) todayWords = dayData.review_parts[0];
-            else if (currentSession === 2) todayWords = dayData.review_parts[1];
-            else {
-                todayWords = dayData.test;
-                if (currentSession < 6) {
-                    currentSession = 6;
-                    localStorage.setItem(`trigger_session_${currentLevel}`, '6');
+            // 🚀 [구조적 해결] Day 6, 7 복습일이 배열인지 객체인지 완벽히 판별하여 꺼냅니다.
+            if (Array.isArray(dayData)) {
+                todayWords = dayData;
+            } else if (dayData && dayData.review_parts) {
+                if (currentSession === 1) {
+                    todayWords = dayData.review_parts[0] || [];
+                } else if (currentSession === 2) {
+                    todayWords = dayData.review_parts[1] || [];
+                } else {
+                    todayWords = dayData.test || [];
+                    if (currentSession < 6) {
+                        currentSession = 6; 
+                        localStorage.setItem(`trigger_session_${currentLevel}`, '6');
+                    }
                 }
+            } else {
+                todayWords = [];
             }
         } else {
-            todayWords = dayData || [];
+            // Day 1 ~ 5 일반 진도
+            todayWords = dayData || []; 
         }
-        
-        if (todayWords.length === 0) {
-            showSystemMessage(`Day ${currentDay}의<br>단어 데이터가 없습니다.`);
+
+        if (!todayWords || todayWords.length === 0) {
+            showSystemMessage("학습할 단어가 없습니다.");
             setTimeout(() => { location.href = 'index.html'; }, 2000);
             return;
         }
+
+        targetWords = todayWords;
 
         if (!isReviewDay && currentDay > 1 && currentSession === 1) {
             let allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
@@ -129,11 +139,11 @@ function initApp() {
                 isPreReviewMode = true;
                 targetWords = preReviewWords;
                 if (sessionTag) sessionTag.innerText = `🚨 이전 오답 테스트`;
+                
                 startCountdown("사전 오답 테스트를 시작합니다.", startTest);
                 return; 
             }
         }
-        targetWords = todayWords; 
 
         if (sessionTag) {
             sessionTag.innerText = currentSession > 6 ? `자유 복습 모드` : `Session ${currentSession} / 6`;
@@ -148,6 +158,7 @@ function initApp() {
         }
     } catch (err) {
         showSystemMessage("에러 발생: " + err.message);
+        setTimeout(() => { location.href = 'index.html'; }, 3000);
     }
 }
 
@@ -282,8 +293,15 @@ function updateUI(data, isTest = false) {
     
     if (!data || !data.word) return;
 
-    // 🚀 [수정] 뜻 배열 처리 로직 보강
-    let safeMeanings = Array.isArray(data.meanings) ? data.meanings : (data.meaning ? [data.meaning] : ["뜻 정보 없음"]);
+    let safeMeanings = [];
+    if (Array.isArray(data.meanings)) {
+        safeMeanings = data.meanings;
+    } else if (data.meaning) {
+        safeMeanings = [data.meaning]; 
+    } else {
+        safeMeanings = ["뜻 확인 필요"];
+    }
+
     const fullMeaning = safeMeanings.join(', ');
 
     targetEl.style.setProperty('font-size', '3.3rem', 'important'); 
@@ -305,6 +323,7 @@ function updateUI(data, isTest = false) {
     
     const starBtn = document.getElementById('star-btn');
     let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+    
     const isStarred = wrongWords.some(w => w.word === data.word && w.level === currentLevel);
     
     if(starBtn) {
@@ -317,15 +336,19 @@ function updateUI(data, isTest = false) {
     } else {
         if(starBtn) starBtn.style.display = 'none'; 
         
-        // 🚀 [수정] 오답 보기 생성 시 배열 형태 뜻 지원
-        const otherWords = targetWords.filter(w => w.word !== data.word);
-        let availableMeanings = otherWords.map(w => Array.isArray(w.meanings) ? w.meanings.join(', ') : (w.meaning || "오답"));
+        const allOtherMeanings = targetWords.filter(w => w.word !== data.word).map(w => {
+            if (Array.isArray(w.meanings)) return w.meanings.join(', ');
+            if (w.meaning) return w.meaning;
+            return "뜻 정보 없음";
+        });
         
+        let availableMeanings = [...allOtherMeanings]; 
         let wrongChoices = [];
         while (wrongChoices.length < 3) {
             if (availableMeanings.length > 0) {
                 const randomIdx = Math.floor(Math.random() * availableMeanings.length);
-                wrongChoices.push(availableMeanings.splice(randomIdx, 1)[0]);
+                wrongChoices.push(availableMeanings[randomIdx]);
+                availableMeanings.splice(randomIdx, 1); 
             } else {
                 wrongChoices.push(`오답 ${wrongChoices.length + 1}`);
             }
@@ -337,7 +360,18 @@ function updateUI(data, isTest = false) {
             const isCorrect = (c === fullMeaning);
             return `
                 <button class="choice-btn" 
-                    style="font-size: 1.15rem !important; height: 70px !important; display: flex; align-items: center; justify-content: center; text-align: center; padding: 5px 15px !important; margin-bottom: 10px; line-height: 1.2; word-break: keep-all;" 
+                    style="
+                        font-size: 1.15rem !important; 
+                        height: 70px !important; 
+                        display: flex; 
+                        align-items: center; 
+                        justify-content: center; 
+                        text-align: center;
+                        padding: 5px 15px !important;
+                        margin-bottom: 10px;
+                        line-height: 1.2;
+                        word-break: keep-all;
+                    " 
                     onclick="handleAnswer(${isCorrect})">
                     ${c}
                 </button>`;
@@ -374,7 +408,9 @@ function finishSession(didTest = true) {
     if (isPreReviewMode) {
         isPreReviewMode = false;
         targetWords = todayWords; 
-        currentIdx = 0; score = 0; studyLoopCount = 1;
+        currentIdx = 0;
+        score = 0;
+        studyLoopCount = 1;
         document.getElementById('session-tag').innerText = `Session 1 / 6`;
         startCountdown("복습 완료! 👍<br>오늘의 단어를 시작할게요.", startStudy);
         return;
@@ -408,6 +444,8 @@ function finishSession(didTest = true) {
 
     if (currentSession >= 6) {
         const accuracy = Math.floor((score / targetWords.length) * 100);
+        const isHighScorer = accuracy >= 80;
+
         showSystemMessage(`
             <div style="padding: 10px; text-align:center;">
                 <div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold; margin-bottom:15px;">MISSION COMPLETE!</div>
@@ -415,13 +453,19 @@ function finishSession(didTest = true) {
                     <div style="font-size:0.9rem; color:#888;">최종 테스트 정답률</div>
                     <div style="font-size:2rem; font-weight:bold; color:var(--neon-orange);">${accuracy}%</div>
                 </div>
+                
                 <div style="display:flex; flex-direction:column; gap:12px;">
-                    ${accuracy >= 80 ? `<button onclick="shareKakao()" style="width:100%; padding:16px; background:#fee500; color:#3c1e1e; border:none; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer;">🟡 카톡으로 성과 공유하기</button>` : `<div style="color:#888; font-size:0.85rem; margin-bottom:10px;">80% 이상 득점 시 자랑하기가 활성화됩니다! 🔥</div>`}
+                    ${isHighScorer ? 
+                        `<button onclick="shareKakao()" style="width:100%; padding:16px; background:#fee500; color:#3c1e1e; border:none; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer;">🟡 카톡으로 성과 공유하기</button>` 
+                        : `<div style="color:#888; font-size:0.85rem; margin-bottom:10px;">80% 이상 득점 시 자랑하기가 활성화됩니다! 🔥</div>`
+                    }
                     <button onclick="location.href='index.html'" style="width:100%; padding:12px; background:transparent; color:#666; border:none; cursor:pointer; font-size:0.9rem;">종료하기</button>
                 </div>
             </div>
         `);
-    } else {
+    }
+    
+    else {
         localStorage.setItem('blackt_cooldown', Date.now() + COOL_DOWN_TIME);
         showSystemMessage(didTest ? "테스트 완료! 👍" : "세션 완료! 🔥<br>조금씩 실력이 늘고 있어요.");
         setTimeout(() => { location.href = 'index.html'; }, 2200);
@@ -429,21 +473,37 @@ function finishSession(didTest = true) {
 }
 
 function shareKakao() {
-    if (typeof Kakao === 'undefined') return;
+    if (typeof Kakao === 'undefined') {
+        alert("카카오 SDK를 불러오지 못했습니다.");
+        return;
+    }
+
     try {
         const userName = localStorage.getItem('trigger_name') || '학습자';
+        const currentLevel = localStorage.getItem('trigger_level') || 'middle';
         const currentDay = localStorage.getItem(`trigger_current_day_${currentLevel}`) || 1;
+        const levelName = currentLevel === 'high' ? '고등' : '중등';
         const currentUrl = window.location.origin; 
+
         Kakao.Share.sendDefault({
             objectType: 'feed',
             content: {
                 title: '⚡ 트리거 보카 목표 달성!',
-                description: `${userName}님이 [${currentLevel === 'high' ? '고등' : '중등'} Day ${currentDay}]를 완수했습니다.\n최종 정답률: ${score} / ${targetWords.length}`,
-                imageUrl: 'https://yourdomain.com/icon-512.png', link: { mobileWebUrl: currentUrl, webUrl: currentUrl },
+                description: `${userName}님이 [${levelName} Day ${currentDay}] 6세션 루틴을 완수했습니다.\n최종 정답률: ${score} / ${targetWords.length}`,
+                imageUrl: 'https://yourdomain.com/icon-512.png', 
+                link: { mobileWebUrl: currentUrl, webUrl: currentUrl },
             },
-            buttons: [{ title: '나도 도전하기', link: { mobileWebUrl: currentUrl, webUrl: currentUrl } }],
+            buttons: [
+                {
+                    title: '나도 도전하기',
+                    link: { mobileWebUrl: currentUrl, webUrl: currentUrl },
+                }
+            ],
         });
-    } catch (e) {}
+    } catch (e) {
+        console.error("공유 에러:", e);
+        alert("카톡 공유 중 오류가 발생했습니다. 개발자 설정을 확인해 주세요.");
+    }
 }
 
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }

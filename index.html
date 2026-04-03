@@ -296,7 +296,7 @@
 
     <script src="worddata.js"></script>
     <script>
-        // 🚀 [핵심 수정] 바뀐 week/day 데이터 구조를 안정적으로 가져오는 헬퍼 함수 추가
+        // 🚀 바뀐 데이터 구조를 가져오는 함수 추가
         function getWordsForDay(level, absoluteDay) {
             if (typeof wordsData === 'undefined' || !wordsData[level]) return [];
             let week = Math.ceil(absoluteDay / 7);
@@ -305,8 +305,10 @@
             if (!weekData) return [];
             let dayData = weekData[String(localDay)];
             if (!dayData) return [];
-            if (localDay === 6 || localDay === 7) return dayData.test || []; // 복습일 처리
-            return dayData;
+            if ((localDay === 6 || localDay === 7) && !Array.isArray(dayData)) {
+                return dayData.test || [];
+            }
+            return Array.isArray(dayData) ? dayData : [];
         }
 
         const TOTAL_DAYS = 70; 
@@ -443,7 +445,6 @@
                 welcomeMsg.innerText = session > 6 ? `환영합니다, ${name}님! (오늘 목표 완료!)` : `환영합니다, ${name}님!`;
             }
 
-            // 🚀 [수정됨] 헬퍼 함수를 통해 단어 개수를 가져오도록 변경
             if (typeof wordsData !== 'undefined') {
                 let learnedTotal = 0;
                 for (let i = 1; i < unlockedDay; i++) { 
@@ -584,7 +585,6 @@
             
             for(let i=1; i < unlockedDay; i++) {
                 if (i % 7 === 6 || i % 7 === 0) continue; 
-                // 🚀 [수정됨] 헬퍼 함수 적용
                 const dayWords = getWordsForDay(currentLevel, i);
                 if(dayWords.length > 0) {
                     printHtml += `<div class="print-day" style="font-size:1.2rem; font-weight:bold; margin-top:20px; border-bottom:2px solid #000;">Day ${i}</div>`;
@@ -643,7 +643,6 @@
             
             for(let i = 1; i < levelUnlockedDay; i++) {
                 if (i % 7 === 6 || i % 7 === 0) continue; 
-                // 🚀 [수정됨] 헬퍼 함수 적용
                 const dayWords = getWordsForDay(lvl, i);
                 if(dayWords.length > 0) {
                     html += `<div onclick="toggleAccordion('day-list-${i}')" style="background: rgba(255,153,0,0.1); border: 1px solid rgba(255,153,0,0.3); color:var(--neon-orange); padding: 15px; margin-top:10px; border-radius: 8px; font-weight:bold; display: flex; justify-content: space-between; cursor: pointer;">
