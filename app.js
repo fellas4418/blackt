@@ -297,15 +297,7 @@ function updateUI(data, isTest = false) {
     
     if (!data || !data.word) return;
 
-    let safeMeanings = [];
-    if (Array.isArray(data.meanings)) {
-        safeMeanings = data.meanings;
-    } else if (data.meaning) {
-        safeMeanings = [data.meaning]; 
-    } else {
-        safeMeanings = ["뜻 확인 필요"];
-    }
-
+    let safeMeanings = Array.isArray(data.meanings) ? data.meanings : (data.meaning ? [data.meaning] : ["뜻 확인 필요"]);
     const fullMeaning = safeMeanings.join(', ');
 
     targetEl.style.setProperty('font-size', '3.3rem', 'important'); 
@@ -313,25 +305,35 @@ function updateUI(data, isTest = false) {
     targetEl.style.setProperty('color', '#fff', 'important');
     targetEl.style.setProperty('margin-top', '0px', 'important');
 
-    // 🚀 [중앙 정렬 보정] 왼쪽에 투명한 가짜 별표를 배치해서 영단어를 정가운데로 밉니다.
-    let titleHtml = `
-        <div style="display:flex; flex-direction:column; align-items:center;">
-            <div style="display:flex; justify-content:center; align-items:center; gap:8px;">
-                <span style="font-size:1.8rem; visibility:hidden; pointer-events:none;">☆</span>
-                <span style="cursor:pointer;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</span>
-                <button id="star-btn" style="background:none; border:none; font-size:1.8rem; cursor:pointer; color:var(--neon-orange); padding-bottom:5px;">☆</button>
+    // 🚀 [정렬 수정] 학습 모드일 때만 투명 별표로 보정하고, 테스트(복습) 모드일 때는 순수 중앙 정렬
+    let titleHtml = "";
+    if (!isTest) {
+        titleHtml = `
+            <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="display:flex; justify-content:center; align-items:center;">
+                    <span style="font-size:1.8rem; visibility:hidden; pointer-events:none;">☆</span>
+                    <span style="cursor:pointer; margin:0 10px;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</span>
+                    <button id="star-btn" style="background:none; border:none; font-size:1.8rem; cursor:pointer; color:var(--neon-orange); padding-bottom:5px;">☆</button>
+                </div>
+                <div class="ipa-text" style="font-size:1.2rem; color:#888; margin-top:8px;">${data.ipa || ''}</div>
             </div>
-            <div class="ipa-text" style="font-size:1.2rem; color:#888; margin-top:8px;">${data.ipa || ''}</div>
-        </div>
-    `;
+        `;
+    } else {
+        // 테스트 모드: 별표가 없으므로 군더더기 없이 정중앙 정렬
+        titleHtml = `
+            <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="font-size:3.3rem; font-weight:bold; cursor:pointer;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</div>
+                <div class="ipa-text" style="font-size:1.2rem; color:#888; margin-top:8px;">${data.ipa || ''}</div>
+            </div>
+        `;
+    }
     
     targetEl.innerHTML = titleHtml;
     
     const starBtn = document.getElementById('star-btn');
-    let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
-    const isStarred = wrongWords.some(w => w.word === data.word && w.level === currentLevel);
-    
-    if(starBtn) {
+    if(starBtn && !isTest) {
+        let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+        const isStarred = wrongWords.some(w => w.word === data.word && w.level === currentLevel);
         starBtn.innerText = isStarred ? "⭐" : "☆";
         starBtn.onclick = (e) => { e.stopPropagation(); toggleStar(data); };
     }
@@ -339,32 +341,20 @@ function updateUI(data, isTest = false) {
     if (!isTest) {
         mBox.innerHTML = safeMeanings.map(m => `<div style="font-size:2.2rem; font-weight:bold; margin-bottom:15px;">${m}</div>`).join('');
     } else {
-        if(starBtn) starBtn.style.display = 'none'; 
+        // 🚀 [보기 수정] 글자 크기를 1.15rem -> 1.4rem (약 20% 상향)으로 키움
         const allOtherMeanings = targetWords.filter(w => w.word !== data.word).map(w => {
             if (Array.isArray(w.meanings)) return w.meanings.join(', ');
-            if (w.meaning) return w.meaning;
-            return "뜻 정보 없음";
+            return w.meaning || "뜻 정보 없음";
         });
         
-        let availableMeanings = [...allOtherMeanings]; 
-        let wrongChoices = [];
-        while (wrongChoices.length < 3) {
-            if (availableMeanings.length > 0) {
-                const randomIdx = Math.floor(Math.random() * availableMeanings.length);
-                wrongChoices.push(availableMeanings[randomIdx]);
-                availableMeanings.splice(randomIdx, 1); 
-            } else {
-                wrongChoices.push(`오답 ${wrongChoices.length + 1}`);
-            }
-        }
-        
-        const choices = [fullMeaning, ...wrongChoices].sort(() => Math.random() - 0.5);
+        let availableMeanings = [...allOtherMeanings].sort(() => Math.random() - 0.5).slice(0, 3);
+        const choices = [fullMeaning, ...availableMeanings].sort(() => Math.random() - 0.5);
         
         mBox.innerHTML = choices.map(c => {
             const isCorrect = (c === fullMeaning);
             return `
                 <button class="choice-btn" 
-                    style="font-size: 1.15rem !important; height: 70px !important; display: flex; align-items: center; justify-content: center; text-align: center; padding: 5px 15px !important; margin-bottom: 10px; line-height: 1.2; word-break: keep-all;" 
+                    style="font-size: 1.4rem !important; height: 75px !important; display: flex; align-items: center; justify-content: center; text-align: center; padding: 5px 15px !important; margin-bottom: 12px; line-height: 1.2; word-break: keep-all; font-weight: bold;" 
                     onclick="handleAnswer(${isCorrect})">
                     ${c}
                 </button>`;
