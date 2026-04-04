@@ -188,12 +188,24 @@ function togglePause() {
     const exitBtn = document.getElementById('exit-btn');
     
     if (isPaused) {
-        if(pauseBtn) pauseBtn.innerText = "▶ 계속하기";
-        if(exitBtn) exitBtn.style.display = "inline-block"; // 우측 상단에 나란히 등장
+        if(pauseBtn) {
+            pauseBtn.innerText = "▶ 계속하기";
+            pauseBtn.style.borderColor = "var(--neon-green)"; // 계속하기는 녹색으로 강조
+            pauseBtn.style.color = "var(--neon-green)";
+        }
+        if(exitBtn) {
+            exitBtn.style.display = "inline-block"; // 네온 레드 [나가기] 등장
+        }
         window.speechSynthesis.pause(); 
     } else {
-        if(pauseBtn) pauseBtn.innerText = "⏸ 일시중지";
-        if(exitBtn) exitBtn.style.display = "none"; // 다시 숨김
+        if(pauseBtn) {
+            pauseBtn.innerText = "⏸ 일시중지";
+            pauseBtn.style.borderColor = "var(--neon-blue)"; // 원래 파란색으로 복구
+            pauseBtn.style.color = "#fff";
+        }
+        if(exitBtn) {
+            exitBtn.style.display = "none";
+        }
         window.speechSynthesis.resume(); 
     }
 }

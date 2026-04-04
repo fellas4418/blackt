@@ -10,9 +10,14 @@
     <div id="app">
         <button class="back-btn" onclick="location.href='index.html'">← 메인으로</button>
         
-        <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 8px; align-items: center;">
-            <button id="pause-btn" onclick="togglePause()" style="background: transparent; border: 1px solid var(--neon-blue); color: #fff; padding: 5px 12px; border-radius: 8px; cursor: pointer; white-space: nowrap;">⏸ 일시중지</button>
-            <button id="exit-btn" onclick="location.href='index.html'" style="display: none; background: #222; border: 1px solid #ff4444; color: #ff4444; padding: 5px 12px; border-radius: 8px; cursor: pointer; white-space: nowrap;">🚪 종료</button>
+        <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 8px; align-items: center; z-index: 100;">
+            <button id="pause-btn" onclick="togglePause()" style="background: transparent; border: 1px solid var(--neon-blue); color: #fff; padding: 6px 12px; border-radius: 8px; cursor: pointer; white-space: nowrap; font-weight: bold;">⏸ 일시중지</button>
+            
+            <button id="exit-btn" onclick="location.href='index.html'" 
+                style="display: none; background: transparent; border: 1px solid #ff0055; color: #ff0055; padding: 6px 12px; border-radius: 8px; cursor: pointer; white-space: nowrap; font-weight: bold; text-shadow: 0 0 8px #ff0055; box-shadow: inset 0 0 5px #ff0055;">
+                🚪 나가기
+            </button>
+            
             <button id="mute-toggle-btn" onclick="toggleMute()" style="background: transparent; border: none; font-size: 1.2rem; cursor: pointer; margin-left: 5px;">🔊</button>
         </div>
 
