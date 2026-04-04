@@ -188,20 +188,23 @@ function togglePause() {
     const exitBtn = document.getElementById('exit-btn');
     
     if (isPaused) {
+        // 일시중지 상태: 두 버튼을 동시에 보여주고 스타일을 맞춤
         if(pauseBtn) {
             pauseBtn.innerText = "▶ 계속하기";
-            pauseBtn.style.borderColor = "var(--neon-green)";
-            pauseBtn.style.color = "var(--neon-green)";
+            pauseBtn.style.display = "inline-block"; // 보이게 함
         }
-        if(exitBtn) exitBtn.style.display = "block"; 
+        if(exitBtn) {
+            exitBtn.style.display = "inline-block"; // '나가기'도 동시에 보이게 함
+        }
         window.speechSynthesis.pause(); 
     } else {
+        // 다시 시작 상태: 계속하기 버튼을 원래대로 돌리고 나가기 버튼을 숨김
         if(pauseBtn) {
             pauseBtn.innerText = "⏸ 일시중지";
-            pauseBtn.style.borderColor = "var(--neon-blue)";
-            pauseBtn.style.color = "#fff";
         }
-        if(exitBtn) exitBtn.style.display = "none";
+        if(exitBtn) {
+            exitBtn.style.display = "none";
+        }
         window.speechSynthesis.resume(); 
     }
 }
