@@ -37,6 +37,10 @@
         
         <div class="footer" style="display:none;"></div>
     </div>
+    <div id="admin-menu" style="position: fixed; bottom: 10px; left: 10px; display: flex; gap: 5px; z-index: 999; opacity: 0.3;">
+        <button onclick="skipToTest()" style="background: #333; color: #fff; border: 1px solid #555; padding: 5px; font-size: 0.7rem; border-radius: 4px;">⏩ 학습스킵</button>
+        <button onclick="skipToFinish()" style="background: #333; color: #fff; border: 1px solid #555; padding: 5px; font-size: 0.7rem; border-radius: 4px;">🏁 결과스킵</button>
+    </div>
 
     <script src="worddata.js"></script>
     <script>

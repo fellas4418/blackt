@@ -15,6 +15,7 @@ function showSystemMessage(text) {
     if (meaningsEl) meaningsEl.innerHTML = "";
 }
 
+// 🚀 카카오 초기화 안정화 (중복 제거 및 위치 고정)
 function initKakao() {
     try {
         if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
@@ -25,7 +26,6 @@ function initKakao() {
         console.error("카카오 초기화 실패", e); 
     }
 }
-// 페이지 로드 시 초기화 실행
 window.addEventListener('load', initKakao);
 
 let currentIdx = 0;
@@ -91,7 +91,6 @@ function initApp() {
         let week = Math.ceil(currentDay / 7);
         let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
         
-        // 🚀 [해결 핵심] 파이썬 구조(week/day)에 맞게 데이터를 안전하게 꺼냅니다.
         let dayData = null;
         if (typeof wordsData !== 'undefined' && wordsData[currentLevel] && wordsData[currentLevel]["week" + week]) {
             dayData = wordsData[currentLevel]["week" + week][String(localDay)];
@@ -106,7 +105,6 @@ function initApp() {
         const isReviewDay = (localDay === 6 || localDay === 7);
 
         if (isReviewDay) {
-            // 🚀 [구조적 해결] Day 6, 7 복습일이 배열인지 객체인지 완벽히 판별하여 꺼냅니다.
             if (Array.isArray(dayData)) {
                 todayWords = dayData;
             } else if (dayData && dayData.review_parts) {
@@ -125,7 +123,6 @@ function initApp() {
                 todayWords = [];
             }
         } else {
-            // Day 1 ~ 5 일반 진도
             todayWords = dayData || []; 
         }
 
@@ -252,9 +249,9 @@ function startStudy() {
         time -= 100;
         const bar = document.getElementById('bar');
         if(bar) bar.style.width = (time / 6000 * 100) + "%";
-        if (time <= 0) {
+        if (time <= 0 || currentIdx >= targetWords.length) { // 스킵 대응
             clearInterval(interval);
-            currentIdx++;
+            if (time <= 0) currentIdx++;
             setTimeout(startStudy, 500);
         }
     }, 100);
@@ -276,7 +273,10 @@ function startTest() {
         time -= 100;
         const bar = document.getElementById('bar');
         if(bar) bar.style.width = (time / 5000 * 100) + "%";
-        if (time <= 0) { clearInterval(interval); handleAnswer(false); }
+        if (time <= 0 || currentIdx >= targetWords.length) { // 스킵 대응
+            clearInterval(interval); 
+            if (time <= 0) handleAnswer(false); 
+        }
     }, 100);
     window.currentTimer = interval;
 }
@@ -311,7 +311,6 @@ function updateUI(data, isTest = false) {
     targetEl.style.setProperty('color', '#fff', 'important');
     targetEl.style.setProperty('margin-top', '0px', 'important');
 
-    // 🚀 [정렬 수정] 학습 모드일 때만 투명 별표로 보정하고, 테스트(복습) 모드일 때는 순수 중앙 정렬
     let titleHtml = "";
     if (!isTest) {
         titleHtml = `
@@ -325,7 +324,6 @@ function updateUI(data, isTest = false) {
             </div>
         `;
     } else {
-        // 테스트 모드: 별표가 없으므로 군더더기 없이 정중앙 정렬
         titleHtml = `
             <div style="display:flex; flex-direction:column; align-items:center;">
                 <div style="font-size:3.3rem; font-weight:bold; cursor:pointer;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</div>
@@ -347,7 +345,6 @@ function updateUI(data, isTest = false) {
     if (!isTest) {
         mBox.innerHTML = safeMeanings.map(m => `<div style="font-size:2.2rem; font-weight:bold; margin-bottom:15px;">${m}</div>`).join('');
     } else {
-        // 🚀 [보기 수정] 글자 크기를 1.15rem -> 1.4rem (약 20% 상향)으로 키움
         const allOtherMeanings = targetWords.filter(w => w.word !== data.word).map(w => {
             if (Array.isArray(w.meanings)) return w.meanings.join(', ');
             return w.meaning || "뜻 정보 없음";
@@ -373,8 +370,9 @@ function handleAnswer(isCorrect) {
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
     let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
     const currentWordData = targetWords[currentIdx];
+    
+    if (!currentWordData) return;
     const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
-
     const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
 
     if (isCorrect) {
@@ -400,7 +398,8 @@ function finishSession(didTest = true) {
         currentIdx = 0;
         score = 0;
         studyLoopCount = 1;
-        document.getElementById('session-tag').innerText = `Session 1 / 6`;
+        const sessionTag = document.getElementById('session-tag');
+        if(sessionTag) sessionTag.innerText = `Session 1 / 6`;
         startCountdown("복습 완료! 👍<br>오늘의 단어를 시작할게요.", startStudy);
         return;
     }
@@ -452,74 +451,61 @@ function finishSession(didTest = true) {
                 </div>
             </div>
         `);
-    }
-    
-    else {
+    } else {
         localStorage.setItem('blackt_cooldown', Date.now() + COOL_DOWN_TIME);
         showSystemMessage(didTest ? "테스트 완료! 👍" : "세션 완료! 🔥<br>조금씩 실력이 늘고 있어요.");
         setTimeout(() => { location.href = 'index.html'; }, 2200);
     }
 }
 
+// 🚀 깔끔하게 정리된 카카오 공유 함수
 function shareKakao() {
-    if (typeof Kakao === 'undefined') {
-        alert("카카오 SDK를 불러오지 못했습니다.");
+    if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) {
+        alert("카카오 SDK가 준비되지 않았습니다. 잠시 후 다시 시도해주세요.");
         return;
     }
 
     try {
         const userName = localStorage.getItem('trigger_name') || '학습자';
-        const currentLevel = localStorage.getItem('trigger_level') || 'middle';
-        const currentDay = localStorage.getItem(`trigger_current_day_${currentLevel}`) || 1;
         const levelName = currentLevel === 'high' ? '고등' : '중등';
-        function shareKakao() {
-            if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) {
-                alert("카카오 SDK가 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요.");
-                return;
-            }
-        
-            try {
-                const userName = localStorage.getItem('trigger_name') || '학습자';
-                const levelName = currentLevel === 'high' ? '고등' : '중등';
-                const currentDay = localStorage.getItem(`trigger_current_day_${currentLevel}`) || 1;
-                
-                // 🚀 현재 접속한 실제 주소를 가져옵니다.
-                const shareUrl = window.location.origin + window.location.pathname.replace('study.html', 'index.html');
-                // 🚀 아이콘 이미지 주소 (실제 파일이 없다면 카카오 기본 아이콘이 나옵니다)
-                const thumbImg = 'https://t1.kakaocdn.net/kakaocorp/Service/Official/Common/logo/kakaotalk_200x200.png';
-        
-                Kakao.Share.sendDefault({
-                    objectType: 'feed',
-                    content: {
-                        title: '⚡ 트리거 보카 목표 달성!',
-                        description: `${userName}님이 [${levelName} Day ${currentDay}]를 완수했습니다.\n정답률: ${Math.floor((score/targetWords.length)*100)}%`,
-                        imageUrl: thumbImg, 
-                        link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
-                    },
-                    buttons: [
-                        {
-                            title: '나도 도전하기',
-                            link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
-                        }
-                    ],
-                });
-            } catch (e) {
-                console.error("공유 에러:", e);
-                alert("카톡 공유 중 오류가 발생했습니다.");
-            }
-        }
-                link: { mobileWebUrl: currentUrl, webUrl: currentUrl },
+        const currentDay = localStorage.getItem(`trigger_current_day_${currentLevel}`) || 1;
+        const shareUrl = window.location.origin + window.location.pathname.replace('study.html', 'index.html');
+        const thumbImg = 'https://t1.kakaocdn.net/kakaocorp/Service/Official/Common/logo/kakaotalk_200x200.png';
+
+        Kakao.Share.sendDefault({
+            objectType: 'feed',
+            content: {
+                title: '⚡ 트리거 보카 목표 달성!',
+                description: `${userName}님이 [${levelName} Day ${currentDay}]를 완수했습니다.\n정답률: ${Math.floor((score/targetWords.length)*100)}%`,
+                imageUrl: thumbImg, 
+                link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
             },
             buttons: [
                 {
                     title: '나도 도전하기',
-                    link: { mobileWebUrl: currentUrl, webUrl: currentUrl },
+                    link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
                 }
             ],
         });
     } catch (e) {
         console.error("공유 에러:", e);
-        alert("카톡 공유 중 오류가 발생했습니다. 개발자 설정을 확인해 주세요.");
+        alert("카톡 공유 중 오류가 발생했습니다.");
+    }
+}
+
+// 🚀 관리자 스킵 함수
+function skipToTest() {
+    if (confirm("학습을 건너뛸까요?")) {
+        currentIdx = targetWords.length; 
+    }
+}
+
+function skipToFinish() {
+    if (confirm("결과 화면으로 갈까요?")) {
+        clearInterval(window.currentTimer);
+        score = targetWords.length; 
+        currentIdx = targetWords.length;
+        finishSession(true);
     }
 }
 
