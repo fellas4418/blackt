@@ -297,7 +297,6 @@ function updateUI(data, isTest = false) {
     
     if (!data || !data.word) return;
 
-    // 🚀 [수정] meanings(복수형)가 있으면 사용하고, 없으면 meaning(단수형)을 리스트로 변환
     let safeMeanings = [];
     if (Array.isArray(data.meanings)) {
         safeMeanings = data.meanings;
@@ -307,7 +306,6 @@ function updateUI(data, isTest = false) {
         safeMeanings = ["뜻 확인 필요"];
     }
 
-    // 화면에 보여줄 텍스트 합치기
     const fullMeaning = safeMeanings.join(', ');
 
     targetEl.style.setProperty('font-size', '3.3rem', 'important'); 
@@ -315,9 +313,11 @@ function updateUI(data, isTest = false) {
     targetEl.style.setProperty('color', '#fff', 'important');
     targetEl.style.setProperty('margin-top', '0px', 'important');
 
+    // 🚀 [중앙 정렬 보정] 왼쪽에 투명한 가짜 별표를 배치해서 영단어를 정가운데로 밉니다.
     let titleHtml = `
         <div style="display:flex; flex-direction:column; align-items:center;">
             <div style="display:flex; justify-content:center; align-items:center; gap:8px;">
+                <span style="font-size:1.8rem; visibility:hidden; pointer-events:none;">☆</span>
                 <span style="cursor:pointer;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</span>
                 <button id="star-btn" style="background:none; border:none; font-size:1.8rem; cursor:pointer; color:var(--neon-orange); padding-bottom:5px;">☆</button>
             </div>
@@ -337,12 +337,9 @@ function updateUI(data, isTest = false) {
     }
 
     if (!isTest) {
-        // 🚀 [학습 모드] 리스트에 있는 모든 뜻을 순서대로 큰 글자로 출력
         mBox.innerHTML = safeMeanings.map(m => `<div style="font-size:2.2rem; font-weight:bold; margin-bottom:15px;">${m}</div>`).join('');
     } else {
         if(starBtn) starBtn.style.display = 'none'; 
-        
-        // 🚀 [테스트 모드] 오답 선택지 생성 시 리스트 형식을 문자열로 변환하여 처리
         const allOtherMeanings = targetWords.filter(w => w.word !== data.word).map(w => {
             if (Array.isArray(w.meanings)) return w.meanings.join(', ');
             if (w.meaning) return w.meaning;
@@ -367,18 +364,7 @@ function updateUI(data, isTest = false) {
             const isCorrect = (c === fullMeaning);
             return `
                 <button class="choice-btn" 
-                    style="
-                        font-size: 1.15rem !important; 
-                        height: 70px !important; 
-                        display: flex; 
-                        align-items: center; 
-                        justify-content: center; 
-                        text-align: center;
-                        padding: 5px 15px !important;
-                        margin-bottom: 10px;
-                        line-height: 1.2;
-                        word-break: keep-all;
-                    " 
+                    style="font-size: 1.15rem !important; height: 70px !important; display: flex; align-items: center; justify-content: center; text-align: center; padding: 5px 15px !important; margin-bottom: 10px; line-height: 1.2; word-break: keep-all;" 
                     onclick="handleAnswer(${isCorrect})">
                     ${c}
                 </button>`;
