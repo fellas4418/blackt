@@ -512,34 +512,36 @@ function skipToFinish() {
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
 
 // 🚀 [최종 보강] 관리자 모드 활성화 (로고 3번 터치/클릭)
+// 🚀 [통합] 관리자 모드 활성화 및 전용 함수
 let adminClickCount = 0;
 
 function handleAdminActivation(e) {
-    // logo 클래스나 main-header-title ID를 가진 요소를 눌렀을 때만
+    // logo 클래스나 main-header-title ID를 가진 요소를 직접 눌렀거나 그 안의 자식을 눌렀을 때
     if (e.target.closest('.logo') || e.target.id === 'main-header-title') {
-        e.preventDefault(); // 더블탭 확대 방지
         adminClickCount++;
-        
+        console.log("관리자 클릭 감지:", adminClickCount); // 🔍 작동 여부 확인용
+
         if (adminClickCount === 3) {
             const menu = document.getElementById('admin-menu');
             if (menu) {
                 menu.style.display = 'flex'; 
                 alert("🛠️ 관리자 모드가 활성화되었습니다.");
+                // 화면 맨 아래(관리자 메뉴)로 이동
                 window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
             }
             adminClickCount = 0;
         }
 
         clearTimeout(window.adminTimeout);
-        window.adminTimeout = setTimeout(() => { adminClickCount = 0; }, 1000);
+        window.adminTimeout = setTimeout(() => { adminClickCount = 0; }, 1200);
     }
 }
 
-// PC(클릭)와 모바일(터치) 모두 대응
+// 이벤트 등록 (touchstart는 모바일에서 더 정확함)
 document.addEventListener('click', handleAdminActivation);
-document.addEventListener('touchstart', handleAdminActivation, { passive: false });
+document.addEventListener('touchstart', handleAdminActivation, { passive: true });
 
-// [관리자 전용] 즉시 완수 함수 유지
+// 🚀 [관리자 전용] 즉시 완수 함수 (중복 제거 완료)
 function jumpToFinish() {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
     localStorage.setItem('trigger_session_' + lvl, '6'); 
