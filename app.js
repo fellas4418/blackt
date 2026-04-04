@@ -15,12 +15,18 @@ function showSystemMessage(text) {
     if (meaningsEl) meaningsEl.innerHTML = "";
 }
 
-try {
-    if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
-        Kakao.init('fbb1520306ffaad0a882e993109a801c'); 
-        console.log("카카오 SDK 초기화 완료");
+function initKakao() {
+    try {
+        if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
+            Kakao.init('fbb1520306ffaad0a882e993109a801c'); 
+            console.log("카카오 SDK 초기화 완료");
+        }
+    } catch (e) { 
+        console.error("카카오 초기화 실패", e); 
     }
-} catch (e) { console.error("카카오 초기화 실패", e); }
+}
+// 페이지 로드 시 초기화 실행
+window.addEventListener('load', initKakao);
 
 let currentIdx = 0;
 let score = 0;
