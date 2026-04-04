@@ -511,26 +511,41 @@ function skipToFinish() {
 
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
 
-// 🚀 관리자 모드 활성화 (로고 3번 클릭)
+// 🚀 [수정본] 관리자 모드 활성화 (로고 영역 어디든 3번 클릭)
 let adminClickCount = 0;
-document.addEventListener('click', function(e) {
-    // 클릭한 요소가 main-header-title 이거나 그 자식(글자)일 경우
-    if (e.target.id === 'main-header-title' || e.target.closest('#main-header-title')) {
-        adminClickCount++;
+document.addEventListener('mousedown', function(e) { // 'click'보다 반응이 빠른 'mousedown' 사용
+    // 1. logo 클래스를 가졌거나, 2. main-header-title ID를 가졌거나, 3. 그 안의 자식 요소를 눌렀을 때
+    if (e.target.closest('.logo') || e.target.closest('#main-header-title')) {
         
+        // 브라우저의 기본 동작(드래그 등) 방해 금지
+        adminClickCount++;
+        console.log("터치 감지됨:", adminClickCount); 
+
         if (adminClickCount === 3) {
             const menu = document.getElementById('admin-menu');
             if (menu) {
                 menu.style.display = 'flex'; // 숨겨진 메뉴 등장
                 alert("🛠️ 관리자 모드가 활성화되었습니다.");
-                // 화면 하단 관리자 메뉴로 자동 스크롤
-                menu.scrollIntoView({ behavior: 'smooth' });
+                // 화면 맨 아래로 즉시 이동해서 확인시켜줌
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            } else {
+                alert("오류: admin-menu를 찾을 수 없습니다. HTML을 확인해 주세요.");
             }
             adminClickCount = 0;
         }
-        
-        // 2초 동안 다음 클릭이 없으면 카운트 초기화 (실수 방지)
+
+        // 1.5초 안에 다음 클릭이 없으면 초기화
         clearTimeout(window.adminTimeout);
-        window.adminTimeout = setTimeout(() => { adminClickCount = 0; }, 2000);
+        window.adminTimeout = setTimeout(() => { 
+            adminClickCount = 0; 
+        }, 1500);
     }
 });
+
+// 🚀 [관리자 전용] 즉시 완수 함수 (기존 코드 유지)
+function jumpToFinish() {
+    const lvl = localStorage.getItem('trigger_level') || 'middle';
+    localStorage.setItem('trigger_session_' + lvl, '6'); 
+    localStorage.removeItem('blackt_cooldown');
+    location.href = 'study.html'; 
+}
