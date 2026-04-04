@@ -472,14 +472,42 @@ function shareKakao() {
         const currentLevel = localStorage.getItem('trigger_level') || 'middle';
         const currentDay = localStorage.getItem(`trigger_current_day_${currentLevel}`) || 1;
         const levelName = currentLevel === 'high' ? '고등' : '중등';
-        const currentUrl = window.location.origin; 
-
-        Kakao.Share.sendDefault({
-            objectType: 'feed',
-            content: {
-                title: '⚡ 트리거 보카 목표 달성!',
-                description: `${userName}님이 [${levelName} Day ${currentDay}] 6세션 루틴을 완수했습니다.\n최종 정답률: ${score} / ${targetWords.length}`,
-                imageUrl: 'https://yourdomain.com/icon-512.png', 
+        function shareKakao() {
+            if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) {
+                alert("카카오 SDK가 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요.");
+                return;
+            }
+        
+            try {
+                const userName = localStorage.getItem('trigger_name') || '학습자';
+                const levelName = currentLevel === 'high' ? '고등' : '중등';
+                const currentDay = localStorage.getItem(`trigger_current_day_${currentLevel}`) || 1;
+                
+                // 🚀 현재 접속한 실제 주소를 가져옵니다.
+                const shareUrl = window.location.origin + window.location.pathname.replace('study.html', 'index.html');
+                // 🚀 아이콘 이미지 주소 (실제 파일이 없다면 카카오 기본 아이콘이 나옵니다)
+                const thumbImg = 'https://t1.kakaocdn.net/kakaocorp/Service/Official/Common/logo/kakaotalk_200x200.png';
+        
+                Kakao.Share.sendDefault({
+                    objectType: 'feed',
+                    content: {
+                        title: '⚡ 트리거 보카 목표 달성!',
+                        description: `${userName}님이 [${levelName} Day ${currentDay}]를 완수했습니다.\n정답률: ${Math.floor((score/targetWords.length)*100)}%`,
+                        imageUrl: thumbImg, 
+                        link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
+                    },
+                    buttons: [
+                        {
+                            title: '나도 도전하기',
+                            link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
+                        }
+                    ],
+                });
+            } catch (e) {
+                console.error("공유 에러:", e);
+                alert("카톡 공유 중 오류가 발생했습니다.");
+            }
+        }
                 link: { mobileWebUrl: currentUrl, webUrl: currentUrl },
             },
             buttons: [
