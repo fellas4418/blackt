@@ -11,10 +11,13 @@
         <button class="back-btn" onclick="location.href='index.html'">← 메인으로</button>
         
         <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 8px; align-items: center; z-index: 100;">
-            <button id="pause-btn" onclick="togglePause()" style="background: transparent; border: 1px solid var(--neon-blue); color: #fff; padding: 5px 12px; border-radius: 8px; cursor: pointer; white-space: nowrap; font-weight: bold;">⏸ 일시중지</button>
+            <button id="pause-btn" onclick="togglePause()" 
+                style="background: transparent; border: 1px solid var(--neon-blue); color: #fff; width: 100px; height: 40px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: none;">
+                ⏸ 일시중지
+            </button>
             
             <button id="exit-btn" onclick="location.href='index.html'" 
-                style="display: none; background: transparent; border: 1px solid #d2b48c; color: #d2b48c; padding: 5px 12px; border-radius: 8px; cursor: pointer; white-space: nowrap; font-weight: bold; font-size: 0.9rem;">
+                style="display: none; background: transparent; border: 1px solid var(--neon-orange); color: var(--neon-orange); width: 100px; height: 40px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.9rem;">
                 나가기
             </button>
             
