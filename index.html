@@ -464,9 +464,12 @@
                 }
                 document.getElementById('total-word-count').innerText = `${learnedTotal} 단어`;
 
-                const todayWordsData = getWordsForDay(lvl, day);
-                const todayWordsCount = todayWordsData ? todayWordsData.length : 0;
-                document.getElementById('target-count-display').innerText = `${todayWordsCount}개`;
+                // 오늘의 실제 단어 개수 계산
+                var todayWordsData = getWordsForDay(lvl, day);
+                var actualCount = (todayWordsData && todayWordsData.length) ? todayWordsData.length : 0;
+                
+                // 화면의 '0개' 혹은 '30개'를 실제 숫자로 강제 교체
+                document.getElementById('target-count-display').innerText = actualCount + "개";
             }
 
             const allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
