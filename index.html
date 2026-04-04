@@ -464,8 +464,9 @@
                 }
                 document.getElementById('total-word-count').innerText = `${learnedTotal} 단어`;
 
-                const todayWords = getWordsForDay(lvl, day).length;
-                document.getElementById('target-count-display').innerText = `${todayWords}개`;
+                const todayWordsData = getWordsForDay(lvl, day);
+                const todayWordsCount = todayWordsData ? todayWordsData.length : 0;
+                document.getElementById('target-count-display').innerText = `${todayWordsCount}개`;
             }
 
             const allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
