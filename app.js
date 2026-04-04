@@ -297,28 +297,21 @@ function updateUI(data, isTest = false) {
     
     if (!data || !data.word) return;
 
-    // 🚀 [수정] meanings(복수형)가 있으면 사용하고, 없으면 meaning(단수형)을 리스트로 변환
-    let safeMeanings = [];
-    if (Array.isArray(data.meanings)) {
-        safeMeanings = data.meanings;
-    } else if (data.meaning) {
-        safeMeanings = [data.meaning]; 
-    } else {
-        safeMeanings = ["뜻 확인 필요"];
-    }
-
-    // 화면에 보여줄 텍스트 합치기
+    let safeMeanings = Array.isArray(data.meanings) ? data.meanings : (data.meaning ? [data.meaning] : ["뜻 확인 필요"]);
     const fullMeaning = safeMeanings.join(', ');
 
     targetEl.style.setProperty('font-size', '3.3rem', 'important'); 
     targetEl.style.setProperty('text-shadow', '0 0 15px #fff', 'important');
     targetEl.style.setProperty('color', '#fff', 'important');
-    targetEl.style.setProperty('margin-top', '0px', 'important');
 
+    // 🚀 [핵심 수정] 별표 때문에 단어가 쏠리지 않도록 좌우 균형을 맞춤
     let titleHtml = `
-        <div style="display:flex; flex-direction:column; align-items:center;">
-            <div style="display:flex; justify-content:center; align-items:center; gap:8px;">
-                <span style="cursor:pointer;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</span>
+        <div style="display:flex; flex-direction:column; align-items:center; width: 100%;">
+            <div style="display:flex; justify-content:center; align-items:center; width: 100%; position: relative;">
+                <span style="font-size:1.8rem; visibility: hidden; padding-bottom:5px;">☆</span>
+                
+                <span style="cursor:pointer; margin: 0 8px;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</span>
+                
                 <button id="star-btn" style="background:none; border:none; font-size:1.8rem; cursor:pointer; color:var(--neon-orange); padding-bottom:5px;">☆</button>
             </div>
             <div class="ipa-text" style="font-size:1.2rem; color:#888; margin-top:8px;">${data.ipa || ''}</div>
@@ -337,18 +330,10 @@ function updateUI(data, isTest = false) {
     }
 
     if (!isTest) {
-        // 🚀 [학습 모드] 리스트에 있는 모든 뜻을 순서대로 큰 글자로 출력
         mBox.innerHTML = safeMeanings.map(m => `<div style="font-size:2.2rem; font-weight:bold; margin-bottom:15px;">${m}</div>`).join('');
     } else {
         if(starBtn) starBtn.style.display = 'none'; 
-        
-        // 🚀 [테스트 모드] 오답 선택지 생성 시 리스트 형식을 문자열로 변환하여 처리
-        const allOtherMeanings = targetWords.filter(w => w.word !== data.word).map(w => {
-            if (Array.isArray(w.meanings)) return w.meanings.join(', ');
-            if (w.meaning) return w.meaning;
-            return "뜻 정보 없음";
-        });
-        
+        const allOtherMeanings = targetWords.filter(w => w.word !== data.word).map(w => Array.isArray(w.meanings) ? w.meanings.join(', ') : (w.meaning || "뜻 정보 없음"));
         let availableMeanings = [...allOtherMeanings]; 
         let wrongChoices = [];
         while (wrongChoices.length < 3) {
@@ -356,10 +341,12 @@ function updateUI(data, isTest = false) {
                 const randomIdx = Math.floor(Math.random() * availableMeanings.length);
                 wrongChoices.push(availableMeanings[randomIdx]);
                 availableMeanings.splice(randomIdx, 1); 
-            } else {
-                wrongChoices.push(`오답 ${wrongChoices.length + 1}`);
-            }
+            } else { wrongChoices.push(`오답 ${wrongChoices.length + 1}`); }
         }
+        const choices = [fullMeaning, ...wrongChoices].sort(() => Math.random() - 0.5);
+        mBox.innerHTML = choices.map(c => `<button class="choice-btn" style="font-size: 1.15rem !important; height: 70px !important; display: flex; align-items: center; justify-content: center; text-align: center; padding: 5px 15px !important; margin-bottom: 10px; line-height: 1.2; word-break: keep-all;" onclick="handleAnswer(${c === fullMeaning})">${c}</button>`).join('');
+    }
+}
         
         const choices = [fullMeaning, ...wrongChoices].sort(() => Math.random() - 0.5);
         
