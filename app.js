@@ -510,3 +510,21 @@ function skipToFinish() {
 }
 
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
+
+let clickCount = 0;
+document.getElementById('main-header-title').onclick = function() {
+    clickCount++;
+    if (clickCount === 3) {
+        document.getElementById('admin-menu').style.display = 'flex';
+        alert("🛠️ 관리자 모드가 활성화되었습니다.");
+        clickCount = 0;
+    }
+};
+
+// 🚀 [관리자용] 즉시 완수 함수
+function jumpToFinish() {
+    const lvl = localStorage.getItem('trigger_level') || 'middle';
+    localStorage.setItem('trigger_session_' + lvl, '6'); // 세션 6으로 세팅
+    localStorage.removeItem('blackt_cooldown'); // 쿨타임 제거
+    location.href = 'study.html'; // 학습창으로 보낸 뒤, 거기서 스킵 버튼을 누르시면 됩니다.
+}

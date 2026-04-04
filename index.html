@@ -238,6 +238,7 @@
                 <div style="display:flex; gap:10px; width: 100%;">
                     <button onclick="jumpToSession(3)" style="flex:1; background: #222; border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight:bold;">⏩ 세션 3 점프</button>
                     <button onclick="jumpToSession(6)" style="flex:1; background: #222; border: 1px solid var(--neon-orange); color: var(--neon-orange); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight:bold;">🔥 세션 6 점프</button>
+                    <button onclick="jumpToFinish()" style="flex:1; background: #222; border: 1px solid var(--neon-green); color: var(--neon-green); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight:bold;">🏁 즉시 완수(결과창)</button>
                 </div>
                 <button onclick="localStorage.removeItem('blackt_cooldown'); alert('⏳ 쿨타임 삭제 완료!'); location.reload();" style="background: #111; border: 1px solid var(--neon-green); color: var(--neon-green); padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%;">
                     ⚡ 쿨타임(10분 휴식) 즉시 삭제
@@ -743,7 +744,7 @@
 
         function shareTriggerApp() {
             const shareTitle = "Trigger Voca - 뇌과학 영단어장";
-            const shareText = "단어 암기 3시간 걸리던 거, 30분 컷! 뇌과학 6세션 루틴 앱 '트리거 보카'를 무료로 시작해 보세요.";
+            const shareText = "뇌과학 6세션 루틴 앱 '트리거 보카'를 무료로 시작해 보세요.";
             const shareUrl = window.location.origin;
 
             if (navigator.share) {
