@@ -2030,8 +2030,20 @@ OUTPUT_FILE = 'worddata.js'
 DAILY_NEW_COUNT = 30
 
 def get_meaning(word):
-    # 단어 뜻 매핑: 없으면 누락 방지를 위해 임시 텍스트 반환
-    return MEANING_DB.get(word.lower(), "뜻 확인 필요")
+    # 1. 단어를 소문자로 바꾸고 공백 제거해서 찾기
+    clean_w = word.lower().strip()
+    res = MEANING_DB.get(clean_w)
+    
+    # 2. 뜻이 존재할 경우
+    if res:
+        # 뜻이 ["종교"] 처럼 리스트 형식이면 그대로 반환
+        if isinstance(res, list):
+            return res
+        # 뜻이 "종교" 처럼 일반 텍스트면 리스트로 감싸서 반환 (안전장치)
+        return [res]
+    
+    # 3. 뜻이 없을 경우 누락 방지용 텍스트
+    return ["뜻 확인 필요"]
 
 def process_file(file_path):
     if not os.path.exists(file_path): return {}
