@@ -511,24 +511,26 @@ function skipToFinish() {
 
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
 
+// 🚀 관리자 모드 활성화 (로고 3번 클릭)
 let adminClickCount = 0;
-// 🚀 ID가 아니라 클래스(.logo)로 찾아서 메인화면 어디서든 로고를 누르면 작동하게 합니다.
-document.addEventListener('click', function (e) {
-    if (e.target.closest('.logo')) {
+document.addEventListener('click', function(e) {
+    // 클릭한 요소가 main-header-title 이거나 그 자식(글자)일 경우
+    if (e.target.id === 'main-header-title' || e.target.closest('#main-header-title')) {
         adminClickCount++;
-        console.log("관리자 클릭 횟수:", adminClickCount); // 🔍 개발자 도구에서 확인용
         
         if (adminClickCount === 3) {
             const menu = document.getElementById('admin-menu');
             if (menu) {
-                menu.style.display = 'flex';
+                menu.style.display = 'flex'; // 숨겨진 메뉴 등장
                 alert("🛠️ 관리자 모드가 활성화되었습니다.");
-            } else {
-                console.error("admin-menu를 찾을 수 없습니다.");
+                // 화면 하단 관리자 메뉴로 자동 스크롤
+                menu.scrollIntoView({ behavior: 'smooth' });
             }
             adminClickCount = 0;
         }
-    } else {
-        adminClickCount = 0; // 로고가 아닌 곳을 누르면 초기화
+        
+        // 2초 동안 다음 클릭이 없으면 카운트 초기화 (실수 방지)
+        clearTimeout(window.adminTimeout);
+        window.adminTimeout = setTimeout(() => { adminClickCount = 0; }, 2000);
     }
 });
