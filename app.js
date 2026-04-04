@@ -293,6 +293,7 @@ function updateUI(data, isTest = false) {
     
     if (!data || !data.word) return;
 
+    // 🚀 [수정] meanings(복수형)가 있으면 사용하고, 없으면 meaning(단수형)을 리스트로 변환
     let safeMeanings = [];
     if (Array.isArray(data.meanings)) {
         safeMeanings = data.meanings;
@@ -302,6 +303,7 @@ function updateUI(data, isTest = false) {
         safeMeanings = ["뜻 확인 필요"];
     }
 
+    // 화면에 보여줄 텍스트 합치기
     const fullMeaning = safeMeanings.join(', ');
 
     targetEl.style.setProperty('font-size', '3.3rem', 'important'); 
@@ -323,7 +325,6 @@ function updateUI(data, isTest = false) {
     
     const starBtn = document.getElementById('star-btn');
     let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
-    
     const isStarred = wrongWords.some(w => w.word === data.word && w.level === currentLevel);
     
     if(starBtn) {
@@ -332,10 +333,12 @@ function updateUI(data, isTest = false) {
     }
 
     if (!isTest) {
+        // 🚀 [학습 모드] 리스트에 있는 모든 뜻을 순서대로 큰 글자로 출력
         mBox.innerHTML = safeMeanings.map(m => `<div style="font-size:2.2rem; font-weight:bold; margin-bottom:15px;">${m}</div>`).join('');
     } else {
         if(starBtn) starBtn.style.display = 'none'; 
         
+        // 🚀 [테스트 모드] 오답 선택지 생성 시 리스트 형식을 문자열로 변환하여 처리
         const allOtherMeanings = targetWords.filter(w => w.word !== data.word).map(w => {
             if (Array.isArray(w.meanings)) return w.meanings.join(', ');
             if (w.meaning) return w.meaning;
