@@ -2059,7 +2059,7 @@ def process_file(file_path):
             unique_words.append(cleaned)
             seen.add(cleaned)
             
-    word_pool = [{"word": w, "meanings": [get_meaning(w)]} for w in unique_words]
+    word_pool = [{"word": w, "meanings": get_meaning(w)} for w in unique_words]
     
     scheduled_data = {}
     idx = 0
