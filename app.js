@@ -188,23 +188,12 @@ function togglePause() {
     const exitBtn = document.getElementById('exit-btn');
     
     if (isPaused) {
-        // 일시중지 상태: 두 버튼을 동시에 보여주고 스타일을 맞춤
-        if(pauseBtn) {
-            pauseBtn.innerText = "▶ 계속하기";
-            pauseBtn.style.display = "inline-block"; // 보이게 함
-        }
-        if(exitBtn) {
-            exitBtn.style.display = "inline-block"; // '나가기'도 동시에 보이게 함
-        }
+        if(pauseBtn) pauseBtn.innerText = "▶ 계속하기";
+        if(exitBtn) exitBtn.style.display = "inline-block"; // 우측 상단에 나란히 등장
         window.speechSynthesis.pause(); 
     } else {
-        // 다시 시작 상태: 계속하기 버튼을 원래대로 돌리고 나가기 버튼을 숨김
-        if(pauseBtn) {
-            pauseBtn.innerText = "⏸ 일시중지";
-        }
-        if(exitBtn) {
-            exitBtn.style.display = "none";
-        }
+        if(pauseBtn) pauseBtn.innerText = "⏸ 일시중지";
+        if(exitBtn) exitBtn.style.display = "none"; // 다시 숨김
         window.speechSynthesis.resume(); 
     }
 }
