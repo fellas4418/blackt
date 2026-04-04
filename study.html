@@ -12,24 +12,24 @@
         
         <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 8px; align-items: center; z-index: 100;">
             <button id="pause-btn" onclick="togglePause()" 
-                style="background: transparent; border: 1px solid var(--neon-blue); color: #fff; width: 100px; height: 40px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: none;">
+                style="background: transparent; border: 1px solid var(--neon-blue); color: #fff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">
                 ⏸ 일시중지
             </button>
             
             <button id="exit-btn" onclick="location.href='index.html'" 
-                style="display: none; background: transparent; border: 1px solid var(--neon-orange); color: var(--neon-orange); width: 100px; height: 40px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.9rem;">
+                style="display: none; background: transparent; border: 1px solid var(--neon-orange); color: var(--neon-orange); width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">
                 나가기
             </button>
             
-            <button id="mute-toggle-btn" onclick="toggleMute()" style="background: transparent; border: none; font-size: 1.2rem; cursor: pointer; margin-left: 5px;">🔊</button>
+            <button id="mute-toggle-btn" onclick="toggleMute()" style="background: transparent; border: none; font-size: 1.1rem; cursor: pointer; margin-left: 3px;">🔊</button>
         </div>
-
-        <div class="header">
+        
+        <div class="header" style="margin-top: 70px;">
             <div id="session-tag" style="color:var(--neon-blue); font-weight:bold; font-size:1.1rem;">Session 1 / 6</div>
             <div class="progress-box"><div id="bar"></div></div>
         </div>
         
-        <div id="display">
+        <div id="display" style="margin-top: -40px;">
             <div id="target"></div>
             <div id="meanings"></div>
         </div>

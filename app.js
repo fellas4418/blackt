@@ -190,11 +190,8 @@ function togglePause() {
     if (isPaused) {
         if(pauseBtn) {
             pauseBtn.innerText = "▶ 계속하기";
-            // 네온 효과 없이 색상만 유지
             pauseBtn.style.borderColor = "var(--neon-blue)"; 
             pauseBtn.style.color = "#ffffff"; 
-            pauseBtn.style.textShadow = "none";
-            pauseBtn.style.boxShadow = "none";
         }
         if(exitBtn) {
             exitBtn.style.display = "inline-block";
@@ -205,7 +202,6 @@ function togglePause() {
             pauseBtn.innerText = "⏸ 일시중지";
             pauseBtn.style.borderColor = "var(--neon-blue)"; 
             pauseBtn.style.color = "#ffffff";
-            pauseBtn.style.textShadow = "none";
         }
         if(exitBtn) {
             exitBtn.style.display = "none";
