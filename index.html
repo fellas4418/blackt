@@ -26,7 +26,7 @@
 
         #login-modal, #wrong-modal, #all-words-modal, #report-modal, #guide-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 3000; transition: opacity 0.5s; padding: 20px; box-sizing: border-box; }
 
-        .login-card { background: var(--card-bg-color); border: 1px solid rgba(0, 243, 255, 0.3); box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); border-radius: 20px; padding: 25px; width: 90%; max-width: 400px; text-align: center; max-height: 80vh; overflow-y: auto; box-sizing: border-box; }
+        .login-card { background: var(--card-bg-color); border: 1px solid rgba(0, 243, 255, 0.3); box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); border-radius: 20px; padding: 25px; width: 90%; max-width: 400px; text-align: center; max-height: 80vh; overflow-y: auto; box-sizing: border-box; max-height: 90vh; }
         
         .login-title { font-size: 1.8rem; font-weight: bold; margin-bottom: 25px; color: #fff; text-shadow: var(--glow-text); }
 
@@ -161,15 +161,20 @@
 
     <div class="dashboard-container">
         
-        <div style="position: absolute; top: 25px; right: 15px; z-index: 100;">
-            <button onclick="shareTriggerApp()" style="background: rgba(255, 255, 255, 0.08); border: 1px solid #555; border-radius: 20px; padding: 5px 12px; display: flex; align-items: center; gap: 5px; cursor: pointer;">
-                <span style="color: #fff; font-size: 0.75rem; font-weight: bold;">공유하기</span><span style="font-size: 0.8rem;">📤</span>
+        
+
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; padding: 0 10px; margin-top: 20px;">
+            <div class="logo" id="main-header-title" style="margin: 0; text-align: left; line-height: 1.1; font-size: 2.2rem;">
+                Trigger<br>Voca
+            </div>
+            
+            <button onclick="shareTriggerApp()" 
+                style="background: rgba(255, 255, 255, 0.05); border: 1px solid #444; color: #ccc; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 5px; transition: 0.2s;">
+                <span>앱 공유하기</span><span style="font-size: 1rem;">🔗</span>
             </button>
         </div>
-
-        <div class="logo" id="main-header-title">
-            Trigger<br>Voca
-        </div>
+        
+        <hr style="border: 0.5px solid #222; margin: 0 10px 25px 10px;">
         
         <div id="tab-voca" class="tab-content active">
             

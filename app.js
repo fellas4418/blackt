@@ -447,7 +447,7 @@ function finishSession(didTest = true) {
                         `<button onclick="shareKakao()" style="width:100%; padding:16px; background:#fee500; color:#3c1e1e; border:none; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer;">🟡 카톡으로 성과 공유하기</button>` 
                         : `<div style="color:#888; font-size:0.85rem; margin-bottom:10px;">80% 이상 득점 시 자랑하기가 활성화됩니다! 🔥</div>`
                     }
-                    <button onclick="location.href='index.html'" style="width:100%; padding:12px; background:transparent; color:#666; border:none; cursor:pointer; font-size:0.9rem;">종료하기</button>
+                    <button onclick="location.href='index.html'" style="width:100%; padding:14px; background:transparent; color:#bbbbbb; border:none; cursor:pointer; font-size:1.1rem; font-weight:bold; text-decoration:underline;">종료하기</button>
                 </div>
             </div>
         `);
