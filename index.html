@@ -624,7 +624,7 @@
             }
         }
 
-        // 🚀 [수정포인트 2, 3] 오답/별표 UI: 별표 아이콘 추가 및 뜻 색상을 완전한 흰색으로 변경
+        // 🚀 [수정] 오답/별표 리스트를 드롭다운(아코디언) 방식으로 변경 + 별표 표기 + 뜻 텍스트 완전 흰색
         function showWrongWords() {
             const lvl = localStorage.getItem('trigger_level') || 'middle';
             const allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
@@ -632,14 +632,35 @@
             
             let html = '';
             if (levelWrongs.length > 0) {
-                html += levelWrongs.map(w => {
-                    const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
-                    const starIcon = w.isStarred ? '<span style="font-size:0.85rem; margin-left:6px; vertical-align:middle;">⭐</span>' : '';
-                    return `<div style="padding:12px 0; border-bottom:1px solid #333; line-height:1.4;">
-                                <strong style="color:var(--neon-green); font-size:1.15rem;">${w.word}</strong>${starIcon} <br>
-                                <span style="color:#ffffff; font-size:1rem; display:inline-block; margin-top:5px;">- ${safeMeanings}</span>
-                            </div>`;
-                }).join('');
+                // Day별로 그룹화
+                const grouped = {};
+                levelWrongs.forEach(w => {
+                    const day = w.day || 1;
+                    if (!grouped[day]) grouped[day] = [];
+                    grouped[day].push(w);
+                });
+
+                // Day 오름차순 정렬
+                const sortedDays = Object.keys(grouped).map(Number).sort((a, b) => a - b);
+
+                sortedDays.forEach(day => {
+                    html += `<div onclick="toggleAccordion('wrong-day-list-${day}')" style="background: rgba(57, 255, 20, 0.1); border: 1px solid rgba(57, 255, 20, 0.3); color:var(--neon-green); padding: 15px; margin-top:10px; border-radius: 8px; font-weight:bold; display: flex; justify-content: space-between; cursor: pointer;">
+                                <span>Day ${day} 오답/별표</span><span>▼</span>
+                             </div>
+                             <div id="wrong-day-list-${day}" style="display: none; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-top: 5px; border: 1px solid #222;">`;
+                    
+                    grouped[day].forEach(w => {
+                        const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
+                        // 🚀 별표 친 단어는 노란색 별 아이콘 띄우기
+                        const starIcon = w.isStarred ? '<span style="font-size:0.85rem; margin-left:6px; vertical-align:middle;">⭐</span>' : '';
+                        
+                        html += `<div style="padding:12px 0; border-bottom:1px solid #333; line-height:1.4;">
+                                    <strong style="color:var(--neon-green); font-size:1.15rem;">${w.word}</strong>${starIcon} <br>
+                                    <span style="color:#ffffff; font-size:1rem; display:inline-block; margin-top:5px;">- ${safeMeanings}</span>
+                                </div>`;
+                    });
+                    html += `</div>`;
+                });
             } else {
                 html = '<p style="text-align:center; color:#666; margin-top:20px;">저장된 오답이 없습니다.</p>';
             }

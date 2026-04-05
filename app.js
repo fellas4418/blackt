@@ -313,13 +313,16 @@ function toggleStar(wordObj) {
         wrongWords.splice(idx, 1); 
         if(starBtn) starBtn.innerText = "☆";
     } else {
-        wrongWords.push({ ...wordObj, day: currentDay, level: currentLevel }); 
+        // 🚀 [수정] 별표로 추가될 때 isStarred 플래그 명시
+        wrongWords.push({ ...wordObj, day: currentDay, level: currentLevel, isStarred: true }); 
         if(starBtn) starBtn.innerText = "⭐";
     }
     localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
 }
 
-// 🚀 백지장 방지: 에러 발생 시 원인을 화면에 강제 출력하는 로직 추가
+// 🚀 [수정] 보기 중복을 막기 위한 이전 보기 저장용 전역 변수
+window.lastWrongOptions = window.lastWrongOptions || [];
+
 function updateUI(data, isTest = false) {
     const targetEl = document.getElementById('target');
     const mBox = document.getElementById('meanings');
@@ -378,7 +381,19 @@ function updateUI(data, isTest = false) {
             return w.meaning || "뜻 정보 없음";
         });
         
-        let availableMeanings = [...allOtherMeanings].sort(() => Math.random() - 0.5).slice(0, 3);
+        // 🚀 [수정] 직전 문제에 나왔던 오답 보기를 필터링하여 중복 노출 방지
+        let filteredMeanings = allOtherMeanings.filter(m => !window.lastWrongOptions.includes(m));
+        
+        // 만약 필터링 했더니 보기가 3개 미만이면 원본을 다시 사용 (안전 장치)
+        if (filteredMeanings.length < 3) {
+            filteredMeanings = allOtherMeanings;
+        }
+
+        let availableMeanings = [...filteredMeanings].sort(() => Math.random() - 0.5).slice(0, 3);
+        
+        // 이번 문제에서 쓴 오답 보기를 다음 문제를 위해 저장
+        window.lastWrongOptions = availableMeanings;
+        
         const choices = [fullMeaning, ...availableMeanings].sort(() => Math.random() - 0.5);
         
         mBox.innerHTML = choices.map(c => {
@@ -392,6 +407,7 @@ function updateUI(data, isTest = false) {
         }).join('');
     }
 }
+
 
 function handleAnswer(isCorrect) {
     clearInterval(window.currentTimer);
@@ -411,7 +427,11 @@ function handleAnswer(isCorrect) {
         }
     } else {
         if (idx === -1) {
-            wrongWords.push({ ...currentWordData, day: currentDay, level: currentLevel });
+            // 🚀 [수정] 오답으로 추가될 때 isWrong 플래그 저장
+            wrongWords.push({ ...currentWordData, day: currentDay, level: currentLevel, isWrong: true });
+            localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
+        } else {
+            wrongWords[idx].isWrong = true;
             localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
         }
     }
