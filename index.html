@@ -38,13 +38,11 @@
         .login-btn { width: 100%; padding: 16px; background: transparent; border: 1.5px solid var(--neon-green); color: #fff; font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer; box-shadow: var(--glow-green); margin-top: 10px; transition: 0.2s;}
         .login-btn:active { transform: scale(0.98); background: rgba(57, 255, 20, 0.1); }
 
-        /* 🚀 환영 메시지 하단 여백 추가 (12번 반영) */
         #welcome-msg { text-align: center; color: var(--neon-blue); font-size: 1.1rem; margin-bottom: 20px; text-shadow: var(--glow-text); }
 
         .dashboard-bg { padding: 20px; display: flex; justify-content: center; }
         .dashboard-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 5px; margin: 0 auto; padding-bottom: 110px; position: relative; }
 
-        /* cursor: default를 지우고 pointer로 변경 */
         .logo { font-size: 2.5rem; font-weight: 800; text-align: center; margin-bottom: 10px; margin-top: 10px; text-shadow: var(--glow-text); cursor: pointer; }
         
         .card { background-color: var(--card-bg-color); border: 1px solid #222; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); margin-bottom: 20px; }
@@ -66,11 +64,9 @@
         .info-row { display: flex; gap: 15px; margin-bottom: 20px; }
         .info-card { flex: 1; text-align: center; padding: 22px; background: var(--card-bg-color); border: 1px solid #222; border-radius: 18px; transition: 0.2s; }
         .info-card:active { background: #1a1a1a; }
-        /* 🚀 오답/별표, 나의학습 단어장 글자 크기 통일 (7번 반영) */
         .info-title { font-size: 0.95rem; margin-bottom: 8px; color: #aaa; }
         .info-count { font-size: 1.4rem; font-weight: 700; color: #fff; }
 
-        /* 🚀 10주 완성 스크롤 박스 높이 축소 (6번 반영) */
         .routine-scroll-box { max-height: 250px; overflow-y: auto; border: 1px solid #222; border-radius: 12px; padding: 12px; background: rgba(0,0,0,0.2); }
         .routine-list { list-style: none; padding: 0; margin: 0; }
         .routine-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 8px; border-bottom: 1px solid #222; }
@@ -304,6 +300,19 @@
 
     <script src="worddata.js"></script>
     <script>
+        // 🚀 완벽한 섞기를 위한 Fisher-Yates Shuffle 함수 추가
+        function shuffleArray(array) {
+            let curId = array.length;
+            while (0 !== curId) {
+                let randId = Math.floor(Math.random() * curId);
+                curId -= 1;
+                let tmp = array[curId];
+                array[curId] = array[randId];
+                array[randId] = tmp;
+            }
+            return array;
+        }
+
         function getWordsForDay(level, absoluteDay) {
             if (typeof wordsData === 'undefined' || !wordsData[level]) return [];
             let week = Math.ceil(absoluteDay / 7);
@@ -459,7 +468,6 @@
                 }
                 document.getElementById('total-word-count').innerText = `${learnedTotal} 단어`;
 
-                // 🚀 [수정포인트 2] 오늘의 실제 단어 개수 계산 (주말은 절반으로 표시)
                 var todayWordsData = getWordsForDay(lvl, day);
                 var actualCount = (todayWordsData && todayWordsData.length) ? todayWordsData.length : 0;
                 var isReviewDay = (day % 7 === 6 || day % 7 === 0);
@@ -616,6 +624,7 @@
             }
         }
 
+        // 🚀 [수정포인트 2, 3] 오답/별표 UI: 별표 아이콘 추가 및 뜻 색상을 완전한 흰색으로 변경
         function showWrongWords() {
             const lvl = localStorage.getItem('trigger_level') || 'middle';
             const allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
@@ -625,8 +634,10 @@
             if (levelWrongs.length > 0) {
                 html += levelWrongs.map(w => {
                     const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
-                    return `<div style="padding:10px 0; border-bottom:1px solid #333;">
-                                <strong style="color:var(--neon-green);">${w.word}</strong> <span style="color:#888; font-size:0.9rem;">- ${safeMeanings}</span>
+                    const starIcon = w.isStarred ? '<span style="font-size:0.85rem; margin-left:6px; vertical-align:middle;">⭐</span>' : '';
+                    return `<div style="padding:12px 0; border-bottom:1px solid #333; line-height:1.4;">
+                                <strong style="color:var(--neon-green); font-size:1.15rem;">${w.word}</strong>${starIcon} <br>
+                                <span style="color:#ffffff; font-size:1rem; display:inline-block; margin-top:5px;">- ${safeMeanings}</span>
                             </div>`;
                 }).join('');
             } else {
@@ -785,13 +796,12 @@
             alert(`[${grade} ${type} - ${period}] 분석을 위한 카메라를 실행합니다.\n(다음 단계에서 OCR 모듈 연동 예정)`);
         }
 
-        // 🚀 [수정포인트 3] 확실한 관리자 모드 로직 (로고 onclick 연결)
         let adminClicks = 0;
         let adminTimer = null;
         function activateAdmin() {
             adminClicks++;
             clearTimeout(adminTimer);
-            adminTimer = setTimeout(() => { adminClicks = 0; }, 1500); // 1.5초 내에 3번 클릭
+            adminTimer = setTimeout(() => { adminClicks = 0; }, 1500); 
             
             if (adminClicks >= 3) {
                 const menu = document.getElementById('admin-menu');
@@ -804,7 +814,6 @@
             }
         }
 
-        // 🚀 [관리자 전용] 즉시 완수 함수
         function jumpToFinish() {
             const lvl = localStorage.getItem('trigger_level') || 'middle';
             localStorage.setItem('trigger_session_' + lvl, '6'); 
