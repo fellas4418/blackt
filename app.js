@@ -104,10 +104,8 @@ function initApp() {
 
         const isReviewDay = (localDay === 6 || localDay === 7);
 
-        // 🚀 [수정된 부분] 주말 복습 2세션, 반반 분할, 오답 우선 정렬 로직 적용
         if (isReviewDay) {
             let allReviewWords = [];
-            // test 배열 또는 일반 배열 형태로 들어온 데이터 안전하게 추출
             if (dayData && Array.isArray(dayData.test)) {
                 allReviewWords = dayData.test;
             } else if (Array.isArray(dayData)) {
@@ -116,7 +114,6 @@ function initApp() {
                 allReviewWords = dayData.review_parts.flat();
             }
 
-            // 1. 6일차/7일차 반반 나누기
             const halfIndex = Math.ceil(allReviewWords.length / 2);
             if (localDay === 6) {
                 todayWords = allReviewWords.slice(0, halfIndex);
@@ -124,7 +121,6 @@ function initApp() {
                 todayWords = allReviewWords.slice(halfIndex);
             }
 
-            // 2. 오답 우선 배치 로직
             const allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
             const wrongWordsInToday = todayWords.filter(tw => 
                 allWrongs.some(aw => aw.word === tw.word && aw.level === currentLevel)
@@ -134,7 +130,6 @@ function initApp() {
             );
             todayWords = [...wrongWordsInToday, ...otherWordsInToday];
 
-            // 3. 주말 2세션 강제 조정 (기존 시스템을 깨지 않고 트릭 사용)
             if (currentSession === 2 || (currentSession > 2 && currentSession < 6)) {
                 currentSession = 6; 
                 localStorage.setItem(`trigger_session_${currentLevel}`, '6');
@@ -165,7 +160,6 @@ function initApp() {
             }
         }
 
-        // 🚀 [수정된 부분] 세션 UI 텍스트 (주말일 때는 2세션으로 표시)
         if (sessionTag) {
             if (isReviewDay) {
                 let displaySession = currentSession >= 6 ? 2 : 1;
@@ -262,8 +256,10 @@ function startStudy() {
     const items = document.querySelectorAll('#meanings div');
     items.forEach(item => item.classList.add('active'));
 
-    playPronunciation(data.word);
-    setTimeout(() => playPronunciation(data.word), 3000);
+    if (data && data.word) {
+        playPronunciation(data.word);
+        setTimeout(() => playPronunciation(data.word), 3000);
+    }
 
     let time = 6000;
     const interval = setInterval(() => {
@@ -272,12 +268,15 @@ function startStudy() {
         time -= 100;
         const bar = document.getElementById('bar');
         if(bar) bar.style.width = (time / 6000 * 100) + "%";
-        if (time <= 0 || currentIdx >= targetWords.length) { // 스킵 대응
+        if (time <= 0 || currentIdx >= targetWords.length) { 
             clearInterval(interval);
             if (time <= 0) currentIdx++;
             setTimeout(startStudy, 500);
         }
     }, 100);
+    
+    // 🔥 스피드 리마인드 세션에도 타이머 강제 적용 방어
+    window.currentTimer = interval;
 }
 
 function startTest() {
@@ -296,7 +295,7 @@ function startTest() {
         time -= 100;
         const bar = document.getElementById('bar');
         if(bar) bar.style.width = (time / 5000 * 100) + "%";
-        if (time <= 0 || currentIdx >= targetWords.length) { // 스킵 대응
+        if (time <= 0 || currentIdx >= targetWords.length) { 
             clearInterval(interval); 
             if (time <= 0) handleAnswer(false); 
         }
@@ -320,11 +319,17 @@ function toggleStar(wordObj) {
     localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
 }
 
+// 🚀 백지장 방지: 에러 발생 시 원인을 화면에 강제 출력하는 로직 추가
 function updateUI(data, isTest = false) {
     const targetEl = document.getElementById('target');
     const mBox = document.getElementById('meanings');
     
-    if (!data || !data.word) return;
+    if (!targetEl || !mBox) return;
+
+    if (!data || !data.word) {
+        targetEl.innerHTML = `<div style="font-size:1.2rem; color:var(--neon-orange); margin-top:20px;">🚨 단어 구조 오류<br><span style="font-size:0.9rem; color:#888;">데이터 형식이 맞지 않습니다.</span></div>`;
+        return;
+    }
 
     let safeMeanings = Array.isArray(data.meanings) ? data.meanings : (data.meaning ? [data.meaning] : ["뜻 확인 필요"]);
     const fullMeaning = safeMeanings.join(', ');
@@ -368,7 +373,7 @@ function updateUI(data, isTest = false) {
     if (!isTest) {
         mBox.innerHTML = safeMeanings.map(m => `<div style="font-size:2.2rem; font-weight:bold; margin-bottom:15px;">${m}</div>`).join('');
     } else {
-        const allOtherMeanings = targetWords.filter(w => w.word !== data.word).map(w => {
+        const allOtherMeanings = targetWords.filter(w => w.word !== data.word && w.word).map(w => {
             if (Array.isArray(w.meanings)) return w.meanings.join(', ');
             return w.meaning || "뜻 정보 없음";
         });
@@ -481,7 +486,6 @@ function finishSession(didTest = true) {
     }
 }
 
-// 🚀 깔끔하게 정리된 카카오 공유 함수
 function shareKakao() {
     if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) {
         alert("카카오 SDK가 준비되지 않았습니다. 잠시 후 다시 시도해주세요.");
@@ -516,7 +520,6 @@ function shareKakao() {
     }
 }
 
-// 🚀 관리자 스킵 함수
 function skipToTest() {
     if (confirm("학습을 건너뛸까요?")) {
         currentIdx = targetWords.length; 
@@ -534,33 +537,7 @@ function skipToFinish() {
 
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
 
-// 🚀 [통합] 관리자 모드 활성화 및 전용 함수
-let adminClickCount = 0;
-
-function handleAdminActivation(e) {
-    if (e.target.closest('.logo') || e.target.id === 'main-header-title') {
-        adminClickCount++;
-        console.log("관리자 클릭 감지:", adminClickCount); 
-
-        if (adminClickCount === 3) {
-            const menu = document.getElementById('admin-menu');
-            if (menu) {
-                menu.style.display = 'flex'; 
-                alert("🛠️ 관리자 모드가 활성화되었습니다.");
-                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-            }
-            adminClickCount = 0;
-        }
-
-        clearTimeout(window.adminTimeout);
-        window.adminTimeout = setTimeout(() => { adminClickCount = 0; }, 1200);
-    }
-}
-
-document.addEventListener('click', handleAdminActivation);
-document.addEventListener('touchstart', handleAdminActivation, { passive: true });
-
-// 🚀 [관리자 전용] 즉시 완수 함수
+// 🚀 관리자 전용 함수
 function jumpToFinish() {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
     localStorage.setItem('trigger_session_' + lvl, '6'); 
@@ -568,12 +545,10 @@ function jumpToFinish() {
     location.href = 'study.html'; 
 }
 
-// 🚀 관리자 모드 활성화 (로고나 타이틀 3번 클릭)
 let adminClickCount = 0;
 let adminTimer = null;
 
 function activateAdminMode(e) {
-    // 1. 클릭 대상 확인 (로고 이미지나 헤더 타이틀 텍스트)
     const isLogo = e.target.closest('.logo');
     const isTitle = e.target.id === 'main-header-title';
 
@@ -581,24 +556,18 @@ function activateAdminMode(e) {
         adminClickCount++;
         console.log("Admin Click:", adminClickCount);
 
-        // 2. 타이머 설정 (1.5초 내에 3번 눌러야 함)
         clearTimeout(adminTimer);
         adminTimer = setTimeout(() => { adminClickCount = 0; }, 1500);
 
-        // 3. 3번 클릭 성공 시
         if (adminClickCount === 3) {
             const menu = document.getElementById('admin-menu');
             if (menu) {
                 menu.style.setProperty('display', 'flex', 'important'); 
                 alert("🛠️ 관리자 모드 활성화!");
                 window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-            } else {
-                alert("관리자 메뉴(ID: admin-menu) 요소를 찾을 수 없습니다.");
             }
             adminClickCount = 0;
         }
     }
 }
-
-// 이벤트 리스너 등록 (가장 확실한 click으로 통일)
 document.addEventListener('click', activateAdminMode);
