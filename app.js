@@ -560,9 +560,45 @@ function handleAdminActivation(e) {
 document.addEventListener('click', handleAdminActivation);
 document.addEventListener('touchstart', handleAdminActivation, { passive: true });
 
+// 🚀 [관리자 전용] 즉시 완수 함수
 function jumpToFinish() {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
     localStorage.setItem('trigger_session_' + lvl, '6'); 
     localStorage.removeItem('blackt_cooldown');
     location.href = 'study.html'; 
 }
+
+// 🚀 관리자 모드 활성화 (로고나 타이틀 3번 클릭)
+let adminClickCount = 0;
+let adminTimer = null;
+
+function activateAdminMode(e) {
+    // 1. 클릭 대상 확인 (로고 이미지나 헤더 타이틀 텍스트)
+    const isLogo = e.target.closest('.logo');
+    const isTitle = e.target.id === 'main-header-title';
+
+    if (isLogo || isTitle) {
+        adminClickCount++;
+        console.log("Admin Click:", adminClickCount);
+
+        // 2. 타이머 설정 (1.5초 내에 3번 눌러야 함)
+        clearTimeout(adminTimer);
+        adminTimer = setTimeout(() => { adminClickCount = 0; }, 1500);
+
+        // 3. 3번 클릭 성공 시
+        if (adminClickCount === 3) {
+            const menu = document.getElementById('admin-menu');
+            if (menu) {
+                menu.style.setProperty('display', 'flex', 'important'); 
+                alert("🛠️ 관리자 모드 활성화!");
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            } else {
+                alert("관리자 메뉴(ID: admin-menu) 요소를 찾을 수 없습니다.");
+            }
+            adminClickCount = 0;
+        }
+    }
+}
+
+// 이벤트 리스너 등록 (가장 확실한 click으로 통일)
+document.addEventListener('click', activateAdminMode);
