@@ -38,6 +38,8 @@ let todayWords = [];
 let isMuted = localStorage.getItem('trigger_muted') === 'true';
 let isPaused = false;
 const currentLevel = localStorage.getItem('trigger_level') || 'middle';
+// 🚀 직전 문제 오답 보관용 변수
+window.lastWrongOptions = [];
 
 function startCountdown(message, callback) {
     let count = 3;
@@ -123,6 +125,7 @@ function initApp() {
             todayWords = dayData || []; 
         }
 
+        // 🚀 [원본 로직 보존] 어제/그저께 (오답 + 별표)를 리스트 맨 앞 배치
         if (!isReviewDay && currentDay > 1) {
             let allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
             let preReviewWords = allWrongs.filter(w => 
@@ -156,13 +159,13 @@ function initApp() {
             }
         }
 
-        // 🚀 [관리자 점프 전용] 테스트 직행 신호가 있는지 확인하고 낚아챕니다.
+        // 🚀 [관리자 점프 핵심] 테스트 직행 신호 확인 시 학습 건너뛰고 테스트 시작
         if (localStorage.getItem('trigger_jump_test') === 'true') {
-            localStorage.removeItem('trigger_jump_test'); // 신호 확인 후 파기
+            localStorage.removeItem('trigger_jump_test'); // 신호 즉시 파기
             currentIdx = 0; 
-            studyLoopCount = 2; // 학습 완료 상태로 간주
+            studyLoopCount = 2; // 학습 루프 완료 상태로 조작
             startCountdown("곧 테스트를 시작합니다.", startTest);
-            return; // ⚠️ 아래 일반 실행(startStudy)을 원천 차단
+            return; // 아래 startStudy 실행 차단
         }
 
         const endTime = localStorage.getItem('blackt_cooldown');
@@ -261,6 +264,7 @@ function startStudy() {
             if (bar) bar.style.backgroundColor = "var(--neon-blue)";
         } 
         
+        // 발음 2초 뒤 재생 로직
         if (time <= 7000 && !hasPlayedSecondTTS) {
             if (data && data.word) playPronunciation(data.word);
             hasPlayedSecondTTS = true;
@@ -327,8 +331,6 @@ function toggleStar(wordObj) {
     localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
 }
 
-window.lastWrongOptions = window.lastWrongOptions || [];
-
 function updateUI(data, isTest = false) {
     const targetEl = document.getElementById('target');
     const mBox = document.getElementById('meanings');
@@ -380,23 +382,33 @@ function updateUI(data, isTest = false) {
     if (!isTest) {
         mBox.innerHTML = safeMeanings.map(m => `<div style="font-size:2.2rem; font-weight:bold; margin-bottom:15px;">${m}</div>`).join('');
     } else {
-        const todayMeanings = targetWords
-            .filter(w => w.word !== data.word && w.word)
-            .map(w => Array.isArray(w.meanings) ? w.meanings.join(', ') : (w.meaning || "뜻 정보 없음"));
+        // 🚀 [보기 중복 방지 로직 개선]
+        // 1. 전체 데이터베이스에서 현재 레벨의 모든 단어 추출 (수천 개 후보)
+        let dictPool = [];
+        if (typeof wordsData !== 'undefined' && wordsData[currentLevel]) {
+            Object.values(wordsData[currentLevel]).forEach(week => {
+                Object.values(week).forEach(dayEntry => {
+                    const list = Array.isArray(dayEntry) ? dayEntry : (dayEntry.test || []);
+                    list.forEach(w => {
+                        const m = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meaning;
+                        if (m && m !== fullMeaning) dictPool.push(m);
+                    });
+                });
+            });
+        }
+        dictPool = [...new Set(dictPool)]; // 중복 제거
 
-        let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
-        const pastMeanings = wrongWords
-            .filter(w => w.word !== data.word)
-            .map(w => Array.isArray(w.meanings) ? w.meanings.join(', ') : (w.meaning || "뜻 정보 없음"));
+        // 2. 직전 문제에서 사용된 오답 보기들 필터링
+        let filteredPool = dictPool.filter(m => !window.lastWrongOptions.includes(m));
+        
+        // 3. 만약 후보가 너무 부족하면(신규 레벨 등) 다시 전체 사용
+        if (filteredPool.length < 3) filteredPool = dictPool;
 
-        let allCandidates = [...new Set([...todayMeanings, ...pastMeanings])];
-        let filteredCandidates = allCandidates.filter(m => !window.lastWrongOptions.includes(m));
-        if (filteredCandidates.length < 3) filteredCandidates = allCandidates;
-
-        let selectedWrongs = filteredCandidates.sort(() => Math.random() - 0.5).slice(0, 3);
+        // 4. 무작위로 3개 오답 보기를 추출하여 저장 (다음 문제 방지용)
+        let selectedWrongs = filteredPool.sort(() => Math.random() - 0.5).slice(0, 3);
         window.lastWrongOptions = selectedWrongs;
-        const choices = [fullMeaning, ...selectedWrongs].sort(() => Math.random() - 0.5);
 
+        const choices = [fullMeaning, ...selectedWrongs].sort(() => Math.random() - 0.5);
         mBox.innerHTML = choices.map(c => `
                 <button class="choice-btn" 
                     style="font-size: 1.4rem !important; height: 75px !important; display: flex; align-items: center; justify-content: center; text-align: center; padding: 5px 15px !important; margin-bottom: 12px; line-height: 1.2; word-break: keep-all; font-weight: bold;" 
@@ -544,26 +556,13 @@ function skipToTest() { if (confirm("학습을 건너뛸까요?")) { currentIdx 
 function skipToFinish() { if (confirm("결과 화면으로 갈까요?")) { if (window.currentTimer) clearInterval(window.currentTimer); score = targetWords.length; currentIdx = targetWords.length; finishSession(true); } }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
 
-// 🚀 [관리자 점프 수정] 쪽지를 남기고 페이지를 이동시켜 initApp에서 낚아채게 합니다.
 function jumpToFinish() {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
-    const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
-    let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
-    const isReviewDay = (localDay === 6 || localDay === 7);
-
-    const finalSession = isReviewDay ? '2' : '6';
-    localStorage.setItem(`trigger_session_${lvl}`, finalSession); 
+    localStorage.setItem('trigger_session_' + lvl, '6'); 
     localStorage.removeItem('blackt_cooldown');
-
-    // 테스트 직행 쪽지 발송! 🚩
+    // 테스트 직행 쪽지 발송
     localStorage.setItem('trigger_jump_test', 'true');
-    
-    // 현재 study.html에 있다면 새로고침, 아니면 이동
-    if (window.location.pathname.includes('study.html')) {
-        location.reload();
-    } else {
-        location.href = 'study.html';
-    }
+    location.reload();
 }
 
 let adminClickCount = 0;
