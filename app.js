@@ -592,9 +592,18 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 
 function jumpToFinish() {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
-    localStorage.setItem('trigger_session_' + lvl, '6'); 
+    const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
+    let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
+    const isReviewDay = (localDay === 6 || localDay === 7);
+
+    // 평일은 세션 6, 주말은 세션 2가 최종 테스트 세션입니다.
+    const finalSession = isReviewDay ? '2' : '6';
+    
+    localStorage.setItem(`trigger_session_${lvl}`, finalSession); 
     localStorage.removeItem('blackt_cooldown');
-    location.href = 'study.html'; 
+    
+    // index.html이 아니라 현재 학습 페이지(study.html)를 새로고침하여 즉시 테스트 진입
+    location.reload(); 
 }
 
 let adminClickCount = 0;
