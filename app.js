@@ -156,13 +156,13 @@ function initApp() {
             }
         }
 
-        // 🚀 [관리자 점프 전용] 테스트 직행 신호 확인
+        // 🚀 [관리자 점프 전용] 테스트 직행 신호가 있는지 확인하고 낚아챕니다.
         if (localStorage.getItem('trigger_jump_test') === 'true') {
-            localStorage.removeItem('trigger_jump_test');
+            localStorage.removeItem('trigger_jump_test'); // 신호 확인 후 파기
             currentIdx = 0; 
-            studyLoopCount = 2; 
+            studyLoopCount = 2; // 학습 완료 상태로 간주
             startCountdown("곧 테스트를 시작합니다.", startTest);
-            return; 
+            return; // ⚠️ 아래 일반 실행(startStudy)을 원천 차단
         }
 
         const endTime = localStorage.getItem('blackt_cooldown');
@@ -261,7 +261,6 @@ function startStudy() {
             if (bar) bar.style.backgroundColor = "var(--neon-blue)";
         } 
         
-        // 🚀 [수정] 첫 발음(9.0초) 후 정확히 2초 뒤(7.0초 지점) 발음 실행
         if (time <= 7000 && !hasPlayedSecondTTS) {
             if (data && data.word) playPronunciation(data.word);
             hasPlayedSecondTTS = true;
@@ -545,7 +544,7 @@ function skipToTest() { if (confirm("학습을 건너뛸까요?")) { currentIdx 
 function skipToFinish() { if (confirm("결과 화면으로 갈까요?")) { if (window.currentTimer) clearInterval(window.currentTimer); score = targetWords.length; currentIdx = targetWords.length; finishSession(true); } }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
 
-// 🚀 [관리자 점프 수정] 버튼 클릭 시 테스트 직행 신호를 남기고 새로고침
+// 🚀 [관리자 점프 수정] 쪽지를 남기고 페이지를 이동시켜 initApp에서 낚아채게 합니다.
 function jumpToFinish() {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
@@ -555,10 +554,16 @@ function jumpToFinish() {
     const finalSession = isReviewDay ? '2' : '6';
     localStorage.setItem(`trigger_session_${lvl}`, finalSession); 
     localStorage.removeItem('blackt_cooldown');
-    
-    // 신호를 남기고 페이지를 새로고침하여 initApp에서 낚아채게 합니다.
+
+    // 테스트 직행 쪽지 발송! 🚩
     localStorage.setItem('trigger_jump_test', 'true');
-    location.reload();
+    
+    // 현재 study.html에 있다면 새로고침, 아니면 이동
+    if (window.location.pathname.includes('study.html')) {
+        location.reload();
+    } else {
+        location.href = 'study.html';
+    }
 }
 
 let adminClickCount = 0;
