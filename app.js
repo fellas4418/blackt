@@ -240,6 +240,8 @@ function startStudy() {
     }
 
     let time = 9000; 
+    let hasPlayedSecondTTS = false; // 🚀 중복 발음 방지용 플래그
+    
     const interval = setInterval(() => {
         if (isPaused) return; 
         
@@ -253,11 +255,14 @@ function startStudy() {
             items.forEach(item => item.style.opacity = "0"); 
             if (bar) bar.style.backgroundColor = "var(--neon-orange)";
         } 
-        else if (time === 2000) { // 🚀 수정: 정확히 2000일 때 단 한 번만 실행
+        else if (time <= 2000) {
             items.forEach(item => item.style.opacity = "1"); 
             if (bar) bar.style.backgroundColor = "var(--neon-green)";
-            if (data && data.word) {
-                playPronunciation(data.word);
+            
+            // 🚀 수정: 딱 2000ms 이하로 떨어지는 순간 단 한 번만 발음 실행
+            if (!hasPlayedSecondTTS) {
+                if (data && data.word) playPronunciation(data.word);
+                hasPlayedSecondTTS = true;
             }
         }
 
@@ -393,7 +398,7 @@ function updateUI(data, isTest = false) {
 }
 
 function handleAnswer(isCorrect) {
-    clearInterval(window.currentTimer);
+    if (window.currentTimer) clearInterval(window.currentTimer);
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
     let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
     const currentWordData = targetWords[currentIdx];
@@ -527,28 +532,31 @@ function shareKakao() {
 }
 
 function skipToTest() { if (confirm("학습을 건너뛸까요?")) { currentIdx = targetWords.length; } }
-function skipToFinish() { if (confirm("결과 화면으로 갈까요?")) { clearInterval(window.currentTimer); score = targetWords.length; currentIdx = targetWords.length; finishSession(true); } }
+function skipToFinish() { if (confirm("결과 화면으로 갈까요?")) { if (window.currentTimer) clearInterval(window.currentTimer); score = targetWords.length; currentIdx = targetWords.length; finishSession(true); } }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
 
-// 🚀 [관리자 점프 수정] 학습 중단 후 즉시 테스트 진입
+// 🚀 [관리자 점프 수정] 완벽한 점프 로직
 function jumpToFinish() {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
     let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
     const isReviewDay = (localDay === 6 || localDay === 7);
 
-    // 모든 활성 타이머 및 사운드 중단
+    // 1. 모든 진행 중인 프로세스 강제 파괴
     if (window.currentTimer) clearInterval(window.currentTimer);
     window.speechSynthesis.cancel();
 
-    // 세션 번호 설정
+    // 2. 세션 및 상태 즉시 조작
     const finalSession = isReviewDay ? '2' : '6';
     localStorage.setItem(`trigger_session_${lvl}`, finalSession); 
     localStorage.removeItem('blackt_cooldown');
 
-    // 학습 루프 강제 종료 상태로 변경 및 즉시 카운트다운 실행
+    // 3. 현재 인덱스 초기화 및 루프 종료 상태 강제 설정
     currentIdx = 0; 
     studyLoopCount = 2; 
+
+    // 4. 화면 초기화 후 즉시 카운트다운 진입
+    showSystemMessage(""); // 현재 화면 지우기
     startCountdown("곧 테스트를 시작합니다.", startTest);
 }
 
