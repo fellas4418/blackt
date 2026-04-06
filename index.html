@@ -482,7 +482,7 @@
             const startBtn = document.getElementById('start-btn-main');
             
             document.getElementById('stat-current-day').innerText = `Day ${day}`;
-            document.getElementById('stat-session').innerText = session > 6 ? '학습 완료' : `${session} / 6`;
+            document.getElementById('stat-session').innerText = session > 6 ? 'Clear 리스트' : `${session} / 6`;
 
             if (window.cooldownInterval) clearInterval(window.cooldownInterval);
 
@@ -727,7 +727,7 @@
                 listContainer.innerHTML = html;
             }
             
-            document.getElementById('all-words-title').innerText = `나의 학습 단어장 [${lvl === 'high' ? '고등' : '중등'}]`;
+            document.getElementById('all-words-title').innerText = `👑 클리어 리스트 [${lvl === 'high' ? '고등' : '중등'}]`;
             document.getElementById('all-words-modal').style.display = 'flex';
         }
 
