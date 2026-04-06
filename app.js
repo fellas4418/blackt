@@ -395,17 +395,37 @@ function updateUI(data, isTest = false) {
     if (!isTest) {
         mBox.innerHTML = safeMeanings.map(m => `<div style="font-size:2.2rem; font-weight:bold; margin-bottom:15px;">${m}</div>`).join('');
     } else {
-        const allOtherMeanings = targetWords.filter(w => w.word !== data.word && w.word).map(w => {
-            if (Array.isArray(w.meanings)) return w.meanings.join(', ');
-            return w.meaning || "뜻 정보 없음";
-        });
+        // 1. 보기 후보군 생성 (오늘의 단어들)
+        const todayMeanings = targetWords
+            .filter(w => w.word !== data.word && w.word)
+            .map(w => Array.isArray(w.meanings) ? w.meanings.join(', ') : (w.meaning || "뜻 정보 없음"));
+
+        // 2. 보기 후보군 확장 (과거 오답 리스트에서 가져오기 - 난이도 상승)
+        let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+        const pastMeanings = wrongWords
+            .filter(w => w.word !== data.word)
+            .map(w => Array.isArray(w.meanings) ? w.meanings.join(', ') : (w.meaning || "뜻 정보 없음"));
+
+        // 오늘 단어 + 과거 오답 단어 합치기 (중복 제거)
+        let allCandidates = [...new Set([...todayMeanings, ...pastMeanings])];
+
+        // 3. 직전 문제에서 사용된 오답 제외 (연속 중복 방지)
+        let filteredCandidates = allCandidates.filter(m => !window.lastWrongOptions.includes(m));
         
-        let filteredMeanings = allOtherMeanings.filter(m => !window.lastWrongOptions.includes(m));
-        if (filteredMeanings.length < 3) { filteredMeanings = allOtherMeanings; }
-        let availableMeanings = [...filteredMeanings].sort(() => Math.random() - 0.5).slice(0, 3);
-        window.lastWrongOptions = availableMeanings;
-        
-        const choices = [fullMeaning, ...availableMeanings].sort(() => Math.random() - 0.5);
+        // 후보가 너무 적으면 다시 전체에서 가져오기
+        if (filteredCandidates.length < 3) filteredCandidates = allCandidates;
+
+        // 4. 무작위로 3개 추출
+        let selectedWrongs = filteredCandidates
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 3);
+
+        // 다음 문제를 위해 현재 오답 저장
+        window.lastWrongOptions = selectedWrongs;
+
+        // 5. 정답과 오답 섞기 (위치 랜덤)
+        const choices = [fullMeaning, ...selectedWrongs].sort(() => Math.random() - 0.5);
+
         mBox.innerHTML = choices.map(c => {
             const isCorrect = (c === fullMeaning);
             return `
