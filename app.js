@@ -534,9 +534,18 @@ function retryOnlyWrongs() {
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
     let retryList = allWrongs.filter(w => w.level === currentLevel && w.day === currentDay);
     if (retryList.length < 1) retryList = todayWords;
+    
     targetWords = retryList;
     currentIdx = 0;
     studyLoopCount = 2; 
+
+    // 🚀 [추가] 나갔다 오지 않아도 즉시 상단 바를 '최후의 세션'으로 변경
+    const sessionTag = document.getElementById('session-tag');
+    if (sessionTag) {
+        sessionTag.innerText = `최후의 세션 1 / 1`;
+        sessionTag.style.color = "var(--neon-orange)";
+    }
+    
     startStudy();
 }
 
