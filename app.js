@@ -146,16 +146,24 @@ function initApp() {
 
         if (sessionTag) {
             let currentSessionVal = localStorage.getItem(`trigger_session_${currentLevel}`);
+            
+            // 🚀 최후의 세션일 때 (가장 먼저 체크)
             if (currentSessionVal === 'final') {
                 sessionTag.innerText = `최후의 세션 1 / 1`;
                 sessionTag.style.color = "var(--neon-orange)";
-            } else if (isReviewDay) {
+            } 
+            // 주말 복습일 때
+            else if (isReviewDay) {
                 let sNum = parseInt(currentSessionVal) || 1;
                 let displaySession = sNum >= 6 ? 2 : 1;
                 sessionTag.innerText = sNum > 6 ? `자유 복습 모드` : `Session ${displaySession} / 2 (주말복습)`;
-            } else {
+                sessionTag.style.color = ""; // 색상 초기화
+            } 
+            // 평일 일반 세션일 때
+            else {
                 let sNum = parseInt(currentSessionVal) || 1;
                 sessionTag.innerText = sNum > 6 ? `자유 복습 모드` : `Session ${sNum} / 6`;
+                sessionTag.style.color = ""; // 색상 초기화
             }
         }
 
