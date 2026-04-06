@@ -470,8 +470,8 @@ function finishSession(didTest = true) {
                     <div style="font-size:2rem; font-weight:bold; color:var(--neon-orange);">${accuracy}%</div>
                 </div>
                 <div style="font-size:0.95rem; color:#fff; margin-bottom:20px; line-height:1.6; word-break:keep-all;">
-                    80% 미만이라 <b style="color:var(--neon-orange);">최후의 세션</b>을 시작합니다.<br>
-                    <span style="color:var(--neon-blue); font-weight:bold;">틀린 것만 딱 1번 더 복습하고 끝낼게요!</span> 🔥
+                    정답률 80% 미만은 <b style="color:var(--neon-orange);">최후의 세션</b>을 시작합니다.<br>
+                    <span style="color:var(--neon-blue); font-weight:bold;">틀린 단어만 딱 1번 더 복습하고 끝!</span> 🔥
                 </div>
                 <button onclick="retryOnlyWrongs()" style="width:100%; padding:16px; background:var(--neon-blue); color:#fff; border:none; border-radius:12px; font-weight:bold; cursor:pointer; font-size:1.1rem;">최후의 세션 시작</button>
             </div>
