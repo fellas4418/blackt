@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trigger Voca - Neon</title>
+    <title>사라져져 Voca - Neon</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#000000">
@@ -115,7 +115,7 @@
 
     <div id="login-modal" style="display:none;">
         <div class="login-card">
-            <div class="login-title">Trigger Voca</div>
+            <div class="login-title">Trigger English</div>
             <div class="input-group"><span class="input-label">이름 (실명)</span><input type="text" id="user-name" class="neon-input"></div>
             <div class="input-group">
                 <span class="input-label">전화번호 (휴대폰)</span><input type="tel" id="user-phone" class="neon-input" placeholder="010-0000-0000">
@@ -597,7 +597,7 @@
             const currentLevel = localStorage.getItem('trigger_level') || 'middle';
             const unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
             
-            let printHtml = `<h1 style="text-align:center;">Trigger Voca 누적 단어장 (${currentLevel === 'middle' ? '중등' : '고등'})</h1>`;
+            let printHtml = `<h1 style="text-align:center;">사라져 Voca 누적 단어장 (${currentLevel === 'middle' ? '중등' : '고등'})</h1>`;
             
             for(let i=1; i < unlockedDay; i++) {
                 if (i % 7 === 6 || i % 7 === 0) continue; 
@@ -770,8 +770,8 @@
         }
 
         function shareTriggerApp() {
-            const shareTitle = "Trigger Voca - 뇌과학 영단어장";
-            const shareText = "뇌과학 6세션 루틴 앱 '트리거 보카'를 무료로 시작해 보세요.";
+            const shareTitle = "사라져 Voca - 사라지는 영단어장";
+            const shareText = "뇌과학 6세션 사라지는 단어 앱 '사라져져 보카'를 무료로 시작해 보세요.";
             const shareUrl = window.location.origin;
 
             if (navigator.share) {
