@@ -251,19 +251,19 @@ function startStudy() {
             items.forEach(item => item.style.opacity = "1");
             if (bar) bar.style.backgroundColor = "var(--neon-blue)";
         } 
-        else if (time <= 5000 && time > 2000) {
+        // 🚀 [수정] 첫 발음 후 2초 뒤 (9000 - 2000 = 7000) 발음 실행
+        if (time === 7000 && !hasPlayedSecondTTS) {
+            if (data && data.word) playPronunciation(data.word);
+            hasPlayedSecondTTS = true;
+        }
+
+        if (time <= 5000 && time > 2000) {
             items.forEach(item => item.style.opacity = "0"); 
             if (bar) bar.style.backgroundColor = "var(--neon-orange)";
         } 
         else if (time <= 2000) {
             items.forEach(item => item.style.opacity = "1"); 
             if (bar) bar.style.backgroundColor = "var(--neon-green)";
-            
-            // 🚀 수정: 딱 2000ms 이하로 떨어지는 순간 단 한 번만 발음 실행
-            if (!hasPlayedSecondTTS) {
-                if (data && data.word) playPronunciation(data.word);
-                hasPlayedSecondTTS = true;
-            }
         }
 
         if(bar) bar.style.width = (time / 9000 * 100) + "%";
@@ -535,28 +535,31 @@ function skipToTest() { if (confirm("학습을 건너뛸까요?")) { currentIdx 
 function skipToFinish() { if (confirm("결과 화면으로 갈까요?")) { if (window.currentTimer) clearInterval(window.currentTimer); score = targetWords.length; currentIdx = targetWords.length; finishSession(true); } }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
 
-// 🚀 [관리자 점프 수정] 완벽한 점프 로직
+// 🚀 [관리자 점프 수정] 완벽한 강제 중단 및 테스트 직행
 function jumpToFinish() {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
     let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
     const isReviewDay = (localDay === 6 || localDay === 7);
 
-    // 1. 모든 진행 중인 프로세스 강제 파괴
-    if (window.currentTimer) clearInterval(window.currentTimer);
+    // 1. 모든 진행 중인 프로세스 강제 파괴 (핵심!)
+    if (window.currentTimer) {
+        clearInterval(window.currentTimer);
+        window.currentTimer = null;
+    }
     window.speechSynthesis.cancel();
 
-    // 2. 세션 및 상태 즉시 조작
+    // 2. 세션 및 상태 조작
     const finalSession = isReviewDay ? '2' : '6';
     localStorage.setItem(`trigger_session_${lvl}`, finalSession); 
     localStorage.removeItem('blackt_cooldown');
 
-    // 3. 현재 인덱스 초기화 및 루프 종료 상태 강제 설정
+    // 3. 상태 변수 강제 설정
     currentIdx = 0; 
     studyLoopCount = 2; 
 
-    // 4. 화면 초기화 후 즉시 카운트다운 진입
-    showSystemMessage(""); // 현재 화면 지우기
+    // 4. 즉시 테스트 카운트다운 진입
+    showSystemMessage(""); 
     startCountdown("곧 테스트를 시작합니다.", startTest);
 }
 
