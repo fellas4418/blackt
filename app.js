@@ -38,7 +38,6 @@ let todayWords = [];
 let isMuted = localStorage.getItem('trigger_muted') === 'true';
 let isPaused = false;
 const currentLevel = localStorage.getItem('trigger_level') || 'middle';
-// 🚀 직전 문제 오답 보관용 변수
 window.lastWrongOptions = [];
 
 function startCountdown(message, callback) {
@@ -145,18 +144,15 @@ function initApp() {
 
         if (sessionTag) {
             let currentSessionVal = localStorage.getItem(`trigger_session_${currentLevel}`);
-            
             if (currentSessionVal === 'final') {
                 sessionTag.innerText = `최후의 세션 1 / 1`;
                 sessionTag.style.color = "var(--neon-orange)";
-            } 
-            else if (isReviewDay) {
+            } else if (isReviewDay) {
                 let sNum = parseInt(currentSessionVal) || 1;
                 let displaySession = sNum >= 6 ? 2 : 1;
                 sessionTag.innerText = sNum > 6 ? `자유 복습 모드` : `Session ${displaySession} / 2 (주말복습)`;
                 sessionTag.style.color = ""; 
-            } 
-            else {
+            } else {
                 let sNum = parseInt(currentSessionVal) || 1;
                 sessionTag.innerText = sNum > 6 ? `자유 복습 모드` : `Session ${sNum} / 6`;
                 sessionTag.style.color = ""; 
@@ -241,25 +237,6 @@ function startStudy() {
 
     const data = targetWords[currentIdx];
     updateUI(data); 
-
-    // 🚀 [추가] 진행 카운터를 게이지 바 영역 아래에 고정 표시
-    const barArea = document.querySelector('.progress-container') || document.getElementById('bar');
-    if (barArea) {
-        let oldCounter = document.getElementById('fixed-progress-counter');
-        if (oldCounter) oldCounter.remove();
-
-        const counterDiv = document.createElement('div');
-        counterDiv.id = 'fixed-progress-counter';
-        counterDiv.style.cssText = "text-align: center; font-size: 0.9rem; color: #888; font-weight: bold; margin-top: 10px; letter-spacing: 1px; width: 100%;";
-        counterDiv.innerText = `[ ${currentIdx + 1} / ${targetWords.length} ]`;
-        
-        // 게이지 바 뒤에 삽입
-        if (barArea.id === 'bar') {
-            barArea.parentElement.appendChild(counterDiv);
-        } else {
-            barArea.appendChild(counterDiv);
-        }
-    }
     
     const items = document.querySelectorAll('#meanings div');
     const bar = document.getElementById('bar');
@@ -321,24 +298,6 @@ function startTest() {
     const data = targetWords[currentIdx];
     updateUI(data, true);
 
-    // 🚀 [추가] 테스트 화면에서도 진행 카운터를 게이지 바 영역 아래에 고정 표시
-    const barArea = document.querySelector('.progress-container') || document.getElementById('bar');
-    if (barArea) {
-        let oldCounter = document.getElementById('fixed-progress-counter');
-        if (oldCounter) oldCounter.remove();
-
-        const counterDiv = document.createElement('div');
-        counterDiv.id = 'fixed-progress-counter';
-        counterDiv.style.cssText = "text-align: center; font-size: 0.9rem; color: #888; font-weight: bold; margin-top: 10px; letter-spacing: 1px; width: 100%;";
-        counterDiv.innerText = `[ ${currentIdx + 1} / ${targetWords.length} ]`;
-        
-        if (barArea.id === 'bar') {
-            barArea.parentElement.appendChild(counterDiv);
-        } else {
-            barArea.appendChild(counterDiv);
-        }
-    }
-
     let time = 5000; 
     const interval = setInterval(() => {
         if (isPaused) return;
@@ -376,6 +335,11 @@ function updateUI(data, isTest = false) {
     
     if (!targetEl || !mBox || !data) return;
 
+    // 🚀 [진행 순서 카운터] 단어 위에 아주 작게 고정 표시
+    const currentNum = currentIdx + 1;
+    const totalNum = targetWords.length;
+    const counterHtml = `<div style="font-size:0.75rem; color:#555; font-weight:bold; margin-bottom:5px; text-align:center;">[ ${currentNum} / ${totalNum} ]</div>`;
+
     let safeMeanings = Array.isArray(data.meanings) ? data.meanings : (data.meaning ? [data.meaning] : ["뜻 확인 필요"]);
     const fullMeaning = safeMeanings.join(', ');
 
@@ -385,7 +349,8 @@ function updateUI(data, isTest = false) {
     targetEl.style.setProperty('margin-top', '0px', 'important');
 
     if (!isTest) {
-        targetEl.innerHTML = `
+        // 학습 모드: 단어 위에 번호 표시
+        targetEl.innerHTML = counterHtml + `
             <div style="display:flex; flex-direction:column; align-items:center;">
                 <div style="display:flex; justify-content:center; align-items:center;">
                     <span style="font-size:1.8rem; visibility:hidden; pointer-events:none;">☆</span>
@@ -404,7 +369,8 @@ function updateUI(data, isTest = false) {
             starBtn.onclick = (e) => { e.stopPropagation(); toggleStar(data); };
         }
     } else {
-        targetEl.innerHTML = `
+        // 테스트 모드: 단어 위에 번호 표시
+        targetEl.innerHTML = counterHtml + `
             <div style="display:flex; flex-direction:column; align-items:center;">
                 <div style="font-size:3.3rem; font-weight:bold; cursor:pointer;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</div>
                 <div class="ipa-text" style="font-size:1.2rem; color:#888; margin-top:8px;">${data.ipa || ''}</div>
@@ -477,65 +443,25 @@ function finishSession(didTest = true) {
     
     const accuracy = Math.floor((score / targetWords.length) * 100);
 
-    const isMainTest = (currentSession === '6');
-    const isReviewTest = (isReviewDay && currentSession === '2');
-
-    if (didTest && accuracy < 80 && (isMainTest || isReviewTest)) {
+    if (didTest && accuracy < 80 && (currentSession === '6' || (isReviewDay && currentSession === '2'))) {
         localStorage.setItem(`trigger_session_${currentLevel}`, 'final'); 
         showSystemMessage(`
-            <div style="padding: 10px; text-align:center;">
-                <div style="font-size:1.5rem; color:var(--neon-orange); font-weight:bold; margin-bottom:15px;">아쉬운 점수! 🚨</div>
-                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; margin-bottom:20px; border:1px solid #333;">
-                    <div style="font-size:0.9rem; color:#888;">현재 정답률</div>
-                    <div style="font-size:2rem; font-weight:bold; color:var(--neon-orange);">${accuracy}%</div>
-                </div>
-                <div style="font-size:0.95rem; color:#fff; margin-bottom:20px; line-height:1.6; word-break:keep-all;">
-                    정답률 80% 미만은 <b style="color:var(--neon-orange);">최후의 세션</b>을 시작합니다.<br>
-                    <span style="color:var(--neon-blue); font-weight:bold;">틀린 단어만 딱 1번 더 복습하고 끝!</span> 🔥
-                </div>
-                <button onclick="retryOnlyWrongs()" style="width:100%; padding:16px; background:var(--neon-blue); color:#fff; border:none; border-radius:12px; font-weight:bold; cursor:pointer; font-size:1.1rem;">최후의 세션 시작</button>
+            <div style="text-align:center;">
+                <div style="font-size:1.5rem; color:var(--neon-orange); font-weight:bold;">아쉬운 점수! ${accuracy}%</div>
+                <button onclick="retryOnlyWrongs()" style="width:100%; padding:16px; background:var(--neon-blue); color:#fff; border-radius:12px; margin-top:20px; border:none; font-weight:bold;">최후의 세션 시작</button>
             </div>
         `);
         return;
     }
 
-    const isFinalSession = (currentSession === 'final');
-    const isEndOfStudy = isReviewDay ? (parseInt(currentSession) >= 2) : (parseInt(currentSession) >= 6);
-
-    if ((isEndOfStudy || isFinalSession) && didTest) {
-        stats[currentDay].progress = isReviewDay ? 2 : 6;
-        stats[currentDay].accuracy = accuracy;
-        
-        let highestDay = parseInt(localStorage.getItem(`trigger_highest_day_${currentLevel}`)) || 0;
-        if (currentDay > highestDay) {
-            let currentStreak = parseInt(localStorage.getItem('trigger_streak')) || 0;
-            localStorage.setItem('trigger_streak', currentStreak + 1);
-            localStorage.setItem(`trigger_highest_day_${currentLevel}`, currentDay);
-        }
-        
-        let unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
-        if (unlockedDay === currentDay) localStorage.setItem(`trigger_unlocked_day_${currentLevel}`, unlockedDay + 1);
-        
-        const isLow = accuracy < 80;
-        showSystemMessage(`
-            <div style="padding: 10px; text-align:center;">
-                <div style="font-size:1.5rem; color:${isLow ? 'var(--neon-orange)' : 'var(--neon-green)'}; font-weight:bold; margin-bottom:15px;">
-                    ${isLow ? '복습 완료! 노력 인정 👍' : 'MISSION COMPLETE! 👑'}
-                </div>
-                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; margin-bottom:20px; border:1px solid #333;">
-                    <div style="font-size:0.9rem; color:#888;">최종 테스트 정답률</div>
-                    <div style="font-size:2rem; font-weight:bold; color:var(--neon-orange);">${accuracy}%</div>
-                    ${isLow ? '<div style="font-size:0.8rem; color:#888; margin-top:5px;">(80% 미만 - 재복습 수행됨)</div>' : ''}
-                </div>
-                <button onclick="shareKakao()" style="width:100%; padding:16px; background:#fee500; color:#3c1e1e; border:none; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer;">🟡 카톡으로 성과 공유하기</button> 
-                <button onclick="location.href='index.html'" style="width:100%; padding:14px; background:transparent; color:#bbbbbb; border:none; cursor:pointer; font-size:1.1rem; font-weight:bold; text-decoration:underline;">종료하기</button>
-            </div>
-        `);
+    if ((parseInt(currentSession) >= 6 || (isReviewDay && parseInt(currentSession) >= 2) || currentSession === 'final') && didTest) {
+        let unlocked = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
+        if (unlocked === currentDay) localStorage.setItem(`trigger_unlocked_day_${currentLevel}`, unlocked + 1);
+        showSystemMessage(`<div style="text-align:center;"><div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold;">학습 완료! ${accuracy}%</div><button onclick="shareKakao()" style="width:100%; padding:16px; background:#fee500; border-radius:12px; margin-top:20px; border:none; font-weight:bold;">🟡 카톡 공유</button><button onclick="location.href='index.html'" style="margin-top:20px; background:none; border:none; color:#888; text-decoration:underline;">종료하기</button></div>`);
     } else {
-        let nextSession = parseInt(currentSession) + 1;
-        localStorage.setItem(`trigger_session_${currentLevel}`, nextSession.toString());
+        localStorage.setItem(`trigger_session_${currentLevel}`, parseInt(currentSession) + 1);
         localStorage.setItem('blackt_cooldown', Date.now() + COOL_DOWN_TIME);
-        showSystemMessage(didTest ? "테스트 완료! 👍" : "세션 완료! 🔥");
+        showSystemMessage("세션 완료! 🔥");
         setTimeout(() => { location.href = 'index.html'; }, 2200);
     }
     localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));
@@ -562,27 +488,14 @@ function retryOnlyWrongs() {
 
 function shareKakao() {
     if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) return;
-    try {
-        const userName = localStorage.getItem('trigger_name') || '학습자';
-        const levelName = currentLevel === 'high' ? '고등' : '중등';
-        const currentDay = localStorage.getItem(`trigger_current_day_${currentLevel}`) || 1;
-        const shareUrl = window.location.origin + window.location.pathname.replace('study.html', 'index.html');
-        Kakao.Share.sendDefault({
-            objectType: 'feed',
-            content: {
-                title: '⚡ 사라져 보카 목표 달성!',
-                description: `${userName}님이 [${levelName} Day ${currentDay}]를 완수했습니다.\n정답률: ${Math.floor((score/targetWords.length)*100)}%`,
-                imageUrl: 'https://t1.kakaocdn.net/kakaocorp/Service/Official/Common/logo/kakaotalk_200x200.png', 
-                link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
-            },
-            buttons: [{ title: '나도 도전하기', link: { mobileWebUrl: shareUrl, webUrl: shareUrl } }],
-        });
-    } catch (e) {}
+    const userName = localStorage.getItem('trigger_name') || '학습자';
+    const currentDay = localStorage.getItem(`trigger_current_day_${currentLevel}`) || 1;
+    const acc = Math.floor((score/targetWords.length)*100);
+    Kakao.Share.sendDefault({
+        objectType: 'feed',
+        content: { title: '⚡ 사라져 보카 완료!', description: `${userName}님 [Day ${currentDay}] 완수\n정답률: ${acc}%`, imageUrl: '', link: { mobileWebUrl: window.location.href, webUrl: window.location.href } }
+    });
 }
-
-function skipToTest() { if (confirm("학습을 건너뛸까요?")) { currentIdx = targetWords.length; } }
-function skipToFinish() { if (confirm("결과 화면으로 갈까요?")) { if (window.currentTimer) clearInterval(window.currentTimer); score = targetWords.length; currentIdx = targetWords.length; finishSession(true); } }
-if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
 
 function jumpToFinish() {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
@@ -591,6 +504,8 @@ function jumpToFinish() {
     localStorage.setItem('trigger_jump_test', 'true');
     location.reload();
 }
+
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
 
 let adminClickCount = 0;
 let adminTimer = null;
