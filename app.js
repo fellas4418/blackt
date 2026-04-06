@@ -247,6 +247,26 @@ function startStudy() {
     const data = targetWords[currentIdx];
     updateUI(data); 
     
+    const barContainer = document.querySelector('.progress-container'); // 바를 감싸는 통
+    if (barContainer) {
+        // 기존에 생성된 카운터가 있으면 지우고 새로 생성
+        let oldCounter = document.getElementById('fixed-progress-counter');
+        if (oldCounter) oldCounter.remove();
+
+        const counterDiv = document.createElement('div');
+        counterDiv.id = 'fixed-progress-counter';
+        counterDiv.style.cssText = `
+            text-align: center;
+            font-size: 0.85rem;
+            color: #888;
+            font-weight: bold;
+            margin-top: 8px;
+            letter-spacing: 1px;
+        `;
+        counterDiv.innerText = `[ ${currentIdx + 1} / ${targetWords.length} ]`;
+        barContainer.after(counterDiv); // 게이지 바 바로 다음에 추가
+    }
+
     const items = document.querySelectorAll('#meanings div');
     const bar = document.getElementById('bar');
     
