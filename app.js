@@ -230,6 +230,7 @@ function togglePause() {
     }
 }
 
+// 🚀 [최종형] 사라져 보카: 4초 노출 + 3초 회상(가리기) + 2초 확인 사살
 function startStudy() {
     if (currentIdx >= targetWords.length) {
         if (studyLoopCount < 2) {
@@ -240,7 +241,6 @@ function startStudy() {
         } else {
             currentIdx = 0;
             const currentSession = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`)) || 1;
-            
             if (currentSession === 3 || currentSession === 6 || currentSession > 6) {
                 startCountdown("곧 테스트를 시작합니다.", startTest); 
             } else {
@@ -254,31 +254,60 @@ function startStudy() {
     updateUI(data); 
     
     const items = document.querySelectorAll('#meanings div');
-    items.forEach(item => item.classList.add('active'));
+    const bar = document.getElementById('bar');
+    
+    // 초기 상태 설정
+    items.forEach(item => {
+        item.style.opacity = "1";
+        item.style.transition = "opacity 0.2s ease"; // 부드러운 전환
+    });
 
     if (data && data.word) {
         playPronunciation(data.word);
-        setTimeout(() => playPronunciation(data.word), 3000);
     }
 
-    let time = 6000;
+    let time = 9000; // 총 9초 (4+3+2)
     const interval = setInterval(() => {
         if (isPaused) return; 
         
         time -= 100;
-        const bar = document.getElementById('bar');
-        if(bar) bar.style.width = (time / 6000 * 100) + "%";
+
+        // 🚀 구간 1: [9초 ~ 5초 남았을 때] 4초간 노출 (입력 구간)
+        if (time > 5000) {
+            items.forEach(item => item.style.opacity = "1");
+            if (bar) {
+                bar.style.backgroundColor = "var(--neon-blue)";
+                bar.style.boxShadow = "0 0 10px var(--neon-blue)";
+            }
+        } 
+        // 🚀 구간 2: [5초 ~ 2초 남았을 때] 3초간 가리기 (회상 구간 - 긴장감 극대화)
+        else if (time <= 5000 && time > 2000) {
+            items.forEach(item => item.style.opacity = "0"); 
+            if (bar) {
+                bar.style.backgroundColor = "var(--neon-orange)"; // 주황색: "기억해봐!"
+                bar.style.boxShadow = "0 0 15px var(--neon-orange)";
+            }
+        } 
+        // 🚀 구간 3: [2초 ~ 0초 남았을 때] 2초간 정답 재노출 (확인 사살 구간)
+        else if (time <= 2000) {
+            items.forEach(item => item.style.opacity = "1"); 
+            if (bar) {
+                bar.style.backgroundColor = "var(--neon-green)"; // 초록색: "이거였어!"
+                bar.style.boxShadow = "0 0 15px var(--neon-green)";
+            }
+        }
+
+        if(bar) bar.style.width = (time / 9000 * 100) + "%";
+
         if (time <= 0 || currentIdx >= targetWords.length) { 
             clearInterval(interval);
             if (time <= 0) currentIdx++;
-            setTimeout(startStudy, 500);
+            setTimeout(startStudy, 200);
         }
     }, 100);
     
-    // 🔥 스피드 리마인드 세션에도 타이머 강제 적용 방어
     window.currentTimer = interval;
 }
-
 function startTest() {
     if (currentIdx >= targetWords.length) {
         finishSession(true); 
