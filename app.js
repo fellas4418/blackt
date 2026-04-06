@@ -40,29 +40,6 @@ let isPaused = false;
 const currentLevel = localStorage.getItem('trigger_level') || 'middle';
 window.lastWrongOptions = [];
 
-// 🚀 [추가] 진행 카운터를 게이지 바 아래에 고정하는 공통 함수
-function updateProgressCounter() {
-    const bar = document.getElementById('bar');
-    if (bar && bar.parentElement) {
-        let oldCounter = document.getElementById('fixed-progress-counter');
-        if (oldCounter) oldCounter.remove();
-
-        const counterDiv = document.createElement('div');
-        counterDiv.id = 'fixed-progress-counter';
-        counterDiv.style.cssText = `
-            text-align: center;
-            font-size: 0.85rem;
-            color: #666;
-            font-weight: bold;
-            margin-top: 10px;
-            letter-spacing: 1px;
-            width: 100%;
-        `;
-        counterDiv.innerText = `[ ${currentIdx + 1} / ${targetWords.length} ]`;
-        bar.parentElement.appendChild(counterDiv);
-    }
-}
-
 function startCountdown(message, callback) {
     let count = 3;
     const renderHtml = (c) => `
@@ -260,8 +237,7 @@ function startStudy() {
 
     const data = targetWords[currentIdx];
     updateUI(data); 
-    updateProgressCounter(); // 🚀 [추가] 바 아래 번호 고정 표시
-
+    
     const items = document.querySelectorAll('#meanings div');
     const bar = document.getElementById('bar');
     
@@ -321,7 +297,6 @@ function startTest() {
 
     const data = targetWords[currentIdx];
     updateUI(data, true);
-    updateProgressCounter(); // 🚀 [추가] 테스트 화면에서도 바 아래 번호 고정 표시
 
     let time = 5000; 
     const interval = setInterval(() => {
@@ -360,6 +335,11 @@ function updateUI(data, isTest = false) {
     
     if (!targetEl || !mBox || !data) return;
 
+    // 🚀 [진행 순서 카운터] 단어 위에 아주 작게 고정 표시
+    const currentNum = currentIdx + 1;
+    const totalNum = targetWords.length;
+    const counterHtml = `<div style="font-size:0.75rem; color:#555; font-weight:bold; margin-bottom:5px; text-align:center;">[ ${currentNum} / ${totalNum} ]</div>`;
+
     let safeMeanings = Array.isArray(data.meanings) ? data.meanings : (data.meaning ? [data.meaning] : ["뜻 확인 필요"]);
     const fullMeaning = safeMeanings.join(', ');
 
@@ -369,7 +349,8 @@ function updateUI(data, isTest = false) {
     targetEl.style.setProperty('margin-top', '0px', 'important');
 
     if (!isTest) {
-        targetEl.innerHTML = `
+        // 학습 모드: 단어 위에 번호 표시
+        targetEl.innerHTML = counterHtml + `
             <div style="display:flex; flex-direction:column; align-items:center;">
                 <div style="display:flex; justify-content:center; align-items:center;">
                     <span style="font-size:1.8rem; visibility:hidden; pointer-events:none;">☆</span>
@@ -388,7 +369,8 @@ function updateUI(data, isTest = false) {
             starBtn.onclick = (e) => { e.stopPropagation(); toggleStar(data); };
         }
     } else {
-        targetEl.innerHTML = `
+        // 테스트 모드: 단어 위에 번호 표시
+        targetEl.innerHTML = counterHtml + `
             <div style="display:flex; flex-direction:column; align-items:center;">
                 <div style="font-size:3.3rem; font-weight:bold; cursor:pointer;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</div>
                 <div class="ipa-text" style="font-size:1.2rem; color:#888; margin-top:8px;">${data.ipa || ''}</div>
@@ -511,7 +493,7 @@ function shareKakao() {
     const acc = Math.floor((score/targetWords.length)*100);
     Kakao.Share.sendDefault({
         objectType: 'feed',
-        content: { title: '⚡ 사라져 보카 완료!', description: `${userName}님 [Day ${day}] 완수\n정답률: ${acc}%`, imageUrl: '', link: { mobileWebUrl: window.location.href, webUrl: window.location.href } }
+        content: { title: '⚡ 사라져 보카 완료!', description: `${userName}님 [Day ${currentDay}] 완수\n정답률: ${acc}%`, imageUrl: '', link: { mobileWebUrl: window.location.href, webUrl: window.location.href } }
     });
 }
 
