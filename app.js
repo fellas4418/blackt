@@ -377,23 +377,15 @@ function updateUI(data, isTest = false) {
     
     if (!targetEl || !mBox || !data) return;
 
-    // 🚀 [추가] 현재 진행 카운터 생성
-    const currentCount = currentIdx + 1;
-    const totalCount = targetWords.length;
-    // UI에 녹아들도록 작고 세련되게 스타일링했습니다.
-    const progressHtml = `<div style="font-size: 0.85rem; color: #666; margin-bottom: 12px; font-weight: bold; text-align: center; letter-spacing: 1px;">[ ${currentCount} / ${totalCount} ]</div>`;
-
     let safeMeanings = Array.isArray(data.meanings) ? data.meanings : (data.meaning ? [data.meaning] : ["뜻 확인 필요"]);
     const fullMeaning = safeMeanings.join(', ');
 
-    // 기본 스타일 유지
     targetEl.style.setProperty('font-size', '3.3rem', 'important'); 
     targetEl.style.setProperty('text-shadow', '0 0 15px #fff', 'important');
     targetEl.style.setProperty('color', '#fff', 'important');
     targetEl.style.setProperty('margin-top', '0px', 'important');
 
     if (!isTest) {
-        // 학습 모드: IPA 표시 및 별표 버튼 유지
         targetEl.innerHTML = `
             <div style="display:flex; flex-direction:column; align-items:center;">
                 <div style="display:flex; justify-content:center; align-items:center;">
@@ -403,11 +395,8 @@ function updateUI(data, isTest = false) {
                 </div>
                 <div class="ipa-text" style="font-size:1.2rem; color:#888; margin-top:8px;">${data.ipa || ''}</div>
             </div>`;
+        mBox.innerHTML = safeMeanings.map(m => `<div style="font-size:2.2rem; font-weight:bold; margin-bottom:15px;">${m}</div>`).join('');
         
-        // 🚀 뜻 영역 상단에 카운터 삽입
-        mBox.innerHTML = progressHtml + safeMeanings.map(m => `<div style="font-size:2.2rem; font-weight:bold; margin-bottom:15px;">${m}</div>`).join('');
-        
-        // 원본 별표 체크 로직 유지
         const starBtn = document.getElementById('star-btn');
         if(starBtn) {
             let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
@@ -416,14 +405,13 @@ function updateUI(data, isTest = false) {
             starBtn.onclick = (e) => { e.stopPropagation(); toggleStar(data); };
         }
     } else {
-        // 테스트 모드: IPA 표시 및 전체 DB 오답 랜덤 추출 로직 유지
         targetEl.innerHTML = `
             <div style="display:flex; flex-direction:column; align-items:center;">
                 <div style="font-size:3.3rem; font-weight:bold; cursor:pointer;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</div>
                 <div class="ipa-text" style="font-size:1.2rem; color:#888; margin-top:8px;">${data.ipa || ''}</div>
             </div>`;
         
-        // 보기 생성 로직 (건드리지 않음)
+        // ... (오답 보기 생성 로직) ...
         let dictPool = [];
         if (typeof wordsData !== 'undefined' && wordsData[currentLevel]) {
             Object.values(wordsData[currentLevel]).forEach(week => {
@@ -443,14 +431,9 @@ function updateUI(data, isTest = false) {
         window.lastWrongOptions = selectedWrongs;
 
         const choices = [fullMeaning, ...selectedWrongs].sort(() => Math.random() - 0.5);
-        
-        // 🚀 테스트 버튼 상단에 카운터 삽입
-        mBox.innerHTML = progressHtml + choices.map(c => `
-                <button class="choice-btn" 
-                    style="font-size: 1.4rem !important; height: 75px !important; display: flex; align-items: center; justify-content: center; text-align: center; padding: 5px 15px !important; margin-bottom: 12px; line-height: 1.2; word-break: keep-all; font-weight: bold;" 
-                    onclick="handleAnswer(${c === fullMeaning})">
-                    ${c}
-                </button>`).join('');
+        mBox.innerHTML = choices.map(c => `
+                <button class="choice-btn" style="font-size: 1.4rem !important; height: 75px !important; margin-bottom: 12px; font-weight: bold; width: 100%; display: flex; align-items: center; justify-content: center; text-align: center; padding: 5px 15px !important; line-height: 1.2; word-break: keep-all;" 
+                onclick="handleAnswer(${c === fullMeaning})">${c}</button>`).join('');
     }
 }
 function handleAnswer(isCorrect) {
