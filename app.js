@@ -286,6 +286,10 @@ function startStudy() {
                 bar.style.backgroundColor = "var(--neon-green)";
                 bar.style.boxShadow = "0 0 15px var(--neon-green)";
             }
+            // ✅ 여기서 두 번째 발음을 실행합니다.
+            if (data && data.word) {
+                playPronunciation(data.word);
+            }
         }
 
         if(bar) bar.style.width = (time / 9000 * 100) + "%";
@@ -596,14 +600,18 @@ function jumpToFinish() {
     let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
     const isReviewDay = (localDay === 6 || localDay === 7);
 
-    // 평일은 세션 6, 주말은 세션 2가 최종 테스트 세션입니다.
+    // 1. 세션 번호 설정 (평일 6, 주말 2)
     const finalSession = isReviewDay ? '2' : '6';
-    
     localStorage.setItem(`trigger_session_${lvl}`, finalSession); 
     localStorage.removeItem('blackt_cooldown');
-    
-    // index.html이 아니라 현재 학습 페이지(study.html)를 새로고침하여 즉시 테스트 진입
-    location.reload(); 
+
+    // 2. 학습 단계를 건너뛰고 바로 '테스트 카운트다운' 실행
+    // 이 부분이 핵심입니다! 학습 루프가 끝난 상태로 세팅합니다.
+    currentIdx = 0; 
+    studyLoopCount = 2; // 학습 2회전이 끝난 상태로 인식시킴
+
+    // 3. 시스템 메시지로 테스트 진입 알림 후 즉시 카운트다운
+    startCountdown("곧 테스트를 시작합니다.", startTest);
 }
 
 let adminClickCount = 0;
