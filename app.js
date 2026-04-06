@@ -328,6 +328,18 @@ function startTest() {
     const data = targetWords[currentIdx];
     updateUI(data, true);
 
+
+    const barContainer = document.querySelector('.progress-container');
+    if (barContainer) {
+        let oldCounter = document.getElementById('fixed-progress-counter');
+        if (oldCounter) oldCounter.remove();
+
+        const counterDiv = document.createElement('div');
+        counterDiv.id = 'fixed-progress-counter';
+        counterDiv.style.cssText = "text-align: center; font-size: 0.85rem; color: #888; font-weight: bold; margin-top: 8px; letter-spacing: 1px;";
+        counterDiv.innerText = `[ ${currentIdx + 1} / ${targetWords.length} ]`;
+        barContainer.after(counterDiv);
+    }
     let time = 5000; 
     const interval = setInterval(() => {
         if (isPaused) return;
