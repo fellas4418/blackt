@@ -15,7 +15,6 @@ function showSystemMessage(text) {
     if (meaningsEl) meaningsEl.innerHTML = "";
 }
 
-// 🚀 카카오 초기화 안정화 (중복 제거 및 위치 고정)
 function initKakao() {
     try {
         if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
@@ -67,7 +66,6 @@ function wakeUpTTS() {
     window.speechSynthesis.speak(dummy);
 }
 
-// 🚀 [수정] initApp: 어제/그저께 오답을 '오늘 학습 리스트의 맨 앞'에 배치
 function initApp() {
     wakeUpTTS(); 
     
@@ -86,7 +84,7 @@ function initApp() {
             localStorage.setItem('trigger_session_high', '1');
         }
         
-        let currentSession = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`)) || 1;
+        let currentSession = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
         const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
         
         let week = Math.ceil(currentDay / 7);
@@ -105,7 +103,6 @@ function initApp() {
 
         const isReviewDay = (localDay === 6 || localDay === 7);
 
-        // 1. 기본 오늘 단어 세팅
         if (isReviewDay) {
             let allReviewWords = [];
             if (dayData && Array.isArray(dayData.test)) {
@@ -126,19 +123,15 @@ function initApp() {
             todayWords = dayData || []; 
         }
 
-       // 🚀 [수정] 어제/그저께 (오답 + 별표)를 모두 '오늘 학습 리스트 맨 앞'에 배치
         if (!isReviewDay && currentDay > 1) {
             let allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
-            
-            // 전날(Day-1)과 그저께(Day-2) 데이터 중 (틀렸거나 OR 별표 쳤거나) 모두 추출
             let preReviewWords = allWrongs.filter(w => 
                 w.level === currentLevel && 
                 (w.day === currentDay - 1 || w.day === currentDay - 2) &&
-                (w.isWrong === true || w.isStarred === true) // 👈 이 부분이 핵심입니다!
+                (w.isWrong === true || w.isStarred === true)
             );
             
             if (preReviewWords.length > 0) {
-                // 중복 제거 후 [오답/별표 우선 배치] + [오늘 새 단어]
                 const newWordsOnly = todayWords.filter(tw => !preReviewWords.some(pw => pw.word === tw.word));
                 targetWords = [...preReviewWords, ...newWordsOnly];
             } else {
@@ -148,25 +141,23 @@ function initApp() {
             targetWords = todayWords;
         }
 
-        // 상단 세션 표시 로직 (sessionTag 관련 부분)
-if (sessionTag) {
-    let currentSession = localStorage.getItem(`trigger_session_${currentLevel}`);
-    
-    if (currentSession === 'final') {
-        // 80% 미만 재도전 시 표시
-        sessionTag.innerText = `최후의 세션 1 / 1`;
-        sessionTag.style.color = "var(--neon-orange)"; // 강조를 위해 오렌지색으로 변경
-    } else if (isReviewDay) {
-        let sNum = parseInt(currentSession) || 1;
-        let displaySession = sNum >= 6 ? 2 : 1;
-        sessionTag.innerText = sNum > 6 ? `자유 복습 모드` : `Session ${displaySession} / 2 (주말복습)`;
-    } else {
-        let sNum = parseInt(currentSession) || 1;
-        sessionTag.innerText = sNum > 6 ? `자유 복습 모드` : `Session ${sNum} / 6`;
-    }
-}
+        if (sessionTag) {
+            let currentSessionVal = localStorage.getItem(`trigger_session_${currentLevel}`);
+            if (currentSessionVal === 'final') {
+                sessionTag.innerText = `최후의 세션 1 / 1`;
+                sessionTag.style.color = "var(--neon-orange)";
+            } else if (isReviewDay) {
+                let sNum = parseInt(currentSessionVal) || 1;
+                let displaySession = sNum >= 6 ? 2 : 1;
+                sessionTag.innerText = sNum > 6 ? `자유 복습 모드` : `Session ${displaySession} / 2 (주말복습)`;
+            } else {
+                let sNum = parseInt(currentSessionVal) || 1;
+                sessionTag.innerText = sNum > 6 ? `자유 복습 모드` : `Session ${sNum} / 6`;
+            }
+        }
+
         const endTime = localStorage.getItem('blackt_cooldown');
-        if (endTime && endTime - Date.now() > 0 && currentSession <= 6) {
+        if (endTime && endTime - Date.now() > 0 && parseInt(currentSession) <= 6 && currentSession !== 'final') {
             showSystemMessage("잠시 쉬어주세요.<br>곧 다시 시작할 수 있습니다.");
             setTimeout(() => { location.href = 'index.html'; }, 1800);
         } else {
@@ -204,24 +195,12 @@ function togglePause() {
     const exitBtn = document.getElementById('exit-btn');
     
     if (isPaused) {
-        if(pauseBtn) {
-            pauseBtn.innerText = "▶ 계속하기";
-            pauseBtn.style.borderColor = "var(--neon-blue)"; 
-            pauseBtn.style.color = "#ffffff"; 
-        }
-        if(exitBtn) {
-            exitBtn.style.display = "inline-block";
-        }
+        if(pauseBtn) pauseBtn.innerText = "▶ 계속하기";
+        if(exitBtn) exitBtn.style.display = "inline-block";
         window.speechSynthesis.pause(); 
     } else {
-        if(pauseBtn) {
-            pauseBtn.innerText = "⏸ 일시중지";
-            pauseBtn.style.borderColor = "var(--neon-blue)"; 
-            pauseBtn.style.color = "#ffffff";
-        }
-        if(exitBtn) {
-            exitBtn.style.display = "none";
-        }
+        if(pauseBtn) pauseBtn.innerText = "⏸ 일시중지";
+        if(exitBtn) exitBtn.style.display = "none";
         window.speechSynthesis.resume(); 
     }
 }
@@ -235,8 +214,8 @@ function startStudy() {
             return;
         } else {
             currentIdx = 0;
-            const currentSession = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`)) || 1;
-            if (currentSession === 3 || currentSession === 6 || currentSession > 6) {
+            const currentSession = localStorage.getItem(`trigger_session_${currentLevel}`);
+            if (currentSession === '3' || currentSession === '6' || currentSession === 'final' || parseInt(currentSession) > 6) {
                 startCountdown("곧 테스트를 시작합니다.", startTest); 
             } else {
                 finishSession(false);
@@ -268,25 +247,15 @@ function startStudy() {
 
         if (time > 5000) {
             items.forEach(item => item.style.opacity = "1");
-            if (bar) {
-                bar.style.backgroundColor = "var(--neon-blue)";
-                bar.style.boxShadow = "0 0 10px var(--neon-blue)";
-            }
+            if (bar) bar.style.backgroundColor = "var(--neon-blue)";
         } 
         else if (time <= 5000 && time > 2000) {
             items.forEach(item => item.style.opacity = "0"); 
-            if (bar) {
-                bar.style.backgroundColor = "var(--neon-orange)";
-                bar.style.boxShadow = "0 0 15px var(--neon-orange)";
-            }
+            if (bar) bar.style.backgroundColor = "var(--neon-orange)";
         } 
-        else if (time <= 2000) {
+        else if (time === 2000) { // 🚀 수정: 정확히 2000일 때 단 한 번만 실행
             items.forEach(item => item.style.opacity = "1"); 
-            if (bar) {
-                bar.style.backgroundColor = "var(--neon-green)";
-                bar.style.boxShadow = "0 0 15px var(--neon-green)";
-            }
-            // ✅ 여기서 두 번째 발음을 실행합니다.
+            if (bar) bar.style.backgroundColor = "var(--neon-green)";
             if (data && data.word) {
                 playPronunciation(data.word);
             }
@@ -375,15 +344,13 @@ function updateUI(data, isTest = false) {
                     <button id="star-btn" style="background:none; border:none; font-size:1.8rem; cursor:pointer; color:var(--neon-orange); padding-bottom:5px;">☆</button>
                 </div>
                 <div class="ipa-text" style="font-size:1.2rem; color:#888; margin-top:8px;">${data.ipa || ''}</div>
-            </div>
-        `;
+            </div>`;
     } else {
         titleHtml = `
             <div style="display:flex; flex-direction:column; align-items:center;">
                 <div style="font-size:3.3rem; font-weight:bold; cursor:pointer;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</div>
                 <div class="ipa-text" style="font-size:1.2rem; color:#888; margin-top:8px;">${data.ipa || ''}</div>
-            </div>
-        `;
+            </div>`;
     }
     
     targetEl.innerHTML = titleHtml;
@@ -399,46 +366,29 @@ function updateUI(data, isTest = false) {
     if (!isTest) {
         mBox.innerHTML = safeMeanings.map(m => `<div style="font-size:2.2rem; font-weight:bold; margin-bottom:15px;">${m}</div>`).join('');
     } else {
-        // 1. 보기 후보군 생성 (오늘의 단어들)
         const todayMeanings = targetWords
             .filter(w => w.word !== data.word && w.word)
             .map(w => Array.isArray(w.meanings) ? w.meanings.join(', ') : (w.meaning || "뜻 정보 없음"));
 
-        // 2. 보기 후보군 확장 (과거 오답 리스트에서 가져오기 - 난이도 상승)
         let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
         const pastMeanings = wrongWords
             .filter(w => w.word !== data.word)
             .map(w => Array.isArray(w.meanings) ? w.meanings.join(', ') : (w.meaning || "뜻 정보 없음"));
 
-        // 오늘 단어 + 과거 오답 단어 합치기 (중복 제거)
         let allCandidates = [...new Set([...todayMeanings, ...pastMeanings])];
-
-        // 3. 직전 문제에서 사용된 오답 제외 (연속 중복 방지)
         let filteredCandidates = allCandidates.filter(m => !window.lastWrongOptions.includes(m));
-        
-        // 후보가 너무 적으면 다시 전체에서 가져오기
         if (filteredCandidates.length < 3) filteredCandidates = allCandidates;
 
-        // 4. 무작위로 3개 추출
-        let selectedWrongs = filteredCandidates
-            .sort(() => Math.random() - 0.5)
-            .slice(0, 3);
-
-        // 다음 문제를 위해 현재 오답 저장
+        let selectedWrongs = filteredCandidates.sort(() => Math.random() - 0.5).slice(0, 3);
         window.lastWrongOptions = selectedWrongs;
-
-        // 5. 정답과 오답 섞기 (위치 랜덤)
         const choices = [fullMeaning, ...selectedWrongs].sort(() => Math.random() - 0.5);
 
-        mBox.innerHTML = choices.map(c => {
-            const isCorrect = (c === fullMeaning);
-            return `
+        mBox.innerHTML = choices.map(c => `
                 <button class="choice-btn" 
                     style="font-size: 1.4rem !important; height: 75px !important; display: flex; align-items: center; justify-content: center; text-align: center; padding: 5px 15px !important; margin-bottom: 12px; line-height: 1.2; word-break: keep-all; font-weight: bold;" 
-                    onclick="handleAnswer(${isCorrect})">
+                    onclick="handleAnswer(${c === fullMeaning})">
                     ${c}
-                </button>`;
-        }).join('');
+                </button>`).join('');
     }
 }
 
@@ -461,17 +411,15 @@ function handleAnswer(isCorrect) {
     } else {
         if (idx === -1) {
             wrongWords.push({ ...currentWordData, day: currentDay, level: currentLevel, isWrong: true });
-            localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
         } else {
             wrongWords[idx].isWrong = true;
-            localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
         }
+        localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
     }
     currentIdx++;
     startTest();
 }
 
-// 🚀 [최종 교정본] 평일(6) & 주말(2) 완벽 대응 버전
 function finishSession(didTest = true) {
     let currentSession = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
@@ -483,7 +431,6 @@ function finishSession(didTest = true) {
     
     const accuracy = Math.floor((score / targetWords.length) * 100);
 
-    // 1️⃣ [최후의 세션 진입 조건] 평일 최종(6) 혹은 주말 최종(2)에서 80% 미만일 때
     const isMainTest = (currentSession === '6');
     const isReviewTest = (isReviewDay && currentSession === '2');
 
@@ -506,9 +453,7 @@ function finishSession(didTest = true) {
         return;
     }
 
-    // 2️⃣ [종료 화면 진입 조건] 80% 이상이거나, 'final' 세션을 마쳤을 때
     const isFinalSession = (currentSession === 'final');
-    // 평일은 6세션 이상, 주말은 2세션 이상일 때 종료
     const isEndOfStudy = isReviewDay ? (parseInt(currentSession) >= 2) : (parseInt(currentSession) >= 6);
 
     if ((isEndOfStudy || isFinalSession) && didTest) {
@@ -541,32 +486,23 @@ function finishSession(didTest = true) {
             </div>
         `);
     } else {
-        // 다음 세션으로 진행
         let nextSession = parseInt(currentSession) + 1;
         localStorage.setItem(`trigger_session_${currentLevel}`, nextSession.toString());
         localStorage.setItem('blackt_cooldown', Date.now() + COOL_DOWN_TIME);
         showSystemMessage(didTest ? "테스트 완료! 👍" : "세션 완료! 🔥");
         setTimeout(() => { location.href = 'index.html'; }, 2200);
     }
-    
     localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));
 }
 
 function retryOnlyWrongs() {
     let allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
-    let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
-    const isReviewDay = (localDay === 6 || localDay === 7); 
-    
     let retryList = allWrongs.filter(w => w.level === currentLevel && w.day === currentDay);
     if (retryList.length < 1) retryList = todayWords;
-
     targetWords = retryList;
     currentIdx = 0;
-    
-    // 주말이든 평일이든 최후의 세션은 4-3-2 로직 1세트(루프2회)만 돌립니다.
     studyLoopCount = 2; 
-    
     startStudy();
 }
 
@@ -594,23 +530,25 @@ function skipToTest() { if (confirm("학습을 건너뛸까요?")) { currentIdx 
 function skipToFinish() { if (confirm("결과 화면으로 갈까요?")) { clearInterval(window.currentTimer); score = targetWords.length; currentIdx = targetWords.length; finishSession(true); } }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
 
+// 🚀 [관리자 점프 수정] 학습 중단 후 즉시 테스트 진입
 function jumpToFinish() {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
     let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
     const isReviewDay = (localDay === 6 || localDay === 7);
 
-    // 1. 세션 번호 설정 (평일 6, 주말 2)
+    // 모든 활성 타이머 및 사운드 중단
+    if (window.currentTimer) clearInterval(window.currentTimer);
+    window.speechSynthesis.cancel();
+
+    // 세션 번호 설정
     const finalSession = isReviewDay ? '2' : '6';
     localStorage.setItem(`trigger_session_${lvl}`, finalSession); 
     localStorage.removeItem('blackt_cooldown');
 
-    // 2. 학습 단계를 건너뛰고 바로 '테스트 카운트다운' 실행
-    // 이 부분이 핵심입니다! 학습 루프가 끝난 상태로 세팅합니다.
+    // 학습 루프 강제 종료 상태로 변경 및 즉시 카운트다운 실행
     currentIdx = 0; 
-    studyLoopCount = 2; // 학습 2회전이 끝난 상태로 인식시킴
-
-    // 3. 시스템 메시지로 테스트 진입 알림 후 즉시 카운트다운
+    studyLoopCount = 2; 
     startCountdown("곧 테스트를 시작합니다.", startTest);
 }
 
