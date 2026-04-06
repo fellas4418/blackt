@@ -541,12 +541,31 @@
                 let isReview = (i % 7 === 6 || i % 7 === 0);
                 let dayLabel = isReview ? `Day ${i} (복습)` : `Day ${i}`;
                 
+                // ✅ 1. 완료된 날짜: 가운데 줄 + CLEAR 👑
                 if (i < unlockedDay) {
-                    html += `<li class="routine-item"><span class="day-label">${dayLabel}</span><button class="routine-action-btn" style="border-color:#444; color:#aaa;" onclick="startDayStudy(${i})">완료</button></li>`;
-                } else if (i === unlockedDay) {
-                    html += `<li class="routine-item"><span class="day-label">${dayLabel}</span><button class="routine-action-btn active" onclick="startDayStudy(${i})">시작</button></li>`;
-                } else {
-                    html += `<li class="routine-item"><span class="day-label">${dayLabel}</span><button class="routine-action-btn" onclick="unlockDay(this, ${i})">🔒 잠김</button></li>`;
+                    html += `
+                    <li class="routine-item" style="opacity: 0.6;">
+                        <span class="day-label" style="text-decoration: line-through; color: #888;">${dayLabel}</span>
+                        <button class="routine-action-btn" style="border: none; color: var(--neon-green); font-weight: bold; cursor: default; background: transparent;">
+                            CLEAR 👑
+                        </button>
+                    </li>`;
+                } 
+                // ✅ 2. 오늘 할 날짜: 시작 버튼 (가장 선명함)
+                else if (i === unlockedDay) {
+                    html += `
+                    <li class="routine-item">
+                        <span class="day-label" style="color: #fff; font-weight: bold;">${dayLabel}</span>
+                        <button class="routine-action-btn active" onclick="startDayStudy(${i})">시작</button>
+                    </li>`;
+                } 
+                // ✅ 3. 미래의 날짜: 잠금 표시
+                else {
+                    html += `
+                    <li class="routine-item" style="opacity: 0.4;">
+                        <span class="day-label">${dayLabel}</span>
+                        <button class="routine-action-btn" style="cursor: not-allowed; background: #222; color: #666; border: 1px solid #444;">🔒 잠김</button>
+                    </li>`;
                 }
             }
             container.innerHTML = html;
