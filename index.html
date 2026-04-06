@@ -159,8 +159,8 @@
     <div class="dashboard-container">
         
         <div style="position: relative; display: flex; flex-direction: column; align-items: center; width: 100%; padding: 30px 10px 15px 10px; box-sizing: border-box;">
-            <div class="logo" id="main-header-title" onclick="activateAdmin()" style="margin: 0; text-align: center; line-height: 1.2; font-size: 2.6rem; letter-spacing: -1px; cursor: pointer; user-select: none;">
-                사라져<br>보카
+            <div class="logo" id="main-header-title" onclick="activateAdmin()" style="margin: 0; text-align: center; line-height: 1.2; font-size: 3rem; letter-spacing: -1px; cursor: pointer; user-select: none;">
+                사라져 보카
             </div>
             
             <div style="width: 100%; display: flex; justify-content: flex-end; margin-top: 25px;"> <button onclick="shareTriggerApp()" 
@@ -345,7 +345,7 @@
             element.classList.add('active');
             
             const headerTitle = document.getElementById('main-header-title');
-            if (tabId === 'voca') { headerTitle.innerHTML = '사라져<br>보카'; } 
+            if (tabId === 'voca') { headerTitle.innerHTML = '사라져 보카'; } 
             else if (tabId === 'analysis') { headerTitle.innerHTML = 'Trigger<br>AI 시험 분석'; } 
             else if (tabId === 'grammar') { headerTitle.innerHTML = 'Trigger<br>3시간 영문법'; }
             window.scrollTo(0,0); 
