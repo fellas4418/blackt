@@ -724,11 +724,16 @@
                 ? "flex:1; padding:10px; border-radius:10px; background:var(--neon-orange); color:#000; font-weight:bold; border:none; cursor:pointer;" 
                 : "flex:1; padding:10px; border-radius:10px; background:transparent; border:1px solid #444; color:#888; font-weight:bold; cursor:pointer;";
 
-            const levelBadge = currentLevel === 'high' 
-                ? '<span style="background:#ff9900; color:#000; padding:3px 10px; border-radius:15px; font-size:0.8rem; vertical-align:middle; margin-right:6px;">고등</span>' 
-                : '<span style="background:#ff9900; color:#000; padding:3px 10px; border-radius:15px; font-size:0.8rem; vertical-align:middle; margin-right:6px;">중등</span>';
+                const levelBadge = '';
             
             document.getElementById('report-modal-title').innerHTML = `${levelBadge} <span style="font-size: 0.9em;">누적 학습 리포트</span>`;
+
+            // 🚀 [가운데 정렬로 수정]
+            document.getElementById('report-modal-title').innerHTML = `
+            <div style="text-align: center; width: 100%; font-size: 0.9em;">
+            누적 학습 리포트
+            </div>
+            `;
 
             let html = '';
             for(let i=1; i<=TOTAL_DAYS; i++) {
