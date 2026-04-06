@@ -447,19 +447,24 @@ function handleAnswer(isCorrect) {
     startTest();
 }
 
-// 🚀 [핵심 수정] finishSession: 80% 미만 시 다음 날 해금 원천 봉쇄
 // 🚀 [수정] 80% 미만 시 딱 1세션만 더 복습하고 무조건 통과시키는 로직
 function finishSession(didTest = true) {
-    let currentSession = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`)) || 1;
+    let currentSession = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
+    let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
+    const isReviewDay = (localDay === 6 || localDay === 7);
+    
     let stats = JSON.parse(localStorage.getItem(`trigger_stats_${currentLevel}`) || '{}');
     if (!stats[currentDay]) stats[currentDay] = { progress: 0, accuracy: 0 };
     
     const accuracy = Math.floor((score / targetWords.length) * 100);
 
-    // ✅ [신규] 80% 미만이고 첫 테스트(Session 6)일 때 -> 딱 1번만 더 복습 유도
-    if (didTest && accuracy < 80 && currentSession === 6) {
-        localStorage.setItem(`trigger_session_${currentLevel}`, '6.5'); // 임시 세션 번호
+    // ✅ [원장님 요청 반영] 평일 최종(6) 혹은 주말 최종(2)에서 80% 미만일 때
+    const isMainTest = (currentSession === '6');
+    const isReviewTest = (isReviewDay && currentSession === '2');
+
+    if (didTest && accuracy < 80 && (isMainTest || isReviewTest)) {
+        localStorage.setItem(`trigger_session_${currentLevel}`, 'final'); 
         showSystemMessage(`
             <div style="padding: 10px; text-align:center;">
                 <div style="font-size:1.5rem; color:var(--neon-orange); font-weight:bold; margin-bottom:15px;">아쉬운 점수! 🚨</div>
@@ -468,15 +473,16 @@ function finishSession(didTest = true) {
                     <div style="font-size:2rem; font-weight:bold; color:var(--neon-orange);">${accuracy}%</div>
                 </div>
                 <div style="font-size:0.95rem; color:#fff; margin-bottom:20px; line-height:1.6; word-break:keep-all;">
-                    80% 미만이라 <b>딱 1세션</b>만 더 복습할게요!<br>
-                    <span style="color:var(--neon-blue); font-weight:bold;">이것만 마치면 오늘 단어는 끝!</span> 🔥
+                    80% 미만이라 <b style="color:var(--neon-orange);">최후의 세션</b>을 시작합니다.<br>
+                    <span style="color:var(--neon-blue); font-weight:bold;">틀린 것만 딱 1번 더 복습하고 끝낼게요!</span> 🔥
                 </div>
-                <button onclick="retryOnlyWrongs()" style="width:100%; padding:16px; background:var(--neon-blue); color:#fff; border:none; border-radius:12px; font-weight:bold; cursor:pointer; font-size:1.1rem;">마지막 1세션 복습 시작</button>
+                <button onclick="retryOnlyWrongs()" style="width:100%; padding:16px; background:var(--neon-blue); color:#fff; border:none; border-radius:12px; font-weight:bold; cursor:pointer; font-size:1.1rem;">최후의 세션 시작</button>
             </div>
         `);
         return;
     }
 
+   
     // ✅ 여기서부터는 통과(80% 이상)했거나, 재복습(6.5)까지 마친 경우입니다.
     stats[currentDay].progress = Math.max(stats[currentDay].progress, currentSession);
     stats[currentDay].accuracy = accuracy;
