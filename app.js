@@ -67,6 +67,7 @@ function wakeUpTTS() {
     window.speechSynthesis.speak(dummy);
 }
 
+// 🚀 [수정] initApp: 어제/그저께 오답을 '오늘 학습 리스트의 맨 앞'에 배치
 function initApp() {
     wakeUpTTS(); 
     
@@ -104,6 +105,7 @@ function initApp() {
 
         const isReviewDay = (localDay === 6 || localDay === 7);
 
+        // 1. 기본 오늘 단어 세팅
         if (isReviewDay) {
             let allReviewWords = [];
             if (dayData && Array.isArray(dayData.test)) {
@@ -120,45 +122,31 @@ function initApp() {
             } else if (localDay === 7) {
                 todayWords = allReviewWords.slice(halfIndex);
             }
-
-            const allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
-            const wrongWordsInToday = todayWords.filter(tw => 
-                allWrongs.some(aw => aw.word === tw.word && aw.level === currentLevel)
-            );
-            const otherWordsInToday = todayWords.filter(tw => 
-                !allWrongs.some(aw => aw.word === tw.word && aw.level === currentLevel)
-            );
-            todayWords = [...wrongWordsInToday, ...otherWordsInToday];
-
-            if (currentSession === 2 || (currentSession > 2 && currentSession < 6)) {
-                currentSession = 6; 
-                localStorage.setItem(`trigger_session_${currentLevel}`, '6');
-            }
         } else {
             todayWords = dayData || []; 
         }
 
-        if (!todayWords || todayWords.length === 0) {
-            showSystemMessage("학습할 단어가 없습니다.");
-            setTimeout(() => { location.href = 'index.html'; }, 2000);
-            return;
+       // 🚀 [수정] 어제/그저께 (오답 + 별표)를 모두 '오늘 학습 리스트 맨 앞'에 배치
+       if (!isReviewDay && currentDay > 1) {
+        let allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+        
+        // 전날(Day-1)과 그저께(Day-2) 데이터 중 (틀렸거나 OR 별표 쳤거나) 모두 추출
+        let preReviewWords = allWrongs.filter(w => 
+            w.level === currentLevel && 
+            (w.day === currentDay - 1 || w.day === currentDay - 2) &&
+            (w.isWrong === true || w.isStarred === true) // 👈 이 부분이 핵심입니다!
+        );
+        
+        if (preReviewWords.length > 0) {
+            // 중복 제거 후 [오답/별표 우선 배치] + [오늘 새 단어]
+            const newWordsOnly = todayWords.filter(tw => !preReviewWords.some(pw => pw.word === tw.word));
+            targetWords = [...preReviewWords, ...newWordsOnly];
+        } else {
+            targetWords = todayWords;
         }
-
+    } else {
         targetWords = todayWords;
-
-        if (!isReviewDay && currentDay > 1 && currentSession === 1) {
-            let allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
-            let preReviewWords = allWrongs.filter(w => w.level === currentLevel && (w.day === currentDay - 1 || w.day === currentDay - 2));
-            
-            if (preReviewWords.length > 0) {
-                isPreReviewMode = true;
-                targetWords = preReviewWords;
-                if (sessionTag) sessionTag.innerText = `🚨 이전 오답 테스트`;
-                
-                startCountdown("사전 오답 테스트를 시작합니다.", startTest);
-                return; 
-            }
-        }
+    }
 
         if (sessionTag) {
             if (isReviewDay) {
@@ -230,7 +218,6 @@ function togglePause() {
     }
 }
 
-// 🚀 [최종형] 사라져 보카: 4초 노출 + 3초 회상(가리기) + 2초 확인 사살
 function startStudy() {
     if (currentIdx >= targetWords.length) {
         if (studyLoopCount < 2) {
@@ -256,23 +243,21 @@ function startStudy() {
     const items = document.querySelectorAll('#meanings div');
     const bar = document.getElementById('bar');
     
-    // 초기 상태 설정
     items.forEach(item => {
         item.style.opacity = "1";
-        item.style.transition = "opacity 0.2s ease"; // 부드러운 전환
+        item.style.transition = "opacity 0.2s ease";
     });
 
     if (data && data.word) {
         playPronunciation(data.word);
     }
 
-    let time = 9000; // 총 9초 (4+3+2)
+    let time = 9000; 
     const interval = setInterval(() => {
         if (isPaused) return; 
         
         time -= 100;
 
-        // 🚀 구간 1: [9초 ~ 5초 남았을 때] 4초간 노출 (입력 구간)
         if (time > 5000) {
             items.forEach(item => item.style.opacity = "1");
             if (bar) {
@@ -280,19 +265,17 @@ function startStudy() {
                 bar.style.boxShadow = "0 0 10px var(--neon-blue)";
             }
         } 
-        // 🚀 구간 2: [5초 ~ 2초 남았을 때] 3초간 가리기 (회상 구간 - 긴장감 극대화)
         else if (time <= 5000 && time > 2000) {
             items.forEach(item => item.style.opacity = "0"); 
             if (bar) {
-                bar.style.backgroundColor = "var(--neon-orange)"; // 주황색: "기억해봐!"
+                bar.style.backgroundColor = "var(--neon-orange)";
                 bar.style.boxShadow = "0 0 15px var(--neon-orange)";
             }
         } 
-        // 🚀 구간 3: [2초 ~ 0초 남았을 때] 2초간 정답 재노출 (확인 사살 구간)
         else if (time <= 2000) {
             items.forEach(item => item.style.opacity = "1"); 
             if (bar) {
-                bar.style.backgroundColor = "var(--neon-green)"; // 초록색: "이거였어!"
+                bar.style.backgroundColor = "var(--neon-green)";
                 bar.style.boxShadow = "0 0 15px var(--neon-green)";
             }
         }
@@ -308,6 +291,7 @@ function startStudy() {
     
     window.currentTimer = interval;
 }
+
 function startTest() {
     if (currentIdx >= targetWords.length) {
         finishSession(true); 
@@ -342,14 +326,12 @@ function toggleStar(wordObj) {
         wrongWords.splice(idx, 1); 
         if(starBtn) starBtn.innerText = "☆";
     } else {
-        // 🚀 [수정] 별표로 추가될 때 isStarred 플래그 명시
         wrongWords.push({ ...wordObj, day: currentDay, level: currentLevel, isStarred: true }); 
         if(starBtn) starBtn.innerText = "⭐";
     }
     localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
 }
 
-// 🚀 [수정] 보기 중복을 막기 위한 이전 보기 저장용 전역 변수
 window.lastWrongOptions = window.lastWrongOptions || [];
 
 function updateUI(data, isTest = false) {
@@ -359,7 +341,7 @@ function updateUI(data, isTest = false) {
     if (!targetEl || !mBox) return;
 
     if (!data || !data.word) {
-        targetEl.innerHTML = `<div style="font-size:1.2rem; color:var(--neon-orange); margin-top:20px;">🚨 단어 구조 오류<br><span style="font-size:0.9rem; color:#888;">데이터 형식이 맞지 않습니다.</span></div>`;
+        targetEl.innerHTML = `<div style="font-size:1.2rem; color:var(--neon-orange); margin-top:20px;">🚨 단어 구조 오류</div>`;
         return;
     }
 
@@ -410,21 +392,12 @@ function updateUI(data, isTest = false) {
             return w.meaning || "뜻 정보 없음";
         });
         
-        // 🚀 [수정] 직전 문제에 나왔던 오답 보기를 필터링하여 중복 노출 방지
         let filteredMeanings = allOtherMeanings.filter(m => !window.lastWrongOptions.includes(m));
-        
-        // 만약 필터링 했더니 보기가 3개 미만이면 원본을 다시 사용 (안전 장치)
-        if (filteredMeanings.length < 3) {
-            filteredMeanings = allOtherMeanings;
-        }
-
+        if (filteredMeanings.length < 3) { filteredMeanings = allOtherMeanings; }
         let availableMeanings = [...filteredMeanings].sort(() => Math.random() - 0.5).slice(0, 3);
-        
-        // 이번 문제에서 쓴 오답 보기를 다음 문제를 위해 저장
         window.lastWrongOptions = availableMeanings;
         
         const choices = [fullMeaning, ...availableMeanings].sort(() => Math.random() - 0.5);
-        
         mBox.innerHTML = choices.map(c => {
             const isCorrect = (c === fullMeaning);
             return `
@@ -436,7 +409,6 @@ function updateUI(data, isTest = false) {
         }).join('');
     }
 }
-
 
 function handleAnswer(isCorrect) {
     clearInterval(window.currentTimer);
@@ -456,7 +428,6 @@ function handleAnswer(isCorrect) {
         }
     } else {
         if (idx === -1) {
-            // 🚀 [수정] 오답으로 추가될 때 isWrong 플래그 저장
             wrongWords.push({ ...currentWordData, day: currentDay, level: currentLevel, isWrong: true });
             localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
         } else {
@@ -468,19 +439,8 @@ function handleAnswer(isCorrect) {
     startTest();
 }
 
+// 🚀 [핵심 수정] finishSession: 80% 미만 시 다음 날 해금 원천 봉쇄
 function finishSession(didTest = true) {
-    if (isPreReviewMode) {
-        isPreReviewMode = false;
-        targetWords = todayWords; 
-        currentIdx = 0;
-        score = 0;
-        studyLoopCount = 1;
-        const sessionTag = document.getElementById('session-tag');
-        if(sessionTag) sessionTag.innerText = `Session 1 / 6`;
-        startCountdown("복습 완료! 👍<br>오늘의 단어를 시작할게요.", startStudy);
-        return;
-    }
-
     let currentSession = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`)) || 1;
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
     let stats = JSON.parse(localStorage.getItem(`trigger_stats_${currentLevel}`) || '{}');
@@ -488,8 +448,29 @@ function finishSession(didTest = true) {
     
     stats[currentDay].progress = Math.max(stats[currentDay].progress, currentSession);
 
+    // 테스트가 포함된 세션(3, 6)일 때 정답률 체크
+    const accuracy = Math.floor((score / targetWords.length) * 100);
+
+    // 🚀 [80% 룰 적용] 80% 미만이면 세션 완료 처리를 하지 않고 재시도 유도
+    if (didTest && accuracy < 80 && currentSession <= 6) {
+        showSystemMessage(`
+            <div style="padding: 10px; text-align:center;">
+                <div style="font-size:1.5rem; color:var(--neon-orange); font-weight:bold; margin-bottom:15px;">재도전 필요! 🚨</div>
+                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; margin-bottom:20px; border:1px solid #333;">
+                    <div style="font-size:0.9rem; color:#888;">현재 정답률</div>
+                    <div style="font-size:2rem; font-weight:bold; color:var(--neon-orange);">${accuracy}%</div>
+                    <div style="font-size:0.8rem; color:#aaa; margin-top:10px;">80%를 넘어야 다음 단계로 갈 수 있습니다.</div>
+                </div>
+                <button onclick="location.href='study.html'" style="width:100%; padding:16px; background:var(--neon-blue); color:#fff; border:none; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer;">다시 학습하기</button>
+                <button onclick="location.href='index.html'" style="width:100%; margin-top:10px; padding:10px; background:transparent; color:#888; border:none; cursor:pointer;">메인으로 이동</button>
+            </div>
+        `);
+        return; // 여기서 함수 종료 (localStorage 업데이트 안 함)
+    }
+
+    // 80% 이상이거나 테스트가 아닌 경우에만 진행
     if (currentSession >= 6 && didTest) {
-        stats[currentDay].accuracy = Math.floor((score / targetWords.length) * 100);
+        stats[currentDay].accuracy = accuracy;
         let highestDay = parseInt(localStorage.getItem(`trigger_highest_day_${currentLevel}`)) || 0;
         if (currentDay > highestDay) {
             let currentStreak = parseInt(localStorage.getItem('trigger_streak')) || 0;
@@ -503,14 +484,12 @@ function finishSession(didTest = true) {
         localStorage.setItem(`trigger_session_${currentLevel}`, currentSession + 1);
         if (currentSession + 1 === 7) {
             let unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
+            // 80%를 넘었을 때만 unlockedDay를 올려줌
             if (unlockedDay === currentDay) localStorage.setItem(`trigger_unlocked_day_${currentLevel}`, unlockedDay + 1);
         }
     }
 
     if (currentSession >= 6) {
-        const accuracy = Math.floor((score / targetWords.length) * 100);
-        const isHighScorer = accuracy >= 80;
-
         showSystemMessage(`
             <div style="padding: 10px; text-align:center;">
                 <div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold; margin-bottom:15px;">MISSION COMPLETE!</div>
@@ -518,75 +497,43 @@ function finishSession(didTest = true) {
                     <div style="font-size:0.9rem; color:#888;">최종 테스트 정답률</div>
                     <div style="font-size:2rem; font-weight:bold; color:var(--neon-orange);">${accuracy}%</div>
                 </div>
-                
                 <div style="display:flex; flex-direction:column; gap:12px;">
-                    ${isHighScorer ? 
-                        `<button onclick="shareKakao()" style="width:100%; padding:16px; background:#fee500; color:#3c1e1e; border:none; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer;">🟡 카톡으로 성과 공유하기</button>` 
-                        : `<div style="color:#888; font-size:0.85rem; margin-bottom:10px;">80% 이상 득점 시 자랑하기가 활성화됩니다! 🔥</div>`
-                    }
+                    <button onclick="shareKakao()" style="width:100%; padding:16px; background:#fee500; color:#3c1e1e; border:none; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer;">🟡 카톡으로 성과 공유하기</button> 
                     <button onclick="location.href='index.html'" style="width:100%; padding:14px; background:transparent; color:#bbbbbb; border:none; cursor:pointer; font-size:1.1rem; font-weight:bold; text-decoration:underline;">종료하기</button>
                 </div>
             </div>
         `);
     } else {
         localStorage.setItem('blackt_cooldown', Date.now() + COOL_DOWN_TIME);
-        showSystemMessage(didTest ? "테스트 완료! 👍" : "세션 완료! 🔥<br>조금씩 실력이 늘고 있어요.");
+        showSystemMessage(didTest ? "테스트 완료! 👍" : "세션 완료! 🔥");
         setTimeout(() => { location.href = 'index.html'; }, 2200);
     }
 }
 
 function shareKakao() {
-    if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) {
-        alert("카카오 SDK가 준비되지 않았습니다. 잠시 후 다시 시도해주세요.");
-        return;
-    }
-
+    if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) return;
     try {
         const userName = localStorage.getItem('trigger_name') || '학습자';
         const levelName = currentLevel === 'high' ? '고등' : '중등';
         const currentDay = localStorage.getItem(`trigger_current_day_${currentLevel}`) || 1;
         const shareUrl = window.location.origin + window.location.pathname.replace('study.html', 'index.html');
-        const thumbImg = 'https://t1.kakaocdn.net/kakaocorp/Service/Official/Common/logo/kakaotalk_200x200.png';
-
         Kakao.Share.sendDefault({
             objectType: 'feed',
             content: {
-                title: '⚡ 트리거 보카 목표 달성!',
+                title: '⚡ 사라져 보카 목표 달성!',
                 description: `${userName}님이 [${levelName} Day ${currentDay}]를 완수했습니다.\n정답률: ${Math.floor((score/targetWords.length)*100)}%`,
-                imageUrl: thumbImg, 
+                imageUrl: 'https://t1.kakaocdn.net/kakaocorp/Service/Official/Common/logo/kakaotalk_200x200.png', 
                 link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
             },
-            buttons: [
-                {
-                    title: '나도 도전하기',
-                    link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
-                }
-            ],
+            buttons: [{ title: '나도 도전하기', link: { mobileWebUrl: shareUrl, webUrl: shareUrl } }],
         });
-    } catch (e) {
-        console.error("공유 에러:", e);
-        alert("카톡 공유 중 오류가 발생했습니다.");
-    }
+    } catch (e) {}
 }
 
-function skipToTest() {
-    if (confirm("학습을 건너뛸까요?")) {
-        currentIdx = targetWords.length; 
-    }
-}
-
-function skipToFinish() {
-    if (confirm("결과 화면으로 갈까요?")) {
-        clearInterval(window.currentTimer);
-        score = targetWords.length; 
-        currentIdx = targetWords.length;
-        finishSession(true);
-    }
-}
-
+function skipToTest() { if (confirm("학습을 건너뛸까요?")) { currentIdx = targetWords.length; } }
+function skipToFinish() { if (confirm("결과 화면으로 갈까요?")) { clearInterval(window.currentTimer); score = targetWords.length; currentIdx = targetWords.length; finishSession(true); } }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
 
-// 🚀 관리자 전용 함수
 function jumpToFinish() {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
     localStorage.setItem('trigger_session_' + lvl, '6'); 
@@ -596,18 +543,13 @@ function jumpToFinish() {
 
 let adminClickCount = 0;
 let adminTimer = null;
-
 function activateAdminMode(e) {
     const isLogo = e.target.closest('.logo');
     const isTitle = e.target.id === 'main-header-title';
-
     if (isLogo || isTitle) {
         adminClickCount++;
-        console.log("Admin Click:", adminClickCount);
-
         clearTimeout(adminTimer);
         adminTimer = setTimeout(() => { adminClickCount = 0; }, 1500);
-
         if (adminClickCount === 3) {
             const menu = document.getElementById('admin-menu');
             if (menu) {
