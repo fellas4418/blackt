@@ -125,7 +125,6 @@ function initApp() {
             todayWords = dayData || []; 
         }
 
-        // 🚀 [원본 로직 보존] 어제/그저께 (오답 + 별표)를 리스트 맨 앞 배치
         if (!isReviewDay && currentDay > 1) {
             let allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
             let preReviewWords = allWrongs.filter(w => 
@@ -147,33 +146,29 @@ function initApp() {
         if (sessionTag) {
             let currentSessionVal = localStorage.getItem(`trigger_session_${currentLevel}`);
             
-            // 🚀 최후의 세션일 때 (가장 먼저 체크)
             if (currentSessionVal === 'final') {
                 sessionTag.innerText = `최후의 세션 1 / 1`;
                 sessionTag.style.color = "var(--neon-orange)";
             } 
-            // 주말 복습일 때
             else if (isReviewDay) {
                 let sNum = parseInt(currentSessionVal) || 1;
                 let displaySession = sNum >= 6 ? 2 : 1;
                 sessionTag.innerText = sNum > 6 ? `자유 복습 모드` : `Session ${displaySession} / 2 (주말복습)`;
-                sessionTag.style.color = ""; // 색상 초기화
+                sessionTag.style.color = ""; 
             } 
-            // 평일 일반 세션일 때
             else {
                 let sNum = parseInt(currentSessionVal) || 1;
                 sessionTag.innerText = sNum > 6 ? `자유 복습 모드` : `Session ${sNum} / 6`;
-                sessionTag.style.color = ""; // 색상 초기화
+                sessionTag.style.color = ""; 
             }
         }
 
-        // 🚀 [관리자 점프 핵심] 테스트 직행 신호 확인 시 학습 건너뛰고 테스트 시작
         if (localStorage.getItem('trigger_jump_test') === 'true') {
-            localStorage.removeItem('trigger_jump_test'); // 신호 즉시 파기
+            localStorage.removeItem('trigger_jump_test'); 
             currentIdx = 0; 
-            studyLoopCount = 2; // 학습 루프 완료 상태로 조작
+            studyLoopCount = 2; 
             startCountdown("곧 테스트를 시작합니다.", startTest);
-            return; // 아래 startStudy 실행 차단
+            return; 
         }
 
         const endTime = localStorage.getItem('blackt_cooldown');
@@ -246,27 +241,26 @@ function startStudy() {
 
     const data = targetWords[currentIdx];
     updateUI(data); 
-    
-    const barContainer = document.querySelector('.progress-container'); // 바를 감싸는 통
-    if (barContainer) {
-        // 기존에 생성된 카운터가 있으면 지우고 새로 생성
+
+    // 🚀 [추가] 진행 카운터를 게이지 바 영역 아래에 고정 표시
+    const barArea = document.querySelector('.progress-container') || document.getElementById('bar');
+    if (barArea) {
         let oldCounter = document.getElementById('fixed-progress-counter');
         if (oldCounter) oldCounter.remove();
 
         const counterDiv = document.createElement('div');
         counterDiv.id = 'fixed-progress-counter';
-        counterDiv.style.cssText = `
-            text-align: center;
-            font-size: 0.85rem;
-            color: #888;
-            font-weight: bold;
-            margin-top: 8px;
-            letter-spacing: 1px;
-        `;
+        counterDiv.style.cssText = "text-align: center; font-size: 0.9rem; color: #888; font-weight: bold; margin-top: 10px; letter-spacing: 1px; width: 100%;";
         counterDiv.innerText = `[ ${currentIdx + 1} / ${targetWords.length} ]`;
-        barContainer.after(counterDiv); // 게이지 바 바로 다음에 추가
+        
+        // 게이지 바 뒤에 삽입
+        if (barArea.id === 'bar') {
+            barArea.parentElement.appendChild(counterDiv);
+        } else {
+            barArea.appendChild(counterDiv);
+        }
     }
-
+    
     const items = document.querySelectorAll('#meanings div');
     const bar = document.getElementById('bar');
     
@@ -292,7 +286,6 @@ function startStudy() {
             if (bar) bar.style.backgroundColor = "var(--neon-blue)";
         } 
         
-        // 발음 2초 뒤 재생 로직
         if (time <= 7000 && !hasPlayedSecondTTS) {
             if (data && data.word) playPronunciation(data.word);
             hasPlayedSecondTTS = true;
@@ -328,18 +321,24 @@ function startTest() {
     const data = targetWords[currentIdx];
     updateUI(data, true);
 
-
-    const barContainer = document.querySelector('.progress-container');
-    if (barContainer) {
+    // 🚀 [추가] 테스트 화면에서도 진행 카운터를 게이지 바 영역 아래에 고정 표시
+    const barArea = document.querySelector('.progress-container') || document.getElementById('bar');
+    if (barArea) {
         let oldCounter = document.getElementById('fixed-progress-counter');
         if (oldCounter) oldCounter.remove();
 
         const counterDiv = document.createElement('div');
         counterDiv.id = 'fixed-progress-counter';
-        counterDiv.style.cssText = "text-align: center; font-size: 0.85rem; color: #888; font-weight: bold; margin-top: 8px; letter-spacing: 1px;";
+        counterDiv.style.cssText = "text-align: center; font-size: 0.9rem; color: #888; font-weight: bold; margin-top: 10px; letter-spacing: 1px; width: 100%;";
         counterDiv.innerText = `[ ${currentIdx + 1} / ${targetWords.length} ]`;
-        barContainer.after(counterDiv);
+        
+        if (barArea.id === 'bar') {
+            barArea.parentElement.appendChild(counterDiv);
+        } else {
+            barArea.appendChild(counterDiv);
+        }
     }
+
     let time = 5000; 
     const interval = setInterval(() => {
         if (isPaused) return;
@@ -411,7 +410,6 @@ function updateUI(data, isTest = false) {
                 <div class="ipa-text" style="font-size:1.2rem; color:#888; margin-top:8px;">${data.ipa || ''}</div>
             </div>`;
         
-        // ... (오답 보기 생성 로직) ...
         let dictPool = [];
         if (typeof wordsData !== 'undefined' && wordsData[currentLevel]) {
             Object.values(wordsData[currentLevel]).forEach(week => {
@@ -436,6 +434,7 @@ function updateUI(data, isTest = false) {
                 onclick="handleAnswer(${c === fullMeaning})">${c}</button>`).join('');
     }
 }
+
 function handleAnswer(isCorrect) {
     if (window.currentTimer) clearInterval(window.currentTimer);
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
@@ -443,16 +442,19 @@ function handleAnswer(isCorrect) {
     const currentWordData = targetWords[currentIdx];
     
     if (!currentWordData) return;
-    const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
     const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
 
     if (isCorrect) {
         score++;
-        if (isReviewDay && idx > -1) {
-            wrongWords.splice(idx, 1);
-            localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
+        if (isReviewDay) {
+            const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
+            if (idx > -1) {
+                wrongWords.splice(idx, 1);
+                localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
+            }
         }
     } else {
+        const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
         if (idx === -1) {
             wrongWords.push({ ...currentWordData, day: currentDay, level: currentLevel, isWrong: true });
         } else {
@@ -549,7 +551,6 @@ function retryOnlyWrongs() {
     currentIdx = 0;
     studyLoopCount = 2; 
 
-    // 🚀 [추가] 나갔다 오지 않아도 즉시 상단 바를 '최후의 세션'으로 변경
     const sessionTag = document.getElementById('session-tag');
     if (sessionTag) {
         sessionTag.innerText = `최후의 세션 1 / 1`;
@@ -587,7 +588,6 @@ function jumpToFinish() {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
     localStorage.setItem('trigger_session_' + lvl, '6'); 
     localStorage.removeItem('blackt_cooldown');
-    // 테스트 직행 쪽지 발송
     localStorage.setItem('trigger_jump_test', 'true');
     location.reload();
 }
