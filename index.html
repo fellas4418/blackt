@@ -836,24 +836,24 @@
             }
         }
 
-        // 🚀 [관리자 점프 수정] 평일/주말 구분 로직 포함 및 테스트 직행 신호 전송
-        function jumpToFinish() {
-            const lvl = localStorage.getItem('trigger_level') || 'middle';
-            const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
-            let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
-            const isReviewDay = (localDay === 6 || localDay === 7);
+        // index.html 내의 jumpToFinish 함수 부분만 교체하세요
+function jumpToFinish() {
+    const lvl = localStorage.getItem('trigger_level') || 'middle';
+    const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
+    let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
+    const isReviewDay = (localDay === 6 || localDay === 7);
 
-            // 평일은 세션 6, 주말은 세션 2가 마지막 테스트
-            const finalSession = isReviewDay ? '2' : '6';
-            
-            localStorage.setItem('trigger_session_' + lvl, finalSession); 
-            localStorage.removeItem('blackt_cooldown');
-            
-            // 테스트 직행 신호 (플래그) 전송
-            localStorage.setItem('trigger_jump_test', 'true');
-            
-            location.href = 'study.html'; 
-        }
+    // 1. 세션 번호 설정 (평일 6, 주말 2)
+    const finalSession = isReviewDay ? '2' : '6';
+    localStorage.setItem('trigger_session_' + lvl, finalSession); 
+    localStorage.removeItem('blackt_cooldown');
+    
+    // 2. 중요: 테스트로 즉시 점프하라는 신호를 남깁니다.
+    localStorage.setItem('trigger_jump_test', 'true');
+    
+    // 3. 이동
+    location.href = 'study.html'; 
+}
 
         window.addEventListener('load', () => {
             const splash = document.getElementById('splash-screen');

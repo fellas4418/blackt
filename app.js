@@ -156,6 +156,15 @@ function initApp() {
             }
         }
 
+        // 🚀 [관리자 점프 전용] 테스트 직행 신호 확인
+        if (localStorage.getItem('trigger_jump_test') === 'true') {
+            localStorage.removeItem('trigger_jump_test');
+            currentIdx = 0; 
+            studyLoopCount = 2; 
+            startCountdown("곧 테스트를 시작합니다.", startTest);
+            return; 
+        }
+
         const endTime = localStorage.getItem('blackt_cooldown');
         if (endTime && endTime - Date.now() > 0 && parseInt(currentSession) <= 6 && currentSession !== 'final') {
             showSystemMessage("잠시 쉬어주세요.<br>곧 다시 시작할 수 있습니다.");
@@ -240,7 +249,7 @@ function startStudy() {
     }
 
     let time = 9000; 
-    let hasPlayedSecondTTS = false; // 🚀 중복 발음 방지용 플래그
+    let hasPlayedSecondTTS = false; 
     
     const interval = setInterval(() => {
         if (isPaused) return; 
@@ -251,8 +260,9 @@ function startStudy() {
             items.forEach(item => item.style.opacity = "1");
             if (bar) bar.style.backgroundColor = "var(--neon-blue)";
         } 
-        // 🚀 [수정] 첫 발음 후 2초 뒤 (9000 - 2000 = 7000) 발음 실행
-        if (time === 7000 && !hasPlayedSecondTTS) {
+        
+        // 🚀 [수정] 첫 발음(9.0초) 후 정확히 2초 뒤(7.0초 지점) 발음 실행
+        if (time <= 7000 && !hasPlayedSecondTTS) {
             if (data && data.word) playPronunciation(data.word);
             hasPlayedSecondTTS = true;
         }
@@ -535,32 +545,20 @@ function skipToTest() { if (confirm("학습을 건너뛸까요?")) { currentIdx 
 function skipToFinish() { if (confirm("결과 화면으로 갈까요?")) { if (window.currentTimer) clearInterval(window.currentTimer); score = targetWords.length; currentIdx = targetWords.length; finishSession(true); } }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
 
-// 🚀 [관리자 점프 수정] 완벽한 강제 중단 및 테스트 직행
+// 🚀 [관리자 점프 수정] 버튼 클릭 시 테스트 직행 신호를 남기고 새로고침
 function jumpToFinish() {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
     let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
     const isReviewDay = (localDay === 6 || localDay === 7);
 
-    // 1. 모든 진행 중인 프로세스 강제 파괴 (핵심!)
-    if (window.currentTimer) {
-        clearInterval(window.currentTimer);
-        window.currentTimer = null;
-    }
-    window.speechSynthesis.cancel();
-
-    // 2. 세션 및 상태 조작
     const finalSession = isReviewDay ? '2' : '6';
     localStorage.setItem(`trigger_session_${lvl}`, finalSession); 
     localStorage.removeItem('blackt_cooldown');
-
-    // 3. 상태 변수 강제 설정
-    currentIdx = 0; 
-    studyLoopCount = 2; 
-
-    // 4. 즉시 테스트 카운트다운 진입
-    showSystemMessage(""); 
-    startCountdown("곧 테스트를 시작합니다.", startTest);
+    
+    // 신호를 남기고 페이지를 새로고침하여 initApp에서 낚아채게 합니다.
+    localStorage.setItem('trigger_jump_test', 'true');
+    location.reload();
 }
 
 let adminClickCount = 0;
