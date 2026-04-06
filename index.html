@@ -352,10 +352,17 @@
             if(tabId === 'analysis') handleGradeChange(); 
         }
 
+        // 🚀 [관리자 점프 수정] 세션 점프 시 테스트 직행 신호 포함
         function jumpToSession(sessionNum) {
             const lvl = localStorage.getItem('trigger_level') || 'middle';
-            localStorage.setItem('trigger_session_' + lvl, sessionNum);
+            localStorage.setItem('trigger_session_' + lvl, sessionNum.toString());
             localStorage.removeItem('blackt_cooldown');
+            
+            // 세션 6으로 점프할 때만 테스트 직행 신호 전송
+            if (sessionNum === 6) {
+                localStorage.setItem('trigger_jump_test', 'true');
+            }
+            
             alert(`🚀 세션 ${sessionNum}으로 이동했습니다! [학습 시작하기]를 눌러보세요.`);
             location.reload();
         }
@@ -398,7 +405,7 @@
 
             fetch(GOOGLE_SHEET_URL, {
                 method: 'POST',
-                mode: 'no-cors',
+                // mode: 'no-cors',
                 body: formData
             }).catch(e => console.log(e));
         }
@@ -426,7 +433,7 @@
                 formData.append("phone", phone);
                 formData.append("level", levelText);
 
-                fetch(GOOGLE_SHEET_URL, { method: 'POST', mode: 'no-cors', body: formData });
+                fetch(GOOGLE_SHEET_URL, { method: 'POST', body: formData });
             }
         }
 
@@ -541,7 +548,6 @@
                 let isReview = (i % 7 === 6 || i % 7 === 0);
                 let dayLabel = isReview ? `Day ${i} (복습)` : `Day ${i}`;
                 
-                // ✅ 1. 완료된 날짜: 가운데 줄 + CLEAR 👑
                 if (i < unlockedDay) {
                     html += `
                     <li class="routine-item" style="opacity: 0.6;">
@@ -551,7 +557,6 @@
                         </button>
                     </li>`;
                 } 
-                // ✅ 2. 오늘 할 날짜: 시작 버튼 (가장 선명함)
                 else if (i === unlockedDay) {
                     html += `
                     <li class="routine-item">
@@ -559,7 +564,6 @@
                         <button class="routine-action-btn active" onclick="startDayStudy(${i})">시작</button>
                     </li>`;
                 } 
-                // ✅ 3. 미래의 날짜: 잠금 표시
                 else {
                     html += `
                     <li class="routine-item" style="opacity: 0.4;">
@@ -641,7 +645,6 @@
             }
         }
 
-        // 🚀 [수정] 오답/별표 리스트를 드롭다운(아코디언) 방식으로 변경 + 별표 표기 + 뜻 텍스트 완전 흰색
         function showWrongWords() {
             const lvl = localStorage.getItem('trigger_level') || 'middle';
             const allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
@@ -649,17 +652,13 @@
             
             let html = '';
             if (levelWrongs.length > 0) {
-                // Day별로 그룹화
                 const grouped = {};
                 levelWrongs.forEach(w => {
                     const day = w.day || 1;
                     if (!grouped[day]) grouped[day] = [];
                     grouped[day].push(w);
                 });
-
-                // Day 오름차순 정렬
                 const sortedDays = Object.keys(grouped).map(Number).sort((a, b) => a - b);
-
                 sortedDays.forEach(day => {
                     html += `<div onclick="toggleAccordion('wrong-day-list-${day}')" style="background: rgba(57, 255, 20, 0.1); border: 1px solid rgba(57, 255, 20, 0.3); color:var(--neon-green); padding: 15px; margin-top:10px; border-radius: 8px; font-weight:bold; display: flex; justify-content: space-between; cursor: pointer;">
                                 <span>Day ${day} 오답/별표</span><span>▼</span>
@@ -668,9 +667,7 @@
                     
                     grouped[day].forEach(w => {
                         const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
-                        // 🚀 별표 친 단어는 노란색 별 아이콘 띄우기
                         const starIcon = w.isStarred ? '<span style="font-size:0.85rem; margin-left:6px; vertical-align:middle;">⭐</span>' : '';
-                        
                         html += `<div style="padding:12px 0; border-bottom:1px solid #333; line-height:1.4;">
                                     <strong style="color:var(--neon-green); font-size:1.15rem;">${w.word}</strong>${starIcon} <br>
                                     <span style="color:#ffffff; font-size:1rem; display:inline-block; margin-top:5px;">- ${safeMeanings}</span>
@@ -681,7 +678,6 @@
             } else {
                 html = '<p style="text-align:center; color:#666; margin-top:20px;">저장된 오답이 없습니다.</p>';
             }
-            
             document.getElementById('wrong-list').innerHTML = html;
             document.getElementById('wrong-modal-title').innerText = `[${lvl === 'high' ? '고등' : '중등'}] 오답/별표`;
             document.getElementById('wrong-modal').style.display = 'flex';
@@ -697,7 +693,6 @@
             const lvl = localStorage.getItem('trigger_level') || 'middle';
             let html = '';
             let totalCount = 0;
-            
             const levelUnlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${lvl}`)) || 1;
             
             for(let i = 1; i < levelUnlockedDay; i++) {
@@ -719,14 +714,12 @@
                     html += `</div>`;
                 }
             }
-            
             const listContainer = document.getElementById('all-words-list');
             if(totalCount === 0) {
                 listContainer.innerHTML = "<p style='text-align:center; color:#888; margin-top:20px; font-size: 14px;'>학습 기록이 없습니다.</p>";
             } else {
                 listContainer.innerHTML = html;
             }
-            
             document.getElementById('all-words-title').innerText = `👑 클리어 리스트 [${lvl === 'high' ? '고등' : '중등'}]`;
             document.getElementById('all-words-modal').style.display = 'flex';
         }
@@ -743,16 +736,10 @@
                 ? "flex:1; padding:10px; border-radius:10px; background:var(--neon-orange); color:#000; font-weight:bold; border:none; cursor:pointer;" 
                 : "flex:1; padding:10px; border-radius:10px; background:transparent; border:1px solid #444; color:#888; font-weight:bold; cursor:pointer;";
 
-                const levelBadge = '';
-            
-            document.getElementById('report-modal-title').innerHTML = `${levelBadge} <span style="font-size: 0.9em;">누적 학습 리포트</span>`;
-
-            // 🚀 [가운데 정렬로 수정]
             document.getElementById('report-modal-title').innerHTML = `
             <div style="text-align: center; width: 100%; font-size: 0.9em;">
             누적 학습 리포트
-            </div>
-            `;
+            </div>`;
 
             let html = '';
             for(let i=1; i<=TOTAL_DAYS; i++) {
@@ -795,13 +782,11 @@
 
         function shareTriggerApp() {
             const shareTitle = "사라져 보카 - 사라지는 영단어장";
-            const shareText = "뇌과학 6세션 사라지는 단어 앱 '사라져 Voca'를 무료로 시작해 보세요.";
             const shareUrl = window.location.origin;
-
             if (navigator.share) {
-                navigator.share({ title: shareTitle, text: shareText, url: shareUrl }).catch(console.error);
+                navigator.share({ title: shareTitle, url: shareUrl }).catch(console.error);
             } else {
-                navigator.clipboard.writeText(shareUrl).then(() => { alert("✅ 링크가 복사되었습니다!"); }).catch(() => { alert("링크 복사에 실패했습니다."); });
+                navigator.clipboard.writeText(shareUrl).then(() => { alert("✅ 링크가 복사되었습니다!"); });
             }
         }
 
@@ -832,12 +817,7 @@
             }
         }
 
-        function startCameraAnalysis() {
-            const grade = document.getElementById('exam-grade').value;
-            const type = document.getElementById('exam-type').value;
-            const period = document.getElementById('exam-period').value;
-            alert(`[${grade} ${type} - ${period}] 분석을 위한 카메라를 실행합니다.\n(다음 단계에서 OCR 모듈 연동 예정)`);
-        }
+        function startCameraAnalysis() { alert("분석 모듈 연동 준비 중입니다."); }
 
         let adminClicks = 0;
         let adminTimer = null;
@@ -845,7 +825,6 @@
             adminClicks++;
             clearTimeout(adminTimer);
             adminTimer = setTimeout(() => { adminClicks = 0; }, 1500); 
-            
             if (adminClicks >= 3) {
                 const menu = document.getElementById('admin-menu');
                 if (menu) {
@@ -857,10 +836,22 @@
             }
         }
 
+        // 🚀 [관리자 점프 수정] 평일/주말 구분 로직 포함 및 테스트 직행 신호 전송
         function jumpToFinish() {
             const lvl = localStorage.getItem('trigger_level') || 'middle';
-            localStorage.setItem('trigger_session_' + lvl, '6'); 
+            const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
+            let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
+            const isReviewDay = (localDay === 6 || localDay === 7);
+
+            // 평일은 세션 6, 주말은 세션 2가 마지막 테스트
+            const finalSession = isReviewDay ? '2' : '6';
+            
+            localStorage.setItem('trigger_session_' + lvl, finalSession); 
             localStorage.removeItem('blackt_cooldown');
+            
+            // 테스트 직행 신호 (플래그) 전송
+            localStorage.setItem('trigger_jump_test', 'true');
+            
             location.href = 'study.html'; 
         }
 
@@ -877,37 +868,9 @@
                     sessionStorage.setItem('splash_shown', 'true');
                 }
             }
-
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./service-worker.js').catch(err => console.log('SW fail:', err));
-            }
-
             checkLoginStatus();
             selectLevel(localStorage.getItem('trigger_level') || 'middle');
         });
-
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            const installBtn = document.getElementById('install-app-btn');
-            if (installBtn) {
-                installBtn.style.display = 'block';
-                installBtn.addEventListener('click', () => {
-                    installBtn.style.display = 'none';
-                    deferredPrompt.prompt();
-                    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
-                });
-            }
-        });
-        window.addEventListener('appinstalled', () => {
-            const installBtn = document.getElementById('install-app-btn');
-            if (installBtn) installBtn.style.display = 'none';
-        });
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            const installBtn = document.getElementById('install-app-btn');
-            if (installBtn) installBtn.style.display = 'none';
-        }
     </script>
 </body>
 </html>
