@@ -447,7 +447,7 @@ function handleAnswer(isCorrect) {
     startTest();
 }
 
-// 🚀 [수정] 80% 미만 시 딱 1세션만 더 복습하고 무조건 통과시키는 로직
+// 🚀 [최종 교정본] 평일(6) & 주말(2) 완벽 대응 버전
 function finishSession(didTest = true) {
     let currentSession = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
@@ -459,7 +459,7 @@ function finishSession(didTest = true) {
     
     const accuracy = Math.floor((score / targetWords.length) * 100);
 
-    // ✅ [원장님 요청 반영] 평일 최종(6) 혹은 주말 최종(2)에서 80% 미만일 때
+    // 1️⃣ [최후의 세션 진입 조건] 평일 최종(6) 혹은 주말 최종(2)에서 80% 미만일 때
     const isMainTest = (currentSession === '6');
     const isReviewTest = (isReviewDay && currentSession === '2');
 
@@ -482,13 +482,15 @@ function finishSession(didTest = true) {
         return;
     }
 
-   
-    // ✅ 여기서부터는 통과(80% 이상)했거나, 재복습(6.5)까지 마친 경우입니다.
-    stats[currentDay].progress = Math.max(stats[currentDay].progress, currentSession);
-    stats[currentDay].accuracy = accuracy;
-    
-    // 다음 날 해금 및 통계 저장
-    if (currentSession >= 6) {
+    // 2️⃣ [종료 화면 진입 조건] 80% 이상이거나, 'final' 세션을 마쳤을 때
+    const isFinalSession = (currentSession === 'final');
+    // 평일은 6세션 이상, 주말은 2세션 이상일 때 종료
+    const isEndOfStudy = isReviewDay ? (parseInt(currentSession) >= 2) : (parseInt(currentSession) >= 6);
+
+    if ((isEndOfStudy || isFinalSession) && didTest) {
+        stats[currentDay].progress = isReviewDay ? 2 : 6;
+        stats[currentDay].accuracy = accuracy;
+        
         let highestDay = parseInt(localStorage.getItem(`trigger_highest_day_${currentLevel}`)) || 0;
         if (currentDay > highestDay) {
             let currentStreak = parseInt(localStorage.getItem('trigger_streak')) || 0;
@@ -499,7 +501,6 @@ function finishSession(didTest = true) {
         let unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
         if (unlockedDay === currentDay) localStorage.setItem(`trigger_unlocked_day_${currentLevel}`, unlockedDay + 1);
         
-        // 최종 결과 화면 (80% 안 되어도 공유 버튼 오픈!)
         const isLow = accuracy < 80;
         showSystemMessage(`
             <div style="padding: 10px; text-align:center;">
@@ -511,14 +512,14 @@ function finishSession(didTest = true) {
                     <div style="font-size:2rem; font-weight:bold; color:var(--neon-orange);">${accuracy}%</div>
                     ${isLow ? '<div style="font-size:0.8rem; color:#888; margin-top:5px;">(80% 미만 - 재복습 수행됨)</div>' : ''}
                 </div>
-                <div style="display:flex; flex-direction:column; gap:12px;">
-                    <button onclick="shareKakao()" style="width:100%; padding:16px; background:#fee500; color:#3c1e1e; border:none; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer;">🟡 카톡으로 성과 공유하기</button> 
-                    <button onclick="location.href='index.html'" style="width:100%; padding:14px; background:transparent; color:#bbbbbb; border:none; cursor:pointer; font-size:1.1rem; font-weight:bold; text-decoration:underline;">종료하기</button>
-                </div>
+                <button onclick="shareKakao()" style="width:100%; padding:16px; background:#fee500; color:#3c1e1e; border:none; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer;">🟡 카톡으로 성과 공유하기</button> 
+                <button onclick="location.href='index.html'" style="width:100%; padding:14px; background:transparent; color:#bbbbbb; border:none; cursor:pointer; font-size:1.1rem; font-weight:bold; text-decoration:underline;">종료하기</button>
             </div>
         `);
     } else {
-        localStorage.setItem(`trigger_session_${currentLevel}`, currentSession + 1);
+        // 다음 세션으로 진행
+        let nextSession = parseInt(currentSession) + 1;
+        localStorage.setItem(`trigger_session_${currentLevel}`, nextSession.toString());
         localStorage.setItem('blackt_cooldown', Date.now() + COOL_DOWN_TIME);
         showSystemMessage(didTest ? "테스트 완료! 👍" : "세션 완료! 🔥");
         setTimeout(() => { location.href = 'index.html'; }, 2200);
@@ -527,20 +528,21 @@ function finishSession(didTest = true) {
     localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));
 }
 
-// 🚀 [추가] 틀린 단어 위주로 딱 1세션만 복습시키는 함수
 function retryOnlyWrongs() {
     let allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
+    let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
+    const isReviewDay = (localDay === 6 || localDay === 7); 
     
-    // 이번 Day에 틀린 것만 쏙 골라내기
     let retryList = allWrongs.filter(w => w.level === currentLevel && w.day === currentDay);
-    
-    // 만약 틀린 게 너무 적으면(3개 미만) 오늘 단어 전체로 학습
-    if (retryList.length < 3) retryList = todayWords;
+    if (retryList.length < 1) retryList = todayWords;
 
     targetWords = retryList;
     currentIdx = 0;
-    studyLoopCount = 2; // 1세션만 반복 (사라져 4-3-2)
+    
+    // 주말이든 평일이든 최후의 세션은 4-3-2 로직 1세트(루프2회)만 돌립니다.
+    studyLoopCount = 2; 
+    
     startStudy();
 }
 
