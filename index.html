@@ -868,6 +868,25 @@ function jumpToFinish() {
                     sessionStorage.setItem('splash_shown', 'true');
                 }
             }
+            window.addEventListener('load', () => {
+    const isKakao = /KAKAO/i.test(navigator.userAgent);
+    const installBtn = document.getElementById('install-app-btn');
+
+    if (isKakao) {
+        // 🚀 카톡 브라우저일 경우 설치 버튼 대신 안내 문구 노출
+        if (installBtn) {
+            installBtn.style.setProperty('display', 'block', 'important');
+            installBtn.style.backgroundColor = 'rgba(255, 153, 0, 0.1)';
+            installBtn.style.borderColor = 'var(--neon-orange)';
+            installBtn.style.color = 'var(--neon-orange)';
+            installBtn.innerHTML = `
+                ⚠️ 카톡에선 설치가 안 됩니다!<br>
+                <span style="font-size:0.85rem;">오른쪽 위 <b>점 3개(⋮)</b> 클릭 후<br><b>'다른 브라우저로 열기'</b>를 눌러 설치해 주세요!</span>
+            `;
+            installBtn.onclick = null; // 클릭 이벤트 제거
+        }
+    }
+});
             checkLoginStatus();
             selectLevel(localStorage.getItem('trigger_level') || 'middle');
         });
