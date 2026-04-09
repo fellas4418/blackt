@@ -847,15 +847,15 @@
             location.href = 'study.html'; 
         }
 
-        // 🚀 카톡 전용 강제 실행 로직 (요소가 그려지기 전/후 모두 대응)
-        function handleKakaoEnvironment() {
+       // 🚀 카톡 전용 강제 실행 및 탈출 로직
+       function handleKakaoEnvironment() {
             const savedName = localStorage.getItem('trigger_name');
             const isKakao = /KAKAO/i.test(navigator.userAgent);
             const installBtn = document.getElementById('install-app-btn');
             const splash = document.getElementById('splash-screen');
             const modal = document.getElementById('login-modal');
 
-            // 1. 신규 사용자(가입창) 대응: 이름 없으면 스플래시 죽이고 가입창 강제 노출
+            // 1. 신규 사용자 대응 (가입창 강제 노출)
             if (!savedName || savedName === "null" || savedName === "") {
                 if (splash) splash.style.display = 'none'; 
                 if (modal) {
@@ -865,23 +865,30 @@
                 }
             }
 
-            // 2. 카톡 설치 안내 대응: 카톡이면 버튼을 안내 문구로 변신시킴
+            // 2. 카톡 전용 탈출 버튼 생성
             if (isKakao && installBtn) {
                 installBtn.style.setProperty('display', 'block', 'important');
                 installBtn.style.backgroundColor = 'rgba(255, 153, 0, 0.15)';
                 installBtn.style.color = 'var(--neon-orange)';
                 installBtn.style.border = '1.5px solid var(--neon-orange)';
-                installBtn.style.padding = '18px 10px';
+                installBtn.style.padding = '20px 15px';
                 installBtn.style.height = 'auto';
-                installBtn.style.lineHeight = '1.5';
+                
+                // 🚀 카톡 브라우저를 닫고 크롬/사파리로 바로 쏴주는 마법의 링크
+                const currentUrl = window.location.href.replace(/https?:\/\//, "");
+                const magicLink = `kakaotalk://web/openExternal?url=${encodeURIComponent(window.location.href)}`;
+
                 installBtn.innerHTML = `
-                    <div style="font-weight:bold; font-size:1.1rem;">⚠️ 카톡에선 앱 설치가 안 됩니다!</div>
-                    <div style="font-size:0.85rem; margin-top:5px; font-weight:normal; color:#fff;">
-                        우측 위 <b>점 3개(⋮)</b> 클릭 → <b>'다른 브라우저로 열기'</b><br>
-                        클릭 후 나타나는 화면에서 설치해 주세요!
+                    <div style="font-weight:bold; font-size:1.1rem; margin-bottom:12px;">⚠️ 카톡에선 앱 설치가 안 됩니다!</div>
+                    <button onclick="window.location.href='${magicLink}'" 
+                        style="width:100%; padding:15px; background:var(--neon-orange); color:#000; border:none; border-radius:10px; font-weight:900; font-size:1rem; cursor:pointer; box-shadow: 0 4px 15px rgba(255,153,0,0.3);">
+                        크롬/사파리로 열고 앱 설치하기 🚀
+                    </button>
+                    <div style="font-size:0.8rem; margin-top:12px; color:#aaa; font-weight:normal;">
+                        위 버튼을 누르면 외부 브라우저로 이동합니다.
                     </div>
                 `;
-                installBtn.onclick = null; 
+                installBtn.onclick = null; // 버튼 내부의 실제 button 태그가 클릭을 처리함
             }
         }
 
