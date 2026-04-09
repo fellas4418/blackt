@@ -847,25 +847,29 @@
             location.href = 'study.html'; 
         }
 
-       // 🚀 카톡 전용 강제 실행 및 탈출 로직
-       function handleKakaoEnvironment() {
+        let deferredPrompt;
+        const installBtn = document.getElementById('install-app-btn');
+
+        // 🚀 카톡 대응 및 설치 버튼 강제 제어 로직
+        function handleKakaoAndInstall() {
             const savedName = localStorage.getItem('trigger_name');
             const isKakao = /KAKAO/i.test(navigator.userAgent);
-            const installBtn = document.getElementById('install-app-btn');
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
             const splash = document.getElementById('splash-screen');
             const modal = document.getElementById('login-modal');
 
-            // 1. 신규 사용자 대응 (가입창 강제 노출)
+            // 1. 가입창 강제 노출 (신규 유저)
             if (!savedName || savedName === "null" || savedName === "") {
-                if (splash) splash.style.display = 'none'; 
+                if (splash) splash.style.display = 'none';
                 if (modal) {
                     modal.style.setProperty('display', 'flex', 'important');
-                    modal.style.setProperty('z-index', '30000', 'important'); 
+                    modal.style.setProperty('z-index', '30000', 'important');
                     modal.style.opacity = '1';
                 }
+                return; // 가입 전에는 설치 버튼 안 보여줌
             }
 
-            // 2. 카톡 전용 탈출 버튼 생성
+            // 2. 카톡 브라우저일 때 -> 주황색 탈출 버튼 노출
             if (isKakao && installBtn) {
                 installBtn.style.setProperty('display', 'block', 'important');
                 installBtn.style.backgroundColor = 'rgba(255, 153, 0, 0.15)';
@@ -874,26 +878,52 @@
                 installBtn.style.padding = '20px 15px';
                 installBtn.style.height = 'auto';
                 
-                // 🚀 카톡 브라우저를 닫고 크롬/사파리로 바로 쏴주는 마법의 링크
-                const currentUrl = window.location.href.replace(/https?:\/\//, "");
                 const magicLink = `kakaotalk://web/openExternal?url=${encodeURIComponent(window.location.href)}`;
-
                 installBtn.innerHTML = `
                     <div style="font-weight:bold; font-size:1.1rem; margin-bottom:12px;">⚠️ 카톡에선 앱 설치가 안 됩니다!</div>
                     <button onclick="window.location.href='${magicLink}'" 
-                        style="width:100%; padding:15px; background:var(--neon-orange); color:#000; border:none; border-radius:10px; font-weight:900; font-size:1rem; cursor:pointer; box-shadow: 0 4px 15px rgba(255,153,0,0.3);">
+                        style="width:100%; padding:15px; background:var(--neon-orange); color:#000; border:none; border-radius:10px; font-weight:900; font-size:1rem; cursor:pointer;">
                         크롬/사파리로 열고 앱 설치하기 🚀
                     </button>
-                    <div style="font-size:0.8rem; margin-top:12px; color:#aaa; font-weight:normal;">
-                        위 버튼을 누르면 외부 브라우저로 이동합니다.
-                    </div>
                 `;
-                installBtn.onclick = null; // 버튼 내부의 실제 button 태그가 클릭을 처리함
+                installBtn.onclick = null;
+            } 
+            // 3. 외부 브라우저이면서 아직 앱 설치 안 한 경우 -> 파란색 설치 버튼 "강제" 노출
+            else if (!isKakao && !isStandalone && installBtn) {
+                installBtn.style.setProperty('display', 'block', 'important');
+                installBtn.style.backgroundColor = 'rgba(0, 243, 255, 0.05)';
+                installBtn.style.color = 'var(--neon-blue)';
+                installBtn.style.border = '1px dashed var(--neon-blue)';
+                installBtn.innerHTML = `👇 터치해서 1초 만에 앱으로 설치하기`;
+                
+                installBtn.onclick = async () => {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        if (outcome === 'accepted') installBtn.style.display = 'none';
+                        deferredPrompt = null;
+                    } else {
+                        // 신호가 없을 때 버튼을 누르면 수동 안내 (아이폰/일부 안드로이드 대응)
+                        alert("우측 상단 [점 3개] 혹은 하단 [공유 버튼]을 눌러 '홈 화면에 추가'를 선택해 주세요!");
+                    }
+                };
             }
         }
 
-        window.addEventListener('DOMContentLoaded', handleKakaoEnvironment);
-        window.addEventListener('load', handleKakaoEnvironment);
+        // 브라우저가 설치 신호를 줄 때 변수에 저장만 해둠
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        // 이미 설치 완료 시 버튼 숨김
+        window.addEventListener('appinstalled', () => {
+            if (installBtn) installBtn.style.display = 'none';
+        });
+
+        // 로드 시 실행
+        window.addEventListener('DOMContentLoaded', handleKakaoAndInstall);
+        window.addEventListener('load', handleKakaoAndInstall);
 
         window.addEventListener('load', () => {
             const savedName = localStorage.getItem('trigger_name');
