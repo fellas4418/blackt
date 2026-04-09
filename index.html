@@ -298,7 +298,6 @@
 
     <script src="worddata.js"></script>
     <script>
-        // 🚀 완벽한 섞기를 위한 Fisher-Yates Shuffle 함수 추가
         function shuffleArray(array) {
             let curId = array.length;
             while (0 !== curId) {
@@ -352,13 +351,11 @@
             if(tabId === 'analysis') handleGradeChange(); 
         }
 
-        // 🚀 [관리자 점프 수정] 세션 점프 시 테스트 직행 신호 포함
         function jumpToSession(sessionNum) {
             const lvl = localStorage.getItem('trigger_level') || 'middle';
             localStorage.setItem('trigger_session_' + lvl, sessionNum.toString());
             localStorage.removeItem('blackt_cooldown');
             
-            // 세션 6으로 점프할 때만 테스트 직행 신호 전송
             if (sessionNum === 6) {
                 localStorage.setItem('trigger_jump_test', 'true');
             }
@@ -405,7 +402,6 @@
 
             fetch(GOOGLE_SHEET_URL, {
                 method: 'POST',
-                // mode: 'no-cors',
                 body: formData
             }).catch(e => console.log(e));
         }
@@ -836,57 +832,77 @@
             }
         }
 
-        // index.html 내의 jumpToFinish 함수 부분만 교체하세요
-function jumpToFinish() {
-    const lvl = localStorage.getItem('trigger_level') || 'middle';
-    const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
-    let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
-    const isReviewDay = (localDay === 6 || localDay === 7);
+        function jumpToFinish() {
+            const lvl = localStorage.getItem('trigger_level') || 'middle';
+            const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
+            let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
+            const isReviewDay = (localDay === 6 || localDay === 7);
 
-    // 1. 세션 번호 설정 (평일 6, 주말 2)
-    const finalSession = isReviewDay ? '2' : '6';
-    localStorage.setItem('trigger_session_' + lvl, finalSession); 
-    localStorage.removeItem('blackt_cooldown');
-    
-    // 2. 중요: 테스트로 즉시 점프하라는 신호를 남깁니다.
-    localStorage.setItem('trigger_jump_test', 'true');
-    
-    // 3. 이동
-    location.href = 'study.html'; 
-}
+            const finalSession = isReviewDay ? '2' : '6';
+            localStorage.setItem('trigger_session_' + lvl, finalSession); 
+            localStorage.removeItem('blackt_cooldown');
+            
+            localStorage.setItem('trigger_jump_test', 'true');
+            
+            location.href = 'study.html'; 
+        }
 
-window.addEventListener('load', () => {
+        // 🚀 카톡 전용 강제 실행 로직 (요소가 그려지기 전/후 모두 대응)
+        function handleKakaoEnvironment() {
+            const savedName = localStorage.getItem('trigger_name');
+            const isKakao = /KAKAO/i.test(navigator.userAgent);
+            const installBtn = document.getElementById('install-app-btn');
             const splash = document.getElementById('splash-screen');
-            if (splash) {
+            const modal = document.getElementById('login-modal');
+
+            // 1. 신규 사용자(가입창) 대응: 이름 없으면 스플래시 죽이고 가입창 강제 노출
+            if (!savedName || savedName === "null" || savedName === "") {
+                if (splash) splash.style.display = 'none'; 
+                if (modal) {
+                    modal.style.setProperty('display', 'flex', 'important');
+                    modal.style.setProperty('z-index', '30000', 'important'); 
+                    modal.style.opacity = '1';
+                }
+            }
+
+            // 2. 카톡 설치 안내 대응: 카톡이면 버튼을 안내 문구로 변신시킴
+            if (isKakao && installBtn) {
+                installBtn.style.setProperty('display', 'block', 'important');
+                installBtn.style.backgroundColor = 'rgba(255, 153, 0, 0.15)';
+                installBtn.style.color = 'var(--neon-orange)';
+                installBtn.style.border = '1.5px solid var(--neon-orange)';
+                installBtn.style.padding = '18px 10px';
+                installBtn.style.height = 'auto';
+                installBtn.style.lineHeight = '1.5';
+                installBtn.innerHTML = `
+                    <div style="font-weight:bold; font-size:1.1rem;">⚠️ 카톡에선 앱 설치가 안 됩니다!</div>
+                    <div style="font-size:0.85rem; margin-top:5px; font-weight:normal; color:#fff;">
+                        우측 위 <b>점 3개(⋮)</b> 클릭 → <b>'다른 브라우저로 열기'</b><br>
+                        클릭 후 나타나는 화면에서 설치해 주세요!
+                    </div>
+                `;
+                installBtn.onclick = null; 
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', handleKakaoEnvironment);
+        window.addEventListener('load', handleKakaoEnvironment);
+
+        window.addEventListener('load', () => {
+            const savedName = localStorage.getItem('trigger_name');
+            const splash = document.getElementById('splash-screen');
+            
+            if (splash && savedName && savedName !== "null") {
                 if (sessionStorage.getItem('splash_shown')) {
-                    splash.style.display = 'none'; 
+                    splash.style.display = 'none';
                 } else {
                     setTimeout(() => {
                         splash.style.opacity = '0';
                         setTimeout(() => splash.style.display = 'none', 500);
-                    }, 1200); 
+                    }, 1200);
                     sessionStorage.setItem('splash_shown', 'true');
                 }
             }
-            window.addEventListener('load', () => {
-    const isKakao = /KAKAO/i.test(navigator.userAgent);
-    const installBtn = document.getElementById('install-app-btn');
-
-    if (isKakao) {
-        // 🚀 카톡 브라우저일 경우 설치 버튼 대신 안내 문구 노출
-        if (installBtn) {
-            installBtn.style.setProperty('display', 'block', 'important');
-            installBtn.style.backgroundColor = 'rgba(255, 153, 0, 0.1)';
-            installBtn.style.borderColor = 'var(--neon-orange)';
-            installBtn.style.color = 'var(--neon-orange)';
-            installBtn.innerHTML = `
-                ⚠️ 카톡에선 설치가 안 됩니다!<br>
-                <span style="font-size:0.85rem;">오른쪽 위 <b>점 3개(⋮)</b> 클릭 후<br><b>'다른 브라우저로 열기'</b>를 눌러 설치해 주세요!</span>
-            `;
-            installBtn.onclick = null; // 클릭 이벤트 제거
-        }
-    }
-});
             checkLoginStatus();
             selectLevel(localStorage.getItem('trigger_level') || 'middle');
         });
