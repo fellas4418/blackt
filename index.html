@@ -909,19 +909,23 @@
                 };
             }
         }
-
-        // 브라우저가 설치 신호를 줄 때 변수에 저장만 해둠
-        window.addEventListener('beforeinstallprompt', (e) => {
+// 1. 브라우저 설치 신호 대기
+window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
         });
 
-   // 이미 설치 완료 시 버튼 숨김
-   window.addEventListener('appinstalled', () => {
+        // 🚀 2. 설치 완료 시점에만 '알림 권한' 요청 (가장 중요)
+        window.addEventListener('appinstalled', async () => {
             if (installBtn) installBtn.style.display = 'none';
+            deferredPrompt = null;
+            
+            // ✅ 이 시점에만 팝업이 뜹니다.
+            console.log("앱 설치 완료! 이제 알림 권한을 요청합니다.");
+            await requestNotificationPermission();
         });
 
-        // 🚀 1. 푸시 알림 관련 함수들
+        // 3. 알림 관련 함수들
         async function requestNotificationPermission() {
             if (!('Notification' in window)) return;
             if (Notification.permission === 'default') {
@@ -945,18 +949,57 @@
             }
         }
 
-        // 🚀 2. 초기 실행 통합 (DOMContentLoaded)
-        window.addEventListener('DOMContentLoaded', () => {
-            handleKakaoAndInstall();
-            if (localStorage.getItem('trigger_name')) requestNotificationPermission();
+       
+       // 1. 브라우저 설치 신호 대기
+       window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
         });
 
-        // 🚀 3. 페이지 로드 완료 후 실행 (load)
+        // 🚀 2. 설치 완료 시점에만 '알림 권한' 요청 (가장 중요)
+        window.addEventListener('appinstalled', async () => {
+            if (installBtn) installBtn.style.display = 'none';
+            deferredPrompt = null;
+            
+            // ✅ 이 시점에만 팝업이 뜹니다.
+            console.log("앱 설치 완료! 이제 알림 권한을 요청합니다.");
+            await requestNotificationPermission();
+        });
+
+        // 3. 알림 관련 함수들
+        async function requestNotificationPermission() {
+            if (!('Notification' in window)) return;
+            if (Notification.permission === 'default') {
+                await Notification.requestPermission();
+            }
+        }
+
+        function sendRecoveryNotification() {
+            if (Notification.permission !== 'granted') return;
+            const title = "🧠 뇌 회복 완료!";
+            const options = {
+                body: "10분이 지났습니다. 다음 세션을 시작해 보세요! 🔥",
+                icon: "icon-192.png",
+                vibrate: [200, 100, 200],
+                tag: "recovery-done"
+            };
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(reg => reg.showNotification(title, options));
+            } else {
+                new Notification(title, options);
+            }
+        }
+
+        // 4. 초기 실행
+        window.addEventListener('DOMContentLoaded', () => {
+            handleKakaoAndInstall();
+        });
+
+        // 5. 페이지 로딩 후 처리
         window.addEventListener('load', () => {
             const savedName = localStorage.getItem('trigger_name');
             const splash = document.getElementById('splash-screen');
             
-            // 스플래시 화면 및 기본 UI 초기화
             if (splash && savedName && savedName !== "null") {
                 if (sessionStorage.getItem('splash_shown')) {
                     splash.style.display = 'none';
@@ -972,23 +1015,15 @@
             checkLoginStatus();
             selectLevel(localStorage.getItem('trigger_level') || 'middle');
 
-            // 🚀 4. 쿨타임 종료 알림 예약
+            // 쿨타임 종료 알림 예약
             const cooldownTime = localStorage.getItem('blackt_cooldown');
             if (cooldownTime) {
                 const remaining = parseInt(cooldownTime) - Date.now();
                 if (remaining > 0) {
-                    console.log("알림 예약됨:", remaining / 1000, "초 후");
                     setTimeout(sendRecoveryNotification, remaining);
                 }
             }
         });
-
-        // 🚀 5. 가입 버튼 클릭 시 알림 권한 요청 연동
-        const originalHandleLogin = handleLogin;
-        handleLogin = async function() {
-            await originalHandleLogin();
-            await requestNotificationPermission();
-        };
     </script>
 </body>
 </html>
