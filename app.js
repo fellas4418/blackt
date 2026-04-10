@@ -438,10 +438,19 @@ function finishSession(didTest = true) {
     let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
     const isReviewDay = (localDay === 6 || localDay === 7);
     
+    // 🚀 [추가] 진행률 계산 로직 (1/6 = 16%, 2/6 = 33% ...)
+    let sessionCount = isReviewDay ? 2 : 6; // 주말은 2세션, 평일은 6세션 기준
+    let currentSessionNum = (currentSession === 'final') ? sessionCount : parseInt(currentSession);
+    let progressPercent = Math.floor((currentSessionNum / sessionCount) * 100);
+    
+    // 🚀 [핵심] index.html의 진행률 바가 인식하는 변수명으로 저장
+    localStorage.setItem(`trigger_progress_${currentLevel}_${currentDay}`, progressPercent);
+
     let stats = JSON.parse(localStorage.getItem(`trigger_stats_${currentLevel}`) || '{}');
     if (!stats[currentDay]) stats[currentDay] = { progress: 0, accuracy: 0 };
     
     const accuracy = Math.floor((score / targetWords.length) * 100);
+    stats[currentDay].progress = progressPercent; // 누적 리포트용 데이터 업데이트
 
     if (didTest && accuracy < 80 && (currentSession === '6' || (isReviewDay && currentSession === '2'))) {
         localStorage.setItem(`trigger_session_${currentLevel}`, 'final'); 
@@ -457,14 +466,23 @@ function finishSession(didTest = true) {
     if ((parseInt(currentSession) >= 6 || (isReviewDay && parseInt(currentSession) >= 2) || currentSession === 'final') && didTest) {
         let unlocked = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
         if (unlocked === currentDay) localStorage.setItem(`trigger_unlocked_day_${currentLevel}`, unlocked + 1);
+        
+        // 최종 완료 시 stats 저장
+        stats[currentDay].accuracy = accuracy;
+        localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));
+
         showSystemMessage(`<div style="text-align:center;"><div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold;">학습 완료! ${accuracy}%</div><button onclick="shareKakao()" style="width:100%; padding:16px; background:#fee500; border-radius:12px; margin-top:20px; border:none; font-weight:bold;">🟡 카톡 공유</button><button onclick="location.href='index.html'" style="margin-top:20px; background:none; border:none; color:#888; text-decoration:underline;">종료하기</button></div>`);
     } else {
-        localStorage.setItem(`trigger_session_${currentLevel}`, parseInt(currentSession) + 1);
+        // 일반 세션 종료 시
+        localStorage.setItem(`trigger_session_${currentLevel}`, (currentSession === 'final') ? currentSession : parseInt(currentSession) + 1);
         localStorage.setItem('blackt_cooldown', Date.now() + COOL_DOWN_TIME);
+        
+        // 중간 세션 결과도 stats에 저장
+        localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));
+        
         showSystemMessage("세션 완료! 🔥");
         setTimeout(() => { location.href = 'index.html'; }, 2200);
     }
-    localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));
 }
 
 function retryOnlyWrongs() {
