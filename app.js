@@ -31,7 +31,7 @@ let currentIdx = 0;
 let score = 0;
 let targetWords = []; 
 let studyLoopCount = 1; 
-const COOL_DOWN_TIME = 10 * 60 * 1000; 
+const COOL_DOWN_TIME = 3 * 60 * 1000; 
 
 let isPreReviewMode = false;
 let todayWords = [];
@@ -332,25 +332,47 @@ function toggleStar(wordObj) {
 function updateUI(data, isTest = false) {
     const targetEl = document.getElementById('target');
     const mBox = document.getElementById('meanings');
+    const headerEl = document.querySelector('.header'); // 세션 바가 있는 헤더 영역
     
     if (!targetEl || !mBox || !data) return;
 
-    // 🚀 [진행 순서 카운터] 단어 위에 아주 작게 고정 표시
+    // 1. 기존 카운터(번호 표시) 삭제 (중복 방지 및 위치 이동)
+    const oldCounter = document.getElementById('session-counter');
+    if (oldCounter) oldCounter.remove();
+
+    // 2. [진행 순서 카운터] 생성 - 세션 바(하늘색 선) 바로 아래 배치
     const currentNum = currentIdx + 1;
     const totalNum = targetWords.length;
-    const counterHtml = `<div style="font-size:0.75rem; color:#555; font-weight:bold; margin-bottom:5px; text-align:center;">[ ${currentNum} / ${totalNum} ]</div>`;
+    const counterHtml = `
+        <div id="session-counter" style="
+            text-align: center; 
+            font-size: 0.8rem; 
+            color: #888; 
+            font-weight: bold; 
+            margin-top: 8px; 
+            letter-spacing: 1px;
+        ">
+            [ ${currentNum} / ${totalNum} ]
+        </div>
+    `;
+    
+    // 3. 헤더 영역 맨 뒤(세션 바 아래)에 카운터 삽입
+    if (headerEl) {
+        headerEl.insertAdjacentHTML('beforeend', counterHtml);
+    }
 
     let safeMeanings = Array.isArray(data.meanings) ? data.meanings : (data.meaning ? [data.meaning] : ["뜻 확인 필요"]);
     const fullMeaning = safeMeanings.join(', ');
 
+    // 단어 스타일 설정
     targetEl.style.setProperty('font-size', '3.3rem', 'important'); 
     targetEl.style.setProperty('text-shadow', '0 0 15px #fff', 'important');
     targetEl.style.setProperty('color', '#fff', 'important');
     targetEl.style.setProperty('margin-top', '0px', 'important');
 
     if (!isTest) {
-        // 학습 모드: 단어 위에 번호 표시
-        targetEl.innerHTML = counterHtml + `
+        // 학습 모드: 단어 영역에서 번호 삭제
+        targetEl.innerHTML = `
             <div style="display:flex; flex-direction:column; align-items:center;">
                 <div style="display:flex; justify-content:center; align-items:center;">
                     <span style="font-size:1.8rem; visibility:hidden; pointer-events:none;">☆</span>
@@ -369,8 +391,8 @@ function updateUI(data, isTest = false) {
             starBtn.onclick = (e) => { e.stopPropagation(); toggleStar(data); };
         }
     } else {
-        // 테스트 모드: 단어 위에 번호 표시
-        targetEl.innerHTML = counterHtml + `
+        // 테스트 모드: 단어 영역에서 번호 삭제
+        targetEl.innerHTML = `
             <div style="display:flex; flex-direction:column; align-items:center;">
                 <div style="font-size:3.3rem; font-weight:bold; cursor:pointer;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</div>
                 <div class="ipa-text" style="font-size:1.2rem; color:#888; margin-top:8px;">${data.ipa || ''}</div>

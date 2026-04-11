@@ -104,8 +104,8 @@
                 하루 목표 단어를 총 6번 반복합니다.<br>
                 - <span style="color:#aaa;">세션 1~5:</span> 단어와 뜻, 발음을 눈과 귀로 익힙니다.<br>
                 - <span style="color:#aaa;">세션 6:</span> 최종 객관식 테스트를 봅니다.</p>
-                <p><strong style="color:var(--neon-orange);">2. 10분 쿨타임 (장기기억 전환)</strong><br>
-                한 세션이 끝나면 뇌가 단어를 깊게 저장하도록 <strong>10분간 강제 휴식</strong>이 부여됩니다.</p>
+                <p><strong style="color:var(--neon-orange);">2. 3분 쿨타임 (장기기억 전환)</strong><br>
+                한 세션이 끝나면 뇌가 단어를 깊게 저장하도록 <strong>3분간 강제 휴식</strong>이 부여됩니다.</p>
                 <p><strong style="color:var(--neon-green);">3. 5+2 주말 복습</strong><br>
                 5일 동안 새 단어를 배우고, 6일차/7일차는 진도 없이 <strong>딱 2세션</strong>으로 빠르게 오답 및 전체 누적 복습만 진행합니다.</p>
             </div>
@@ -233,7 +233,7 @@
                     <button onclick="jumpToFinish()" style="flex:1; background: #222; border: 1px solid var(--neon-green); color: var(--neon-green); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight:bold;">🏁 즉시 완수(결과창)</button>
                 </div>
                 <button onclick="localStorage.removeItem('blackt_cooldown'); alert('⏳ 쿨타임 삭제 완료!'); location.reload();" style="background: #111; border: 1px solid var(--neon-green); color: var(--neon-green); padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%;">
-                    ⚡ 쿨타임(10분 휴식) 즉시 삭제
+                    ⚡ 쿨타임(3분 휴식) 즉시 삭제
                 </button>
                 <button onclick="if(confirm('정말 모든 데이터를 초기화할까요?')) { localStorage.clear(); location.reload(); }" style="background: none; border: none; color: #666; text-decoration: underline; cursor: pointer; font-size: 0.8rem; margin-top:5px;">
                     🔄 데이터 완전 초기화
@@ -939,7 +939,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
             if (Notification.permission !== 'granted') return;
             const title = "🧠 에너지 회복 완료!";
             const options = {
-                body: "10분이 지났습니다. 다음 세션을 시작해 보세요! 🔥",
+                body: "3분이 지났습니다. 다음 세션을 시작해 보세요! 🔥",
                 icon: "icon-192.png",
                 vibrate: [200, 100, 200],
                 tag: "recovery-done"
