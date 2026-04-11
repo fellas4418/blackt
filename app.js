@@ -79,6 +79,15 @@ function initApp() {
         if (muteBtn) muteBtn.innerText = isMuted ? '🔇' : '🔊';
 
         const today = new Date().toLocaleDateString();
+        
+        // 🚀 [추가] 오늘 처음 시작한 Day 기준점 설정 (하루 최대 3일치 제한용)
+        const startDayKey = `trigger_start_day_${currentLevel}_${today}`;
+        if (!localStorage.getItem(startDayKey)) {
+            const currentUnlocked = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
+            localStorage.setItem(startDayKey, currentUnlocked);
+        }
+        const startDay = parseInt(localStorage.getItem(startDayKey));
+
         if (localStorage.getItem('trigger_date') !== today) {
             localStorage.setItem('trigger_date', today);
             localStorage.setItem('trigger_session_middle', '1');
@@ -96,14 +105,14 @@ function initApp() {
             dayData = wordsData[currentLevel]["week" + week][String(localDay)];
         }
 
-        if (!dayData) {
-            // 단순히 데이터가 없는 게 아니라, 설정한 최대치(3일)를 넘었을 때
-            if (currentDay > 3) {
-                showSystemMessage(`하루 최대 학습 가능 진도는<br>Day 3까지입니다. 내일 만나요! 👋`);
+        // 🚀 [수정] 데이터 체크 및 하루 3일치 진도 제한 메시지
+        if (!dayData || (startDay && currentDay >= startDay + 3)) {
+            if (startDay && currentDay >= startDay + 3) {
+                showSystemMessage(`뇌의 휴식이 필요합니다! 🧠<br>하루 최대 3일치까지만 학습 가능합니다.<br>내일 이어서 완주해 볼까요?`);
             } else {
                 showSystemMessage(`Day ${currentDay} 데이터를<br>불러올 수 없습니다.`);
             }
-            setTimeout(() => { location.href = 'index.html'; }, 2000);
+            setTimeout(() => { location.href = 'index.html'; }, 2500);
             return;
         }
 
@@ -151,17 +160,14 @@ function initApp() {
             let currentSessionVal = localStorage.getItem(`trigger_session_${currentLevel}`);
             
             if (currentSessionVal === 'final') {
-                // 최종 테스트 화면
                 sessionTag.innerText = `최종 테스트 사이클 🔥`;
                 sessionTag.style.color = "var(--neon-orange)";
             } else if (isReviewDay) {
-                // 주말 복습일 (2사이클)
                 let sNum = parseInt(currentSessionVal) || 1;
                 let displaySession = sNum >= 6 ? 2 : 1;
                 sessionTag.innerText = sNum > 6 ? `자유 복습 모드` : `${displaySession} / 2 사이클 (주말복습)`;
                 sessionTag.style.color = "";
             } else {
-                // 평일 정규 학습 (6사이클)
                 let sNum = parseInt(currentSessionVal) || 1;
                 sessionTag.innerText = sNum > 6 ? `자유 복습 모드` : `${sNum} / 6 사이클 진행 중`;
                 sessionTag.style.color = "";
@@ -341,32 +347,29 @@ function toggleStar(wordObj) {
 function updateUI(data, isTest = false) {
     const targetEl = document.getElementById('target');
     const mBox = document.getElementById('meanings');
-    const headerEl = document.querySelector('.header'); // 세션 바가 있는 헤더 영역
+    const headerEl = document.querySelector('.header'); 
     
     if (!targetEl || !mBox || !data) return;
 
-    // 1. 기존 카운터(번호 표시) 삭제 (중복 방지 및 위치 이동)
     const oldCounter = document.getElementById('session-counter');
     if (oldCounter) oldCounter.remove();
 
-// 🚀 [진행 순서 카운터] 아이들 눈높이에 맞춘 한글화 스타일
-const currentNum = currentIdx + 1;
-const totalNum = targetWords.length;
+    const currentNum = currentIdx + 1;
+    const totalNum = targetWords.length;
 
-const counterHtml = `
-    <div id="session-counter" style="text-align: center; margin-top: 10px; font-family: 'Pretendard', sans-serif;">
-        <div style="font-size: 1.1rem; color: #555; font-weight: 800; margin-bottom: 2px; letter-spacing: 1px;">
-            오늘의 단어 순서
+    const counterHtml = `
+        <div id="session-counter" style="text-align: center; margin-top: 10px; font-family: 'Pretendard', sans-serif;">
+            <div style="font-size: 1.1rem; color: #555; font-weight: 800; margin-bottom: 2px; letter-spacing: 1px;">
+                오늘의 단어 순서
+            </div>
+            <div style="font-size: 1rem; color: #aaa; font-weight: bold;">
+                <span style="color: var(--neon-blue); font-size: 1.2rem;">${currentNum}</span> 
+                <span style="color: #444; font-size: 0.8rem; margin: 0 3px;">/</span> 
+                ${totalNum}
+            </div>
         </div>
-        <div style="font-size: 1rem; color: #aaa; font-weight: bold;">
-            <span style="color: var(--neon-blue); font-size: 1.2rem;">${currentNum}</span> 
-            <span style="color: #444; font-size: 0.8rem; margin: 0 3px;">/</span> 
-            ${totalNum}
-        </div>
-    </div>
-`;
+    `;
     
-    // 3. 헤더 영역 맨 뒤(세션 바 아래)에 카운터 삽입
     if (headerEl) {
         headerEl.insertAdjacentHTML('beforeend', counterHtml);
     }
@@ -374,14 +377,12 @@ const counterHtml = `
     let safeMeanings = Array.isArray(data.meanings) ? data.meanings : (data.meaning ? [data.meaning] : ["뜻 확인 필요"]);
     const fullMeaning = safeMeanings.join(', ');
 
-    // 단어 스타일 설정
     targetEl.style.setProperty('font-size', '3.3rem', 'important'); 
     targetEl.style.setProperty('text-shadow', '0 0 15px #fff', 'important');
     targetEl.style.setProperty('color', '#fff', 'important');
     targetEl.style.setProperty('margin-top', '0px', 'important');
 
     if (!isTest) {
-        // 학습 모드: 단어 영역에서 번호 삭제
         targetEl.innerHTML = `
             <div style="display:flex; flex-direction:column; align-items:center;">
                 <div style="display:flex; justify-content:center; align-items:center;">
@@ -401,7 +402,6 @@ const counterHtml = `
             starBtn.onclick = (e) => { e.stopPropagation(); toggleStar(data); };
         }
     } else {
-        // 테스트 모드: 단어 영역에서 번호 삭제
         targetEl.innerHTML = `
             <div style="display:flex; flex-direction:column; align-items:center;">
                 <div style="font-size:3.3rem; font-weight:bold; cursor:pointer;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</div>
@@ -465,38 +465,32 @@ function handleAnswer(isCorrect) {
 }
 
 function finishSession(didTest = true) {
-    // 1. 현재 상태값 정확히 가져오기
     let currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
     let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
     const isReviewDay = (localDay === 6 || localDay === 7);
+    const today = new Date().toLocaleDateString();
     
-    // 2. 분모 설정 (평일 6, 주말 2)
     let totalSessions = isReviewDay ? 2 : 6;
     let finishedNum = 0;
 
-    // 3. 진행도 계산 (방금 끝낸 세션이 몇 번째인지)
     if (currentSessionRaw === 'final') {
         finishedNum = totalSessions;
     } else {
         finishedNum = parseInt(currentSessionRaw);
     }
 
-    // 🚀 [중요] 6을 넘지 않도록 제한하고 정확한 퍼센트 계산
     if (finishedNum > totalSessions) finishedNum = totalSessions;
     let progressPercent = Math.floor((finishedNum / totalSessions) * 100);
     
-    // 4. 리포트용 개별 데이터 저장
     localStorage.setItem(`trigger_progress_${currentLevel}_${currentDay}`, progressPercent);
 
-    // 5. 누적 리포트(stats) 업데이트
     let stats = JSON.parse(localStorage.getItem(`trigger_stats_${currentLevel}`) || '{}');
     if (!stats[currentDay]) stats[currentDay] = { progress: 0, accuracy: 0 };
     stats[currentDay].progress = progressPercent;
 
     const accuracy = Math.floor((score / targetWords.length) * 100);
 
-    // --- 통과/재시험 판정 및 다음 단계 설정 ---
     if (didTest && accuracy < 80 && (currentSessionRaw === '6' || (isReviewDay && currentSessionRaw === '2'))) {
         localStorage.setItem(`trigger_session_${currentLevel}`, 'final'); 
         showSystemMessage(`
@@ -509,17 +503,20 @@ function finishSession(didTest = true) {
     }
 
     if ((finishedNum >= totalSessions || currentSessionRaw === 'final') && didTest) {
-        // [최종 완료] Day 5까지만 자동으로 다음 날짜를 열어줍니다.
+        // 🚀 [수정] 오늘 시작 날짜 대비 최대 3일치까지만 다음 Day 자동 오픈
         let unlocked = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
-        if (unlocked === currentDay && currentDay < 3) {
-        localStorage.setItem(`trigger_unlocked_day_${currentLevel}`, unlocked + 1);
+        const startDayKey = `trigger_start_day_${currentLevel}_${today}`;
+        const startDay = parseInt(localStorage.getItem(startDayKey)) || unlocked;
+
+        if (unlocked === currentDay && (unlocked < startDay + 3)) {
+            localStorage.setItem(`trigger_unlocked_day_${currentLevel}`, unlocked + 1);
         }
+        
         stats[currentDay].accuracy = accuracy;
         localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));
 
         showSystemMessage(`<div style="text-align:center;"><div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold;">학습 완료! ${accuracy}%</div><button onclick="shareKakao()" style="width:100%; padding:16px; background:#fee500; border-radius:12px; margin-top:20px; border:none; font-weight:bold;">🟡 카톡 공유</button><button onclick="location.href='index.html'" style="margin-top:20px; background:none; border:none; color:#888; text-decoration:underline;">종료하기</button></div>`);
     } else {
-        // [중간 세션 완료]
         localStorage.setItem(`trigger_session_${currentLevel}`, finishedNum + 1);
         localStorage.setItem('blackt_cooldown', Date.now() + COOL_DOWN_TIME);
         localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));
@@ -533,7 +530,6 @@ function updateMasteredCount() {
     const level = localStorage.getItem('trigger_level') || 'middle';
     let totalCount = 0;
     
-    // 1. data.js에서 전체 개수 파악 (중등/고등 구분)
     if (wordsData[level]) {
         Object.values(wordsData[level]).forEach(week => {
             Object.values(week).forEach(day => {
@@ -543,13 +539,10 @@ function updateMasteredCount() {
         });
     }
 
-    // 2. 현재까지 완료한 Day의 단어 수 합산 (stats 기준)
     let stats = JSON.parse(localStorage.getItem(`trigger_stats_${level}`) || '{}');
     let mastered = 0;
     Object.keys(stats).forEach(dayNum => {
         if (stats[dayNum].progress === 100) {
-            // 해당 Day의 실제 단어 수를 가져와 합산
-            // (편의상 Day당 24개씩이라고 가정하거나 실제 길이를 계산)
             mastered += 24; 
         }
     });
