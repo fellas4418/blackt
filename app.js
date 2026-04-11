@@ -351,9 +351,9 @@ const counterHtml = `
             color: #666; 
             font-weight: 800;
             margin-bottom: 2px;
-        ">지금 외우는 단어</div>
+        ">지금 외우는 단어 순서</div>
         <div style="
-            font-size: 1rem; 
+            font-size: 1.5rem; 
             color: #aaa; 
             font-weight: bold;
         ">
