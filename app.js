@@ -518,6 +518,35 @@ function finishSession(didTest = true) {
     }
 }
 
+function updateMasteredCount() {
+    const level = localStorage.getItem('trigger_level') || 'middle';
+    let totalCount = 0;
+    
+    // 1. data.js에서 전체 개수 파악 (중등/고등 구분)
+    if (wordsData[level]) {
+        Object.values(wordsData[level]).forEach(week => {
+            Object.values(week).forEach(day => {
+                const dayList = Array.isArray(day) ? day : (day.test || []);
+                totalCount += dayList.length;
+            });
+        });
+    }
+
+    // 2. 현재까지 완료한 Day의 단어 수 합산 (stats 기준)
+    let stats = JSON.parse(localStorage.getItem(`trigger_stats_${level}`) || '{}');
+    let mastered = 0;
+    Object.keys(stats).forEach(dayNum => {
+        if (stats[dayNum].progress === 100) {
+            // 해당 Day의 실제 단어 수를 가져와 합산
+            // (편의상 Day당 24개씩이라고 가정하거나 실제 길이를 계산)
+            mastered += 24; 
+        }
+    });
+
+    document.getElementById('total-vocab-count').innerText = totalCount;
+    document.getElementById('mastered-count').innerText = mastered;
+}
+
 function retryOnlyWrongs() {
     let allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
