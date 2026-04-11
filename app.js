@@ -340,21 +340,36 @@ function updateUI(data, isTest = false) {
     const oldCounter = document.getElementById('session-counter');
     if (oldCounter) oldCounter.remove();
 
-    // 2. [진행 순서 카운터] 생성 - 세션 바(하늘색 선) 바로 아래 배치
-    const currentNum = currentIdx + 1;
-    const totalNum = targetWords.length;
-    const counterHtml = `
-        <div id="session-counter" style="
-            text-align: center; 
-            font-size: 0.8rem; 
-            color: #888; 
+    // 🚀 [진행 순서 카운터] 세련된 스타일로 변경
+const currentNum = currentIdx + 1;
+const totalNum = targetWords.length;
+
+// 분수 형태가 아닌 'STEP' 혹은 'WORD' 명칭 사용
+const counterHtml = `
+    <div id="session-counter" style="
+        text-align: center; 
+        margin-top: 12px; 
+        font-family: 'Pretendard', sans-serif;
+    ">
+        <span style="
+            font-size: 0.65rem; 
+            color: #555; 
+            letter-spacing: 2px; 
+            font-weight: 800;
+            text-transform: uppercase;
+        ">Progress</span>
+        <div style="
+            font-size: 0.9rem; 
+            color: #aaa; 
             font-weight: bold; 
-            margin-top: 8px; 
-            letter-spacing: 1px;
+            margin-top: 2px;
         ">
-            [ ${currentNum} / ${totalNum} ]
+            <span style="color: var(--neon-blue);">${currentNum}</span> 
+            <span style="color: #444; font-size: 0.7rem; margin: 0 2px;">/</span> 
+            ${totalNum}
         </div>
-    `;
+    </div>
+`;
     
     // 3. 헤더 영역 맨 뒤(세션 바 아래)에 카운터 삽입
     if (headerEl) {
