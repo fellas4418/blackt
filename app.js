@@ -340,32 +340,25 @@ function updateUI(data, isTest = false) {
     const oldCounter = document.getElementById('session-counter');
     if (oldCounter) oldCounter.remove();
 
-    // 🚀 [진행 순서 카운터] 세련된 스타일로 변경
+// 🚀 [진행 순서 카운터] 아이들 눈높이에 맞춘 한글화 스타일
 const currentNum = currentIdx + 1;
 const totalNum = targetWords.length;
 
-// 분수 형태가 아닌 'STEP' 혹은 'WORD' 명칭 사용
 const counterHtml = `
-    <div id="session-counter" style="
-        text-align: center; 
-        margin-top: 12px; 
-        font-family: 'Pretendard', sans-serif;
-    ">
-        <span style="
-            font-size: 0.65rem; 
-            color: #555; 
-            letter-spacing: 2px; 
-            font-weight: 800;
-            text-transform: uppercase;
-        ">Progress</span>
+    <div id="session-counter" style="text-align: center; margin-top: 10px; font-family: 'Pretendard', sans-serif;">
         <div style="
-            font-size: 0.9rem; 
+            font-size: 0.7rem; 
+            color: #666; 
+            font-weight: 800;
+            margin-bottom: 2px;
+        ">지금 외우는 단어</div>
+        <div style="
+            font-size: 1rem; 
             color: #aaa; 
-            font-weight: bold; 
-            margin-top: 2px;
+            font-weight: bold;
         ">
-            <span style="color: var(--neon-blue);">${currentNum}</span> 
-            <span style="color: #444; font-size: 0.7rem; margin: 0 2px;">/</span> 
+            <span style="color: var(--neon-blue); font-size: 1.2rem;">${currentNum}</span> 
+            <span style="color: #444; font-size: 0.8rem; margin: 0 3px;">/</span> 
             ${totalNum}
         </div>
     </div>
