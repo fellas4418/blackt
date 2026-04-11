@@ -504,10 +504,11 @@ function finishSession(didTest = true) {
     }
 
     if ((finishedNum >= totalSessions || currentSessionRaw === 'final') && didTest) {
-        // [최종 완료]
+        // [최종 완료] Day 5까지만 자동으로 다음 날짜를 열어줍니다.
         let unlocked = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
-        if (unlocked === currentDay) localStorage.setItem(`trigger_unlocked_day_${currentLevel}`, unlocked + 1);
-        
+        if (unlocked === currentDay && currentDay < 5) {
+        localStorage.setItem(`trigger_unlocked_day_${currentLevel}`, unlocked + 1);
+        }
         stats[currentDay].accuracy = accuracy;
         localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));
 
