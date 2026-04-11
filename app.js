@@ -433,35 +433,38 @@ function handleAnswer(isCorrect) {
 }
 
 function finishSession(didTest = true) {
-    // 현재 세션 번호를 숫자로 정확히 가져옴
+    // 1. 현재 상태값 정확히 가져오기
     let currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
     let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
     const isReviewDay = (localDay === 6 || localDay === 7);
     
-    // 🚀 진행률 계산 수정
+    // 2. 분모 설정 (평일 6, 주말 2)
     let totalSessions = isReviewDay ? 2 : 6;
-    let finishedSessionNum;
+    let finishedNum = 0;
 
+    // 3. 진행도 계산 (방금 끝낸 세션이 몇 번째인지)
     if (currentSessionRaw === 'final') {
-        finishedSessionNum = totalSessions; // 최후의 세션이면 무조건 100%
+        finishedNum = totalSessions;
     } else {
-        finishedSessionNum = parseInt(currentSessionRaw);
+        finishedNum = parseInt(currentSessionRaw);
     }
 
-    // 방금 끝낸 세션 기준 진행률 (1세션 끝내면 1/6 = 16%)
-    let progressPercent = Math.min(100, Math.floor((finishedSessionNum / totalSessions) * 100));
+    // 🚀 [중요] 6을 넘지 않도록 제한하고 정확한 퍼센트 계산
+    if (finishedNum > totalSessions) finishedNum = totalSessions;
+    let progressPercent = Math.floor((finishedNum / totalSessions) * 100);
     
-    // 리포트 및 진행률 바 업데이트
+    // 4. 리포트용 개별 데이터 저장
     localStorage.setItem(`trigger_progress_${currentLevel}_${currentDay}`, progressPercent);
 
+    // 5. 누적 리포트(stats) 업데이트
     let stats = JSON.parse(localStorage.getItem(`trigger_stats_${currentLevel}`) || '{}');
     if (!stats[currentDay]) stats[currentDay] = { progress: 0, accuracy: 0 };
-    
-    const accuracy = Math.floor((score / targetWords.length) * 100);
-    stats[currentDay].progress = progressPercent; 
+    stats[currentDay].progress = progressPercent;
 
-    // --- 이하 로직 동일 (중략) ---
+    const accuracy = Math.floor((score / targetWords.length) * 100);
+
+    // --- 통과/재시험 판정 및 다음 단계 설정 ---
     if (didTest && accuracy < 80 && (currentSessionRaw === '6' || (isReviewDay && currentSessionRaw === '2'))) {
         localStorage.setItem(`trigger_session_${currentLevel}`, 'final'); 
         showSystemMessage(`
@@ -473,7 +476,8 @@ function finishSession(didTest = true) {
         return;
     }
 
-    if ((parseInt(currentSessionRaw) >= 6 || (isReviewDay && parseInt(currentSessionRaw) >= 2) || currentSessionRaw === 'final') && didTest) {
+    if ((finishedNum >= totalSessions || currentSessionRaw === 'final') && didTest) {
+        // [최종 완료]
         let unlocked = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
         if (unlocked === currentDay) localStorage.setItem(`trigger_unlocked_day_${currentLevel}`, unlocked + 1);
         
@@ -482,11 +486,9 @@ function finishSession(didTest = true) {
 
         showSystemMessage(`<div style="text-align:center;"><div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold;">학습 완료! ${accuracy}%</div><button onclick="shareKakao()" style="width:100%; padding:16px; background:#fee500; border-radius:12px; margin-top:20px; border:none; font-weight:bold;">🟡 카톡 공유</button><button onclick="location.href='index.html'" style="margin-top:20px; background:none; border:none; color:#888; text-decoration:underline;">종료하기</button></div>`);
     } else {
-        // 다음 세션 번호 저장 (숫자일 때만 +1)
-        let nextSess = currentSessionRaw === 'final' ? 'final' : parseInt(currentSessionRaw) + 1;
-        localStorage.setItem(`trigger_session_${currentLevel}`, nextSess);
+        // [중간 세션 완료]
+        localStorage.setItem(`trigger_session_${currentLevel}`, finishedNum + 1);
         localStorage.setItem('blackt_cooldown', Date.now() + COOL_DOWN_TIME);
-        
         localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));
         
         showSystemMessage("세션 완료! 🔥");
