@@ -145,7 +145,7 @@ function initApp() {
         if (sessionTag) {
             let currentSessionVal = localStorage.getItem(`trigger_session_${currentLevel}`);
             if (currentSessionVal === 'final') {
-                sessionTag.innerText = `최후의 세션 1 / 1`;
+                sessionTag.innerText = `최후의 사이클 1 / 1`;
                 sessionTag.style.color = "var(--neon-orange)";
             } else if (isReviewDay) {
                 let sNum = parseInt(currentSessionVal) || 1;
@@ -346,17 +346,10 @@ const totalNum = targetWords.length;
 
 const counterHtml = `
     <div id="session-counter" style="text-align: center; margin-top: 10px; font-family: 'Pretendard', sans-serif;">
-        <div style="
-            font-size: 0.7rem; 
-            color: #666; 
-            font-weight: 800;
-            margin-bottom: 2px;
-        ">지금 외우는 단어 순서</div>
-        <div style="
-            font-size: 1.5rem; 
-            color: #aaa; 
-            font-weight: bold;
-        ">
+        <div style="font-size: 0.65rem; color: #555; font-weight: 800; margin-bottom: 2px; letter-spacing: 1px;">
+            CURRENT CYCLE PROGRESS
+        </div>
+        <div style="font-size: 1rem; color: #aaa; font-weight: bold;">
             <span style="color: var(--neon-blue); font-size: 1.2rem;">${currentNum}</span> 
             <span style="color: #444; font-size: 0.8rem; margin: 0 3px;">/</span> 
             ${totalNum}
@@ -500,7 +493,7 @@ function finishSession(didTest = true) {
         showSystemMessage(`
             <div style="text-align:center;">
                 <div style="font-size:1.5rem; color:var(--neon-orange); font-weight:bold;">아쉬운 점수! ${accuracy}%</div>
-                <button onclick="retryOnlyWrongs()" style="width:100%; padding:16px; background:var(--neon-blue); color:#fff; border-radius:12px; margin-top:20px; border:none; font-weight:bold;">최후의 세션 시작</button>
+                <button onclick="retryOnlyWrongs()" style="width:100%; padding:16px; background:var(--neon-blue); color:#fff; border-radius:12px; margin-top:20px; border:none; font-weight:bold;">최후의 사이클 시작</button>
             </div>
         `);
         return;
@@ -521,7 +514,7 @@ function finishSession(didTest = true) {
         localStorage.setItem('blackt_cooldown', Date.now() + COOL_DOWN_TIME);
         localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));
         
-        showSystemMessage("세션 완료! 🔥");
+        showSystemMessage("사이클 완료! 🔥");
         setTimeout(() => { location.href = 'index.html'; }, 2200);
     }
 }
@@ -567,7 +560,7 @@ function retryOnlyWrongs() {
 
     const sessionTag = document.getElementById('session-tag');
     if (sessionTag) {
-        sessionTag.innerText = `최후의 세션 1 / 1`;
+        sessionTag.innerText = `최후의 사이클 1 / 1`;
         sessionTag.style.color = "var(--neon-orange)";
     }
     
