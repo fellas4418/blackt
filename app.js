@@ -144,18 +144,22 @@ function initApp() {
 
         if (sessionTag) {
             let currentSessionVal = localStorage.getItem(`trigger_session_${currentLevel}`);
+            
             if (currentSessionVal === 'final') {
-                sessionTag.innerText = `최후의 사이클 1 / 1`;
+                // 최종 테스트 화면
+                sessionTag.innerText = `최종 테스트 사이클 🔥`;
                 sessionTag.style.color = "var(--neon-orange)";
             } else if (isReviewDay) {
+                // 주말 복습일 (2사이클)
                 let sNum = parseInt(currentSessionVal) || 1;
                 let displaySession = sNum >= 6 ? 2 : 1;
-                sessionTag.innerText = sNum > 6 ? `자유 복습 모드` : `Session ${displaySession} / 2 (주말복습)`;
-                sessionTag.style.color = ""; 
+                sessionTag.innerText = sNum > 6 ? `자유 복습 모드` : `${displaySession} / 2 사이클 (주말복습)`;
+                sessionTag.style.color = "";
             } else {
+                // 평일 정규 학습 (6사이클)
                 let sNum = parseInt(currentSessionVal) || 1;
-                sessionTag.innerText = sNum > 6 ? `자유 복습 모드` : `Session ${sNum} / 6`;
-                sessionTag.style.color = ""; 
+                sessionTag.innerText = sNum > 6 ? `자유 복습 모드` : `${sNum} / 6 사이클 진행 중`;
+                sessionTag.style.color = "";
             }
         }
 
