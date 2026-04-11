@@ -346,7 +346,7 @@ const totalNum = targetWords.length;
 
 const counterHtml = `
     <div id="session-counter" style="text-align: center; margin-top: 10px; font-family: 'Pretendard', sans-serif;">
-        <div style="font-size: 0.65rem; color: #555; font-weight: 800; margin-bottom: 2px; letter-spacing: 1px;">
+        <div style="font-size: 1.1rem; color: #555; font-weight: 800; margin-bottom: 2px; letter-spacing: 1px;">
             오늘의 단어 순서
         </div>
         <div style="font-size: 1rem; color: #aaa; font-weight: bold;">
