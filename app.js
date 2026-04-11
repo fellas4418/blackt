@@ -97,7 +97,12 @@ function initApp() {
         }
 
         if (!dayData) {
-            showSystemMessage(`Day ${currentDay}의<br>단어 데이터가 없습니다.`);
+            // 단순히 데이터가 없는 게 아니라, 설정한 최대치(3일)를 넘었을 때
+            if (currentDay > 3) {
+                showSystemMessage(`하루 최대 학습 가능 진도는<br>Day 3까지입니다. 내일 만나요! 👋`);
+            } else {
+                showSystemMessage(`Day ${currentDay} 데이터를<br>불러올 수 없습니다.`);
+            }
             setTimeout(() => { location.href = 'index.html'; }, 2000);
             return;
         }
@@ -506,7 +511,7 @@ function finishSession(didTest = true) {
     if ((finishedNum >= totalSessions || currentSessionRaw === 'final') && didTest) {
         // [최종 완료] Day 5까지만 자동으로 다음 날짜를 열어줍니다.
         let unlocked = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
-        if (unlocked === currentDay && currentDay < 5) {
+        if (unlocked === currentDay && currentDay < 3) {
         localStorage.setItem(`trigger_unlocked_day_${currentLevel}`, unlocked + 1);
         }
         stats[currentDay].accuracy = accuracy;
