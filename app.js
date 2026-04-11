@@ -489,8 +489,31 @@ function finishSession(didTest = true) {
     if (!stats[currentDay]) stats[currentDay] = { progress: 0, accuracy: 0 };
     stats[currentDay].progress = progressPercent;
 
-    const accuracy = Math.floor((score / targetWords.length) * 100);
+    // 🚀 [핵심 수정] 105% 버그 방지 로직
+    const level = currentLevel;
+    const allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+    
+    // 1. 현재 레벨/날짜에서 'isWrong'이 true인 단어만 필터링 (진짜 오답)
+    const stillWrongCount = allWrongs.filter(w => 
+        w.level === level && 
+        w.day === currentDay && 
+        w.isWrong === true
+    ).length;
 
+    // 2. 전체 단어 수 확정 (분모)
+    const totalCount = (todayWords && todayWords.length > 0) ? todayWords.length : targetWords.length;
+
+    // 3. 최종 맞춘 개수 = 전체 - 남은 오답
+    let finalCorrectCount = totalCount - stillWrongCount;
+
+    // 4. 방어 로직 (0 ~ totalCount 사이로 고정)
+    if (finalCorrectCount < 0) finalCorrectCount = 0;
+    if (finalCorrectCount > totalCount) finalCorrectCount = totalCount;
+
+    // 5. 정확도 계산 (상한선 100%)
+    const accuracy = Math.floor((finalCorrectCount / totalCount) * 100);
+
+    // --- 통과/재시험 판정 및 다음 단계 설정 ---
     if (didTest && accuracy < 80 && (currentSessionRaw === '6' || (isReviewDay && currentSessionRaw === '2'))) {
         localStorage.setItem(`trigger_session_${currentLevel}`, 'final'); 
         showSystemMessage(`
@@ -503,7 +526,6 @@ function finishSession(didTest = true) {
     }
 
     if ((finishedNum >= totalSessions || currentSessionRaw === 'final') && didTest) {
-        // 🚀 [수정] 오늘 시작 날짜 대비 최대 3일치까지만 다음 Day 자동 오픈
         let unlocked = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
         const startDayKey = `trigger_start_day_${currentLevel}_${today}`;
         const startDay = parseInt(localStorage.getItem(startDayKey)) || unlocked;
