@@ -761,14 +761,16 @@
                                 <div class="report-bar-bg"><div class="report-bar-fill" style="width: 100%; background:${color}; box-shadow: 0 0 5px ${color};"></div></div>
                             </div>`;
                 } else if (dayStat && dayStat.progress > 0 && !isReview) {
-                    let progPercent = Math.floor((dayStat.progress / 6) * 100);
-                    html += `<div style="margin-bottom: 18px;">
-                                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                                    <span>${dayLabel} <strong style="color:var(--neon-blue);">${dayStat.progress}/6 진행 중</strong></span>
-                                    <span style="color:#aaa; font-size:0.85rem;">진행률 ${progPercent}%</span>
-                                </div>
-                                <div class="report-bar-bg"><div class="report-bar-fill" style="width: ${progPercent}%; background:var(--neon-blue); box-shadow: 0 0 5px var(--neon-blue);"></div></div>
-                            </div>`;
+                    let progPercent = dayStat.progress >= 100 ? 100 : Math.floor((dayStat.progress / (isReview ? 2 : 6)) * 100);
+const statusText = dayStat.status || `${dayStat.progress}/${isReview ? 2 : 6} 진행 중`;
+
+html += `<div style="margin-bottom: 18px;">
+    <div style="display:flex; justify-content:center; justify-content:space-between; margin-bottom:5px;">
+        <span>${dayLabel} <strong style="color:var(--neon-blue);">${statusText}</strong></span>
+        <span style="color:#aaa; font-size:0.85rem;">진행률 ${progPercent}%</span>
+    </div>
+    <div class="report-bar-bg"><div class="report-bar-fill" style="width: ${progPercent}%; background:var(--neon-blue); box-shadow: 0 0 5px var(--neon-blue);"></div></div>
+</div>`;
                 } else {
                     html += `<div style="margin-bottom: 18px; opacity: 0.4;">
                                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
