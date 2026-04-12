@@ -237,17 +237,23 @@ function startStudy() {
             currentIdx = 0; 
             startStudy();
             return;
+        // ... 기존 startStudy 로직 끝부분 (단어 인덱스가 끝났을 때)
+    } else {
+        currentIdx = 0;
+        // 세션 값을 가져와서 '무조건' 숫자로 변환합니다.
+        const currentSession = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
+        const sNum = Number(currentSession); 
+
+        // 🚀 [보정] 3세션 끝났을 때(sNum === 3) 또는 6세션 끝났을 때(sNum === 6)
+        if (sNum === 3 || sNum === 6 || currentSession === 'final') {
+            startCountdown("곧 테스트를 시작합니다.", startTest); 
         } else {
-            currentIdx = 0;
-            const currentSession = localStorage.getItem(`trigger_session_${currentLevel}`);
-            if (currentSession === '3' || currentSession === '6' || currentSession === 'final' || parseInt(currentSession) > 6) {
-                startCountdown("곧 테스트를 시작합니다.", startTest); 
-            } else {
-                finishSession(false);
-            }
-            return;
+            // 그 외(1, 2, 4, 5바퀴)에는 쿨타임 창을 띄우고 다음 바퀴로 저장
+            finishSession(false);
         }
+        return;
     }
+}
 
     const data = targetWords[currentIdx];
     updateUI(data); 
