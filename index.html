@@ -100,14 +100,14 @@
         <div class="login-card" style="border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.3); width: 90%; max-width: 400px; text-align:left;">
             <div style="font-size: 1.4rem; font-weight: bold; color: #fff; margin-bottom: 20px; text-align:center;">🧠 뇌과학 학습 시스템 안내</div>
             <div style="color: #ddd; font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px;">
-                <p><strong style="color:var(--neon-blue);">1. 6세션 반복 루틴</strong><br>
+                <p><strong style="color:var(--neon-blue);">1. 6사이클 반복 루틴</strong><br>
                 하루 목표 단어를 총 6번 반복합니다.<br>
-                - <span style="color:#aaa;">세션 1~5:</span> 단어와 뜻, 발음을 눈과 귀로 익힙니다.<br>
-                - <span style="color:#aaa;">세션 6:</span> 최종 객관식 테스트를 봅니다.</p>
+                - <span style="color:#aaa;">사이클 1~5:</span> 단어와 뜻, 발음을 눈과 귀로 익힙니다.<br>
+                - <span style="color:#aaa;">사이클 6:</span> 최종 객관식 테스트를 봅니다.</p>
                 <p><strong style="color:var(--neon-orange);">2. 3분 쿨타임 (장기기억 전환)</strong><br>
-                한 세션이 끝나면 뇌가 단어를 깊게 저장하도록 <strong>3분간 강제 휴식</strong>이 부여됩니다.</p>
+                한 사이클이 끝나면 뇌가 단어를 깊게 저장하도록 <strong>3분간 강제 휴식</strong>이 부여됩니다.</p>
                 <p><strong style="color:var(--neon-green);">3. 5+2 주말 복습</strong><br>
-                5일 동안 새 단어를 배우고, 6일차/7일차는 진도 없이 <strong>딱 2세션</strong>으로 빠르게 오답 및 전체 누적 복습만 진행합니다.</p>
+                5일 동안 새 단어를 배우고, 6일차/7일차는 진도 없이 <strong>딱 2사이클</strong>로 빠르게 오답 및 전체 누적 복습만 진행합니다.</p>
             </div>
             <button class="login-btn" style="border-color: #fff; color: #000; background: #fff; box-shadow: none;" onclick="document.getElementById('guide-modal').style.display='none'">확인했습니다</button>
         </div>
@@ -234,8 +234,8 @@
             <div id="admin-menu" style="display: none; text-align: center; margin: 30px auto; border: 2px dashed var(--neon-orange); padding: 20px; flex-direction: column; gap: 12px; align-items: center; background: rgba(255,153,0,0.05); border-radius: 15px; width: 90%;">
                 <p style="color:var(--neon-orange); font-size:0.9rem; margin:0; font-weight:bold;">🛠️ 개발자 테스트 모드</p>
                 <div style="display:flex; gap:10px; width: 100%;">
-                    <button onclick="jumpToSession(3)" style="flex:1; background: #222; border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight:bold;">⏩ 세션 3 점프</button>
-                    <button onclick="jumpToSession(6)" style="flex:1; background: #222; border: 1px solid var(--neon-orange); color: var(--neon-orange); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight:bold;">🔥 세션 6 점프</button>
+                    <button onclick="jumpToSession(3)" style="flex:1; background: #222; border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight:bold;">⏩ 사이클 3 점프</button>
+                    <button onclick="jumpToSession(6)" style="flex:1; background: #222; border: 1px solid var(--neon-orange); color: var(--neon-orange); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight:bold;">🔥 사이클클 6 점프</button>
                     <button onclick="jumpToFinish()" style="flex:1; background: #222; border: 1px solid var(--neon-green); color: var(--neon-green); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight:bold;">🏁 즉시 완수(결과창)</button>
                 </div>
                 <button onclick="localStorage.removeItem('blackt_cooldown'); alert('⏳ 쿨타임 삭제 완료!'); location.reload();" style="background: #111; border: 1px solid var(--neon-green); color: var(--neon-green); padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%;">
@@ -366,7 +366,7 @@
                 localStorage.setItem('trigger_jump_test', 'true');
             }
             
-            alert(`🚀 세션 ${sessionNum}으로 이동했습니다! [학습 시작하기]를 눌러보세요.`);
+            alert(`🚀 사이클 ${sessionNum}로 이동했습니다! [학습 시작하기]를 눌러보세요.`);
             location.reload();
         }
 
@@ -755,7 +755,7 @@
                     let color = accuracy >= 80 ? "var(--neon-green)" : "var(--neon-orange)";
                     html += `<div style="margin-bottom: 18px;">
                                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                                    <span>${dayLabel} <strong style="color:var(--neon-green);">6/6 세션 완료</strong></span>
+                                    <span>${dayLabel} <strong style="color:var(--neon-green);">6/6 사이클 완료</strong></span>
                                     <span style="color:${color}; font-weight:bold; font-size:0.9rem;">${isReview ? '복습 완료' : `정답률 ${accuracy}%`}</span>
                                 </div>
                                 <div class="report-bar-bg"><div class="report-bar-fill" style="width: 100%; background:${color}; box-shadow: 0 0 5px ${color};"></div></div>
@@ -945,7 +945,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
             if (Notification.permission !== 'granted') return;
             const title = "🧠 에너지 회복 완료!";
             const options = {
-                body: "3분이 지났습니다. 다음 세션을 시작해 보세요! 🔥",
+                body: "3분이 지났습니다. 다음 사이클을 시작해 보세요! 🔥",
                 icon: "icon-192.png",
                 vibrate: [200, 100, 200],
                 tag: "recovery-done"

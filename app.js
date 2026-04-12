@@ -80,7 +80,6 @@ function initApp() {
 
         const today = new Date().toLocaleDateString();
         
-        // 🚀 [추가] 오늘 처음 시작한 Day 기준점 설정 (하루 최대 3일치 제한용)
         const startDayKey = `trigger_start_day_${currentLevel}_${today}`;
         if (!localStorage.getItem(startDayKey)) {
             const currentUnlocked = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
@@ -105,7 +104,6 @@ function initApp() {
             dayData = wordsData[currentLevel]["week" + week][String(localDay)];
         }
 
-        // 🚀 [수정] 데이터 체크 및 하루 3일치 진도 제한 메시지
         if (!dayData || (startDay && currentDay >= startDay + 3)) {
             if (startDay && currentDay >= startDay + 3) {
                 showSystemMessage(`뇌의 휴식이 필요합니다! 🧠<br>하루 최대 3일치까지만 학습 가능합니다.<br>내일 이어서 완주해 볼까요?`);
@@ -116,7 +114,8 @@ function initApp() {
             return;
         }
 
-        const isReviewDay = (localDay === 6 || localDay === 7);
+        // 🚀 [수정 핵심] 실제 요일이 아닌 Day 숫자 기반으로 복습 판정
+        const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
 
         if (isReviewDay) {
             let allReviewWords = [];
@@ -129,9 +128,9 @@ function initApp() {
             }
 
             const halfIndex = Math.ceil(allReviewWords.length / 2);
-            if (localDay === 6) {
+            if (currentDay % 7 === 6) {
                 todayWords = allReviewWords.slice(0, halfIndex);
-            } else if (localDay === 7) {
+            } else if (currentDay % 7 === 0) {
                 todayWords = allReviewWords.slice(halfIndex);
             }
         } else {
@@ -467,8 +466,9 @@ function handleAnswer(isCorrect) {
 function finishSession(didTest = true) {
     let currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
-    let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
-    const isReviewDay = (localDay === 6 || localDay === 7);
+    
+    // 🚀 [수정] Day 숫자 기준으로 복습일 판정
+    const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
     const today = new Date().toLocaleDateString();
     
     let totalSessions = isReviewDay ? 2 : 6;
@@ -489,31 +489,19 @@ function finishSession(didTest = true) {
     if (!stats[currentDay]) stats[currentDay] = { progress: 0, accuracy: 0 };
     stats[currentDay].progress = progressPercent;
 
-    // 🚀 [핵심 수정] 105% 버그 방지 로직
+    let currentSessionDisplay = finishedNum >= totalSessions ? "완료 👑" : `${finishedNum} / ${totalSessions} 사이클`;
+    stats[currentDay].status = currentSessionDisplay;
+
     const level = currentLevel;
     const allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
-    
-    // 1. 현재 레벨/날짜에서 'isWrong'이 true인 단어만 필터링 (진짜 오답)
-    const stillWrongCount = allWrongs.filter(w => 
-        w.level === level && 
-        w.day === currentDay && 
-        w.isWrong === true
-    ).length;
-
-    // 2. 전체 단어 수 확정 (분모)
+    const stillWrongCount = allWrongs.filter(w => w.level === level && w.day === currentDay && w.isWrong === true).length;
     const totalCount = (todayWords && todayWords.length > 0) ? todayWords.length : targetWords.length;
-
-    // 3. 최종 맞춘 개수 = 전체 - 남은 오답
     let finalCorrectCount = totalCount - stillWrongCount;
 
-    // 4. 방어 로직 (0 ~ totalCount 사이로 고정)
     if (finalCorrectCount < 0) finalCorrectCount = 0;
     if (finalCorrectCount > totalCount) finalCorrectCount = totalCount;
-
-    // 5. 정확도 계산 (상한선 100%)
     const accuracy = Math.floor((finalCorrectCount / totalCount) * 100);
 
-    // --- 통과/재시험 판정 및 다음 단계 설정 ---
     if (didTest && accuracy < 80 && (currentSessionRaw === '6' || (isReviewDay && currentSessionRaw === '2'))) {
         localStorage.setItem(`trigger_session_${currentLevel}`, 'final'); 
         showSystemMessage(`
