@@ -230,6 +230,7 @@ function togglePause() {
     }
 }
 
+// 🚀 앱 프리즈(멈춤) 원인이었던 괄호 에러 완벽 수정!
 function startStudy() {
     if (currentIdx >= targetWords.length) {
         if (studyLoopCount < 2) {
@@ -237,23 +238,21 @@ function startStudy() {
             currentIdx = 0; 
             startStudy();
             return;
-        // ... 기존 startStudy 로직 끝부분 (단어 인덱스가 끝났을 때)
-    } else {
-        currentIdx = 0;
-        // 세션 값을 가져와서 '무조건' 숫자로 변환합니다.
-        const currentSession = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
-        const sNum = Number(currentSession); 
-
-        // 🚀 [보정] 3세션 끝났을 때(sNum === 3) 또는 6세션 끝났을 때(sNum === 6)
-        if (sNum === 3 || sNum === 6 || currentSession === 'final') {
-            startCountdown("곧 테스트를 시작합니다.", startTest); 
         } else {
-            // 그 외(1, 2, 4, 5바퀴)에는 쿨타임 창을 띄우고 다음 바퀴로 저장
-            finishSession(false);
+            currentIdx = 0;
+            // 세션 값을 가져와서 '무조건' 숫자로 변환
+            const currentSession = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
+            const sNum = Number(currentSession); 
+
+            // 🚀 3세션 끝났을 때 또는 6세션 끝났을 때 무조건 테스트 실행!
+            if (sNum === 3 || sNum === 6 || currentSession === 'final') {
+                startCountdown("곧 테스트를 시작합니다.", startTest); 
+            } else {
+                finishSession(false);
+            }
+            return;
         }
-        return;
     }
-}
 
     const data = targetWords[currentIdx];
     updateUI(data); 
@@ -473,7 +472,6 @@ function finishSession(didTest = true) {
     let currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
     
-    // 🚀 [수정] Day 숫자 기준으로 복습일 판정
     const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
     const today = new Date().toLocaleDateString();
     

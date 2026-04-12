@@ -235,8 +235,8 @@
                 <p style="color:var(--neon-orange); font-size:0.9rem; margin:0; font-weight:bold;">🛠️ 개발자 테스트 모드</p>
                 <div style="display:flex; gap:10px; width: 100%;">
                     <button onclick="jumpToSession(3)" style="flex:1; background: #222; border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight:bold;">⏩ 사이클 3 점프</button>
-                    <button onclick="jumpToSession(6)" style="flex:1; background: #222; border: 1px solid var(--neon-orange); color: var(--neon-orange); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight:bold;">🔥 사이클클 6 점프</button>
-                    <button onclick="jumpToFinish()" style="flex:1; background: #222; border: 1px solid var(--neon-green); color: var(--neon-green); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight:bold;">🏁 즉시 완수(결과창)</button>
+                    <button onclick="jumpToSession(6)" style="flex:1; background: #222; border: 1px solid var(--neon-orange); color: var(--neon-orange); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight:bold;">🔥 사이클 6 점프</button>
+                    <button onclick="jumpToFinish()" style="flex:1; background: #222; border: 1px solid var(--neon-green); color: var(--neon-green); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight:bold;">🏁 즉시 완수</button>
                 </div>
                 <button onclick="localStorage.removeItem('blackt_cooldown'); alert('⏳ 쿨타임 삭제 완료!'); location.reload();" style="background: #111; border: 1px solid var(--neon-green); color: var(--neon-green); padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%;">
                     ⚡ 쿨타임(3분 휴식) 즉시 삭제
@@ -726,6 +726,7 @@
             document.getElementById('all-words-modal').style.display = 'flex';
         }
 
+        // 🚀 누적 학습 리포트 출력 함수 (에러 완벽 수정)
         function showWeeklyReport(requestedLevel) {
             const currentLevel = requestedLevel || localStorage.getItem('trigger_level') || 'middle';
             const stats = JSON.parse(localStorage.getItem(`trigger_stats_${currentLevel}`) || '{}');
@@ -748,43 +749,42 @@
                 let isReview = (i % 7 === 6 || i % 7 === 0);
                 let dayLabel = isReview ? `Day ${i} (복습)` : `Day ${i}`;
                 let dayStat = stats[i];
-                if (typeof dayStat === 'number') { dayStat = { progress: 6, accuracy: dayStat }; }
 
-                if(dayStat && dayStat.progress >= 6) {
-                    // [755번 라인부터 771번 라인까지 교체]
-let accuracy = dayStat.accuracy || 0;
-let color = accuracy >= 80 ? "var(--neon-green)" : "var(--neon-orange)";
+                // 과거 데이터(숫자형 진행도 1~6) 호환 로직
+                if (dayStat) {
+                    if (typeof dayStat === 'number') { 
+                        dayStat = { progress: 100, accuracy: dayStat, status: "완료 👑" }; 
+                    } else if (dayStat.progress > 0 && dayStat.progress <= 6) {
+                        let totalS = isReview ? 2 : 6;
+                        let p = dayStat.progress > totalS ? totalS : dayStat.progress;
+                        dayStat.progress = Math.floor((p / totalS) * 100);
+                        dayStat.status = p >= totalS ? "완료 👑" : `${p} / ${totalS} 사이클`;
+                    }
+                }
 
-// 🚀 핵심: 100%가 아닐 때는 무조건 status에 저장된 "1 / 6 사이클" 등을 보여줌
-const isFinished = dayStat.progress >= 100;
-const statusText = isFinished ? "6/6 사이클 완료" : (dayStat.status || `${dayStat.progress}% 진행 중`);
+                if (!dayStat || !dayStat.progress) {
+                    // 미진행 상태
+                    html += `<div style="margin-bottom: 18px; opacity: 0.4;">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                                    <span>${dayLabel} <strong style="color:#666;">미진행</strong></span><span>-</span>
+                                </div>
+                                <div class="report-bar-bg"></div>
+                            </div>`;
+                } else {
+                    let accuracy = dayStat.accuracy || 0;
+                    let color = accuracy >= 80 ? "var(--neon-green)" : "var(--neon-orange)";
+                    const isFinished = dayStat.progress >= 100;
+                    const statusText = dayStat.status || (isFinished ? "완료 👑" : `${dayStat.progress}% 진행 중`);
 
-if(isFinished) {
-    html += `<div style="margin-bottom: 18px;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                    <span>${dayLabel} <strong style="color:var(--neon-green);">${statusText}</strong></span>
-                    <span style="color:${color}; font-weight:bold; font-size:0.9rem;">${isReview ? '복습 완료' : `정답률 ${accuracy}%`}</span>
-                </div>
-                <div class="report-bar-bg"><div class="report-bar-fill" style="width: 100%; background:${color}; box-shadow: 0 0 5px ${color};"></div></div>
-            </div>`;
-} else if (dayStat.progress > 0) {
-    // 진행 중인 경우: app.js에서 저장한 "1 / 6 사이클" 문구를 그대로 출력
-    html += `<div style="margin-bottom: 18px;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                    <span>${dayLabel} <strong style="color:var(--neon-blue);">${statusText}</strong></span>
-                    <span style="color:#aaa; font-size:0.85rem;">진행률 ${dayStat.progress}%</span>
-                </div>
-                <div class="report-bar-bg"><div class="report-bar-fill" style="width: ${dayStat.progress}%; background:var(--neon-blue); box-shadow: 0 0 5px var(--neon-blue);"></div></div>
-            </div>`;
-} else {
-    // 미진행 상태
-    html += `<div style="margin-bottom: 18px; opacity: 0.4;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                    <span>${dayLabel} <strong style="color:#666;">미진행</strong></span><span>-</span>
-                </div>
-                <div class="report-bar-bg"></div>
-            </div>`;
-}
+                    // 진행 상태 출력 (완료 vs 진행 중)
+                    html += `<div style="margin-bottom: 18px;">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                                    <span>${dayLabel} <strong style="color:${isFinished ? 'var(--neon-green)' : 'var(--neon-blue)'};">${statusText}</strong></span>
+                                    <span style="color:${isFinished ? color : '#aaa'}; font-weight:bold; font-size:0.85rem;">${isFinished ? (isReview ? '복습 완료' : `정답률 ${accuracy}%`) : `진행률 ${dayStat.progress}%`}</span>
+                                </div>
+                                <div class="report-bar-bg"><div class="report-bar-fill" style="width: ${dayStat.progress}%; background:${isFinished ? color : 'var(--neon-blue)'}; box-shadow: 0 0 5px ${isFinished ? color : 'var(--neon-blue)'};"></div></div>
+                            </div>`;
+                }
             }
             listContainer.innerHTML = html;
             document.getElementById('report-modal').style.display = 'flex';
@@ -864,7 +864,6 @@ if(isFinished) {
         let deferredPrompt;
         const installBtn = document.getElementById('install-app-btn');
 
-        // 🚀 카톡 대응 및 설치 버튼 강제 제어 로직
         function handleKakaoAndInstall() {
             const savedName = localStorage.getItem('trigger_name');
             const isKakao = /KAKAO/i.test(navigator.userAgent);
@@ -872,7 +871,6 @@ if(isFinished) {
             const splash = document.getElementById('splash-screen');
             const modal = document.getElementById('login-modal');
 
-            // 1. 가입창 강제 노출 (신규 유저)
             if (!savedName || savedName === "null" || savedName === "") {
                 if (splash) splash.style.display = 'none';
                 if (modal) {
@@ -880,10 +878,9 @@ if(isFinished) {
                     modal.style.setProperty('z-index', '30000', 'important');
                     modal.style.opacity = '1';
                 }
-                return; // 가입 전에는 설치 버튼 안 보여줌
+                return; 
             }
 
-            // 2. 카톡 브라우저일 때 -> 주황색 탈출 버튼 노출
             if (isKakao && installBtn) {
                 installBtn.style.setProperty('display', 'block', 'important');
                 installBtn.style.backgroundColor = 'rgba(255, 153, 0, 0.15)';
@@ -902,7 +899,6 @@ if(isFinished) {
                 `;
                 installBtn.onclick = null;
             } 
-            // 3. 외부 브라우저이면서 아직 앱 설치 안 한 경우 -> 파란색 설치 버튼 "강제" 노출
             else if (!isKakao && !isStandalone && installBtn) {
                 installBtn.style.setProperty('display', 'block', 'important');
                 installBtn.style.backgroundColor = 'rgba(0, 243, 255, 0.05)';
@@ -917,29 +913,25 @@ if(isFinished) {
                         if (outcome === 'accepted') installBtn.style.display = 'none';
                         deferredPrompt = null;
                     } else {
-                        // 신호가 없을 때 버튼을 누르면 수동 안내 (아이폰/일부 안드로이드 대응)
                         alert("우측 상단 [점 3개] 혹은 하단 [공유 버튼]을 눌러 '홈 화면에 추가'를 선택해 주세요!");
                     }
                 };
             }
         }
-//// 1. 브라우저 설치 신호 대기
-window.addEventListener('beforeinstallprompt', (e) => {
+
+        window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
         });
 
-        // 2. 설치 완료 시 처리 (설치 버튼만 숨김)
         window.addEventListener('appinstalled', () => {
             if (installBtn) installBtn.style.display = 'none';
             deferredPrompt = null;
             console.log("앱 설치 완료");
         });
 
-        // 3. 알림 관련 함수들
         async function requestNotificationPermission() {
             if (!('Notification' in window)) return;
-            // 브라우저 보안 정책상 반드시 '사용자 클릭' 내부에서 실행되어야 팝업이 뜹니다.
             if (Notification.permission === 'default') {
                 try {
                     await Notification.requestPermission();
@@ -965,12 +957,10 @@ window.addEventListener('beforeinstallprompt', (e) => {
             }
         }
 
-        // 4. 초기 실행 (DOM 로드 직후)
         window.addEventListener('DOMContentLoaded', () => {
             handleKakaoAndInstall();
         });
 
-        // 5. 페이지 로딩 후 처리
         window.addEventListener('load', () => {
             const savedName = localStorage.getItem('trigger_name');
             const splash = document.getElementById('splash-screen');
@@ -990,7 +980,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
             checkLoginStatus();
             selectLevel(localStorage.getItem('trigger_level') || 'middle');
 
-            // 쿨타임 종료 알림 예약
             const cooldownTime = localStorage.getItem('blackt_cooldown');
             if (cooldownTime) {
                 const remaining = parseInt(cooldownTime) - Date.now();
@@ -1000,15 +989,15 @@ window.addEventListener('beforeinstallprompt', (e) => {
             }
         });
 
-        // 🚀 [핵심 수정] 가입 버튼 클릭 시 알림 권한 팝업을 강제로 띄웁니다.
-        // 이 로직이 있어야 아이들이 '시작하기'를 누를 때 알림 허용창이 뜹니다.
-        const originalHandleLogin = handleLogin;
-        handleLogin = async function() {
-            await requestNotificationPermission(); // 클릭 시점에 권한 요청 (보안 통과)
-            await originalHandleLogin(); // 기존 가입 로직 실행
-        };
+        // 가입 로직 오류 방지 안전 설계
+        async function secureHandleLogin() {
+            await requestNotificationPermission();
+            await handleLogin();
+        }
+        document.getElementById('login-submit-btn').onclick = secureHandleLogin;
+
     </script>
     <script src="js/words.js"></script>
-    <script src="js/app.js?v=20260412_03"></script>
+    <script src="js/app.js?v=20260413_01"></script>
 </body>
 </html>
