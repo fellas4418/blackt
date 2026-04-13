@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
     <style>
-        /* 세로형 에너지 슬롯 전용 스타일 */
+        /* 좌측 상단 세로형 에너지 슬롯 스타일 */
         .energy-slot-vert { 
             width: 6px; 
             height: 25px; 
@@ -34,8 +34,14 @@
         </div>
 
         <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 8px; align-items: center; z-index: 100;">
-            <button id="pause-btn" onclick="togglePause()" style="background: transparent; border: 1px solid var(--neon-blue); color: #fff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">⏸ 일시중지</button>
-            <button id="exit-btn" onclick="location.href='index.html'" style="display: none; background: transparent; border: 1px solid var(--neon-orange); color: #ffffff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">나가기</button>
+            <button id="pause-btn" onclick="togglePause()" 
+                style="background: transparent; border: 1px solid var(--neon-blue); color: #fff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">
+                ⏸ 일시중지
+            </button>
+            <button id="exit-btn" onclick="location.href='index.html'" 
+                style="display: none; background: transparent; border: 1px solid var(--neon-orange); color: #ffffff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">
+                나가기
+            </button>
             <button id="mute-toggle-btn" onclick="toggleMute()" style="background: transparent; border: none; font-size: 1.1rem; cursor: pointer; margin-left: 3px;">🔊</button>
         </div>
         
@@ -57,7 +63,7 @@
         window.wordsData = typeof wordsData !== 'undefined' ? wordsData : { middle: {}, high: {} };
     </script>
     
-    <script src="js/app.js?v=20260414_final"></script>
+    <script src="app.js"></script>
     
     <script>
         if ('serviceWorker' in navigator) {
