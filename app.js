@@ -67,7 +67,7 @@ function wakeUpTTS() {
     window.speechSynthesis.speak(dummy);
 }
 
-// [수정] 안내 팝업 제어 함수 (이름 통일 및 기록 로직 강화)
+// [수정] 안내 팝업 제어 함수
 function openGuide() {
     const modal = document.getElementById('guide-modal');
     if (modal) modal.style.display = 'flex';
@@ -77,16 +77,21 @@ function closeGuide() {
     const modal = document.getElementById('guide-modal');
     if (modal) {
         modal.style.display = 'none';
-        // index.html과 동일한 키값으로 기록
         localStorage.setItem('hasSeenGuide_2026', 'true');
     }
 }
 
+// [핵심 수정] 중복 실행 방지 플래그 추가
+let isAppInitialized = false;
+
 function initApp() {
+    if (isAppInitialized) return; // 이미 실행되었다면 중단
+    isAppInitialized = true;
+
     wakeUpTTS(); 
     
-    // [핵심 수정] app.js 내의 자동 팝업 로직 삭제 (index.html 로직과 충돌 방지)
-    // 이제 팝업은 index.html의 window.load 이벤트에서만 딱 한 번 통제합니다.
+    // [핵심 수정] app.js 내의 자동 팝업 로직은 완전히 삭제함
+    // 안내 팝업은 index.html의 로직으로만 통제됩니다.
 
     try {
         const sessionTag = document.getElementById('session-tag'); 
@@ -643,7 +648,8 @@ function jumpToFinish() {
     location.reload();
 }
 
-if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
+// [핵심 수정] 중복 실행 방지: index.html에서 이미 호출하므로 여기서는 삭제함
+// if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
 
 let adminClickCount = 0;
 let adminTimer = null;
