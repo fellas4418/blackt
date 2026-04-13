@@ -1026,6 +1026,14 @@
                         setTimeout(() => splash.style.display = 'none', 500);
                     }, 1200);
                     sessionStorage.setItem('splash_shown', 'true');
+                    // --- 여기부터 추가 ---
+                    const hasSeenGuide = localStorage.getItem('hasSeenGuide_2026'); // 이름을 JS와 똑같이 맞춤!
+if (!hasSeenGuide) {
+    setTimeout(() => {
+        openGuide();
+    }, 1800);
+}
+        // --- 여기까지 추가 ---
                 }
             }
             
