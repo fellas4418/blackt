@@ -67,7 +67,7 @@ function wakeUpTTS() {
     window.speechSynthesis.speak(dummy);
 }
 
-// [수정] 안내 팝업 제어 함수 추가
+// [수정] 안내 팝업 제어 함수 (이름 통일 및 기록 로직 강화)
 function openGuide() {
     const modal = document.getElementById('guide-modal');
     if (modal) modal.style.display = 'flex';
@@ -75,18 +75,18 @@ function openGuide() {
 
 function closeGuide() {
     const modal = document.getElementById('guide-modal');
-    if (modal) modal.style.display = 'none';
-    localStorage.setItem('hasSeenGuide_2026', 'true');
+    if (modal) {
+        modal.style.display = 'none';
+        // index.html과 동일한 키값으로 기록
+        localStorage.setItem('hasSeenGuide_2026', 'true');
+    }
 }
 
 function initApp() {
     wakeUpTTS(); 
     
-    // [수정] 최초 1회 안내 팝업 노출 로직
-    const hasSeenGuide = localStorage.getItem('hasSeenGuide_2026');
-    if (!hasSeenGuide) {
-        setTimeout(openGuide, 1500);
-    }
+    // [핵심 수정] app.js 내의 자동 팝업 로직 삭제 (index.html 로직과 충돌 방지)
+    // 이제 팝업은 index.html의 window.load 이벤트에서만 딱 한 번 통제합니다.
 
     try {
         const sessionTag = document.getElementById('session-tag'); 
@@ -250,7 +250,6 @@ function togglePause() {
 }
 
 function startStudy() {
-    // [수정] 1사이클 내 1회/2회 반복 에너지 슬롯 연동
     const slot1 = document.getElementById('slot-1');
     const slot2 = document.getElementById('slot-2');
     
