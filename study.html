@@ -7,18 +7,18 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
     <style>
-        /* 좌측 상단 세로형 에너지 슬롯 스타일 */
+        /* [수정] 납작하고 세련된 세로 배열 + 퍼플 색상 적용 */
         .energy-slot-vert { 
-            width: 6px; 
-            height: 25px; 
+            width: 26px; /* 가로로 납작하게 */
+            height: 6px; /* 세로로 얇게 */
             background: #222; 
             border: 1px solid #333; 
             border-radius: 3px; 
             transition: all 0.3s ease; 
         }
         .energy-slot-vert.active { 
-            background: var(--neon-blue); 
-            box-shadow: 0 0 10px var(--neon-blue); 
+            background: var(--neon-purple); /* 진행바(파란색)와 대비되는 보라색 */
+            box-shadow: 0 0 10px var(--neon-purple); 
             border-color: #fff; 
         }
     </style>
@@ -34,14 +34,8 @@
         </div>
 
         <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 8px; align-items: center; z-index: 100;">
-            <button id="pause-btn" onclick="togglePause()" 
-                style="background: transparent; border: 1px solid var(--neon-blue); color: #fff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">
-                ⏸ 일시중지
-            </button>
-            <button id="exit-btn" onclick="location.href='index.html'" 
-                style="display: none; background: transparent; border: 1px solid var(--neon-orange); color: #ffffff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">
-                나가기
-            </button>
+            <button id="pause-btn" onclick="togglePause()" style="background: transparent; border: 1px solid var(--neon-blue); color: #fff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">⏸ 일시중지</button>
+            <button id="exit-btn" onclick="location.href='index.html'" style="display: none; background: transparent; border: 1px solid var(--neon-orange); color: #ffffff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">나가기</button>
             <button id="mute-toggle-btn" onclick="toggleMute()" style="background: transparent; border: none; font-size: 1.1rem; cursor: pointer; margin-left: 3px;">🔊</button>
         </div>
         
@@ -63,7 +57,7 @@
         window.wordsData = typeof wordsData !== 'undefined' ? wordsData : { middle: {}, high: {} };
     </script>
     
-    <script src="app.js"></script>
+    <script src="js/app.js"></script>
     
     <script>
         if ('serviceWorker' in navigator) {
