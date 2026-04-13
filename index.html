@@ -332,40 +332,22 @@
     <div id="print-area" style="display:none; padding:20px; background:#fff; color:#000;"></div>
 
     <script>
-       function closeGuide() {
-            const modal = document.getElementById('guide-modal');
-            if (modal) {
-                modal.style.display = 'none';
-                localStorage.setItem('hasSeenGuide_2026', 'true');
-            }
-        }
-
+        // 안내 팝업 열기
         function openGuide() {
-            const modal = document.getElementById('guide-modal');
-            if (modal) modal.style.display = 'flex';
+            document.getElementById('guide-modal').style.display = 'flex';
         }
 
+        // 안내 팝업 닫기 (localStorage 기록)
+        function closeGuide() {
+            document.getElementById('guide-modal').style.display = 'none';
+            localStorage.setItem('hasSeenGuide_2026', 'true');
+        }
+
+        // 페이지 로드 시 최초 1회 체크
         window.addEventListener('load', () => {
-            const savedName = localStorage.getItem('trigger_name');
-            const splash = document.getElementById('splash-screen');
-
-            // 스플래시 제어
-            if (splash && savedName && savedName !== "null") {
-                if (sessionStorage.getItem('splash_shown')) {
-                    splash.style.display = 'none';
-                } else {
-                    setTimeout(() => {
-                        splash.style.opacity = '0';
-                        setTimeout(() => splash.style.display = 'none', 500);
-                    }, 1200);
-                    sessionStorage.setItem('splash_shown', 'true');
-                }
-            }
-
-            // 최초 1회 안내 제어
             const hasSeenGuide = localStorage.getItem('hasSeenGuide_2026');
             if (!hasSeenGuide) {
-                setTimeout(openGuide, 1800);
+                setTimeout(openGuide, 1500); // 스플래시 이후 자연스럽게 노출
             }
         });
 
@@ -997,6 +979,7 @@
         window.addEventListener('appinstalled', () => {
             if (installBtn) installBtn.style.display = 'none';
             deferredPrompt = null;
+            console.log("앱 설치 완료");
         });
 
         async function requestNotificationPermission() {
@@ -1030,26 +1013,10 @@
             handleKakaoAndInstall();
         });
 
-        /* --- [팝업 및 앱 제어 통합 스크립트] --- */
-        function closeGuide() {
-            const modal = document.getElementById('guide-modal');
-            if (modal) {
-                modal.style.display = 'none';
-                localStorage.setItem('hasSeenGuide_2026', 'true');
-                console.log("안내 확인 기록 완료");
-            }
-        }
-
-        function openGuide() {
-            const modal = document.getElementById('guide-modal');
-            if (modal) modal.style.display = 'flex';
-        }
-
         window.addEventListener('load', () => {
             const savedName = localStorage.getItem('trigger_name');
             const splash = document.getElementById('splash-screen');
-
-            // 1. 스플래시 화면 제어
+            
             if (splash && savedName && savedName !== "null") {
                 if (sessionStorage.getItem('splash_shown')) {
                     splash.style.display = 'none';
@@ -1059,20 +1026,19 @@
                         setTimeout(() => splash.style.display = 'none', 500);
                     }, 1200);
                     sessionStorage.setItem('splash_shown', 'true');
+                    // --- 여기부터 추가 ---
+                    const hasSeenGuide = localStorage.getItem('hasSeenGuide_2026'); // 이름을 JS와 똑같이 맞춤!
+if (!hasSeenGuide) {
+    setTimeout(() => {
+        openGuide();
+    }, 1800);
+}
+        // --- 여기까지 추가 ---
                 }
             }
-
-            // 2. 안내 팝업 최초 1회 노출 판단 (이름: hasSeenGuide_2026)
-            const hasSeenGuide = localStorage.getItem('hasSeenGuide_2026');
-            if (!hasSeenGuide) {
-                setTimeout(() => {
-                    openGuide();
-                }, 1800);
-            }
-
-            // 3. 앱 기본 기능 초기화
-            if (typeof checkLoginStatus === 'function') checkLoginStatus();
-            if (typeof selectLevel === 'function') selectLevel(localStorage.getItem('trigger_level') || 'middle');
+            
+            checkLoginStatus();
+            selectLevel(localStorage.getItem('trigger_level') || 'middle');
 
             const cooldownTime = localStorage.getItem('blackt_cooldown');
             if (cooldownTime) {
@@ -1087,9 +1053,7 @@
             await requestNotificationPermission();
             await handleLogin();
         }
-        
-        const loginBtn = document.getElementById('login-submit-btn');
-        if (loginBtn) loginBtn.onclick = secureHandleLogin;
+        document.getElementById('login-submit-btn').onclick = secureHandleLogin;
 
     </script>
     <script src="worddata.js"></script>
