@@ -7,17 +7,17 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
     <style>
-        /* [수정] 납작하고 세련된 세로 배열 + 퍼플 색상 적용 */
+        /* 납작한 세로형 에너지 슬롯 + 보라색(퍼플) 적용 */
         .energy-slot-vert { 
-            width: 26px; /* 가로로 납작하게 */
-            height: 6px; /* 세로로 얇게 */
+            width: 26px; 
+            height: 6px; 
             background: #222; 
             border: 1px solid #333; 
             border-radius: 3px; 
             transition: all 0.3s ease; 
         }
         .energy-slot-vert.active { 
-            background: var(--neon-purple); /* 진행바(파란색)와 대비되는 보라색 */
+            background: var(--neon-purple); 
             box-shadow: 0 0 10px var(--neon-purple); 
             border-color: #fff; 
         }
@@ -57,7 +57,7 @@
         window.wordsData = typeof wordsData !== 'undefined' ? wordsData : { middle: {}, high: {} };
     </script>
     
-    <script src="js/app.js"></script>
+    <script src="app.js?v=999"></script>
     
     <script>
         if ('serviceWorker' in navigator) {
