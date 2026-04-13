@@ -1031,12 +1031,13 @@
             handleKakaoAndInstall();
         });
 
-        // 1. [독립 정의] 팝업 제어 함수
+        /* --- [팝업 제어 통합 영역] 시작 --- */
         function closeGuide() {
             const modal = document.getElementById('guide-modal');
             if (modal) {
                 modal.style.display = 'none';
-                localStorage.setItem('hasSeenGuide_2026', 'true'); // 봤음 기록 저장
+                localStorage.setItem('hasSeenGuide_2026', 'true');
+                console.log("팝업 기록 완료");
             }
         }
 
@@ -1045,12 +1046,11 @@
             if (modal) modal.style.display = 'flex';
         }
 
-        // 2. [수정] 페이지 로드 시 최초 1회 체크 및 스플래시 제어
         window.addEventListener('load', () => {
             const savedName = localStorage.getItem('trigger_name');
             const splash = document.getElementById('splash-screen');
 
-            // --- 스플래시 제어 루틴 ---
+            // 1. 스플래시 화면 제어
             if (splash && savedName && savedName !== "null") {
                 if (sessionStorage.getItem('splash_shown')) {
                     splash.style.display = 'none';
@@ -1063,35 +1063,35 @@
                 }
             }
 
-            // --- 안내 팝업 최초 1회 노출 판단 (독립 실행) ---
+            // 2. 팝업 노출 판단 (반드시 1.8초 뒤에 한 번만 실행)
             const hasSeenGuide = localStorage.getItem('hasSeenGuide_2026');
-            if (!hasSeenGuide) {
-                setTimeout(openGuide, 1800); // 스플래시 종료 타이밍에 맞춰 노출
+            if (!hasSeenGuide || hasSeenGuide !== 'true') {
+                setTimeout(() => {
+                    openGuide();
+                }, 1800);
             }
 
-            // --- 기존 페이지 초기화 함수 실행 ---
-            checkLoginStatus();
-            selectLevel(localStorage.getItem('trigger_level') || 'middle');
+            // 3. 앱 기본 기능 초기화
+            if (typeof checkLoginStatus === 'function') checkLoginStatus();
+            if (typeof selectLevel === 'function') selectLevel(localStorage.getItem('trigger_level') || 'middle');
 
             const cooldownTime = localStorage.getItem('blackt_cooldown');
             if (cooldownTime) {
                 const remaining = parseInt(cooldownTime) - Date.now();
-                if (remaining > 0) {
+                if (remaining > 0 && typeof sendRecoveryNotification === 'function') {
                     setTimeout(sendRecoveryNotification, remaining);
                 }
             }
         });
 
-        // 가입 로직 및 버튼 이벤트
         async function secureHandleLogin() {
-            await requestNotificationPermission();
-            await handleLogin();
+            if (typeof requestNotificationPermission === 'function') await requestNotificationPermission();
+            if (typeof handleLogin === 'function') await handleLogin();
         }
         
-        const loginSubmitBtn = document.getElementById('login-submit-btn');
-        if (loginSubmitBtn) {
-            loginSubmitBtn.onclick = secureHandleLogin;
-        }
+        const loginBtn = document.getElementById('login-submit-btn');
+        if (loginBtn) loginBtn.onclick = secureHandleLogin;
+        /* --- [팝업 제어 통합 영역] 끝 --- */
 
     </script>
     <script src="worddata.js"></script>
