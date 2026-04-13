@@ -586,20 +586,29 @@ function retryOnlyWrongs() {
 
 function shareKakao() {
     if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) return;
+    
+    // 🚀 확실한 이름 가져오기
     const userName = localStorage.getItem('trigger_name') || '학습자';
-    const currentLevel = localStorage.getItem('trigger_level') || 'middle';
     const currentDay = localStorage.getItem(`trigger_current_day_${currentLevel}`) || 1;
     
-    // 🚀 [수정] 도메인 뒤에 아무것도 붙지 않게 순수 메인 주소만 추출합니다.
+    // 링크 주소를 무조건 메인(index.html)으로 고정
     const shareUrl = window.location.origin; 
 
+    // 정답률 계산
     const acc = Math.floor((score/targetWords.length)*100);
+
     Kakao.Share.sendDefault({
         objectType: 'feed',
         content: { 
-            title: '⚡ 사라져 보카 완료!', 
-            description: `${userName}님 [Day ${currentDay}] 완수\n정답률: ${acc}%`, 
-            imageUrl: 'https://blackt.pages.dev/icon-512.png',
+            // 🚀 1. 이름 확실히 박아두기
+            title: `🔥 [${userName}]님, 오늘의 단어 완벽 마스터!`, 
+            
+            // 🚀 2. 성취감 폭발하는 텍스트 구성 (메달 이모지)
+            description: `🏅 정답률: ${acc}% (압도적 성적)\n📅 Day ${currentDay} 루틴 6사이클 완주 성공`, 
+            
+            // 🚀 3. 새로 만든 역동적인 이미지 경로 (정확한 확인 필요)
+            imageUrl: 'https://blackt.pages.dev/images/share-cycles.png',
+            
             link: { 
                 mobileWebUrl: shareUrl, 
                 webUrl: shareUrl 
