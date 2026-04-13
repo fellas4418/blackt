@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
     <style>
-        /* [추가] 학습 화면 전용 에너지 슬롯 스타일 */
+        /* 에너지 슬롯 스타일 (학습 화면 전용) */
         .energy-container { 
             display: flex; 
             justify-content: center; 
@@ -40,17 +40,15 @@
                 style="background: transparent; border: 1px solid var(--neon-blue); color: #fff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">
                 ⏸ 일시중지
             </button>
-            
             <button id="exit-btn" onclick="location.href='index.html'" 
                 style="display: none; background: transparent; border: 1px solid var(--neon-orange); color: #ffffff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">
                 나가기
             </button>
-            
             <button id="mute-toggle-btn" onclick="toggleMute()" style="background: transparent; border: none; font-size: 1.1rem; cursor: pointer; margin-left: 3px;">🔊</button>
         </div>
         
         <div class="header" style="margin-top: 55px;">
-            <div id="session-tag" style="color:var(--neon-blue); font-weight:bold; font-size:1.1rem;">학습 대기 중</div>
+            <div id="session-tag" style="color:var(--neon-blue); font-weight:bold; font-size:1.1rem;">1회 진행 중</div>
             <div class="progress-box"><div id="bar"></div></div>
             
             <div class="energy-container">
@@ -71,7 +69,9 @@
     <script>
         window.wordsData = typeof wordsData !== 'undefined' ? wordsData : { middle: {}, high: {} };
     </script>
-    <script src="app.js"></script>
+    
+    <script src="app.js?v=9999"></script>
+    
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
