@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
     <style>
-        /* [수정] 좌측 상단 세로형 에너지 슬롯 스타일 */
+        /* 세로형 에너지 슬롯 전용 스타일 */
         .energy-slot-vert { 
             width: 6px; 
             height: 25px; 
@@ -28,27 +28,21 @@
         <button class="back-btn" onclick="location.href='index.html'">← 메인으로</button>
         
         <div style="position: absolute; top: 65px; left: 20px; display: flex; flex-direction: column; gap: 5px; align-items: center; z-index: 100;">
-            <div style="font-size: 0.6rem; color: #666; font-weight: bold; margin-bottom: 2px;">LOOP</div>
+            <div style="font-size: 0.65rem; color: #666; font-weight: bold; margin-bottom: 2px;">LOOP</div>
             <div id="slot-2" class="energy-slot-vert"></div>
             <div id="slot-1" class="energy-slot-vert"></div>
         </div>
 
         <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 8px; align-items: center; z-index: 100;">
-            <button id="pause-btn" onclick="togglePause()" 
-                style="background: transparent; border: 1px solid var(--neon-blue); color: #fff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">
-                ⏸ 일시중지
-            </button>
-            <button id="exit-btn" onclick="location.href='index.html'" 
-                style="display: none; background: transparent; border: 1px solid var(--neon-orange); color: #ffffff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">
-                나가기
-            </button>
+            <button id="pause-btn" onclick="togglePause()" style="background: transparent; border: 1px solid var(--neon-blue); color: #fff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">⏸ 일시중지</button>
+            <button id="exit-btn" onclick="location.href='index.html'" style="display: none; background: transparent; border: 1px solid var(--neon-orange); color: #ffffff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">나가기</button>
             <button id="mute-toggle-btn" onclick="toggleMute()" style="background: transparent; border: none; font-size: 1.1rem; cursor: pointer; margin-left: 3px;">🔊</button>
         </div>
         
         <div class="header" style="margin-top: 55px;">
             <div id="session-tag" style="color:var(--neon-blue); font-weight:bold; font-size:1.1rem;"></div>
             <div class="progress-box"><div id="bar"></div></div>
-            </div>
+        </div>
         
         <div id="display" style="margin-top: -90px;">
             <div id="target"></div>
@@ -63,7 +57,7 @@
         window.wordsData = typeof wordsData !== 'undefined' ? wordsData : { middle: {}, high: {} };
     </script>
     
-    <script src="js/app.js"></script>
+    <script src="js/app.js?v=20260414_final"></script>
     
     <script>
         if ('serviceWorker' in navigator) {

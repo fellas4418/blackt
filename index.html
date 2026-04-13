@@ -30,11 +30,6 @@
         
         .login-title { font-size: 1.8rem; font-weight: bold; margin-bottom: 25px; color: #fff; text-shadow: var(--glow-text); }
 
-        /* 에너지 슬롯 스타일 추가 */
-        .energy-container { display: flex; justify-content: center; gap: 8px; margin: 12px 0; width: 100%; }
-        .energy-slot { flex: 1; height: 8px; background: #222; border: 1px solid #333; border-radius: 4px; transition: all 0.3s ease; }
-        .energy-slot.active { background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); border-color: #fff; }
-
         .input-group { margin-bottom: 18px; text-align: left; }
         .input-label { font-size: 0.85rem; color: #777; margin-bottom: 6px; display: block; }
         .neon-input { width: 100%; box-sizing: border-box; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; font-size: 1rem; transition: 0.3s; }
@@ -110,28 +105,23 @@
                     <strong style="color:var(--neon-blue); font-size: 1.1rem;">1. 15단계 '블링크' 루틴</strong><br>
                     뜻이 보였다 사라지는 깜빡임 학습으로 뇌를 자극합니다. <strong>12회 반복 + 3회 테스트</strong>를 모두 통과해야 완료됩니다.
                 </p>
-    
                 <p style="margin-bottom: 20px;">
                     <strong style="color:var(--neon-orange); font-size: 1.1rem;">2. 3분 쿨타임 (장기기억 전환)</strong><br>
                     사이클 사이마다 <strong>3분간 강제 휴식</strong>이 부여됩니다. 뇌가 단기기억을 장기기억으로 변환하는 필수 시간입니다.
                 </p>
-    
                 <p style="margin-bottom: 20px;">
                     <strong style="color:var(--neon-green); font-size: 1.1rem;">3. 3일 누적 복습 (망각 차단)</strong><br>
                     당일 학습 전, <strong>2일 전과 1일 전 단어를 먼저 마스터</strong>해야만 오늘 진도에 진입할 수 있는 강력한 누적 복습 시스템입니다.
                 </p>
-    
                 <p style="margin-bottom: 20px;">
                     <strong style="color:#afff00; font-size: 1.1rem;">4. 5+2 주말 마스터</strong><br>
                     주말 2일은 진도 없이 <strong>전체 누적 복습 및 오답 정리</strong>를 진행하여 한 주 분량을 완벽히 내 것으로 만듭니다.
                 </p>
-    
                 <p>
                     <strong style="color:#FFD600; font-size: 1.1rem;">5. 매일 성취 인증</strong><br>
                     학습 결과를 공유하고 동료들과 인증하며 끝까지 완주할 수 있는 동기를 부여합니다.
                 </p>
             </div>
-    
             <button class="login-btn" style="border-color: #fff; color: #000; background: #fff; box-shadow: none; width: 100%; margin-top: 25px; padding: 15px; font-weight: bold; cursor: pointer; font-size: 1rem; border-radius: 8px;" onclick="closeGuide()">확인했습니다</button>
         </div>
     </div>
@@ -845,7 +835,7 @@
             if (grade.startsWith('중')) {
                 typeSelect.value = '내신';
                 for (let i = 0; i < typeSelect.options.length; i++) {
-                    if (typeSelect.options[i].value === '모의고사') { typeSelect.options[i].style.display = 'none'; typeSelect.options[i].disabled = true; }
+                    if (typeSelect.options[i].value === '모고사') { typeSelect.options[i].style.display = 'none'; typeSelect.options[i].disabled = true; }
                 }
             } else {
                 for (let i = 0; i < typeSelect.options.length; i++) {
@@ -1013,15 +1003,15 @@
                         setTimeout(() => splash.style.display = 'none', 500);
                     }, 1200);
                     sessionStorage.setItem('splash_shown', 'true');
+                    // --- 여기부터 추가 ---
+                    const hasSeenGuide = localStorage.getItem('hasSeenGuide_2026'); // 이름을 JS와 똑같이 맞춤!
+if (!hasSeenGuide) {
+    setTimeout(() => {
+        openGuide();
+    }, 1800);
+}
+        // --- 여기까지 추가 ---
                 }
-            }
-
-            // 🚩 [핵심 수정] 팝업 체크 로직을 밖으로 꺼내서 정확하게 실행
-            const hasSeenGuide = localStorage.getItem('hasSeenGuide_2026');
-            if (hasSeenGuide !== 'true') {
-                setTimeout(() => {
-                    openGuide();
-                }, 1800);
             }
             
             checkLoginStatus();
