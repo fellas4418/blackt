@@ -1014,29 +1014,36 @@
         });
 
         window.addEventListener('load', () => {
-            const savedName = localStorage.getItem('trigger_name');
-            const splash = document.getElementById('splash-screen');
-            
-            if (splash && savedName && savedName !== "null") {
-                if (sessionStorage.getItem('splash_shown')) {
-                    splash.style.display = 'none';
-                } else {
-                    setTimeout(() => {
-                        splash.style.opacity = '0';
-                        setTimeout(() => splash.style.display = 'none', 500);
-                    }, 1200);
-                    sessionStorage.setItem('splash_shown', 'true');
-                    // --- 여기부터 추가 ---
-                    const hasSeenGuide = localStorage.getItem('hasSeenGuide_2026'); // 이름을 JS와 똑같이 맞춤!
-if (!hasSeenGuide) {
-    setTimeout(() => {
-        openGuide();
-    }, 1800);
-}
-        // --- 여기까지 추가 ---
-                }
+        const savedName = localStorage.getItem('trigger_name');
+        const splash = document.getElementById('splash-screen');
+
+        // 1. 스플래시 화면 제어
+        if (splash && savedName && savedName !== "null") {
+            if (sessionStorage.getItem('splash_shown')) {
+                splash.style.display = 'none';
+            } else {
+                setTimeout(() => {
+                    splash.style.opacity = '0';
+                    setTimeout(() => splash.style.display = 'none', 500);
+                }, 1200);
+                sessionStorage.setItem('splash_shown', 'true');
             }
-            
+        }
+
+        // 2. [핵심] 안내 팝업 최초 1회 제어 (스플래시 로직 밖으로 독립)
+        const hasSeenGuide = localStorage.getItem('hasSeenGuide_2026');
+        if (!hasSeenGuide) {
+            setTimeout(() => {
+                if (typeof openGuide === 'function') {
+                    openGuide();
+                } else {
+                    const modal = document.getElementById('guide-modal');
+                    if (modal) modal.style.display = 'flex';
+                }
+            }, 1800);
+        }
+    });
+                        
             checkLoginStatus();
             selectLevel(localStorage.getItem('trigger_level') || 'middle');
 
