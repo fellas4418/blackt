@@ -587,10 +587,11 @@ function retryOnlyWrongs() {
 function shareKakao() {
     if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) return;
     const userName = localStorage.getItem('trigger_name') || '학습자';
+    const currentLevel = localStorage.getItem('trigger_level') || 'middle';
     const currentDay = localStorage.getItem(`trigger_current_day_${currentLevel}`) || 1;
     
-    // 🚀 [중요] 링크 주소를 무조건 index.html로 고정합니다.
-    const shareUrl = window.location.origin + window.location.pathname.replace('study.html', 'index.html');
+    // 🚀 [수정] 도메인 뒤에 아무것도 붙지 않게 순수 메인 주소만 추출합니다.
+    const shareUrl = window.location.origin; 
 
     const acc = Math.floor((score/targetWords.length)*100);
     Kakao.Share.sendDefault({
