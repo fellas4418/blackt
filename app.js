@@ -67,9 +67,27 @@ function wakeUpTTS() {
     window.speechSynthesis.speak(dummy);
 }
 
+// [수정] 안내 팝업 제어 함수 추가
+function openGuide() {
+    const modal = document.getElementById('guide-modal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeGuide() {
+    const modal = document.getElementById('guide-modal');
+    if (modal) modal.style.display = 'none';
+    localStorage.setItem('hasSeenGuide_2026', 'true');
+}
+
 function initApp() {
     wakeUpTTS(); 
     
+    // [수정] 최초 1회 안내 팝업 노출 로직
+    const hasSeenGuide = localStorage.getItem('hasSeenGuide_2026');
+    if (!hasSeenGuide) {
+        setTimeout(openGuide, 1500);
+    }
+
     try {
         const sessionTag = document.getElementById('session-tag'); 
         const footer = document.querySelector('.footer');
@@ -91,6 +109,8 @@ function initApp() {
             localStorage.setItem('trigger_date', today);
             localStorage.setItem('trigger_session_middle', '1');
             localStorage.setItem('trigger_session_high', '1');
+            localStorage.setItem('trigger_unlocked_extra_today_middle', '0');
+            localStorage.setItem('trigger_unlocked_extra_today_high', '0');
         }
         
         let currentSession = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
@@ -114,7 +134,6 @@ function initApp() {
             return;
         }
 
-        // 🚀 [수정 핵심] 실제 요일이 아닌 Day 숫자 기반으로 복습 판정
         const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
 
         if (isReviewDay) {
@@ -230,8 +249,19 @@ function togglePause() {
     }
 }
 
-// 🚀 앱 프리즈(멈춤) 원인이었던 괄호 에러 완벽 수정!
 function startStudy() {
+    // [수정] 1사이클 내 1회/2회 반복 에너지 슬롯 연동
+    const slot1 = document.getElementById('slot-1');
+    const slot2 = document.getElementById('slot-2');
+    
+    if (studyLoopCount === 1) {
+        if(slot1) slot1.classList.add('active');
+        if(slot2) slot2.classList.remove('active');
+    } else if (studyLoopCount === 2) {
+        if(slot1) slot1.classList.add('active');
+        if(slot2) slot2.classList.add('active');
+    }
+
     if (currentIdx >= targetWords.length) {
         if (studyLoopCount < 2) {
             studyLoopCount++;
@@ -240,11 +270,9 @@ function startStudy() {
             return;
         } else {
             currentIdx = 0;
-            // 세션 값을 가져와서 '무조건' 숫자로 변환
             const currentSession = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
             const sNum = Number(currentSession); 
 
-            // 🚀 3세션 끝났을 때 또는 6세션 끝났을 때 무조건 테스트 실행!
             if (sNum === 3 || sNum === 6 || currentSession === 'final') {
                 startCountdown("곧 테스트를 시작합니다.", startTest); 
             } else {
@@ -561,8 +589,10 @@ function updateMasteredCount() {
         }
     });
 
-    document.getElementById('total-vocab-count').innerText = totalCount;
-    document.getElementById('mastered-count').innerText = mastered;
+    const totalVocabEl = document.getElementById('total-vocab-count');
+    const masteredCountEl = document.getElementById('mastered-count');
+    if(totalVocabEl) totalVocabEl.innerText = totalCount;
+    if(masteredCountEl) masteredCountEl.innerText = mastered;
 }
 
 function retryOnlyWrongs() {
@@ -587,28 +617,17 @@ function retryOnlyWrongs() {
 function shareKakao() {
     if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) return;
     
-    // 🚀 확실한 이름 가져오기
     const userName = localStorage.getItem('trigger_name') || '학습자';
     const currentDay = localStorage.getItem(`trigger_current_day_${currentLevel}`) || 1;
-    
-    // 링크 주소를 무조건 메인(index.html)으로 고정
     const shareUrl = window.location.origin; 
-
-    // 정답률 계산
     const acc = Math.floor((score/targetWords.length)*100);
 
     Kakao.Share.sendDefault({
         objectType: 'feed',
         content: { 
-            // 🚀 1. 이름 확실히 박아두기
             title: `🔥 [${userName}]님, 오늘의 단어 완벽 마스터!`, 
-            
-            // 🚀 2. 성취감 폭발하는 텍스트 구성 (메달 이모지)
             description: `🏅 정답률: ${acc}% (압도적 성적)\n📅 Day ${currentDay} 루틴 6사이클 완주 성공`, 
-            
-            // 🚀 3. 새로 만든 역동적인 이미지 경로 (정확한 확인 필요)
             imageUrl: 'https://blackt.pages.dev/images/share-cycles.png',
-            
             link: { 
                 mobileWebUrl: shareUrl, 
                 webUrl: shareUrl 

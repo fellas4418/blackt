@@ -6,6 +6,30 @@
     <title>Trigger Voca - Study</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
+    <style>
+        /* [추가] 학습 화면 전용 에너지 슬롯 스타일 */
+        .energy-container { 
+            display: flex; 
+            justify-content: center; 
+            gap: 8px; 
+            margin: 15px auto 0; 
+            width: 80%; 
+            max-width: 300px;
+        }
+        .energy-slot { 
+            flex: 1; 
+            height: 6px; 
+            background: #222; 
+            border: 1px solid #333; 
+            border-radius: 3px; 
+            transition: all 0.3s ease; 
+        }
+        .energy-slot.active { 
+            background: var(--neon-blue); 
+            box-shadow: 0 0 10px var(--neon-blue); 
+            border-color: #fff; 
+        }
+    </style>
 </head>
 <body class="study-bg">
     <div id="app">
@@ -28,6 +52,11 @@
         <div class="header" style="margin-top: 55px;">
             <div id="session-tag" style="color:var(--neon-blue); font-weight:bold; font-size:1.1rem;">1회 진행 중</div>
             <div class="progress-box"><div id="bar"></div></div>
+            
+            <div class="energy-container">
+                <div id="slot-1" class="energy-slot"></div>
+                <div id="slot-2" class="energy-slot"></div>
+            </div>
         </div>
         
         <div id="display" style="margin-top: -90px;">

@@ -17,7 +17,8 @@
 body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: 'Pretendard', sans-serif; -webkit-font-smoothing: antialiased; }
 
 /* === 모달(팝업) 및 공통 입력폼 스타일 === */
-#login-modal, #wrong-modal, #all-words-modal, #report-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 3000; transition: opacity 0.5s; padding: 20px; box-sizing: border-box; }
+/* [수정] guide-modal ID 추가 및 z-index 상향 조정 */
+#login-modal, #wrong-modal, #all-words-modal, #report-modal, #guide-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 30000; transition: opacity 0.5s; padding: 20px; box-sizing: border-box; }
 
 .login-card { 
     background: var(--card-bg-color); 
@@ -41,6 +42,11 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
     text-shadow: 0 0 3px var(--neon-blue) !important; 
 }
 
+/* [추가] 에너지 슬롯 스타일 */
+.energy-container { display: flex; justify-content: center; gap: 8px; margin: 12px 0; width: 100%; }
+.energy-slot { flex: 1; height: 8px; background: #222; border: 1px solid #333; border-radius: 4px; transition: all 0.3s ease; }
+.energy-slot.active { background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); border-color: #fff; }
+
 .input-group { margin-bottom: 18px; text-align: left; }
 .input-label { font-size: 0.85rem; color: #777; margin-bottom: 6px; display: block; }
 .neon-input { width: 100%; box-sizing: border-box; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; font-size: 1rem; transition: 0.3s; }
@@ -56,7 +62,6 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 .dashboard-bg { padding: 20px; display: flex; justify-content: center; }
 .dashboard-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 25px; margin: 0 auto; padding-bottom: 110px; }
 
-/* 🚀 겹침 문제 해결: 로고를 100% 원래 안정적인 상태로 복구 */
 .logo { font-size: 2.5rem; font-weight: 800; text-align: center; margin-bottom: 10px; text-shadow: var(--glow-text); cursor: default; }
 
 .card { background-color: var(--card-bg-color); border: 1px solid #222; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
@@ -69,7 +74,6 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 .stat-value { font-size: 1.15rem; font-weight: bold; color: var(--neon-blue); }
 
 /* === 수준별 버튼 & 학습 섹션 === */
-/* 🚀 레벨 제목과 버튼 사이 간격 추가 (margin-top) */
 .level-buttons { display: flex; gap: 12px; margin-top: 15px; }
 .level-btn { flex: 1; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; padding: 14px; color: #666; font-weight: 600; cursor: pointer; transition: 0.3s; }
 .level-btn.active { border-color: var(--neon-blue); color: #fff; box-shadow: 0 0 10px rgba(0,243,255,0.2); background: rgba(0,243,255,0.05); }

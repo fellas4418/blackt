@@ -24,11 +24,16 @@
 
         body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: 'Pretendard', sans-serif; -webkit-font-smoothing: antialiased; padding-bottom: 90px; }
 
-        #login-modal, #wrong-modal, #all-words-modal, #report-modal, #guide-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 3000; transition: opacity 0.5s; padding: 20px; box-sizing: border-box; }
+        #login-modal, #wrong-modal, #all-words-modal, #report-modal, #guide-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 30000; transition: opacity 0.5s; padding: 20px; box-sizing: border-box; }
 
         .login-card { background: var(--card-bg-color); border: 1px solid rgba(0, 243, 255, 0.3); box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); border-radius: 20px; padding: 25px; width: 90%; max-width: 400px; text-align: center; max-height: 80vh; overflow-y: auto; box-sizing: border-box; max-height: 90vh; }
         
         .login-title { font-size: 1.8rem; font-weight: bold; margin-bottom: 25px; color: #fff; text-shadow: var(--glow-text); }
+
+        /* 에너지 슬롯 스타일 추가 */
+        .energy-container { display: flex; justify-content: center; gap: 8px; margin: 12px 0; width: 100%; }
+        .energy-slot { flex: 1; height: 8px; background: #222; border: 1px solid #333; border-radius: 4px; transition: all 0.3s ease; }
+        .energy-slot.active { background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); border-color: #fff; }
 
         .input-group { margin-bottom: 18px; text-align: left; }
         .input-label { font-size: 0.85rem; color: #777; margin-bottom: 6px; display: block; }
@@ -96,9 +101,9 @@
         <img src="icon-512.png" alt="Trigger Logo" style="width: 180px; height: 180px; border-radius: 20px;">
     </div>
 
-    <div id="guide-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+    <div id="guide-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 30000; display: flex; align-items: center; justify-content: center;">
         <div class="login-card" style="border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.3); width: 90%; max-width: 420px; text-align:left; background: #111; padding: 30px; border-radius: 15px;">
-            <div style="font-size: 1.6rem; font-weight: bold; color: #fff; margin-bottom: 25px; text-align:center;">🧠 사라져 Voca 학습 시스템 안내</div>
+            <div style="font-size: 1.6rem; font-weight: bold; color: #fff; margin-bottom: 25px; text-align:center;">🧠 사라져 Voca <br>학습 시스템 안내</div>
             
             <div style="color: #ddd; font-size: 0.95rem; line-height: 1.6; max-height: 400px; overflow-y: auto; padding-right: 10px;">
                 <p style="margin-bottom: 20px;">
@@ -127,7 +132,7 @@
                 </p>
             </div>
     
-            <button class="login-btn" style="border-color: #fff; color: #000; background: #fff; box-shadow: none; width: 100%; margin-top: 25px; padding: 15px; font-weight: bold; cursor: pointer; font-size: 1rem; border-radius: 8px;" onclick="document.getElementById('guide-modal').style.display='none'">확인했습니다</button>
+            <button class="login-btn" style="border-color: #fff; color: #000; background: #fff; box-shadow: none; width: 100%; margin-top: 25px; padding: 15px; font-weight: bold; cursor: pointer; font-size: 1rem; border-radius: 8px;" onclick="closeGuide()">확인했습니다</button>
         </div>
     </div>
 
@@ -221,9 +226,15 @@
             <div class="card" style="padding: 25px 20px; border: 1px solid var(--neon-orange); background: rgba(255, 153, 0, 0.05); text-align: center;">
                 <div style="position: relative; margin-bottom: 5px; height: 30px; display: flex; align-items: center; justify-content: center;">
                     <div style="font-size: 1.2rem; font-weight: bold; color: var(--neon-orange);">오늘의 학습</div>
-                    <span onclick="document.getElementById('guide-modal').style.display='flex'" style="position: absolute; right: 0; font-size:0.8rem; cursor:pointer; color:#fff; background:#444; padding:4px 10px; border-radius:12px; border:1px solid #666;">❓안내</span>
+                    <span onclick="openGuide()" style="position: absolute; right: 0; font-size:0.8rem; cursor:pointer; color:#fff; background:#444; padding:4px 10px; border-radius:12px; border:1px solid #666;">❓안내</span>
                 </div>
-                <div style="color: #aaa; font-size: 1.2rem; margin-bottom: 20px;">목표 단어: <span id="target-count-display" style="color: #fff; font-weight: bold;">0개</span></div>
+                <div style="color: #aaa; font-size: 1.2rem; margin-bottom: 10px;">목표 단어: <span id="target-count-display" style="color: #fff; font-weight: bold;">0개</span></div>
+                
+                <div class="energy-container">
+                    <div id="slot-1" class="energy-slot"></div>
+                    <div id="slot-2" class="energy-slot"></div>
+                </div>
+
                 <button class="start-btn" id="start-btn-main">학습 시작하기</button>
             </div>
 
@@ -320,8 +331,27 @@
 
     <div id="print-area" style="display:none; padding:20px; background:#fff; color:#000;"></div>
 
-    <script src="worddata.js"></script>
     <script>
+        // 안내 팝업 열기
+        function openGuide() {
+            document.getElementById('guide-modal').style.display = 'flex';
+        }
+
+        // 안내 팝업 닫기 (localStorage 기록)
+        function closeGuide() {
+            document.getElementById('guide-modal').style.display = 'none';
+            localStorage.setItem('hasSeenGuide_2026', 'true');
+        }
+
+        // 페이지 로드 시 최초 1회 체크
+        window.addEventListener('load', () => {
+            const hasSeenGuide = localStorage.getItem('hasSeenGuide_2026');
+            if (!hasSeenGuide) {
+                setTimeout(openGuide, 1500); // 스플래시 이후 자연스럽게 노출
+            }
+        });
+
+        // --- (이하 원본 코드 유지) ---
         function shuffleArray(array) {
             let curId = array.length;
             while (0 !== curId) {
@@ -680,7 +710,6 @@
         });
         const sortedDays = Object.keys(grouped).map(Number).sort((a, b) => a - b);
         sortedDays.forEach(day => {
-            // 🚀 핵심: 요일 옆에 개수 표시 추가 (N개)
             html += `<div onclick="toggleAccordion('wrong-day-list-${day}')" style="background: rgba(57, 255, 20, 0.1); border: 1px solid rgba(57, 255, 20, 0.3); color:var(--neon-green); padding: 15px; margin-top:10px; border-radius: 8px; font-weight:bold; display: flex; justify-content: space-between; cursor: pointer;">
                         <span>Day ${day} 오답/별표 (${grouped[day].length}개)</span><span>▼</span>
                      </div>
@@ -701,7 +730,6 @@
     }
     document.getElementById('wrong-list').innerHTML = html;
     
-    // 🚀 제목 텍스트와 폰트 크기 통일
     const titleEl = document.getElementById('wrong-modal-title');
     titleEl.innerText = `[${lvl === 'high' ? '고등' : '중등'}] 오답/별표`;
     titleEl.style.fontSize = "1.3rem"; 
@@ -747,7 +775,6 @@
         listContainer.innerHTML = html;
     }
     
-    // 🚀 제목 텍스트와 폰트 크기 통일
     const titleEl = document.getElementById('all-words-title');
     titleEl.innerText = `👑 클리어 리스트 [${lvl === 'high' ? '고등' : '중등'}]`;
     titleEl.style.fontSize = "1.3rem";
@@ -755,7 +782,6 @@
     document.getElementById('all-words-modal').style.display = 'flex';
 }
 
-        // 🚀 누적 학습 리포트 출력 함수 (에러 완벽 수정)
         function showWeeklyReport(requestedLevel) {
             const currentLevel = requestedLevel || localStorage.getItem('trigger_level') || 'middle';
             const stats = JSON.parse(localStorage.getItem(`trigger_stats_${currentLevel}`) || '{}');
@@ -779,7 +805,6 @@
                 let dayLabel = isReview ? `Day ${i} (복습)` : `Day ${i}`;
                 let dayStat = stats[i];
 
-                // 과거 데이터(숫자형 진행도 1~6) 호환 로직
                 if (dayStat) {
                     if (typeof dayStat === 'number') { 
                         dayStat = { progress: 100, accuracy: dayStat, status: "완료 👑" }; 
@@ -792,7 +817,6 @@
                 }
 
                 if (!dayStat || !dayStat.progress) {
-                    // 미진행 상태
                     html += `<div style="margin-bottom: 18px; opacity: 0.4;">
                                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
                                     <span>${dayLabel} <strong style="color:#666;">미진행</strong></span><span>-</span>
@@ -805,7 +829,6 @@
                     const isFinished = dayStat.progress >= 100;
                     const statusText = dayStat.status || (isFinished ? "완료 👑" : `${dayStat.progress}% 진행 중`);
 
-                    // 진행 상태 출력 (완료 vs 진행 중)
                     html += `<div style="margin-bottom: 18px;">
                                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
                                     <span>${dayLabel} <strong style="color:${isFinished ? 'var(--neon-green)' : 'var(--neon-blue)'};">${statusText}</strong></span>
@@ -1018,7 +1041,6 @@
             }
         });
 
-        // 가입 로직 오류 방지 안전 설계
         async function secureHandleLogin() {
             await requestNotificationPermission();
             await handleLogin();
@@ -1026,6 +1048,7 @@
         document.getElementById('login-submit-btn').onclick = secureHandleLogin;
 
     </script>
+    <script src="worddata.js"></script>
     <script src="js/words.js"></script>
     <script src="js/app.js?v=20260413_03"></script>
 </body>
