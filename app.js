@@ -631,7 +631,7 @@ function shareKakao() {
         content: { 
             title: `🔥 [${userName}]님, 오늘의 단어 완벽 마스터!`, 
             description: `🏅 정답률: ${acc}% (압도적 성적)\n📅 Day ${currentDay} 루틴 6사이클 완주 성공`, 
-            imageUrl: 'https://blackt.pages.dev/images/share-cycles.png',
+            imageUrl: 'https://blackt.pages.dev/share-cycles.png',
             link: { 
                 mobileWebUrl: shareUrl, 
                 webUrl: shareUrl 
