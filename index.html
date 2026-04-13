@@ -230,11 +230,6 @@
                 </div>
                 <div style="color: #aaa; font-size: 1.2rem; margin-bottom: 10px;">목표 단어: <span id="target-count-display" style="color: #fff; font-weight: bold;">0개</span></div>
                 
-                <div class="energy-container">
-                    <div id="slot-1" class="energy-slot"></div>
-                    <div id="slot-2" class="energy-slot"></div>
-                </div>
-
                 <button class="start-btn" id="start-btn-main">학습 시작하기</button>
             </div>
 
@@ -342,14 +337,6 @@
             document.getElementById('guide-modal').style.display = 'none';
             localStorage.setItem('hasSeenGuide_2026', 'true');
         }
-
-        // 페이지 로드 시 최초 1회 체크
-        window.addEventListener('load', () => {
-            const hasSeenGuide = localStorage.getItem('hasSeenGuide_2026');
-            if (!hasSeenGuide) {
-                setTimeout(openGuide, 1500); // 스플래시 이후 자연스럽게 노출
-            }
-        });
 
         // --- (이하 원본 코드 유지) ---
         function shuffleArray(array) {
@@ -1026,15 +1013,15 @@
                         setTimeout(() => splash.style.display = 'none', 500);
                     }, 1200);
                     sessionStorage.setItem('splash_shown', 'true');
-                    // --- 여기부터 추가 ---
-                    const hasSeenGuide = localStorage.getItem('hasSeenGuide_2026'); // 이름을 JS와 똑같이 맞춤!
-if (!hasSeenGuide) {
-    setTimeout(() => {
-        openGuide();
-    }, 1800);
-}
-        // --- 여기까지 추가 ---
                 }
+            }
+
+            // 🚩 [핵심 수정] 팝업 체크 로직을 밖으로 꺼내서 정확하게 실행
+            const hasSeenGuide = localStorage.getItem('hasSeenGuide_2026');
+            if (hasSeenGuide !== 'true') {
+                setTimeout(() => {
+                    openGuide();
+                }, 1800);
             }
             
             checkLoginStatus();
