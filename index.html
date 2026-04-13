@@ -997,7 +997,6 @@
         window.addEventListener('appinstalled', () => {
             if (installBtn) installBtn.style.display = 'none';
             deferredPrompt = null;
-            console.log("앱 설치 완료");
         });
 
         async function requestNotificationPermission() {
@@ -1031,13 +1030,13 @@
             handleKakaoAndInstall();
         });
 
-        /* --- [팝업 제어 통합 영역] 시작 --- */
+        /* --- [팝업 및 앱 제어 통합 스크립트] --- */
         function closeGuide() {
             const modal = document.getElementById('guide-modal');
             if (modal) {
                 modal.style.display = 'none';
                 localStorage.setItem('hasSeenGuide_2026', 'true');
-                console.log("팝업 기록 완료");
+                console.log("안내 확인 기록 완료");
             }
         }
 
@@ -1063,9 +1062,9 @@
                 }
             }
 
-            // 2. 팝업 노출 판단 (반드시 1.8초 뒤에 한 번만 실행)
+            // 2. 안내 팝업 최초 1회 노출 판단 (이름: hasSeenGuide_2026)
             const hasSeenGuide = localStorage.getItem('hasSeenGuide_2026');
-            if (!hasSeenGuide || hasSeenGuide !== 'true') {
+            if (!hasSeenGuide) {
                 setTimeout(() => {
                     openGuide();
                 }, 1800);
@@ -1078,20 +1077,19 @@
             const cooldownTime = localStorage.getItem('blackt_cooldown');
             if (cooldownTime) {
                 const remaining = parseInt(cooldownTime) - Date.now();
-                if (remaining > 0 && typeof sendRecoveryNotification === 'function') {
+                if (remaining > 0) {
                     setTimeout(sendRecoveryNotification, remaining);
                 }
             }
         });
 
         async function secureHandleLogin() {
-            if (typeof requestNotificationPermission === 'function') await requestNotificationPermission();
-            if (typeof handleLogin === 'function') await handleLogin();
+            await requestNotificationPermission();
+            await handleLogin();
         }
         
         const loginBtn = document.getElementById('login-submit-btn');
         if (loginBtn) loginBtn.onclick = secureHandleLogin;
-        /* --- [팝업 제어 통합 영역] 끝 --- */
 
     </script>
     <script src="worddata.js"></script>
