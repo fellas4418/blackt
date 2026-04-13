@@ -1031,13 +1031,12 @@
             handleKakaoAndInstall();
         });
 
-        <script>
-        // 1. [독립 정의] 팝업 제어 함수 (이름 충돌 방지를 위해 최상단에 배치)
+        // 1. [독립 정의] 팝업 제어 함수
         function closeGuide() {
             const modal = document.getElementById('guide-modal');
             if (modal) {
                 modal.style.display = 'none';
-                localStorage.setItem('hasSeenGuide_2026', 'true'); // 기록 저장
+                localStorage.setItem('hasSeenGuide_2026', 'true'); // 봤음 기록 저장
             }
         }
 
@@ -1046,11 +1045,12 @@
             if (modal) modal.style.display = 'flex';
         }
 
-        // 2. [수정] 페이지 로드 시 최초 1회 체크 로직 (완벽 독립 실행)
+        // 2. [수정] 페이지 로드 시 최초 1회 체크 및 스플래시 제어
         window.addEventListener('load', () => {
-            // 스플래시 제어 부분 시작
             const savedName = localStorage.getItem('trigger_name');
             const splash = document.getElementById('splash-screen');
+
+            // --- 스플래시 제어 루틴 ---
             if (splash && savedName && savedName !== "null") {
                 if (sessionStorage.getItem('splash_shown')) {
                     splash.style.display = 'none';
@@ -1062,18 +1062,14 @@
                     sessionStorage.setItem('splash_shown', 'true');
                 }
             }
-            // 스플래시 제어 부분 끝
 
-            // --- [핵심 수정] 안내 팝업 노출 여부 판단 (중괄호 밖으로 완전히 독립) ---
+            // --- 안내 팝업 최초 1회 노출 판단 (독립 실행) ---
             const hasSeenGuide = localStorage.getItem('hasSeenGuide_2026');
             if (!hasSeenGuide) {
-                // 스플래시가 끝난 시점에 자연스럽게 노출되도록 1.8초 뒤 실행
-                setTimeout(() => {
-                    openGuide();
-                }, 1800);
+                setTimeout(openGuide, 1800); // 스플래시 종료 타이밍에 맞춰 노출
             }
-        });
-                        
+
+            // --- 기존 페이지 초기화 함수 실행 ---
             checkLoginStatus();
             selectLevel(localStorage.getItem('trigger_level') || 'middle');
 
@@ -1084,13 +1080,18 @@
                     setTimeout(sendRecoveryNotification, remaining);
                 }
             }
-        
+        });
 
+        // 가입 로직 및 버튼 이벤트
         async function secureHandleLogin() {
             await requestNotificationPermission();
             await handleLogin();
         }
-        document.getElementById('login-submit-btn').onclick = secureHandleLogin;
+        
+        const loginSubmitBtn = document.getElementById('login-submit-btn');
+        if (loginSubmitBtn) {
+            loginSubmitBtn.onclick = secureHandleLogin;
+        }
 
     </script>
     <script src="worddata.js"></script>
