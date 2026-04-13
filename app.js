@@ -588,10 +588,22 @@ function shareKakao() {
     if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) return;
     const userName = localStorage.getItem('trigger_name') || '학습자';
     const currentDay = localStorage.getItem(`trigger_current_day_${currentLevel}`) || 1;
+    
+    // 🚀 [중요] 링크 주소를 무조건 index.html로 고정합니다.
+    const shareUrl = window.location.origin + window.location.pathname.replace('study.html', 'index.html');
+
     const acc = Math.floor((score/targetWords.length)*100);
     Kakao.Share.sendDefault({
         objectType: 'feed',
-        content: { title: '⚡ 사라져 보카 완료!', description: `${userName}님 [Day ${currentDay}] 완수\n정답률: ${acc}%`, imageUrl: '', link: { mobileWebUrl: window.location.href, webUrl: window.location.href } }
+        content: { 
+            title: '⚡ 사라져 보카 완료!', 
+            description: `${userName}님 [Day ${currentDay}] 완수\n정답률: ${acc}%`, 
+            imageUrl: 'https://blackt.pages.dev/icon-512.png',
+            link: { 
+                mobileWebUrl: shareUrl, 
+                webUrl: shareUrl 
+            } 
+        }
     });
 }
 
