@@ -188,10 +188,6 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
                     localStorage.setItem(reviewStatusKey, 'true'); // 복습 모드 완료 처리
                     isPreReviewMode = false;
                     
-                    // 복습이 끝난 후에는 순수하게 '오늘 진도(todayWords)'만 세팅
-                    targetWords = todayWords; 
-                    
-                    // 세션 태그 업데이트 후 시작
                     if (sessionTag) {
                         let sNum = parseInt(currentSession) || 1;
                         sessionTag.innerText = sNum > 6 ? `자유 복습 모드` : `${sNum} / 6 사이클 진행 중`;
