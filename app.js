@@ -630,14 +630,25 @@ function shareKakao() {
     Kakao.Share.sendDefault({
         objectType: 'feed',
         content: { 
-            title: `🔥 [${userName}]님, 오늘의 단어 완벽 마스터!`, 
-            description: `🏅 정답률: ${acc}% (압도적 성적)\n📅 Day ${currentDay} 루틴 6사이클 완주 성공`, 
-            imageUrl: 'https://blackt.pages.dev/share-cycles.png',
-            link: { 
-                mobileWebUrl: shareUrl, 
-                webUrl: shareUrl 
-            } 
-        }
+            title: `🔥 [${userName}]님, 단어 학습 마스터!`, 
+            description: `🏅 정답률: ${acc}%\n📅 Day ${currentDay} 루틴 완주 성공!`, 
+            imageUrl: 'https://blackt.pages.dev/share-cycles.png', // 실제 이미지 경로로 수정 필요
+            link: { mobileWebUrl: shareUrl, webUrl: shareUrl } 
+        },
+        buttons: [
+            {
+                title: '결과 자세히 보기',
+                link: { mobileWebUrl: shareUrl, webUrl: shareUrl }
+            },
+            {
+                title: '👍 칭찬하고 응원하기',
+                link: { 
+                    // 부모님이 이걸 누르면 학생에게 "멋지다! 고생했어!"라는 카톡을 보낼 수 있는 페이지나 링크로 연결
+                    mobileWebUrl: shareUrl + '?action=praise&name=' + encodeURIComponent(userName), 
+                    webUrl: shareUrl + '?action=praise&name=' + encodeURIComponent(userName)
+                }
+            }
+        ]
     });
 }
 
