@@ -165,7 +165,7 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
             let allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
             let preReviewWords = allWrongs.filter(w => 
                 w.level === currentLevel && 
-                (w.day === currentDay - 1 || w.day === currentDay - 2) &&
+                (parseInt(w.day) < currentDay) &&
                 (w.isWrong === true || w.isStarred === true)
             );
             

@@ -676,7 +676,7 @@
                     printHtml += `<div class="print-day" style="font-size:1.2rem; font-weight:bold; margin-top:20px; border-bottom:2px solid #000;">Day ${i}</div>`;
                     dayWords.forEach(w => {
                         const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
-                        printHtml += `<div style="margin:5px 0;"><strong>${w.word}</strong> <span style="color:#666;">${w.ipa || ''}</span> - ${safeMeanings}</div>`;
+                        printHtml += `<div style="margin:5px 0;"><strong>${w.word}</strong> <span style="color:#666;">${w.ipa || ''}</span> ${safeMeanings}</div>`;
                     });
                 }
             }
