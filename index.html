@@ -1010,40 +1010,42 @@
         });
 
         window.addEventListener('load', () => {
-            const savedName = localStorage.getItem('trigger_name');
-            const splash = document.getElementById('splash-screen');
-            
-            if (splash && savedName && savedName !== "null") {
-                if (sessionStorage.getItem('splash_shown')) {
-                    splash.style.display = 'none';
-                } else {
-                    setTimeout(() => {
-                        splash.style.opacity = '0';
-                        setTimeout(() => splash.style.display = 'none', 500);
-                    }, 1200);
-                    sessionStorage.setItem('splash_shown', 'true');
-              
-            const urlParams = new URLSearchParams(window.location.search);
-const tabParam = urlParams.get('tab');
+    const savedName = localStorage.getItem('trigger_name');
+    const splash = document.getElementById('splash-screen');
 
-if (tabParam === 'voca') {
-    // 1. 타이틀 강제 수정
-    const titleEl = document.getElementById('main-header-title');
-    if (titleEl) titleEl.innerText = '사라져 Voca';
-    
-    // 2. 탭 전환 실행
-    if (typeof switchTab === 'function') switchTab('voca');
-} else if (tabParam === 'analysis') {
-    const titleEl = document.getElementById('main-header-title');
-    if (titleEl) titleEl.innerText = '트리거 AI 시험분석';
-    
-    if (typeof switchTab === 'function') switchTab('analysis');
-}
-            
-            checkLoginStatus();
-            
-            selectLevel(localStorage.getItem('trigger_level') || 'middle');
-        });
+    // 1. 스플래시 로직 (괄호 짝 수정 완료)
+    if (splash && savedName && savedName !== "null") {
+        if (sessionStorage.getItem('splash_shown')) {
+            splash.style.display = 'none';
+        } else {
+            setTimeout(() => {
+                splash.style.opacity = '0';
+                setTimeout(() => { splash.style.display = 'none'; }, 500);
+            }, 1200);
+            sessionStorage.setItem('splash_shown', 'true');
+        }
+    } // <- 이 괄호가 정확히 닫혀야 뒤로 넘어갑니다!
+
+    // 2. 타이틀 및 탭 전환 로직
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+
+    if (tabParam === 'voca') {
+        const titleEl = document.getElementById('main-header-title');
+        if (titleEl) titleEl.innerText = '사라져 Voca';
+        if (typeof switchTab === 'function') switchTab('voca');
+    } else if (tabParam === 'analysis') {
+        const titleEl = document.getElementById('main-header-title');
+        if (titleEl) titleEl.innerText = '트리거 AI 시험분석';
+        if (typeof switchTab === 'function') switchTab('analysis');
+    }
+
+    // 3. 로그인 및 레벨 체크
+    if (typeof checkLoginStatus === 'function') checkLoginStatus();
+    if (typeof selectLevel === 'function') {
+        selectLevel(localStorage.getItem('trigger_level') || 'middle');
+    }
+});
             const cooldownTime = localStorage.getItem('blackt_cooldown');
             if (cooldownTime) {
                 const remaining = parseInt(cooldownTime) - Date.now();
@@ -1051,7 +1053,7 @@ if (tabParam === 'voca') {
                     setTimeout(sendRecoveryNotification, remaining);
                 }
             }
-        });
+    
 
         async function secureHandleLogin() {
             await requestNotificationPermission();
