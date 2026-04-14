@@ -130,7 +130,6 @@ function initApp() {
             } else {
                 showSystemMessage(`Day ${currentDay} 데이터를<br>불러올 수 없습니다.`);
             }
-            // [수정] 강제 복귀 시 탭 파라미터 유지
             setTimeout(() => { location.href = 'index.html?tab=voca'; }, 2500);
             return;
         }
@@ -157,6 +156,7 @@ function initApp() {
             todayWords = dayData || []; 
         }
 
+        // [수정 3] 누적 복습 단계 분리: 오답 모드 작동
         if (!isReviewDay && currentDay > 1) {
             let allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
             let preReviewWords = allWrongs.filter(w => 
@@ -165,10 +165,38 @@ function initApp() {
                 (w.isWrong === true || w.isStarred === true)
             );
             
-            if (preReviewWords.length > 0) {
-                const newWordsOnly = todayWords.filter(tw => !preReviewWords.some(pw => pw.word === tw.word));
-                targetWords = [...preReviewWords, ...newWordsOnly];
+            // 만약 리뷰 단어가 있고, 사용자가 아직 복습 단계를 완료하지 않았다면 분리 모드 진입
+            const reviewStatusKey = `trigger_review_done_${currentLevel}_${currentDay}`;
+            if (preReviewWords.length > 0 && localStorage.getItem(reviewStatusKey) !== 'true') {
+                isPreReviewMode = true;
+                targetWords = preReviewWords;
+                
+                showSystemMessage(`
+                    <div style="text-align:center; padding:10px;">
+                        <div style="font-size:1.3rem; color:var(--neon-orange); font-weight:bold; margin-bottom:15px;">망각 차단 1단계</div>
+                        <p style="color:#ddd; font-size:1rem; margin-bottom:20px; line-height:1.5;">어제와 그저께 틀린 단어 <strong>${targetWords.length}개</strong>를<br>먼저 복습합니다.</p>
+                        <button id="pre-review-start-btn" style="width:100%; padding:15px; background:var(--neon-orange); color:#000; font-weight:bold; border-radius:10px; border:none; cursor:pointer;">복습 시작하기</button>
+                    </div>
+                `);
+
+                // 사용자가 시작 버튼을 누를 때까지 대기
+                document.getElementById('pre-review-start-btn').onclick = () => {
+                    localStorage.setItem(reviewStatusKey, 'true'); // 복습 모드 완료 처리
+                    isPreReviewMode = false;
+                    
+                    // 복습이 끝난 후에는 순수하게 '오늘 진도(todayWords)'만 세팅
+                    targetWords = todayWords; 
+                    
+                    // 세션 태그 업데이트 후 시작
+                    if (sessionTag) {
+                        let sNum = parseInt(currentSession) || 1;
+                        sessionTag.innerText = sNum > 6 ? `자유 복습 모드` : `${sNum} / 6 사이클 진행 중`;
+                    }
+                    startStudy();
+                };
+                return; // 사용자가 버튼을 누르기 전까지 함수 진행 중단
             } else {
+                // 이미 복습 단계를 거쳤거나, 오답이 없다면 순수하게 오늘 단어만 학습
                 targetWords = todayWords;
             }
         } else {
@@ -197,7 +225,7 @@ function initApp() {
             localStorage.removeItem('trigger_jump_test'); 
             currentIdx = 0; 
             studyLoopCount = 2; 
-            score = 0; // [수정 1] 점프 시 점수 리셋
+            score = 0; // 점프 시 점수 초기화
             startCountdown("곧 테스트를 시작합니다.", startTest);
             return; 
         }
@@ -205,14 +233,12 @@ function initApp() {
         const endTime = localStorage.getItem('blackt_cooldown');
         if (endTime && endTime - Date.now() > 0 && parseInt(currentSession) <= 6 && currentSession !== 'final') {
             showSystemMessage("잠시 쉬어주세요.<br>곧 다시 시작할 수 있습니다.");
-            // [수정 4] 탭 파라미터 유지
             setTimeout(() => { location.href = 'index.html?tab=voca'; }, 1800);
         } else {
             startStudy(); 
         }
     } catch (err) {
         showSystemMessage("에러 발생: " + err.message);
-        // [수정 4] 탭 파라미터 유지
         setTimeout(() => { location.href = 'index.html?tab=voca'; }, 3000);
     }
 }
@@ -274,12 +300,11 @@ function startStudy() {
             return;
         } else {
             currentIdx = 0;
-            // [수정] 세션 번호를 확실한 '숫자'로 강제 변환하여 인식 오류 차단
             const currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
             const sNum = parseInt(currentSessionRaw); 
 
             if (sNum === 3 || sNum === 6 || currentSessionRaw === 'final') {
-                score = 0; // [수정 1] 테스트 진입 전 점수 리셋
+                score = 0; // 테스트 전 점수 리셋 보장
                 startCountdown("곧 테스트를 시작합니다.", startTest); 
             } else {
                 finishSession(false);
@@ -504,7 +529,7 @@ function handleAnswer(isCorrect) {
 
 function finishSession(didTest = true) {
     let currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
-    const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
+    let currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
     
     const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
     const today = new Date().toLocaleDateString();
@@ -530,10 +555,9 @@ function finishSession(didTest = true) {
     let currentSessionDisplay = finishedNum >= totalSessions ? "완료 👑" : `${finishedNum} / ${totalSessions} 사이클`;
     stats[currentDay].status = currentSessionDisplay;
 
-    // [수정 1] 정확한 점수 계산식 (현재 대상 단어 수 기반)
+    // [수정 1] 대상 단어 수 기반의 정확한 점수 계산
     const accuracy = targetWords.length > 0 ? Math.floor((score / targetWords.length) * 100) : 0;
 
-    // [수정 1] 테스트 후 통과/실패 분기 처리 보강
     if (didTest && accuracy < 80 && (currentSessionRaw === '6' || (isReviewDay && currentSessionRaw === '2'))) {
         localStorage.setItem(`trigger_session_${currentLevel}`, 'final'); 
         
@@ -562,7 +586,10 @@ function finishSession(didTest = true) {
         stats[currentDay].accuracy = accuracy;
         localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));
 
-        // [수정 4] 탭 고정
+        // [수정 2] 완료 시 Day를 자동으로 다음 날로 갱신하여 메인 UI 반영
+        localStorage.setItem(`trigger_current_day_${currentLevel}`, currentDay + 1);
+        localStorage.setItem(`trigger_session_${currentLevel}`, '1');
+
         showSystemMessage(`
             <div style="text-align:center;">
                 <div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold;">학습 완료! ${accuracy}%</div>
@@ -575,7 +602,6 @@ function finishSession(didTest = true) {
         localStorage.setItem('blackt_cooldown', Date.now() + COOL_DOWN_TIME);
         localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));
         
-        // [수정 3] 중간 테스트 완료 시 결과 팝업 표시
         if (didTest) {
             showSystemMessage(`
                 <div style="text-align:center;">
@@ -586,7 +612,6 @@ function finishSession(didTest = true) {
             `);
         } else {
             showSystemMessage("사이클 완료! 🔥");
-            // [수정 4] 탭 고정
             setTimeout(() => { location.href = 'index.html?tab=voca'; }, 2200);
         }
     }
@@ -620,7 +645,7 @@ function updateMasteredCount() {
 }
 
 function retryOnlyWrongs() {
-    score = 0; // [수정 1] 점수 리셋 추가
+    score = 0; // [수정 1] 최후의 사이클 진입 시 점수 리셋
     let allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
     let retryList = allWrongs.filter(w => w.level === currentLevel && w.day === currentDay);
@@ -643,16 +668,19 @@ function shareKakao() {
     if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) return;
     
     const userName = localStorage.getItem('trigger_name') || '학습자';
-    const currentDay = localStorage.getItem(`trigger_current_day_${currentLevel}`) || 1;
-    const shareUrl = window.location.origin + "?tab=voca"; // [수정 4] 공유 링크 고도화 
+    // 공유 시점에는 currentDay가 이미 갱신되었을 수 있으므로 -1 처리하여 완료한 날짜를 보정
+    let displayDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
+    if (localStorage.getItem(`trigger_session_${currentLevel}`) === '1' && displayDay > 1) displayDay--; 
+
+    const shareUrl = window.location.origin; 
     const acc = targetWords.length > 0 ? Math.floor((score/targetWords.length)*100) : 0; 
 
     Kakao.Share.sendDefault({
         objectType: 'feed',
         content: { 
             title: `🔥 [${userName}]님, 단어 학습 마스터!`, 
-            description: `🏅 정답률: ${acc}%\n📅 Day ${currentDay} 루틴 완주 성공!`, 
-            imageUrl: 'https://blackt.pages.dev/share-v2.png', // [수정] 새 이미지 파일명 반영
+            description: `🏅 정답률: ${acc}%\n📅 Day ${displayDay} 루틴 완주 성공!`, 
+            imageUrl: 'https://blackt.pages.dev/share-v2.png', 
             link: { mobileWebUrl: shareUrl, webUrl: shareUrl } 
         },
         buttons: [
@@ -663,15 +691,15 @@ function shareKakao() {
             {
                 title: '👍 칭찬하고 응원하기',
                 link: { 
-                    mobileWebUrl: shareUrl + '&action=praise&name=' + encodeURIComponent(userName), 
-                    webUrl: shareUrl + '&action=praise&name=' + encodeURIComponent(userName)
+                    mobileWebUrl: shareUrl + '?action=praise&name=' + encodeURIComponent(userName), 
+                    webUrl: shareUrl + '?action=praise&name=' + encodeURIComponent(userName)
                 }
             }
         ]
     });
 }
 
-// [수정 2] 관리자 점프: '즉시 진입' 삭제, 세션 변경 후 대기
+// [수정 2] 관리자 점프: 즉시 진입(trigger_jump_test) 기능을 삭제하고 대기 상태 전환
 window.jumpToSession = function(n) {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
     localStorage.setItem(`trigger_session_${lvl}`, n.toString());
@@ -687,7 +715,7 @@ function jumpToFinish() {
     const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
     localStorage.setItem('trigger_session_' + lvl, isReviewDay ? '2' : '6'); 
     localStorage.removeItem('blackt_cooldown');
-    localStorage.removeItem('trigger_jump_test'); // 즉시 진입 삭제
+    localStorage.removeItem('trigger_jump_test'); 
     alert(`🛠️ 최종 테스트 단계로 점프 완료!\n메인 화면에서 '학습 시작하기'를 눌러주세요.`);
     location.href = 'index.html?tab=voca';
 }
