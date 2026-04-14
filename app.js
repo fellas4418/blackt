@@ -257,7 +257,8 @@ function togglePause() {
 function startStudy() {
     const slot1 = document.getElementById('slot-1');
     const slot2 = document.getElementById('slot-2');
-    
+
+    // LOOP 1일 때 아래 칸, LOOP 2일 때 두 칸 모두 보라색 활성화
     if (studyLoopCount === 1) {
         if(slot1) slot1.classList.add('active');
         if(slot2) slot2.classList.remove('active');
@@ -669,3 +670,12 @@ function activateAdminMode(e) {
     }
 }
 document.addEventListener('click', activateAdminMode);
+
+if (!window.isInitActive) {
+    window.isInitActive = true;
+    if (document.readyState === 'loading') { 
+        document.addEventListener('DOMContentLoaded', initApp); 
+    } else { 
+        initApp(); 
+    }
+}
