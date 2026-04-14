@@ -1027,6 +1027,7 @@
             }
             
             checkLoginStatus();
+            // 시작 시 레벨 설정만 하고, 팝업 코드는 여기서 삭제했습니다.
             selectLevel(localStorage.getItem('trigger_level') || 'middle');
 
             const cooldownTime = localStorage.getItem('blackt_cooldown');
