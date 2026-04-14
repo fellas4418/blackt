@@ -569,7 +569,7 @@ function finishSession(didTest = true) {
         localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));
         
         showSystemMessage("사이클 완료! 🔥");
-        setTimeout(() => { location.href = 'index.html'; }, 2200);
+        setTimeout(() => { location.href = 'index.html?tab=voca'; }, 2200);
     }
 }
 
