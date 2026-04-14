@@ -30,6 +30,11 @@
         
         .login-title { font-size: 1.8rem; font-weight: bold; margin-bottom: 25px; color: #fff; text-shadow: var(--glow-text); }
 
+        /* 에너지 슬롯 스타일 추가 */
+        .energy-container { display: flex; justify-content: center; gap: 8px; margin: 12px 0; width: 100%; }
+        .energy-slot { flex: 1; height: 8px; background: #222; border: 1px solid #333; border-radius: 4px; transition: all 0.3s ease; }
+        .energy-slot.active { background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); border-color: #fff; }
+
         .input-group { margin-bottom: 18px; text-align: left; }
         .input-label { font-size: 0.85rem; color: #777; margin-bottom: 6px; display: block; }
         .neon-input { width: 100%; box-sizing: border-box; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; font-size: 1rem; transition: 0.3s; }
@@ -105,23 +110,28 @@
                     <strong style="color:var(--neon-blue); font-size: 1.1rem;">1. 15단계 '블링크' 루틴</strong><br>
                     뜻이 보였다 사라지는 깜빡임 학습으로 뇌를 자극합니다. <strong>12회 반복 + 3회 테스트</strong>를 모두 통과해야 완료됩니다.
                 </p>
+    
                 <p style="margin-bottom: 20px;">
                     <strong style="color:var(--neon-orange); font-size: 1.1rem;">2. 3분 쿨타임 (장기기억 전환)</strong><br>
                     사이클 사이마다 <strong>3분간 강제 휴식</strong>이 부여됩니다. 뇌가 단기기억을 장기기억으로 변환하는 필수 시간입니다.
                 </p>
+    
                 <p style="margin-bottom: 20px;">
                     <strong style="color:var(--neon-green); font-size: 1.1rem;">3. 3일 누적 복습 (망각 차단)</strong><br>
                     당일 학습 전, <strong>2일 전과 1일 전 단어를 먼저 마스터</strong>해야만 오늘 진도에 진입할 수 있는 강력한 누적 복습 시스템입니다.
                 </p>
+    
                 <p style="margin-bottom: 20px;">
                     <strong style="color:#afff00; font-size: 1.1rem;">4. 5+2 주말 마스터</strong><br>
                     주말 2일은 진도 없이 <strong>전체 누적 복습 및 오답 정리</strong>를 진행하여 한 주 분량을 완벽히 내 것으로 만듭니다.
                 </p>
+    
                 <p>
                     <strong style="color:#FFD600; font-size: 1.1rem;">5. 매일 성취 인증</strong><br>
                     학습 결과를 공유하고 동료들과 인증하며 끝까지 완주할 수 있는 동기를 부여합니다.
                 </p>
             </div>
+    
             <button class="login-btn" style="border-color: #fff; color: #000; background: #fff; box-shadow: none; width: 100%; margin-top: 25px; padding: 15px; font-weight: bold; cursor: pointer; font-size: 1rem; border-radius: 8px;" onclick="closeGuide()">확인했습니다</button>
         </div>
     </div>
@@ -173,7 +183,7 @@
         
         <div style="position: relative; display: flex; flex-direction: column; align-items: center; width: 100%; padding: 30px 10px 15px 10px; box-sizing: border-box;">
             <div class="logo" id="main-header-title" onclick="activateAdmin()" style="margin: 0; text-align: center; line-height: 1.2; font-size: 3rem; letter-spacing: -1px; cursor: pointer; user-select: none;">
-                사라져 Voca
+                Trigger<br>AI 시험 분석
             </div>
             
             <div style="width: 100%; display: flex; justify-content: flex-end; margin-top: 25px;"> <button onclick="shareTriggerApp()" 
@@ -185,7 +195,7 @@
         
         <hr style="border: 0.5px solid #222; width: 95%; margin: 10px auto 25px auto;">
         
-        <div id="tab-voca" class="tab-content active">
+        <div id="tab-voca" class="tab-content">
             
             <button id="install-app-btn" style="display:none; width: 100%; margin-bottom: 25px; padding: 12px; background: rgba(0, 243, 255, 0.05); color: var(--neon-blue); font-size: 1.05rem; font-weight: bold; border: 1px dashed var(--neon-blue); border-radius: 12px; box-shadow: 0 0 15px rgba(0,243,255,0.15); cursor: pointer; transition: 0.3s;">
                 👇1초 만에 앱으로 설치하기
@@ -220,6 +230,11 @@
                 </div>
                 <div style="color: #aaa; font-size: 1.2rem; margin-bottom: 10px;">목표 단어: <span id="target-count-display" style="color: #fff; font-weight: bold;">0개</span></div>
                 
+                <div class="energy-container">
+                    <div id="slot-1" class="energy-slot"></div>
+                    <div id="slot-2" class="energy-slot"></div>
+                </div>
+
                 <button class="start-btn" id="start-btn-main">학습 시작하기</button>
             </div>
 
@@ -261,7 +276,7 @@
             </div>
         </div>
 
-        <div id="tab-analysis" class="tab-content">
+        <div id="tab-analysis" class="tab-content active">
             <div class="card" style="border: 1px solid var(--neon-blue); background: rgba(0, 243, 255, 0.05); padding: 25px;">
                 <div style="font-size: 1.3rem; font-weight: bold; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); margin-bottom: 10px;">📷 15초 시험지 분석</div>
                 <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 25px;">시험지를 찍으면 내가 틀린 진짜 원인(문법/단어)을 찾아내어 단어장을 업데이트합니다.</p>
@@ -303,10 +318,10 @@
     </div> 
     
     <nav class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('voca', this)">
+        <div class="nav-item" onclick="switchTab('voca', this)">
             <span class="nav-icon">🏠</span><span>단어 학습</span>
         </div>
-        <div class="nav-item" onclick="switchTab('analysis', this)">
+        <div class="nav-item active" onclick="switchTab('analysis', this)">
             <span class="nav-icon">📷</span><span>시험 분석</span>
         </div>
         <div class="nav-item" onclick="switchTab('grammar', this)">
@@ -323,6 +338,7 @@
 
         function closeGuide() {
             document.getElementById('guide-modal').style.display = 'none';
+            // [수정] 확인했습니다 버튼 클릭 시 저장소에 기록
             localStorage.setItem('hasSeenGuide_2026', 'true');
         }
 
@@ -371,6 +387,14 @@
             document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
             element.classList.add('active');
             
+            // [수정] 단어 학습 탭 누를 때만 기록 확인 후 팝업 노출
+            if (tabId === 'voca') {
+                const hasSeenGuide = localStorage.getItem('hasSeenGuide_2026');
+                if (hasSeenGuide !== 'true') {
+                    openGuide();
+                }
+            }
+
             const headerTitle = document.getElementById('main-header-title');
             if (tabId === 'voca') { headerTitle.innerHTML = '사라져 Voca'; } 
             else if (tabId === 'analysis') { headerTitle.innerHTML = 'Trigger<br>AI 시험 분석'; } 
@@ -686,8 +710,8 @@
                 sortedDays.forEach(day => {
                     html += `<div onclick="toggleAccordion('wrong-day-list-${day}')" style="background: rgba(57, 255, 20, 0.1); border: 1px solid rgba(57, 255, 20, 0.3); color:var(--neon-green); padding: 15px; margin-top:10px; border-radius: 8px; font-weight:bold; display: flex; justify-content: space-between; cursor: pointer;">
                                 <span>Day ${day} 오답/별표 (${grouped[day].length}개)</span><span>▼</span>
-                            </div>
-                            <div id="wrong-day-list-${day}" style="display: none; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-top: 5px; border: 1px solid #222;">`;
+                             </div>
+                             <div id="wrong-day-list-${day}" style="display: none; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-top: 5px; border: 1px solid #222;">`;
                     
                     grouped[day].forEach(w => {
                         const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
@@ -729,15 +753,15 @@
                 if(dayWords.length > 0) {
                     html += `<div onclick="toggleAccordion('day-list-${i}')" style="background: rgba(255,153,0,0.1); border: 1px solid rgba(255,153,0,0.3); color:var(--neon-orange); padding: 15px; margin-top:10px; border-radius: 8px; font-weight:bold; display: flex; justify-content: space-between; cursor: pointer;">
                                 <span>Day ${i} Clear</span><span>▼</span>
-                            </div>
-                            <div id="day-list-${i}" style="display: none; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-top: 5px; border: 1px solid #222;">`;
+                             </div>
+                             <div id="day-list-${i}" style="display: none; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-top: 5px; border: 1px solid #222;">`;
                     dayWords.forEach(w => {
                         totalCount++;
                         const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
                         html += `<div style="padding:10px 0; border-bottom:1px solid #333; font-size:0.95rem;">
                                     <span style="color:#fff; font-weight:bold; font-size: 1.1rem;">${w.word}</span><br>
                                     <span style="color:#aaa; font-size:0.9rem;">${safeMeanings}</span>
-                                </div>`;
+                                 </div>`;
                     });
                     html += `</div>`;
                 }
@@ -953,7 +977,6 @@
         window.addEventListener('appinstalled', () => {
             if (installBtn) installBtn.style.display = 'none';
             deferredPrompt = null;
-            console.log("앱 설치 완료");
         });
 
         async function requestNotificationPermission() {
@@ -1001,14 +1024,6 @@
                     }, 1200);
                     sessionStorage.setItem('splash_shown', 'true');
                 }
-            }
-
-            // 🚩 팝업이 무조건 최초 1회만 노출되도록 강제 분리
-            const hasSeenGuide = localStorage.getItem('hasSeenGuide_2026'); 
-            if (hasSeenGuide !== 'true') {
-                setTimeout(() => {
-                    openGuide();
-                }, 1800);
             }
             
             checkLoginStatus();
