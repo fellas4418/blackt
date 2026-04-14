@@ -275,10 +275,11 @@ function startStudy() {
             return;
         } else {
             currentIdx = 0;
-            const currentSession = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
-            const sNum = Number(currentSession); 
+            // [수정] 세션 번호를 확실한 '숫자'로 강제 변환하여 인식 오류 차단
+            const currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
+            const sNum = parseInt(currentSessionRaw); 
 
-            if (sNum === 3 || sNum === 6 || currentSession === 'final') {
+            if (sNum === 3 || sNum === 6 || currentSessionRaw === 'final') {
                 startCountdown("곧 테스트를 시작합니다.", startTest); 
             } else {
                 finishSession(false);
@@ -564,11 +565,13 @@ function finishSession(didTest = true) {
 
         showSystemMessage(`<div style="text-align:center;"><div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold;">학습 완료! ${accuracy}%</div><button onclick="shareKakao()" style="width:100%; padding:16px; background:#fee500; border-radius:12px; margin-top:20px; border:none; font-weight:bold;">🟡 카톡 공유</button><button onclick="location.href='index.html'" style="margin-top:20px; background:none; border:none; color:#888; text-decoration:underline;">종료하기</button></div>`);
     } else {
-        localStorage.setItem(`trigger_session_${currentLevel}`, finishedNum + 1);
+        // [수정] 다음 사이클 번호를 명확하게 문자열로 저장
+        localStorage.setItem(`trigger_session_${currentLevel}`, (finishedNum + 1).toString());
         localStorage.setItem('blackt_cooldown', Date.now() + COOL_DOWN_TIME);
         localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));
         
         showSystemMessage("사이클 완료! 🔥");
+        // [수정] 메인으로 돌아갈 때 무조건 voca 탭을 열도록 주소 강제 지정
         setTimeout(() => { location.href = 'index.html?tab=voca'; }, 2200);
     }
 }
