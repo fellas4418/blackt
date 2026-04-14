@@ -1022,17 +1022,28 @@
                         setTimeout(() => splash.style.display = 'none', 500);
                     }, 1200);
                     sessionStorage.setItem('splash_shown', 'true');
-                }
-            }
+              
             const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('tab') === 'voca') {
-                if (typeof switchTab === 'function') switchTab('voca');
-            }
+const tabParam = urlParams.get('tab');
+
+if (tabParam === 'voca') {
+    // 1. 타이틀 강제 수정
+    const titleEl = document.getElementById('main-header-title');
+    if (titleEl) titleEl.innerText = '사라져 Voca';
+    
+    // 2. 탭 전환 실행
+    if (typeof switchTab === 'function') switchTab('voca');
+} else if (tabParam === 'analysis') {
+    const titleEl = document.getElementById('main-header-title');
+    if (titleEl) titleEl.innerText = '트리거 AI 시험분석';
+    
+    if (typeof switchTab === 'function') switchTab('analysis');
+}
             
             checkLoginStatus();
             
             selectLevel(localStorage.getItem('trigger_level') || 'middle');
-
+        });
             const cooldownTime = localStorage.getItem('blackt_cooldown');
             if (cooldownTime) {
                 const remaining = parseInt(cooldownTime) - Date.now();
