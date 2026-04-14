@@ -87,7 +87,11 @@ function initApp() {
     isAppInitialized = true;
 
     wakeUpTTS(); 
-    
+    // initApp 함수 안쪽 맨 윗줄에 추가
+if (localStorage.getItem('trigger_admin_mode') === 'true') {
+    const menu = document.getElementById('admin-menu');
+    if (menu) menu.style.setProperty('display', 'flex', 'important');
+}
     try {
         const sessionTag = document.getElementById('session-tag'); 
         const footer = document.querySelector('.footer');
@@ -603,10 +607,29 @@ function finishSession(didTest = true) {
         localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));
         
         if (didTest) {
+            // 점수별 맞춤 메시지 설정
+            let resTitle = "TEST 통과!";
+            let resColor = "var(--neon-blue)";
+            let resMsg = "3분 휴식 후 다음 사이클이 열립니다.";
+    
+            if (accuracy < 50) {
+                resTitle = "⚠️ 집중력 경보!";
+                resColor = "var(--neon-orange)";
+                resMsg = "지금은 뇌가 쉬고 싶어 하네요.<br>다음번엔 조금 더 집중해 보세요!";
+            } else if (accuracy < 80) {
+                resTitle = "거의 다 왔어요! 🤏";
+                resColor = "var(--neon-blue)";
+                resMsg = "헷갈린 단어들을 조금 더 집중해서 보세요.";
+            } else {
+                resTitle = "MISSION COMPLETE! 🔥";
+                resColor = "var(--neon-green)";
+                resMsg = "완벽합니다! 이 기세를 이어가세요.";
+            }
+    
             showSystemMessage(`
                 <div style="text-align:center;">
-                    <div style="font-size:1.5rem; color:var(--neon-blue); font-weight:bold;">TEST 통과! (${accuracy}%)</div>
-                    <p style="color:#888; margin-top:10px;">3분 휴식 후 다음 사이클이 열립니다.</p>
+                    <div style="font-size:1.5rem; color:${resColor}; font-weight:bold;">${resTitle} (${accuracy}%)</div>
+                    <p style="color:#888; font-size:0.95rem; margin-top:10px;">${resMsg}</p>
                     <button onclick="location.href='index.html?tab=voca'" style="width:100%; padding:16px; background:#333; color:#fff; border-radius:12px; margin-top:20px; border:none; font-weight:bold;">확인</button>
                 </div>
             `);
@@ -732,8 +755,10 @@ function activateAdminMode(e) {
         if (adminClickCount === 3) {
             const menu = document.getElementById('admin-menu');
             if (menu) {
-                menu.style.setProperty('display', 'flex', 'important'); 
-                alert("🛠️ 관리자 모드 활성화!");
+                // 기록을 저장하여 계속 유지되게 함
+                localStorage.setItem('trigger_admin_mode', 'true');
+                menu.style.setProperty('display', 'flex', 'important');
+                alert("🛠️ 관리자 모드 활성화! (이제 계속 유지됩니다)");
                 window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
             }
             adminClickCount = 0;
