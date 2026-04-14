@@ -407,90 +407,93 @@ function showSystemMessage(text) {
     }
     
     function updateUI(data, isTest = false) {
-        const targetEl = document.getElementById('target');
-        const mBox = document.getElementById('meanings');
-        const headerEl = document.querySelector('.header'); 
-        
-        if (!targetEl || !mBox || !data) return;
+        const targetEl = document.getElementById('target');
+        const mBox = document.getElementById('meanings');
+        const headerEl = document.querySelector('.header'); 
+        
+        if (!targetEl || !mBox || !data) return;
     
-        const oldCounter = document.getElementById('session-counter');
-        if (oldCounter) oldCounter.remove();
+        // 1. 기존 카운터 제거 후 다시 그리기 (위치 최적화)
+        const oldCounter = document.getElementById('session-counter');
+        if (oldCounter) oldCounter.remove();
     
-        const currentNum = currentIdx + 1;
-        const totalNum = targetWords.length;
+        const currentNum = currentIdx + 1;
+        const totalNum = targetWords.length;
     
-        // updateUI 함수 내 counterHtml 부분을 이 컴팩트한 버전으로 교체하세요
-const counterHtml = `
-    <div id="session-counter" style="text-align: center; margin-top: 5px; font-family: 'Pretendard', sans-serif;">
-        <div style="font-size: 0.85rem; color: #777; font-weight: bold; letter-spacing: 0.5px;">
-            <span style="color: var(--neon-blue); font-size: 1rem;">${currentNum}</span> 
-            <span style="color: #444; margin: 0 2px;">/</span> 
-            ${totalNum}
-        </div>
-    </div>
-`;
-        
-        if (headerEl) {
-            headerEl.insertAdjacentHTML('beforeend', counterHtml);
-        }
+        // 여백을 최소화한 카운터 (반드시 유지)
+        const counterHtml = `
+            <div id="session-counter" style="text-align: center; margin-top: 5px; font-family: 'Pretendard', sans-serif; width: 100%;">
+                <div style="font-size: 0.9rem; color: #666; font-weight: 800; margin-bottom: 2px;">오늘의 단어 순서</div>
+                <div style="font-size: 1rem; color: #aaa; font-weight: bold;">
+                    <span style="color: var(--neon-blue); font-size: 1.1rem;">${currentNum}</span> 
+                    <span style="color: #444; margin: 0 2px;">/</span> 
+                    ${totalNum}
+                </div>
+            </div>
+        `;
+        
+        if (headerEl) {
+            headerEl.insertAdjacentHTML('beforeend', counterHtml);
+        }
     
-        let safeMeanings = Array.isArray(data.meanings) ? data.meanings : (data.meaning ? [data.meaning] : ["뜻 확인 필요"]);
-        const fullMeaning = safeMeanings.join(', ');
+        let safeMeanings = Array.isArray(data.meanings) ? data.meanings : (data.meaning ? [data.meaning] : ["뜻 확인 필요"]);
+        const fullMeaning = safeMeanings.join(', ');
     
-        targetEl.style.setProperty('font-size', '3.3rem', 'important'); 
-        targetEl.style.setProperty('text-shadow', '0 0 15px #fff', 'important');
-        targetEl.style.setProperty('color', '#fff', 'important');
-        targetEl.style.setProperty('margin-top', '0px', 'important');
+        // 2. 단어 위치를 강제로 위로 끌어올림 (margin-top을 마이너스로 조정)
+        targetEl.style.setProperty('font-size', '3.3rem', 'important'); 
+        targetEl.style.setProperty('text-shadow', '0 0 15px #fff', 'important');
+        targetEl.style.setProperty('color', '#fff', 'important');
+        targetEl.style.setProperty('margin-top', '-40px', 'important'); // 이 수치가 단어를 위로 올립니다
     
-        if (!isTest) {
-            targetEl.innerHTML = `
-                <div style="display:flex; flex-direction:column; align-items:center;">
-                    <div style="display:flex; justify-content:center; align-items:center;">
-                        <span style="font-size:1.8rem; visibility:hidden; pointer-events:none;">☆</span>
-                        <span style="cursor:pointer; margin:0 10px;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</span>
-                        <button id="star-btn" style="background:none; border:none; font-size:1.8rem; cursor:pointer; color:var(--neon-orange); padding-bottom:5px;">☆</button>
-                    </div>
-                    <div class="ipa-text" style="font-size:1.2rem; color:#888; margin-top:8px;">${data.ipa || ''}</div>
-                </div>`;
-            mBox.innerHTML = safeMeanings.map(m => `<div style="font-size:2.2rem; font-weight:bold; margin-bottom:15px;">${m}</div>`).join('');
-            
-            const starBtn = document.getElementById('star-btn');
-            if(starBtn) {
-                let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
-                const isStarred = wrongWords.some(w => w.word === data.word && w.level === currentLevel);
-                starBtn.innerText = isStarred ? "⭐" : "☆";
-                starBtn.onclick = (e) => { e.stopPropagation(); toggleStar(data); };
-            }
-        } else {
-            targetEl.innerHTML = `
-                <div style="display:flex; flex-direction:column; align-items:center;">
-                    <div style="font-size:3.3rem; font-weight:bold; cursor:pointer;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</div>
-                    <div class="ipa-text" style="font-size:1.2rem; color:#888; margin-top:8px;">${data.ipa || ''}</div>
-                </div>`;
-            
-            let dictPool = [];
-            if (typeof wordsData !== 'undefined' && wordsData[currentLevel]) {
-                Object.values(wordsData[currentLevel]).forEach(week => {
-                    Object.values(week).forEach(dayEntry => {
-                        const list = Array.isArray(dayEntry) ? dayEntry : (dayEntry.test || []);
-                        list.forEach(w => {
-                            const m = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meaning;
-                            if (m && m !== fullMeaning) dictPool.push(m);
-                        });
-                    });
-                });
-            }
-            dictPool = [...new Set(dictPool)];
-            let filteredPool = dictPool.filter(m => !window.lastWrongOptions.includes(m));
-            if (filteredPool.length < 3) filteredPool = dictPool;
-            let selectedWrongs = filteredPool.sort(() => Math.random() - 0.5).slice(0, 3);
-            window.lastWrongOptions = selectedWrongs;
+        if (!isTest) {
+            targetEl.innerHTML = `
+                <div style="display:flex; flex-direction:column; align-items:center;">
+                    <div style="display:flex; justify-content:center; align-items:center;">
+                        <span style="font-size:1.8rem; visibility:hidden; pointer-events:none;">☆</span>
+                        <span style="cursor:pointer; margin:0 10px;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</span>
+                        <button id="star-btn" style="background:none; border:none; font-size:1.8rem; cursor:pointer; color:var(--neon-orange); padding-bottom:5px;">☆</button>
+                    </div>
+                    <div class="ipa-text" style="font-size:1.2rem; color:#888; margin-top:8px;">${data.ipa || ''}</div>
+                </div>`;
+            mBox.innerHTML = safeMeanings.map(m => `<div style="font-size:2.2rem; font-weight:bold; margin-bottom:15px;">${m}</div>`).join('');
+            
+            const starBtn = document.getElementById('star-btn');
+            if(starBtn) {
+                let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+                const isStarred = wrongWords.some(w => w.word === data.word && w.level === currentLevel);
+                starBtn.innerText = isStarred ? "⭐" : "☆";
+                starBtn.onclick = (e) => { e.stopPropagation(); toggleStar(data); };
+            }
+        } else {
+            targetEl.innerHTML = `
+                <div style="display:flex; flex-direction:column; align-items:center;">
+                    <div style="font-size:3.3rem; font-weight:bold; cursor:pointer;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</div>
+                    <div class="ipa-text" style="font-size:1.2rem; color:#888; margin-top:8px;">${data.ipa || ''}</div>
+                </div>`;
+            
+            let dictPool = [];
+            if (typeof wordsData !== 'undefined' && wordsData[currentLevel]) {
+                Object.values(wordsData[currentLevel]).forEach(week => {
+                    Object.values(week).forEach(dayEntry => {
+                        const list = Array.isArray(dayEntry) ? dayEntry : (dayEntry.test || []);
+                        list.forEach(w => {
+                            const m = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meaning;
+                            if (m && m !== fullMeaning) dictPool.push(m);
+                        });
+                    });
+                });
+            }
+            dictPool = [...new Set(dictPool)];
+            let filteredPool = dictPool.filter(m => !window.lastWrongOptions.includes(m));
+            if (filteredPool.length < 3) filteredPool = dictPool;
+            let selectedWrongs = filteredPool.sort(() => Math.random() - 0.5).slice(0, 3);
+            window.lastWrongOptions = selectedWrongs;
     
-            const choices = [fullMeaning, ...selectedWrongs].sort(() => Math.random() - 0.5);
-            mBox.innerHTML = choices.map(c => `
-                    <button class="choice-btn" style="font-size: 1.4rem !important; height: 75px !important; margin-bottom: 12px; font-weight: bold; width: 100%; display: flex; align-items: center; justify-content: center; text-align: center; padding: 5px 15px !important; line-height: 1.2; word-break: keep-all;" 
-                    onclick="handleAnswer(${c === fullMeaning})">${c}</button>`).join('');
-        }
+            const choices = [fullMeaning, ...selectedWrongs].sort(() => Math.random() - 0.5);
+            mBox.innerHTML = choices.map(c => `
+                    <button class="choice-btn" style="font-size: 1.4rem !important; height: 75px !important; margin-bottom: 12px; font-weight: bold; width: 100%; display: flex; align-items: center; justify-content: center; text-align: center; padding: 5px 15px !important; line-height: 1.2; word-break: keep-all;" 
+                    onclick="handleAnswer(${c === fullMeaning})">${c}</button>`).join('');
+        }
     }
     
     function handleAnswer(isCorrect) {
