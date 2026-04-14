@@ -419,18 +419,16 @@ function showSystemMessage(text) {
         const currentNum = currentIdx + 1;
         const totalNum = targetWords.length;
     
-        const counterHtml = `
-            <div id="session-counter" style="text-align: center; margin-top: 10px; font-family: 'Pretendard', sans-serif;">
-                <div style="font-size: 1.1rem; color: #555; font-weight: 800; margin-bottom: 2px; letter-spacing: 1px;">
-                    오늘의 단어 순서
-                </div>
-                <div style="font-size: 1rem; color: #aaa; font-weight: bold;">
-                    <span style="color: var(--neon-blue); font-size: 1.2rem;">${currentNum}</span> 
-                    <span style="color: #444; font-size: 0.8rem; margin: 0 3px;">/</span> 
-                    ${totalNum}
-                </div>
-            </div>
-        `;
+        // updateUI 함수 내 counterHtml 부분을 이 컴팩트한 버전으로 교체하세요
+const counterHtml = `
+    <div id="session-counter" style="text-align: center; margin-top: 5px; font-family: 'Pretendard', sans-serif;">
+        <div style="font-size: 0.85rem; color: #777; font-weight: bold; letter-spacing: 0.5px;">
+            <span style="color: var(--neon-blue); font-size: 1rem;">${currentNum}</span> 
+            <span style="color: #444; margin: 0 2px;">/</span> 
+            ${totalNum}
+        </div>
+    </div>
+`;
         
         if (headerEl) {
             headerEl.insertAdjacentHTML('beforeend', counterHtml);
