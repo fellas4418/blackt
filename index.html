@@ -195,7 +195,7 @@
         
         <hr style="border: 0.5px solid #222; width: 95%; margin: 10px auto 25px auto;">
         
-        <div id="tab-voca" class="tab-content">
+        <div id="tab-voca" class="tab-content active">
             
             <button id="install-app-btn" style="display:none; width: 100%; margin-bottom: 25px; padding: 12px; background: rgba(0, 243, 255, 0.05); color: var(--neon-blue); font-size: 1.05rem; font-weight: bold; border: 1px dashed var(--neon-blue); border-radius: 12px; box-shadow: 0 0 15px rgba(0,243,255,0.15); cursor: pointer; transition: 0.3s;">
                 👇1초 만에 앱으로 설치하기
@@ -271,7 +271,7 @@
             </div>
         </div>
 
-        <div id="tab-analysis" class="tab-content active">
+        <div id="tab-analysis" class="tab-content">
             <div class="card" style="border: 1px solid var(--neon-blue); background: rgba(0, 243, 255, 0.05); padding: 25px;">
                 <div style="font-size: 1.3rem; font-weight: bold; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); margin-bottom: 10px;">📷 15초 시험지 분석</div>
                 <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 25px;">시험지를 찍으면 내가 틀린 진짜 원인(문법/단어)을 찾아내어 단어장을 업데이트합니다.</p>
@@ -313,10 +313,10 @@
     </div> 
     
     <nav class="bottom-nav">
-        <div class="nav-item" onclick="switchTab('voca', this)">
+        <div class="nav-item active" onclick="switchTab('voca', this)">
             <span class="nav-icon">🏠</span><span>사라져 Voca</span>
         </div>
-        <div class="nav-item active" onclick="switchTab('analysis', this)">
+        <div class="nav-item" onclick="switchTab('analysis', this)">
             <span class="nav-icon">📷</span><span>시험 분석</span>
         </div>
         <div class="nav-item" onclick="switchTab('grammar', this)">
