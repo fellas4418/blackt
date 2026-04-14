@@ -197,7 +197,7 @@ function initApp() {
             localStorage.removeItem('trigger_jump_test'); 
             currentIdx = 0; 
             studyLoopCount = 2; 
-            score = 0; // [수정] 점프 시 점수 초기화
+            score = 0; // [수정 1] 점프 시 점수 리셋
             startCountdown("곧 테스트를 시작합니다.", startTest);
             return; 
         }
@@ -205,12 +205,14 @@ function initApp() {
         const endTime = localStorage.getItem('blackt_cooldown');
         if (endTime && endTime - Date.now() > 0 && parseInt(currentSession) <= 6 && currentSession !== 'final') {
             showSystemMessage("잠시 쉬어주세요.<br>곧 다시 시작할 수 있습니다.");
+            // [수정 4] 탭 파라미터 유지
             setTimeout(() => { location.href = 'index.html?tab=voca'; }, 1800);
         } else {
             startStudy(); 
         }
     } catch (err) {
         showSystemMessage("에러 발생: " + err.message);
+        // [수정 4] 탭 파라미터 유지
         setTimeout(() => { location.href = 'index.html?tab=voca'; }, 3000);
     }
 }
@@ -255,6 +257,7 @@ function startStudy() {
     const slot1 = document.getElementById('slot-1');
     const slot2 = document.getElementById('slot-2');
 
+    // LOOP 1일 때 아래 칸, LOOP 2일 때 두 칸 모두 보라색 활성화
     if (studyLoopCount === 1) {
         if(slot1) slot1.classList.add('active');
         if(slot2) slot2.classList.remove('active');
@@ -271,11 +274,12 @@ function startStudy() {
             return;
         } else {
             currentIdx = 0;
+            // [수정] 세션 번호를 확실한 '숫자'로 강제 변환하여 인식 오류 차단
             const currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
             const sNum = parseInt(currentSessionRaw); 
 
             if (sNum === 3 || sNum === 6 || currentSessionRaw === 'final') {
-                score = 0; // [수정 1] 테스트 진입 시 점수 변수 완벽 초기화
+                score = 0; // [수정 1] 테스트 진입 전 점수 리셋
                 startCountdown("곧 테스트를 시작합니다.", startTest); 
             } else {
                 finishSession(false);
@@ -526,14 +530,19 @@ function finishSession(didTest = true) {
     let currentSessionDisplay = finishedNum >= totalSessions ? "완료 👑" : `${finishedNum} / ${totalSessions} 사이클`;
     stats[currentDay].status = currentSessionDisplay;
 
-    // [수정 1] 정확한 점수 계산식 보강 (현재 대상 단어 수 기반)
+    // [수정 1] 정확한 점수 계산식 (현재 대상 단어 수 기반)
     const accuracy = targetWords.length > 0 ? Math.floor((score / targetWords.length) * 100) : 0;
 
+    // [수정 1] 테스트 후 통과/실패 분기 처리 보강
     if (didTest && accuracy < 80 && (currentSessionRaw === '6' || (isReviewDay && currentSessionRaw === '2'))) {
         localStorage.setItem(`trigger_session_${currentLevel}`, 'final'); 
+        
+        let warningText = "아쉬운 점수!";
+        if (accuracy < 50) warningText = "⚠️ 집중력 경보!";
+        
         showSystemMessage(`
             <div style="text-align:center;">
-                <div style="font-size:1.5rem; color:var(--neon-orange); font-weight:bold;">아쉬운 점수! ${accuracy}%</div>
+                <div style="font-size:1.5rem; color:var(--neon-orange); font-weight:bold;">${warningText} (${accuracy}%)</div>
                 <p style="color:#888; margin-top:10px;">기준 미달로 최후의 사이클을 진행합니다.</p>
                 <button onclick="retryOnlyWrongs()" style="width:100%; padding:16px; background:var(--neon-blue); color:#fff; border-radius:12px; margin-top:20px; border:none; font-weight:bold;">최후의 사이클 시작</button>
             </div>
@@ -553,25 +562,32 @@ function finishSession(didTest = true) {
         stats[currentDay].accuracy = accuracy;
         localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));
 
-        // [수정 4] 탭 고정 및 이미지 처리
-        showSystemMessage(`<div style="text-align:center;"><div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold;">학습 완료! ${accuracy}%</div><button onclick="shareKakao()" style="width:100%; padding:16px; background:#fee500; color:#000; border-radius:12px; margin-top:20px; border:none; font-weight:bold;">🟡 카톡 인증 & 칭찬받기</button><button onclick="location.href='index.html?tab=voca'" style="margin-top:20px; background:none; border:none; color:#888; text-decoration:underline;">종료하기</button></div>`);
+        // [수정 4] 탭 고정
+        showSystemMessage(`
+            <div style="text-align:center;">
+                <div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold;">학습 완료! ${accuracy}%</div>
+                <button onclick="shareKakao()" style="width:100%; padding:16px; background:#fee500; color:#000; border-radius:12px; margin-top:20px; border:none; font-weight:bold;">🟡 카톡 공유</button>
+                <button onclick="location.href='index.html?tab=voca'" style="margin-top:20px; background:none; border:none; color:#888; text-decoration:underline;">종료하기</button>
+            </div>
+        `);
     } else {
         localStorage.setItem(`trigger_session_${currentLevel}`, (finishedNum + 1).toString());
         localStorage.setItem('blackt_cooldown', Date.now() + COOL_DOWN_TIME);
         localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));
         
+        // [수정 3] 중간 테스트 완료 시 결과 팝업 표시
         if (didTest) {
-            // [수정 3] 3/6회차 테스트 통과 시 별도의 점수 확인 화면
             showSystemMessage(`
                 <div style="text-align:center;">
                     <div style="font-size:1.5rem; color:var(--neon-blue); font-weight:bold;">TEST 통과! (${accuracy}%)</div>
-                    <p style="color:#888; font-size:0.95rem; margin-top:10px;">3분 휴식 후 다음 사이클이 열립니다.</p>
+                    <p style="color:#888; margin-top:10px;">3분 휴식 후 다음 사이클이 열립니다.</p>
                     <button onclick="location.href='index.html?tab=voca'" style="width:100%; padding:16px; background:#333; color:#fff; border-radius:12px; margin-top:20px; border:none; font-weight:bold;">확인</button>
                 </div>
             `);
         } else {
             showSystemMessage("사이클 완료! 🔥");
-            setTimeout(() => { location.href = 'index.html?tab=voca'; }, 2000);
+            // [수정 4] 탭 고정
+            setTimeout(() => { location.href = 'index.html?tab=voca'; }, 2200);
         }
     }
 }
@@ -604,7 +620,7 @@ function updateMasteredCount() {
 }
 
 function retryOnlyWrongs() {
-    score = 0; // [수정 1] 최후의 사이클 진입 시 점수 변수 리셋
+    score = 0; // [수정 1] 점수 리셋 추가
     let allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
     let retryList = allWrongs.filter(w => w.level === currentLevel && w.day === currentDay);
@@ -628,7 +644,7 @@ function shareKakao() {
     
     const userName = localStorage.getItem('trigger_name') || '학습자';
     const currentDay = localStorage.getItem(`trigger_current_day_${currentLevel}`) || 1;
-    const shareUrl = window.location.origin + "?tab=voca"; // [수정 4] 모든 공유 링크에 ?tab=voca 부착
+    const shareUrl = window.location.origin + "?tab=voca"; // [수정 4] 공유 링크 고도화 
     const acc = targetWords.length > 0 ? Math.floor((score/targetWords.length)*100) : 0; 
 
     Kakao.Share.sendDefault({
@@ -636,7 +652,7 @@ function shareKakao() {
         content: { 
             title: `🔥 [${userName}]님, 단어 학습 마스터!`, 
             description: `🏅 정답률: ${acc}%\n📅 Day ${currentDay} 루틴 완주 성공!`, 
-            imageUrl: 'https://blackt.pages.dev/share-v2.png', // 이미지 캐시 이슈 우회용 이름
+            imageUrl: 'https://blackt.pages.dev/share-v2.png', // [수정] 새 이미지 파일명 반영
             link: { mobileWebUrl: shareUrl, webUrl: shareUrl } 
         },
         buttons: [
@@ -647,7 +663,6 @@ function shareKakao() {
             {
                 title: '👍 칭찬하고 응원하기',
                 link: { 
-                    // [수정 4] 탭 파라미터가 이미 있으므로 &로 연결
                     mobileWebUrl: shareUrl + '&action=praise&name=' + encodeURIComponent(userName), 
                     webUrl: shareUrl + '&action=praise&name=' + encodeURIComponent(userName)
                 }
@@ -656,14 +671,14 @@ function shareKakao() {
     });
 }
 
-// [수정 2] 관리자 점프: 즉시 실행 방지, 대기 상태만 부여
+// [수정 2] 관리자 점프: '즉시 진입' 삭제, 세션 변경 후 대기
 window.jumpToSession = function(n) {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
     localStorage.setItem(`trigger_session_${lvl}`, n.toString());
     localStorage.removeItem('blackt_cooldown');
-    localStorage.removeItem('trigger_jump_test'); // 대기 상태 진입
+    localStorage.removeItem('trigger_jump_test'); 
     alert(`🛠️ 사이클 ${n}(으)로 점프 완료!\n메인 화면에서 '학습 시작하기'를 눌러주세요.`);
-    location.href = 'index.html?tab=voca';
+    location.href = 'index.html?tab=voca'; 
 };
 
 function jumpToFinish() {
@@ -672,7 +687,7 @@ function jumpToFinish() {
     const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
     localStorage.setItem('trigger_session_' + lvl, isReviewDay ? '2' : '6'); 
     localStorage.removeItem('blackt_cooldown');
-    localStorage.removeItem('trigger_jump_test'); // 즉시 진입 막기
+    localStorage.removeItem('trigger_jump_test'); // 즉시 진입 삭제
     alert(`🛠️ 최종 테스트 단계로 점프 완료!\n메인 화면에서 '학습 시작하기'를 눌러주세요.`);
     location.href = 'index.html?tab=voca';
 }
