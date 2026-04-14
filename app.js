@@ -648,9 +648,6 @@ function jumpToFinish() {
     location.reload();
 }
 
-// [핵심 수정] 중복 실행 방지: index.html에서 이미 호출하므로 여기서는 삭제함
-// if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
-
 let adminClickCount = 0;
 let adminTimer = null;
 function activateAdminMode(e) {
@@ -672,9 +669,3 @@ function activateAdminMode(e) {
     }
 }
 document.addEventListener('click', activateAdminMode);
-
-if (document.readyState === 'loading') { 
-    document.addEventListener('DOMContentLoaded', initApp); 
-} else { 
-    initApp(); 
-}

@@ -387,14 +387,7 @@
             document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
             element.classList.add('active');
             
-            // [수정] 단어 학습 탭 누를 때만 기록 확인 후 팝업 노출
-            if (tabId === 'voca') {
-                const hasSeenGuide = localStorage.getItem('hasSeenGuide_2026');
-                if (hasSeenGuide !== 'true') {
-                    openGuide();
-                }
-            }
-
+           
             const headerTitle = document.getElementById('main-header-title');
             if (tabId === 'voca') { headerTitle.innerHTML = '사라져 Voca'; } 
             else if (tabId === 'analysis') { headerTitle.innerHTML = 'Trigger<br>AI 시험 분석'; } 
