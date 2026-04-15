@@ -527,29 +527,43 @@ function handleAnswer(isCorrect) {
             }
         }
     } else {
-        const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
-        if (idx === -1) {
-            wrongWords.push({ ...currentWordData, day: currentDay, level: currentLevel, isWrong: true });
-        } else {
-            wrongWords[idx].isWrong = true;
-        }
-        localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
+        // [오답 시 처리]
+        const currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`);
+        
+        // 🎯 3회차(중간 테스트)라면 학생용 리스트(trigger_wrong_words)에 넣지 않습니다.
+        // 오직 6회차나 final(최종) 단계일 때만 리스트에 저장합니다.
+        if (currentSessionRaw !== '3') {
+            const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
+            if (idx === -1) {
+                wrongWords.push({ ...currentWordData, day: currentDay, level: currentLevel, isWrong: true });
+            } else {
+                wrongWords[idx].isWrong = true;
+            }
+            localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
 
-        const masterIdx = masterWrongDB.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
-        if (masterIdx === -1) {
-            masterWrongDB.push({
-                word: currentWordData.word,
-                meanings: currentWordData.meanings,
-                level: currentLevel,
-                day: currentDay,
-                wrongCount: 1,
-                lastWrongDate: new Date().toLocaleDateString()
+            // 메인 화면 숫자 즉시 업데이트
+            const countEl = document.getElementById('wrong-word-count');
+            if (countEl) {
+                const levelWrongs = wrongWords.filter(w => w.level === currentLevel);
+                countEl.innerText = `${levelWrongs.length} 단어`;
+            }
+        }
+
+        // 🎯 [원장님용] 하지만 마스터 DB에는 3회차 오답도 무조건 기록합니다. (출력용 데이터)
+        const masterDB = JSON.parse(localStorage.getItem('trigger_master_wrong_db') || '[]');
+        const mIdx = masterDB.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
+        if (mIdx === -1) {
+            masterDB.push({ 
+                word: currentWordData.word, 
+                meanings: currentWordData.meanings, 
+                level: currentLevel, 
+                day: currentDay, 
+                wrongCount: 1 
             });
         } else {
-            masterWrongDB[masterIdx].wrongCount++; 
-            masterWrongDB[masterIdx].lastWrongDate = new Date().toLocaleDateString();
+            masterDB[mIdx].wrongCount++;
         }
-        localStorage.setItem('trigger_master_wrong_db', JSON.stringify(masterWrongDB));
+        localStorage.setItem('trigger_master_wrong_db', JSON.stringify(masterDB));
     }
 
     currentIdx++;
