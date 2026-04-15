@@ -395,22 +395,29 @@ function toggleStar(wordObj) {
     const starBtn = document.getElementById('star-btn');
     
     if (idx > -1) {
-        // 1. 별표 해제 (리스트에서 제거)
-        wrongWords.splice(idx, 1); 
-        if(starBtn) starBtn.innerText = "☆";
+        if (wrongWords[idx].isStarred) {
+            // 1. 이미 별표인 경우 -> 별표 해제
+            wrongWords[idx].isStarred = false;
+            // 만약 오답(isWrong) 기록도 없다면 리스트에서 아예 제거
+            if (!wrongWords[idx].isWrong) {
+                wrongWords.splice(idx, 1); 
+            }
+            if(starBtn) starBtn.innerText = "☆";
+        } else {
+            // 2. 오답이라서 리스트엔 있지만 별표는 아닌 경우 -> 별표 추가
+            wrongWords[idx].isStarred = true;
+            if(starBtn) starBtn.innerText = "⭐";
+        }
     } else {
-        // 2. 별표 추가 (리스트에 삽입)
+        // 3. 리스트에 아예 없는 단어 -> 별표 단어로 새로 추가
         wrongWords.push({ ...wordObj, day: currentDay, level: currentLevel, isStarred: true }); 
         if(starBtn) starBtn.innerText = "⭐";
     }
     
-    // 3. 변경된 리스트 저장
     localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
 
-    // 🎯 [핵심 추가] 메인 화면의 숫자 엘리먼트를 찾아서 즉시 갱신
     const wrongWordCountEl = document.getElementById('wrong-word-count');
     if (wrongWordCountEl) {
-        // 현재 레벨에 해당하는 단어만 필터링해서 카운트
         const levelWrongs = wrongWords.filter(w => w.level === currentLevel);
         wrongWordCountEl.innerText = `${levelWrongs.length} 단어`;
     }
@@ -467,7 +474,8 @@ function updateUI(data, isTest = false) {
         const starBtn = document.getElementById('star-btn');
         if(starBtn) {
             let wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
-            const isStarred = wrongWords.some(w => w.word === data.word && w.level === currentLevel);
+            // 🎯 수정: 리스트에 있으면서 'isStarred'가 true일 때만 노란 별(⭐)로 표시되도록 수정
+            const isStarred = wrongWords.some(w => w.word === data.word && w.level === currentLevel && w.isStarred);
             starBtn.innerText = isStarred ? "⭐" : "☆";
             starBtn.onclick = (e) => { e.stopPropagation(); toggleStar(data); };
         }
@@ -523,25 +531,32 @@ function handleAnswer(isCorrect) {
         if (!isFinalStep) {
             const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
             if (idx > -1) {
-                wrongWords.splice(idx, 1);
-                localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
+                // 🎯 수정: 학생이 수동으로 '별표'를 친 단어는 맞혀도 보호 (직접 끄게 유도)
+                if (!wrongWords[idx].isStarred) {
+                    wrongWords.splice(idx, 1);
+                    localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
+                }
             }
         }
     } else {
-        // [오답 시 처리]
+        // [오답 시 처리] 3회차 중간 테스트는 무시하고 6회/최종만 리스트에 저장
         const currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`);
         
-        // 🎯 3회차(중간 테스트)라면 학생용 리스트(trigger_wrong_words)에 넣지 않습니다.
-        // 오직 6회차나 final(최종) 단계일 때만 리스트에 저장합니다.
         if (currentSessionRaw !== '3') {
             const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
             if (idx === -1) {
-                wrongWords.push({ ...currentWordData, day: currentDay, level: currentLevel, isWrong: true });
+                // 🎯 수정: 틀려도 isStarred는 넣지 않고, isWrong만 표시하여 강제 별표 방지
+                wrongWords.push({ 
+                    ...currentWordData, 
+                    day: currentDay, 
+                    level: currentLevel, 
+                    isWrong: true 
+                });
             } else {
                 wrongWords[idx].isWrong = true;
             }
             localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
-
+            
             // 메인 화면 숫자 즉시 업데이트
             const countEl = document.getElementById('wrong-word-count');
             if (countEl) {
@@ -550,7 +565,7 @@ function handleAnswer(isCorrect) {
             }
         }
 
-        // 🎯 [원장님용] 하지만 마스터 DB에는 3회차 오답도 무조건 기록합니다. (출력용 데이터)
+        // 🎯 괄호 오류 수정: [원장님용] 마스터 DB에는 오답 무조건 기록되도록 정상 배치
         const masterDB = JSON.parse(localStorage.getItem('trigger_master_wrong_db') || '[]');
         const mIdx = masterDB.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
         if (mIdx === -1) {
