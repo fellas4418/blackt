@@ -881,21 +881,6 @@ window.jumpToSession = function(n) {
     location.href = 'index.html?tab=voca'; 
 };
 
-window.forceComplete70 = function() {
-    const lvl = localStorage.getItem('trigger_level') || 'middle';
-    
-    // 1. 데이터 강제 주입
-    localStorage.setItem(`trigger_current_day_${lvl}`, '70');
-    localStorage.setItem(`trigger_session_${lvl}`, 'final');
-    
-    // 2. 쿨타임 삭제
-    localStorage.removeItem('blackt_cooldown');
-
-    alert('🎯 Day 70 데이터 주입 완료!\n확인을 누르면 새로고침 후 엔딩 화면이 활성화됩니다.');
-    
-    // 3. 페이지 새로고침
-    location.href = 'index.html?tab=voca';
-};
 
 function jumpToFinish() {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
@@ -1044,3 +1029,22 @@ window.printMyWrongTest = function() {
     printWindow.document.write(html);
     printWindow.document.close();
 }
+
+// [주의] app.js의 다른 어떤 { } 괄호 안에도 들어가지 않게 파일 맨 끝에 붙이세요.
+
+window.forceComplete70 = function() {
+    console.log("강제 완주 로직 실행 시도..."); // 작동 확인용 로그
+    const lvl = localStorage.getItem('trigger_level') || 'middle';
+    
+    // 1. 데이터 강제 주입
+    localStorage.setItem('trigger_current_day_' + lvl, '70');
+    localStorage.setItem('trigger_session_' + lvl, 'final');
+    
+    // 2. 방해 요소(쿨타임) 제거
+    localStorage.removeItem('blackt_cooldown');
+
+    alert('🎯 Day 70 데이터 주입 완료!\n확인을 누르면 새로고침 후 엔딩 화면이 활성화됩니다.');
+    
+    // 3. 확실한 페이지 이동 및 탭 고정
+    window.location.href = 'index.html?tab=voca';
+};
