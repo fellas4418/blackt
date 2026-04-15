@@ -773,7 +773,6 @@ function jumpToFinish() {
     location.href = 'index.html?tab=voca';
 }
 
-// [수정] 관리자 모드 영구 활성화 로직
 let adminClickCount = 0;
 let adminTimer = null;
 
@@ -789,10 +788,10 @@ function activateAdminMode(e) {
         if (adminClickCount === 3) {
             const menu = document.getElementById('admin-menu');
             if (menu) {
-                // 1. 브라우저에 관리자 상태를 영구 저장
+                // 1. 브라우저 저장소에 '관리자임'을 영구 저장
                 localStorage.setItem('trigger_admin_mode', 'true');
                 menu.style.setProperty('display', 'flex', 'important');
-                alert("🛠️ 관리자 모드가 영구 활성화되었습니다.\n이제 앱을 껐다 켜도 메뉴가 유지됩니다.");
+                alert("🛠️ 관리자 모드가 영구 활성화되었습니다.\n이제 앱을 껐다 켜도 메뉴가 사라지지 않습니다.");
                 window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
             }
             adminClickCount = 0;
@@ -800,25 +799,29 @@ function activateAdminMode(e) {
     }
 }
 
-// [추가] 앱 시작 시 관리자 모드였는지 확인하여 메뉴를 미리 그려줌
-function checkAdminPersistence() {
+// [핵심] 페이지 로드 시 관리자 도장이 찍혀있으면 메뉴를 즉시 보여줌
+function applyAdminPersistence() {
     if (localStorage.getItem('trigger_admin_mode') === 'true') {
         const menu = document.getElementById('admin-menu');
-        if (menu) menu.style.setProperty('display', 'flex', 'important');
+        if (menu) {
+            menu.style.setProperty('display', 'flex', 'important');
+        }
     }
 }
 
 document.addEventListener('click', activateAdminMode);
 
+// 앱 초기화 시 Persistence(지속성) 체크 추가
 if (!window.isInitActive) {
     window.isInitActive = true;
+    const runner = () => {
+        initApp();
+        applyAdminPersistence(); // 여기서 다시 메뉴를 살려냅니다.
+    };
+
     if (document.readyState === 'loading') { 
-        document.addEventListener('DOMContentLoaded', () => {
-            initApp();
-            checkAdminPersistence(); // 여기서 관리자 모드 부활
-        }); 
+        document.addEventListener('DOMContentLoaded', runner); 
     } else { 
-        initApp(); 
-        checkAdminPersistence(); // 여기서 관리자 모드 부활
+        runner(); 
     }
 }
