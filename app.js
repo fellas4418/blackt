@@ -35,7 +35,7 @@ const COOL_DOWN_TIME = 3 * 60 * 1000;
 
 let isPreReviewMode = false;
 let todayWords = [];
-let reviewRetryCount = 0; // [추가] 복습 재도전 횟수 추적
+let reviewRetryCount = 0; 
 let isMuted = localStorage.getItem('trigger_muted') === 'true';
 let isPaused = false;
 const currentLevel = localStorage.getItem('trigger_level') || 'middle';
@@ -183,7 +183,6 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
                 `);
 
                 document.getElementById('pre-review-start-btn').onclick = () => {
-                    // [수정] 복습 모드 진입 시에만 isPreReviewMode = true 유지
                     
                     if (sessionTag) {
                         sessionTag.innerText = "🚨 망각 차단 복습 진행 중";
@@ -194,7 +193,7 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
                 return; 
             } else {
                 targetWords = todayWords;
-                isPreReviewMode = false; // 복습 끝났으면 확실히 꺼줌
+                isPreReviewMode = false; 
             }
         } else {
             targetWords = todayWords;
@@ -499,18 +498,15 @@ function handleAnswer(isCorrect) {
     
     if (!currentWordData) return;
 
-    // [중요] 원장님용 마스터 누적 DB (삭제되지 않는 기록)
     let masterWrongDB = JSON.parse(localStorage.getItem('trigger_master_wrong_db') || '[]');
 
     if (isCorrect) {
         score++;
         
-        // 1. 학생용 실시간 리스트에서 삭제 로직
         const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
         let currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`);
         let isFinalStep = (currentSessionRaw === '6' || currentSessionRaw === 'final' || (isReviewDay && currentSessionRaw === '2'));
 
-        // 최종 테스트(6회차/final)가 아닐 때 맞히면 학생 화면(리스트)에서는 제거해줌
         if (!isFinalStep) {
             const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
             if (idx > -1) {
@@ -519,8 +515,6 @@ function handleAnswer(isCorrect) {
             }
         }
     } else {
-        // [오답 시] 
-        // 2. 학생용 실시간 리스트에 추가 (중복 방지)
         const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
         if (idx === -1) {
             wrongWords.push({ ...currentWordData, day: currentDay, level: currentLevel, isWrong: true });
@@ -529,7 +523,6 @@ function handleAnswer(isCorrect) {
         }
         localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
 
-        // 3. 원장님용 마스터 누적 DB에 영구 저장 (여기는 절대 삭제 안 됨)
         const masterIdx = masterWrongDB.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
         if (masterIdx === -1) {
             masterWrongDB.push({
@@ -541,7 +534,7 @@ function handleAnswer(isCorrect) {
                 lastWrongDate: new Date().toLocaleDateString()
             });
         } else {
-            masterWrongDB[masterIdx].wrongCount++; // 여러 번 틀리면 횟수 누적
+            masterWrongDB[masterIdx].wrongCount++; 
             masterWrongDB[masterIdx].lastWrongDate = new Date().toLocaleDateString();
         }
         localStorage.setItem('trigger_master_wrong_db', JSON.stringify(masterWrongDB));
@@ -557,29 +550,25 @@ function finishSession(didTest = true) {
     const accuracy = targetWords.length > 0 ? Math.floor((score / targetWords.length) * 100) : 0;
     
     if (isPreReviewMode) {
-        const sessionTag = document.getElementById('session-tag'); // 태그 요소 가져오기
+        const sessionTag = document.getElementById('session-tag');
 
         if (didTest && accuracy >= 80) {
-            // 1. 복습 완료 도장 찍기
             const reviewStatusKey = `trigger_review_done_${currentLevel}_${currentDay}`;
             localStorage.setItem(reviewStatusKey, 'true');
             localStorage.removeItem('blackt_cooldown');
             reviewRetryCount = 0; 
     
-            // 2. 중요: 모드 전환 (복습 끝 -> 본 학습 시작)
             isPreReviewMode = false;
             targetWords = todayWords; 
             currentIdx = 0;           
             score = 0;                
             studyLoopCount = 1;       
 
-            // [추가] 상단 UI를 신규 단어 학습 모드로 즉시 변경
             if (sessionTag) {
                 sessionTag.innerText = "1 / 6 사이클 진행 중";
-                sessionTag.style.color = ""; // 주황색 글씨를 원래 색으로 복구
+                sessionTag.style.color = ""; 
             }
     
-            // 3. 안내 메시지 후 1.5초 뒤 자동 시작
             showSystemMessage(`
                 <div style="text-align:center;">
                     <div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold;">망각 차단 완료! 🎉</div>
@@ -588,17 +577,14 @@ function finishSession(didTest = true) {
                 </div>
             `);
     
-            // 4. 메인으로 나가지 않고 바로 학습 함수 호출
             setTimeout(() => {
                 startStudy(); 
             }, 1500); 
     
         } else {
-            // [실패 시 처리]
             reviewRetryCount++;
 
             if (reviewRetryCount >= 2) {
-                // 2회 실패 시 강제 진행
                 const reviewStatusKey = `trigger_review_done_${currentLevel}_${currentDay}`;
                 localStorage.setItem(reviewStatusKey, 'true');
                 reviewRetryCount = 0; 
@@ -609,7 +595,6 @@ function finishSession(didTest = true) {
                 score = 0;
                 studyLoopCount = 1;
 
-                // [추가] 강제 진행 시에도 UI 갱신
                 if (sessionTag) {
                     sessionTag.innerText = "1 / 6 사이클 진행 중";
                     sessionTag.style.color = "";
@@ -623,7 +608,6 @@ function finishSession(didTest = true) {
                     </div>
                 `);
             } else {
-                // 1회 실패 시 재도전 안내
                 let warningText = accuracy < 50 ? "⚠️ 집중력 경보!" : "아쉬운 점수!";
                 showSystemMessage(`
                     <div style="text-align:center;">
@@ -636,7 +620,7 @@ function finishSession(didTest = true) {
         }
         return; 
     }
-    // --- 2. 이하 본 학습(오늘 단어) 진행 시 처리 로직 ---
+    
     const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
     const today = new Date().toLocaleDateString();
     
@@ -692,6 +676,16 @@ function finishSession(didTest = true) {
         localStorage.setItem(`trigger_current_day_${currentLevel}`, currentDay + 1);
         localStorage.setItem(`trigger_session_${currentLevel}`, '1');
 
+        if ((currentSessionRaw === '6' || currentSessionRaw === 'final' || (isReviewDay && currentSessionRaw === '2')) && accuracy >= 80) {
+            if (currentDay === 70) {
+                const giftSection = document.getElementById('final-gift-section');
+                if (giftSection) {
+                    giftSection.style.display = 'block'; 
+                    window.scrollTo({ top: giftSection.offsetTop, behavior: 'smooth' }); 
+                }
+            }
+        }
+
         showSystemMessage(`
             <div style="text-align:center;">
                 <div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold;">학습 완료! ${accuracy}%</div>
@@ -700,7 +694,6 @@ function finishSession(didTest = true) {
             </div>
         `);
     } else {
-        // 본 학습일 때만 카운트를 올리고 쿨타임을 적용합니다.
         localStorage.setItem(`trigger_session_${currentLevel}`, (finishedNum + 1).toString());
         localStorage.setItem('blackt_cooldown', Date.now() + COOL_DOWN_TIME);
         localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));
@@ -770,7 +763,6 @@ function retryOnlyWrongs() {
     let allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
     
-    // [수정] 복습 모드에서 80점 미만 맞아 다시 복습할 때 쓸 단어 세팅
     if (isPreReviewMode) {
         targetWords = allWrongs.filter(w => 
             w.level === currentLevel && 
@@ -783,7 +775,6 @@ function retryOnlyWrongs() {
             sessionTag.style.color = "var(--neon-orange)";
         }
     } else {
-        // 기존 본 학습 최후의 사이클 로직
         let retryList = allWrongs.filter(w => w.level === currentLevel && w.day === currentDay);
         if (retryList.length < 1) retryList = todayWords;
         targetWords = retryList;
@@ -868,7 +859,6 @@ function activateAdminMode(e) {
         if (adminClickCount === 3) {
             const menu = document.getElementById('admin-menu');
             if (menu) {
-                // 1. 브라우저 저장소에 '관리자임'을 영구 저장
                 localStorage.setItem('trigger_admin_mode', 'true');
                 menu.style.setProperty('display', 'flex', 'important');
                 alert("🛠️ 관리자 모드가 영구 활성화되었습니다.\n이제 앱을 껐다 켜도 메뉴가 사라지지 않습니다.");
@@ -879,7 +869,6 @@ function activateAdminMode(e) {
     }
 }
 
-// [핵심] 페이지 로드 시 관리자 도장이 찍혀있으면 메뉴를 즉시 보여줌
 function applyAdminPersistence() {
     if (localStorage.getItem('trigger_admin_mode') === 'true') {
         const menu = document.getElementById('admin-menu');
@@ -891,12 +880,11 @@ function applyAdminPersistence() {
 
 document.addEventListener('click', activateAdminMode);
 
-// 앱 초기화 시 Persistence(지속성) 체크 추가
 if (!window.isInitActive) {
     window.isInitActive = true;
     const runner = () => {
         initApp();
-        applyAdminPersistence(); // 여기서 다시 메뉴를 살려냅니다.
+        applyAdminPersistence(); 
     };
 
     if (document.readyState === 'loading') { 
@@ -904,4 +892,85 @@ if (!window.isInitActive) {
     } else { 
         runner(); 
     }
+}
+
+function printMyWrongTest() {
+    const db = JSON.parse(localStorage.getItem('trigger_master_wrong_db')) || [];
+    const userName = localStorage.getItem('trigger_name') || '학습자';
+    
+    if (db.length === 0) {
+        alert("기록된 누적 오답이 없습니다. 모든 테스트를 한 번에 통과하셨나봐요! 👍");
+        return;
+    }
+
+    const printWindow = window.open('', '_blank');
+    
+    let html = `
+        <html>
+        <head>
+            <title>Trigger Voca - 누적 오답 시험지</title>
+            <style>
+                @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+                body { font-family: 'Pretendard', sans-serif; padding: 30px; line-height: 1.5; color: #333; }
+                .header { text-align: center; border-bottom: 3px double #000; padding-bottom: 20px; margin-bottom: 30px; }
+                .header h1 { margin: 0; font-size: 28px; letter-spacing: -1px; }
+                .info-box { display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: bold; border: 1px solid #000; padding: 10px; }
+                .test-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                .test-table th, .test-table td { border: 1px solid #000; padding: 10px; text-align: center; }
+                .test-table th { background-color: #f2f2f2; font-size: 14px; }
+                .word-cell { text-align: left; font-size: 18px; font-weight: bold; padding-left: 20px; width: 45%; }
+                .meaning-cell { width: 45%; }
+                .footer { margin-top: 50px; text-align: center; font-size: 12px; color: #999; }
+                .no-print { position: fixed; bottom: 30px; right: 30px; }
+                .btn-print { padding: 15px 30px; background: #000; color: #fff; border: none; border-radius: 50px; font-size: 18px; cursor: pointer; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+                @media print { .no-print { display: none; } body { padding: 0; } }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>🎉 10주 완주 축하! 나만의 약점 보완 시험지 🎉</h1>
+                <p style="margin-top:10px; color:#555;">"한 번의 실패는 성공을 위한 데이터일 뿐이다!"</p>
+            </div>
+            <div class="info-box">
+                <span>성명: ${userName}</span>
+                <span>학습 레벨: ${currentLevel.toUpperCase()}</span>
+                <span>출력일: ${new Date().toLocaleDateString()}</span>
+            </div>
+            <p style="font-size: 13px; margin-bottom: 10px;">* 본 시험지는 귀하가 10주 과정 중 한 번이라도 틀렸던 단어들을 기반으로 자동 생성되었습니다.</p>
+            <table class="test-table">
+                <thead>
+                    <tr>
+                        <th style="width:10%">번호</th>
+                        <th>단어 (Word)</th>
+                        <th>뜻 (Meaning)</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    db.forEach((w, index) => {
+        html += `
+            <tr>
+                <td>${index + 1}</td>
+                <td class="word-cell">${w.word}</td>
+                <td class="meaning-cell"></td>
+            </tr>
+        `;
+    });
+
+    html += `
+                </tbody>
+            </table>
+            <div class="footer">
+                Trigger Voca English System - Designed by 원장님
+            </div>
+            <div class="no-print">
+                <button class="btn-print" onclick="window.print()">지금 바로 인쇄 (PDF 저장)</button>
+            </div>
+        </body>
+        </html>
+    `;
+
+    printWindow.document.write(html);
+    printWindow.document.close();
 }

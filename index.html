@@ -203,6 +203,17 @@
 
             <div id="welcome-msg"></div>
 
+            <div id="final-gift-section" style="display:none; margin: 20px 0; padding: 25px; background: rgba(0, 212, 255, 0.05); border: 2px dashed #00d4ff; border-radius: 20px; text-align: center;">
+                <h2 style="color:#00ff88; margin-bottom:15px;">🏆 10주 완주를 진심으로 축하합니다!</h2>
+                <p style="color:#ccc; font-size:0.95rem; line-height:1.6; margin-bottom:20px;">
+                    70일간의 노력이 결실을 맺었습니다.<br>
+                    그동안 틀렸던 모든 단어를 모아 <strong>세상에 하나뿐인 시험지</strong>를 만들었습니다.
+                </p>
+                <button onclick="printMyWrongTest()" style="width:100%; padding:18px; background:linear-gradient(135deg, #007bff, #00d4ff); color:white; font-size:1.1rem; font-weight:bold; border:none; border-radius:12px; cursor:pointer; box-shadow: 0 5px 15px rgba(0,123,255,0.4);">
+                    🖨️ 나만의 오답 시험지 PDF 받기
+                </button>
+            </div>
+
             <div class="stats-row">
                 <div class="stat-item"><div class="stat-label">진행 중인 Day</div><div class="stat-value" id="stat-current-day" style="color: #fff;">Day 1</div></div>
                 <div class="stat-item" style="border-left: 1px solid #444; border-right: 1px solid #444;"><div class="stat-label">오늘의 사이클</div><div class="stat-value" id="stat-session" style="color: #fff;">1 / 6</div></div>
@@ -242,6 +253,15 @@
                     <div class="info-title">⭐ 오답/별표</div>
                     <div class="info-count" id="wrong-word-count" style="color: #fff; font-size: 1rem; margin-top: 5px;">0 단어</div>
                 </div>
+            </div>
+
+            <div class="print-section" style="margin-bottom: 25px; text-align: center;">
+                <button onclick="printMyWrongTest()" style="width: 100%; padding: 18px; background: linear-gradient(135deg, #007bff, #00d4ff); color: white; font-size: 1.1rem; font-weight: bold; border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); cursor: pointer;">
+                    🖨️ 10주 완성 누적 오답 시험지 출력
+                </button>
+                <p style="color: #888; font-size: 0.85rem; margin-top: 10px;">
+                    * 한 번이라도 틀렸던 모든 단어가 시험지로 생성됩니다.
+                </p>
             </div>
 
             <div class="card routine-section">
@@ -1010,47 +1030,44 @@
         });
 
         window.addEventListener('load', () => {
-    const savedName = localStorage.getItem('trigger_name');
-    const splash = document.getElementById('splash-screen');
+            const savedName = localStorage.getItem('trigger_name');
+            const splash = document.getElementById('splash-screen');
 
-    // 1. 스플래시 로직 (괄호 짝 수정 완료)
-    if (splash && savedName && savedName !== "null") {
-        if (sessionStorage.getItem('splash_shown')) {
-            splash.style.display = 'none';
-        } else {
-            setTimeout(() => {
-                splash.style.opacity = '0';
-                setTimeout(() => { splash.style.display = 'none'; }, 500);
-            }, 1200);
-            sessionStorage.setItem('splash_shown', 'true');
+            if (splash && savedName && savedName !== "null") {
+                if (sessionStorage.getItem('splash_shown')) {
+                    splash.style.display = 'none';
+                } else {
+                    setTimeout(() => {
+                        splash.style.opacity = '0';
+                        setTimeout(() => { splash.style.display = 'none'; }, 500);
+                    }, 1200);
+                    sessionStorage.setItem('splash_shown', 'true');
+                }
+            } 
+            if (localStorage.getItem('trigger_admin_mode') === 'true') {
+                const menu = document.getElementById('admin-menu');
+                if (menu) {
+                    menu.style.setProperty('display', 'flex', 'important');
+                }
+            }
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab');
+
+            if (!tabParam || tabParam === 'voca') {
+            const titleEl = document.getElementById('main-header-title');
+            if (titleEl) titleEl.innerText = '사라져 Voca';
+            if (typeof switchTab === 'function') switchTab('voca');
+        } else if (tabParam === 'analysis') {
+            const titleEl = document.getElementById('main-header-title');
+            if (titleEl) titleEl.innerText = '트리거 AI 시험분석';
+            if (typeof switchTab === 'function') switchTab('analysis');
         }
-    } // <- 이 괄호가 정확히 닫혀야 뒤로 넘어갑니다!
-    if (localStorage.getItem('trigger_admin_mode') === 'true') {
-        const menu = document.getElementById('admin-menu');
-        if (menu) {
-            menu.style.setProperty('display', 'flex', 'important');
-        }
-    }
-    // 2. 타이틀 및 탭 전환 로직
-    const urlParams = new URLSearchParams(window.location.search);
-    const tabParam = urlParams.get('tab');
 
-    if (!tabParam || tabParam === 'voca') {
-    const titleEl = document.getElementById('main-header-title');
-    if (titleEl) titleEl.innerText = '사라져 Voca';
-    if (typeof switchTab === 'function') switchTab('voca');
-} else if (tabParam === 'analysis') {
-    const titleEl = document.getElementById('main-header-title');
-    if (titleEl) titleEl.innerText = '트리거 AI 시험분석';
-    if (typeof switchTab === 'function') switchTab('analysis');
-}
-
-    // 3. 로그인 및 레벨 체크
-    if (typeof checkLoginStatus === 'function') checkLoginStatus();
-    if (typeof selectLevel === 'function') {
-        selectLevel(localStorage.getItem('trigger_level') || 'middle');
-    }
-});
+            if (typeof checkLoginStatus === 'function') checkLoginStatus();
+            if (typeof selectLevel === 'function') {
+                selectLevel(localStorage.getItem('trigger_level') || 'middle');
+            }
+        });
             const cooldownTime = localStorage.getItem('blackt_cooldown');
             if (cooldownTime) {
                 const remaining = parseInt(cooldownTime) - Date.now();
