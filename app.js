@@ -417,10 +417,12 @@ function toggleStar(wordObj) {
     localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
 
     const wrongWordCountEl = document.getElementById('wrong-word-count');
-    if (wrongWordCountEl) {
-        const levelWrongs = wrongWords.filter(w => w.level === currentLevel);
-        wrongWordCountEl.innerText = `${levelWrongs.length} 단어`;
-    }
+if (wrongWordCountEl) {
+    // 1. 별표를 빼서 실제 데이터는 3개가 된 상태
+    const levelWrongs = wrongWords.filter(w => w.level === currentLevel);
+    // 2. 메인 화면의 글자도 즉시 "3 단어"로 다시 써줌
+    wrongWordCountEl.innerText = `${levelWrongs.length} 단어`;
+}
 }
 
 function updateUI(data, isTest = false) {
