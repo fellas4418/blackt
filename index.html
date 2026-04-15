@@ -203,17 +203,6 @@
 
             <div id="welcome-msg"></div>
 
-            <div id="final-gift-section" style="display:none; margin: 20px 0; padding: 25px; background: rgba(0, 212, 255, 0.05); border: 2px dashed #00d4ff; border-radius: 20px; text-align: center;">
-                <h2 style="color:#00ff88; margin-bottom:15px;">🏆 10주 완주를 진심으로 축하합니다!</h2>
-                <p style="color:#ccc; font-size:0.95rem; line-height:1.6; margin-bottom:20px;">
-                    70일간의 노력이 결실을 맺었습니다.<br>
-                    그동안 틀렸던 모든 단어를 모아 <strong>세상에 하나뿐인 시험지</strong>를 만들었습니다.
-                </p>
-                <button onclick="printMyWrongTest()" style="width:100%; padding:18px; background:linear-gradient(135deg, #007bff, #00d4ff); color:white; font-size:1.1rem; font-weight:bold; border:none; border-radius:12px; cursor:pointer; box-shadow: 0 5px 15px rgba(0,123,255,0.4);">
-                    🖨️ 나만의 오답 시험지 PDF 받기
-                </button>
-            </div>
-
             <div class="stats-row">
                 <div class="stat-item"><div class="stat-label">진행 중인 Day</div><div class="stat-value" id="stat-current-day" style="color: #fff;">Day 1</div></div>
                 <div class="stat-item" style="border-left: 1px solid #444; border-right: 1px solid #444;"><div class="stat-label">오늘의 사이클</div><div class="stat-value" id="stat-session" style="color: #fff;">1 / 6</div></div>
@@ -255,23 +244,21 @@
                 </div>
             </div>
 
-            <div class="print-section" style="margin-bottom: 25px; text-align: center;">
-                <button onclick="printMyWrongTest()" style="width: 100%; padding: 18px; background: linear-gradient(135deg, #007bff, #00d4ff); color: white; font-size: 1.1rem; font-weight: bold; border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); cursor: pointer;">
-                    🖨️ 10주 완성 누적 오답 시험지 출력
-                </button>
-                <p style="color: #888; font-size: 0.85rem; margin-top: 10px;">
-                    * 한 번이라도 틀렸던 모든 단어가 시험지로 생성됩니다.
-                </p>
-            </div>
-
             <div class="card routine-section">
                 <div style="font-size: 1.2rem; font-weight: 700; margin-bottom: 10px;">📅 10주 완성 도전하기</div>
                 <div class="routine-scroll-box">
                     <ul class="routine-list" id="routine-list-container"></ul>
                 </div>
                 <div id="pdf-download-section" style="margin-top: 15px; text-align: center; border-top: 1px dashed #555; padding-top: 15px;">
-                    <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 10px; line-height: 1.5;">🔒 1주차 루틴(Day 7) 완료 시<br>이번 주 복습용 단어장(PDF)이 열립니다.</p>
-                    <button id="pdf-btn" disabled style="background: #333; color: #666; border: 1px solid #555; padding: 10px 20px; border-radius: 8px; cursor: not-allowed; font-weight: bold;">다운로드 잠김</button>
+                    <p id="pdf-guide-text" style="color: #aaa; font-size: 0.9rem; margin-bottom: 10px; line-height: 1.5;">🔒 1주차 루틴(Day 7) 완료 시<br>이번 주 복습용 단어장(PDF)이 열립니다.</p>
+                    <button id="pdf-btn" disabled style="background: #333; color: #666; border: 1px solid #555; padding: 10px 20px; border-radius: 8px; cursor: not-allowed; font-weight: bold; width: 100%; margin-bottom: 10px;">다운로드 잠김</button>
+    
+                    <div id="final-gift-section" style="display: none; border-top: 1px solid #333; padding-top: 15px; margin-top: 5px;">
+                        <p style="color: var(--neon-green); font-size: 0.85rem; font-weight: bold; margin-bottom: 8px;">🎊 10주 완주 성공! 선물 도착 🎊</p>
+                        <button onclick="printMyWrongTest()" style="width: 100%; padding: 12px; background: rgba(0, 243, 255, 0.1); border: 1px solid var(--neon-blue); color: var(--neon-blue); border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem;">
+                            🖨️ 나만의 누적 오답 시험지 출력
+                        </button>
+                    </div>
                 </div>
             </div>
             

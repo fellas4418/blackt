@@ -681,6 +681,10 @@ function finishSession(didTest = true) {
                 const giftSection = document.getElementById('final-gift-section');
                 if (giftSection) {
                     giftSection.style.display = 'block'; 
+                    // 안내 문구도 완주 축하용으로 변경
+                    const guideText = document.getElementById('pdf-guide-text');
+                    if (guideText) guideText.innerHTML = "🏆 10주 과정을 모두 완수했습니다!<br>아래에서 최종 오답 시험지를 받으세요.";
+                    
                     window.scrollTo({ top: giftSection.offsetTop, behavior: 'smooth' }); 
                 }
             }
