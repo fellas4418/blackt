@@ -881,22 +881,20 @@ window.jumpToSession = function(n) {
     location.href = 'index.html?tab=voca'; 
 };
 
-// 🎯 핵심 수정: 페이지 새로고침(location.reload()) 추가
 window.forceComplete70 = function() {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
     
-    // 1. 실제 데이터를 70일 완주 상태로 변경
+    // 1. 데이터 강제 주입
     localStorage.setItem(`trigger_current_day_${lvl}`, '70');
     localStorage.setItem(`trigger_session_${lvl}`, 'final');
     
-    // 2. 쿨타임 삭제 (바로 확인 가능하도록)
+    // 2. 쿨타임 삭제
     localStorage.removeItem('blackt_cooldown');
 
-    // 3. 알림창 띄우고
-    alert('🎯 Day 70 완주 데이터 주입 완료!\n확인을 누르면 새로고침 후 엔딩 화면이 열립니다.');
+    alert('🎯 Day 70 데이터 주입 완료!\n확인을 누르면 새로고침 후 엔딩 화면이 활성화됩니다.');
     
-    // 4. 페이지 새로고침 (필수)
-    location.href = 'index.html?tab=voca'; 
+    // 3. 페이지 새로고침
+    location.href = 'index.html?tab=voca';
 };
 
 function jumpToFinish() {
