@@ -881,7 +881,6 @@ window.jumpToSession = function(n) {
     location.href = 'index.html?tab=voca'; 
 };
 
-
 function jumpToFinish() {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
@@ -892,6 +891,12 @@ function jumpToFinish() {
     alert(`🛠️ 최종 테스트 단계로 점프 완료!\n메인 화면에서 '학습 시작하기'를 눌러주세요.`);
     location.href = 'index.html?tab=voca';
 }
+
+// ==========================================
+// 🛠️ 관리자 모드 관련 로직 (중복 제거 및 최적화)
+// ==========================================
+let adminClickCount = 0;
+let adminTimer = null;
 
 function activateAdminMode(e) {
     const isLogo = e.target.closest('.logo');
@@ -907,7 +912,7 @@ function activateAdminMode(e) {
             if (menu) {
                 localStorage.setItem('trigger_admin_mode', 'true');
                 menu.style.setProperty('display', 'flex', 'important');
-                alert("🛠️ 관리자 모드가 영구 활성화되었습니다.\n이제 앱을 껐다 켜도 메뉴가 사라지지 않습니다.");
+                alert("🛠️ 관리자 모드 활성화!");
                 window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
             }
             adminClickCount = 0;
@@ -926,20 +931,26 @@ function applyAdminPersistence() {
 
 document.addEventListener('click', activateAdminMode);
 
-if (!window.isInitActive) {
-    window.isInitActive = true;
-    const runner = () => {
-        initApp();
-        applyAdminPersistence(); 
-    };
+window.forceComplete70 = function() {
+    console.log("강제 완주 로직 실행 시도..."); 
+    const lvl = localStorage.getItem('trigger_level') || 'middle';
+    
+    // 1. 데이터 강제 주입
+    localStorage.setItem('trigger_current_day_' + lvl, '70');
+    localStorage.setItem('trigger_session_' + lvl, 'final');
+    
+    // 2. 방해 요소(쿨타임) 제거
+    localStorage.removeItem('blackt_cooldown');
 
-    if (document.readyState === 'loading') { 
-        document.addEventListener('DOMContentLoaded', runner); 
-    } else { 
-        runner(); 
-    }
-}
+    alert('🎯 Day 70 데이터 주입 완료!\n확인을 누르면 새로고침 후 엔딩 화면이 활성화됩니다.');
+    
+    // 3. 확실한 페이지 이동 및 탭 고정
+    window.location.href = 'index.html?tab=voca';
+};
 
+// ==========================================
+// 📄 오답 시험지 출력 로직
+// ==========================================
 window.printMyWrongTest = function() {
     const db = JSON.parse(localStorage.getItem('trigger_master_wrong_db')) || [];
     const userName = localStorage.getItem('trigger_name') || '학습자';
@@ -1027,21 +1038,17 @@ window.printMyWrongTest = function() {
     printWindow.document.close();
 }
 
-// [주의] app.js의 다른 어떤 { } 괄호 안에도 들어가지 않게 파일 맨 끝에 붙이세요.
+// 앱 초기화 실행기
+if (!window.isInitActive) {
+    window.isInitActive = true;
+    const runner = () => {
+        initApp();
+        applyAdminPersistence(); 
+    };
 
-window.forceComplete70 = function() {
-    console.log("강제 완주 로직 실행 시도..."); // 작동 확인용 로그
-    const lvl = localStorage.getItem('trigger_level') || 'middle';
-    
-    // 1. 데이터 강제 주입
-    localStorage.setItem('trigger_current_day_' + lvl, '70');
-    localStorage.setItem('trigger_session_' + lvl, 'final');
-    
-    // 2. 방해 요소(쿨타임) 제거
-    localStorage.removeItem('blackt_cooldown');
-
-    alert('🎯 Day 70 데이터 주입 완료!\n확인을 누르면 새로고침 후 엔딩 화면이 활성화됩니다.');
-    
-    // 3. 확실한 페이지 이동 및 탭 고정
-    window.location.href = 'index.html?tab=voca';
-};
+    if (document.readyState === 'loading') { 
+        document.addEventListener('DOMContentLoaded', runner); 
+    } else { 
+        runner(); 
+    }
+}
