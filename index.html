@@ -1025,7 +1025,12 @@
             sessionStorage.setItem('splash_shown', 'true');
         }
     } // <- 이 괄호가 정확히 닫혀야 뒤로 넘어갑니다!
-
+    if (localStorage.getItem('trigger_admin_mode') === 'true') {
+        const menu = document.getElementById('admin-menu');
+        if (menu) {
+            menu.style.setProperty('display', 'flex', 'important');
+        }
+    }
     // 2. 타이틀 및 탭 전환 로직
     const urlParams = new URLSearchParams(window.location.search);
     const tabParam = urlParams.get('tab');
