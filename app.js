@@ -533,12 +533,14 @@ function finishSession(didTest = true) {
     const accuracy = targetWords.length > 0 ? Math.floor((score / targetWords.length) * 100) : 0;
     
     if (isPreReviewMode) {
+        const sessionTag = document.getElementById('session-tag'); // 태그 요소 가져오기
+
         if (didTest && accuracy >= 80) {
             // 1. 복습 완료 도장 찍기
             const reviewStatusKey = `trigger_review_done_${currentLevel}_${currentDay}`;
             localStorage.setItem(reviewStatusKey, 'true');
             localStorage.removeItem('blackt_cooldown');
-            reviewRetryCount = 0; // 통과 시 횟수 초기화
+            reviewRetryCount = 0; 
     
             // 2. 중요: 모드 전환 (복습 끝 -> 본 학습 시작)
             isPreReviewMode = false;
@@ -546,6 +548,12 @@ function finishSession(didTest = true) {
             currentIdx = 0;           
             score = 0;                
             studyLoopCount = 1;       
+
+            // [추가] 상단 UI를 신규 단어 학습 모드로 즉시 변경
+            if (sessionTag) {
+                sessionTag.innerText = "1 / 6 사이클 진행 중";
+                sessionTag.style.color = ""; // 주황색 글씨를 원래 색으로 복구
+            }
     
             // 3. 안내 메시지 후 1.5초 뒤 자동 시작
             showSystemMessage(`
@@ -562,11 +570,11 @@ function finishSession(didTest = true) {
             }, 1500); 
     
         } else {
-            // 80점 미만일 때 횟수 체크
+            // [실패 시 처리]
             reviewRetryCount++;
 
             if (reviewRetryCount >= 2) {
-                // 2회 실패 시: 강제로 당일 진도로 넘김
+                // 2회 실패 시 강제 진행
                 const reviewStatusKey = `trigger_review_done_${currentLevel}_${currentDay}`;
                 localStorage.setItem(reviewStatusKey, 'true');
                 reviewRetryCount = 0; 
@@ -577,15 +585,21 @@ function finishSession(didTest = true) {
                 score = 0;
                 studyLoopCount = 1;
 
+                // [추가] 강제 진행 시에도 UI 갱신
+                if (sessionTag) {
+                    sessionTag.innerText = "1 / 6 사이클 진행 중";
+                    sessionTag.style.color = "";
+                }
+
                 showSystemMessage(`
                     <div style="text-align:center;">
                         <div style="font-size:1.5rem; color:var(--neon-orange); font-weight:bold;">⚠️ 집중 학습 대상</div>
-                        <p style="color:#888; margin-top:10px;">2회 연속 기준 미달입니다.<br>틀린 단어는 <strong>오답 리스트</strong>에 남겨두고<br>우선 오늘 진도부터 나갑니다.</p>
+                        <p style="color:#888; margin-top:10px;">2회 연속 기준 미달입니다.<br>해당 단어는 오답 리스트에서 확인하고<br>우선 오늘 진도부터 나갑니다.</p>
                         <button onclick="startStudy()" style="width:100%; padding:16px; background:var(--neon-blue); color:#fff; border-radius:12px; margin-top:20px; border:none; font-weight:bold;">오늘 단어 시작하기</button>
                     </div>
                 `);
             } else {
-                // 1회 실패 시: 기회 한 번 더 제공
+                // 1회 실패 시 재도전 안내
                 let warningText = accuracy < 50 ? "⚠️ 집중력 경보!" : "아쉬운 점수!";
                 showSystemMessage(`
                     <div style="text-align:center;">
@@ -596,7 +610,7 @@ function finishSession(didTest = true) {
                 `);
             }
         }
-        return; // 복습 처리 완료 후 종료
+        return; 
     }
     // --- 2. 이하 본 학습(오늘 단어) 진행 시 처리 로직 ---
     const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
