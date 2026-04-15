@@ -893,9 +893,6 @@ function jumpToFinish() {
     location.href = 'index.html?tab=voca';
 }
 
-let adminClickCount = 0;
-let adminTimer = null;
-
 function activateAdminMode(e) {
     const isLogo = e.target.closest('.logo');
     const isTitle = e.target.id === 'main-header-title';
