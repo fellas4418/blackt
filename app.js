@@ -1012,9 +1012,15 @@ function printMyWrongTest() {
             <div class="footer">
                 Trigger Voca English System - Designed by 원장님
             </div>
-            <div class="no-print">
-                <button class="btn-print" onclick="window.print()">지금 바로 인쇄 (PDF 저장)</button>
-            </div>
+            <div class="no-print" style="display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; margin-top: 20px;">
+            <button class="btn-print" onclick="window.print()" style="width: 350px;">지금 바로 인쇄 (PDF 저장)</button>
+            
+            <button onclick="window.open('https://open.kakao.com/o/siKCrAqi', '_blank')" 
+                    style="width: 350px; padding: 15px 30px; background: #ffcc00; color: #000; border: none; border-radius: 50px; font-size: 18px; cursor: pointer; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+                ✨ 실물 단어장 배송 신청 (2.0만 원)
+            </button>
+            <p style="font-size: 13px; color: #666; margin: 0;">📌 표지에 본인 이름이 각인된 프리미엄 소책자로 제작되어 배송됩니다.</p>
+        </div>
         </body>
         </html>
     `;
