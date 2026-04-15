@@ -526,23 +526,36 @@ function finishSession(didTest = true) {
     let currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
     const accuracy = targetWords.length > 0 ? Math.floor((score / targetWords.length) * 100) : 0;
     
-    // --- 1. [수정] 복습 모드(PreReview) 일 때의 처리 로직 (가장 먼저 가로챔) ---
     if (isPreReviewMode) {
         if (didTest && accuracy >= 80) {
-            // 1) 80점 이상 통과: 완료 도장 찍고 메인으로 (쿨타임, 카운트 증가 없음)
+            // 1. 복습 완료 도장 찍기
             const reviewStatusKey = `trigger_review_done_${currentLevel}_${currentDay}`;
             localStorage.setItem(reviewStatusKey, 'true');
-            localStorage.removeItem('blackt_cooldown'); // 혹시 모를 쿨타임도 삭제
-            
+            localStorage.removeItem('blackt_cooldown');
+    
+            // 2. 중요: 모드 전환 (복습 끝 -> 본 학습 시작)
+            isPreReviewMode = false;
+            targetWords = todayWords; // 타겟 단어를 오늘 단어로 교체
+            currentIdx = 0;           // 인덱스 초기화
+            score = 0;                // 점수 초기화
+            studyLoopCount = 1;       // 사이클 루프 초기화
+    
+            // 3. 안내 메시지 후 1.5초 뒤 자동 시작
             showSystemMessage(`
                 <div style="text-align:center;">
                     <div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold;">망각 차단 완료! 🎉</div>
-                    <p style="color:#888; margin-top:10px;">이제 오늘의 진도를 시작할 수 있습니다.</p>
-                    <button onclick="location.href='index.html?tab=voca'" style="width:100%; padding:16px; background:#333; color:#fff; border-radius:12px; margin-top:20px; border:none; font-weight:bold;">메인으로 이동</button>
+                    <p style="color:#ddd; margin-top:10px;">잠시 후 <strong>오늘의 신규 단어</strong>를<br>바로 시작합니다!</p>
+                    <div style="margin-top:20px; color:var(--neon-blue); font-size:1.2rem; font-weight:bold;">Ready...</div>
                 </div>
             `);
+    
+            // 4. 메인으로 나가지 않고 바로 학습 함수 호출
+            setTimeout(() => {
+                startStudy(); 
+            }, 1500); 
+    
         } else {
-            // 2) 80점 미만: 재시험 안내 (쿨타임, 카운트 증가 없음)
+            // 80점 미만일 때는 기존처럼 재시험 유도
             let warningText = accuracy < 50 ? "⚠️ 집중력 경보!" : "아쉬운 점수!";
             showSystemMessage(`
                 <div style="text-align:center;">
@@ -552,7 +565,7 @@ function finishSession(didTest = true) {
                 </div>
             `);
         }
-        return; // 복습 모드 처리가 끝났으므로 이 아래 본학습 로직은 실행 안 함
+        return; // 복습 처리 완료 후 종료
     }
 
 
