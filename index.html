@@ -275,25 +275,9 @@
                 <button onclick="if(confirm('정말 모든 데이터를 초기화할까요?')) { localStorage.clear(); location.reload(); }" style="background: none; border: none; color: #666; text-decoration: underline; cursor: pointer; font-size: 0.8rem; margin-top:5px;">
                     🔄 데이터 완전 초기화
                 </button>
-                <button onclick="
-    const lvl = localStorage.getItem('trigger_level') || 'middle';
-    localStorage.setItem('trigger_current_day_' + lvl, 70); 
-    localStorage.setItem('trigger_session_' + lvl, '6'); // 6회차 완료 상태로 인식시키기 위해 추가
-    
-    // 0.1초 뒤에 화면 연출 함수 실행
-    setTimeout(() => {
-        const giftSection = document.getElementById('final-gift-section');
-        const guideText = document.getElementById('pdf-guide-text');
-        
-        if (giftSection) giftSection.style.display = 'block';
-        if (guideText) guideText.innerHTML = '🏆 10주 과정을 모두 완수했습니다!<br>아래에서 최종 오답 시험지를 받으세요.';
-        
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        alert('🎯 Day 70 엔딩 시뮬레이션 활성화!');
-    }, 100);
-" style="background: #fff; color: #000; padding: 12px; border-radius: 8px; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; border: none;">
-    🎯 엔딩 화면 강제 확인 (Day 70)
-</button>
+                <button onclick="forceComplete70()" style="background: #fff; color: #000; padding: 12px; border-radius: 8px; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; border: none;">
+                    🎯 엔딩 화면 강제 확인 (Day 70)
+                </button>
             </div>
         </div>
 

@@ -881,6 +881,24 @@ window.jumpToSession = function(n) {
     location.href = 'index.html?tab=voca'; 
 };
 
+// 🎯 핵심 수정: 페이지 새로고침(location.reload()) 추가
+window.forceComplete70 = function() {
+    const lvl = localStorage.getItem('trigger_level') || 'middle';
+    
+    // 1. 실제 데이터를 70일 완주 상태로 변경
+    localStorage.setItem(`trigger_current_day_${lvl}`, '70');
+    localStorage.setItem(`trigger_session_${lvl}`, 'final');
+    
+    // 2. 쿨타임 삭제 (바로 확인 가능하도록)
+    localStorage.removeItem('blackt_cooldown');
+
+    // 3. 알림창 띄우고
+    alert('🎯 Day 70 완주 데이터 주입 완료!\n확인을 누르면 새로고침 후 엔딩 화면이 열립니다.');
+    
+    // 4. 페이지 새로고침 (필수)
+    location.href = 'index.html?tab=voca'; 
+};
+
 function jumpToFinish() {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
@@ -942,7 +960,7 @@ if (!window.isInitActive) {
     }
 }
 
-function printMyWrongTest() {
+window.printMyWrongTest = function() {
     const db = JSON.parse(localStorage.getItem('trigger_master_wrong_db')) || [];
     const userName = localStorage.getItem('trigger_name') || '학습자';
     
