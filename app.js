@@ -498,14 +498,19 @@ function handleAnswer(isCorrect) {
     const currentWordData = targetWords[currentIdx];
     
     if (!currentWordData) return;
-    const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
+
+    // [중요] 원장님용 마스터 누적 DB (삭제되지 않는 기록)
+    let masterWrongDB = JSON.parse(localStorage.getItem('trigger_master_wrong_db') || '[]');
 
     if (isCorrect) {
         score++;
         
+        // 1. 학생용 실시간 리스트에서 삭제 로직
+        const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
         let currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`);
         let isFinalStep = (currentSessionRaw === '6' || currentSessionRaw === 'final' || (isReviewDay && currentSessionRaw === '2'));
 
+        // 최종 테스트(6회차/final)가 아닐 때 맞히면 학생 화면(리스트)에서는 제거해줌
         if (!isFinalStep) {
             const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
             if (idx > -1) {
@@ -514,6 +519,8 @@ function handleAnswer(isCorrect) {
             }
         }
     } else {
+        // [오답 시] 
+        // 2. 학생용 실시간 리스트에 추가 (중복 방지)
         const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
         if (idx === -1) {
             wrongWords.push({ ...currentWordData, day: currentDay, level: currentLevel, isWrong: true });
@@ -521,6 +528,23 @@ function handleAnswer(isCorrect) {
             wrongWords[idx].isWrong = true;
         }
         localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
+
+        // 3. 원장님용 마스터 누적 DB에 영구 저장 (여기는 절대 삭제 안 됨)
+        const masterIdx = masterWrongDB.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
+        if (masterIdx === -1) {
+            masterWrongDB.push({
+                word: currentWordData.word,
+                meanings: currentWordData.meanings,
+                level: currentLevel,
+                day: currentDay,
+                wrongCount: 1,
+                lastWrongDate: new Date().toLocaleDateString()
+            });
+        } else {
+            masterWrongDB[masterIdx].wrongCount++; // 여러 번 틀리면 횟수 누적
+            masterWrongDB[masterIdx].lastWrongDate = new Date().toLocaleDateString();
+        }
+        localStorage.setItem('trigger_master_wrong_db', JSON.stringify(masterWrongDB));
     }
 
     currentIdx++;
