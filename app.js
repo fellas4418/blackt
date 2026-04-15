@@ -185,14 +185,18 @@ function showSystemMessage(text) {
     
                     // 사용자가 시작 버튼을 누를 때까지 대기
                     document.getElementById('pre-review-start-btn').onclick = () => {
-                        isPreReviewMode = false;
-                        
-                        if (sessionTag) {
-                            let sNum = parseInt(currentSession) || 1;
-                            sessionTag.innerText = sNum > 6 ? `자유 복습 모드` : `${sNum} / 6 사이클 진행 중`;
-                        }
-                        startStudy();
-                    };
+        isPreReviewMode = false;
+        
+        // 중요: targetWords = todayWords; 줄을 삭제했습니다. 
+        // 그래야 이미 담겨있는 '복습 단어'로 학습이 시작됩니다.
+    
+        if (sessionTag) {
+            // 복습 중임을 알리는 문구로 변경
+            sessionTag.innerText = "🚨 망각 차단 복습 진행 중";
+            sessionTag.style.color = "var(--neon-orange)";
+        }
+        startStudy();
+    };
                     return; // 사용자가 버튼을 누르기 전까지 함수 진행 중단
                 } else {
                     // 이미 복습 단계를 거쳤거나, 오답이 없다면 순수하게 오늘 단어만 학습
