@@ -393,23 +393,24 @@ function toggleStar(wordObj) {
     const idx = wrongWords.findIndex(w => w.word === wordObj.word && w.level === currentLevel);
     
     const starBtn = document.getElementById('star-btn');
+    
     if (idx > -1) {
-        // 별표 해제 (리스트에서 제거)
+        // 1. 별표 해제 (리스트에서 제거)
         wrongWords.splice(idx, 1); 
         if(starBtn) starBtn.innerText = "☆";
     } else {
-        // 별표 추가 (리스트에 삽입)
+        // 2. 별표 추가 (리스트에 삽입)
         wrongWords.push({ ...wordObj, day: currentDay, level: currentLevel, isStarred: true }); 
         if(starBtn) starBtn.innerText = "⭐";
     }
     
-    // 1. 데이터 저장
+    // 3. 변경된 리스트 저장
     localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
 
-    // 2. 메인 화면의 숫자 실시간 갱신 (추가된 부분)
-    // 이 부분이 있어야 새로고침 없이 숫자가 즉시 줄어듭니다.
+    // 🎯 [핵심 추가] 메인 화면의 숫자 엘리먼트를 찾아서 즉시 갱신
     const wrongWordCountEl = document.getElementById('wrong-word-count');
     if (wrongWordCountEl) {
+        // 현재 레벨에 해당하는 단어만 필터링해서 카운트
         const levelWrongs = wrongWords.filter(w => w.level === currentLevel);
         wrongWordCountEl.innerText = `${levelWrongs.length} 단어`;
     }
