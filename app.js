@@ -514,8 +514,8 @@ function handleAnswer(isCorrect) {
                 localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
             }
         }
-    }
     } else {
+        // [오답 시] 오답 리스트에 추가하거나 상태 갱신
         const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
         if (idx === -1) {
             wrongWords.push({ ...currentWordData, day: currentDay, level: currentLevel, isWrong: true });
@@ -524,8 +524,10 @@ function handleAnswer(isCorrect) {
         }
         localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
     }
+
     currentIdx++;
     startTest();
+}
 
 function finishSession(didTest = true) {
     let currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
