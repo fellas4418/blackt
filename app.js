@@ -35,6 +35,7 @@ const COOL_DOWN_TIME = 3 * 60 * 1000;
 
 let isPreReviewMode = false;
 let todayWords = [];
+let reviewRetryCount = 0; // [추가] 복습 재도전 횟수 추적
 let isMuted = localStorage.getItem('trigger_muted') === 'true';
 let isPaused = false;
 const currentLevel = localStorage.getItem('trigger_level') || 'middle';
@@ -502,12 +503,10 @@ function handleAnswer(isCorrect) {
     if (isCorrect) {
         score++;
         
-        // [수정] 6회차 최종 테스트나 'final' 사이클일 때는 맞혀도 오답 리스트에서 빼지 않음
         let currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`);
         let isFinalStep = (currentSessionRaw === '6' || currentSessionRaw === 'final' || (isReviewDay && currentSessionRaw === '2'));
 
         if (!isFinalStep) {
-            // 최종 단계가 아닐 때(망각차단 복습 포함)만 오답 리스트에서 삭제
             const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
             if (idx > -1) {
                 wrongWords.splice(idx, 1);
@@ -515,7 +514,6 @@ function handleAnswer(isCorrect) {
             }
         }
     } else {
-        // [오답 시] 오답 리스트에 추가하거나 상태 갱신
         const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
         if (idx === -1) {
             wrongWords.push({ ...currentWordData, day: currentDay, level: currentLevel, isWrong: true });
@@ -540,13 +538,14 @@ function finishSession(didTest = true) {
             const reviewStatusKey = `trigger_review_done_${currentLevel}_${currentDay}`;
             localStorage.setItem(reviewStatusKey, 'true');
             localStorage.removeItem('blackt_cooldown');
+            reviewRetryCount = 0; // 통과 시 횟수 초기화
     
             // 2. 중요: 모드 전환 (복습 끝 -> 본 학습 시작)
             isPreReviewMode = false;
-            targetWords = todayWords; // 타겟 단어를 오늘 단어로 교체
-            currentIdx = 0;           // 인덱스 초기화
-            score = 0;                // 점수 초기화
-            studyLoopCount = 1;       // 사이클 루프 초기화
+            targetWords = todayWords; 
+            currentIdx = 0;           
+            score = 0;                
+            studyLoopCount = 1;       
     
             // 3. 안내 메시지 후 1.5초 뒤 자동 시작
             showSystemMessage(`
@@ -563,15 +562,39 @@ function finishSession(didTest = true) {
             }, 1500); 
     
         } else {
-            // 80점 미만일 때는 기존처럼 재시험 유도
-            let warningText = accuracy < 50 ? "⚠️ 집중력 경보!" : "아쉬운 점수!";
-            showSystemMessage(`
-                <div style="text-align:center;">
-                    <div style="font-size:1.5rem; color:var(--neon-orange); font-weight:bold;">${warningText} (${accuracy}%)</div>
-                    <p style="color:#888; margin-top:10px;">복습을 완벽하게 끝내야 오늘 진도를 나갈 수 있습니다.</p>
-                    <button onclick="retryOnlyWrongs()" style="width:100%; padding:16px; background:var(--neon-blue); color:#fff; border-radius:12px; margin-top:20px; border:none; font-weight:bold;">다시 복습하기</button>
-                </div>
-            `);
+            // 80점 미만일 때 횟수 체크
+            reviewRetryCount++;
+
+            if (reviewRetryCount >= 2) {
+                // 2회 실패 시: 강제로 당일 진도로 넘김
+                const reviewStatusKey = `trigger_review_done_${currentLevel}_${currentDay}`;
+                localStorage.setItem(reviewStatusKey, 'true');
+                reviewRetryCount = 0; 
+
+                isPreReviewMode = false;
+                targetWords = todayWords;
+                currentIdx = 0;
+                score = 0;
+                studyLoopCount = 1;
+
+                showSystemMessage(`
+                    <div style="text-align:center;">
+                        <div style="font-size:1.5rem; color:var(--neon-orange); font-weight:bold;">⚠️ 집중 학습 대상</div>
+                        <p style="color:#888; margin-top:10px;">2회 연속 기준 미달입니다.<br>틀린 단어는 <strong>오답 리스트</strong>에 남겨두고<br>우선 오늘 진도부터 나갑니다.</p>
+                        <button onclick="startStudy()" style="width:100%; padding:16px; background:var(--neon-blue); color:#fff; border-radius:12px; margin-top:20px; border:none; font-weight:bold;">오늘 단어 시작하기</button>
+                    </div>
+                `);
+            } else {
+                // 1회 실패 시: 기회 한 번 더 제공
+                let warningText = accuracy < 50 ? "⚠️ 집중력 경보!" : "아쉬운 점수!";
+                showSystemMessage(`
+                    <div style="text-align:center;">
+                        <div style="font-size:1.5rem; color:var(--neon-orange); font-weight:bold;">${warningText} (${accuracy}%)</div>
+                        <p style="color:#888; margin-top:10px;">기준 미달입니다. <strong>마지막 한 번의 기회</strong>가<br>더 남았습니다. 집중해 보세요!</p>
+                        <button onclick="retryOnlyWrongs()" style="width:100%; padding:16px; background:var(--neon-blue); color:#fff; border-radius:12px; margin-top:20px; border:none; font-weight:bold;">마지막 복습 재도전</button>
+                    </div>
+                `);
+            }
         }
         return; // 복습 처리 완료 후 종료
     }
