@@ -501,13 +501,20 @@ function handleAnswer(isCorrect) {
 
     if (isCorrect) {
         score++;
-        if (isReviewDay || isPreReviewMode) { // 복습 모드에서도 정답 시 오답 리스트에서 제거 가능하게 (선택사항)
+        
+        // [수정] 6회차 최종 테스트나 'final' 사이클일 때는 맞혀도 오답 리스트에서 빼지 않음
+        let currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`);
+        let isFinalStep = (currentSessionRaw === '6' || currentSessionRaw === 'final' || (isReviewDay && currentSessionRaw === '2'));
+
+        if (!isFinalStep) {
+            // 최종 단계가 아닐 때(망각차단 복습 포함)만 오답 리스트에서 삭제
             const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
             if (idx > -1) {
                 wrongWords.splice(idx, 1);
                 localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
             }
         }
+    }
     } else {
         const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
         if (idx === -1) {
@@ -519,7 +526,6 @@ function handleAnswer(isCorrect) {
     }
     currentIdx++;
     startTest();
-}
 
 function finishSession(didTest = true) {
     let currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
@@ -567,8 +573,6 @@ function finishSession(didTest = true) {
         }
         return; // 복습 처리 완료 후 종료
     }
-
-
     // --- 2. 이하 본 학습(오늘 단어) 진행 시 처리 로직 ---
     const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
     const today = new Date().toLocaleDateString();
