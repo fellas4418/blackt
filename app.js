@@ -932,19 +932,24 @@ function applyAdminPersistence() {
 document.addEventListener('click', activateAdminMode);
 
 window.forceComplete70 = function() {
-    console.log("강제 완주 로직 실행 시도..."); 
+    console.log("강제 완주 및 리스트 해금 로직 실행!");
     const lvl = localStorage.getItem('trigger_level') || 'middle';
     
-    // 1. 데이터 강제 주입
+    // 1. 현재 진행 날짜를 70으로 설정
     localStorage.setItem('trigger_current_day_' + lvl, '70');
+    
+    // 2. [중요] 리스트 잠금을 풀기 위해 '해금된 날짜'를 71로 설정
+    localStorage.setItem('trigger_unlocked_day_' + lvl, '71');
+    
+    // 3. 세션 상태를 최종(final)으로 변경
     localStorage.setItem('trigger_session_' + lvl, 'final');
     
-    // 2. 방해 요소(쿨타임) 제거
+    // 4. 쿨타임 제거
     localStorage.removeItem('blackt_cooldown');
 
-    alert('🎯 Day 70 데이터 주입 완료!\n확인을 누르면 새로고침 후 엔딩 화면이 활성화됩니다.');
+    alert('🏆 70일 완주 및 리스트 해금 완료!\n확인을 누르면 엔딩 화면과 함께 리스트 잠금이 풀립니다.');
     
-    // 3. 확실한 페이지 이동 및 탭 고정
+    // 5. 페이지 새로고침
     window.location.href = 'index.html?tab=voca';
 };
 
