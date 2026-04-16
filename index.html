@@ -1081,24 +1081,42 @@
         window.forceComplete70 = function() {
             const lvl = localStorage.getItem('trigger_level') || 'middle';
             
-            // 1. 데이터 강제 주입 (70일 완주 상태로 만들기)
+            // 1. 학습 상태를 70일 완주로 설정
             localStorage.setItem('trigger_current_day_' + lvl, '70');
             localStorage.setItem('trigger_unlocked_day_' + lvl, '71');
             localStorage.setItem('trigger_session_' + lvl, 'final');
             localStorage.removeItem('blackt_cooldown');
         
-            // 2. [중요] 숨겨져 있는 "인쇄 단어장 신청 및 결제 안내" 섹션을 강제로 노출
+            // 2. 숨겨진 배송 신청 섹션을 찾아서 내용을 업데이트하고 강제로 노출
             const giftSection = document.getElementById('final-gift-section');
             if (giftSection) {
-                giftSection.style.display = 'block'; // 숨김 해제
-                giftSection.style.backgroundColor = '#fff9c4'; // 눈에 띄게 노란색 배경 추가
-                giftSection.style.padding = '20px';
-                giftSection.style.border = '2px solid #fbc02d';
+                giftSection.style.display = 'block'; 
+                giftSection.innerHTML = `
+                    <div style="background: rgba(57, 255, 20, 0.05); border: 2px solid var(--neon-green); border-radius: 15px; padding: 20px; text-align: center; margin-top: 10px;">
+                        <p style="color: var(--neon-green); font-size: 1.1rem; font-weight: bold; margin-bottom: 10px;">🏆 10주 완주를 축하합니다!</p>
+                        <p style="color: #ddd; font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px;">
+                            출력하기 번거로우신가요? <br>
+                            내가 틀린 단어들만 모은 <strong>'세상에 하나뿐인 나만의 단어장'</strong>을 <br>
+                            고급 소책자로 인쇄하여 집으로 보내드립니다.
+                        </p>
+                        
+                        <button onclick="window.open('https://open.kakao.com/o/siKCrAqi', '_blank')" 
+                                style="width: 100%; padding: 16px; background: #ffcc00; color: #000; border: none; border-radius: 12px; font-size: 1.1rem; cursor: pointer; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.3); margin-bottom: 10px;">
+                            ✨ 실물 단어장 배송 신청 (2.0만 원)
+                        </button>
+                        
+                        <button onclick="printMyWrongTest()" style="width: 100%; padding: 12px; background: transparent; border: 1px solid #666; color: #aaa; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.9rem;">
+                            🖨️ 직접 오답 시험지 출력하기 (무료)
+                        </button>
+                        
+                        <p style="font-size: 0.8rem; color: #777; margin-top: 15px;">📌 본인 이름이 각인된 프리미엄 디자인 소책자로 제작됩니다.</p>
+                    </div>
+                `;
             }
         
-            alert('🎯 완주 데이터가 완성되었습니다!\n리스트 하단에 [인쇄 단어장 신청 및 결제 안내]가 나타납니다.');
+            alert('✅ 70일 코스 완주!\n이제 리스트 하단에서 실물 단어장 신청 버튼을 확인하실 수 있습니다.');
             
-            // 3. 페이지 새로고침하여 UI 업데이트
+            // 3. 페이지 새로고침하여 최종 UI 적용
             window.location.href = 'index.html?tab=voca';
         };
         </script>
