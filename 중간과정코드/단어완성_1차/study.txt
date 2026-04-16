@@ -57,15 +57,12 @@
         window.wordsData = typeof wordsData !== 'undefined' ? wordsData : { middle: {}, high: {} };
     </script>
     
-    <script src="app.js?v=20260416_final"></script> 
+    <script src="app.js?v=999"></script>
     
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./service-worker.js').then(reg => {
-                    // 서비스 워커 강제 업데이트 체크
-                    reg.update();
-                }).catch(err => console.log(err));
+                navigator.serviceWorker.register('./service-worker.js').catch(err => console.log(err));
             });
         }
         window.addEventListener('DOMContentLoaded', () => {

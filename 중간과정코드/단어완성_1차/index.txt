@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사라져 Voca - Neon</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
+    <style>
+        :root {
+            --bg-color: #050505; 
+            --card-bg-color: #111111; 
+            --border-color: #222222;
+            --neon-blue: #00f3ff; 
+            --neon-green: #39ff14; 
+            --neon-orange: #ff9900; 
+            --neon-purple: #bc13fe;
+            --glow-blue: 0 0 8px rgba(0,243,255,0.4);
+            --glow-green: 0 0 8px rgba(57, 255, 20, 0.4);
+            --glow-orange: 0 0 10px rgba(255,153,0,0.5);
+            --glow-text: 0 0 5px var(--neon-blue);
+        }
+
+        body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: 'Pretendard', sans-serif; -webkit-font-smoothing: antialiased; padding-bottom: 90px; }
+
+        #login-modal, #wrong-modal, #all-words-modal, #report-modal, #guide-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 30000; transition: opacity 0.5s; padding: 20px; box-sizing: border-box; }
+
+        .login-card { background: var(--card-bg-color); border: 1px solid rgba(0, 243, 255, 0.3); box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); border-radius: 20px; padding: 25px; width: 90%; max-width: 400px; text-align: center; max-height: 80vh; overflow-y: auto; box-sizing: border-box; max-height: 90vh; }
+        
+        .login-title { font-size: 1.8rem; font-weight: bold; margin-bottom: 25px; color: #fff; text-shadow: var(--glow-text); }
+
+        /* 에너지 슬롯 스타일 추가 */
+        .energy-container { display: flex; justify-content: center; gap: 8px; margin: 12px 0; width: 100%; }
+        .energy-slot { flex: 1; height: 8px; background: #222; border: 1px solid #333; border-radius: 4px; transition: all 0.3s ease; }
+        .energy-slot.active { background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); border-color: #fff; }
+
+        .input-group { margin-bottom: 18px; text-align: left; }
+        .input-label { font-size: 0.85rem; color: #777; margin-bottom: 6px; display: block; }
+        .neon-input { width: 100%; box-sizing: border-box; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; font-size: 1rem; transition: 0.3s; }
+        .neon-input:focus { outline: none; border-color: var(--neon-blue); box-shadow: 0 0 8px rgba(0,243,255,0.2); }
+
+        .login-btn { width: 100%; padding: 16px; background: transparent; border: 1.5px solid var(--neon-green); color: #fff; font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer; box-shadow: var(--glow-green); margin-top: 10px; transition: 0.2s;}
+        .login-btn:active { transform: scale(0.98); background: rgba(57, 255, 20, 0.1); }
+
+        #welcome-msg { text-align: center; color: var(--neon-blue); font-size: 1.1rem; margin-bottom: 20px; text-shadow: var(--glow-text); }
+
+        .dashboard-bg { padding: 20px; display: flex; justify-content: center; }
+        .dashboard-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 5px; margin: 0 auto; padding-bottom: 110px; position: relative; }
+
+        .logo { font-size: 2.5rem; font-weight: 800; text-align: center; margin-bottom: 10px; margin-top: 10px; text-shadow: var(--glow-text); cursor: pointer; }
+        
+        .card { background-color: var(--card-bg-color); border: 1px solid #222; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); margin-bottom: 20px; }
+        .clickable-card { cursor: pointer; transition: 0.2s; }
+        .clickable-card:active { transform: scale(0.97); }
+
+        .stats-row { display: flex; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 18px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #222; }
+        .stat-item { text-align: center; flex: 1; }
+        .stat-label { font-size: 0.75rem; color: #ccc; margin-bottom: 5px; } 
+        .stat-value { font-size: 1.15rem; font-weight: bold; color: var(--neon-blue); }
+
+        .level-buttons { display: flex; gap: 12px; margin-top: 15px; }
+        .level-btn { flex: 1; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; padding: 14px; color: #666; font-weight: 600; cursor: pointer; transition: 0.3s; }
+        .level-btn.active { border-color: var(--neon-blue); color: #fff; box-shadow: 0 0 10px rgba(0,243,255,0.2); background: rgba(0,243,255,0.05); }
+
+        .start-btn { width: 100%; background: rgba(255,153,0,0.1); border: 1px solid var(--neon-orange); color: #fff; font-size: 1.2rem; font-weight: 700; padding: 18px; border-radius: 16px; cursor: pointer; margin-top: 10px; box-shadow: var(--glow-orange); transition: 0.2s; }
+        .start-btn:active { transform: scale(0.98); background: rgba(255,153,0,0.2); }
+
+        .info-row { display: flex; gap: 15px; margin-bottom: 20px; }
+        .info-card { flex: 1; text-align: center; padding: 22px; background: var(--card-bg-color); border: 1px solid #222; border-radius: 18px; transition: 0.2s; }
+        .info-card:active { background: #1a1a1a; }
+        .info-title { font-size: 0.95rem; margin-bottom: 8px; color: #aaa; }
+        .info-count { font-size: 1.4rem; font-weight: 700; color: #fff; }
+
+        .routine-scroll-box { max-height: 250px; overflow-y: auto; border: 1px solid #222; border-radius: 12px; padding: 12px; background: rgba(0,0,0,0.2); }
+        .routine-list { list-style: none; padding: 0; margin: 0; }
+        .routine-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 8px; border-bottom: 1px solid #222; }
+        .day-label { font-size: 1rem; color: #ddd; }
+        .routine-action-btn { background: #222; border: 1px solid #333; border-radius: 10px; padding: 8px 18px; font-weight: 600; color: #777; cursor: pointer; }
+        .routine-action-btn.active { border-color: var(--neon-green); color: #fff; box-shadow: 0 0 8px rgba(57, 255, 20, 0.3); background: rgba(57, 255, 20, 0.05); }
+
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 75px; background: rgba(15, 15, 15, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top-left-radius: 25px; border-top-right-radius: 25px; border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-around; align-items: center; z-index: 2000; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-item { flex: 1; text-align: center; color: #555; font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; font-weight: bold; }
+        .nav-icon { font-size: 1.4rem; }
+        .nav-item.active { color: #fff; }
+        .nav-item.active:nth-child(1) { color: var(--neon-orange); } 
+        .nav-item.active:nth-child(2) { color: var(--neon-blue); }   
+        .nav-item.active:nth-child(3) { color: #b537f2; } 
+
+        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .report-bar-bg { width: 100%; background: #222; height: 12px; border-radius: 6px; margin-top: 5px; overflow: hidden; }
+        .report-bar-fill { height: 100%; background: var(--neon-green); width: 0%; border-radius: 6px; box-shadow: 0 0 5px var(--neon-green); transition: width 0.5s; }
+    </style>
+</head>
+<body class="dashboard-bg">
+
+    <div id="splash-screen" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease;">
+        <img src="icon-512.png" alt="Trigger Logo" style="width: 180px; height: 180px; border-radius: 20px;">
+    </div>
+
+    <div id="guide-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 30000; align-items: center; justify-content: center;">
+        <div class="login-card" style="border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.3); width: 90%; max-width: 420px; text-align:left; background: #111; padding: 30px; border-radius: 15px;">
+            <div style="font-size: 1.6rem; font-weight: bold; color: #fff; margin-bottom: 25px; text-align:center;">🧠 사라져 Voca <br>학습 시스템 안내</div>
+            
+            <div style="color: #ddd; font-size: 0.95rem; line-height: 1.6; max-height: 400px; overflow-y: auto; padding-right: 10px;">
+                <p style="margin-bottom: 20px;">
+                    <strong style="color:var(--neon-blue); font-size: 1.1rem;">1. 15단계 '블링크' 루틴</strong><br>
+                    뜻이 보였다 사라지는 깜빡임 학습으로 뇌를 자극합니다. <strong>12회 반복 + 3회 테스트</strong>를 모두 통과해야 완료됩니다.
+                </p>
+    
+                <p style="margin-bottom: 20px;">
+                    <strong style="color:var(--neon-orange); font-size: 1.1rem;">2. 3분 쿨타임 (장기기억 전환)</strong><br>
+                    사이클 사이마다 <strong>3분간 강제 휴식</strong>이 부여됩니다. 뇌가 단기기억을 장기기억으로 변환하는 필수 시간입니다.
+                </p>
+    
+                <p style="margin-bottom: 20px;">
+                    <strong style="color:var(--neon-green); font-size: 1.1rem;">3. 3일 누적 복습 (망각 차단)</strong><br>
+                    당일 학습 전, <strong>2일 전과 1일 전 단어를 먼저 마스터</strong>해야만 오늘 진도에 진입할 수 있는 강력한 누적 복습 시스템입니다.
+                </p>
+    
+                <p style="margin-bottom: 20px;">
+                    <strong style="color:#afff00; font-size: 1.1rem;">4. 5+2 주말 마스터</strong><br>
+                    주말 2일은 진도 없이 <strong>전체 누적 복습 및 오답 정리</strong>를 진행하여 한 주 분량을 완벽히 내 것으로 만듭니다.
+                </p>
+    
+                <p>
+                    <strong style="color:#FFD600; font-size: 1.1rem;">5. 매일 성취 인증</strong><br>
+                    학습 결과를 공유하고 동료들과 인증하며 끝까지 완주할 수 있는 동기를 부여합니다.
+                </p>
+            </div>
+    
+            <button class="login-btn" style="border-color: #fff; color: #000; background: #fff; box-shadow: none; width: 100%; margin-top: 25px; padding: 15px; font-weight: bold; cursor: pointer; font-size: 1rem; border-radius: 8px;" onclick="closeGuide()">확인했습니다</button>
+        </div>
+    </div>
+
+    <div id="login-modal" style="display:none;">
+        <div class="login-card">
+            <div class="login-title">Trigger English</div>
+            <div class="input-group"><span class="input-label">이름 (실명)</span><input type="text" id="user-name" class="neon-input"></div>
+            <div class="input-group">
+                <span class="input-label">전화번호 (휴대폰)</span><input type="tel" id="user-phone" class="neon-input" placeholder="010-0000-0000">
+                <span style="font-size: 0.8rem; color: var(--neon-orange); margin-top:5px; display:block;">※ 학습 기록 관리 및 안내 목적으로 사용됩니다.</span>
+            </div>
+            <div class="checkbox-group"><input type="checkbox" id="agree-privacy"><label for="agree-privacy" style="font-size: 0.9rem; color: #aaa;">개인정보 수집 동의</label></div>
+            <button class="login-btn" id="login-submit-btn" onclick="handleLogin()">시작하기</button>
+        </div>
+    </div>
+
+    <div id="wrong-modal" style="display:none;">
+        <div class="login-card" style="border-color: var(--neon-green); box-shadow: 0 0 15px var(--neon-green); width: 90%; max-width: 450px;">
+            <div class="login-title" id="wrong-modal-title" style="color:var(--neon-green); text-shadow: 0 0 10px var(--neon-green);">오답 / 별표</div>
+            <div id="wrong-list" style="text-align:left; color:#fff; margin-bottom:20px; font-size:1.1rem; line-height:1.8; max-height: 300px; overflow-y: auto; padding-right: 10px;"></div>
+            <button class="login-btn" style="border-color: var(--neon-green); box-shadow: 0 0 10px var(--neon-green);" onclick="document.getElementById('wrong-modal').style.display='none'">닫기</button>
+        </div>
+    </div>
+
+    <div id="all-words-modal" style="display:none;">
+        <div class="login-card" style="border-color: var(--neon-orange); box-shadow: 0 0 15px var(--neon-orange); width: 90%; max-width: 450px;">
+            <div class="login-title" id="all-words-title" style="color:var(--neon-orange); text-shadow: 0 0 10px var(--neon-orange); font-size: 1.3rem;">👑 클리어 리스트</div>
+            <div id="all-words-list" style="text-align:left; color:#fff; margin-bottom:20px; line-height:1.6; max-height: 300px; overflow-y: auto; padding-right: 10px;"></div>
+            <button class="login-btn" style="border-color: var(--neon-orange); box-shadow: 0 0 10px var(--neon-orange);" onclick="document.getElementById('all-words-modal').style.display='none'">닫기</button>
+        </div>
+    </div>
+
+    <div id="report-modal" style="display:none;">
+        <div class="login-card" style="border-color: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); width: 90%; max-width: 450px;">
+            <div class="login-title" id="report-modal-title" style="color:var(--neon-blue); text-shadow: none;"></div>
+            
+            <div style="display:flex; gap:10px; margin-bottom:15px; width:100%;">
+               <button id="tab-report-middle" onclick="showWeeklyReport('middle')" style="flex:1; padding:10px; border-radius:10px; background:var(--neon-orange); color:#000; font-weight:bold; border:none; cursor:pointer;">중등</button>
+               <button id="tab-report-high" onclick="showWeeklyReport('high')" style="flex:1; padding:10px; border-radius:10px; background:transparent; border:1px solid #444; color:#888; font-weight:bold; cursor:pointer;">고등</button>
+            </div>
+
+            <div id="report-list" style="text-align:left; color:#fff; margin-bottom:20px; font-size:1rem; line-height:1.8; max-height: 300px; overflow-y: auto; padding-right:10px;"></div>
+            <button class="login-btn" style="border-color: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue);" onclick="document.getElementById('report-modal').style.display='none'">닫기</button>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; width: 100%; padding: 30px 10px 15px 10px; box-sizing: border-box;">
+            <div class="logo" id="main-header-title" onclick="activateAdmin()" style="margin: 0; text-align: center; line-height: 1.2; font-size: 3rem; letter-spacing: -1px; cursor: pointer; user-select: none;">
+                사라져 Voca
+            </div>
+            
+            <div style="width: 100%; display: flex; justify-content: flex-end; margin-top: 25px;"> <button onclick="shareTriggerApp()" 
+                style="background: transparent; border: 1.5px solid #ffffff; color: #ffffff; padding: 7px 16px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 15px rgba(255,255,255,0.1); font-weight: bold; transition: 0.2s;">
+                <span>공유하기</span> <span style="font-size: 0.9rem; color: #ffffff;">✨</span>
+            </button>
+        </div>
+        </div>
+        
+        <hr style="border: 0.5px solid #222; width: 95%; margin: 10px auto 25px auto;">
+        
+        <div id="tab-voca" class="tab-content active">
+            
+            <button id="install-app-btn" style="display:none; width: 100%; margin-bottom: 25px; padding: 12px; background: rgba(0, 243, 255, 0.05); color: var(--neon-blue); font-size: 1.05rem; font-weight: bold; border: 1px dashed var(--neon-blue); border-radius: 12px; box-shadow: 0 0 15px rgba(0,243,255,0.15); cursor: pointer; transition: 0.3s;">
+                👇1초 만에 앱으로 설치하기
+            </button>
+
+            <div id="welcome-msg"></div>
+
+            <div class="stats-row">
+                <div class="stat-item"><div class="stat-label">진행 중인 Day</div><div class="stat-value" id="stat-current-day" style="color: #fff;">Day 1</div></div>
+                <div class="stat-item" style="border-left: 1px solid #444; border-right: 1px solid #444;"><div class="stat-label">오늘의 사이클</div><div class="stat-value" id="stat-session" style="color: #fff;">1 / 6</div></div>
+                <div class="stat-item clickable-card" onclick="showWeeklyReport()"><div class="stat-label">누적 리포트</div><div class="stat-value" style="color:#ddd; text-decoration:underline; font-size: 1rem; margin-top: 3px;">보기 📊</div></div>
+            </div>
+
+            <div class="card level-section">
+                <div class="level-title" style="color: #888; font-size: 0.9rem; margin-bottom: 15px; font-weight: bold;">학습 레벨 선택</div>
+                <div class="level-buttons">
+                    <button class="level-btn active" id="btn-middle" onclick="selectLevel('middle')" style="line-height: 1.4;">
+                        중등단어<br>
+                        <span style="font-size: 0.9rem; color: var(--neon-blue); font-weight: normal; opacity: 0.9;">1,200</span>
+                    </button>
+                    <button class="level-btn" id="btn-high" onclick="selectLevel('high')" style="line-height: 1.4;">
+                        고등단어<br>
+                        <span style="font-size: 0.9rem; color: var(--neon-blue); font-weight: normal; opacity: 0.9;">2,000</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="card" style="padding: 25px 20px; border: 1px solid var(--neon-orange); background: rgba(255, 153, 0, 0.05); text-align: center;">
+                <div style="position: relative; margin-bottom: 5px; height: 30px; display: flex; align-items: center; justify-content: center;">
+                    <div style="font-size: 1.2rem; font-weight: bold; color: var(--neon-orange);">오늘의 학습</div>
+                    <span onclick="openGuide()" style="position: absolute; right: 0; font-size:0.8rem; cursor:pointer; color:#fff; background:#444; padding:4px 10px; border-radius:12px; border:1px solid #666;">❓안내</span>
+                </div>
+                <div style="color: #aaa; font-size: 1.2rem; margin-bottom: 10px;">목표 단어: <span id="target-count-display" style="color: #fff; font-weight: bold;">0개</span></div>
+                
+                             <button class="start-btn" id="start-btn-main">학습 시작하기</button>
+            </div>
+
+            <div class="info-row">
+                <div class="info-card clickable-card" onclick="showAllWords()">
+                    <div class="info-title">🏆 클리어 리스트</div>
+                    <div class="info-count" id="total-word-count" style="color: #fff; font-size: 1rem; margin-top: 5px;">0 단어</div>
+                </div>
+                <div class="info-card clickable-card" onclick="showWrongWords()">
+                    <div class="info-title">⭐ 오답/별표</div>
+                    <div class="info-count" id="wrong-word-count" style="color: #fff; font-size: 1rem; margin-top: 5px;">0 단어</div>
+                </div>
+            </div>
+
+            <div class="card routine-section">
+                <div style="font-size: 1.2rem; font-weight: 700; margin-bottom: 10px;">📅 10주 완성 도전하기</div>
+                <div class="routine-scroll-box">
+                    <ul class="routine-list" id="routine-list-container"></ul>
+                </div>
+                <div id="pdf-download-section" style="margin-top: 15px; text-align: center; border-top: 1px dashed #555; padding-top: 15px;">
+                    <p id="pdf-guide-text" style="color: #aaa; font-size: 0.9rem; margin-bottom: 10px; line-height: 1.5;">🔒 1주차 루틴(Day 7) 완료 시<br>이번 주 복습용 단어장(PDF)이 열립니다.</p>
+                    <button id="pdf-btn" disabled style="background: #333; color: #666; border: 1px solid #555; padding: 10px 20px; border-radius: 8px; cursor: not-allowed; font-weight: bold; width: 100%; margin-bottom: 10px;">다운로드 잠김</button>
+    
+                    <div id="final-gift-section" style="display: none; border-top: 1px solid #333; padding-top: 15px; margin-top: 5px;">
+                        <p style="color: var(--neon-green); font-size: 0.85rem; font-weight: bold; margin-bottom: 8px;">🎊 10주 완주 성공! 선물 도착 🎊</p>
+                        <button onclick="printMyWrongTest()" style="width: 100%; padding: 12px; background: rgba(0, 243, 255, 0.1); border: 1px solid var(--neon-blue); color: var(--neon-blue); border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem;">
+                            🖨️ 나만의 누적 오답 시험지 출력
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="admin-menu" style="display: none; text-align: center; margin: 30px auto; border: 2px dashed var(--neon-orange); padding: 20px; flex-direction: column; gap: 12px; align-items: center; background: rgba(255,153,0,0.05); border-radius: 15px; width: 90%;">
+                <p style="color:var(--neon-orange); font-size:0.9rem; margin:0; font-weight:bold;">🛠️ 개발자 테스트 모드</p>
+                <div style="display:flex; gap:10px; width: 100%;">
+                    <button onclick="jumpToSession(3)" style="flex:1; background: #222; border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight:bold;">⏩ 사이클 3 점프</button>
+                    <button onclick="jumpToSession(6)" style="flex:1; background: #222; border: 1px solid var(--neon-orange); color: var(--neon-orange); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight:bold;">🔥 사이클 6 점프</button>
+                    <button onclick="jumpToFinish()" style="flex:1; background: #222; border: 1px solid var(--neon-green); color: var(--neon-green); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight:bold;">🏁 즉시 완수</button>
+                </div>
+                <button onclick="localStorage.removeItem('blackt_cooldown'); alert('⏳ 쿨타임 삭제 완료!'); location.reload();" style="background: #111; border: 1px solid var(--neon-green); color: var(--neon-green); padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%;">
+                    ⚡ 쿨타임(3분 휴식) 즉시 삭제
+                </button>
+                <button onclick="if(confirm('정말 모든 데이터를 초기화할까요?')) { localStorage.clear(); location.reload(); }" style="background: none; border: none; color: #666; text-decoration: underline; cursor: pointer; font-size: 0.8rem; margin-top:5px;">
+                    🔄 데이터 완전 초기화
+                </button>
+                <button onclick="forceComplete70()" style="background: #fff; color: #000; padding: 12px; border-radius: 8px; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; border: none;">
+                    🎯 엔딩 화면 강제 확인 (Day 70)
+                </button>
+            </div>
+        </div>
+
+        <div id="tab-analysis" class="tab-content">
+            <div class="card" style="border: 1px solid var(--neon-blue); background: rgba(0, 243, 255, 0.05); padding: 25px;">
+                <div style="font-size: 1.3rem; font-weight: bold; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); margin-bottom: 10px;">📷 15초 시험지 분석</div>
+                <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 25px;">시험지를 찍으면 내가 틀린 진짜 원인(문법/단어)을 찾아내어 단어장을 업데이트합니다.</p>
+                <div class="input-group">
+                    <span class="input-label" style="color: #ddd;">학년</span>
+                    <select id="exam-grade" class="neon-input" style="appearance: auto;" onchange="handleGradeChange()">
+                        <optgroup label="중학교"><option value="중1">중학교 1학년</option><option value="중2">중학교 2학년</option><option value="중3">중학교 3학년</option></optgroup>
+                        <optgroup label="고등학교"><option value="고1" selected>고등학교 1학년</option><option value="고2">고등학교 2학년</option><option value="고3">고등학교 3학년</option></optgroup>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <span class="input-label" style="color: #ddd;">시험 구분</span>
+                    <select id="exam-type" class="neon-input" style="appearance: auto;" onchange="updateExamPeriod()">
+                        <option value="내신">학교 내신 (중간/기말)</option>
+                        <option value="모의고사">전국 모의고사</option>
+                    </select>
+                </div>
+                <div class="input-group" style="margin-bottom: 30px;">
+                    <span class="input-label" style="color: #ddd;">시기</span>
+                    <select id="exam-period" class="neon-input" style="appearance: auto;">
+                        <option value="1학기 중간">1학기 중간고사</option>
+                        <option value="1학기 기말">1학기 기말고사</option>
+                        <option value="2학기 중간">2학기 중간고사</option>
+                        <option value="2학기 기말">2학기 기말고사</option>
+                    </select>
+                </div>
+                <button onclick="startCameraAnalysis()" style="width: 100%; padding: 18px; background: transparent; border: 2px solid var(--neon-blue); color: #fff; font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer;">카메라 켜기 📷</button>
+            </div>
+        </div>
+
+        <div id="tab-grammar" class="tab-content">
+            <div class="card" style="border: 1px solid #b537f2; background: rgba(181, 55, 242, 0.08); text-align: center; padding: 30px 20px;">
+                <div style="color: #d789ff; font-size: 0.85rem; font-weight: bold; margin-bottom: 10px; letter-spacing: 1px;">PREMIUM CLASS</div>
+                <div style="font-size: 1.5rem; font-weight: 900; color: #fff; text-shadow: 0 0 10px #b537f2; margin-bottom: 15px; line-height: 1.3;">단 3시간,<br>영문법 마스터 ⚡</div>
+                <p style="color: #bbb; font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px;">단 3시간 만에 핵심을 관통하여<br>내신과 모의고사 문법을<br>빠르고 정확하게 끝냅니다.</p>
+                <button onclick="window.open('https://www.notion.so/3-26ea81fd05e580869538e10685e3cdf2', '_blank')" style="width: 100%; padding: 15px; background: #b537f2; border: none; color: #fff; font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer; box-shadow: 0 0 15px rgba(181, 55, 242, 0.5);">수강권 구매 및 수강하기</button>
+            </div>
+        </div>
+    </div> 
+    
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('voca', this)">
+            <span class="nav-icon">🏠</span><span>사라져 Voca</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('analysis', this)">
+            <span class="nav-icon">📷</span><span>시험 분석</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('grammar', this)">
+            <span class="nav-icon">⚡</span><span>3시간 영문법</span>
+        </div>
+    </nav>
+
+    <div id="print-area" style="display:none; padding:20px; background:#fff; color:#000;"></div>
+
+    <script>
+        function openGuide() {
+            document.getElementById('guide-modal').style.display = 'flex';
+        }
+
+        function closeGuide() {
+            document.getElementById('guide-modal').style.display = 'none';
+            localStorage.setItem('hasSeenGuide_2026', 'true');
+        }
+
+        function shuffleArray(array) {
+            let curId = array.length;
+            while (0 !== curId) {
+                let randId = Math.floor(Math.random() * curId);
+                curId -= 1;
+                let tmp = array[curId];
+                array[curId] = array[randId];
+                array[randId] = tmp;
+            }
+            return array;
+        }
+
+        function getWordsForDay(level, absoluteDay) {
+            if (typeof wordsData === 'undefined' || !wordsData[level]) return [];
+            let week = Math.ceil(absoluteDay / 7);
+            let localDay = absoluteDay % 7 === 0 ? 7 : absoluteDay % 7;
+            let weekData = wordsData[level]["week" + week];
+            if (!weekData) return [];
+            let dayData = weekData[String(localDay)];
+            if (!dayData) return [];
+            if ((localDay === 6 || localDay === 7) && !Array.isArray(dayData)) {
+                return dayData.test || [];
+            }
+            return Array.isArray(dayData) ? dayData : [];
+        }
+
+        const TOTAL_DAYS = 70; 
+        const todayStr = new Date().toLocaleDateString();
+        
+        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzQM_AXzcq1vth9e1j9v54puAoJAur3gELmfvIq3e8fO7C8-D3RwTHs83cyCo0rsPp1/exec";
+        
+        if (localStorage.getItem('trigger_date') !== todayStr) {
+            localStorage.setItem('trigger_date', todayStr);
+            localStorage.setItem('trigger_session_middle', '1');
+            localStorage.setItem('trigger_session_high', '1');
+            localStorage.setItem('trigger_unlocked_extra_today_middle', '0');
+            localStorage.setItem('trigger_unlocked_extra_today_high', '0');
+        }
+
+        // [핵심 수정 구간] 에러를 일으키던 switchTab 함수 개선
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+            
+            if (element) {
+                element.classList.add('active');
+            } else {
+                // 파라미터 강제 호출 시 에러가 나지 않도록 방어 코드 추가
+                const navItems = document.querySelectorAll('.nav-item');
+                if (tabId === 'voca' && navItems.length > 0) navItems[0].classList.add('active');
+                else if (tabId === 'analysis' && navItems.length > 1) navItems[1].classList.add('active');
+                else if (tabId === 'grammar' && navItems.length > 2) navItems[2].classList.add('active');
+            }
+            
+            const headerTitle = document.getElementById('main-header-title');
+            if (headerTitle) {
+                if (tabId === 'voca') { headerTitle.innerHTML = '사라져 Voca'; } 
+                else if (tabId === 'analysis') { headerTitle.innerHTML = 'Trigger<br>AI 시험 분석'; } 
+                else if (tabId === 'grammar') { headerTitle.innerHTML = 'Trigger<br>3시간 영문법'; }
+            }
+            window.scrollTo(0,0); 
+            if(tabId === 'analysis' && typeof handleGradeChange === 'function') handleGradeChange(); 
+        }
+
+        function jumpToSession(sessionNum) {
+            const lvl = localStorage.getItem('trigger_level') || 'middle';
+            localStorage.setItem('trigger_session_' + lvl, sessionNum.toString());
+            localStorage.removeItem('blackt_cooldown');
+            
+            if (sessionNum === 6) {
+                localStorage.setItem('trigger_jump_test', 'true');
+            }
+            
+            alert(`🚀 사이클 ${sessionNum}로 이동했습니다! [학습 시작하기]를 눌러보세요.`);
+            location.reload();
+        }
+
+        function startDayStudy(day) {
+            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
+            const savedDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
+            if (savedDay !== day) {
+                localStorage.setItem(`trigger_session_${currentLevel}`, '1'); 
+            }
+            localStorage.setItem(`trigger_current_day_${currentLevel}`, day);
+            location.href = 'study.html';
+        }
+
+        function getShortDate() {
+            return new Date().toLocaleString();
+        }
+
+        async function handleLogin() {
+            const name = document.getElementById('user-name').value.trim();
+            const rawPhone = document.getElementById('user-phone').value.trim();
+            const agree = document.getElementById('agree-privacy').checked;
+
+            if (!name || !rawPhone || !agree) return alert("필수 항목을 확인해주세요.");
+
+            const phone = rawPhone.replace(/-/g, ""); 
+            if (!/^010\d{8}$/.test(phone)) {
+                return alert("전화번호는 010으로 시작하는 11자리 숫자로 정확히 입력해주세요.");
+            }
+
+            localStorage.setItem('trigger_name', name);
+            localStorage.setItem('trigger_phone', phone);
+            checkLoginStatus(); 
+
+            const formData = new URLSearchParams();
+            formData.append("date", getShortDate());
+            formData.append("name", name);
+            formData.append("phone", phone);
+            formData.append("level", "미정(가입완료)");
+
+            fetch(GOOGLE_SHEET_URL, {
+                method: 'POST',
+                body: formData
+            }).catch(e => console.log(e));
+        }
+
+        function selectLevel(level) {
+            localStorage.setItem('trigger_level', level);
+            
+            document.getElementById('btn-middle').className = "level-btn";
+            document.getElementById('btn-high').className = "level-btn";
+            document.getElementById('btn-' + level).className = "level-btn active";
+
+            updateDashboardUI();
+
+            const name = localStorage.getItem('trigger_name');
+            const phone = localStorage.getItem('trigger_phone');
+            const levelText = (level === 'high') ? '고등' : '중등';
+            const lastLoggedLevel = localStorage.getItem('trigger_last_logged_level');
+
+            if (name && phone && lastLoggedLevel !== levelText) {
+                localStorage.setItem('trigger_last_logged_level', levelText);
+
+                const formData = new URLSearchParams();
+                formData.append("date", getShortDate());
+                formData.append("name", name);
+                formData.append("phone", phone);
+                formData.append("level", levelText);
+
+                fetch(GOOGLE_SHEET_URL, { method: 'POST', body: formData });
+            }
+        }
+
+        function checkLoginStatus() {
+            const savedName = localStorage.getItem('trigger_name');
+            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
+            const currentSession = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`)) || 1;
+            const modal = document.getElementById('login-modal');
+            const welcomeMsg = document.getElementById('welcome-msg');
+
+            if (savedName) {
+                modal.style.display = 'none';
+                welcomeMsg.innerText = currentSession > 6 ? `환영합니다, ${savedName}님! (오늘 목표 완료!)` : `환영합니다, ${savedName}님!`;
+            } else {
+                modal.style.display = 'flex';
+            }
+            updateDashboardUI();
+        }
+
+        function updateDashboardUI() {
+            const lvl = localStorage.getItem('trigger_level') || 'middle';
+            const name = localStorage.getItem('trigger_name');
+            const day = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
+            const session = parseInt(localStorage.getItem(`trigger_session_${lvl}`)) || 1;
+            const unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${lvl}`)) || 1;
+
+            const welcomeMsg = document.getElementById('welcome-msg');
+            if (name && welcomeMsg) {
+                welcomeMsg.innerText = session > 6 ? `환영합니다, ${name}님! (오늘 목표 완료!)` : `환영합니다, ${name}님!`;
+            }
+
+            if (typeof wordsData !== 'undefined') {
+                let learnedTotal = 0;
+                for (let i = 1; i < unlockedDay; i++) { 
+                    if (i % 7 === 6 || i % 7 === 0) continue;
+                    learnedTotal += getWordsForDay(lvl, i).length;
+                }
+                document.getElementById('total-word-count').innerText = `${learnedTotal} 단어`;
+
+                var todayWordsData = getWordsForDay(lvl, day);
+                var actualCount = (todayWordsData && todayWordsData.length) ? todayWordsData.length : 0;
+                var isReviewDay = (day % 7 === 6 || day % 7 === 0);
+                var displayCount = isReviewDay ? Math.ceil(actualCount / 2) : actualCount;
+                
+                document.getElementById('target-count-display').innerText = displayCount + "개";
+            }
+
+            const allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+            const levelWrongs = allWrongs.filter(w => w.level === lvl);
+            document.getElementById('wrong-word-count').innerText = `${levelWrongs.length} 단어`;
+
+            const endTime = parseInt(localStorage.getItem('blackt_cooldown')) || 0; 
+            const startBtn = document.getElementById('start-btn-main');
+            
+            document.getElementById('stat-current-day').innerText = `Day ${day}`;
+            document.getElementById('stat-session').innerText = session > 6 ? 'Clear 리스트' : `${session} / 6`;
+
+            if (window.cooldownInterval) clearInterval(window.cooldownInterval);
+
+            if (session > 6) {
+                startBtn.disabled = false;
+                startBtn.innerText = "자유 복습 모드";
+                startBtn.style.borderColor = "var(--neon-blue)";
+                startBtn.style.boxShadow = "var(--glow-blue)";
+                startBtn.style.color = "#fff";
+                startBtn.onclick = () => startDayStudy(unlockedDay);
+            } else if (endTime && endTime - Date.now() > 0) {
+                startBtn.disabled = true; 
+                startBtn.style.borderColor = "#444";
+                startBtn.style.boxShadow = "none";
+                startBtn.style.color = "#666";
+                startBtn.onclick = null; 
+                
+                const updateTimerText = () => {
+                    const remaining = endTime - Date.now();
+                    if (remaining <= 0) {
+                        clearInterval(window.cooldownInterval);
+                        localStorage.removeItem('blackt_cooldown');
+                        startBtn.disabled = false;
+                        startBtn.innerText = "학습 시작하기";
+                        startBtn.style.borderColor = "var(--neon-orange)";
+                        startBtn.style.boxShadow = "var(--glow-orange)";
+                        startBtn.style.color = "#fff";
+                        startBtn.onclick = () => startDayStudy(unlockedDay);
+                    } else {
+                        const mins = Math.floor(remaining / 60000);
+                        const secs = Math.floor((remaining % 60000) / 1000);
+                        startBtn.innerText = `쉬고 있어요 🔒 (${mins}:${secs < 10 ? '0' : ''}${secs})`;
+                    }
+                };
+                updateTimerText();
+                window.cooldownInterval = setInterval(updateTimerText, 1000);
+            } else {
+                startBtn.disabled = false;
+                startBtn.innerText = "학습 시작하기";
+                startBtn.style.borderColor = "var(--neon-orange)";
+                startBtn.style.boxShadow = "var(--glow-orange)";
+                startBtn.style.color = "#fff";
+                startBtn.onclick = () => startDayStudy(unlockedDay);
+            }
+            renderRoutine();
+        }
+
+        function renderRoutine() {
+            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
+            let unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
+            const container = document.getElementById('routine-list-container');
+            if (!container) return;
+            
+            let html = '';
+            for(let i=1; i<=TOTAL_DAYS; i++) {
+                let isReview = (i % 7 === 6 || i % 7 === 0);
+                let dayLabel = isReview ? `Day ${i} (복습)` : `Day ${i}`;
+                
+                if (i < unlockedDay) {
+                    html += `
+                    <li class="routine-item" style="opacity: 0.6;">
+                        <span class="day-label" style="text-decoration: line-through; color: #888;">${dayLabel}</span>
+                        <button class="routine-action-btn" style="border: none; color: var(--neon-green); font-weight: bold; cursor: default; background: transparent;">
+                            CLEAR 👑
+                        </button>
+                    </li>`;
+                } 
+                else if (i === unlockedDay) {
+                    html += `
+                    <li class="routine-item">
+                        <span class="day-label" style="color: #fff; font-weight: bold;">${dayLabel}</span>
+                        <button class="routine-action-btn active" onclick="startDayStudy(${i})">시작</button>
+                    </li>`;
+                } 
+                else {
+                    html += `
+                    <li class="routine-item" style="opacity: 0.4;">
+                        <span class="day-label">${dayLabel}</span>
+                        <button class="routine-action-btn" style="cursor: not-allowed; background: #222; color: #666; border: 1px solid #444;">🔒 잠김</button>
+                    </li>`;
+                }
+            }
+            container.innerHTML = html;
+
+            const pdfBtn = document.getElementById('pdf-btn');
+            if (unlockedDay > 7) {
+                pdfBtn.disabled = false;
+                pdfBtn.innerText = "📥 누적 단어장 다운로드 (인쇄/PDF)";
+                pdfBtn.style.background = "transparent";
+                pdfBtn.style.color = "var(--neon-green)";
+                pdfBtn.style.borderColor = "var(--neon-green)";
+                pdfBtn.style.boxShadow = "var(--glow-green)";
+                pdfBtn.style.cursor = "pointer";
+                pdfBtn.onclick = generatePDF;
+            } else {
+                pdfBtn.disabled = true;
+                pdfBtn.innerText = "다운로드 잠김";
+                pdfBtn.style.background = "#333";
+                pdfBtn.style.color = "#666";
+                pdfBtn.style.borderColor = "#555";
+                pdfBtn.style.boxShadow = "none";
+                pdfBtn.onclick = null;
+            }
+        }
+
+        function unlockDay(btn, day) {
+            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
+            let unlockedExtra = parseInt(localStorage.getItem(`trigger_unlocked_extra_today_${currentLevel}`)) || 0;
+            let currentUnlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
+            
+            if (day > currentUnlockedDay + 1) {
+                alert("🚨 진도를 건너뛰고 열 수는 없습니다. 순서대로 완료해 주세요.");
+                return;
+            }
+            if (unlockedExtra >= 1) {
+                alert("🚨 장기 기억 보호를 위해 추가 진도는 하루에 1개 Day만 더 열 수 있습니다.\n내일 다시 시도해 주세요!");
+                return;
+            }
+            if(confirm(`Day ${day}의 잠금을 해제하시겠습니까? (하루 1회 제한)`)) {
+                localStorage.setItem(`trigger_unlocked_day_${currentLevel}`, day);
+                localStorage.setItem(`trigger_unlocked_extra_today_${currentLevel}`, unlockedExtra + 1);
+                renderRoutine();
+                updateDashboardUI(); 
+            }
+        }
+
+        function generatePDF() {
+            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
+            const unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
+            
+            let printHtml = `<h1 style="text-align:center;">사라져 Voca 누적 단어장 (${currentLevel === 'middle' ? '중등' : '고등'})</h1>`;
+            
+            for(let i=1; i < unlockedDay; i++) {
+                if (i % 7 === 6 || i % 7 === 0) continue; 
+                const dayWords = getWordsForDay(currentLevel, i);
+                if(dayWords.length > 0) {
+                    printHtml += `<div class="print-day" style="font-size:1.2rem; font-weight:bold; margin-top:20px; border-bottom:2px solid #000;">Day ${i}</div>`;
+                    dayWords.forEach(w => {
+                        const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
+                        printHtml += `<div style="margin:5px 0;"><strong>${w.word}</strong> <span style="color:#666;">${w.ipa || ''}</span> ${safeMeanings}</div>`;
+                    });
+                }
+            }
+            
+            const printArea = document.getElementById('print-area');
+            if(printArea) {
+                printArea.innerHTML = printHtml;
+                printArea.style.display = 'block'; 
+                window.print(); 
+                printArea.style.display = 'none'; 
+            } else {
+                alert("인쇄 기능이 준비되지 않았습니다.");
+            }
+        }
+
+        function showWrongWords() {
+            const lvl = localStorage.getItem('trigger_level') || 'middle';
+            const allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+            const levelWrongs = allWrongs.filter(w => w.level === lvl);
+            
+            let html = '';
+            if (levelWrongs.length > 0) {
+                const grouped = {};
+                levelWrongs.forEach(w => {
+                    const day = w.day || 1;
+                    if (!grouped[day]) grouped[day] = [];
+                    grouped[day].push(w);
+                });
+                const sortedDays = Object.keys(grouped).map(Number).sort((a, b) => a - b);
+                sortedDays.forEach(day => {
+                    html += `<div onclick="toggleAccordion('wrong-day-list-${day}')" style="background: rgba(57, 255, 20, 0.1); border: 1px solid rgba(57, 255, 20, 0.3); color:var(--neon-green); padding: 15px; margin-top:10px; border-radius: 8px; font-weight:bold; display: flex; justify-content: space-between; cursor: pointer;">
+                                <span>Day ${day} 오답/별표 (${grouped[day].length}개)</span><span>▼</span>
+                             </div>
+                             <div id="wrong-day-list-${day}" style="display: none; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-top: 5px; border: 1px solid #222;">`;
+                    
+                    grouped[day].forEach(w => {
+                        const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
+                        const starIcon = w.isStarred ? '<span style="font-size:0.85rem; margin-left:6px; vertical-align:middle;">⭐</span>' : '';
+                        html += `<div style="padding:12px 0; border-bottom:1px solid #333; line-height:1.4;">
+                                    <strong style="color:var(--neon-green); font-size:1.15rem;">${w.word}</strong>${starIcon} <br>
+                                    <span style="color:#ffffff; font-size:1rem; display:inline-block; margin-top:5px;">- ${safeMeanings}</span>
+                                </div>`;
+                    });
+                    html += `</div>`;
+                });
+            } else {
+                html = '<p style="text-align:center; color:#666; margin-top:20px;">저장된 오답이 없습니다.</p>';
+            }
+            document.getElementById('wrong-list').innerHTML = html;
+            
+            const titleEl = document.getElementById('wrong-modal-title');
+            titleEl.innerText = `[${lvl === 'high' ? '고등' : '중등'}] 오답/별표`;
+            titleEl.style.fontSize = "1.3rem"; 
+            
+            document.getElementById('wrong-modal').style.display = 'flex';
+        }
+
+        function toggleAccordion(id) {
+            const el = document.getElementById(id);
+            if(el.style.display === 'none') { el.style.display = 'block'; } 
+            else { el.style.display = 'none'; }
+        }
+
+        function showAllWords() {
+            const lvl = localStorage.getItem('trigger_level') || 'middle';
+            let html = '';
+            let totalCount = 0;
+            const levelUnlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${lvl}`)) || 1;
+            
+            for(let i = 1; i < levelUnlockedDay; i++) {
+                if (i % 7 === 6 || i % 7 === 0) continue; 
+                const dayWords = getWordsForDay(lvl, i);
+                if(dayWords.length > 0) {
+                    html += `<div onclick="toggleAccordion('day-list-${i}')" style="background: rgba(255,153,0,0.1); border: 1px solid rgba(255,153,0,0.3); color:var(--neon-orange); padding: 15px; margin-top:10px; border-radius: 8px; font-weight:bold; display: flex; justify-content: space-between; cursor: pointer;">
+                                <span>Day ${i} Clear</span><span>▼</span>
+                             </div>
+                             <div id="day-list-${i}" style="display: none; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-top: 5px; border: 1px solid #222;">`;
+                    dayWords.forEach(w => {
+                        totalCount++;
+                        const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
+                        html += `<div style="padding:10px 0; border-bottom:1px solid #333; font-size:0.95rem;">
+                                    <span style="color:#fff; font-weight:bold; font-size: 1.1rem;">${w.word}</span><br>
+                                    <span style="color:#aaa; font-size:0.9rem;">${safeMeanings}</span>
+                                 </div>`;
+                    });
+                    html += `</div>`;
+                }
+            }
+            const listContainer = document.getElementById('all-words-list');
+            if(totalCount === 0) {
+                listContainer.innerHTML = "<p style='text-align:center; color:#888; margin-top:20px; font-size: 14px;'>학습 기록이 없습니다.</p>";
+            } else {
+                listContainer.innerHTML = html;
+            }
+            
+            const titleEl = document.getElementById('all-words-title');
+            titleEl.innerText = `👑 클리어 리스트 [${lvl === 'high' ? '고등' : '중등'}]`;
+            titleEl.style.fontSize = "1.3rem";
+
+            document.getElementById('all-words-modal').style.display = 'flex';
+        }
+
+        function showWeeklyReport(requestedLevel) {
+            const currentLevel = requestedLevel || localStorage.getItem('trigger_level') || 'middle';
+            const stats = JSON.parse(localStorage.getItem(`trigger_stats_${currentLevel}`) || '{}');
+            const listContainer = document.getElementById('report-list');
+            
+            document.getElementById('tab-report-middle').style.cssText = currentLevel === 'middle' 
+                ? "flex:1; padding:10px; border-radius:10px; background:var(--neon-orange); color:#000; font-weight:bold; border:none; cursor:pointer;" 
+                : "flex:1; padding:10px; border-radius:10px; background:transparent; border:1px solid #444; color:#888; font-weight:bold; cursor:pointer;";
+            document.getElementById('tab-report-high').style.cssText = currentLevel === 'high' 
+                ? "flex:1; padding:10px; border-radius:10px; background:var(--neon-orange); color:#000; font-weight:bold; border:none; cursor:pointer;" 
+                : "flex:1; padding:10px; border-radius:10px; background:transparent; border:1px solid #444; color:#888; font-weight:bold; cursor:pointer;";
+
+            document.getElementById('report-modal-title').innerHTML = `
+            <div style="text-align: center; width: 100%; font-size: 0.9em;">
+            누적 학습 리포트
+            </div>`;
+
+            let html = '';
+            for(let i=1; i<=TOTAL_DAYS; i++) {
+                let isReview = (i % 7 === 6 || i % 7 === 0);
+                let dayLabel = isReview ? `Day ${i} (복습)` : `Day ${i}`;
+                let dayStat = stats[i];
+
+                if (dayStat) {
+                    if (typeof dayStat === 'number') { 
+                        dayStat = { progress: 100, accuracy: dayStat, status: "완료 👑" }; 
+                    } else if (dayStat.progress > 0 && dayStat.progress <= 6) {
+                        let totalS = isReview ? 2 : 6;
+                        let p = dayStat.progress > totalS ? totalS : dayStat.progress;
+                        dayStat.progress = Math.floor((p / totalS) * 100);
+                        dayStat.status = p >= totalS ? "완료 👑" : `${p} / ${totalS} 사이클`;
+                    }
+                }
+
+                if (!dayStat || !dayStat.progress) {
+                    html += `<div style="margin-bottom: 18px; opacity: 0.4;">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                                    <span>${dayLabel} <strong style="color:#666;">미진행</strong></span><span>-</span>
+                                </div>
+                                <div class="report-bar-bg"></div>
+                            </div>`;
+                } else {
+                    let accuracy = dayStat.accuracy || 0;
+                    let color = accuracy >= 80 ? "var(--neon-green)" : "var(--neon-orange)";
+                    const isFinished = dayStat.progress >= 100;
+                    const statusText = dayStat.status || (isFinished ? "완료 👑" : `${dayStat.progress}% 진행 중`);
+
+                    html += `<div style="margin-bottom: 18px;">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                                    <span>${dayLabel} <strong style="color:${isFinished ? 'var(--neon-green)' : 'var(--neon-blue)'};">${statusText}</strong></span>
+                                    <span style="color:${isFinished ? color : '#aaa'}; font-weight:bold; font-size:0.85rem;">${isFinished ? (isReview ? '복습 완료' : `정답률 ${accuracy}%`) : `진행률 ${dayStat.progress}%`}</span>
+                                </div>
+                                <div class="report-bar-bg"><div class="report-bar-fill" style="width: ${dayStat.progress}%; background:${isFinished ? color : 'var(--neon-blue)'}; box-shadow: 0 0 5px ${isFinished ? color : 'var(--neon-blue)'};"></div></div>
+                            </div>`;
+                }
+            }
+            listContainer.innerHTML = html;
+            document.getElementById('report-modal').style.display = 'flex';
+        }
+
+        function shareTriggerApp() {
+            const shareTitle = "사라져 보카 - 사라지는 영단어장";
+            const shareUrl = window.location.origin;
+            if (navigator.share) {
+                navigator.share({ title: shareTitle, url: shareUrl }).catch(console.error);
+            } else {
+                navigator.clipboard.writeText(shareUrl).then(() => { alert("✅ 링크가 복사되었습니다!"); });
+            }
+        }
+
+        function handleGradeChange() {
+            const grade = document.getElementById('exam-grade').value;
+            const typeSelect = document.getElementById('exam-type');
+            if (grade.startsWith('중')) {
+                typeSelect.value = '내신';
+                for (let i = 0; i < typeSelect.options.length; i++) {
+                    if (typeSelect.options[i].value === '모의고사') { typeSelect.options[i].style.display = 'none'; typeSelect.options[i].disabled = true; }
+                }
+            } else {
+                for (let i = 0; i < typeSelect.options.length; i++) {
+                    if (typeSelect.options[i].value === '모의고사') { typeSelect.options[i].style.display = 'block'; typeSelect.options[i].disabled = false; }
+                }
+            }
+            updateExamPeriod();
+        }
+
+        function updateExamPeriod() {
+            const type = document.getElementById('exam-type').value;
+            const periodSelect = document.getElementById('exam-period');
+            periodSelect.innerHTML = ''; 
+            if (type === '내신') {
+                ['1학기 중간고사', '1학기 기말고사', '2학기 중간고사', '2학기 기말고사'].forEach(p => periodSelect.add(new Option(p, p)));
+            } else if (type === '모의고사') {
+                ['3월 모의고사', '6월 모의고사', '9월 모의고사', '11월 모의고사', '수능'].forEach(p => periodSelect.add(new Option(p, p)));
+            }
+        }
+
+        function startCameraAnalysis() { alert("분석 모듈 연동 준비 중입니다."); }
+
+        let adminClicks = 0;
+        let adminTimer = null;
+        function activateAdmin() {
+            adminClicks++;
+            clearTimeout(adminTimer);
+            adminTimer = setTimeout(() => { adminClicks = 0; }, 1500); 
+            if (adminClicks >= 3) {
+                const menu = document.getElementById('admin-menu');
+                if (menu) {
+                    menu.style.setProperty('display', 'flex', 'important');
+                    alert("🛠️ 관리자 모드 활성화!");
+                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                }
+                adminClicks = 0;
+            }
+        }
+
+        function jumpToFinish() {
+            const lvl = localStorage.getItem('trigger_level') || 'middle';
+            const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
+            let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
+            const isReviewDay = (localDay === 6 || localDay === 7);
+
+            const finalSession = isReviewDay ? '2' : '6';
+            localStorage.setItem('trigger_session_' + lvl, finalSession); 
+            localStorage.removeItem('blackt_cooldown');
+            
+            localStorage.setItem('trigger_jump_test', 'true');
+            
+            location.href = 'study.html'; 
+        }
+
+        let deferredPrompt;
+        const installBtn = document.getElementById('install-app-btn');
+
+        function handleKakaoAndInstall() {
+            const savedName = localStorage.getItem('trigger_name');
+            const isKakao = /KAKAO/i.test(navigator.userAgent);
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            const splash = document.getElementById('splash-screen');
+            const modal = document.getElementById('login-modal');
+
+            if (!savedName || savedName === "null" || savedName === "") {
+                if (splash) splash.style.display = 'none';
+                if (modal) {
+                    modal.style.setProperty('display', 'flex', 'important');
+                    modal.style.setProperty('z-index', '30000', 'important');
+                    modal.style.opacity = '1';
+                }
+                return; 
+            }
+
+            if (isKakao && installBtn) {
+                installBtn.style.setProperty('display', 'block', 'important');
+                installBtn.style.backgroundColor = 'rgba(255, 153, 0, 0.15)';
+                installBtn.style.color = 'var(--neon-orange)';
+                installBtn.style.border = '1.5px solid var(--neon-orange)';
+                installBtn.style.padding = '20px 15px';
+                installBtn.style.height = 'auto';
+                
+                const magicLink = `kakaotalk://web/openExternal?url=${encodeURIComponent(window.location.href)}`;
+                installBtn.innerHTML = `
+                    <div style="font-weight:bold; font-size:1.1rem; margin-bottom:12px;">⚠️ 카톡에선 앱 설치가 안 됩니다!</div>
+                    <button onclick="window.location.href='${magicLink}'" 
+                        style="width:100%; padding:15px; background:var(--neon-orange); color:#000; border:none; border-radius:10px; font-weight:900; font-size:1rem; cursor:pointer;">
+                        크롬/사파리로 열고 앱 설치하기 🚀
+                    </button>
+                `;
+                installBtn.onclick = null;
+            } 
+            else if (!isKakao && !isStandalone && installBtn) {
+                installBtn.style.setProperty('display', 'block', 'important');
+                installBtn.style.backgroundColor = 'rgba(0, 243, 255, 0.05)';
+                installBtn.style.color = 'var(--neon-blue)';
+                installBtn.style.border = '1px dashed var(--neon-blue)';
+                installBtn.innerHTML = `👇 터치해서 1초 만에 앱으로 설치하기`;
+                
+                installBtn.onclick = async () => {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        if (outcome === 'accepted') installBtn.style.display = 'none';
+                        deferredPrompt = null;
+                    } else {
+                        alert("우측 상단 [점 3개] 혹은 하단 [공유 버튼]을 눌러 '홈 화면에 추가'를 선택해 주세요!");
+                    }
+                };
+            }
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        window.addEventListener('appinstalled', () => {
+            if (installBtn) installBtn.style.display = 'none';
+            deferredPrompt = null;
+        });
+
+        async function requestNotificationPermission() {
+            if (!('Notification' in window)) return;
+            if (Notification.permission === 'default') {
+                try {
+                    await Notification.requestPermission();
+                } catch (err) {
+                    console.error("알림 권한 요청 실패:", err);
+                }
+            }
+        }
+
+        function sendRecoveryNotification() {
+            if (Notification.permission !== 'granted') return;
+            const title = "🧠 에너지 회복 완료!";
+            const options = {
+                body: "3분이 지났습니다. 다음 사이클을 시작해 보세요! 🔥",
+                icon: "icon-192.png",
+                vibrate: [200, 100, 200],
+                tag: "recovery-done"
+            };
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(reg => reg.showNotification(title, options));
+            } else {
+                new Notification(title, options);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            handleKakaoAndInstall();
+        });
+
+        window.addEventListener('load', () => {
+            const savedName = localStorage.getItem('trigger_name');
+            const splash = document.getElementById('splash-screen');
+
+            if (splash && savedName && savedName !== "null") {
+                if (sessionStorage.getItem('splash_shown')) {
+                    splash.style.display = 'none';
+                } else {
+                    setTimeout(() => {
+                        splash.style.opacity = '0';
+                        setTimeout(() => { splash.style.display = 'none'; }, 500);
+                    }, 1200);
+                    sessionStorage.setItem('splash_shown', 'true');
+                }
+            } 
+            if (localStorage.getItem('trigger_admin_mode') === 'true') {
+                const menu = document.getElementById('admin-menu');
+                if (menu) {
+                    menu.style.setProperty('display', 'flex', 'important');
+                }
+            }
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab');
+
+            if (!tabParam || tabParam === 'voca') {
+            const titleEl = document.getElementById('main-header-title');
+            if (titleEl) titleEl.innerText = '사라져 Voca';
+            if (typeof switchTab === 'function') switchTab('voca');
+        } else if (tabParam === 'analysis') {
+            const titleEl = document.getElementById('main-header-title');
+            if (titleEl) titleEl.innerText = '트리거 AI 시험분석';
+            if (typeof switchTab === 'function') switchTab('analysis');
+        }
+
+            if (typeof checkLoginStatus === 'function') checkLoginStatus();
+            if (typeof selectLevel === 'function') {
+                selectLevel(localStorage.getItem('trigger_level') || 'middle');
+            }
+        });
+            const cooldownTime = localStorage.getItem('blackt_cooldown');
+            if (cooldownTime) {
+                const remaining = parseInt(cooldownTime) - Date.now();
+                if (remaining > 0) {
+                    setTimeout(sendRecoveryNotification, remaining);
+                }
+            }
+    
+
+        async function secureHandleLogin() {
+            await requestNotificationPermission();
+            await handleLogin();
+        }
+        document.getElementById('login-submit-btn').onclick = secureHandleLogin;
+
+    </script>
+    <script src="worddata.js"></script>
+    <script src="words.js"></script>
+    <script src="app.js?v=20260416_01"></script>
+    <script>
+        window.forceComplete70 = function() {
+            console.log("강제 완주 로직(HTML 내장형) 실행!");
+            const lvl = localStorage.getItem('trigger_level') || 'middle';
+            
+            // 1. 데이터 강제 주입
+            localStorage.setItem('trigger_current_day_' + lvl, '70');
+            localStorage.setItem('trigger_session_' + lvl, 'final');
+            
+            // 2. 쿨타임 제거
+            localStorage.removeItem('blackt_cooldown');
+        
+            alert('🎯 데이터 주입 완료!\n확인을 누르면 10주 완주 화면이 활성화됩니다.');
+            
+            // 3. 페이지 새로고침
+            window.location.href = 'index.html?tab=voca';
+        };
+        </script>
+
+</body>
+</html>
