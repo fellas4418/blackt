@@ -412,17 +412,15 @@
             if(tabId === 'analysis' && typeof handleGradeChange === 'function') handleGradeChange(); 
         }
 
+        // [수정: 사이클 번호만 업데이트하고 리로드]
         function jumpToSession(sessionNum) {
             const lvl = localStorage.getItem('trigger_level') || 'middle';
             localStorage.setItem('trigger_session_' + lvl, sessionNum.toString());
             localStorage.removeItem('blackt_cooldown');
+            localStorage.removeItem('trigger_jump_test'); 
             
-            if (sessionNum === 6) {
-                localStorage.setItem('trigger_jump_test', 'true');
-            }
-            
-            alert(`🚀 사이클 ${sessionNum}로 이동했습니다! [학습 시작하기]를 눌러보세요.`);
-            location.reload();
+            alert(`🚀 현재 Day의 사이클 ${sessionNum}(으)로 이동했습니다! [학습 시작하기]를 눌러보세요.`);
+            window.location.href = 'index.html?tab=voca';
         }
 
         function startDayStudy(day) {
@@ -905,7 +903,8 @@
             }
         }
 
-        function jumpToFinish() {
+        // [수정: app.js의 jumpToSession과 충돌을 막기 위해 함수명을 구분]
+        function forceAdminFinishTest() {
             const lvl = localStorage.getItem('trigger_level') || 'middle';
             const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
             let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
@@ -1078,6 +1077,7 @@
     <script src="words.js"></script>
     <script src="app.js?v=victory"></script>
     <script>
+        // [수정: 완벽한 70일 완주 로직 적용 및 페이지 리로드 추가]
         window.forceComplete70 = function() {
             const lvl = localStorage.getItem('trigger_level') || 'middle';
             
@@ -1087,38 +1087,10 @@
             localStorage.setItem('trigger_session_' + lvl, 'final');
             localStorage.removeItem('blackt_cooldown');
         
-            // 2. 숨겨진 배송 신청 섹션을 찾아서 내용을 업데이트하고 강제로 노출
-            const giftSection = document.getElementById('final-gift-section');
-            if (giftSection) {
-                giftSection.style.display = 'block'; 
-                giftSection.innerHTML = `
-                    <div style="background: rgba(57, 255, 20, 0.05); border: 2px solid var(--neon-green); border-radius: 15px; padding: 20px; text-align: center; margin-top: 10px;">
-                        <p style="color: var(--neon-green); font-size: 1.1rem; font-weight: bold; margin-bottom: 10px;">🏆 10주 완주를 축하합니다!</p>
-                        <p style="color: #ddd; font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px;">
-                            출력하기 번거로우신가요? <br>
-                            내가 틀린 단어들만 모은 <strong>'세상에 하나뿐인 나만의 단어장'</strong>을 <br>
-                            소책자로 인쇄하여 집으로 보내드립니다.
-                        </p>
-                        
-                        <button onclick="window.open('https://open.kakao.com/o/siKCrAqi', '_blank')" 
-                                style="width: 100%; padding: 16px; background: #ffcc00; color: #000; border: none; border-radius: 12px; font-size: 1.1rem; cursor: pointer; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.3); margin-bottom: 10px;">
-                            ✨ 실물 단어장 배송 신청 (2만 원)
-                        </button>
-                        
-                        <button onclick="printMyWrongTest()" style="width: 100%; padding: 12px; background: transparent; border: 1px solid #666; color: #aaa; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.9rem;">
-                            🖨️ 직접 오답 시험지 출력하기 (무료)
-                        </button>
-                        
-                        <p style="font-size: 0.8rem; color: #777; margin-top: 15px;">📌 본인 이름이 각인된 프리미엄 디자인 소책자로 제작됩니다.</p>
-                    </div>
-                `;
-                // 화면을 배송 신청 섹션으로 부드럽게 이동
-                giftSection.scrollIntoView({ behavior: 'smooth' });
-            }
-        
-            alert('✅ 70일 코스 완주!\n리스트 하단에서 실물 단어장 신청 버튼을 바로 확인하세요.');
+            alert('🏆 70일 완주 축하 화면으로 이동합니다.');
             
-            // [수정] 페이지 이동 로직을 삭제하여 화면이 사라지는 문제를 해결했습니다.
+            // 2. 반드시 페이지를 새로고침하여 앱 초기화 로직에 반영시킵니다.
+            window.location.href = 'index.html?tab=voca'; 
         };
     </script>
 
