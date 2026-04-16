@@ -1079,27 +1079,29 @@
     <script src="app.js?v=victory"></script>
     <script>
         window.forceComplete70 = function() {
-            console.log("강제 완주 및 전 코스 해금 로직 실행!");
             const lvl = localStorage.getItem('trigger_level') || 'middle';
             
-            // 1. 현재 진행 날짜를 70으로 설정
+            // 1. 데이터 강제 주입 (70일 완주 상태로 만들기)
             localStorage.setItem('trigger_current_day_' + lvl, '70');
-            
-            // 2. [핵심] 리스트 잠금을 푸는 기준점인 '해금 날짜'를 71로 강제 설정 (이게 있어야 자물쇠가 풀립니다)
             localStorage.setItem('trigger_unlocked_day_' + lvl, '71');
-            
-            // 3. 세션 상태를 최종(final)으로 변경하여 엔딩 UI 활성화
             localStorage.setItem('trigger_session_' + lvl, 'final');
-            
-            // 4. 즉시 확인을 방해하는 쿨타임 제거
             localStorage.removeItem('blackt_cooldown');
-    
-            alert('🏆 70일 완주 및 모든 리스트 잠금 해제 완료!\n이제 모든 Day의 자물쇠가 풀리고 엔딩 화면이 나타납니다.');
+        
+            // 2. [중요] 숨겨져 있는 "인쇄 단어장 신청 및 결제 안내" 섹션을 강제로 노출
+            const giftSection = document.getElementById('final-gift-section');
+            if (giftSection) {
+                giftSection.style.display = 'block'; // 숨김 해제
+                giftSection.style.backgroundColor = '#fff9c4'; // 눈에 띄게 노란색 배경 추가
+                giftSection.style.padding = '20px';
+                giftSection.style.border = '2px solid #fbc02d';
+            }
+        
+            alert('🎯 완주 데이터가 완성되었습니다!\n리스트 하단에 [인쇄 단어장 신청 및 결제 안내]가 나타납니다.');
             
-            // 5. 새로고침하여 데이터 반영
+            // 3. 페이지 새로고침하여 UI 업데이트
             window.location.href = 'index.html?tab=voca';
         };
-    </script>
+        </script>
 
 </body>
 </html>
