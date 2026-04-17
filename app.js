@@ -874,10 +874,22 @@ function shareKakao() {
 
 window.jumpToSession = function(n) {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
+    
+    // 1. 사이클 번호를 n으로 설정
     localStorage.setItem(`trigger_session_${lvl}`, n.toString());
+    
+    // 2. 쿨타임 및 점프용 임시 플래그 제거
     localStorage.removeItem('blackt_cooldown');
-    localStorage.removeItem('trigger_jump_test'); 
-    alert(`🛠️ 사이클 ${n}(으)로 점프 완료!\n메인 화면에서 '학습 시작하기'를 눌러주세요.`);
+    
+    // 3. [핵심] 만약 마지막 6사이클(또는 주말 2사이클)로 점프한다면 
+    // 이미 학습 루프를 다 돌았다고 가정하고 바로 테스트로 진입하도록 플래그 설정
+    if (n === 6 || n === 2) {
+        localStorage.setItem('trigger_jump_test', 'true');
+    }
+
+    alert(`🛠️ 사이클 ${n} 테스트 단계로 점프합니다.`);
+    
+    // 4. 대시보드로 가서 '학습 시작하기'를 누르면 바로 테스트가 뜨게 함
     location.href = 'index.html?tab=voca'; 
 };
 
