@@ -1058,3 +1058,27 @@ if (!window.isInitActive) {
         runner(); 
     }
 }
+
+// 앱이 다시 활성화될 때(탭 전환 후 복귀 등) 실행되는 방어 코드
+window.addEventListener('focus', () => {
+    const endTime = localStorage.getItem('blackt_cooldown');
+    if (endTime) {
+        const remaining = parseInt(endTime) - Date.now();
+        
+        // 만약 자리를 비운 사이 이미 쿨타임이 끝났다면
+        if (remaining <= 0) {
+            localStorage.removeItem('blackt_cooldown');
+            // 대시보드라면 버튼 상태를 즉시 '학습 시작'으로 변경
+            if (typeof updateDashboardUI === 'function') {
+                updateDashboardUI();
+            }
+            // 알림이 필요하다면 여기에 추가
+            console.log("휴식 종료됨 - 데이터 동기화 완료");
+        } else {
+            // 아직 시간이 남았다면 남은 시간에 맞춰 타이머/UI 재설정
+            if (typeof updateDashboardUI === 'function') {
+                updateDashboardUI();
+            }
+        }
+    }
+});

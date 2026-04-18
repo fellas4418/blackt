@@ -416,16 +416,30 @@
             if(tabId === 'analysis' && typeof handleGradeChange === 'function') handleGradeChange(); 
         }
 
-        // [수정: 사이클 번호만 업데이트하고 리로드]
-        function jumpToSession(sessionNum) {
-            const lvl = localStorage.getItem('trigger_level') || 'middle';
-            localStorage.setItem('trigger_session_' + lvl, sessionNum.toString());
-            localStorage.removeItem('blackt_cooldown');
-            localStorage.removeItem('trigger_jump_test'); 
-            
-            alert(`🚀 현재 Day의 사이클 ${sessionNum}(으)로 이동했습니다! [학습 시작하기]를 눌러보세요.`);
-            window.location.href = 'index.html?tab=voca';
-        }
+        // 1. 사이클 점프 함수 (날짜는 유지, 퀴즈 단계로 직행)
+function jumpToSession(sessionNum) {
+    const lvl = localStorage.getItem('trigger_level') || 'middle';
+    localStorage.setItem('trigger_session_' + lvl, sessionNum.toString());
+    localStorage.removeItem('blackt_cooldown');
+    
+    // 점프 시 바로 퀴즈(테스트)가 나오도록 설정
+    localStorage.setItem('trigger_jump_test', 'true');
+    
+    alert(`🚀 현재 Day의 사이클 ${sessionNum} 테스트로 이동합니다.`);
+    location.reload(); 
+}
+
+// 2. 70일 엔딩 강제 확인 함수
+window.forceComplete70 = function() {
+    const lvl = localStorage.getItem('trigger_level') || 'middle';
+    localStorage.setItem('trigger_current_day_' + lvl, '70');
+    localStorage.setItem('trigger_unlocked_day_' + lvl, '71');
+    localStorage.setItem('trigger_session_' + lvl, 'final');
+    localStorage.removeItem('blackt_cooldown');
+
+    alert('🏆 70일 완주 축하 화면으로 이동합니다.');
+    window.location.href = 'index.html?tab=voca'; 
+};
 
         function startDayStudy(day) {
             const currentLevel = localStorage.getItem('trigger_level') || 'middle';
@@ -1080,23 +1094,6 @@
     <script src="worddata.js"></script>
     <script src="words.js"></script>
     <script src="app.js?v=victory"></script>
-    <script>
-        // [수정: 완벽한 70일 완주 로직 적용 및 페이지 리로드 추가]
-        window.forceComplete70 = function() {
-            const lvl = localStorage.getItem('trigger_level') || 'middle';
-            
-            // 1. 학습 상태를 70일 완주로 설정
-            localStorage.setItem('trigger_current_day_' + lvl, '70');
-            localStorage.setItem('trigger_unlocked_day_' + lvl, '71');
-            localStorage.setItem('trigger_session_' + lvl, 'final');
-            localStorage.removeItem('blackt_cooldown');
-        
-            alert('🏆 70일 완주 축하 화면으로 이동합니다.');
-            
-            // 2. 반드시 페이지를 새로고침하여 앱 초기화 로직에 반영시킵니다.
-            window.location.href = 'index.html?tab=voca'; 
-        };
-    </script>
-
+    
 </body>
 </html>
