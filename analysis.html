@@ -7,47 +7,35 @@
     <link rel="stylesheet" href="style.css">
     <style>
         body { background: #050505; color: #fff; padding: 20px; font-family: 'Pretendard', sans-serif; }
-        <style>
-    body { background: #050505; color: #fff; padding: 15px; font-family: 'Pretendard', sans-serif; }
-    
-    /* 촬영 영역 크기 최적화 */
-    .camera-ui { 
-        width: 100%; 
-        min-height: 250px; /* 최소 높이 */
-        max-height: 45vh;  /* 화면 전체 높이의 45%를 넘지 않게 설정 */
-        background: #111; 
-        border: 2px dashed var(--neon-blue); 
-        border-radius: 15px; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-        position: relative; 
-        overflow: hidden; 
-    }
-    
-    #preview { 
-        width: 100%; 
-        height: 100%; 
-        object-fit: contain; /* 사진이 잘리지 않고 전체가 보이게 */
-        display: none; 
-    }
-
-    .guide-box { padding: 12px; margin-bottom: 15px; } /* 간격 살짝 축소 */
-</style>
-
-<button onclick="document.getElementById('capture').click()" class="login-btn" style="border-color: var(--neon-green); margin-top: 15px;">사진 촬영 시작 📸</button>
-        #preview { width: 100%; height: 100%; object-fit: cover; display: none; }
         
-        /* 촬영 가이드 스타일 */
-        .guide-box { background: rgba(255, 153, 0, 0.1); border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid rgba(255, 153, 0, 0.3); }
-        .guide-title { color: var(--neon-orange); font-weight: bold; margin: 0 0 8px 0; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
-        .guide-list { color: #ccc; font-size: 0.8rem; margin: 0; padding-left: 18px; line-height: 1.6; }
+        /* [수정] 카메라 UI 높이 최적화: 고정 비율(aspect-ratio) 대신 최대 높이 제한 사용 */
+        .camera-ui { 
+            width: 100%; 
+            min-height: 200px; 
+            max-height: 40vh; /* 화면 높이의 40%를 넘지 않도록 제한 */
+            background: #111; 
+            border: 2px dashed var(--neon-blue); 
+            border-radius: 15px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            position: relative; 
+            overflow: hidden; 
+            margin-bottom: 10px;
+        }
+        
+        #preview { width: 100%; height: 100%; object-fit: contain; display: none; }
+        
+        /* [수정] 가이드 박스 간격 축소 */
+        .guide-box { background: rgba(255, 153, 0, 0.1); border-radius: 12px; padding: 12px; margin-bottom: 15px; border: 1px solid rgba(255, 153, 0, 0.3); }
+        .guide-title { color: var(--neon-orange); font-weight: bold; margin: 0 0 6px 0; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
+        .guide-list { color: #ccc; font-size: 0.8rem; margin: 0; padding-left: 18px; line-height: 1.5; }
     </style>
 </head>
 <body>
-    <div onclick="location.href='index.html?tab=analysis'" style="color: var(--neon-blue); margin-bottom: 20px; cursor: pointer;">← 분석 설정으로 돌아가기</div>
+    <div onclick="location.href='index.html?tab=analysis'" style="color: var(--neon-blue); margin-bottom: 15px; cursor: pointer;">← 분석 설정으로 돌아가기</div>
     
-    <h3 id="info-header" style="color: #fff; margin-bottom: 20px;">시험지 분석</h3>
+    <h3 id="info-header" style="color: #fff; margin-bottom: 15px;">시험지 분석</h3>
 
     <div class="guide-box">
         <p class="guide-title">💡 실패 없는 분석을 위한 팁</p>
@@ -65,14 +53,13 @@
 
     <input type="file" id="capture" accept="image/*" capture="environment" style="display:none" onchange="loadImg(this)">
     
-    <button onclick="document.getElementById('capture').click()" class="login-btn" style="border-color: var(--neon-green); margin-top: 30px;">사진 촬영 시작 📸</button>
+    <button onclick="document.getElementById('capture').click()" class="login-btn" style="border-color: var(--neon-green); margin-top: 15px;">사진 촬영 시작 📸</button>
 
     <div id="ai-btn-area" style="display:none; margin-top: 15px;">
         <button onclick="runOCR()" class="start-btn" style="border-color: var(--neon-orange);">AI 정밀 분석 실행 🚀</button>
     </div>
 
     <script>
-        // 유입 정보 표시
         const params = new URLSearchParams(window.location.search);
         const grade = params.get('grade') || '';
         const type = params.get('type') || '';
@@ -94,7 +81,6 @@
 
         function runOCR() {
             alert("트리거 팀의 AI 엔진이 텍스트를 추출하고 분석을 시작합니다!");
-            // 여기에 OCR 연동 로직이 들어갈 예정입니다.
         }
     </script>
 </body>
