@@ -7,7 +7,35 @@
     <link rel="stylesheet" href="style.css">
     <style>
         body { background: #050505; color: #fff; padding: 20px; font-family: 'Pretendard', sans-serif; }
-        .camera-ui { width: 100%; aspect-ratio: 3/4; background: #111; border: 2px dashed var(--neon-blue); border-radius: 15px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        <style>
+    body { background: #050505; color: #fff; padding: 15px; font-family: 'Pretendard', sans-serif; }
+    
+    /* 촬영 영역 크기 최적화 */
+    .camera-ui { 
+        width: 100%; 
+        min-height: 250px; /* 최소 높이 */
+        max-height: 45vh;  /* 화면 전체 높이의 45%를 넘지 않게 설정 */
+        background: #111; 
+        border: 2px dashed var(--neon-blue); 
+        border-radius: 15px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        position: relative; 
+        overflow: hidden; 
+    }
+    
+    #preview { 
+        width: 100%; 
+        height: 100%; 
+        object-fit: contain; /* 사진이 잘리지 않고 전체가 보이게 */
+        display: none; 
+    }
+
+    .guide-box { padding: 12px; margin-bottom: 15px; } /* 간격 살짝 축소 */
+</style>
+
+<button onclick="document.getElementById('capture').click()" class="login-btn" style="border-color: var(--neon-green); margin-top: 15px;">사진 촬영 시작 📸</button>
         #preview { width: 100%; height: 100%; object-fit: cover; display: none; }
         
         /* 촬영 가이드 스타일 */
