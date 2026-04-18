@@ -102,14 +102,13 @@
     
         async function analyzeWithGPT(extractedText) {
             // [중요] 최신 키를 사용하고 띄어쓰기가 없는지 확인하세요.
-            const apiKey = "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"; 
+            const apiKey = ""; 
             
             try {
-                const response = await fetch("https://api.openai.com/v1/chat/completions", {
+                const response = await fetch("https://trigger-ocr-api.ohryee.workers.dev/", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${apiKey}`
                     },
                     body: JSON.stringify({
                         model: "gpt-4o-mini", // 최신 고성능 모델로 교체
