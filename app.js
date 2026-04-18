@@ -41,6 +41,28 @@ let isPaused = false;
 const currentLevel = localStorage.getItem('trigger_level') || 'middle';
 window.lastWrongOptions = [];
 
+// [QR 유입 경로 기억 로직] 43번 줄 바로 아래 삽입
+window.addEventListener('load', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+
+    // 1. QR 유입 경로 저장 (최초 1회)
+    if (tabParam === 'analysis') {
+        localStorage.setItem('trigger_user_origin', 'analysis_qr');
+    }
+
+    // 2. 저장된 유입 경로 확인
+    const userOrigin = localStorage.getItem('trigger_user_origin');
+
+    // 3. 분석 유입자라면 '시험 분석' 탭으로 강제 고정
+    if (tabParam === 'analysis' || userOrigin === 'analysis_qr') {
+        if (typeof switchTab === 'function') {
+            switchTab('analysis'); 
+            console.log("분석 유입자용 메인화면 세팅 완료");
+        }
+    }
+});
+
 function startCountdown(message, callback) {
     let count = 3;
     const renderHtml = (c) => `
@@ -110,14 +132,8 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
         }
         const startDay = parseInt(localStorage.getItem(startDayKey));
 
-        if (localStorage.getItem('trigger_date') !== today) {
-            localStorage.setItem('trigger_date', today);
-            localStorage.setItem('trigger_session_middle', '1');
-            localStorage.setItem('trigger_session_high', '1');
-            localStorage.setItem('trigger_unlocked_extra_today_middle', '0');
-            localStorage.setItem('trigger_unlocked_extra_today_high', '0');
-        }
-        
+       // [수정] 자정 초기화는 방지하고, 날짜 기록만 남깁니다.
+        if (!localStorage.getItem('trigger_date')) localStorage.setItem('trigger_date', today);      
         let currentSession = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
         const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
         
@@ -581,7 +597,7 @@ function handleAnswer(isCorrect) {
         } else {
             masterDB[mIdx].wrongCount++;
         }
-        localStorage.setItem('trigger_master_wrong_db', JSON.stringify(masterDB));
+        localStorage.setItem('trigger_master_wrong_db', JSON.stringify(masterDB)); // <-- 이름을 masterDB로 통일!
     }
 
     currentIdx++;

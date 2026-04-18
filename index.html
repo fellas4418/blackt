@@ -1057,19 +1057,7 @@ window.forceComplete70 = function() {
                     menu.style.setProperty('display', 'flex', 'important');
                 }
             }
-            const urlParams = new URLSearchParams(window.location.search);
-            const tabParam = urlParams.get('tab');
-
-            if (!tabParam || tabParam === 'voca') {
-            const titleEl = document.getElementById('main-header-title');
-            if (titleEl) titleEl.innerText = '사라져 Voca';
-            if (typeof switchTab === 'function') switchTab('voca');
-        } else if (tabParam === 'analysis') {
-            const titleEl = document.getElementById('main-header-title');
-            if (titleEl) titleEl.innerText = '트리거 AI 시험분석';
-            if (typeof switchTab === 'function') switchTab('analysis');
-        }
-
+            
             if (typeof checkLoginStatus === 'function') checkLoginStatus();
             if (typeof selectLevel === 'function') {
                 selectLevel(localStorage.getItem('trigger_level') || 'middle');
