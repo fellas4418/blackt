@@ -29,33 +29,65 @@
         .guide-box { background: rgba(255, 153, 0, 0.1); border-radius: 12px; padding: 12px; margin-bottom: 15px; border: 1px solid rgba(255, 153, 0, 0.3); }
         .guide-title { color: var(--neon-orange); font-weight: bold; margin: 0 0 6px 0; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
         .guide-list { color: #ccc; font-size: 0.8rem; margin: 0; padding-left: 18px; line-height: 1.5; }
+
+        /* 결과 섹션 애니메이션 */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        #result-section { display: none; animation: fadeInUp 0.6s ease-out; }
     </style>
 </head>
 <body>
-    <div onclick="location.href='index.html?tab=analysis'" style="color: var(--neon-blue); margin-bottom: 15px; cursor: pointer;">← 분석 설정으로 돌아가기</div>
-    
-    <h3 id="info-header" style="color: #fff; margin-bottom: 15px;">시험지 분석</h3>
-
-    <div class="guide-box">
-        <p class="guide-title">💡 실패 없는 분석을 위한 팁</p>
-        <ul class="guide-list">
-            <li>분석할 <strong>오답 문항 1~2개</strong>가 화면에 꽉 차게 찍어주세요.</li>
-            <li>기울어지지 않게 위에서 <strong>수직으로</strong> 촬영해 주세요.</li>
-            <li>글자가 잘 보이도록 <strong>그림자</strong>가 지지 않게 주의해 주세요.</li>
-        </ul>
+    <div id="nav-area">
+        <div onclick="location.href='index.html?tab=analysis'" style="color: var(--neon-blue); margin-bottom: 15px; cursor: pointer;">← 분석 설정으로 돌아가기</div>
+        <h3 id="info-header" style="color: #fff; margin-bottom: 15px;">시험지 분석</h3>
     </div>
 
-    <div class="camera-ui">
-        <span id="label" style="color: #444;">팍팍! 하지만 선명하게! 찍어주세요</span>
-        <img id="preview">
+    <div id="input-section">
+        <div class="guide-box">
+            <p class="guide-title">💡 실패 없는 분석을 위한 팁</p>
+            <ul class="guide-list">
+                <li>분석할 <strong>오답 문항 1~2개</strong>가 화면에 꽉 차게 찍어주세요.</li>
+                <li>기울어지지 않게 위에서 <strong>수직으로</strong> 촬영해 주세요.</li>
+                <li>글자가 잘 보이도록 <strong>그림자</strong>가 지지 않게 주의해 주세요.</li>
+            </ul>
+        </div>
+
+        <div class="camera-ui">
+            <span id="label" style="color: #444;">팍팍! 하지만 선명하게! 찍어주세요</span>
+            <img id="preview">
+        </div>
+
+        <input type="file" id="capture" accept="image/*" capture="environment" style="display:none" onchange="loadImg(this)">
+        
+        <button id="capture-btn" onclick="document.getElementById('capture').click()" class="login-btn" style="border-color: var(--neon-green); margin-top: 15px;">사진 촬영 시작 📸</button>
+
+        <div id="ai-btn-area" style="display:none; margin-top: 15px;">
+            <button id="run-btn" onclick="runOCR()" class="start-btn" style="border-color: var(--neon-orange);">AI 정밀 분석 실행 🚀</button>
+        </div>
     </div>
 
-    <input type="file" id="capture" accept="image/*" capture="environment" style="display:none" onchange="loadImg(this)">
-    
-    <button onclick="document.getElementById('capture').click()" class="login-btn" style="border-color: var(--neon-green); margin-top: 15px;">사진 촬영 시작 📸</button>
+    <div id="result-section">
+        <div style="background: rgba(57, 255, 20, 0.05); border: 1px solid var(--neon-green); padding: 20px; border-radius: 15px;">
+            <h4 style="color: var(--neon-green); margin-top: 0; display: flex; align-items: center; gap: 8px;">
+                ✅ AI 정밀 처방전
+            </h4>
+            
+            <div style="background: #111; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #222;">
+                <p style="font-size: 0.75rem; color: #666; margin-bottom: 8px; letter-spacing: 0.05rem;">RECOGNIZED TEXT</p>
+                <div id="extracted-text-preview" style="font-size: 0.85rem; color: #999; line-height: 1.6; max-height: 120px; overflow-y: auto;"></div>
+            </div>
 
-    <div id="ai-btn-area" style="display:none; margin-top: 15px;">
-        <button onclick="runOCR()" class="start-btn" style="border-color: var(--neon-orange);">AI 정밀 분석 실행 🚀</button>
+            <div style="margin-top: 20px;">
+                <p style="color: var(--neon-orange); font-weight: bold; font-size: 0.9rem; margin-bottom: 10px;">👨‍🏫 트리거 팀의 분석 한줄평</p>
+                <div id="ai-comment" style="line-height: 1.7; color: #eee; font-size: 0.95rem; word-break: keep-all;">
+                    데이터를 분석하여 최적의 학습 경로를 생성 중입니다...
+                </div>
+            </div>
+
+            <button onclick="location.href='index.html?tab=analysis'" class="login-btn" style="border-color: #fff; margin-top: 25px; background: transparent; width: 100%;">다른 문항 분석하기</button>
+        </div>
     </div>
 
     <script>
@@ -73,12 +105,6 @@
                     img.style.display = 'block';
                     document.getElementById('label').style.display = 'none';
                     document.getElementById('ai-btn-area').style.display = 'block';
-                    
-                    // 새 사진 찍으면 버튼 초기화
-                    const btn = document.querySelector('.start-btn');
-                    btn.disabled = false;
-                    btn.innerText = "AI 정밀 분석 실행 🚀";
-                    btn.style.opacity = "1";
                 };
                 reader.readAsDataURL(input.files[0]);
             }
@@ -86,65 +112,44 @@
 
         async function runOCR() {
             const img = document.getElementById('preview');
-            const btn = document.querySelector('.start-btn');
+            const runBtn = document.getElementById('run-btn');
 
             if (!img.src || img.style.display === 'none') {
                 alert("먼저 시험지 사진을 촬영해 주세요!");
                 return;
             }
 
-            // [로직 추가] 버튼 상태 변경 및 로딩 문구 삽입
-            btn.disabled = true;
-            btn.innerText = "시험지를 읽는 중입니다. 잠시만 기다려 주세요..";
-            btn.style.opacity = "0.7";
+            runBtn.disabled = true;
+            runBtn.innerText = "🧠 뇌가 시험지를 읽는 중입니다...";
+            runBtn.style.opacity = "0.7";
 
             try {
-                // Tesseract 워커 생성 (한국어 + 영어)
                 const worker = await Tesseract.createWorker('kor+eng');
-                
-                // OCR 실행
                 const { data: { text } } = await worker.recognize(img.src);
-                
-                console.log("추출된 텍스트 데이터:", text);
-
-                // 분석 완료 후 워커 종료
                 await worker.terminate();
                 
-                // 결과 확인용 알림
-                alert("추출 성공! 이제 트리거 팀의 AI 처방전을 조제합니다.");
+                // [화면 전환 로직]
+                // 1. 입력 섹션(가이드, 카메라, 버튼) 숨기기
+                document.getElementById('input-section').style.display = 'none';
                 
-                // 다음 단계를 위해 버튼 텍스트 변경
-                btn.innerText = "분석 완료 ✅";
+                // 2. 결과 섹션 보이기
+                document.getElementById('result-section').style.display = 'block';
                 
-                // TODO: 추출된 text 변수를 GPT API로 전송하는 로직 연결 예정
-                
+                // 3. 데이터 채우기
+                document.getElementById('extracted-text-preview').innerText = text;
+                document.getElementById('ai-comment').innerHTML = `
+                    이 지문은 <b>${grade}</b> 수준에서 빈출되는 구문을 포함하고 있습니다.<br><br>
+                    추출된 문장들을 분석한 결과, 문장 성분의 '뼈대'를 잡는 연습이 필요해 보입니다. 
+                    트리거 팀의 <b>'명·주·동'</b> 법칙을 적용하여 다시 한번 지문을 읽어보세요!
+                `;
+
             } catch (error) {
                 console.error("OCR 분석 에러:", error);
                 alert("인식 중 오류가 발생했습니다. 다시 촬영해 주세요.");
-                btn.disabled = false;
-                btn.innerText = "AI 정밀 분석 실행 🚀";
-                btn.style.opacity = "1";
+                runBtn.disabled = false;
+                runBtn.innerText = "AI 정밀 분석 실행 🚀";
             }
         }
     </script>
-    <div id="result-section" style="display:none; margin-top:30px; animation: fadeIn 0.5s;">
-        <div class="card" style="border: 1px solid var(--neon-green); background: rgba(57, 255, 20, 0.05); padding: 20px;">
-            <h4 style="color: var(--neon-green); margin-top: 0;">📊 AI 정밀 분석 결과</h4>
-            
-            <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-                <p style="font-size: 0.85rem; color: #888; margin-bottom: 5px;">인식된 텍스트 요약</p>
-                <div id="extracted-text-preview" style="font-size: 0.9rem; color: #ccc; max-height: 100px; overflow-y: auto;"></div>
-            </div>
-    
-            <div class="input-group">
-                <span class="input-label" style="color: var(--neon-orange);">👨‍🏫 트리거 팀 처방전</span>
-                <div id="ai-prescription" style="line-height: 1.6; color: #fff; font-size: 1rem;">
-                    분석 데이터를 바탕으로 처방전을 조제 중입니다...
-                </div>
-            </div>
-    
-            <button onclick="location.href='index.html?tab=analysis'" class="login-btn" style="border-color: #fff; margin-top: 20px; background: transparent;">확인 완료 (메인으로)</button>
-        </div>
-    </div>
 </body>
 </html>
