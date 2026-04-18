@@ -1064,16 +1064,27 @@ window.forceComplete70 = function() {
     if (typeof selectLevel === 'function') {
         selectLevel(localStorage.getItem('trigger_level') || 'middle');
     }
-
-    // 4. [최종 해결책] QR 유입 경로에 따른 강제 탭 전환
-    const urlParams = new URLSearchParams(window.location.search);
+// 4. [최종 해결책] QR/릴스 유입 경로에 따른 탭 고정 로직
+const urlParams = new URLSearchParams(window.location.search);
     const tabParam = urlParams.get('tab');
+
+    // 유입 경로 기록 (문신 새기기)
     if (tabParam === 'analysis') {
         localStorage.setItem('trigger_user_origin', 'analysis_qr');
+    } else if (tabParam === 'grammar') {
+        localStorage.setItem('trigger_user_origin', 'grammar_reels');
     }
+
     const userOrigin = localStorage.getItem('trigger_user_origin');
+
+    // 우선순위에 따른 탭 전환
     if (tabParam === 'analysis' || userOrigin === 'analysis_qr') {
         if (typeof switchTab === 'function') switchTab('analysis');
+    } else if (tabParam === 'grammar' || userOrigin === 'grammar_reels') {
+        if (typeof switchTab === 'function') switchTab('grammar');
+    } else {
+        // 유입 기록이 전혀 없는 일반 학생은 단어(voca) 탭으로
+        if (typeof switchTab === 'function') switchTab('voca');
     }
 });
             const cooldownTime = localStorage.getItem('blackt_cooldown');
