@@ -95,7 +95,7 @@
 
             // [로직 추가] 버튼 상태 변경 및 로딩 문구 삽입
             btn.disabled = true;
-            btn.innerText = "🧠 뇌가 시험지를 읽는 중입니다...";
+            btn.innerText = "시험지를 읽는 중입니다. 잠시만 기다려 주세요..";
             btn.style.opacity = "0.7";
 
             try {
@@ -127,5 +127,24 @@
             }
         }
     </script>
+    <div id="result-section" style="display:none; margin-top:30px; animation: fadeIn 0.5s;">
+        <div class="card" style="border: 1px solid var(--neon-green); background: rgba(57, 255, 20, 0.05); padding: 20px;">
+            <h4 style="color: var(--neon-green); margin-top: 0;">📊 AI 정밀 분석 결과</h4>
+            
+            <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                <p style="font-size: 0.85rem; color: #888; margin-bottom: 5px;">인식된 텍스트 요약</p>
+                <div id="extracted-text-preview" style="font-size: 0.9rem; color: #ccc; max-height: 100px; overflow-y: auto;"></div>
+            </div>
+    
+            <div class="input-group">
+                <span class="input-label" style="color: var(--neon-orange);">👨‍🏫 트리거 팀 처방전</span>
+                <div id="ai-prescription" style="line-height: 1.6; color: #fff; font-size: 1rem;">
+                    분석 데이터를 바탕으로 처방전을 조제 중입니다...
+                </div>
+            </div>
+    
+            <button onclick="location.href='index.html?tab=analysis'" class="login-btn" style="border-color: #fff; margin-top: 20px; background: transparent;">확인 완료 (메인으로)</button>
+        </div>
+    </div>
 </body>
 </html>
