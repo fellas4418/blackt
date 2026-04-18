@@ -1037,32 +1037,45 @@ window.forceComplete70 = function() {
         });
 
         window.addEventListener('load', () => {
-            const savedName = localStorage.getItem('trigger_name');
-            const splash = document.getElementById('splash-screen');
+    const savedName = localStorage.getItem('trigger_name');
+    const splash = document.getElementById('splash-screen');
 
-            if (splash && savedName && savedName !== "null") {
-                if (sessionStorage.getItem('splash_shown')) {
-                    splash.style.display = 'none';
-                } else {
-                    setTimeout(() => {
-                        splash.style.opacity = '0';
-                        setTimeout(() => { splash.style.display = 'none'; }, 500);
-                    }, 1200);
-                    sessionStorage.setItem('splash_shown', 'true');
-                }
-            } 
-            if (localStorage.getItem('trigger_admin_mode') === 'true') {
-                const menu = document.getElementById('admin-menu');
-                if (menu) {
-                    menu.style.setProperty('display', 'flex', 'important');
-                }
-            }
-            
-            if (typeof checkLoginStatus === 'function') checkLoginStatus();
-            if (typeof selectLevel === 'function') {
-                selectLevel(localStorage.getItem('trigger_level') || 'middle');
-            }
-        });
+    // 1. 스플래시 화면 처리
+    if (splash && savedName && savedName !== "null") {
+        if (sessionStorage.getItem('splash_shown')) {
+            splash.style.display = 'none';
+        } else {
+            setTimeout(() => {
+                splash.style.opacity = '0';
+                setTimeout(() => { splash.style.display = 'none'; }, 500);
+            }, 1200);
+            sessionStorage.setItem('splash_shown', 'true');
+        }
+    } 
+
+    // 2. 관리자 모드 체크
+    if (localStorage.getItem('trigger_admin_mode') === 'true') {
+        const menu = document.getElementById('admin-menu');
+        if (menu) menu.style.setProperty('display', 'flex', 'important');
+    }
+    
+    // 3. 로그인 및 레벨 초기화
+    if (typeof checkLoginStatus === 'function') checkLoginStatus();
+    if (typeof selectLevel === 'function') {
+        selectLevel(localStorage.getItem('trigger_level') || 'middle');
+    }
+
+    // 4. [최종 해결책] QR 유입 경로에 따른 강제 탭 전환
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    if (tabParam === 'analysis') {
+        localStorage.setItem('trigger_user_origin', 'analysis_qr');
+    }
+    const userOrigin = localStorage.getItem('trigger_user_origin');
+    if (tabParam === 'analysis' || userOrigin === 'analysis_qr') {
+        if (typeof switchTab === 'function') switchTab('analysis');
+    }
+});
             const cooldownTime = localStorage.getItem('blackt_cooldown');
             if (cooldownTime) {
                 const remaining = parseInt(cooldownTime) - Date.now();
