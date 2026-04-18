@@ -1080,25 +1080,16 @@ window.forceComplete70 = function() {
         selectLevel(localStorage.getItem('trigger_level') || 'middle');
     }
 // 4. [최종 해결책] QR/릴스 유입 경로에 따른 탭 고정 로직
+// [교체 완료] 기록하지 않고 현재 주소창의 파라미터만 체크합니다.
 const urlParams = new URLSearchParams(window.location.search);
     const tabParam = urlParams.get('tab');
 
-    // 유입 경로 기록 (문신 새기기)
     if (tabParam === 'analysis') {
-        localStorage.setItem('trigger_user_origin', 'analysis_qr');
-    } else if (tabParam === 'grammar') {
-        localStorage.setItem('trigger_user_origin', 'grammar_reels');
-    }
-
-    const userOrigin = localStorage.getItem('trigger_user_origin');
-
-    // 우선순위에 따른 탭 전환
-    if (tabParam === 'analysis' || userOrigin === 'analysis_qr') {
         if (typeof switchTab === 'function') switchTab('analysis');
-    } else if (tabParam === 'grammar' || userOrigin === 'grammar_reels') {
+    } else if (tabParam === 'grammar') {
         if (typeof switchTab === 'function') switchTab('grammar');
     } else {
-        // 유입 기록이 전혀 없는 일반 학생은 단어(voca) 탭으로
+        // 주소 뒤에 ?tab=... 이 없으면 무조건 '사라져 Voca' 메인으로!
         if (typeof switchTab === 'function') switchTab('voca');
     }
 });
