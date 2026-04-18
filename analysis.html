@@ -8,33 +8,12 @@
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         body { background: #050505; color: #fff; padding: 20px; font-family: 'Pretendard', sans-serif; }
-        
-        .camera-ui { 
-            width: 100%; 
-            min-height: 200px; 
-            max-height: 40vh;
-            background: #111; 
-            border: 2px dashed var(--neon-blue); 
-            border-radius: 15px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            position: relative; 
-            overflow: hidden; 
-            margin-bottom: 10px;
-        }
-        
+        .camera-ui { width: 100%; min-height: 200px; max-height: 40vh; background: #111; border: 2px dashed var(--neon-blue); border-radius: 15px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; margin-bottom: 10px; }
         #preview { width: 100%; height: 100%; object-fit: contain; display: none; }
-        
         .guide-box { background: rgba(255, 153, 0, 0.1); border-radius: 12px; padding: 12px; margin-bottom: 15px; border: 1px solid rgba(255, 153, 0, 0.3); }
         .guide-title { color: var(--neon-orange); font-weight: bold; margin: 0 0 6px 0; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
         .guide-list { color: #ccc; font-size: 0.8rem; margin: 0; padding-left: 18px; line-height: 1.5; }
-
-        /* 결과 섹션 애니메이션 */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         #result-section { display: none; animation: fadeInUp 0.6s ease-out; }
     </style>
 </head>
@@ -53,16 +32,12 @@
                 <li>글자가 잘 보이도록 <strong>그림자</strong>가 지지 않게 주의해 주세요.</li>
             </ul>
         </div>
-
         <div class="camera-ui">
             <span id="label" style="color: #444;">팍팍! 하지만 선명하게! 찍어주세요</span>
             <img id="preview">
         </div>
-
         <input type="file" id="capture" accept="image/*" capture="environment" style="display:none" onchange="loadImg(this)">
-        
         <button id="capture-btn" onclick="document.getElementById('capture').click()" class="login-btn" style="border-color: var(--neon-green); margin-top: 15px;">사진 촬영 시작 📸</button>
-
         <div id="ai-btn-area" style="display:none; margin-top: 15px;">
             <button id="run-btn" onclick="runOCR()" class="start-btn" style="border-color: var(--neon-orange);">AI 정밀 분석 실행 🚀</button>
         </div>
@@ -70,22 +45,15 @@
 
     <div id="result-section">
         <div style="background: rgba(57, 255, 20, 0.05); border: 1px solid var(--neon-green); padding: 20px; border-radius: 15px;">
-            <h4 style="color: var(--neon-green); margin-top: 0; display: flex; align-items: center; gap: 8px;">
-                ✅ AI 정밀 처방전
-            </h4>
-            
+            <h4 style="color: var(--neon-green); margin-top: 0; display: flex; align-items: center; gap: 8px;">✅ AI 정밀 처방전</h4>
             <div style="background: #111; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #222;">
                 <p style="font-size: 0.75rem; color: #666; margin-bottom: 8px; letter-spacing: 0.05rem;">RECOGNIZED TEXT</p>
                 <div id="extracted-text-preview" style="font-size: 0.85rem; color: #999; line-height: 1.6; max-height: 120px; overflow-y: auto;"></div>
             </div>
-
             <div style="margin-top: 20px;">
                 <p style="color: var(--neon-orange); font-weight: bold; font-size: 0.9rem; margin-bottom: 10px;">👨‍🏫 트리거 팀의 분석 한줄평</p>
-                <div id="ai-comment" style="line-height: 1.7; color: #eee; font-size: 0.95rem; word-break: keep-all;">
-                    데이터를 분석하여 최적의 학습 경로를 생성 중입니다...
-                </div>
+                <div id="ai-comment" style="line-height: 1.7; color: #eee; font-size: 0.95rem; word-break: keep-all;">데이터를 분석 중입니다...</div>
             </div>
-
             <button onclick="location.href='index.html?tab=analysis'" class="login-btn" style="border-color: #fff; margin-top: 25px; background: transparent; width: 100%;">다른 문항 분석하기</button>
         </div>
     </div>
@@ -113,35 +81,27 @@
         async function runOCR() {
             const img = document.getElementById('preview');
             const runBtn = document.getElementById('run-btn');
-    
-            if (!img.src || img.style.display === 'none') {
-                alert("먼저 시험지 사진을 촬영해 주세요!");
-                return;
-            }
+            if (!img.src || img.style.display === 'none') { alert("먼저 시험지 사진을 촬영해 주세요!"); return; }
     
             runBtn.disabled = true;
             runBtn.innerText = "🔍 시험지를 분석하는 중입니다. 잠시만 기다려주세요..";
             runBtn.style.opacity = "0.7";
     
             try {
-                // 1. OCR 추출
                 const worker = await Tesseract.createWorker('kor+eng');
                 const { data: { text } } = await worker.recognize(img.src);
                 await worker.terminate();
-                
-                // 2. GPT 분석 요청 (OCR 결과를 바로 넘김)
                 await analyzeWithGPT(text);
-    
             } catch (error) {
                 console.error("OCR 분석 에러:", error);
-                alert("인식 중 오류가 발생했습니다. 다시 촬영해 주세요.");
+                alert("인식 중 오류가 발생했습니다.");
                 runBtn.disabled = false;
                 runBtn.innerText = "AI 정밀 분석 실행 🚀";
             }
         }
     
         async function analyzeWithGPT(extractedText) {
-            // [필독] 여기에 발급받으신 sk-... 키를 넣으세요
+            // [중요] 최신 키를 사용하고 띄어쓰기가 없는지 확인하세요.
             const apiKey = "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"; 
             
             try {
@@ -152,52 +112,52 @@
                         "Authorization": `Bearer ${apiKey}`
                     },
                     body: JSON.stringify({
-                        model: "gpt-3.5-turbo", // 또는 "gpt-4"
+                        model: "gpt-4o-mini", // 최신 고성능 모델로 교체
                         messages: [
                             {
                                 role: "system",
-                                content: `너는 20년 경력의 베테랑 영어 강사야. 학생이 찍은 시험지 텍스트를 분석하여 오답 원인을 진단해줘.
-                                분석 카테고리는 반드시 다음 5가지 중 하나로 선택해: [문장 성분, 준동사(분사구문 포함), 연결사(관계사 포함), 동사 파트, 특수 구문].
-                                답변은 반드시 다음 JSON 형식으로만 보내:
-                                {"category": "카테고리명", "summary": "오답 원인 요약", "prescription": "공부법 처방"}`
+                                content: `영어 시험지 분석 전문가로서 5개 카테고리 [문장 성분, 준동사(분사구문 포함), 연결사(관계사 포함), 동사 파트, 특수 구문] 중 오답 원인을 진단하라. JSON으로만 응답하라.`
                             },
                             {
                                 role: "user",
-                                content: `학생 학년: ${grade}, 시험 종류: ${type}, 추출된 텍스트: ${extractedText}`
+                                content: `{"grade": "${grade}", "type": "${type}", "text": "${extractedText.substring(0, 1000)}"}`
                             }
                         ],
-                        temperature: 0.5
+                        response_format: { "type": "json_object" }, // JSON 응답 강제
+                        temperature: 0.3
                     })
                 });
     
                 const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error.message);
+                }
+
                 const result = JSON.parse(data.choices[0].message.content);
                 
-                displayResult(extractedText, result);
+                // 결과 표시
+                document.getElementById('input-section').style.display = 'none';
+                document.getElementById('result-section').style.display = 'block';
+                document.getElementById('extracted-text-preview').innerText = extractedText;
+                
+                const commentArea = document.getElementById('ai-comment');
+                commentArea.innerHTML = `
+                    <div style="margin-bottom: 12px;">
+                        <span style="background: var(--neon-blue); color: #000; padding: 3px 10px; border-radius: 6px; font-weight: bold; font-size: 0.85rem;">${result.category || "분석 완료"}</span>
+                    </div>
+                    <p style="color: #fff; font-weight: bold; margin-bottom: 8px; font-size: 1.05rem;">${result.summary || "문항 분석 성공"}</p>
+                    <p style="color: #ccc; font-size: 0.9rem; line-height: 1.6;">${result.prescription || "공부법을 조제했습니다."}</p>
+                `;
     
             } catch (error) {
                 console.error("GPT 분석 에러:", error);
-                alert("AI 분석 중 오류가 발생했습니다. API 키나 결제 수단을 확인해주세요.");
+                alert("AI 분석 실패: " + error.message + "\n(잠시 후 다시 시도해 주세요)");
+                const runBtn = document.getElementById('run-btn');
+                runBtn.disabled = false;
+                runBtn.innerText = "AI 정밀 분석 실행 🚀";
+                runBtn.style.opacity = "1";
             }
-        }
-    
-        function displayResult(rawText, aiData) {
-            // 입력 섹션 숨기고 결과 섹션 보이기
-            document.getElementById('input-section').style.display = 'none';
-            document.getElementById('result-section').style.display = 'block';
-            
-            // 데이터 매핑
-            document.getElementById('extracted-text-preview').innerText = rawText;
-            
-            // 카테고리에 맞는 강조 색상 적용 (선택 사항)
-            const commentArea = document.getElementById('ai-comment');
-            commentArea.innerHTML = `
-                <div style="margin-bottom: 15px;">
-                    <span style="background: var(--neon-blue); color: #000; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem;">${aiData.category}</span>
-                </div>
-                <p style="color: #fff; font-weight: bold; margin-bottom: 10px;">${aiData.summary}</p>
-                <p style="color: #ccc; font-size: 0.9rem; line-height: 1.6;">${aiData.prescription}</p>
-            `;
         }
     </script>
 </body>
