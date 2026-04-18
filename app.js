@@ -41,8 +41,8 @@ let isPaused = false;
 const currentLevel = localStorage.getItem('trigger_level') || 'middle';
 window.lastWrongOptions = [];
 
-// [QR 유입 경로 기억 로직] 43번 줄 바로 아래 삽입
-window.addEventListener('load', () => {
+// [QR 유입 경로 기억 로직] 즉시 실행형으로 교체 (43번 줄 아래)
+(function() {
     const urlParams = new URLSearchParams(window.location.search);
     const tabParam = urlParams.get('tab');
 
@@ -54,14 +54,18 @@ window.addEventListener('load', () => {
     // 2. 저장된 유입 경로 확인
     const userOrigin = localStorage.getItem('trigger_user_origin');
 
-    // 3. 분석 유입자라면 '시험 분석' 탭으로 강제 고정
+    // 3. 분석 유입자라면 '시험 분석' 탭으로 즉시 고정
     if (tabParam === 'analysis' || userOrigin === 'analysis_qr') {
-        if (typeof switchTab === 'function') {
-            switchTab('analysis'); 
-            console.log("분석 유입자용 메인화면 세팅 완료");
-        }
+        // switchTab 함수가 로드될 때까지 0.01초 간격으로 체크해서 즉시 실행
+        const checkSwitchTab = setInterval(function() {
+            if (typeof switchTab === 'function') {
+                switchTab('analysis');
+                console.log("분석 유입자용 메인화면 강제 고정 완료");
+                clearInterval(checkSwitchTab);
+            }
+        }, 10);
     }
-});
+})();
 
 function startCountdown(message, callback) {
     let count = 3;
