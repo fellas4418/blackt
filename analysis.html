@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 분석 - Trigger</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         body { background: #050505; color: #fff; padding: 20px; font-family: 'Pretendard', sans-serif; }
         
-        /* [수정] 카메라 UI 높이 최적화: 고정 비율(aspect-ratio) 대신 최대 높이 제한 사용 */
         .camera-ui { 
             width: 100%; 
             min-height: 200px; 
-            max-height: 40vh; /* 화면 높이의 40%를 넘지 않도록 제한 */
+            max-height: 40vh;
             background: #111; 
             border: 2px dashed var(--neon-blue); 
             border-radius: 15px; 
@@ -26,7 +26,6 @@
         
         #preview { width: 100%; height: 100%; object-fit: contain; display: none; }
         
-        /* [수정] 가이드 박스 간격 축소 */
         .guide-box { background: rgba(255, 153, 0, 0.1); border-radius: 12px; padding: 12px; margin-bottom: 15px; border: 1px solid rgba(255, 153, 0, 0.3); }
         .guide-title { color: var(--neon-orange); font-weight: bold; margin: 0 0 6px 0; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
         .guide-list { color: #ccc; font-size: 0.8rem; margin: 0; padding-left: 18px; line-height: 1.5; }
@@ -47,7 +46,7 @@
     </div>
 
     <div class="camera-ui">
-        <span id="label" style="color: #444;">시험지를 선명하게 찍어주세요</span>
+        <span id="label" style="color: #444;">팍팍! 하지만 선명하게! 찍어주세요</span>
         <img id="preview">
     </div>
 
@@ -74,13 +73,58 @@
                     img.style.display = 'block';
                     document.getElementById('label').style.display = 'none';
                     document.getElementById('ai-btn-area').style.display = 'block';
+                    
+                    // 새 사진 찍으면 버튼 초기화
+                    const btn = document.querySelector('.start-btn');
+                    btn.disabled = false;
+                    btn.innerText = "AI 정밀 분석 실행 🚀";
+                    btn.style.opacity = "1";
                 };
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
-        function runOCR() {
-            alert("트리거 팀의 AI 엔진이 텍스트를 추출하고 분석을 시작합니다!");
+        async function runOCR() {
+            const img = document.getElementById('preview');
+            const btn = document.querySelector('.start-btn');
+
+            if (!img.src || img.style.display === 'none') {
+                alert("먼저 시험지 사진을 촬영해 주세요!");
+                return;
+            }
+
+            // [로직 추가] 버튼 상태 변경 및 로딩 문구 삽입
+            btn.disabled = true;
+            btn.innerText = "🧠 뇌가 시험지를 읽는 중입니다...";
+            btn.style.opacity = "0.7";
+
+            try {
+                // Tesseract 워커 생성 (한국어 + 영어)
+                const worker = await Tesseract.createWorker('kor+eng');
+                
+                // OCR 실행
+                const { data: { text } } = await worker.recognize(img.src);
+                
+                console.log("추출된 텍스트 데이터:", text);
+
+                // 분석 완료 후 워커 종료
+                await worker.terminate();
+                
+                // 결과 확인용 알림
+                alert("추출 성공! 이제 트리거 팀의 AI 처방전을 조제합니다.");
+                
+                // 다음 단계를 위해 버튼 텍스트 변경
+                btn.innerText = "분석 완료 ✅";
+                
+                // TODO: 추출된 text 변수를 GPT API로 전송하는 로직 연결 예정
+                
+            } catch (error) {
+                console.error("OCR 분석 에러:", error);
+                alert("인식 중 오류가 발생했습니다. 다시 촬영해 주세요.");
+                btn.disabled = false;
+                btn.innerText = "AI 정밀 분석 실행 🚀";
+                btn.style.opacity = "1";
+            }
         }
     </script>
 </body>
