@@ -289,6 +289,7 @@
             <div class="card" style="border: 1px solid var(--neon-blue); background: rgba(0, 243, 255, 0.05); padding: 25px;">
                 <div style="font-size: 1.3rem; font-weight: bold; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); margin-bottom: 10px;">📷 15초 시험지 분석</div>
                 <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 25px;">시험지를 찍으면 내가 틀린 진짜 원인(문법/단어)을 찾아내어 단어장을 업데이트합니다.</p>
+                
                 <div class="input-group">
                     <span class="input-label" style="color: #ddd;">학년</span>
                     <select id="exam-grade" class="neon-input" style="appearance: auto;" onchange="handleGradeChange()">
@@ -296,6 +297,7 @@
                         <optgroup label="고등학교"><option value="고1" selected>고등학교 1학년</option><option value="고2">고등학교 2학년</option><option value="고3">고등학교 3학년</option></optgroup>
                     </select>
                 </div>
+        
                 <div class="input-group">
                     <span class="input-label" style="color: #ddd;">시험 구분</span>
                     <select id="exam-type" class="neon-input" style="appearance: auto;" onchange="updateExamPeriod()">
@@ -303,6 +305,7 @@
                         <option value="모의고사">전국 모의고사</option>
                     </select>
                 </div>
+        
                 <div class="input-group" style="margin-bottom: 30px;">
                     <span class="input-label" style="color: #ddd;">시기</span>
                     <select id="exam-period" class="neon-input" style="appearance: auto;">
@@ -312,7 +315,8 @@
                         <option value="2학기 기말">2학기 기말고사</option>
                     </select>
                 </div>
-                <button onclick="startCameraAnalysis()" style="width: 100%; padding: 18px; background: transparent; border: 2px solid var(--neon-blue); color: #fff; font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer;">카메라 켜기 📷</button>
+        
+                <button onclick="goToAnalysis()" style="width: 100%; padding: 18px; background: transparent; border: 2px solid var(--neon-blue); color: #fff; font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer;">분석 시작하기 📷</button>
             </div>
         </div>
 

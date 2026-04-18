@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 분석 - Trigger</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { background: #050505; color: #fff; padding: 20px; font-family: 'Pretendard', sans-serif; }
+        .camera-ui { width: 100%; aspect-ratio: 3/4; background: #111; border: 2px dashed var(--neon-blue); border-radius: 15px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        #preview { width: 100%; height: 100%; object-fit: cover; display: none; }
+        
+        /* 촬영 가이드 스타일 */
+        .guide-box { background: rgba(255, 153, 0, 0.1); border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid rgba(255, 153, 0, 0.3); }
+        .guide-title { color: var(--neon-orange); font-weight: bold; margin: 0 0 8px 0; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
+        .guide-list { color: #ccc; font-size: 0.8rem; margin: 0; padding-left: 18px; line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <div onclick="location.href='index.html?tab=analysis'" style="color: var(--neon-blue); margin-bottom: 20px; cursor: pointer;">← 분석 설정으로 돌아가기</div>
+    
+    <h3 id="info-header" style="color: #fff; margin-bottom: 20px;">시험지 분석</h3>
+
+    <div class="guide-box">
+        <p class="guide-title">💡 실패 없는 분석을 위한 팁</p>
+        <ul class="guide-list">
+            <li>분석할 <strong>오답 문항 1~2개</strong>가 화면에 꽉 차게 찍어주세요.</li>
+            <li>기울어지지 않게 위에서 <strong>수직으로</strong> 촬영해 주세요.</li>
+            <li>글자가 잘 보이도록 <strong>그림자</strong>가 지지 않게 주의해 주세요.</li>
+        </ul>
+    </div>
+
+    <div class="camera-ui">
+        <span id="label" style="color: #444;">시험지를 선명하게 찍어주세요</span>
+        <img id="preview">
+    </div>
+
+    <input type="file" id="capture" accept="image/*" capture="environment" style="display:none" onchange="loadImg(this)">
+    
+    <button onclick="document.getElementById('capture').click()" class="login-btn" style="border-color: var(--neon-green); margin-top: 30px;">사진 촬영 시작 📸</button>
+
+    <div id="ai-btn-area" style="display:none; margin-top: 15px;">
+        <button onclick="runOCR()" class="start-btn" style="border-color: var(--neon-orange);">AI 정밀 분석 실행 🚀</button>
+    </div>
+
+    <script>
+        // 유입 정보 표시
+        const params = new URLSearchParams(window.location.search);
+        const grade = params.get('grade') || '';
+        const type = params.get('type') || '';
+        document.getElementById('info-header').innerText = `${grade} ${type} 분석 중`;
+
+        function loadImg(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.getElementById('preview');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    document.getElementById('label').style.display = 'none';
+                    document.getElementById('ai-btn-area').style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function runOCR() {
+            alert("트리거 팀의 AI 엔진이 텍스트를 추출하고 분석을 시작합니다!");
+            // 여기에 OCR 연동 로직이 들어갈 예정입니다.
+        }
+    </script>
+</body>
+</html>

@@ -1102,3 +1102,14 @@ window.addEventListener('focus', () => {
         }
     }
 });
+
+function goToAnalysis() {
+    const grade = document.getElementById('exam-grade').value;
+    const type = document.getElementById('exam-type').value;
+    const period = document.getElementById('exam-period').value;
+
+    // 선택 정보를 주소창에 꼬리표로 달아서 전송
+    const query = `?grade=${encodeURIComponent(grade)}&type=${encodeURIComponent(type)}&period=${encodeURIComponent(period)}`;
+    location.href = 'analysis.html' + query;
+}
+
