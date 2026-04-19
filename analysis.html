@@ -36,8 +36,14 @@
             <span id="label" style="color: #444;">팍팍! 하지만 선명하게! 찍어주세요</span>
             <img id="preview">
         </div>
-        <input type="file" id="capture" accept="image/*" capture="environment" style="display:none" onchange="loadImg(this)">
-        <button id="capture-btn" onclick="document.getElementById('capture').click()" class="login-btn" style="border-color: var(--neon-green); margin-top: 15px;">사진 촬영 시작 📸</button>
+        
+        <input type="file" id="capture" accept="image/*" style="display:none" onchange="loadImg(this)">
+        
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button onclick="openPicker('camera')" class="login-btn" style="flex: 1; border-color: var(--neon-green); margin-top: 0; font-size: 0.9rem;">실시간 촬영 📸</button>
+            <button onclick="openPicker('gallery')" class="login-btn" style="flex: 1; border-color: var(--neon-blue); margin-top: 0; font-size: 0.9rem;">이미지 불러오기 🖼️</button>
+        </div>
+
         <div id="ai-btn-area" style="display:none; margin-top: 15px;">
             <button id="run-btn" onclick="runOCR()" class="start-btn" style="border-color: var(--neon-orange);">AI 정밀 분석 실행 🚀</button>
         </div>
@@ -63,6 +69,17 @@
         const grade = params.get('grade') || '';
         const type = params.get('type') || '';
         document.getElementById('info-header').innerText = `${grade} ${type} 분석 중`;
+
+        // 카메라/갤러리 선택 함수
+        function openPicker(type) {
+            const input = document.getElementById('capture');
+            if (type === 'camera') {
+                input.setAttribute('capture', 'environment');
+            } else {
+                input.removeAttribute('capture');
+            }
+            input.click();
+        }
     
         function loadImg(input) {
             if (input.files && input.files[0]) {
@@ -81,7 +98,7 @@
         async function runOCR() {
             const img = document.getElementById('preview');
             const runBtn = document.getElementById('run-btn');
-            if (!img.src || img.style.display === 'none') { alert("먼저 시험지 사진을 촬영해 주세요!"); return; }
+            if (!img.src || img.style.display === 'none') { alert("먼저 시험지 사진을 선택해 주세요!"); return; }
     
             runBtn.disabled = true;
             runBtn.innerText = "🔍 시험지를 분석하는 중입니다. 잠시만 기다려주세요..";
@@ -101,7 +118,6 @@
         }
     
         async function analyzeWithGPT(extractedText) {
-            // [중요] 최신 키를 사용하고 띄어쓰기가 없는지 확인하세요.
             const apiKey = ""; 
             
             try {
@@ -111,7 +127,7 @@
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        model: "gpt-4o-mini", // 최신 고성능 모델로 교체
+                        model: "gpt-4o-mini",
                         messages: [
                             {
                                 role: "system",
@@ -122,7 +138,7 @@
                                 content: `{"grade": "${grade}", "type": "${type}", "text": "${extractedText.substring(0, 1000)}"}`
                             }
                         ],
-                        response_format: { "type": "json_object" }, // JSON 응답 강제
+                        response_format: { "type": "json_object" },
                         temperature: 0.3
                     })
                 });
@@ -135,7 +151,6 @@
 
                 const result = JSON.parse(data.choices[0].message.content);
                 
-                // 결과 표시
                 document.getElementById('input-section').style.display = 'none';
                 document.getElementById('result-section').style.display = 'block';
                 document.getElementById('extracted-text-preview').innerText = extractedText;
@@ -151,7 +166,7 @@
     
             } catch (error) {
                 console.error("GPT 분석 에러:", error);
-                alert("AI 분석 실패: " + error.message + "\n(잠시 후 다시 시도해 주세요)");
+                alert("AI 분석 실패: " + error.message);
                 const runBtn = document.getElementById('run-btn');
                 runBtn.disabled = false;
                 runBtn.innerText = "AI 정밀 분석 실행 🚀";
