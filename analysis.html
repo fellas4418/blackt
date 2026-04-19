@@ -16,8 +16,21 @@
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         #edit-section, #result-section { display: none; animation: fadeInUp 0.6s ease-out; }
         
-        /* 텍스트 수정 영역 스타일 */
-        .edit-area { width: 100%; height: 180px; background: #111; color: var(--neon-blue); border: 1px solid #333; border-radius: 12px; padding: 15px; font-size: 0.95rem; line-height: 1.6; box-sizing: border-box; margin-bottom: 15px; outline: none; resize: none; }
+        /* [스마트 편집기 스타일] */
+        .editable-area { 
+            width: 100%; min-height: 180px; max-height: 300px; 
+            background: #111; color: #fff; border: 1px solid #333; 
+            border-radius: 12px; padding: 15px; font-size: 1rem; 
+            line-height: 1.8; overflow-y: auto; outline: none; 
+            word-break: break-all; margin-bottom: 15px; box-sizing: border-box;
+        }
+        /* 오타 의심 구간 하이라이트 */
+        .highlight { 
+            color: var(--neon-orange); 
+            text-decoration: underline wavy var(--neon-orange); 
+            background: rgba(255, 153, 0, 0.1); 
+            padding: 0 2px; border-radius: 3px;
+        }
     </style>
 </head>
 <body>
@@ -48,25 +61,23 @@
         </div>
 
         <div id="ai-btn-area" style="display:none; margin-top: 15px;">
-            <button id="ocr-btn" onclick="runOCR()" class="start-btn" style="border-color: var(--neon-orange);">글자 읽기 시작 🔍</button>
+            <button id="ocr-btn" onclick="runOCR()" class="start-btn" style="border-color: var(--neon-orange);">글자 읽기 및 검수 🔍</button>
         </div>
     </div>
 
     <div id="edit-section">
         <div class="guide-box" style="border-color: var(--neon-blue);">
-            <p class="guide-title" style="color: var(--neon-blue);">✍️ 인식된 텍스트 검수</p>
-            <p style="color:#ccc; font-size:0.8rem; margin:0;">채점 표시나 낙서로 인해 잘못 읽힌 글자를 올바르게 고쳐주세요.</p>
+            <p class="guide-title" style="color: var(--neon-blue);">✍️ 주황색 부분을 확인해 주세요</p>
+            <p style="color:#ccc; font-size:0.8rem; margin:0;">낙서나 기호로 인식된 주황색 글자를 터치해 올바르게 수정하세요.</p>
         </div>
-        <textarea id="ocr-edit-area" class="edit-area" placeholder="인식된 텍스트가 여기에 나타납니다..."></textarea>
+        <div id="ocr-edit-area" class="editable-area" contenteditable="true"></div>
         <button id="run-btn" onclick="runFinalAnalysis()" class="start-btn" style="border-color: var(--neon-orange);">검수 완료 및 AI 정밀 분석 실행 🚀</button>
     </div>
 
     <div id="result-section">
         <div style="background: rgba(57, 255, 20, 0.05); border: 1px solid var(--neon-green); padding: 20px; border-radius: 15px;">
             <h4 style="color: var(--neon-green); margin-top: 0; display: flex; align-items: center; gap: 8px;">✅ AI 정밀 처방전</h4>
-            
             <div id="ai-comment" style="line-height: 1.7; color: #eee; font-size: 0.95rem; word-break: keep-all;"></div>
-            
             <button onclick="location.href='index.html?tab=analysis'" class="login-btn" style="border-color: #fff; margin-top: 25px; background: transparent; width: 100%;">다른 문항 분석하기</button>
         </div>
     </div>
@@ -79,11 +90,8 @@
 
         function openPicker(type) {
             const input = document.getElementById('capture');
-            if (type === 'camera') {
-                input.setAttribute('capture', 'environment');
-            } else {
-                input.removeAttribute('capture');
-            }
+            if (type === 'camera') input.setAttribute('capture', 'environment');
+            else input.removeAttribute('capture');
             input.click();
         }
     
@@ -101,14 +109,13 @@
             }
         }
     
-        // 1. OCR 실행 (글자만 읽어서 수정창으로 보냄)
         async function runOCR() {
             const img = document.getElementById('preview');
             const ocrBtn = document.getElementById('ocr-btn');
-            if (!img.src || img.style.display === 'none') { alert("먼저 시험지 사진을 선택해 주세요!"); return; }
+            if (!img.src || img.style.display === 'none') { alert("사진을 선택해 주세요!"); return; }
     
             ocrBtn.disabled = true;
-            ocrBtn.innerText = "🔍 글자를 읽는 중입니다...";
+            ocrBtn.innerText = "🔍 글자를 분석하는 중...";
             ocrBtn.style.opacity = "0.7";
     
             try {
@@ -116,23 +123,31 @@
                 const { data: { text } } = await worker.recognize(img.src);
                 await worker.terminate();
                 
-                // 수정 섹션으로 전환
+                // [오타 유추 및 하이라이트 로직]
+                const processedHtml = text.split(/(\s+)/).map(word => {
+                    // 특수 기호가 섞여있거나, 너무 짧은 외계어는 주황색 하이라이트 처리
+                    const isSuspicious = /[^a-zA-Z0-9가-힣\s,.?!]/.test(word) || (word.length > 0 && word.length < 2 && !/[aI]/.test(word));
+                    if (isSuspicious && word.trim().length > 0) {
+                        return `<span class="highlight">${word}</span>`;
+                    }
+                    return word;
+                }).join('');
+
                 document.getElementById('input-section').style.display = 'none';
                 document.getElementById('edit-section').style.display = 'block';
-                document.getElementById('ocr-edit-area').value = text;
+                document.getElementById('ocr-edit-area').innerHTML = processedHtml;
             } catch (error) {
-                console.error("OCR 에러:", error);
-                alert("글자 인식 실패");
+                alert("인식 오류 발생");
                 ocrBtn.disabled = false;
                 ocrBtn.innerText = "글자 읽기 시작 🔍";
             }
         }
     
-        // 2. 최종 분석 실행 (수정된 텍스트를 GPT로 보냄)
         async function runFinalAnalysis() {
-            const editedText = document.getElementById('ocr-edit-area').value;
+            // contenteditable 영역에서 텍스트만 추출
+            const editedText = document.getElementById('ocr-edit-area').innerText;
             const runBtn = document.getElementById('run-btn');
-            if (!editedText.trim()) { alert("분석할 텍스트가 없습니다."); return; }
+            if (!editedText.trim()) { alert("분석할 내용이 없습니다."); return; }
 
             runBtn.disabled = true;
             runBtn.innerText = "🧠 AI 정밀 분석 중...";
@@ -147,7 +162,7 @@
                             {
                                 role: "system",
                                 content: `너는 영어 교육 전문가이자 트리거 학습팀의 AI 튜터야. 
-                                학생이 제출한 영어 시험지 텍스트를 보고 다음 3가지를 분석하라.
+                                학생의 시험지 텍스트를 보고 다음 3가지를 분석하라.
                                 1. category: 5개 카테고리 [문장 성분, 준동사(분사구문 포함), 연결사(관계사 포함), 동사 파트, 특수 구문] 중 하나 선택.
                                 2. cause: 학생이 왜 틀렸는지 핵심 원인을 전문적으로 분석.
                                 3. solution: 이 오답을 극복하기 위해 다시 공부해야 할 개념과 대안을 상세히 제시.
@@ -187,8 +202,7 @@
                 `;
     
             } catch (error) {
-                console.error("GPT 분석 에러:", error);
-                alert("AI 분석 실패");
+                alert("AI 분석 중 오류가 발생했습니다.");
                 runBtn.disabled = false;
                 runBtn.innerText = "검수 완료 및 AI 정밀 분석 실행 🚀";
             }
