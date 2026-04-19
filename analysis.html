@@ -14,7 +14,10 @@
         .guide-title { color: var(--neon-orange); font-weight: bold; margin: 0 0 6px 0; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
         .guide-list { color: #ccc; font-size: 0.8rem; margin: 0; padding-left: 18px; line-height: 1.5; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        #result-section { display: none; animation: fadeInUp 0.6s ease-out; }
+        #edit-section, #result-section { display: none; animation: fadeInUp 0.6s ease-out; }
+        
+        /* 텍스트 수정 영역 스타일 */
+        .edit-area { width: 100%; height: 180px; background: #111; color: var(--neon-blue); border: 1px solid #333; border-radius: 12px; padding: 15px; font-size: 0.95rem; line-height: 1.6; box-sizing: border-box; margin-bottom: 15px; outline: none; resize: none; }
     </style>
 </head>
 <body>
@@ -45,21 +48,25 @@
         </div>
 
         <div id="ai-btn-area" style="display:none; margin-top: 15px;">
-            <button id="run-btn" onclick="runOCR()" class="start-btn" style="border-color: var(--neon-orange);">AI 정밀 분석 실행 🚀</button>
+            <button id="ocr-btn" onclick="runOCR()" class="start-btn" style="border-color: var(--neon-orange);">글자 읽기 시작 🔍</button>
         </div>
+    </div>
+
+    <div id="edit-section">
+        <div class="guide-box" style="border-color: var(--neon-blue);">
+            <p class="guide-title" style="color: var(--neon-blue);">✍️ 인식된 텍스트 검수</p>
+            <p style="color:#ccc; font-size:0.8rem; margin:0;">채점 표시나 낙서로 인해 잘못 읽힌 글자를 올바르게 고쳐주세요.</p>
+        </div>
+        <textarea id="ocr-edit-area" class="edit-area" placeholder="인식된 텍스트가 여기에 나타납니다..."></textarea>
+        <button id="run-btn" onclick="runFinalAnalysis()" class="start-btn" style="border-color: var(--neon-orange);">검수 완료 및 AI 정밀 분석 실행 🚀</button>
     </div>
 
     <div id="result-section">
         <div style="background: rgba(57, 255, 20, 0.05); border: 1px solid var(--neon-green); padding: 20px; border-radius: 15px;">
             <h4 style="color: var(--neon-green); margin-top: 0; display: flex; align-items: center; gap: 8px;">✅ AI 정밀 처방전</h4>
-            <div style="background: #111; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #222;">
-                <p style="font-size: 0.75rem; color: #666; margin-bottom: 8px; letter-spacing: 0.05rem;">RECOGNIZED TEXT</p>
-                <div id="extracted-text-preview" style="font-size: 0.85rem; color: #999; line-height: 1.6; max-height: 120px; overflow-y: auto;"></div>
-            </div>
-            <div style="margin-top: 20px;">
-                <p style="color: var(--neon-orange); font-weight: bold; font-size: 0.9rem; margin-bottom: 10px;">👨‍🏫 트리거 팀의 분석 한줄평</p>
-                <div id="ai-comment" style="line-height: 1.7; color: #eee; font-size: 0.95rem; word-break: keep-all;">데이터를 분석 중입니다...</div>
-            </div>
+            
+            <div id="ai-comment" style="line-height: 1.7; color: #eee; font-size: 0.95rem; word-break: keep-all;"></div>
+            
             <button onclick="location.href='index.html?tab=analysis'" class="login-btn" style="border-color: #fff; margin-top: 25px; background: transparent; width: 100%;">다른 문항 분석하기</button>
         </div>
     </div>
@@ -70,7 +77,6 @@
         const type = params.get('type') || '';
         document.getElementById('info-header').innerText = `${grade} ${type} 분석 중`;
 
-        // 카메라/갤러리 선택 함수
         function openPicker(type) {
             const input = document.getElementById('capture');
             if (type === 'camera') {
@@ -95,47 +101,61 @@
             }
         }
     
+        // 1. OCR 실행 (글자만 읽어서 수정창으로 보냄)
         async function runOCR() {
             const img = document.getElementById('preview');
-            const runBtn = document.getElementById('run-btn');
+            const ocrBtn = document.getElementById('ocr-btn');
             if (!img.src || img.style.display === 'none') { alert("먼저 시험지 사진을 선택해 주세요!"); return; }
     
-            runBtn.disabled = true;
-            runBtn.innerText = "🔍 시험지를 분석하는 중입니다. 잠시만 기다려주세요..";
-            runBtn.style.opacity = "0.7";
+            ocrBtn.disabled = true;
+            ocrBtn.innerText = "🔍 글자를 읽는 중입니다...";
+            ocrBtn.style.opacity = "0.7";
     
             try {
                 const worker = await Tesseract.createWorker('kor+eng');
                 const { data: { text } } = await worker.recognize(img.src);
                 await worker.terminate();
-                await analyzeWithGPT(text);
+                
+                // 수정 섹션으로 전환
+                document.getElementById('input-section').style.display = 'none';
+                document.getElementById('edit-section').style.display = 'block';
+                document.getElementById('ocr-edit-area').value = text;
             } catch (error) {
-                console.error("OCR 분석 에러:", error);
-                alert("인식 중 오류가 발생했습니다.");
-                runBtn.disabled = false;
-                runBtn.innerText = "AI 정밀 분석 실행 🚀";
+                console.error("OCR 에러:", error);
+                alert("글자 인식 실패");
+                ocrBtn.disabled = false;
+                ocrBtn.innerText = "글자 읽기 시작 🔍";
             }
         }
     
-        async function analyzeWithGPT(extractedText) {
-            const apiKey = ""; 
-            
+        // 2. 최종 분석 실행 (수정된 텍스트를 GPT로 보냄)
+        async function runFinalAnalysis() {
+            const editedText = document.getElementById('ocr-edit-area').value;
+            const runBtn = document.getElementById('run-btn');
+            if (!editedText.trim()) { alert("분석할 텍스트가 없습니다."); return; }
+
+            runBtn.disabled = true;
+            runBtn.innerText = "🧠 AI 정밀 분석 중...";
+
             try {
                 const response = await fetch("https://trigger-ocr-api.ohryee.workers.dev/", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         model: "gpt-4o-mini",
                         messages: [
                             {
                                 role: "system",
-                                content: `영어 시험지 분석 전문가로서 5개 카테고리 [문장 성분, 준동사(분사구문 포함), 연결사(관계사 포함), 동사 파트, 특수 구문] 중 오답 원인을 진단하라. JSON으로만 응답하라.`
+                                content: `너는 영어 교육 전문가이자 트리거 학습팀의 AI 튜터야. 
+                                학생이 제출한 영어 시험지 텍스트를 보고 다음 3가지를 분석하라.
+                                1. category: 5개 카테고리 [문장 성분, 준동사(분사구문 포함), 연결사(관계사 포함), 동사 파트, 특수 구문] 중 하나 선택.
+                                2. cause: 학생이 왜 틀렸는지 핵심 원인을 전문적으로 분석.
+                                3. solution: 이 오답을 극복하기 위해 다시 공부해야 할 개념과 대안을 상세히 제시.
+                                모든 응답은 반드시 JSON 형식으로 하라.`
                             },
                             {
                                 role: "user",
-                                content: `{"grade": "${grade}", "type": "${type}", "text": "${extractedText.substring(0, 1000)}"}`
+                                content: `{"grade": "${grade}", "type": "${type}", "text": "${editedText.substring(0, 1000)}"}`
                             }
                         ],
                         response_format: { "type": "json_object" },
@@ -144,33 +164,33 @@
                 });
     
                 const data = await response.json();
-                
-                if (data.error) {
-                    throw new Error(data.error.message);
-                }
-
                 const result = JSON.parse(data.choices[0].message.content);
                 
-                document.getElementById('input-section').style.display = 'none';
+                document.getElementById('edit-section').style.display = 'none';
                 document.getElementById('result-section').style.display = 'block';
-                document.getElementById('extracted-text-preview').innerText = extractedText;
                 
                 const commentArea = document.getElementById('ai-comment');
                 commentArea.innerHTML = `
-                    <div style="margin-bottom: 12px;">
-                        <span style="background: var(--neon-blue); color: #000; padding: 3px 10px; border-radius: 6px; font-weight: bold; font-size: 0.85rem;">${result.category || "분석 완료"}</span>
+                    <div style="margin-bottom: 15px;">
+                        <span style="background: var(--neon-blue); color: #000; padding: 4px 12px; border-radius: 6px; font-weight: bold; font-size: 0.85rem;">${result.category}</span>
                     </div>
-                    <p style="color: #fff; font-weight: bold; margin-bottom: 8px; font-size: 1.05rem;">${result.summary || "문항 분석 성공"}</p>
-                    <p style="color: #ccc; font-size: 0.9rem; line-height: 1.6;">${result.prescription || "공부법을 조제했습니다."}</p>
+                    
+                    <div style="background: rgba(255,153,0,0.05); padding: 15px; border-radius: 10px; margin-bottom: 15px; border-left: 3px solid var(--neon-orange);">
+                        <p style="color: var(--neon-orange); font-weight: bold; font-size: 0.9rem; margin-bottom: 5px;">🚩 오답 원인 분석</p>
+                        <p style="color: #eee; font-size: 0.95rem; line-height: 1.6;">${result.cause}</p>
+                    </div>
+
+                    <div style="background: rgba(0,243,255,0.05); padding: 15px; border-radius: 10px; border-left: 3px solid var(--neon-blue);">
+                        <p style="color: var(--neon-blue); font-weight: bold; font-size: 0.9rem; margin-bottom: 5px;">💡 트리거 학습 처방</p>
+                        <p style="color: #eee; font-size: 0.95rem; line-height: 1.6;">${result.solution}</p>
+                    </div>
                 `;
     
             } catch (error) {
                 console.error("GPT 분석 에러:", error);
-                alert("AI 분석 실패: " + error.message);
-                const runBtn = document.getElementById('run-btn');
+                alert("AI 분석 실패");
                 runBtn.disabled = false;
-                runBtn.innerText = "AI 정밀 분석 실행 🚀";
-                runBtn.style.opacity = "1";
+                runBtn.innerText = "검수 완료 및 AI 정밀 분석 실행 🚀";
             }
         }
     </script>
