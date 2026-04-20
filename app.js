@@ -18,7 +18,7 @@ function showSystemMessage(text) {
 function initKakao() {
     try {
         if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
-            Kakao.init('fbb1520306ffaad0a882e993109a801c'); 
+            Kakao.init('여기에_카카오_자바스크립트_키_입력'); // ✨반드시 발급받은 JS 키로 교체하세요!✨
             console.log("카카오 SDK 초기화 완료");
         }
     } catch (e) { 
@@ -858,8 +858,11 @@ function retryOnlyWrongs() {
     startStudy();
 }
 
+// [수정 완료] 학습 종료 후 나타나는 카카오톡 공유 기능
 function shareKakao() {
-    if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) return;
+    if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
+        Kakao.init('여기에_카카오_자바스크립트_키_입력'); // ✨반드시 발급받은 JS 키로 교체하세요!✨
+    }
     
     const userName = localStorage.getItem('trigger_name') || '학습자';
     let displayDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
@@ -868,28 +871,41 @@ function shareKakao() {
     const shareUrl = window.location.origin; 
     const acc = targetWords.length > 0 ? Math.floor((score/targetWords.length)*100) : 0; 
 
-    Kakao.Share.sendDefault({
-        objectType: 'feed',
-        content: { 
-            title: `🔥 [${userName}]님, 단어 학습 마스터!`, 
-            description: `🏅 정답률: ${acc}%\n📅 Day ${displayDay} 루틴 완주 성공!`, 
-            imageUrl: 'https://blackt.pages.dev/share-v2.png', 
-            link: { mobileWebUrl: shareUrl, webUrl: shareUrl } 
-        },
-        buttons: [
-            {
-                title: '결과 자세히 보기',
-                link: { mobileWebUrl: shareUrl, webUrl: shareUrl }
+    // 화면(메인 대시보드)에 없는 데이터이므로 누적 단어수를 즉시 계산합니다.
+    let learnedTotal = 0;
+    let unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
+    for (let i = 1; i < unlockedDay; i++) { 
+        if (i % 7 === 6 || i % 7 === 0) continue;
+        learnedTotal += getWordsForDay(currentLevel, i).length;
+    }
+
+    if (typeof Kakao !== 'undefined' && Kakao.isInitialized()) {
+        Kakao.Share.sendDefault({
+            objectType: 'feed',
+            content: { 
+                title: `🔥 [${userName}]님, 단어 학습 완료!`, 
+                description: `누적 클리어: ${learnedTotal} 단어\n오늘의 진도: Day ${displayDay}\n\n오늘도 목표를 달성했습니다! 칭찬 배지를 보내주세요.`, 
+                imageUrl: 'https://blackt.pages.dev/share-v2.png', 
+                link: { mobileWebUrl: shareUrl, webUrl: shareUrl } 
             },
-            {
-                title: '👍 칭찬하고 응원하기',
-                link: { 
-                    mobileWebUrl: shareUrl + '?action=praise&name=' + encodeURIComponent(userName), 
-                    webUrl: shareUrl + '?action=praise&name=' + encodeURIComponent(userName)
+            buttons: [
+                {
+                    title: '결과 자세히 보기',
+                    link: { mobileWebUrl: shareUrl, webUrl: shareUrl }
+                },
+                {
+                    title: '👍 칭찬 응원 배지 보내기',
+                    link: { 
+                        mobileWebUrl: shareUrl + '?praise=true', 
+                        webUrl: shareUrl + '?praise=true'
+                    }
                 }
-            }
-        ]
-    });
+            ]
+        });
+    } else {
+        // 카카오 설정 전 예외 처리 (기존 링크 복사)
+        navigator.clipboard.writeText(shareUrl).then(() => { alert("✅ 링크가 복사되었습니다!"); });
+    }
 }
 
 window.jumpToSession = function(n) {
@@ -915,7 +931,7 @@ window.jumpToSession = function(n) {
 
 function jumpToFinish() {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
-    const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
+    const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
     const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
     localStorage.setItem('trigger_session_' + lvl, isReviewDay ? '2' : '6'); 
     localStorage.removeItem('blackt_cooldown');
@@ -1112,4 +1128,3 @@ function goToAnalysis() {
     const query = `?grade=${encodeURIComponent(grade)}&type=${encodeURIComponent(type)}&period=${encodeURIComponent(period)}`;
     location.href = 'analysis.html' + query;
 }
-

@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#000000">
+    
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js" integrity="sha384-lLeS4Yq9YvO2TfI+W3N5p4kQYtY3E/3v3Zz6K6Z8l3E7z6K6Z8l3E7z6K6Z8l3E7" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
     <style>
         :root {
             --bg-color: #050505; 
@@ -24,7 +28,7 @@
 
         body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: 'Pretendard', sans-serif; -webkit-font-smoothing: antialiased; padding-bottom: 90px; }
 
-        #login-modal, #wrong-modal, #all-words-modal, #report-modal, #guide-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 30000; transition: opacity 0.5s; padding: 20px; box-sizing: border-box; }
+        #login-modal, #wrong-modal, #all-words-modal, #report-modal, #guide-modal, #praise-popup { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 30000; transition: opacity 0.5s; padding: 20px; box-sizing: border-box; }
 
         .login-card { background: var(--card-bg-color); border: 1px solid rgba(0, 243, 255, 0.3); box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); border-radius: 20px; padding: 25px; width: 90%; max-width: 400px; text-align: center; max-height: 80vh; overflow-y: auto; box-sizing: border-box; max-height: 90vh; }
         
@@ -93,12 +97,25 @@
 
         .report-bar-bg { width: 100%; background: #222; height: 12px; border-radius: 6px; margin-top: 5px; overflow: hidden; }
         .report-bar-fill { height: 100%; background: var(--neon-green); width: 0%; border-radius: 6px; box-shadow: 0 0 5px var(--neon-green); transition: width 0.5s; }
+        
+        /* 칭찬 팝업 애니메이션 */
+        @keyframes bounceGlow { 0% { transform: translateY(0); text-shadow: 0 0 10px var(--neon-green); } 100% { transform: translateY(-15px); text-shadow: 0 0 25px var(--neon-green), 0 0 40px #fff; } }
     </style>
 </head>
 <body class="dashboard-bg">
 
     <div id="splash-screen" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease;">
         <img src="icon-512.png" alt="Trigger Logo" style="width: 180px; height: 180px; border-radius: 20px;">
+    </div>
+
+    <div id="praise-popup" style="display:none; z-index: 40000;">
+        <div style="font-size: 5rem; margin-bottom: 20px; animation: bounceGlow 0.8s infinite alternate;">🎉</div>
+        <h1 style="color:var(--neon-green); text-shadow: 0 0 10px var(--neon-green); margin-bottom: 15px; font-size: 2.2rem;">칭찬 도착!</h1>
+        <p style="color:#ddd; font-size:1.1rem; line-height:1.6; margin-bottom: 30px; text-align: center;">
+            원장님(부모님)이 칭찬 배지를 보내셨습니다!<br>
+            <strong style="color:var(--neon-blue); font-size: 1.4rem; display:inline-block; margin-top:10px; text-shadow: 0 0 10px var(--neon-blue);">에너지 +1 회복! ⚡</strong>
+        </p>
+        <button class="login-btn" style="border-color: var(--neon-green); width: 80%; max-width: 300px; font-size: 1.2rem;" onclick="document.getElementById('praise-popup').style.display='none'">감사합니다!</button>
     </div>
 
     <div id="guide-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 30000; align-items: center; justify-content: center;">
@@ -869,12 +886,45 @@ window.forceComplete70 = function() {
             document.getElementById('report-modal').style.display = 'flex';
         }
 
+        // [수정 완료] 카카오톡 칭찬 공유 및 데이터 요약 기능 적용
         function shareTriggerApp() {
-            const shareTitle = "사라져 보카 - 사라지는 영단어장";
-            const shareUrl = window.location.origin;
-            if (navigator.share) {
-                navigator.share({ title: shareTitle, url: shareUrl }).catch(console.error);
+            if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
+                Kakao.init('fbb1520306ffaad0a882e993109a801c'); // ✨반드시 발급받은 키로 교체하세요!✨
+            }
+
+            const savedName = localStorage.getItem('trigger_name') || '트리거 학생';
+            const lvl = localStorage.getItem('trigger_level') || 'middle';
+            const currentDay = localStorage.getItem(`trigger_current_day_${lvl}`) || '1';
+            
+            // 화면에 계산된 총 클리어 단어수 가져오기
+            const totalWordsEl = document.getElementById('total-word-count');
+            const totalWords = totalWordsEl ? totalWordsEl.innerText : '0 단어';
+
+            if (typeof Kakao !== 'undefined' && Kakao.isInitialized()) {
+                Kakao.Share.sendDefault({
+                    objectType: 'feed',
+                    content: {
+                        title: `🔥 ${savedName}님의 오늘의 학습 리포트!`,
+                        description: `누적 클리어: ${totalWords}\n현재 진도: Day ${currentDay}\n\n오늘도 목표를 달성했습니다! 칭찬 배지를 보내주세요.`,
+                        imageUrl: 'https://blackt.pages.dev/icon-512.png',
+                        link: {
+                            mobileWebUrl: 'https://blackt.pages.dev',
+                            webUrl: 'https://blackt.pages.dev',
+                        },
+                    },
+                    buttons: [
+                        {
+                            title: '👍 칭찬 응원 배지 보내기',
+                            link: {
+                                mobileWebUrl: 'https://blackt.pages.dev?praise=true',
+                                webUrl: 'https://blackt.pages.dev?praise=true',
+                            },
+                        }
+                    ],
+                });
             } else {
+                // 카카오 설정 전 예외 처리 (기존 링크 복사)
+                const shareUrl = window.location.origin;
                 navigator.clipboard.writeText(shareUrl).then(() => { alert("✅ 링크가 복사되었습니다!"); });
             }
         }
@@ -1052,56 +1102,83 @@ window.forceComplete70 = function() {
         });
 
         window.addEventListener('load', () => {
-    const savedName = localStorage.getItem('trigger_name');
-    const splash = document.getElementById('splash-screen');
+            const savedName = localStorage.getItem('trigger_name');
+            const splash = document.getElementById('splash-screen');
 
-    // 1. 스플래시 화면 처리
-    if (splash && savedName && savedName !== "null") {
-        if (sessionStorage.getItem('splash_shown')) {
-            splash.style.display = 'none';
-        } else {
-            setTimeout(() => {
-                splash.style.opacity = '0';
-                setTimeout(() => { splash.style.display = 'none'; }, 500);
-            }, 1200);
-            sessionStorage.setItem('splash_shown', 'true');
-        }
-    } 
-
-    // 2. 관리자 모드 체크
-    if (localStorage.getItem('trigger_admin_mode') === 'true') {
-        const menu = document.getElementById('admin-menu');
-        if (menu) menu.style.setProperty('display', 'flex', 'important');
-    }
-    
-    // 3. 로그인 및 레벨 초기화
-    if (typeof checkLoginStatus === 'function') checkLoginStatus();
-    if (typeof selectLevel === 'function') {
-        selectLevel(localStorage.getItem('trigger_level') || 'middle');
-    }
-// 4. [최종 해결책] QR/릴스 유입 경로에 따른 탭 고정 로직
-// [교체 완료] 기록하지 않고 현재 주소창의 파라미터만 체크합니다.
-const urlParams = new URLSearchParams(window.location.search);
-    const tabParam = urlParams.get('tab');
-
-    if (tabParam === 'analysis') {
-        if (typeof switchTab === 'function') switchTab('analysis');
-    } else if (tabParam === 'grammar') {
-        if (typeof switchTab === 'function') switchTab('grammar');
-    } else {
-        // 주소 뒤에 ?tab=... 이 없으면 무조건 '사라져 Voca' 메인으로!
-        if (typeof switchTab === 'function') switchTab('voca');
-    }
-});
-            const cooldownTime = localStorage.getItem('blackt_cooldown');
-            if (cooldownTime) {
-                const remaining = parseInt(cooldownTime) - Date.now();
-                if (remaining > 0) {
-                    setTimeout(sendRecoveryNotification, remaining);
+            // 1. 스플래시 화면 처리
+            if (splash && savedName && savedName !== "null") {
+                if (sessionStorage.getItem('splash_shown')) {
+                    splash.style.display = 'none';
+                } else {
+                    setTimeout(() => {
+                        splash.style.opacity = '0';
+                        setTimeout(() => { splash.style.display = 'none'; }, 500);
+                    }, 1200);
+                    sessionStorage.setItem('splash_shown', 'true');
                 }
-            }
-    
+            } 
 
+            // 2. 관리자 모드 체크
+            if (localStorage.getItem('trigger_admin_mode') === 'true') {
+                const menu = document.getElementById('admin-menu');
+                if (menu) menu.style.setProperty('display', 'flex', 'important');
+            }
+            
+            // 3. 로그인 및 레벨 초기화
+            if (typeof checkLoginStatus === 'function') checkLoginStatus();
+            if (typeof selectLevel === 'function') {
+                selectLevel(localStorage.getItem('trigger_level') || 'middle');
+            }
+            
+            // 4. [최종 해결책] QR/릴스 유입 경로에 따른 탭 고정 로직
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab');
+
+            if (tabParam === 'analysis') {
+                if (typeof switchTab === 'function') switchTab('analysis');
+            } else if (tabParam === 'grammar') {
+                if (typeof switchTab === 'function') switchTab('grammar');
+            } else {
+                // 주소 뒤에 ?tab=... 이 없으면 무조건 '사라져 Voca' 메인으로!
+                if (typeof switchTab === 'function') switchTab('voca');
+            }
+
+            // 5. 칭찬 응원 버튼 클릭을 통해 유입되었을 때 폭죽 팝업 실행
+            if (urlParams.get('praise') === 'true') {
+                const praisePopup = document.getElementById('praise-popup');
+                if (praisePopup) {
+                    praisePopup.style.display = 'flex';
+                    
+                    // 폭죽 효과 애니메이션 실행 (canvas-confetti 라이브러리 연동)
+                    if (typeof confetti === 'function') {
+                        var duration = 3 * 1000;
+                        var animationEnd = Date.now() + duration;
+                        var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 50000 };
+
+                        function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+
+                        var interval = setInterval(function() {
+                            var timeLeft = animationEnd - Date.now();
+                            if (timeLeft <= 0) return clearInterval(interval);
+                            var particleCount = 50 * (timeLeft / duration);
+                            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+                        }, 250);
+                    }
+                }
+                // 새로고침 시 팝업이 또 뜨는 것을 방지하기 위해 주소창에서 파라미터 제거
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+
+        const cooldownTime = localStorage.getItem('blackt_cooldown');
+        if (cooldownTime) {
+            const remaining = parseInt(cooldownTime) - Date.now();
+            if (remaining > 0) {
+                setTimeout(sendRecoveryNotification, remaining);
+            }
+        }
+    
         async function secureHandleLogin() {
             await requestNotificationPermission();
             await handleLogin();
