@@ -135,83 +135,94 @@
         }
     
         async function runGeminiAnalysis(isTextMode = false) {
-            const editedText = document.getElementById('ocr-edit-area').innerText;
-            const ocrBtn = document.getElementById('ocr-btn');
-            const runBtn = document.getElementById('run-btn');
+    const editedText = document.getElementById('ocr-edit-area').innerText;
+    const ocrBtn = document.getElementById('ocr-btn');
+    const runBtn = document.getElementById('run-btn');
 
-            if (!isTextMode && !selectedBase64) { alert("사진을 선택해 주세요!"); return; }
-            if (isTextMode && !editedText.trim()) { alert("지문을 입력해 주세요."); return; }
+    if (!isTextMode && !selectedBase64) { alert("사진을 선택해 주세요!"); return; }
+    if (isTextMode && !editedText.trim()) { alert("지문을 입력해 주세요."); return; }
 
-            const activeBtn = isTextMode ? runBtn : ocrBtn;
-            activeBtn.disabled = true;
-            activeBtn.innerText = "🧠 트리거 AI 분석 중...";
+    const activeBtn = isTextMode ? runBtn : ocrBtn;
+    activeBtn.disabled = true;
+    activeBtn.innerText = "🧠 트리거 AI 분석 중...";
 
-            const prompt = `너는 영어 교육 전문가야. ${isTextMode ? '제공된 텍스트' : '첨부된 이미지'} 속 영어 지문을 읽고 다음 정보를 한국어로 분석해서 JSON으로 응답해.
-            1. background: 이 지문의 소재와 관련된 학생들이 이해하기 쉬운 배경지식 (3줄)
-            2. subject: 지문의 핵심 주제 (한 문장)
-            3. sentence_analysis: 지문에서 가장 중요한 문장 3~4개를 골라 원문(eng)과 자연스러운 해석(kor) 제공
-            4. keywords: 필수 단어 5개와 뜻 (배열 형태)`;
+    const prompt = `너는 영어 교육 전문가야. ${isTextMode ? '제공된 텍스트' : '첨부된 이미지'} 속 영어 지문을 읽고 다음 정보를 한국어로 분석해서 JSON으로 응답해.
+    1. background: 이 지문의 소재와 관련된 학생들이 이해하기 쉬운 배경지식 (3줄)
+    2. subject: 지문의 핵심 주제 (한 문장)
+    3. sentence_analysis: 지문에서 가장 중요한 문장 3~4개를 골라 원문(eng)과 자연스러운 해석(kor) 제공
+    4. keywords: 필수 단어 5개와 뜻 (배열 형태)
+    반드시 순수한 JSON 형식으로만 출력해.`;
 
-            try {
-                const parts = [{ text: prompt }];
-                if (isTextMode) {
-                    parts.push({ text: `지문 내용: ${editedText}` });
-                } else {
-                    parts.push({ inline_data: { mime_type: "image/jpeg", data: selectedBase64 } });
-                }
-
-                // 🚀 브라우저가 직접 Gemini를 부르지 않고, Cloudflare Worker 대리인을 거쳐갑니다.
-                const response = await fetch(WORKER_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: parts }],
-                        generationConfig: { response_mime_type: "application/json" }
-                    })
-                });
-
-                const data = await response.json();
-                
-                // Gemini의 응답 형식에 맞춰 텍스트 추출 및 파싱
-                const responseText = data.candidates[0].content.parts[0].text;
-                const res = JSON.parse(responseText);
-                
-                document.getElementById('input-section').style.display = 'none';
-                document.getElementById('edit-section').style.display = 'none';
-                document.getElementById('result-section').style.display = 'block';
-                
-                let transHtml = res.sentence_analysis.map(s => `
-                    <div class="translation-row">
-                        <div class="eng-text">${s.eng}</div>
-                        <div class="kor-text">${s.kor}</div>
-                    </div>
-                `).join('');
-
-                document.getElementById('ai-report-area').innerHTML = `
-                    <div class="result-card" style="border-left: 4px solid var(--neon-orange);">
-                        <span class="result-label" style="color:var(--neon-orange);">💡 지문 배경지식</span>
-                        <div class="result-content">${res.background}</div>
-                    </div>
-                    <div class="result-card">
-                        <span class="result-label">📍 핵심 주제</span>
-                        <div class="result-content" style="color:var(--neon-blue); font-weight:bold;">${res.subject}</div>
-                    </div>
-                    <div class="result-card">
-                        <span class="result-label">📝 주요 문장 해석</span>
-                        <div class="result-content">${transHtml}</div>
-                    </div>
-                    <div class="result-card">
-                        <span class="result-label">🔑 필수 키워드</span>
-                        <div class="result-content">${res.keywords.join(', ')}</div>
-                    </div>
-                `;
-            } catch (error) {
-                console.error(error);
-                alert("분석 실패: 사진을 더 선명하게 찍거나 워커 설정을 확인해주세요.");
-                activeBtn.disabled = false;
-                activeBtn.innerText = isTextMode ? "정밀 분석 실행 🚀" : "트리거 AI 정밀 분석 시작 🔍";
-            }
+    try {
+        const parts = [{ text: prompt }];
+        if (isTextMode) {
+            parts.push({ text: `지문 내용: ${editedText}` });
+        } else {
+            parts.push({ inline_data: { mime_type: "image/jpeg", data: selectedBase64 } });
         }
+
+        const response = await fetch(WORKER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: parts }],
+                generationConfig: { 
+                    response_mime_type: "application/json",
+                    temperature: 0.1 // 답변을 더 일관되게 고정
+                }
+            })
+        });
+
+        const data = await response.json();
+        
+        // 🛡️ 에러 방어 로직 추가: 답변 데이터가 있는지 확인
+        if (!data.candidates || !data.candidates[0].content || !data.candidates[0].content.parts) {
+            throw new Error("AI 응답 형식이 올바르지 않습니다.");
+        }
+
+        let responseText = data.candidates[0].content.parts[0].text;
+        
+        // 🛡️ 혹시라도 텍스트에 ```json ... ``` 같은게 섞여있을 경우 제거
+        responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+        
+        const res = JSON.parse(responseText);
+        
+        document.getElementById('input-section').style.display = 'none';
+        document.getElementById('edit-section').style.display = 'none';
+        document.getElementById('result-section').style.display = 'block';
+        
+        let transHtml = res.sentence_analysis.map(s => `
+            <div class="translation-row">
+                <div class="eng-text">${s.eng}</div>
+                <div class="kor-text">${s.kor}</div>
+            </div>
+        `).join('');
+
+        document.getElementById('ai-report-area').innerHTML = `
+            <div class="result-card" style="border-left: 4px solid var(--neon-orange);">
+                <span class="result-label" style="color:var(--neon-orange);">💡 지문 배경지식</span>
+                <div class="result-content">${res.background}</div>
+            </div>
+            <div class="result-card">
+                <span class="result-label">📍 핵심 주제</span>
+                <div class="result-content" style="color:var(--neon-blue); font-weight:bold;">${res.subject}</div>
+            </div>
+            <div class="result-card">
+                <span class="result-label">📝 주요 문장 해석</span>
+                <div class="result-content">${transHtml}</div>
+            </div>
+            <div class="result-card">
+                <span class="result-label">🔑 필수 키워드</span>
+                <div class="result-content">${res.keywords.join(', ')}</div>
+            </div>
+        `;
+    } catch (error) {
+        console.error("Error details:", error);
+        alert("분석 실패: 사진을 조금 더 선명하게 다시 찍어주세요.");
+        activeBtn.disabled = false;
+        activeBtn.innerText = isTextMode ? "정밀 분석 실행 🚀" : "트리거 AI 정밀 분석 시작 🔍";
+    }
+}
     </script>
 </body>
 </html>
