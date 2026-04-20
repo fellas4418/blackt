@@ -119,7 +119,7 @@
                     finalImageData = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
                 }
 
-                const prompt = `영어 교육 전문가로서 다음 지문을 분석해. 다른 설명 없이 오직 JSON 구조로만 응답해. { "background": "3줄", "subject": "한문장", "sentence_analysis": [{"eng": "원문", "kor": "해석"}], "keywords": ["단어(뜻)"] }`;
+                const prompt = `영어 교육 전문가로서 다음 지문을 분석해. 다른 설명 없이 오직 JSON 구조로만 응답해. { "background": "소재 관련 배경지식 3줄", "subject": "핵심 주제 한 문장", "sentence_analysis": [{"eng": "원문", "kor": "해석"}], "keywords": ["단어(뜻)", "단어(뜻)"] }`;
 
                 const payload = {
                     contents: [{
