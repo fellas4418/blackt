@@ -124,12 +124,17 @@
         형식: { "background": "배경지식 3줄", "subject": "주제 한 문장", "sentence_analysis": [{"eng": "원문", "kor": "해석"}], "keywords": ["단어(뜻)"] }`;
 
         const payload = {
-            contents: [{
-                parts: [
-                    { text: prompt },
-                    isTextMode ? { text: editedText } : { inline_data: { mime_type: "image/jpeg", data: finalImageData } }
-                ]
-            }],
+    contents: [{
+        parts: [
+            { text: prompt },
+            isTextMode ? { text: editedText } : { inline_data: { mime_type: "image/jpeg", data: finalImageData } }
+        ]
+    }],
+    generationConfig: { 
+        temperature: 0.1,
+        response_mime_type: "application/json" // 🚀 이 줄이 핵심입니다!
+    }
+};
             generationConfig: { 
                 temperature: 0.1, // 🚀 최대한 정석적으로 대답하게 설정
                 topP: 1,
