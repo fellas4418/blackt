@@ -102,6 +102,9 @@
             const runBtn = document.getElementById('run-btn');
             const activeBtn = isTextMode ? runBtn : ocrBtn;
 
+            if (!isTextMode && !selectedBase64) { alert("사진을 선택해 주세요!"); return; }
+            if (isTextMode && !editedText.trim()) { alert("지문을 입력해 주세요."); return; }
+
             activeBtn.disabled = true;
             activeBtn.innerText = "🧠 분석 중...";
 
@@ -121,6 +124,7 @@
 
                 const prompt = `영어 교육 전문가로서 다음 지문을 분석해. 다른 설명 없이 오직 JSON 구조로만 응답해. { "background": "소재 관련 배경지식 3줄", "subject": "핵심 주제 한 문장", "sentence_analysis": [{"eng": "원문", "kor": "해석"}], "keywords": ["단어(뜻)", "단어(뜻)"] }`;
 
+                // 🚀 데이터 포장 방식을 깔끔하게 정리
                 const payload = {
                     contents: [{
                         parts: [
@@ -130,21 +134,16 @@
                     }]
                 };
 
-                // [analysis.html 수정 부분]
-const response = await fetch(WORKER_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' }, // 👈 헤더를 명확하게 추가
-    body: JSON.stringify({
-        contents: [{
-            parts: [
-                { text: prompt },
-                isTextMode ? { text: editedText } : { inline_data: { mime_type: "image/jpeg", data: finalImageData } }
-            ]
-        }]
-    })
-});
+                const response = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
                 const data = await response.json();
+                
                 if (data.error) throw new Error(data.error.message);
+                if (!data.candidates || data.candidates.length === 0) throw new Error("AI 응답을 받지 못했습니다.");
                 
                 const responseText = data.candidates[0].content.parts[0].text;
                 const jsonMatch = responseText.match(/\{[\s\S]*\}/);
