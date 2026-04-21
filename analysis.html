@@ -102,6 +102,16 @@
             const runBtn = document.getElementById('run-btn');
             const activeBtn = isTextMode ? runBtn : ocrBtn;
 
+            // 🚀 핵심 추가 1: 데이터가 비어있으면 아예 전송을 막습니다.
+            if (isTextMode && editedText.trim() === "") {
+                alert("지문 텍스트를 입력해주세요!");
+                return;
+            }
+            if (!isTextMode && !selectedBase64) {
+                alert("사진을 먼저 선택하거나 촬영해주세요!");
+                return;
+            }
+
             activeBtn.disabled = true;
             activeBtn.innerText = "🧠 분석 중...";
 
@@ -121,7 +131,7 @@
 
                 const prompt = `영어 교육 전문가로서 다음 지문을 분석해. 반드시 JSON 형식으로만 응답하고, 앞뒤에 설명이나 마크다운 코드 블록을 절대 붙이지 마. 형식: { "background": "배경지식 3줄", "subject": "주제 한 문장", "sentence_analysis": [{"eng": "원문", "kor": "해석"}], "keywords": ["단어(뜻)"] }`;
 
-                // 🚀 이 부분이 정밀 수술 완료된 핵심 Payload입니다.
+                // 🚀 핵심 추가 2: 구글 서버가 요구하는 정확한 포맷
                 const payload = {
                     contents: [{
                         parts: [
@@ -136,7 +146,7 @@
                         response_mime_type: "application/json" 
                     }
                 };
-                alert("보낼 데이터 확인: " + JSON.stringify(payload).substring(0, 100));
+
                 const response = await fetch(WORKER_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -145,7 +155,10 @@
 
                 const data = await response.json();
                 
-                if (data.error) throw new Error(data.error.message || "분석 에러");
+                if (data.error) {
+                    // 구글 에러 혹은 워커 커스텀 에러 처리
+                    throw new Error(data.error.message || data.error);
+                }
 
                 let responseText = data.candidates[0].content.parts[0].text;
                 let jsonMatch = responseText.match(/\{[\s\S]*\}/);
@@ -174,7 +187,7 @@
                 console.error("Analysis Error:", error);
                 alert("에러: " + error.message);
                 activeBtn.disabled = false;
-                activeBtn.innerText = "다시 시도 🚀";
+                activeBtn.innerText = isTextMode ? "정밀 분석 실행 🚀" : "트리거 AI 정밀 분석 시작 🔍";
             }
         }
     </script>
