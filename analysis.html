@@ -69,7 +69,6 @@
 
         let selectedBase64 = "";
 
-        // 🚀 사진 선택/카메라 실행 함수
         function openPicker(type) {
             const input = document.getElementById('capture');
             if (type === 'camera') input.setAttribute('capture', 'environment');
@@ -77,7 +76,6 @@
             input.click();
         }
     
-        // 🚀 선택된 이미지를 화면에 표시하는 함수
         function loadImg(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
@@ -99,86 +97,86 @@
         }
     
         async function runGeminiAnalysis(isTextMode = false) {
-    const editedText = document.getElementById('ocr-edit-area').innerText;
-    const ocrBtn = document.getElementById('ocr-btn');
-    const runBtn = document.getElementById('run-btn');
-    const activeBtn = isTextMode ? runBtn : ocrBtn;
+            const editedText = document.getElementById('ocr-edit-area').innerText;
+            const ocrBtn = document.getElementById('ocr-btn');
+            const runBtn = document.getElementById('run-btn');
+            const activeBtn = isTextMode ? runBtn : ocrBtn;
 
-    activeBtn.disabled = true;
-    activeBtn.innerText = "🧠 분석 중...";
+            activeBtn.disabled = true;
+            activeBtn.innerText = "🧠 분석 중...";
 
-    try {
-        let finalImageData = selectedBase64;
-        if (!isTextMode) {
-            const img = document.getElementById('preview');
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            const maxWidth = 1024;
-            const scale = img.naturalWidth > maxWidth ? maxWidth / img.naturalWidth : 1;
-            canvas.width = img.naturalWidth * scale;
-            canvas.height = img.naturalHeight * scale;
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            finalImageData = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
-        }
+            try {
+                let finalImageData = selectedBase64;
+                if (!isTextMode) {
+                    const img = document.getElementById('preview');
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const maxWidth = 1024;
+                    const scale = img.naturalWidth > maxWidth ? maxWidth / img.naturalWidth : 1;
+                    canvas.width = img.naturalWidth * scale;
+                    canvas.height = img.naturalHeight * scale;
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    finalImageData = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
+                }
 
-        const prompt = `영어 교육 전문가로서 다음 지문을 분석해. 반드시 JSON 형식으로만 응답하고, 앞뒤에 설명이나 마크다운 코드 블록을 절대 붙이지 마.
-        형식: { "background": "배경지식 3줄", "subject": "주제 한 문장", "sentence_analysis": [{"eng": "원문", "kor": "해석"}], "keywords": ["단어(뜻)"] }`;
+                const prompt = `영어 교육 전문가로서 다음 지문을 분석해. 반드시 JSON 형식으로만 응답하고, 앞뒤에 설명이나 마크다운 코드 블록을 절대 붙이지 마. 형식: { "background": "배경지식 3줄", "subject": "주제 한 문장", "sentence_analysis": [{"eng": "원문", "kor": "해석"}], "keywords": ["단어(뜻)"] }`;
 
-        // 🚀 핵심: contents 상자를 정확하게 정의 (오타 수정 완료)
-        const payload = {
-            contents: [{
-                parts: [
-                    { text: prompt },
-                    isTextMode 
-                        ? { text: editedText } 
-                        : { inline_data: { mime_type: "image/jpeg", data: finalImageData } }
-                ]
-            }],
-            generationConfig: { 
-                temperature: 0.1,
-                response_mime_type: "application/json" 
+                // 🚀 여기가 오타가 싹 사라진 완벽한 Payload 구간입니다.
+                const payload = {
+                    contents: [{
+                        parts: [
+                            { text: prompt },
+                            isTextMode 
+                                ? { text: editedText } 
+                                : { inline_data: { mime_type: "image/jpeg", data: finalImageData } }
+                        ]
+                    }],
+                    generationConfig: { 
+                        temperature: 0.1,
+                        response_mime_type: "application/json" 
+                    }
+                };
+
+                const response = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                
+                if (data.error) throw new Error(data.error.message || "분석 에러");
+
+                let responseText = data.candidates[0].content.parts[0].text;
+                let jsonMatch = responseText.match(/\{[\s\S]*\}/);
+                if (!jsonMatch) throw new Error("분석 데이터를 파싱할 수 없습니다.");
+                
+                const res = JSON.parse(jsonMatch[0]);
+                
+                document.getElementById('input-section').style.display = 'none';
+                document.getElementById('edit-section').style.display = 'none';
+                document.getElementById('result-section').style.display = 'block';
+                
+                let transHtml = res.sentence_analysis.map(s => `
+                    <div class="translation-row">
+                        <div class="eng-text">${s.eng}</div>
+                        <div class="kor-text">${s.kor}</div>
+                    </div>
+                `).join('');
+
+                document.getElementById('ai-report-area').innerHTML = `
+                    <div class="result-card" style="border-left: 4px solid var(--neon-orange);"><span class="result-label" style="color:var(--neon-orange);">💡 지문 배경지식</span><div class="result-content">${res.background}</div></div>
+                    <div class="result-card"><span class="result-label">📍 핵심 주제</span><div class="result-content" style="color:var(--neon-blue); font-weight:bold;">${res.subject}</div></div>
+                    <div class="result-card"><span class="result-label">📝 주요 문장 해석</span><div class="result-content">${transHtml}</div></div>
+                    <div class="result-card"><span class="result-label">🔑 필수 키워드</span><div class="result-content">${res.keywords.join(', ')}</div></div>
+                `;
+            } catch (error) {
+                console.error("Analysis Error:", error);
+                alert("에러: " + error.message);
+                activeBtn.disabled = false;
+                activeBtn.innerText = "다시 시도 🚀";
             }
-        };
-
-        const response = await fetch(WORKER_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload) // 📦 이제 데이터가 꽉 찬 상자가 전송됩니다!
-        });
-
-        const data = await response.json();
-        
-        if (data.error) throw new Error(data.error.message);
-
-        let responseText = data.candidates[0].content.parts[0].text;
-        let jsonMatch = responseText.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) throw new Error("분석 데이터를 파싱할 수 없습니다.");
-        const res = JSON.parse(jsonMatch[0]);
-        
-        document.getElementById('input-section').style.display = 'none';
-        document.getElementById('edit-section').style.display = 'none';
-        document.getElementById('result-section').style.display = 'block';
-        
-        let transHtml = res.sentence_analysis.map(s => `
-            <div class="translation-row">
-                <div class="eng-text">${s.eng}</div>
-                <div class="kor-text">${s.kor}</div>
-            </div>
-        `).join('');
-
-        document.getElementById('ai-report-area').innerHTML = `
-            <div class="result-card" style="border-left: 4px solid var(--neon-orange);"><span class="result-label" style="color:var(--neon-orange);">💡 지문 배경지식</span><div class="result-content">${res.background}</div></div>
-            <div class="result-card"><span class="result-label">📍 핵심 주제</span><div class="result-content" style="color:var(--neon-blue); font-weight:bold;">${res.subject}</div></div>
-            <div class="result-card"><span class="result-label">📝 주요 문장 해석</span><div class="result-content">${transHtml}</div></div>
-            <div class="result-card"><span class="result-label">🔑 필수 키워드</span><div class="result-content">${res.keywords.join(', ')}</div></div>
-        `;
-    } catch (error) {
-        console.error("Analysis Error:", error);
-        alert("에러가 발생했습니다: " + error.message);
-        activeBtn.disabled = false;
-        activeBtn.innerText = "다시 시도 🚀";
-    }
-}
+        }
     </script>
 </body>
 </html>
