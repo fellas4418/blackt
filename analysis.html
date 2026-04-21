@@ -130,12 +130,19 @@
                     }]
                 };
 
-                const response = await fetch(WORKER_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
+                // [analysis.html 수정 부분]
+const response = await fetch(WORKER_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }, // 👈 헤더를 명확하게 추가
+    body: JSON.stringify({
+        contents: [{
+            parts: [
+                { text: prompt },
+                isTextMode ? { text: editedText } : { inline_data: { mime_type: "image/jpeg", data: finalImageData } }
+            ]
+        }]
+    })
+});
                 const data = await response.json();
                 if (data.error) throw new Error(data.error.message);
                 
