@@ -119,8 +119,9 @@
             finalImageData = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
         }
 
-        // 🔥 AI에게 주는 명령(Prompt)을 더 단순하고 강력하게 수정
-        const prompt = `영어 지문을 분석해서 오직 JSON 데이터만 출력해. 다른 설명은 일절 금지. 형식: { "background": "내용", "subject": "주제", "sentence_analysis": [{"eng": "원문", "kor": "해석"}], "keywords": ["단어(뜻)"] }`;
+        // 🚀 프롬프트에 "반드시 { 로 시작해서 } 로 끝나야 함"을 강조
+        const prompt = `영어 교육 전문가로서 다음 지문을 분석해. 반드시 JSON 형식으로만 응답하고, 앞뒤에 설명이나 마크다운 코드 블록을 절대 붙이지 마. 반드시 '{'로 시작해서 '}'로 끝나야 해.
+        형식: { "background": "배경지식 3줄", "subject": "주제 한 문장", "sentence_analysis": [{"eng": "원문", "kor": "해석"}], "keywords": ["단어(뜻)"] }`;
 
         const payload = {
             contents: [{
@@ -129,7 +130,11 @@
                     isTextMode ? { text: editedText } : { inline_data: { mime_type: "image/jpeg", data: finalImageData } }
                 ]
             }],
-            generationConfig: { response_mime_type: "application/json" } // 🚀 [필살기] AI가 무조건 JSON으로만 대답하게 강제함
+            generationConfig: { 
+                temperature: 0.1, // 🚀 최대한 정석적으로 대답하게 설정
+                topP: 1,
+                maxOutputTokens: 2048
+            }
         };
 
         const response = await fetch(WORKER_URL, {
@@ -140,23 +145,19 @@
 
         const data = await response.json();
         
-        // 구글 서버 에러 처리
         if (data.error) {
-            console.error("Google API Error:", data.error);
             throw new Error(`구글 서버 에러: ${data.error.message}`);
-        }
-
-        if (!data.candidates || !data.candidates[0].content) {
-            throw new Error("AI가 지문을 분석하지 못했습니다. 다시 시도해 주세요.");
         }
 
         let responseText = data.candidates[0].content.parts[0].text;
         
-        // 🚀 [보호막] 혹시라도 섞여 있을 마크다운 기호 제거
-        let cleanedJson = responseText.replace(/```json|```/g, "").trim();
-        const res = JSON.parse(cleanedJson);
+        // 🚀 [강력 추출] 텍스트 중간에 JSON이 섞여 있어도 { } 만 찾아냄
+        let jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error("분석 데이터를 찾을 수 없습니다.");
         
-        // UI 출력 부분
+        const res = JSON.parse(jsonMatch[0]);
+        
+        // UI 출력
         document.getElementById('input-section').style.display = 'none';
         document.getElementById('edit-section').style.display = 'none';
         document.getElementById('result-section').style.display = 'block';
@@ -175,8 +176,8 @@
             <div class="result-card"><span class="result-label">🔑 필수 키워드</span><div class="result-content">${res.keywords.join(', ')}</div></div>
         `;
     } catch (error) {
-        console.error("최종 분석 에러:", error);
-        alert(error.message); // 에러 내용을 팝업으로 띄워줍니다.
+        console.error("Analysis Error:", error);
+        alert(error.message);
         activeBtn.disabled = false;
         activeBtn.innerText = "다시 시도 🚀";
     }
