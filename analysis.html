@@ -136,7 +136,7 @@
                         response_mime_type: "application/json" 
                     }
                 };
-
+                alert("보낼 데이터 확인: " + JSON.stringify(payload).substring(0, 100));
                 const response = await fetch(WORKER_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
