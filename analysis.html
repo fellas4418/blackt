@@ -102,9 +102,6 @@
             const runBtn = document.getElementById('run-btn');
             const activeBtn = isTextMode ? runBtn : ocrBtn;
 
-            if (!isTextMode && !selectedBase64) { alert("사진을 선택해 주세요!"); return; }
-            if (isTextMode && !editedText.trim()) { alert("지문을 입력해 주세요."); return; }
-
             activeBtn.disabled = true;
             activeBtn.innerText = "🧠 분석 중...";
 
@@ -114,7 +111,7 @@
                     const img = document.getElementById('preview');
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
-                    const maxWidth = 1024;
+                    const maxWidth = 1024; // 용량 최적화 (너비 1024px 제한)
                     const scale = img.naturalWidth > maxWidth ? maxWidth / img.naturalWidth : 1;
                     canvas.width = img.naturalWidth * scale;
                     canvas.height = img.naturalHeight * scale;
@@ -122,9 +119,8 @@
                     finalImageData = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
                 }
 
-                const prompt = `영어 교육 전문가로서 다음 지문을 분석해. 다른 설명 없이 오직 JSON 구조로만 응답해. { "background": "소재 관련 배경지식 3줄", "subject": "핵심 주제 한 문장", "sentence_analysis": [{"eng": "원문", "kor": "해석"}], "keywords": ["단어(뜻)", "단어(뜻)"] }`;
+                const prompt = `영어 교육 전문가로서 다음 지문을 분석해. 다른 설명 없이 오직 JSON 구조로만 응답해. { "background": "배경지식 3줄", "subject": "주제 한 문장", "sentence_analysis": [{"eng": "원문", "kor": "해석"}], "keywords": ["단어(뜻)"] }`;
 
-                // 🚀 데이터 포장 방식을 깔끔하게 정리
                 const payload = {
                     contents: [{
                         parts: [
@@ -142,8 +138,11 @@
 
                 const data = await response.json();
                 
-                if (data.error) throw new Error(data.error.message);
-                if (!data.candidates || data.candidates.length === 0) throw new Error("AI 응답을 받지 못했습니다.");
+                // 🛡️ 방어 로직 강화
+                if (!data.candidates || data.candidates.length === 0) {
+                    console.error("API Error Response:", data);
+                    throw new Error("AI가 지문을 읽지 못했습니다. 사진을 더 선명하게 찍어주세요.");
+                }
                 
                 const responseText = data.candidates[0].content.parts[0].text;
                 const jsonMatch = responseText.match(/\{[\s\S]*\}/);
@@ -167,8 +166,8 @@
                     <div class="result-card"><span class="result-label">🔑 필수 키워드</span><div class="result-content">${res.keywords.join(', ')}</div></div>
                 `;
             } catch (error) {
-                console.error(error);
-                alert("분석 실패: 사진을 선명하게 찍어주시거나 다시 시도해 주세요.");
+                console.error("Analysis Error:", error);
+                alert("분석 실패: " + error.message);
                 activeBtn.disabled = false;
                 activeBtn.innerText = "다시 시도 🚀";
             }
