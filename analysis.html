@@ -116,7 +116,7 @@
                     canvas.width = img.naturalWidth * scale;
                     canvas.height = img.naturalHeight * scale;
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    finalImageData = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
+                    finalImageData = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
                 }
 
                 const prompt = `영어 교육 전문가로서 다음 지문을 분석해. 다른 설명 없이 오직 JSON 구조로만 응답해. { "background": "배경지식 3줄", "subject": "주제 한 문장", "sentence_analysis": [{"eng": "원문", "kor": "해석"}], "keywords": ["단어(뜻)"] }`;
