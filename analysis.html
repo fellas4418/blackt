@@ -102,7 +102,6 @@
             const runBtn = document.getElementById('run-btn');
             const activeBtn = isTextMode ? runBtn : ocrBtn;
 
-            // 🚀 핵심 추가 1: 데이터가 비어있으면 아예 전송을 막습니다.
             if (isTextMode && editedText.trim() === "") {
                 alert("지문 텍스트를 입력해주세요!");
                 return;
@@ -131,19 +130,19 @@
 
                 const prompt = `영어 교육 전문가로서 다음 지문을 분석해. 반드시 JSON 형식으로만 응답하고, 앞뒤에 설명이나 마크다운 코드 블록을 절대 붙이지 마. 형식: { "background": "배경지식 3줄", "subject": "주제 한 문장", "sentence_analysis": [{"eng": "원문", "kor": "해석"}], "keywords": ["단어(뜻)"] }`;
 
-                // 🚀 핵심 추가 2: 구글 서버가 요구하는 정확한 포맷
+                // 🚀 핵심 수정 구역: 구글 API 규격 (camelCase) 완벽 적용
                 const payload = {
                     contents: [{
                         parts: [
                             { text: prompt },
                             isTextMode 
                                 ? { text: editedText } 
-                                : { inline_data: { mime_type: "image/jpeg", data: finalImageData } }
+                                : { inlineData: { mimeType: "image/jpeg", data: finalImageData } }
                         ]
                     }],
                     generationConfig: { 
                         temperature: 0.1,
-                        response_mime_type: "application/json" 
+                        responseMimeType: "application/json" 
                     }
                 };
 
@@ -156,7 +155,6 @@
                 const data = await response.json();
                 
                 if (data.error) {
-                    // 구글 에러 혹은 워커 커스텀 에러 처리
                     throw new Error(data.error.message || data.error);
                 }
 
