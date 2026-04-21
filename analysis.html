@@ -125,16 +125,19 @@
                 const prompt = `영어 교육 전문가로서 다음 지문을 분석해. 반드시 JSON 형식으로만 응답하고, 앞뒤에 설명이나 마크다운 코드 블록을 절대 붙이지 마.
                 형식: { "background": "배경지식 3줄", "subject": "주제 한 문장", "sentence_analysis": [{"eng": "원문", "kor": "해석"}], "keywords": ["단어(뜻)"] }`;
 
+                // 📦 구글 서버가 요구하는 'contents' 상자 구조로 수정 완료
                 const payload = {
                     contents: [{
                         parts: [
                             { text: prompt },
-                            isTextMode ? { text: editedText } : { inline_data: { mime_type: "image/jpeg", data: finalImageData } }
+                            isTextMode 
+                                ? { text: editedText } 
+                                : { inline_data: { mime_type: "image/jpeg", data: finalImageData } }
                         ]
                     }],
                     generationConfig: { 
                         temperature: 0.1,
-                        response_mime_type: "application/json" // JSON 출력을 보장하는 핵심 설정
+                        response_mime_type: "application/json" 
                     }
                 };
 
@@ -153,7 +156,7 @@
                 // AI 응답 텍스트 추출
                 let responseText = data.candidates[0].content.parts[0].text;
                 
-                // JSON만 깔끔하게 추출 (혹시 모를 텍스트 혼입 방지)
+                // JSON만 깔끔하게 추출
                 let jsonMatch = responseText.match(/\{[\s\S]*\}/);
                 if (!jsonMatch) throw new Error("분석 데이터를 파싱할 수 없습니다.");
                 
