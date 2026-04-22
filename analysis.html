@@ -131,10 +131,10 @@
                                 : { inlineData: { mimeType: "image/jpeg", data: finalImageData } }
                         ]
                     }],
-                    generationConfig: { 
-                        temperature: 0.1,
-                        responseMimeType: "application/json" 
-                    }
+                    generation_config: { 
+    temperature: 0.1,
+    response_mime_type: "application/json" 
+}
                 };
 
                 const response = await fetch(WORKER_URL, {
