@@ -912,16 +912,16 @@
     Kakao.init('fbb1520306ffaad0a882e993109a801c'); 
 }
 
+// [2] shareTriggerApp 함수 (최종 안정화 버전)
 function shareTriggerApp() {
-    // 카카오 SDK 로드 확인
     const isKakaoAvailable = typeof Kakao !== 'undefined' && Kakao.isInitialized();
     const savedName = localStorage.getItem('trigger_name') || '트리거 학생';
     const lvl = localStorage.getItem('trigger_level') || 'middle';
     const currentDay = localStorage.getItem(`trigger_current_day_${lvl}`) || '1';
     const totalWords = document.getElementById('total-word-count')?.innerText || '0 단어';
     
-    // 현재 접속 중인 주소 자동 감지 (도메인 불일치 방지)
-    const currentUrl = window.location.origin + window.location.pathname;
+    // 🔥 중요: ?tab=analysis 같은 파라미터를 제외한 '순수 주소'만 추출하여 보안 에러 방지
+    const cleanUrl = window.location.origin + window.location.pathname;
 
     if (isKakaoAvailable) {
         try {
@@ -932,32 +932,32 @@ function shareTriggerApp() {
                     description: `누적 클리어: ${totalWords}\n현재 진도: Day ${currentDay}\n\n오늘도 목표를 달성했습니다! 칭찬 배지를 보내주세요.`,
                     imageUrl: 'https://blackt.pages.dev/icon-512.png',
                     link: {
-                        mobileWebUrl: currentUrl,
-                        webUrl: currentUrl,
+                        mobileWebUrl: cleanUrl,
+                        webUrl: cleanUrl,
                     },
                 },
                 buttons: [
                     {
                         title: '👍 칭찬 응원 배지 보내기',
                         link: {
-                            mobileWebUrl: currentUrl + '?praise=true',
-                            webUrl: currentUrl + '?praise=true',
+                            // 칭찬 링크는 메인 도메인 기준으로 발송
+                            mobileWebUrl: window.location.origin + '?praise=true',
+                            webUrl: window.location.origin + '?praise=true',
                         },
                     }
                 ],
             });
         } catch (e) {
             console.error("카톡 공유 실패:", e);
-            fallbackCopy();
+            fallbackCopy(cleanUrl);
         }
     } else {
-        fallbackCopy();
+        fallbackCopy(cleanUrl);
     }
 
-    // 공유 실패 시 클립보드 복사 실행 함수
-    function fallbackCopy() {
-        navigator.clipboard.writeText(currentUrl).then(() => { 
-            alert("✅ 현재 카카오톡 공유를 사용할 수 없어\n학습 링크가 복사되었습니다!\n\n카톡창에 붙여넣어 공유해 주세요."); 
+    function fallbackCopy(url) {
+        navigator.clipboard.writeText(url).then(() => { 
+            alert("✅ 현재 카카오톡 앱 연결이 원활하지 않아\n학습 링크가 복사되었습니다!\n\n카톡창에 붙여넣어 친구에게 공유해 주세요."); 
         });
     }
 }
