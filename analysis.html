@@ -102,15 +102,6 @@
             const runBtn = document.getElementById('run-btn');
             const activeBtn = isTextMode ? runBtn : ocrBtn;
 
-            if (isTextMode && editedText.trim() === "") {
-                alert("지문 텍스트를 입력해주세요!");
-                return;
-            }
-            if (!isTextMode && !selectedBase64) {
-                alert("사진을 먼저 선택하거나 촬영해주세요!");
-                return;
-            }
-
             activeBtn.disabled = true;
             activeBtn.innerText = "🧠 분석 중...";
 
@@ -128,20 +119,21 @@
                     finalImageData = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
                 }
 
-                const prompt = `영어 교육 전문가로서 다음 지문을 분석해. 반드시 JSON 형식으로만 응답하고, 앞뒤에 설명이나 마크다운 코드 블록을 절대 붙이지 마. 형식: { "background": "배경지식 3줄", "subject": "주제 한 문장", "sentence_analysis": [{"eng": "원문", "kor": "해석"}], "keywords": ["단어(뜻)"] }`;
+                const prompt = "영어 교육 전문가로서 다음 지문을 분석해. 반드시 JSON 형식으로만 응답하고, 앞뒤에 설명이나 마크다운 코드 블록을 절대 붙이지 마. 형식: { \"background\": \"배경지식 3줄\", \"subject\": \"주제 한 문장\", \"sentence_analysis\": [{\"eng\": \"원문\", \"kor\": \"해석\"}], \"keywords\": [\"단어(뜻)\"] }";
 
+                // 🚀 v1 주소에 최적화된 이름표 (밑줄 사용)
                 const payload = {
                     contents: [{
                         parts: [
                             { text: prompt },
                             isTextMode 
                                 ? { text: editedText } 
-                                : { inlineData: { mimeType: "image/jpeg", data: finalImageData } }
+                                : { inline_data: { mime_type: "image/jpeg", data: finalImageData } }
                         ]
                     }],
-                    generationConfig: { 
+                    generation_config: { 
                         temperature: 0.1,
-                        responseMimeType: "application/json"  // 🚀 v1beta용 이름표
+                        response_mime_type: "application/json" 
                     }
                 };
 
@@ -154,17 +146,15 @@
                 const data = await response.json();
                 
                 if (data.error) {
-                    throw new Error(data.error.message || data.error);
+                    throw new Error(data.error.message || JSON.stringify(data.error));
                 }
 
-                // 🚀 응답 데이터 추출 최적화
                 let responseText = data.candidates[0].content.parts[0].text;
                 let jsonMatch = responseText.match(/\{[\s\S]*\}/);
                 if (!jsonMatch) throw new Error("분석 데이터를 파싱할 수 없습니다.");
                 
                 const res = JSON.parse(jsonMatch[0]);
                 
-                // 성공 시 화면 전환 로직
                 document.getElementById('input-section').style.display = 'none';
                 document.getElementById('edit-section').style.display = 'none';
                 document.getElementById('result-section').style.display = 'block';
@@ -186,7 +176,7 @@
                 console.error("Analysis Error:", error);
                 alert("에러: " + error.message);
                 activeBtn.disabled = false;
-                activeBtn.innerText = isTextMode ? "정밀 분석 실행 🚀" : "트리거 AI 정밀 분석 시작 🔍";
+                activeBtn.innerText = "다시 시도 🚀";
             }
         }
     </script>
