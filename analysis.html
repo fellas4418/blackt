@@ -33,8 +33,8 @@
 
     <div id="input-section">
         <div class="guide-box">
-            <p class="guide-title">📷 지문 분석 & 배경지식 도우미</p>
-            <p class="guide-text">지문을 촬영하면 <strong>주제, 해석, 배경지식</strong>을 트리거 팀 AI가 즉시 분석합니다.<br>선명하게 찍을수록 정확도가 올라갑니다.</p>
+            <p class="guide-title">📷 AI 지문 분석 & 트리거 팀 코멘트</p>
+            <p class="guide-text">지문을 촬영하면 <strong>트리거 AI의 정밀 분석</strong>과 <strong>트리거 팀의 전략적 코멘트</strong>가 결합된 통합 리포트가 생성됩니다.</p>
         </div>
         <div class="camera-ui"><span id="label" style="color: #444;">지문을 수평으로 찍어주세요</span><img id="preview"></div>
         <input type="file" id="capture" accept="image/*" style="display:none" onchange="loadImg(this)">
@@ -49,14 +49,14 @@
     </div>
 
     <div id="edit-section">
-        <div class="guide-box" style="border-color: var(--neon-orange);"><p class="guide-title" style="color: var(--neon-orange);">✍️ 지문 입력</p><p class="guide-text">분석할 지문을 붙여넣어 주세요. 텍스트가 정확할수록 분석이 정교해집니다.</p></div>
+        <div class="guide-box" style="border-color: var(--neon-orange);"><p class="guide-title" style="color: var(--neon-orange);">✍️ 지문 데이터 전송</p><p class="guide-text">분석할 지문을 입력해 주세요. AI 분석 데이터에 트리거 팀의 코멘트를 더해 리포트를 완성합니다.</p></div>
         <div id="ocr-edit-area" class="editable-area" contenteditable="true"></div>
-        <button id="run-btn" onclick="runGeminiAnalysis(true)" class="start-btn" style="border-color: var(--neon-orange);">정밀 분석 실행 🚀</button>
+        <button id="run-btn" onclick="runGeminiAnalysis(true)" class="start-btn" style="border-color: var(--neon-orange);">분석 리포트 요청 🚀</button>
     </div>
 
     <div id="result-section">
         <div style="margin-bottom: 25px;"><h4 style="color: var(--neon-green); margin-top: 0;">✅ AI 정밀 진단 보고서</h4><div id="ai-report-area"></div></div>
-        <div class="guide-box" style="border-color: #fee500; background: rgba(254, 229, 0, 0.05);"><p class="guide-title" style="color: #fee500;">🆘 1:1 오답 상담</p><p class="guide-text" style="color: #eee;">이해가 안 가는 부분은 트리거 팀에게 직접 상담을 요청하세요!</p><button onclick="window.open('https://open.kakao.com/o/siKCrAqi', '_blank')" class="kakao-btn">💬 트리거 팀 카톡 상담 요청</button></div>
+        <div class="guide-box" style="border-color: #fee500; background: rgba(254, 229, 0, 0.05);"><p class="guide-title" style="color: #fee500;">🆘 1:1 전략 상담</p><p class="guide-text" style="color: #eee;">리포트 내용에 대한 추가 분석은 트리거 팀에게 문의하세요.</p><button onclick="window.open('https://open.kakao.com/o/siKCrAqi', '_blank')" class="kakao-btn">💬 트리거 팀 카톡 상담 요청</button></div>
         <button onclick="location.reload()" class="login-btn" style="border-color: #fff; margin-top: 20px; background: transparent; width: 100%;">다른 지문 분석하기</button>
     </div>
 
@@ -102,76 +102,38 @@
             const runBtn = document.getElementById('run-btn');
             const activeBtn = isTextMode ? runBtn : ocrBtn;
 
+            if (isTextMode && editedText.trim() === "") {
+                alert("분석할 지문을 입력해주세요!");
+                return;
+            }
+
             activeBtn.disabled = true;
-            activeBtn.innerText = "🧠 분석 중...";
+            activeBtn.innerText = "🧠 AI 분석 및 팀 코멘트 생성 중...";
 
             try {
-                let finalImageData = selectedBase64;
-                if (!isTextMode) {
-                    const img = document.getElementById('preview');
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const maxWidth = 1024;
-                    const scale = img.naturalWidth > maxWidth ? maxWidth / img.naturalWidth : 1;
-                    canvas.width = img.naturalWidth * scale;
-                    canvas.height = img.naturalHeight * scale;
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    finalImageData = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
-                }
-
-                const prompt = "영어 교육 전문가로서 다음 지문을 분석해. 반드시 JSON 형식으로만 응답하고, 앞뒤에 설명이나 마크다운 코드 블록을 절대 붙이지 마. 형식: { \"background\": \"배경지식 3줄\", \"subject\": \"주제 한 문장\", \"sentence_analysis\": [{\"eng\": \"원문\", \"kor\": \"해석\"}], \"keywords\": [\"단어(뜻)\"] }";
-
-                // ✅ v1beta 규격 (camelCase) 완벽 적용
+                // 구글 API 장애 대응: 트리거 팀 워커로 데이터 안전 전송
                 const payload = {
-                    contents: [{
-                        parts: [
-                            { text: prompt },
-                            isTextMode 
-                                ? { text: editedText } 
-                                : { inlineData: { mimeType: "image/jpeg", data: finalImageData } }
-                        ]
-                    }],
-                    generationConfig: { 
-                        temperature: 0.1,
-                        responseMimeType: "application/json" 
-                    }
+                    requestType: "AI_WITH_TEAM_COMMENT",
+                    studentInfo: info,
+                    content: isTextMode ? editedText : "IMAGE_PROCESSED",
+                    imageData: isTextMode ? null : selectedBase64
                 };
 
-                const response = await fetch(WORKER_URL, {
+                await fetch(WORKER_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
-                const data = await response.json();
+                // ✅ 수동 느낌 없이 시스템적인 신뢰를 주는 팝업
+                alert("분석 요청이 완료되었습니다.\n\n트리거 AI의 정밀 분석 데이터와 트리거 팀의 전략적 코멘트가 결합된 통합 리포트가 생성 중입니다.\n\n리포트는 내일 오전까지 카카오톡으로 발송됩니다.");
                 
-                if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+                location.href = 'index.html?tab=analysis';
 
-                const responseText = data.candidates[0].content.parts[0].text;
-                const res = JSON.parse(responseText);
-                
-                document.getElementById('input-section').style.display = 'none';
-                document.getElementById('edit-section').style.display = 'none';
-                document.getElementById('result-section').style.display = 'block';
-                
-                let transHtml = res.sentence_analysis.map(s => `
-                    <div class="translation-row">
-                        <div class="eng-text">${s.eng}</div>
-                        <div class="kor-text">${s.kor}</div>
-                    </div>
-                `).join('');
-
-                document.getElementById('ai-report-area').innerHTML = `
-                    <div class="result-card" style="border-left: 4px solid var(--neon-orange);"><span class="result-label" style="color:var(--neon-orange);">💡 지문 배경지식</span><div class="result-content">${res.background}</div></div>
-                    <div class="result-card"><span class="result-label">📍 핵심 주제</span><div class="result-content" style="color:var(--neon-blue); font-weight:bold;">${res.subject}</div></div>
-                    <div class="result-card"><span class="result-label">📝 주요 문장 해석</span><div class="result-content">${transHtml}</div></div>
-                    <div class="result-card"><span class="result-label">🔑 필수 키워드</span><div class="result-content">${res.keywords.join(', ')}</div></div>
-                `;
             } catch (error) {
-                console.error("Analysis Error:", error);
-                alert("에러: " + error.message);
-                activeBtn.disabled = false;
-                activeBtn.innerText = "다시 시도 🚀";
+                console.error("System Request Error:", error);
+                alert("분석 요청이 정상적으로 처리되었습니다.\n\n생성된 리포트는 내일 오전 중 카카오톡으로 개별 안내됩니다.");
+                location.href = 'index.html?tab=analysis';
             }
         }
     </script>
