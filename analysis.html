@@ -121,19 +121,19 @@
 
                 const prompt = "영어 교육 전문가로서 다음 지문을 분석해. 반드시 JSON 형식으로만 응답하고, 앞뒤에 설명이나 마크다운 코드 블록을 절대 붙이지 마. 형식: { \"background\": \"배경지식 3줄\", \"subject\": \"주제 한 문장\", \"sentence_analysis\": [{\"eng\": \"원문\", \"kor\": \"해석\"}], \"keywords\": [\"단어(뜻)\"] }";
 
-                // 🚀 v1 주소에 최적화된 이름표 (밑줄 사용)
+                // 🚀 v1beta 전용 이름표 (camelCase)
                 const payload = {
                     contents: [{
                         parts: [
                             { text: prompt },
                             isTextMode 
                                 ? { text: editedText } 
-                                : { inline_data: { mime_type: "image/jpeg", data: finalImageData } }
+                                : { inlineData: { mimeType: "image/jpeg", data: finalImageData } }
                         ]
                     }],
-                    generation_config: { 
+                    generationConfig: { 
                         temperature: 0.1,
-                        response_mime_type: "application/json" 
+                        responseMimeType: "application/json" 
                     }
                 };
 
@@ -145,9 +145,7 @@
 
                 const data = await response.json();
                 
-                if (data.error) {
-                    throw new Error(data.error.message || JSON.stringify(data.error));
-                }
+                if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
 
                 let responseText = data.candidates[0].content.parts[0].text;
                 let jsonMatch = responseText.match(/\{[\s\S]*\}/);
