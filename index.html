@@ -100,6 +100,15 @@
         
         /* 칭찬 팝업 애니메이션 */
         @keyframes bounceGlow { 0% { transform: translateY(0); text-shadow: 0 0 10px var(--neon-green); } 100% { transform: translateY(-15px); text-shadow: 0 0 25px var(--neon-green), 0 0 40px #fff; } }
+
+        /* 👇 [수정됨] 프린트 시 깨짐 현상 방지용 CSS 추가 👇 */
+        @media print {
+            body { background: #ffffff !important; color: #000000 !important; font-size: 12pt; margin: 0; padding: 0; }
+            .dashboard-bg, #nav-area, .bottom-nav, #splash-screen, .guide-box, button { display: none !important; }
+            #print-area { display: block !important; position: absolute; left: 0; top: 0; width: 100%; height: auto; margin: 0; padding: 20px; background: #fff; box-sizing: border-box; }
+            * { text-shadow: none !important; box-shadow: none !important; border-color: #000 !important; }
+            .page-break { page-break-before: always; }
+        }
     </style>
 </head>
 <body class="dashboard-bg">
@@ -732,23 +741,39 @@
             }
         }
 
+        // 👇 [수정됨] 프린트 레이아웃 최적화 👇
         function generatePDF() {
             const currentLevel = localStorage.getItem('trigger_level') || 'middle';
             const unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
             
-            let printHtml = `<h1 style="text-align:center;">사라져 Voca 누적 단어장 (${currentLevel === 'middle' ? '중등' : '고등'})</h1>`;
+            let printHtml = `<h1 style="text-align:center; font-size:24pt; margin-bottom: 20px;">사라져 Voca 누적 단어장 (${currentLevel === 'middle' ? '중등' : '고등'})</h1>`;
+            printHtml += `<div style="font-size:12pt; line-height: 1.8;">`; // 전체 감싸는 div
             
             for(let i=1; i < unlockedDay; i++) {
                 if (i % 7 === 6 || i % 7 === 0) continue; 
                 const dayWords = getWordsForDay(currentLevel, i);
+                
                 if(dayWords.length > 0) {
-                    printHtml += `<div class="print-day" style="font-size:1.2rem; font-weight:bold; margin-top:20px; border-bottom:2px solid #000;">Day ${i}</div>`;
+                    printHtml += `
+                        <div style="page-break-inside: avoid; margin-bottom: 20px;">
+                            <div style="font-size:16pt; font-weight:bold; margin-top:15px; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom: 10px;">Day ${i}</div>
+                            <ul style="list-style-type: none; padding-left: 0; margin: 0;">`;
+                    
                     dayWords.forEach(w => {
                         const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
-                        printHtml += `<div style="margin:5px 0;"><strong>${w.word}</strong> <span style="color:#666;">${w.ipa || ''}</span> ${safeMeanings}</div>`;
+                        printHtml += `
+                            <li style="margin-bottom: 8px; font-size: 13pt;">
+                                <strong style="display:inline-block; width:150px;">${w.word}</strong> 
+                                <span style="color:#555; display:inline-block; width:120px; font-size:11pt;">${w.ipa || ''}</span> 
+                                <span>${safeMeanings}</span>
+                            </li>`;
                     });
+                    
+                    printHtml += `</ul></div>`;
                 }
             }
+            
+            printHtml += `</div>`;
             
             const printArea = document.getElementById('print-area');
             if(printArea) {
@@ -909,60 +934,56 @@
         }
 
         if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
-    Kakao.init('fbb1520306ffaad0a882e993109a801c'); 
-}
-
-// [2] shareTriggerApp 함수 (최종 안정화 버전)
-function shareTriggerApp() {
-    const isKakaoAvailable = typeof Kakao !== 'undefined' && Kakao.isInitialized();
-    const savedName = localStorage.getItem('trigger_name') || '트리거 학생';
-    const lvl = localStorage.getItem('trigger_level') || 'middle';
-    const currentDay = localStorage.getItem(`trigger_current_day_${lvl}`) || '1';
-    const totalWords = document.getElementById('total-word-count')?.innerText || '0 단어';
-    
-    // 🔥 중요: ?tab=analysis 같은 파라미터를 제외한 '순수 주소'만 추출하여 보안 에러 방지
-    const cleanUrl = window.location.origin + window.location.pathname;
-
-    if (isKakaoAvailable) {
-        try {
-            Kakao.Share.sendDefault({
-                objectType: 'feed',
-                content: {
-                    title: `🔥 ${savedName}님의 오늘의 학습 리포트!`,
-                    description: `누적 클리어: ${totalWords}\n현재 진도: Day ${currentDay}\n\n오늘도 목표를 달성했습니다! 칭찬 배지를 보내주세요.`,
-                    imageUrl: 'https://blackt.pages.dev/icon-512.png',
-                    link: {
-                        mobileWebUrl: cleanUrl,
-                        webUrl: cleanUrl,
-                    },
-                },
-                buttons: [
-                    {
-                        title: '👍 칭찬 응원 배지 보내기',
-                        link: {
-                            // 칭찬 링크는 메인 도메인 기준으로 발송
-                            mobileWebUrl: window.location.origin + '?praise=true',
-                            webUrl: window.location.origin + '?praise=true',
-                        },
-                    }
-                ],
-            });
-        } catch (e) {
-            console.error("카톡 공유 실패:", e);
-            fallbackCopy(cleanUrl);
+            Kakao.init('fbb1520306ffaad0a882e993109a801c'); 
         }
-    } else {
-        fallbackCopy(cleanUrl);
-    }
 
-    function fallbackCopy(url) {
-        navigator.clipboard.writeText(url).then(() => { 
-            alert("✅ 현재 카카오톡 앱 연결이 원활하지 않아\n학습 링크가 복사되었습니다!\n\n카톡창에 붙여넣어 친구에게 공유해 주세요."); 
-        });
-    }
-}
+        function shareTriggerApp() {
+            const isKakaoAvailable = typeof Kakao !== 'undefined' && Kakao.isInitialized();
+            const savedName = localStorage.getItem('trigger_name') || '트리거 학생';
+            const lvl = localStorage.getItem('trigger_level') || 'middle';
+            const currentDay = localStorage.getItem(`trigger_current_day_${lvl}`) || '1';
+            const totalWords = document.getElementById('total-word-count')?.innerText || '0 단어';
+            
+            const cleanUrl = window.location.origin + window.location.pathname;
 
-        // 👇 [추가됨] 분석 서브메뉴 토글 함수 👇
+            if (isKakaoAvailable) {
+                try {
+                    Kakao.Share.sendDefault({
+                        objectType: 'feed',
+                        content: {
+                            title: `🔥 ${savedName}님의 오늘의 학습 리포트!`,
+                            description: `누적 클리어: ${totalWords}\n현재 진도: Day ${currentDay}\n\n오늘도 목표를 달성했습니다! 칭찬 배지를 보내주세요.`,
+                            imageUrl: 'https://blackt.pages.dev/icon-512.png',
+                            link: {
+                                mobileWebUrl: cleanUrl,
+                                webUrl: cleanUrl,
+                            },
+                        },
+                        buttons: [
+                            {
+                                title: '👍 칭찬 응원 배지 보내기',
+                                link: {
+                                    mobileWebUrl: window.location.origin + '?praise=true',
+                                    webUrl: window.location.origin + '?praise=true',
+                                },
+                            }
+                        ],
+                    });
+                } catch (e) {
+                    console.error("카톡 공유 실패:", e);
+                    fallbackCopy(cleanUrl);
+                }
+            } else {
+                fallbackCopy(cleanUrl);
+            }
+
+            function fallbackCopy(url) {
+                navigator.clipboard.writeText(url).then(() => { 
+                    alert("✅ 현재 카카오톡 앱 연결이 원활하지 않아\n학습 링크가 복사되었습니다!\n\n카톡창에 붙여넣어 친구에게 공유해 주세요."); 
+                });
+            }
+        }
+
         function toggleAnalysisSubMenu() {
             const type = document.getElementById('exam-type').value;
             document.getElementById('sub-menu-school').style.display = (type === '내신') ? 'block' : 'none';
@@ -970,7 +991,6 @@ function shareTriggerApp() {
             document.getElementById('sub-menu-book').style.display = (type === '교재') ? 'block' : 'none';
         }
 
-        // 👇 [수정됨] 상세 정보를 달아서 analysis.html로 넘기는 함수 👇
         function goToAnalysis() {
             const grade = document.getElementById('exam-grade').value;
             const type = document.getElementById('exam-type').value;
