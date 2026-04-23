@@ -34,7 +34,6 @@
         
         .login-title { font-size: 1.8rem; font-weight: bold; margin-bottom: 25px; color: #fff; text-shadow: var(--glow-text); }
 
-        /* 에너지 슬롯 스타일 추가 */
         .energy-container { display: flex; justify-content: center; gap: 8px; margin: 12px 0; width: 100%; }
         .energy-slot { flex: 1; height: 8px; background: #222; border: 1px solid #333; border-radius: 4px; transition: all 0.3s ease; }
         .energy-slot.active { background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); border-color: #fff; }
@@ -98,14 +97,14 @@
         .report-bar-bg { width: 100%; background: #222; height: 12px; border-radius: 6px; margin-top: 5px; overflow: hidden; }
         .report-bar-fill { height: 100%; background: var(--neon-green); width: 0%; border-radius: 6px; box-shadow: 0 0 5px var(--neon-green); transition: width 0.5s; }
         
-        /* 칭찬 팝업 애니메이션 */
         @keyframes bounceGlow { 0% { transform: translateY(0); text-shadow: 0 0 10px var(--neon-green); } 100% { transform: translateY(-15px); text-shadow: 0 0 25px var(--neon-green), 0 0 40px #fff; } }
 
-        /* 👇 [수정됨] 프린트 시 깨짐 현상 방지용 CSS 추가 👇 */
+        /* 👇 [수정됨] 프린트 시 백지 나오는 현상 해결 CSS 👇 */
         @media print {
             body { background: #ffffff !important; color: #000000 !important; font-size: 12pt; margin: 0; padding: 0; }
-            .dashboard-bg, #nav-area, .bottom-nav, #splash-screen, .guide-box, button { display: none !important; }
-            #print-area { display: block !important; position: absolute; left: 0; top: 0; width: 100%; height: auto; margin: 0; padding: 20px; background: #fff; box-sizing: border-box; }
+            /* body를 숨기는 대신, 인쇄 화면에 안 보여야 할 UI 컨테이너들만 정확히 가립니다 */
+            .dashboard-container, #nav-area, .bottom-nav, #splash-screen, .guide-box, button, .card, .stats-row, .info-row, hr { display: none !important; }
+            #print-area { display: block !important; position: absolute; left: 0; top: 0; width: 100%; height: auto; margin: 0; padding: 20px; background: #fff; color: #000; box-sizing: border-box; }
             * { text-shadow: none !important; box-shadow: none !important; border-color: #000 !important; }
             .page-break { page-break-before: always; }
         }
@@ -276,7 +275,7 @@
                     <ul class="routine-list" id="routine-list-container"></ul>
                 </div>
                 <div id="pdf-download-section" style="margin-top: 15px; text-align: center; border-top: 1px dashed #555; padding-top: 15px;">
-                    <p id="pdf-guide-text" style="color: #aaa; font-size: 0.9rem; margin-bottom: 10px; line-height: 1.5;">🔒 1주차 루틴(Day 7) 완료 시<br>이번 주 복습용 단어장(PDF)이 열립니다.</p>
+                    <p id="pdf-guide-text" style="color: #aaa; font-size: 0.9rem; margin-bottom: 10px; line-height: 1.5;">🔒 매 7일 루틴 완료 시<br>해당 주차 마스터 단어장(PDF) 보상이 열립니다.</p>
                     <button id="pdf-btn" disabled style="background: #333; color: #666; border: 1px solid #555; padding: 10px 20px; border-radius: 8px; cursor: not-allowed; font-weight: bold; width: 100%; margin-bottom: 10px;">다운로드 잠김</button>
     
                     <div id="final-gift-section" style="display: none; border-top: 1px solid #333; padding-top: 15px; margin-top: 5px;">
@@ -699,24 +698,36 @@
             }
             container.innerHTML = html;
 
+            // 👇 [수정됨] 7일 주기 보상 로직 👇
             const pdfBtn = document.getElementById('pdf-btn');
-            if (unlockedDay > 7) {
+            const pdfGuideText = document.getElementById('pdf-guide-text');
+            const completedWeeks = Math.floor((unlockedDay - 1) / 7);
+
+            if (completedWeeks >= 1) {
                 pdfBtn.disabled = false;
-                pdfBtn.innerText = "📥 누적 단어장 다운로드 (인쇄/PDF)";
-                pdfBtn.style.background = "transparent";
+                pdfBtn.innerText = `📥 ${completedWeeks}주차 누적 단어장 다운로드`;
+                pdfBtn.style.background = "rgba(57, 255, 20, 0.1)";
                 pdfBtn.style.color = "var(--neon-green)";
                 pdfBtn.style.borderColor = "var(--neon-green)";
                 pdfBtn.style.boxShadow = "var(--glow-green)";
                 pdfBtn.style.cursor = "pointer";
                 pdfBtn.onclick = generatePDF;
+                
+                if(pdfGuideText) {
+                    pdfGuideText.innerHTML = `<strong style="color:var(--neon-green);">축하합니다! ${completedWeeks}주차를 마스터했습니다.</strong><br>아래 버튼을 눌러 보상을 수령하세요!`;
+                }
             } else {
                 pdfBtn.disabled = true;
-                pdfBtn.innerText = "다운로드 잠김";
+                pdfBtn.innerText = "다운로드 잠김 (7일 완료 시 오픈)";
                 pdfBtn.style.background = "#333";
                 pdfBtn.style.color = "#666";
                 pdfBtn.style.borderColor = "#555";
                 pdfBtn.style.boxShadow = "none";
                 pdfBtn.onclick = null;
+                
+                if(pdfGuideText) {
+                    pdfGuideText.innerHTML = `🔒 매 7일 루틴 완료 시<br>해당 주차 마스터 단어장(PDF) 보상이 열립니다.`;
+                }
             }
         }
 
@@ -741,13 +752,27 @@
             }
         }
 
-        // 👇 [수정됨] 프린트 레이아웃 최적화 👇
+        // 👇 [수정됨] 프린트 레이아웃 최적화 & 보상 멘트 추가 👇
         function generatePDF() {
             const currentLevel = localStorage.getItem('trigger_level') || 'middle';
             const unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
+            const completedWeeks = Math.floor((unlockedDay - 1) / 7);
             
-            let printHtml = `<h1 style="text-align:center; font-size:24pt; margin-bottom: 20px;">사라져 Voca 누적 단어장 (${currentLevel === 'middle' ? '중등' : '고등'})</h1>`;
-            printHtml += `<div style="font-size:12pt; line-height: 1.8;">`; // 전체 감싸는 div
+            if(completedWeeks < 1) {
+                alert("아직 1주차를 완료하지 않았습니다.");
+                return;
+            }
+
+            alert(`🎊 ${completedWeeks}주차 마스터 보상!\n트리거 팀이 준비한 단어장 선물을 생성합니다.`);
+            
+            let printHtml = `
+                <div style="text-align:center; padding: 20px 0; border: 2px solid #000; margin-bottom: 30px;">
+                    <h1 style="font-size:28pt; margin: 0; color: #000;">사라져 Voca 마스터 단어장</h1>
+                    <p style="font-size:14pt; margin-top: 10px; color: #000;">${currentLevel === 'middle' ? '중등' : '고등'} 코스 - ${completedWeeks}주차 누적분</p>
+                    <p style="font-size:12pt; color: #666;">트리거 팀(Trigger Team)</p>
+                </div>`;
+            
+            printHtml += `<div style="font-size:12pt; line-height: 1.8; color: #000;">`; 
             
             for(let i=1; i < unlockedDay; i++) {
                 if (i % 7 === 6 || i % 7 === 0) continue; 
@@ -756,16 +781,16 @@
                 if(dayWords.length > 0) {
                     printHtml += `
                         <div style="page-break-inside: avoid; margin-bottom: 20px;">
-                            <div style="font-size:16pt; font-weight:bold; margin-top:15px; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom: 10px;">Day ${i}</div>
-                            <ul style="list-style-type: none; padding-left: 0; margin: 0;">`;
+                            <div style="font-size:16pt; font-weight:bold; margin-top:15px; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom: 10px; color:#000;">Day ${i}</div>
+                            <ul style="list-style-type: none; padding-left: 0; margin: 0; color:#000;">`;
                     
                     dayWords.forEach(w => {
                         const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
                         printHtml += `
-                            <li style="margin-bottom: 8px; font-size: 13pt;">
-                                <strong style="display:inline-block; width:150px;">${w.word}</strong> 
-                                <span style="color:#555; display:inline-block; width:120px; font-size:11pt;">${w.ipa || ''}</span> 
-                                <span>${safeMeanings}</span>
+                            <li style="margin-bottom: 8px; font-size: 13pt; display: flex; align-items: baseline;">
+                                <strong style="min-width:140px; display:inline-block; color:#000;">${w.word}</strong> 
+                                <span style="color:#444; min-width:110px; display:inline-block; font-size:11pt; font-style: italic;">${w.ipa || ''}</span> 
+                                <span style="flex: 1; color:#000;">${safeMeanings}</span>
                             </li>`;
                     });
                     
@@ -779,8 +804,12 @@
             if(printArea) {
                 printArea.innerHTML = printHtml;
                 printArea.style.display = 'block'; 
-                window.print(); 
-                printArea.style.display = 'none'; 
+                
+                // 브라우저가 화면을 그릴 시간을 주고 프린트 창을 띄웁니다.
+                setTimeout(() => {
+                    window.print(); 
+                    printArea.style.display = 'none'; 
+                }, 100);
             } else {
                 alert("인쇄 기능이 준비되지 않았습니다.");
             }
@@ -987,7 +1016,7 @@
         function toggleAnalysisSubMenu() {
             const type = document.getElementById('exam-type').value;
             document.getElementById('sub-menu-school').style.display = (type === '내신') ? 'block' : 'none';
-            document.getElementById('sub-menu-mock').style.display = (type === '모의고사') ? 'block' : 'none';
+            document.getElementById('sub-menu-mock').style.display = (type === '모고사') ? 'block' : 'none';
             document.getElementById('sub-menu-book').style.display = (type === '교재') ? 'block' : 'none';
         }
 
