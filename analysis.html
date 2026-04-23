@@ -43,7 +43,7 @@
             <button onclick="openPicker('gallery')" class="login-btn" style="flex: 1; border-color: var(--neon-blue); margin-top: 0;">사진 선택 🖼️</button>
         </div>
         <div id="ai-btn-area" style="display:none; margin-top: 15px;">
-            <button id="ocr-btn" onclick="runGeminiAnalysis()" class="start-btn" style="border-color: var(--neon-orange);">트리거 AI 정밀 분석 시작 🔍</button>
+            <button id="ocr-btn" onclick="runGeminiAnalysis()" class="start-btn" style="border-color: var(--neon-orange);">트리거 AI 정밀 분석 요청 🔍</button>
         </div>
         <div style="margin-top: 25px; text-align: center;"><button onclick="showDirectInput()" style="background: transparent; border: 1px solid #444; color: #888; padding: 8px 15px; border-radius: 8px; font-size: 0.8rem; cursor: pointer;">지문 직접 붙여넣기 ✍️</button></div>
     </div>
@@ -62,6 +62,8 @@
 
     <script>
         const WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev/'; 
+        // 팀장님 전용 오픈채팅방 주소
+        const KAKAO_OPEN_CHAT = 'https://open.kakao.com/o/siKCrAqi';
 
         const params = new URLSearchParams(window.location.search);
         const info = `${params.get('grade') || ''} ${params.get('type') || ''} ${params.get('detail') || ''}`;
@@ -125,15 +127,16 @@
                     body: JSON.stringify(payload)
                 });
 
-                // ✅ 수동 느낌 없이 시스템적인 신뢰를 주는 팝업
-                alert("분석 요청이 완료되었습니다.\n\n트리거 AI의 정밀 분석 데이터와 트리거 팀의 전략적 코멘트가 결합된 통합 리포트가 생성 중입니다.\n\n리포트는 내일 오전까지 카카오톡으로 발송됩니다.");
+                // ✅ 팝업 멘트 수정 및 오픈채팅 자동 연결 로직 추가
+                alert("분석 요청이 완료되었습니다!\n\n정밀 리포트 수령 및 팀 코멘트 확인을 위해 트리거 팀 오픈채팅방으로 연결됩니다.\n\n채팅방에 [성함/학교]를 남겨주세요!");
                 
-                location.href = 'index.html?tab=analysis';
+                // 확인 버튼 누르면 이동
+                window.location.href = KAKAO_OPEN_CHAT;
 
             } catch (error) {
                 console.error("System Request Error:", error);
-                alert("분석 요청이 정상적으로 처리되었습니다.\n\n생성된 리포트는 내일 오전 중 카카오톡으로 개별 안내됩니다.");
-                location.href = 'index.html?tab=analysis';
+                alert("분석 요청이 정상적으로 처리되었습니다.\n\n리포트 수령을 위해 트리거 팀 오픈채팅방으로 이동합니다.");
+                window.location.href = KAKAO_OPEN_CHAT;
             }
         }
     </script>
