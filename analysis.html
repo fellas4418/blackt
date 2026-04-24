@@ -116,69 +116,18 @@
                     const img = document.getElementById('preview');
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
-                    const maxWidth = 1024; // 이미지 사이즈 최적화
+                    
+                    // 용량 최적화 (800px)
+                    const maxWidth = 800; 
                     const scale = img.naturalWidth > maxWidth ? maxWidth / img.naturalWidth : 1;
                     canvas.width = img.naturalWidth * scale;
                     canvas.height = img.naturalHeight * scale;
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    finalImageData = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+                    finalImageData = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
                 }
 
-                const prompt = "영어 교육 전문가로서 다음 지문을 분석해. 반드시 JSON 형식으로만 응답하고, 앞뒤에 설명이나 마크다운 코드 블록을 절대 붙이지 마. 형식: { \"background\": \"배경지식 3줄\", \"subject\": \"주제 한 문장\", \"sentence_analysis\": [{\"eng\": \"원문\", \"kor\": \"해석\"}], \"keywords\": [\"단어(뜻)\"] }";
-
-                const payload = {
-                    contents: [{
-                        parts: [
-                            { text: prompt },
-                            isTextMode 
-                                ? { text: editedText } 
-                                : { inlineData: { mimeType: "image/jpeg", data: finalImageData } }
-                        ]
-                    }],
-                    generationConfig: { 
-                        temperature: 0.1,
-                        responseMimeType: "application/json" 
-                    }
-                };
-
-                const response = await fetch(WORKER_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await response.json();
-                if (data.error) throw new Error(data.error.message || "API Error");
-
-                const responseText = data.candidates[0].content.parts[0].text;
-                const res = JSON.parse(responseText);
-                
-                // 성공 시 화면 전환
-                document.getElementById('input-section').style.display = 'none';
-                document.getElementById('edit-section').style.display = 'none';
-                document.getElementById('result-section').style.display = 'block';
-                
-                let transHtml = res.sentence_analysis.map(s => `
-                    <div class="translation-row">
-                        <div class="eng-text">${s.eng}</div>
-                        <div class="kor-text">${s.kor}</div>
-                    </div>
-                `).join('');
-
-                document.getElementById('ai-report-area').innerHTML = `
-                    <div class="result-card" style="border-left: 4px solid var(--neon-orange);"><span class="result-label" style="color:var(--neon-orange);">💡 지문 배경지식</span><div class="result-content">${res.background}</div></div>
-                    <div class="result-card"><span class="result-label">📍 핵심 주제</span><div class="result-content" style="color:var(--neon-blue); font-weight:bold;">${res.subject}</div></div>
-                    <div class="result-card"><span class="result-label">📝 주요 문장 해석</span><div class="result-content">${transHtml}</div></div>
-                    <div class="result-card"><span class="result-label">🔑 필수 키워드</span><div class="result-content">${res.keywords.join(', ')}</div></div>
-                `;
-
-            } catch (error) {
-                console.error("Analysis Error:", error);
-                alert("일시적인 오류가 발생했습니다. 잠시 후 다시 시도하거나 지문을 직접 입력해주세요.");
-                activeBtn.disabled = false;
-                activeBtn.innerText = "다시 시도 🚀";
-            }
-        }
-    </script>
-</body>
-</html>
+                // 프롬프트 엄격 설정 (사족 방지)
+                const prompt = "영어 교육 전문가로서 다음 지문을 분석해. 반드시 순수한 JSON 형식으로만 응답하고, 
+http://googleusercontent.com/immersive_entry_chip/0
