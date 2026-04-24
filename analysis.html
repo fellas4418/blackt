@@ -110,7 +110,7 @@
             }
 
             activeBtn.disabled = true;
-            activeBtn.innerText = "🧠 트리거 AI 정밀 분석 중...";
+            activeBtn.innerText = "🧠 분석 중 (약 5~10초 소요)...";
 
             try {
                 let finalImageData = selectedBase64;
@@ -129,66 +129,6 @@
                     finalImageData = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
                 }
 
-                // 기존 Worker 호환을 위해 데이터 구조 복구
-                const payload = {
-                    requestType: "AI_WITH_TEAM_COMMENT",
-                    studentInfo: info,
-                    content: isTextMode ? editedText : "IMAGE_PROCESSED",
-                    imageData: isTextMode ? null : finalImageData
-                };
-
-                const response = await fetch(WORKER_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await response.json();
-                
-                // 결과창 노출
-                document.getElementById('input-section').style.display = 'none';
-                document.getElementById('edit-section').style.display = 'none';
-                document.getElementById('result-section').style.display = 'block';
-
-                // API 반환 형태에 따른 유연한 파싱
-                let res = data;
-                if (data.candidates && data.candidates[0].content.parts[0].text) {
-                    let cleanJsonStr = data.candidates[0].content.parts[0].text;
-                    const startIndex = cleanJsonStr.indexOf('{');
-                    const endIndex = cleanJsonStr.lastIndexOf('}');
-                    if (startIndex !== -1 && endIndex !== -1) {
-                        cleanJsonStr = cleanJsonStr.substring(startIndex, endIndex + 1);
-                    }
-                    res = JSON.parse(cleanJsonStr);
-                }
-
-                let transHtml = '';
-                if(res.sentence_analysis && Array.isArray(res.sentence_analysis)) {
-                    transHtml = res.sentence_analysis.map(s => `
-                        <div class="translation-row">
-                            <div class="eng-text">${s.eng}</div>
-                            <div class="kor-text">${s.kor}</div>
-                        </div>
-                    `).join('');
-                } else {
-                    transHtml = "<div class='kor-text'>주요 문장 해석을 준비 중입니다.</div>";
-                }
-
-                document.getElementById('ai-report-area').innerHTML = `
-                    <div class="result-card" style="border-left: 4px solid var(--neon-orange);"><span class="result-label" style="color:var(--neon-orange);">💡 지문 배경지식</span><div class="result-content">${res.background || '내용 확인 중'}</div></div>
-                    <div class="result-card"><span class="result-label">📍 핵심 주제</span><div class="result-content" style="color:var(--neon-blue); font-weight:bold;">${res.subject || '내용 확인 중'}</div></div>
-                    <div class="result-card"><span class="result-label">📝 주요 문장 해석</span><div class="result-content">${transHtml}</div></div>
-                    <div class="result-card"><span class="result-label">🔑 필수 키워드</span><div class="result-content">${(res.keywords || []).join(', ')}</div></div>
-                `;
-
-            } catch (error) {
-                console.error("Analysis Error:", error);
-                alert("현재 접속자가 많아 정밀 분석이 지연되고 있습니다.\n\n수동 분석을 위해 오픈채팅방으로 이동합니다!\n채팅방에 [이름/학교]를 남겨주세요.");
-                activeBtn.disabled = false;
-                activeBtn.innerText = "정밀 분석 실행 🚀";
-                window.location.href = KAKAO_OPEN_CHAT;
-            }
-        }
-    </script>
-</body>
-</html>
+                // 구글 API 구조에 100% 맞는 페이로드 작성
+                const prompt = "영어 교육 전문가로서 다음 지문을 분석해. 반드시 순수한 JSON 형식으로만 응답해. 마크다운(
+http://googleusercontent.com/immersive_entry_chip/0
