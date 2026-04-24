@@ -113,7 +113,10 @@
             activeBtn.innerText = "🧠 트리거 AI 정밀 분석 중...";
 
             try {
-                let finalImageData = selectedBase64;
+                let payload;
+                const prompt = "영어 교육 전문가로서 다음 지문을 분석해. 반드시 순수한 JSON 형식으로만 응답하고, 출력 키(key)를 background, subject, sentence_analysis, keywords 로 정확히 맞춰. 마크다운 태그는 생략해. 형식: { \"background\": \"배경지식 3줄\", \"subject\": \"주제 한 문장\", \"sentence_analysis\": [{\"eng\": \"원문\", \"kor\": \"해석\"}], \"keywords\": [\"단어(뜻)\"] }";
+
+                // 구글 API 공식 규격에 맞게 페이로드 조립
                 if (!isTextMode && selectedBase64) {
                     const img = document.getElementById('preview');
                     const canvas = document.createElement('canvas');
@@ -126,16 +129,28 @@
                     ctx.imageSmoothingEnabled = true;
                     ctx.imageSmoothingQuality = 'high';
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    finalImageData = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
-                }
+                    const finalImageData = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
 
-                // 기존 Worker 호환을 위해 데이터 구조 복구
-                const payload = {
-                    requestType: "AI_WITH_TEAM_COMMENT",
-                    studentInfo: info,
-                    content: isTextMode ? editedText : "IMAGE_PROCESSED",
-                    imageData: isTextMode ? null : finalImageData
-                };
+                    payload = {
+                        contents: [{
+                            parts: [
+                                { text: prompt },
+                                { inlineData: { mimeType: "image/jpeg", data: finalImageData } }
+                            ]
+                        }],
+                        generationConfig: { temperature: 0.1, responseMimeType: "application/json" }
+                    };
+                } else {
+                    payload = {
+                        contents: [{
+                            parts: [
+                                { text: prompt },
+                                { text: editedText }
+                            ]
+                        }],
+                        generationConfig: { temperature: 0.1, responseMimeType: "application/json" }
+                    };
+                }
 
                 const response = await fetch(WORKER_URL, {
                     method: 'POST',
@@ -185,7 +200,7 @@
                 console.error("Analysis Error:", error);
                 alert("현재 접속자가 많아 정밀 분석이 지연되고 있습니다.\n\n수동 분석을 위해 오픈채팅방으로 이동합니다!\n채팅방에 [이름/학교]를 남겨주세요.");
                 activeBtn.disabled = false;
-                activeBtn.innerText = "정밀 분석 실행 🚀";
+                activeBtn.innerText = isTextMode ? "정밀 분석 실행 🚀" : "트리거 AI 정밀 분석 시작 🔍";
                 window.location.href = KAKAO_OPEN_CHAT;
             }
         }
