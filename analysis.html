@@ -34,7 +34,7 @@
     <div id="input-section">
         <div class="guide-box">
             <p class="guide-title">📷 AI 지문 분석 & 트리거 팀 코멘트</p>
-            <p class="guide-text">지문을 촬영하면 <strong>트리거 AI의 정밀 분석</strong>과 <strong>트리거 팀의 전략적 코멘트</strong>가 결합된 통합 리포트가 즉시 생성됩니다.</p>
+            <p class="guide-text">지문을 촬영하면 <strong>트리거 AI의 실시간 정밀 분석</strong>이 시작됩니다. 선명하게 찍을수록 정확도가 올라갑니다.</p>
         </div>
         <div class="camera-ui"><span id="label" style="color: #444;">지문을 수평으로 찍어주세요</span><img id="preview"></div>
         <input type="file" id="capture" accept="image/*" style="display:none" onchange="loadImg(this)">
@@ -49,20 +49,19 @@
     </div>
 
     <div id="edit-section">
-        <div class="guide-box" style="border-color: var(--neon-orange);"><p class="guide-title" style="color: var(--neon-orange);">✍️ 지문 입력</p><p class="guide-text">분석할 지문을 붙여넣어 주세요. AI 분석 데이터에 트리거 팀의 코멘트를 더해 리포트를 완성합니다.</p></div>
+        <div class="guide-box" style="border-color: var(--neon-orange);"><p class="guide-title" style="color: var(--neon-orange);">✍️ 지문 직접 입력</p><p class="guide-text">분석할 지문을 입력해주세요. 텍스트가 정확할수록 분석이 정교해집니다.</p></div>
         <div id="ocr-edit-area" class="editable-area" contenteditable="true"></div>
         <button id="run-btn" onclick="runGeminiAnalysis(true)" class="start-btn" style="border-color: var(--neon-orange);">정밀 분석 실행 🚀</button>
     </div>
 
     <div id="result-section">
         <div style="margin-bottom: 25px;"><h4 style="color: var(--neon-green); margin-top: 0;">✅ AI 정밀 진단 보고서</h4><div id="ai-report-area"></div></div>
-        <div class="guide-box" style="border-color: #fee500; background: rgba(254, 229, 0, 0.05);"><p class="guide-title" style="color: #fee500;">🆘 1:1 전략 상담</p><p class="guide-text" style="color: #eee;">리포트 내용에 대한 추가 분석은 트리거 팀에게 직접 문의하세요!</p><button onclick="window.open('https://open.kakao.com/o/siKCrAqi', '_blank')" class="kakao-btn">💬 트리거 팀 카톡 상담 요청</button></div>
+        <div class="guide-box" style="border-color: #fee500; background: rgba(254, 229, 0, 0.05);"><p class="guide-title" style="color: #fee500;">🆘 추가 질문하기</p><p class="guide-text" style="color: #eee;">이해가 안 가는 부분은 트리거 팀에게 상담을 요청하세요!</p><button onclick="window.open('https://open.kakao.com/o/siKCrAqi', '_blank')" class="kakao-btn">💬 트리거 팀 1:1 상담</button></div>
         <button onclick="location.reload()" class="login-btn" style="border-color: #fff; margin-top: 20px; background: transparent; width: 100%;">다른 지문 분석하기</button>
     </div>
 
     <script>
         const WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev/'; 
-        const KAKAO_OPEN_CHAT = 'https://open.kakao.com/o/siKCrAqi';
 
         const params = new URLSearchParams(window.location.search);
         const info = `${params.get('grade') || ''} ${params.get('type') || ''} ${params.get('detail') || ''}`;
@@ -117,15 +116,15 @@
                     const img = document.getElementById('preview');
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
-                    const maxWidth = 800; // 용량 최적화
+                    const maxWidth = 1024; // 이미지 사이즈 최적화
                     const scale = img.naturalWidth > maxWidth ? maxWidth / img.naturalWidth : 1;
                     canvas.width = img.naturalWidth * scale;
                     canvas.height = img.naturalHeight * scale;
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    finalImageData = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
+                    finalImageData = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
                 }
 
-                const prompt = "영어 교육 전문가로서 다음 지문을 분석해. 반드시 JSON 형식으로만 응답하고, 마크다운 코드 블록 없이 순수 JSON만 보내. 형식: { \"background\": \"배경지식 3줄\", \"subject\": \"주제 한 문장\", \"sentence_analysis\": [{\"eng\": \"원문\", \"kor\": \"해석\"}], \"keywords\": [\"단어(뜻)\"] }";
+                const prompt = "영어 교육 전문가로서 다음 지문을 분석해. 반드시 JSON 형식으로만 응답하고, 앞뒤에 설명이나 마크다운 코드 블록을 절대 붙이지 마. 형식: { \"background\": \"배경지식 3줄\", \"subject\": \"주제 한 문장\", \"sentence_analysis\": [{\"eng\": \"원문\", \"kor\": \"해석\"}], \"keywords\": [\"단어(뜻)\"] }";
 
                 const payload = {
                     contents: [{
@@ -149,12 +148,12 @@
                 });
 
                 const data = await response.json();
-                if (data.error) throw new Error("API_ERROR");
+                if (data.error) throw new Error(data.error.message || "API Error");
 
                 const responseText = data.candidates[0].content.parts[0].text;
                 const res = JSON.parse(responseText);
                 
-                // 성공 시 UI 전환 및 결과 출력
+                // 성공 시 화면 전환
                 document.getElementById('input-section').style.display = 'none';
                 document.getElementById('edit-section').style.display = 'none';
                 document.getElementById('result-section').style.display = 'block';
@@ -175,21 +174,9 @@
 
             } catch (error) {
                 console.error("Analysis Error:", error);
-                // ⚠️ 실패 시 즉시 수동 모드로 전환하여 상담 연결
-                alert("현재 접속자가 많아 '트리거 팀 정밀 검수 모드'로 전환됩니다.\n\n오픈채팅방에 [이름/학교]를 남겨주시면 즉시 분석 리포트를 보내드립니다!");
-                
-                // 데이터 전송 시도 (백업)
-                fetch(WORKER_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        type: "MANUAL_FALLBACK",
-                        studentInfo: info,
-                        content: isTextMode ? editedText : "IMAGE_ATTACHED"
-                    })
-                });
-
-                window.location.href = KAKAO_OPEN_CHAT;
+                alert("일시적인 오류가 발생했습니다. 잠시 후 다시 시도하거나 지문을 직접 입력해주세요.");
+                activeBtn.disabled = false;
+                activeBtn.innerText = "다시 시도 🚀";
             }
         }
     </script>
