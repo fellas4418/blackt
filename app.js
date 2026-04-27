@@ -18,7 +18,7 @@ function showSystemMessage(text) {
 function initKakao() {
     try {
         if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
-            Kakao.init('여기에_카카오_자바스크립트_키_입력'); // ✨반드시 발급받은 JS 키로 교체하세요!✨
+            Kakao.init('fbb1520306ffaad0a882e993109a801c'); 
             console.log("카카오 SDK 초기화 완료");
         }
     } catch (e) { 
@@ -861,7 +861,7 @@ function retryOnlyWrongs() {
 // [수정 완료] 학습 종료 후 나타나는 카카오톡 공유 기능
 function shareKakao() {
     if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
-        Kakao.init('여기에_카카오_자바스크립트_키_입력'); // ✨반드시 발급받은 JS 키로 교체하세요!✨
+        Kakao.init('fbb1520306ffaad0a882e993109a801c'); 
     }
     
     const userName = localStorage.getItem('trigger_name') || '학습자';
@@ -880,28 +880,32 @@ function shareKakao() {
     }
 
     if (typeof Kakao !== 'undefined' && Kakao.isInitialized()) {
-        Kakao.Share.sendDefault({
-            objectType: 'feed',
-            content: { 
-                title: `🔥 [${userName}]님, 단어 학습 완료!`, 
-                description: `누적 클리어: ${learnedTotal} 단어\n오늘의 진도: Day ${displayDay}\n\n오늘도 목표를 달성했습니다! 칭찬 배지를 보내주세요.`, 
-                imageUrl: 'https://blackt.pages.dev/share-v2.png', 
-                link: { mobileWebUrl: shareUrl, webUrl: shareUrl } 
-            },
-            buttons: [
-                {
-                    title: '결과 자세히 보기',
-                    link: { mobileWebUrl: shareUrl, webUrl: shareUrl }
+        try {
+            Kakao.Share.sendDefault({
+                objectType: 'feed',
+                content: { 
+                    title: `🔥 [${userName}]님, 단어 학습 완료!`, 
+                    description: `누적 클리어: ${learnedTotal} 단어\n오늘의 진도: Day ${displayDay}\n\n오늘도 목표를 달성했습니다! 칭찬 배지를 보내주세요.`, 
+                    imageUrl: 'https://blackt.pages.dev/share-v2.png', 
+                    link: { mobileWebUrl: shareUrl, webUrl: shareUrl } 
                 },
-                {
-                    title: '👍 칭찬 응원 배지 보내기',
-                    link: { 
-                        mobileWebUrl: shareUrl + '?praise=true', 
-                        webUrl: shareUrl + '?praise=true'
+                buttons: [
+                    {
+                        title: '결과 자세히 보기',
+                        link: { mobileWebUrl: shareUrl, webUrl: shareUrl }
+                    },
+                    {
+                        title: '👍 칭찬 응원 배지 보내기',
+                        link: { 
+                            mobileWebUrl: shareUrl + '?praise=true', 
+                            webUrl: shareUrl + '?praise=true'
+                        }
                     }
-                }
-            ]
-        });
+                ]
+            });
+        } catch(e) {
+            navigator.clipboard.writeText(shareUrl).then(() => { alert("카카오톡 연결 에러로 링크가 복사되었습니다!"); });
+        }
     } else {
         // 카카오 설정 전 예외 처리 (기존 링크 복사)
         navigator.clipboard.writeText(shareUrl).then(() => { alert("✅ 링크가 복사되었습니다!"); });
