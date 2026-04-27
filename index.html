@@ -961,21 +961,18 @@
             document.getElementById('report-modal').style.display = 'flex';
         }
 
-        // ✅ [수정됨 2] 안정적인 카카오 공유 로직
-      // 🚀 카카오톡 공유 최종 보정 (에러 원인 출력 및 도메인 고정)
-      function shareTriggerApp() {
+        // 🚀 카카오톡 강제 로드 및 공유 실행
+        function shareTriggerApp() {
             const savedName = localStorage.getItem('trigger_name') || '트리거 학생';
             const lvl = localStorage.getItem('trigger_level') || 'middle';
             let currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
             if(currentDay > 70) currentDay = 70;
             
-            // 공유 URL이 카카오 디벨로퍼스에 등록된 웹 플랫폼 도메인과 정확히 일치해야 에러가 나지 않습니다.
             const shareUrl = "https://blackt.pages.dev"; 
 
-            try {
-                if (typeof Kakao !== 'undefined') {
+            const executeShare = () => {
+                try {
                     if (!Kakao.isInitialized()) Kakao.init('fbb1520306ffaad0a882e993109a801c');
-                    
                     Kakao.Share.sendDefault({
                         objectType: 'feed',
                         content: {
@@ -989,14 +986,27 @@
                             link: { mobileWebUrl: shareUrl + '?praise=true', webUrl: shareUrl + '?praise=true' } 
                         }],
                     });
-                } else {
-                    throw new Error("카카오 SDK 로드 실패");
+                } catch(e) {
+                    fallback();
                 }
-            } catch (e) { 
-                alert("🚨 카카오 공유 에러: " + e.message + "\n(현재 테스트 중인 로컬 주소나 등록되지 않은 도메인일 경우 발생합니다.)");
+            };
+
+            const fallback = () => {
+                alert("✅ 카카오톡 연결이 지연되어 학습 링크가 복사되었습니다!\n카톡에 붙여넣어 공유해 주세요.");
                 const dummy = document.createElement('input');
                 document.body.appendChild(dummy); dummy.value = shareUrl; dummy.select();
                 document.execCommand('copy'); document.body.removeChild(dummy);
+            };
+
+            // 카카오 SDK가 없으면 브라우저에 강제로 주입한 뒤 실행
+            if (typeof Kakao === 'undefined') {
+                const script = document.createElement('script');
+                script.src = 'https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js';
+                script.onload = executeShare;
+                script.onerror = fallback;
+                document.head.appendChild(script);
+            } else {
+                executeShare();
             }
         }
 
