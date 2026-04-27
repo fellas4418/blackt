@@ -962,58 +962,41 @@
         }
 
         // ✅ [수정됨 2] 안정적인 카카오 공유 로직
-        function shareTriggerApp() {
+      // 🚀 카카오톡 공유 최종 보정 (에러 원인 출력 및 도메인 고정)
+      function shareTriggerApp() {
             const savedName = localStorage.getItem('trigger_name') || '트리거 학생';
             const lvl = localStorage.getItem('trigger_level') || 'middle';
             let currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
             if(currentDay > 70) currentDay = 70;
-            const totalWordsElement = document.getElementById('total-word-count');
-            const totalWords = totalWordsElement ? totalWordsElement.innerText : '0 단어';
-
-            const cleanUrl = window.location.origin + window.location.pathname;
-
-            function fallbackCopy(url) {
-                const dummy = document.createElement('input');
-                document.body.appendChild(dummy);
-                dummy.value = url;
-                dummy.select();
-                document.execCommand('copy');
-                document.body.removeChild(dummy);
-                alert("✅ 카카오톡 연결이 원활하지 않아 학습 링크가 복사되었습니다!\n카톡창에 붙여넣어 공유해 주세요.");
-            }
+            
+            // 공유 URL이 카카오 디벨로퍼스에 등록된 웹 플랫폼 도메인과 정확히 일치해야 에러가 나지 않습니다.
+            const shareUrl = "https://blackt.pages.dev"; 
 
             try {
                 if (typeof Kakao !== 'undefined') {
-                    if (!Kakao.isInitialized()) {
-                        Kakao.init('fbb1520306ffaad0a882e993109a801c');
-                    }
+                    if (!Kakao.isInitialized()) Kakao.init('fbb1520306ffaad0a882e993109a801c');
+                    
                     Kakao.Share.sendDefault({
                         objectType: 'feed',
                         content: {
-                            title: `🔥 ${savedName}님의 오늘의 학습 리포트!`,
-                            description: `누적 클리어: ${totalWords}\n현재 진도: Day ${currentDay}\n\n오늘도 목표를 달성했습니다! 칭찬 배지를 보내주세요.`,
+                            title: `🔥 ${savedName}님의 학습 리포트!`,
+                            description: `현재 ${currentDay}일차 학습 진행 중! 오늘도 트리거로 1등급에 한 발짝 더.`,
                             imageUrl: 'https://blackt.pages.dev/icon-512.png',
-                            link: {
-                                mobileWebUrl: cleanUrl,
-                                webUrl: cleanUrl,
-                            },
+                            link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
                         },
-                        buttons: [
-                            {
-                                title: '👍 칭찬 응원 배지 보내기',
-                                link: {
-                                    mobileWebUrl: cleanUrl + '?praise=true',
-                                    webUrl: cleanUrl + '?praise=true',
-                                },
-                            }
-                        ],
+                        buttons: [{ 
+                            title: '👍 칭찬 배지 보내기', 
+                            link: { mobileWebUrl: shareUrl + '?praise=true', webUrl: shareUrl + '?praise=true' } 
+                        }],
                     });
                 } else {
-                    fallbackCopy(cleanUrl);
+                    throw new Error("카카오 SDK 로드 실패");
                 }
-            } catch (e) {
-                console.error("카톡 공유 에러:", e);
-                fallbackCopy(cleanUrl);
+            } catch (e) { 
+                alert("🚨 카카오 공유 에러: " + e.message + "\n(현재 테스트 중인 로컬 주소나 등록되지 않은 도메인일 경우 발생합니다.)");
+                const dummy = document.createElement('input');
+                document.body.appendChild(dummy); dummy.value = shareUrl; dummy.select();
+                document.execCommand('copy'); document.body.removeChild(dummy);
             }
         }
 
