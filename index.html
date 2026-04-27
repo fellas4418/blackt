@@ -961,14 +961,9 @@
             document.getElementById('report-modal').style.display = 'flex';
         }
 
-        // 🚀 카카오톡 강제 로드 및 공유 실행
+        // 🚀 카카오톡 메인 화면 공유 (앱 링크용)
         function shareTriggerApp() {
-            const savedName = localStorage.getItem('trigger_name') || '트리거 학생';
-            const lvl = localStorage.getItem('trigger_level') || 'middle';
-            let currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
-            if(currentDay > 70) currentDay = 70;
-            
-            const shareUrl = "https://blackt.pages.dev"; 
+            const shareUrl = "https://blackt.pages.dev/"; 
 
             const executeShare = () => {
                 try {
@@ -976,14 +971,14 @@
                     Kakao.Share.sendDefault({
                         objectType: 'feed',
                         content: {
-                            title: `🔥 ${savedName}님의 학습 리포트!`,
-                            description: `현재 ${currentDay}일차 학습 진행 중! 오늘도 트리거로 1등급에 한 발짝 더.`,
+                            title: `🧠 사라져 Voca - Trigger English`,
+                            description: `뇌과학 기반 10주 영어 단어 마스터 프로그램! 지금 바로 시작하세요.`,
                             imageUrl: 'https://blackt.pages.dev/icon-512.png',
                             link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
                         },
                         buttons: [{ 
-                            title: '👍 칭찬 배지 보내기', 
-                            link: { mobileWebUrl: shareUrl + '?praise=true', webUrl: shareUrl + '?praise=true' } 
+                            title: '앱 시작하기 🚀', 
+                            link: { mobileWebUrl: shareUrl, webUrl: shareUrl } 
                         }],
                     });
                 } catch(e) {
@@ -992,7 +987,7 @@
             };
 
             const fallback = () => {
-                alert("✅ 카카오톡 연결이 지연되어 학습 링크가 복사되었습니다!\n카톡에 붙여넣어 공유해 주세요.");
+                alert("✅ 앱 링크가 복사되었습니다!\n카톡에 붙여넣어 친구에게 공유해 주세요.");
                 const dummy = document.createElement('input');
                 document.body.appendChild(dummy); dummy.value = shareUrl; dummy.select();
                 document.execCommand('copy'); document.body.removeChild(dummy);
