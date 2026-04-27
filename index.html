@@ -466,7 +466,6 @@
                 else if (tabId === 'grammar') { headerTitle.innerHTML = 'Trigger<br>3시간 영문법'; }
             }
             window.scrollTo(0,0); 
-            // 분석 탭 스위치 시 기본 서브메뉴(내신) 보장
             if(tabId === 'analysis' && typeof toggleAnalysisSubMenu === 'function') toggleAnalysisSubMenu(); 
         }
 
@@ -584,6 +583,10 @@
             const session = parseInt(localStorage.getItem(`trigger_session_${lvl}`)) || 1;
             const unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${lvl}`)) || 1;
 
+            // ✅ [수정됨 1] 70일 완료 시 Day 71 방지
+            const displayDay = day > 70 ? 70 : day;
+            document.getElementById('stat-current-day').innerText = `Day ${displayDay}`;
+
             const welcomeMsg = document.getElementById('welcome-msg');
             if (name && welcomeMsg) {
                 welcomeMsg.innerText = session > 6 ? `환영합니다, ${name}님! (오늘 목표 완료!)` : `환영합니다, ${name}님!`;
@@ -597,9 +600,9 @@
                 }
                 document.getElementById('total-word-count').innerText = `${learnedTotal} 단어`;
 
-                var todayWordsData = getWordsForDay(lvl, day);
+                var todayWordsData = getWordsForDay(lvl, displayDay); // ✅ displayDay 사용
                 var actualCount = (todayWordsData && todayWordsData.length) ? todayWordsData.length : 0;
-                var isReviewDay = (day % 7 === 6 || day % 7 === 0);
+                var isReviewDay = (displayDay % 7 === 6 || displayDay % 7 === 0);
                 var displayCount = isReviewDay ? Math.ceil(actualCount / 2) : actualCount;
                 
                 document.getElementById('target-count-display').innerText = displayCount + "개";
@@ -612,7 +615,6 @@
             const endTime = parseInt(localStorage.getItem('blackt_cooldown')) || 0; 
             const startBtn = document.getElementById('start-btn-main');
             
-            document.getElementById('stat-current-day').innerText = `Day ${day}`;
             document.getElementById('stat-session').innerText = session > 6 ? 'Clear 리스트' : `${session} / 6`;
 
             if (window.cooldownInterval) clearInterval(window.cooldownInterval);
@@ -698,7 +700,6 @@
             }
             container.innerHTML = html;
 
-            // 👇 [수정됨] 7일 주기 보상 로직 👇
             const pdfBtn = document.getElementById('pdf-btn');
             const pdfGuideText = document.getElementById('pdf-guide-text');
             const completedWeeks = Math.floor((unlockedDay - 1) / 7);
@@ -752,7 +753,6 @@
             }
         }
 
-        // 👇 [수정됨] 프린트 레이아웃 최적화 & 보상 멘트 추가 👇
         function generatePDF() {
             const currentLevel = localStorage.getItem('trigger_level') || 'middle';
             const unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
@@ -805,7 +805,6 @@
                 printArea.innerHTML = printHtml;
                 printArea.style.display = 'block'; 
                 
-                // 브라우저가 화면을 그릴 시간을 주고 프린트 창을 띄웁니다.
                 setTimeout(() => {
                     window.print(); 
                     printArea.style.display = 'none'; 
@@ -962,21 +961,32 @@
             document.getElementById('report-modal').style.display = 'flex';
         }
 
-        if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
-            Kakao.init('fbb1520306ffaad0a882e993109a801c'); 
-        }
-
+        // ✅ [수정됨 2] 안정적인 카카오 공유 로직
         function shareTriggerApp() {
-            const isKakaoAvailable = typeof Kakao !== 'undefined' && Kakao.isInitialized();
             const savedName = localStorage.getItem('trigger_name') || '트리거 학생';
             const lvl = localStorage.getItem('trigger_level') || 'middle';
-            const currentDay = localStorage.getItem(`trigger_current_day_${lvl}`) || '1';
-            const totalWords = document.getElementById('total-word-count')?.innerText || '0 단어';
-            
+            let currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
+            if(currentDay > 70) currentDay = 70;
+            const totalWordsElement = document.getElementById('total-word-count');
+            const totalWords = totalWordsElement ? totalWordsElement.innerText : '0 단어';
+
             const cleanUrl = window.location.origin + window.location.pathname;
 
-            if (isKakaoAvailable) {
-                try {
+            function fallbackCopy(url) {
+                const dummy = document.createElement('input');
+                document.body.appendChild(dummy);
+                dummy.value = url;
+                dummy.select();
+                document.execCommand('copy');
+                document.body.removeChild(dummy);
+                alert("✅ 카카오톡 연결이 원활하지 않아 학습 링크가 복사되었습니다!\n카톡창에 붙여넣어 공유해 주세요.");
+            }
+
+            try {
+                if (typeof Kakao !== 'undefined') {
+                    if (!Kakao.isInitialized()) {
+                        Kakao.init('fbb1520306ffaad0a882e993109a801c');
+                    }
                     Kakao.Share.sendDefault({
                         objectType: 'feed',
                         content: {
@@ -992,31 +1002,25 @@
                             {
                                 title: '👍 칭찬 응원 배지 보내기',
                                 link: {
-                                    mobileWebUrl: window.location.origin + '?praise=true',
-                                    webUrl: window.location.origin + '?praise=true',
+                                    mobileWebUrl: cleanUrl + '?praise=true',
+                                    webUrl: cleanUrl + '?praise=true',
                                 },
                             }
                         ],
                     });
-                } catch (e) {
-                    console.error("카톡 공유 실패:", e);
+                } else {
                     fallbackCopy(cleanUrl);
                 }
-            } else {
+            } catch (e) {
+                console.error("카톡 공유 에러:", e);
                 fallbackCopy(cleanUrl);
-            }
-
-            function fallbackCopy(url) {
-                navigator.clipboard.writeText(url).then(() => { 
-                    alert("✅ 현재 카카오톡 앱 연결이 원활하지 않아\n학습 링크가 복사되었습니다!\n\n카톡창에 붙여넣어 친구에게 공유해 주세요."); 
-                });
             }
         }
 
         function toggleAnalysisSubMenu() {
             const type = document.getElementById('exam-type').value;
             document.getElementById('sub-menu-school').style.display = (type === '내신') ? 'block' : 'none';
-            document.getElementById('sub-menu-mock').style.display = (type === '모고사') ? 'block' : 'none';
+            document.getElementById('sub-menu-mock').style.display = (type === '모의고사') ? 'block' : 'none';
             document.getElementById('sub-menu-book').style.display = (type === '교재') ? 'block' : 'none';
         }
 
