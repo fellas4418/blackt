@@ -147,7 +147,6 @@
             document.getElementById('ocr-edit-area').focus();
         }
 
-        // --- 에러를 유발했던 Voca DB 검색 함수 (완벽 수정) ---
         function findVocaLevel(engWord) {
             if (typeof wordsData === 'undefined') return 'other';
             const cleanWord = String(engWord).toLowerCase().trim();
@@ -179,7 +178,6 @@
             return 'other';
         }
 
-        // --- 토글 저장 기능 (문법) ---
         function toggleGrammarSave(point, sentence, explanation, btnElement) {
             let savedList = JSON.parse(localStorage.getItem('trigger_saved_grammar') || '[]');
             const idx = savedList.findIndex(item => item.sentence === sentence);
@@ -200,7 +198,6 @@
             }
         }
 
-        // --- 토글 저장 기능 (개별 단어) ---
         function toggleVocaSave(eng, kor, level, btnElement) {
             let savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
             const idx = savedList.findIndex(item => item.eng === eng);
@@ -223,22 +220,17 @@
             checkAllSavedStatus();
         }
 
-       // --- 전체 단어 저장/해제 토글 기능 ---
        function saveAllKeywords() {
             let savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
-            
-            // 현재 지문의 모든 단어가 이미 저장되어 있는지 확인
             const isAllSaved = aiKeywordsObj.every(kw => savedList.some(item => item.eng === kw.eng));
 
             if (isAllSaved) {
-                // 이미 모두 저장되어 있다면 -> 전체 해제(삭제) 진행
                 aiKeywordsObj.forEach(kw => {
                     const idx = savedList.findIndex(item => item.eng === kw.eng);
                     if (idx > -1) savedList.splice(idx, 1);
                 });
                 localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
                 
-                // 개별 버튼 UI 상태 복구
                 document.querySelectorAll('.kw-save-btn').forEach(btn => {
                     if(btn.id !== 'save-all-btn') {
                         btn.innerText = "저장";
@@ -246,7 +238,6 @@
                     }
                 });
             } else {
-                // 하나라도 저장이 안 되어 있다면 -> 전체 저장 진행
                 aiKeywordsObj.forEach(kw => {
                     const isExist = savedList.some(item => item.eng === kw.eng);
                     if(!isExist) {
@@ -255,7 +246,6 @@
                 });
                 localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
                 
-                // 개별 버튼 UI 상태 변경
                 document.querySelectorAll('.kw-save-btn').forEach(btn => {
                     if(btn.id !== 'save-all-btn') {
                         btn.innerText = "✅";
@@ -278,7 +268,7 @@
                 allBtn.style.background = "var(--neon-green)";
                 allBtn.style.color = "#000";
                 allBtn.style.borderColor = "var(--neon-green)";
-                allBtn.disabled = false; // 🔥 비활성화를 풀어서 다시 누를 수 있게 함
+                allBtn.disabled = false; 
             } else {
                 allBtn.innerText = "전체 저장";
                 allBtn.style.background = "transparent";
@@ -288,7 +278,6 @@
             }
         }
 
-        // --- 노트 모달 UI 제어 ---
         function switchNoteTab(tab) {
             currentNoteTab = tab;
             document.getElementById('tab-btn-grammar').className = (tab === 'grammar') ? 'note-tab active-grammar' : 'note-tab';
@@ -365,7 +354,6 @@
             checkAllSavedStatus();
         }
 
-        // --- 분석 로딩 애니메이션 ---
         let loadingInterval;
         function startLoadingText() {
             const btn = document.getElementById('ocr-btn') || document.getElementById('run-btn');
@@ -454,18 +442,35 @@
                     };
                 }
 
-                const response = await fetch(WORKER_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+                // 🔥 구글 서버 폭주 대비: 3회 자동 재시도 로직 & 캐시 차단
+                let data = null;
+                let maxRetries = 3;
+                
+                for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                    const response = await fetch(WORKER_URL, {
+                        method: 'POST',
+                        cache: 'no-store', // 서비스워커 충돌 원천 차단
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
 
-                const data = await response.json();
-                
+                    data = await response.json();
+                    
+                    if (data.error && data.error.message && data.error.message.includes("high demand")) {
+                        if (attempt < maxRetries) {
+                            console.warn(`구글 서버 혼잡 (시도 ${attempt}/${maxRetries}). 3초 후 자동 재시도합니다...`);
+                            await new Promise(r => setTimeout(r, 3000));
+                            continue; // 다음 번 시도로 넘어감
+                        }
+                    }
+                    
+                    if(data.error) { 
+                        throw new Error(data.error.message || 'API Error'); 
+                    }
+                    break; // 성공 시 탈출
+                }
+
                 clearInterval(loadingInterval);
-                
-                // 데이터 에러 발생 시 UI 중단 처리 방지
-                if(data.error) { throw new Error(data.error.message || 'API Error'); }
 
                 document.getElementById('input-section').style.display = 'none';
                 document.getElementById('edit-section').style.display = 'none';
@@ -482,7 +487,6 @@
                     res = JSON.parse(cleanJsonStr);
                 }
 
-                // AI 데이터 안전 파싱 (방어 코드 추가)
                 let backgroundHtml = res.background || '내용 확인 중';
                 let subjectHtml = `
                     <div style="font-weight:bold; color:var(--neon-blue); margin-bottom:8px;">${res.subject?.formal || '요약 중'}</div>
@@ -575,7 +579,7 @@
                     <div class="result-card" style="border-color: var(--neon-orange);"><span class="result-label" style="color:var(--neon-orange);">🌎 쓸데없이 고퀄인 배경지식</span><div class="result-content">${backgroundHtml}</div></div>
                     <div class="result-card"><span class="result-label" style="color:var(--neon-blue);">🎯 직관적 주제 요약</span><div class="result-content">${subjectHtml}</div></div>
                     <div class="result-card" style="border-color: #bc13fe;"><span class="result-label" style="color:#bc13fe;">🛠️ 트리거 팀의 문법 포인트</span><div class="result-content">${grammarHtml}</div></div>
-                    <div class="result-card"><span class="result-label" style="color:var(--neon-green);">📝 전체 지문 완벽 해석</span><div class="result-content">${transHtml}</div></div>
+                    <div class="result-card"><span class="result-label" style="color:var(--neon-green);">📝 전체 지문 완벽 해설</span><div class="result-content">${transHtml}</div></div>
                     <div class="result-card"><span class="result-label" style="color:#ff0055;">🔑 필수 키워드 (내 학습 노트에 저장)</span>
                         <div class="result-content">${keywordHtml}</div>
                     </div>
@@ -587,7 +591,6 @@
                 console.error("🔥 진짜 에러 원인:", error);
                 stopLoadingText(isTextMode, activeBtn);
                 alert("에러 발생! 콘솔창을 확인하시거나 아래 에러를 복사해주세요.\n\n" + error.message);
-                // window.location.href = KAKAO_OPEN_CHAT; // 🚨 진짜 에러를 보기 위해 카톡 이동을 잠시 막음
             }
         }
     </script>
