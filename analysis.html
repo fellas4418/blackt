@@ -118,7 +118,7 @@
 
         let selectedBase64 = "";
         let currentNoteTab = 'grammar';
-        let aiKeywordsObj = []; // 파싱된 키워드 임시 보관 배열
+        let aiKeywordsObj = []; 
 
         function openPicker(type) {
             const input = document.getElementById('capture');
@@ -147,33 +147,34 @@
             document.getElementById('ocr-edit-area').focus();
         }
 
-        // --- Voca DB 검색 함수 ---
+        // --- 에러를 유발했던 Voca DB 검색 함수 (완벽 수정) ---
         function findVocaLevel(engWord) {
             if (typeof wordsData === 'undefined') return 'other';
-            const cleanWord = engWord.toLowerCase().trim();
+            const cleanWord = String(engWord).toLowerCase().trim();
             
-            // 중등 단어 체크
-            if (wordsData.middle) {
-                for (let week in wordsData.middle) {
-                    for (let day in wordsData.middle[week]) {
-                        const dayData = wordsData.middle[week][day];
-                        const arr = Array.isArray(dayData) ? dayData : (dayData.test || []);
-                        if (arr.some(w => w.word.toLowerCase() === cleanWord)) return 'middle';
+            try {
+                if (wordsData.middle) {
+                    for (let week in wordsData.middle) {
+                        for (let day in wordsData.middle[week]) {
+                            const dayData = wordsData.middle[week][day];
+                            if (!dayData) continue;
+                            const arr = Array.isArray(dayData) ? dayData : (dayData.test || []);
+                            if (arr.some(w => w && w.word && w.word.toLowerCase() === cleanWord)) return 'middle';
+                        }
                     }
                 }
-            }
-            // 고등 단어 체크
-            if (wordsData.high) {
-                for (let week in wordsData.high) {
-                    for (let day in wordsData.high[day]) { // Bug fix: should iterate days
-                         // Fix the iteration properly
-                         for(let dayNum in wordsData.high[week]) {
-                             const dayData = wordsData.high[week][dayNum];
-                             const arr = Array.isArray(dayData) ? dayData : (dayData.test || []);
-                             if (arr.some(w => w.word.toLowerCase() === cleanWord)) return 'high';
-                         }
+                if (wordsData.high) {
+                    for (let week in wordsData.high) {
+                        for (let day in wordsData.high[week]) {
+                            const dayData = wordsData.high[week][day];
+                            if (!dayData) continue;
+                            const arr = Array.isArray(dayData) ? dayData : (dayData.test || []);
+                            if (arr.some(w => w && w.word && w.word.toLowerCase() === cleanWord)) return 'high';
+                        }
                     }
                 }
+            } catch (e) {
+                console.error("Voca Search Error:", e);
             }
             return 'other';
         }
@@ -184,13 +185,11 @@
             const idx = savedList.findIndex(item => item.sentence === sentence);
 
             if (idx > -1) {
-                // 이미 있으면 삭제
                 savedList.splice(idx, 1);
                 localStorage.setItem('trigger_saved_grammar', JSON.stringify(savedList));
                 btnElement.innerText = "⭐ 저장";
                 btnElement.classList.remove('active');
             } else {
-                // 없으면 추가
                 savedList.push({
                     point: point, sentence: sentence, explanation: explanation,
                     date: new Date().toLocaleDateString()
@@ -236,7 +235,6 @@
             });
             localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
             
-            // 모든 단어 버튼 UI 갱신
             document.querySelectorAll('.kw-save-btn').forEach(btn => {
                 if(btn.id !== 'save-all-btn') {
                     btn.innerText = "✅";
@@ -330,7 +328,6 @@
             const key = type === 'grammar' ? 'trigger_saved_grammar' : 'trigger_saved_voca';
             let list = JSON.parse(localStorage.getItem(key) || '[]');
             
-            // 삭제 시 현재 화면의 버튼 상태도 동기화 (단어의 경우)
             if(type === 'voca') {
                 const deletedWord = list[realIndex].eng;
                 const activeBtn = document.getElementById(`btn-kw-${deletedWord}`);
@@ -346,7 +343,7 @@
             checkAllSavedStatus();
         }
 
-        // 토스 스타일 로딩 애니메이션
+        // --- 분석 로딩 애니메이션 ---
         let loadingInterval;
         function startLoadingText() {
             const btn = document.getElementById('ocr-btn') || document.getElementById('run-btn');
@@ -360,7 +357,7 @@
             loadingInterval = setInterval(() => {
                 i++;
                 if(i < messages.length) btn.innerText = messages[i];
-            }, 3000); // 3초 텀
+            }, 3000); 
         }
 
         function stopLoadingText(isTextMode, btn) {
@@ -437,6 +434,10 @@
                 const data = await response.json();
                 
                 clearInterval(loadingInterval);
+                
+                // 데이터 에러 발생 시 UI 중단 처리 방지
+                if(data.error) { throw new Error(data.error.message || 'API Error'); }
+
                 document.getElementById('input-section').style.display = 'none';
                 document.getElementById('edit-section').style.display = 'none';
                 document.getElementById('result-section').style.display = 'block';
@@ -452,19 +453,19 @@
                     res = JSON.parse(cleanJsonStr);
                 }
 
+                // AI 데이터 안전 파싱 (방어 코드 추가)
                 let backgroundHtml = res.background || '내용 확인 중';
                 let subjectHtml = `
                     <div style="font-weight:bold; color:var(--neon-blue); margin-bottom:8px;">${res.subject?.formal || '요약 중'}</div>
                     <div style="font-size:0.9rem; color:#aaa; background:#222; padding:10px; border-radius:8px; line-height: 1.5;">💡 ${res.subject?.easy || ''}</div>
                 `;
 
-                // 키워드 파싱 및 전처리 (뜻 분리 및 난이도 태깅)
                 aiKeywordsObj = [];
                 let savedVocaList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
 
                 if (res.keywords && Array.isArray(res.keywords)) {
                     res.keywords.forEach(kw => {
-                        const parts = kw.split('(');
+                        const parts = String(kw || '').split('(');
                         const engWord = parts[0].replace(/[^a-zA-Z]/g, '').trim();
                         const korMean = parts.length > 1 ? parts[1].replace(')', '').trim() : '';
                         if (engWord.length > 1) {
@@ -474,7 +475,6 @@
                     });
                 }
 
-                // 단어 렌더링 HTML
                 let keywordHtml = `<div style="display:flex; justify-content:flex-end; margin-bottom:10px;"><button id="save-all-btn" class="kw-save-btn" onclick="saveAllKeywords()">전체 저장</button></div>`;
                 if(aiKeywordsObj.length > 0) {
                     aiKeywordsObj.forEach(kw => {
@@ -499,11 +499,10 @@
                     keywordHtml += '<div style="color:#888;">추출된 핵심 키워드가 없습니다.</div>';
                 }
 
-                // 본문 렌더링 (키워드 밑줄)
                 let transHtml = '';
                 if(res.full_translation && Array.isArray(res.full_translation)) {
                     transHtml = res.full_translation.map(s => {
-                        let highlightedEng = s.eng;
+                        let highlightedEng = String(s.eng || '');
                         aiKeywordsObj.forEach(kw => {
                             if (kw.eng.length > 2) {
                                 const regex = new RegExp(`\\b(${kw.eng})\\b`, "gi");
@@ -513,20 +512,19 @@
                         return `
                         <div class="translation-row">
                             <div class="eng-text" style="font-size:1rem; color:#fff;">${highlightedEng}</div>
-                            <div class="kor-text" style="font-size:0.95rem; color:#aaa;">${s.kor}</div>
+                            <div class="kor-text" style="font-size:0.95rem; color:#aaa;">${s.kor || ''}</div>
                         </div>`;
                     }).join('');
                 }
 
-                // 문법 렌더링 (저장 토글 로직 반영)
                 let grammarHtml = '';
                 let savedGrammarList = JSON.parse(localStorage.getItem('trigger_saved_grammar') || '[]');
 
                 if(res.grammar && res.grammar.length > 0) {
                     grammarHtml = res.grammar.map(g => {
-                        const safePoint = g.point.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                        const safeSentence = g.sentence.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                        const safeExplanation = g.explanation.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        const safePoint = String(g.point || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        const safeSentence = String(g.sentence || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        const safeExplanation = String(g.explanation || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
                         
                         const isSaved = savedGrammarList.some(item => item.sentence === g.sentence);
                         const btnClass = isSaved ? "save-btn-small active" : "save-btn-small";
@@ -544,7 +542,6 @@
                     grammarHtml = '<div style="color:#888; font-size:0.9rem;">특이한 특수 구문은 발견되지 않았습니다.</div>';
                 }
 
-                // 최종 화면 조립
                 document.getElementById('ai-report-area').innerHTML = `
                     <div class="result-card" style="border-color: var(--neon-orange);"><span class="result-label" style="color:var(--neon-orange);">🌎 쓸데없이 고퀄인 배경지식</span><div class="result-content">${backgroundHtml}</div></div>
                     <div class="result-card"><span class="result-label" style="color:var(--neon-blue);">🎯 직관적 주제 요약</span><div class="result-content">${subjectHtml}</div></div>
@@ -555,7 +552,7 @@
                     </div>
                 `;
 
-                checkAllSavedStatus(); // 렌더링 직후 전체 저장 버튼 상태 체크
+                checkAllSavedStatus();
 
             } catch (error) {
                 console.error("Analysis Error:", error);
