@@ -24,16 +24,34 @@
         .kor-text { font-size: 0.95rem; color: var(--neon-green); font-weight: 500; }
         .kakao-btn { width: 100%; padding: 18px; background: #fee500; color: #000; border: none; border-radius: 12px; font-weight: 900; font-size: 1.05rem; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         
-        /* 👇 새롭게 추가된 AI 분석결과 스타일 👇 */
+        /* 👇 분석결과 및 문법 저장 스타일 👇 */
         .hl-voca { border-bottom: 2px dashed rgba(57, 255, 20, 0.6); padding-bottom: 2px; cursor: help; transition: 0.2s; }
         .hl-voca:hover { background: rgba(57, 255, 20, 0.2); }
-        .grammar-box { background: rgba(181, 55, 242, 0.1); border-left: 3px solid #bc13fe; padding: 12px; margin-bottom: 10px; border-radius: 4px; }
+        .grammar-box { background: rgba(181, 55, 242, 0.1); border-left: 3px solid #bc13fe; padding: 12px; margin-bottom: 10px; border-radius: 4px; position: relative; }
+        .save-grammar-btn { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); border: 1px solid #bc13fe; color: #d789ff; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: 0.2s; }
+        .save-grammar-btn:hover { background: #bc13fe; color: #fff; }
+        
+        /* 문법 노트 모달 스타일 (index.html의 로그인 카드 재활용) */
+        #grammar-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 30000; padding: 20px; box-sizing: border-box; }
+        .modal-card { background: #111; border: 1px solid #bc13fe; box-shadow: 0 0 15px rgba(181, 55, 242, 0.3); border-radius: 20px; padding: 25px; width: 90%; max-width: 450px; text-align: center; max-height: 80vh; overflow-y: auto; box-sizing: border-box; }
+        .modal-title { font-size: 1.4rem; font-weight: bold; margin-bottom: 20px; color: #d789ff; text-shadow: 0 0 10px rgba(181, 55, 242, 0.5); }
     </style>
 </head>
 <body>
     <div id="nav-area">
-        <div onclick="location.href='index.html?tab=analysis'" style="color: var(--neon-blue); margin-bottom: 15px; cursor: pointer;">← 분석 설정으로 돌아가기</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <div onclick="location.href='index.html?tab=analysis'" style="color: var(--neon-blue); cursor: pointer;">← 분석 설정으로 돌아가기</div>
+            <button onclick="showGrammarNote()" style="background: transparent; border: 1px solid #bc13fe; color: #d789ff; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer;">⭐ 내 문법 노트</button>
+        </div>
         <h3 id="info-header" style="color: #fff; margin-bottom: 15px;">AI 지문 정밀 분석</h3>
+    </div>
+
+    <div id="grammar-modal">
+        <div class="modal-card">
+            <div class="modal-title">⭐ 내 문법 노트</div>
+            <div id="grammar-note-list" style="text-align: left; margin-bottom: 20px;"></div>
+            <button class="login-btn" style="border-color: #bc13fe; box-shadow: 0 0 10px rgba(181, 55, 242, 0.5);" onclick="document.getElementById('grammar-modal').style.display='none'">닫기</button>
+        </div>
     </div>
 
     <div id="input-section">
@@ -107,7 +125,95 @@
             document.getElementById('edit-section').style.display = 'block';
             document.getElementById('ocr-edit-area').focus();
         }
+
+        // 👇 문법 저장 기능 로직 👇
+        function saveGrammar(point, sentence, explanation, btnElement) {
+            let savedList = JSON.parse(localStorage.getItem('trigger_saved_grammar') || '[]');
+            
+            // 중복 체크
+            const isExist = savedList.some(item => item.sentence === sentence);
+            if(isExist) {
+                alert("이미 저장된 문법 포인트입니다!");
+                return;
+            }
+
+            savedList.push({
+                point: point,
+                sentence: sentence,
+                explanation: explanation,
+                date: new Date().toLocaleDateString()
+            });
+            
+            localStorage.setItem('trigger_saved_grammar', JSON.stringify(savedList));
+            
+            // 버튼 상태 변경
+            btnElement.innerText = "⭐ 저장됨";
+            btnElement.style.background = "#bc13fe";
+            btnElement.style.color = "#fff";
+            btnElement.disabled = true;
+        }
+
+        function showGrammarNote() {
+            const listArea = document.getElementById('grammar-note-list');
+            let savedList = JSON.parse(localStorage.getItem('trigger_saved_grammar') || '[]');
+            
+            if (savedList.length === 0) {
+                listArea.innerHTML = "<p style='text-align:center; color:#888; margin-top:20px;'>아직 저장된 문법이 없습니다.<br>지문 분석 후 기억하고 싶은 문법을 저장해보세요!</p>";
+            } else {
+                let html = "";
+                // 최신순으로 정렬
+                savedList.reverse().forEach((g, index) => {
+                    html += `
+                        <div style="background: rgba(181, 55, 242, 0.05); border-left: 3px solid #bc13fe; padding: 12px; margin-bottom: 12px; border-radius: 4px; position: relative;">
+                            <button onclick="deleteGrammar(${index})" style="position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #888; font-size: 1.2rem; cursor: pointer;">×</button>
+                            <strong style="color:#d789ff; display:block; margin-bottom:4px;">⚡ ${g.point}</strong>
+                            <div style="color:#ddd; font-size:0.85rem; font-style:italic; margin-bottom:6px; padding-right: 20px;">"${g.sentence}"</div>
+                            <div style="color:#eee; font-size:0.9rem;">${g.explanation}</div>
+                            <div style="color:#666; font-size:0.7rem; margin-top:8px; text-align:right;">저장일: ${g.date}</div>
+                        </div>
+                    `;
+                });
+                listArea.innerHTML = html;
+            }
+            document.getElementById('grammar-modal').style.display = 'flex';
+        }
+
+        function deleteGrammar(index) {
+            if(confirm("이 문법 노트를 삭제하시겠습니까?")) {
+                let savedList = JSON.parse(localStorage.getItem('trigger_saved_grammar') || '[]');
+                // 화면 출력 시 reverse() 했으므로, 실제 삭제할 원본 인덱스를 다시 계산
+                const realIndex = savedList.length - 1 - index;
+                savedList.splice(realIndex, 1);
+                localStorage.setItem('trigger_saved_grammar', JSON.stringify(savedList));
+                showGrammarNote(); // 모달 새로고침
+            }
+        }
     
+        // 로딩 텍스트 애니메이션 함수
+        let loadingInterval;
+        function startLoadingText() {
+            const btn = document.getElementById('ocr-btn') || document.getElementById('run-btn');
+            const messages = [
+                "🧠 트리거 AI 정밀 분석 중...",
+                "👀 지문 난이도 측정 중...",
+                "🛠️ 핵심 문법 구조 스캔 중...",
+                "🎯 출제자 의도 파악 중...",
+                "✨ 거의 다 됐습니다!"
+            ];
+            let i = 0;
+            btn.innerText = messages[0];
+            loadingInterval = setInterval(() => {
+                i++;
+                if(i < messages.length) btn.innerText = messages[i];
+            }, 2500);
+        }
+
+        function stopLoadingText(isTextMode, btn) {
+            clearInterval(loadingInterval);
+            btn.disabled = false;
+            btn.innerText = isTextMode ? "정밀 분석 실행 🚀" : "트리거 AI 정밀 분석 시작 🔍";
+        }
+
         async function runGeminiAnalysis(isTextMode = false) {
             const editArea = document.getElementById('ocr-edit-area');
             const editedText = (editArea.innerText || editArea.textContent || "").trim();
@@ -121,12 +227,11 @@
             }
 
             activeBtn.disabled = true;
-            activeBtn.innerText = "🧠 트리거 AI 정밀 분석 중...";
+            startLoadingText(); // 로딩 애니메이션 시작
 
             try {
                 let payload;
-                // 👇 프롬프트 업데이트 (뜻 강제 추가)
-                const prompt = `당신은 대한민국 최고의 1타 영어 강사입니다. 입력된 지문을 분석하여 반드시 순수한 JSON 형식으로만 응답하세요. 마크다운 태그(\`\`\`json 등)는 생략하세요.
+                const prompt = `당신은 대한민국 최고의 1타 영어 강사입니다. 입력된 지문을 분석하여 반드시 순수한 JSON 형식으로만 응답하세요. 마크다운 태그(\`\`\`json 등)는 생략하세요. 초등학교~중학교 2학년 수준의 기초 단어는 절대 제외할 것. 중3~수능 수준의 핵심 어휘를 무조건 10개 이상 15개 이하로 추출할 것.
 형식:
 {
   "background": "지문을 요약하지 마세요. 지문에 등장하는 경제, 철학, 역사적 개념이나 전문 용어 등 글을 이해하는 데 필요한 '외부 배경지식'을 3~4줄로 흥미롭게 설명하세요.",
@@ -143,7 +248,6 @@
   "keywords": ["determine(결정하다)", "evolution(진화)"] 
 }`;
 
-                // 구글 API 공식 규격에 맞게 페이로드 조립
                 if (!isTextMode && selectedBase64) {
                     const img = document.getElementById('preview');
                     const canvas = document.createElement('canvas');
@@ -187,12 +291,11 @@
 
                 const data = await response.json();
                 
-                // 결과창 노출
+                clearInterval(loadingInterval); // 파싱 전 로딩 종료
                 document.getElementById('input-section').style.display = 'none';
                 document.getElementById('edit-section').style.display = 'none';
                 document.getElementById('result-section').style.display = 'block';
 
-                // API 반환 형태에 따른 유연한 파싱
                 let res = data;
                 if (data.candidates && data.candidates[0].content.parts[0].text) {
                     let cleanJsonStr = data.candidates[0].content.parts[0].text;
@@ -204,19 +307,16 @@
                     res = JSON.parse(cleanJsonStr);
                 }
 
-                // 1. 배경지식 & 주제 파싱
                 let backgroundHtml = res.background || '내용 확인 중';
                 let subjectHtml = `
                     <div style="font-weight:bold; color:var(--neon-blue); margin-bottom:8px;">${res.subject?.formal || '요약 중'}</div>
                     <div style="font-size:0.9rem; color:#aaa; background:#222; padding:10px; border-radius:8px; line-height: 1.5;">💡 ${res.subject?.easy || ''}</div>
                 `;
 
-                // 2. 전체 문장 해석 & 키워드 자동 하이라이트
                 let transHtml = '';
                 if(res.full_translation && Array.isArray(res.full_translation)) {
                     transHtml = res.full_translation.map(s => {
                         let highlightedEng = s.eng;
-                        // 추출된 키워드를 찾아 문장 내에서 은은한 밑줄 효과 처리
                         if (res.keywords && Array.isArray(res.keywords)) {
                             res.keywords.forEach(kw => {
                                 const pureWord = kw.split('(')[0].replace(/[^a-zA-Z]/g, '').trim(); 
@@ -232,29 +332,33 @@
                             <div class="kor-text" style="font-size:0.95rem; color:#aaa;">${s.kor}</div>
                         </div>`;
                     }).join('');
-                } else {
-                    transHtml = "<div class='kor-text'>전체 문장 해석을 준비 중입니다.</div>";
                 }
 
-                // 3. 주요 문법 분석
+                // 👇 문법 저장 버튼 렌더링 로직 추가 👇
                 let grammarHtml = '';
                 if(res.grammar && res.grammar.length > 0) {
-                    grammarHtml = res.grammar.map(g => `
+                    grammarHtml = res.grammar.map(g => {
+                        // 저장 시 데이터를 안전하게 넘기기 위해 이스케이프 처리
+                        const safePoint = g.point.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        const safeSentence = g.sentence.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        const safeExplanation = g.explanation.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        
+                        return `
                         <div class="grammar-box">
-                            <strong style="color:#bc13fe; display:block; margin-bottom:4px;">⚡ ${g.point}</strong>
+                            <button class="save-grammar-btn" onclick="saveGrammar('${safePoint}', '${safeSentence}', '${safeExplanation}', this)">⭐ 저장</button>
+                            <strong style="color:#bc13fe; display:block; margin-bottom:4px; padding-right:50px;">⚡ ${g.point}</strong>
                             <div style="color:#ddd; font-size:0.85rem; font-style:italic; margin-bottom:6px;">"${g.sentence}"</div>
                             <div style="color:#eee; font-size:0.9rem;">${g.explanation}</div>
                         </div>
-                    `).join('');
+                    `}).join('');
                 } else {
                     grammarHtml = '<div style="color:#888; font-size:0.9rem;">특이한 특수 구문은 발견되지 않았습니다.</div>';
                 }
 
-                // 4. 화면 출력
                 document.getElementById('ai-report-area').innerHTML = `
                     <div class="result-card" style="border-color: var(--neon-orange);"><span class="result-label" style="color:var(--neon-orange);">🌎 쓸데없이 고퀄인 배경지식</span><div class="result-content">${backgroundHtml}</div></div>
                     <div class="result-card"><span class="result-label" style="color:var(--neon-blue);">🎯 직관적 주제 요약</span><div class="result-content">${subjectHtml}</div></div>
-                    <div class="result-card" style="border-color: #bc13fe;"><span class="result-label" style="color:#bc13fe;">🛠️ 1타 강사의 문법 포인트</span><div class="result-content">${grammarHtml}</div></div>
+                    <div class="result-card" style="border-color: #bc13fe;"><span class="result-label" style="color:#bc13fe;">🛠️ 트리거 팀의 문법 포인트</span><div class="result-content">${grammarHtml}</div></div>
                     <div class="result-card"><span class="result-label" style="color:var(--neon-green);">📝 전체 지문 완벽 번역</span><div class="result-content">${transHtml}</div></div>
                     <div class="result-card"><span class="result-label" style="color:#ff0055;">🔑 필수 키워드 (원문에서 점선으로 표시됨)</span>
                         <div class="result-content" style="font-weight:bold;">${(res.keywords || []).join(' / ')}</div>
@@ -263,9 +367,8 @@
 
             } catch (error) {
                 console.error("Analysis Error:", error);
+                stopLoadingText(isTextMode, activeBtn);
                 alert("현재 접속자가 많아 정밀 분석이 지연되고 있습니다.\n\n수동 분석을 위해 오픈채팅방으로 이동합니다!\n채팅방에 [이름/학교]를 남겨주세요.");
-                activeBtn.disabled = false;
-                activeBtn.innerText = isTextMode ? "정밀 분석 실행 🚀" : "트리거 AI 정밀 분석 시작 🔍";
                 window.location.href = KAKAO_OPEN_CHAT;
             }
         }
