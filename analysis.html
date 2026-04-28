@@ -61,8 +61,13 @@
 
     <div id="result-section">
         <div style="margin-bottom: 25px;"><h4 style="color: var(--neon-green); margin-top: 0;">✅ AI 정밀 진단 보고서</h4><div id="ai-report-area"></div></div>
-        <div class="guide-box" style="border-color: #fee500; background: rgba(254, 229, 0, 0.05);"><p class="guide-title" style="color: #fee500;">🔥 내 약점 진단받기</p><p class="guide-text" style="color: #eee;">해석이 턱턱 막히는 문장이 있나요?
-            1타 강사 트리거 팀이 원인을 분석하고 가장 빠른 돌파구를 처방해 드립니다.</p><button onclick="window.open('https://open.kakao.com/o/siKCrAqi', '_blank')" class="kakao-btn">[💬 트리거 팀 1:1 학습 처방 받기]</button></div>
+        
+        <div class="guide-box" style="border-color: #b537f2; background: rgba(181, 55, 242, 0.05); margin-top: 25px;">
+            <p class="guide-title" style="color: #d789ff; font-size:1.1rem;">🔥 근본적인 독해력을 올리고 싶다면?</p>
+            <p class="guide-text" style="color: #eee; font-size:0.95rem;">단어는 아는데 해석이 턱턱 막히고 문장 구조가 안 보이시나요?<br>특수 구문부터 필수 문법까지 <b>단 3시간 만에 뚫어내는 기적의 커리큘럼.</b></p>
+            <button onclick="window.open('https://tri3.imweb.me/', '_blank')" class="kakao-btn" style="background:#b537f2; color:#fff; border-radius:12px;">👉 된다니까 3시간 영문법 수강하기 ⚡</button>
+        </div>
+
         <button onclick="location.reload()" class="login-btn" style="border-color: #fff; margin-top: 20px; background: transparent; width: 100%;">다른 지문 분석하기</button>
     </div>
 
@@ -120,7 +125,7 @@
 
             try {
                 let payload;
-                // 👇 프롬프트가 팀장님의 의도에 맞게 대폭 업그레이드 되었습니다!
+                // 👇 프롬프트 업데이트 (뜻 강제 추가)
                 const prompt = `당신은 대한민국 최고의 1타 영어 강사입니다. 입력된 지문을 분석하여 반드시 순수한 JSON 형식으로만 응답하세요. 마크다운 태그(\`\`\`json 등)는 생략하세요.
 형식:
 {
@@ -130,12 +135,12 @@
     "easy": "국어 능력이 부족한 중학생도 단번에 이해할 수 있게 비유나 쉬운 일상어로 풀어쓴 주제 (시작말: '그러니까 한마디로~')"
   },
   "full_translation": [
-    { "eng": "원문 문장 (전체 지문을 한 문장씩 쪼개서 전부 번역할 것)", "kor": "해당 문장의 한국어 해석" }
+    { "eng": "원문 문장", "kor": "해당 문장의 한국어 해석" }
   ],
   "grammar": [
-    { "point": "핵심 문법 개념명 (예: it-that 가주어/진주어, 도치, 가정법 등. 없으면 생략 가능)", "sentence": "문법이 적용된 영어 원문", "explanation": "학생이 딱 보고 '아하!' 할 수 있는 쉽고 명쾌한 문법 분석 및 해석 팁" }
+    { "point": "핵심 문법 개념명 (예: it-that 가주어/진주어, 도치 등)", "sentence": "문법이 적용된 영어 원문", "explanation": "학생이 딱 보고 '아하!' 할 수 있는 쉽고 명쾌한 해석 팁" }
   ],
-  "keywords": ["단어1", "단어2", "단어3"]
+  "keywords": ["determine(결정하다)", "evolution(진화)"] 
 }`;
 
                 // 구글 API 공식 규격에 맞게 페이로드 조립
@@ -199,15 +204,11 @@
                     res = JSON.parse(cleanJsonStr);
                 }
 
-                // 👇 파싱 로직 및 UI 렌더링 수정 시작 👇
-
-                // 1. 배경지식 & 주제 분리
+                // 1. 배경지식 & 주제 파싱
                 let backgroundHtml = res.background || '내용 확인 중';
-                let subjectFormal = res.subject?.formal || '요약 중';
-                let subjectEasy = res.subject?.easy || '';
                 let subjectHtml = `
-                    <div style="font-weight:bold; color:var(--neon-blue); margin-bottom:8px;">${subjectFormal}</div>
-                    <div style="font-size:0.9rem; color:#aaa; background:#222; padding:10px; border-radius:8px; line-height: 1.5;">💡 ${subjectEasy}</div>
+                    <div style="font-weight:bold; color:var(--neon-blue); margin-bottom:8px;">${res.subject?.formal || '요약 중'}</div>
+                    <div style="font-size:0.9rem; color:#aaa; background:#222; padding:10px; border-radius:8px; line-height: 1.5;">💡 ${res.subject?.easy || ''}</div>
                 `;
 
                 // 2. 전체 문장 해석 & 키워드 자동 하이라이트
@@ -218,7 +219,7 @@
                         // 추출된 키워드를 찾아 문장 내에서 은은한 밑줄 효과 처리
                         if (res.keywords && Array.isArray(res.keywords)) {
                             res.keywords.forEach(kw => {
-                                const pureWord = kw.replace(/[^a-zA-Z]/g, ''); 
+                                const pureWord = kw.split('(')[0].replace(/[^a-zA-Z]/g, '').trim(); 
                                 if (pureWord.length > 2) {
                                     const regex = new RegExp(`\\b(${pureWord})\\b`, "gi");
                                     highlightedEng = highlightedEng.replace(regex, "<span class='hl-voca'>$&</span>");
@@ -249,13 +250,15 @@
                     grammarHtml = '<div style="color:#888; font-size:0.9rem;">특이한 특수 구문은 발견되지 않았습니다.</div>';
                 }
 
-                // 화면에 뿌리기
+                // 4. 화면 출력
                 document.getElementById('ai-report-area').innerHTML = `
                     <div class="result-card" style="border-color: var(--neon-orange);"><span class="result-label" style="color:var(--neon-orange);">🌎 쓸데없이 고퀄인 배경지식</span><div class="result-content">${backgroundHtml}</div></div>
                     <div class="result-card"><span class="result-label" style="color:var(--neon-blue);">🎯 직관적 주제 요약</span><div class="result-content">${subjectHtml}</div></div>
                     <div class="result-card" style="border-color: #bc13fe;"><span class="result-label" style="color:#bc13fe;">🛠️ 1타 강사의 문법 포인트</span><div class="result-content">${grammarHtml}</div></div>
                     <div class="result-card"><span class="result-label" style="color:var(--neon-green);">📝 전체 지문 완벽 번역</span><div class="result-content">${transHtml}</div></div>
-                    <div class="result-card"><span class="result-label" style="color:#ff0055;">🔑 필수 키워드 (원문에서 점선으로 표시됨)</span><div class="result-content">${(res.keywords || []).join(', ')}</div></div>
+                    <div class="result-card"><span class="result-label" style="color:#ff0055;">🔑 필수 키워드 (원문에서 점선으로 표시됨)</span>
+                        <div class="result-content" style="font-weight:bold;">${(res.keywords || []).join(' / ')}</div>
+                    </div>
                 `;
 
             } catch (error) {
