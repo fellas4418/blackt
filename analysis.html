@@ -95,6 +95,18 @@
     </div>
 
     <div id="result-section">
+        <div class="result-card" style="border-color: var(--neon-blue); padding: 15px;">
+            <span class="result-label" style="color:var(--neon-blue); margin-bottom:5px;">📂 지문 출처 설정</span>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="passage-title-input" 
+                       style="flex: 1; background: #111; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 8px; font-size: 0.9rem;" 
+                       placeholder="예: 수능특강 12강 3번">
+                <button onclick="updatePassageTitleManually()" 
+                        style="background: var(--neon-blue); color: #000; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">확인</button>
+            </div>
+            <p style="font-size: 0.75rem; color: #888; margin-top: 8px; margin-bottom: 0;">* 미입력 시 카테고리와 AI 요약 제목이 기본 적용됩니다.</p>
+        </div>
+
         <div style="margin-bottom: 25px;"><h4 style="color: var(--neon-green); margin-top: 0;">✅ AI 정밀 진단 보고서</h4><div id="ai-report-area"></div></div>
         
         <div class="guide-box" style="border-color: #b537f2; background: rgba(181, 55, 242, 0.05); margin-top: 25px;">
@@ -119,6 +131,7 @@
         let selectedBase64 = "";
         let currentNoteTab = 'grammar';
         let aiKeywordsObj = []; 
+        let currentPassageTitle = ""; // 지문 제목 전역 변수
 
         function openPicker(type) {
             const input = document.getElementById('capture');
@@ -178,6 +191,15 @@
             return 'other';
         }
 
+        // 지문 제목 수동 업데이트
+        function updatePassageTitleManually() {
+            const inputVal = document.getElementById('passage-title-input').value.trim();
+            if (inputVal) {
+                currentPassageTitle = inputVal;
+                alert("지문 제목이 '" + currentPassageTitle + "'으로 설정되었습니다.");
+            }
+        }
+
         function toggleGrammarSave(point, sentence, explanation, btnElement) {
             let savedList = JSON.parse(localStorage.getItem('trigger_saved_grammar') || '[]');
             const idx = savedList.findIndex(item => item.sentence === sentence);
@@ -190,6 +212,7 @@
             } else {
                 savedList.push({
                     point: point, sentence: sentence, explanation: explanation,
+                    passageTitle: currentPassageTitle, // 지문 제목 추가
                     date: new Date().toLocaleDateString()
                 });
                 localStorage.setItem('trigger_saved_grammar', JSON.stringify(savedList));
@@ -210,7 +233,11 @@
                     btnElement.classList.remove('active');
                 }
             } else {
-                savedList.push({ eng: eng, kor: kor, level: level, date: new Date().toLocaleDateString() });
+                savedList.push({ 
+                    eng: eng, kor: kor, level: level, 
+                    passageTitle: currentPassageTitle, // 지문 제목 추가
+                    date: new Date().toLocaleDateString() 
+                });
                 localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
                 if(btnElement) {
                     btnElement.innerText = "✅";
@@ -241,7 +268,11 @@
                 aiKeywordsObj.forEach(kw => {
                     const isExist = savedList.some(item => item.eng === kw.eng);
                     if(!isExist) {
-                        savedList.push({ eng: kw.eng, kor: kw.kor, level: kw.level, date: new Date().toLocaleDateString() });
+                        savedList.push({ 
+                            eng: kw.eng, kor: kw.kor, level: kw.level, 
+                            passageTitle: currentPassageTitle, // 지문 제목 추가
+                            date: new Date().toLocaleDateString() 
+                        });
                     }
                 });
                 localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
@@ -293,43 +324,47 @@
         function renderNoteList() {
             const listArea = document.getElementById('note-list-container');
             let html = "";
+            const key = currentNoteTab === 'grammar' ? 'trigger_saved_grammar' : 'trigger_saved_voca';
+            let savedList = JSON.parse(localStorage.getItem(key) || '[]');
 
-            if (currentNoteTab === 'grammar') {
-                let savedList = JSON.parse(localStorage.getItem('trigger_saved_grammar') || '[]');
-                if (savedList.length === 0) {
-                    html = "<p style='text-align:center; color:#888; margin-top:20px;'>저장된 문법 노트가 없습니다.</p>";
-                } else {
-                    savedList.reverse().forEach((g, idx) => {
+            if (savedList.length === 0) {
+                html = `<p style='text-align:center; color:#888; margin-top:20px;'>저장된 내역이 없습니다.</p>`;
+            } else {
+                let lastPassageTitle = "";
+                // 최근 저장된 것이 위로 오게 하되, 같은 지문끼리 묶기 위해 정렬은 유지
+                savedList.slice().reverse().forEach((item, idx) => {
+                    const pTitle = item.passageTitle || "미지정 지문";
+                    
+                    // 지문 제목이 달라질 때마다 헤더 추가
+                    if (pTitle !== lastPassageTitle) {
+                        html += `<div style="color:var(--neon-blue); font-size:0.8rem; font-weight:bold; margin: 18px 0 8px 0; border-bottom:1px solid #333; padding-bottom:4px; display:flex; align-items:center; gap:5px;">📌 ${pTitle}</div>`;
+                        lastPassageTitle = pTitle;
+                    }
+
+                    if (currentNoteTab === 'grammar') {
                         html += `
                             <div style="background: rgba(181, 55, 242, 0.05); border-left: 3px solid #bc13fe; padding: 12px; margin-bottom: 12px; border-radius: 4px; position: relative;">
                                 <button onclick="deleteNoteItem('grammar', ${savedList.length - 1 - idx})" style="position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #888; font-size: 1.2rem; cursor: pointer;">×</button>
-                                <strong style="color:#d789ff; display:block; margin-bottom:4px; padding-right:20px;">⚡ ${g.point}</strong>
-                                <div style="color:#ddd; font-size:0.85rem; font-style:italic; margin-bottom:6px;">"${g.sentence}"</div>
-                                <div style="color:#eee; font-size:0.9rem;">${g.explanation}</div>
+                                <strong style="color:#d789ff; display:block; margin-bottom:4px; padding-right:20px;">⚡ ${item.point}</strong>
+                                <div style="color:#ddd; font-size:0.85rem; font-style:italic; margin-bottom:6px;">"${item.sentence}"</div>
+                                <div style="color:#eee; font-size:0.9rem;">${item.explanation}</div>
                             </div>
                         `;
-                    });
-                }
-            } else {
-                let savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
-                if (savedList.length === 0) {
-                    html = "<p style='text-align:center; color:#888; margin-top:20px;'>저장된 단어가 없습니다.</p>";
-                } else {
-                    savedList.reverse().forEach((w, idx) => {
-                        let levelTag = w.level === 'middle' ? '<span class="kw-tag kw-mid">중등</span>' : 
-                                       w.level === 'high' ? '<span class="kw-tag kw-high">고등</span>' : '';
+                    } else {
+                        let levelTag = item.level === 'middle' ? '<span class="kw-tag kw-mid">중등</span>' : 
+                                       item.level === 'high' ? '<span class="kw-tag kw-high">고등</span>' : '';
                         html += `
                             <div class="kw-container" style="background:#1a1a1a;">
                                 <div>
                                     ${levelTag}
-                                    <strong style="color:#fff; font-size:1.05rem;">${w.eng}</strong> 
-                                    <span style="color:#aaa; font-size:0.9rem; margin-left:6px;">${w.kor}</span>
+                                    <strong style="color:#fff; font-size:1.05rem;">${item.eng}</strong> 
+                                    <span style="color:#aaa; font-size:0.9rem; margin-left:6px;">${item.kor}</span>
                                 </div>
                                 <button onclick="deleteNoteItem('voca', ${savedList.length - 1 - idx})" style="background:transparent; border:none; color:#888; font-size:1.1rem; cursor:pointer;">×</button>
                             </div>
                         `;
-                    });
-                }
+                    }
+                });
             }
             listArea.innerHTML = html;
         }
@@ -421,7 +456,6 @@
                     const img = document.getElementById('preview');
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
-                    
                     const maxWidth = 800; 
                     const scale = img.naturalWidth > maxWidth ? maxWidth / img.naturalWidth : 1;
                     canvas.width = img.naturalWidth * scale;
@@ -442,36 +476,27 @@
                     };
                 }
 
-                // 🔥 구글 서버 폭주 대비: 3회 자동 재시도 로직 & 캐시 차단
                 let data = null;
                 let maxRetries = 3;
-                
                 for (let attempt = 1; attempt <= maxRetries; attempt++) {
                     const response = await fetch(WORKER_URL, {
                         method: 'POST',
-                        cache: 'no-store', // 서비스워커 충돌 원천 차단
+                        cache: 'no-store',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
-
                     data = await response.json();
-                    
                     if (data.error && data.error.message && data.error.message.includes("high demand")) {
                         if (attempt < maxRetries) {
-                            console.warn(`구글 서버 혼잡 (시도 ${attempt}/${maxRetries}). 3초 후 자동 재시도합니다...`);
                             await new Promise(r => setTimeout(r, 3000));
-                            continue; // 다음 번 시도로 넘어감
+                            continue;
                         }
                     }
-                    
-                    if(data.error) { 
-                        throw new Error(data.error.message || 'API Error'); 
-                    }
-                    break; // 성공 시 탈출
+                    if(data.error) throw new Error(data.error.message || 'API Error'); 
+                    break;
                 }
 
                 clearInterval(loadingInterval);
-
                 document.getElementById('input-section').style.display = 'none';
                 document.getElementById('edit-section').style.display = 'none';
                 document.getElementById('result-section').style.display = 'block';
@@ -486,6 +511,12 @@
                     }
                     res = JSON.parse(cleanJsonStr);
                 }
+
+                // 지문 제목 자동 설정 로직
+                const categoryInfo = `${params.get('grade') || ''} ${params.get('type') || ''} ${params.get('detail') || ''}`.trim();
+                const aiSubjectSnippet = res.subject?.formal ? res.subject.formal.substring(0, 12).trim() : "지문 분석";
+                currentPassageTitle = `[${categoryInfo}] ${aiSubjectSnippet}...`;
+                document.getElementById('passage-title-input').value = currentPassageTitle;
 
                 let backgroundHtml = res.background || '내용 확인 중';
                 let subjectHtml = `
@@ -516,7 +547,6 @@
                         const btnText = isSaved ? "✅" : "저장";
                         const safeEng = kw.eng.replace(/'/g, "\\'");
                         const safeKor = kw.kor.replace(/'/g, "\\'");
-                        
                         let levelTag = kw.level === 'middle' ? '<span class="kw-tag kw-mid">중등</span>' : 
                                        kw.level === 'high' ? '<span class="kw-tag kw-high">고등</span>' : 
                                        '<span class="kw-tag kw-other">기타</span>';
@@ -528,8 +558,6 @@
                             </div>
                         `;
                     });
-                } else {
-                    keywordHtml += '<div style="color:#888;">추출된 핵심 키워드가 없습니다.</div>';
                 }
 
                 let transHtml = '';
@@ -552,13 +580,11 @@
 
                 let grammarHtml = '';
                 let savedGrammarList = JSON.parse(localStorage.getItem('trigger_saved_grammar') || '[]');
-
                 if(res.grammar && res.grammar.length > 0) {
                     grammarHtml = res.grammar.map(g => {
                         const safePoint = String(g.point || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
                         const safeSentence = String(g.sentence || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
                         const safeExplanation = String(g.explanation || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                        
                         const isSaved = savedGrammarList.some(item => item.sentence === g.sentence);
                         const btnClass = isSaved ? "save-btn-small active" : "save-btn-small";
                         const btnText = isSaved ? "✅ 저장됨" : "⭐ 저장";
@@ -571,8 +597,6 @@
                             <div style="color:#eee; font-size:0.9rem;">${g.explanation}</div>
                         </div>
                     `}).join('');
-                } else {
-                    grammarHtml = '<div style="color:#888; font-size:0.9rem;">특이한 특수 구문은 발견되지 않았습니다.</div>';
                 }
 
                 document.getElementById('ai-report-area').innerHTML = `
@@ -584,9 +608,7 @@
                         <div class="result-content">${keywordHtml}</div>
                     </div>
                 `;
-
                 checkAllSavedStatus();
-
             } catch (error) {
                 console.error("🔥 진짜 에러 원인:", error);
                 stopLoadingText(isTextMode, activeBtn);
