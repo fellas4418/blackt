@@ -584,10 +584,10 @@
                 checkAllSavedStatus();
 
             } catch (error) {
-                console.error("Analysis Error:", error);
+                console.error("🔥 진짜 에러 원인:", error);
                 stopLoadingText(isTextMode, activeBtn);
-                alert("현재 접속자가 많아 정밀 분석이 지연되고 있습니다.\n\n수동 분석을 위해 오픈채팅방으로 이동합니다!\n채팅방에 [이름/학교]를 남겨주세요.");
-                window.location.href = KAKAO_OPEN_CHAT;
+                alert("에러 발생! 콘솔창을 확인하시거나 아래 에러를 복사해주세요.\n\n" + error.message);
+                // window.location.href = KAKAO_OPEN_CHAT; // 🚨 진짜 에러를 보기 위해 카톡 이동을 잠시 막음
             }
         }
     </script>
