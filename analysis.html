@@ -223,24 +223,46 @@
             checkAllSavedStatus();
         }
 
-        // --- 전체 단어 저장 기능 ---
-        function saveAllKeywords() {
+       // --- 전체 단어 저장/해제 토글 기능 ---
+       function saveAllKeywords() {
             let savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
             
-            aiKeywordsObj.forEach(kw => {
-                const isExist = savedList.some(item => item.eng === kw.eng);
-                if(!isExist) {
-                    savedList.push({ eng: kw.eng, kor: kw.kor, level: kw.level, date: new Date().toLocaleDateString() });
-                }
-            });
-            localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
-            
-            document.querySelectorAll('.kw-save-btn').forEach(btn => {
-                if(btn.id !== 'save-all-btn') {
-                    btn.innerText = "✅";
-                    btn.classList.add('active');
-                }
-            });
+            // 현재 지문의 모든 단어가 이미 저장되어 있는지 확인
+            const isAllSaved = aiKeywordsObj.every(kw => savedList.some(item => item.eng === kw.eng));
+
+            if (isAllSaved) {
+                // 이미 모두 저장되어 있다면 -> 전체 해제(삭제) 진행
+                aiKeywordsObj.forEach(kw => {
+                    const idx = savedList.findIndex(item => item.eng === kw.eng);
+                    if (idx > -1) savedList.splice(idx, 1);
+                });
+                localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
+                
+                // 개별 버튼 UI 상태 복구
+                document.querySelectorAll('.kw-save-btn').forEach(btn => {
+                    if(btn.id !== 'save-all-btn') {
+                        btn.innerText = "저장";
+                        btn.classList.remove('active');
+                    }
+                });
+            } else {
+                // 하나라도 저장이 안 되어 있다면 -> 전체 저장 진행
+                aiKeywordsObj.forEach(kw => {
+                    const isExist = savedList.some(item => item.eng === kw.eng);
+                    if(!isExist) {
+                        savedList.push({ eng: kw.eng, kor: kw.kor, level: kw.level, date: new Date().toLocaleDateString() });
+                    }
+                });
+                localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
+                
+                // 개별 버튼 UI 상태 변경
+                document.querySelectorAll('.kw-save-btn').forEach(btn => {
+                    if(btn.id !== 'save-all-btn') {
+                        btn.innerText = "✅";
+                        btn.classList.add('active');
+                    }
+                });
+            }
             checkAllSavedStatus();
         }
 
@@ -252,11 +274,11 @@
             const isAllSaved = aiKeywordsObj.every(kw => savedList.some(item => item.eng === kw.eng));
             
             if(isAllSaved) {
-                allBtn.innerText = "✅ 전체 저장 완료";
+                allBtn.innerText = "✅ 저장됨 (누르면 해제)";
                 allBtn.style.background = "var(--neon-green)";
                 allBtn.style.color = "#000";
                 allBtn.style.borderColor = "var(--neon-green)";
-                allBtn.disabled = true;
+                allBtn.disabled = false; // 🔥 비활성화를 풀어서 다시 누를 수 있게 함
             } else {
                 allBtn.innerText = "전체 저장";
                 allBtn.style.background = "transparent";
