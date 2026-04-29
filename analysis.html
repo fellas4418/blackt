@@ -31,8 +31,8 @@
         .clickable-word:hover { color: var(--neon-green); }
         .hl-voca { color: var(--neon-green); font-weight: 600; }
         
-        /* 복구된 문법 하이라이트 (텍스트 길이에 딱 맞는 보라색 밑줄) */
-        .hl-grammar { border-bottom: 2px solid rgba(181, 55, 242, 0.8); padding-bottom: 1px; }
+        /* 🔥 피드백 반영: 다중 라인에서 완벽하게 문장에만 밑줄이 그어지도록 text-decoration으로 변경 */
+        .hl-grammar { text-decoration: underline; text-decoration-color: rgba(181, 55, 242, 0.8); text-decoration-thickness: 2px; text-underline-offset: 4px; }
 
         .grammar-badge { background:#bc13fe; color:#fff; border-radius:4px; padding:2px 6px; font-size:0.75rem; font-weight:bold; cursor:pointer; margin-left: 6px; vertical-align: middle; transition: 0.2s; box-shadow: 0 0 5px rgba(181, 55, 242, 0.5); }
         .grammar-badge:hover { background: #d789ff; }
@@ -488,7 +488,7 @@
                 } else {
                     clearInterval(loadingInterval);
                 }
-            }, 2500); 
+            }, 3500); 
         }
 
         function stopLoadingText(isTextMode, btn) {
@@ -514,7 +514,6 @@
 
             try {
                 let payload;
-                // 🔥 프롬프트 강화: full_word_map 포함 명령
                 const prompt = `당신은 대한민국 최고의 1타 영어 강사입니다. 입력된 지문을 분석하여 반드시 순수한 JSON 형식으로만 응답하세요. 마크다운 태그(\`\`\`json 등)는 절대 생략하세요.
 
 [필수 제약 조건]
@@ -628,8 +627,9 @@
                     });
                 }
 
+                // 🔥 피드백 반영: 안내 문구 0.8rem으로 축소
                 let keywordHtml = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                    <span style="font-size:1.5rem; color:#ccc; font-weight:bold;">* 지문의 모든 단어는 클릭하면 뜻을 볼 수 있어요!</span>
+                    <span style="font-size:0.8rem; color:#ccc; font-weight:bold;">* 지문의 모든 단어는 클릭하면 뜻을 볼 수 있어요!</span>
                     <button id="save-all-btn" class="kw-save-btn" onclick="saveAllKeywords()">전체 저장</button>
                 </div>`;
                 
@@ -705,7 +705,7 @@
                     grammarHtml = '<div style="color:#888; font-size:0.9rem;">특이한 특수 구문은 발견되지 않았습니다.</div>';
                 }
 
-                // 🔥 완벽하게 복원된 문법 하이라이트 & 단어 클릭 로직
+                // 🔥 완벽하게 복원된 문법 하이라이트 & 단어 클릭 로직 (Fallback 우회 포함)
                 let transHtml = '';
                 if(res.full_translation && Array.isArray(res.full_translation)) {
                     transHtml = res.full_translation.map(s => {
@@ -719,16 +719,25 @@
                                 if (gSent.length > 5) {
                                     const lowerFinal = finalEng.toLowerCase();
                                     const lowerGSent = gSent.toLowerCase();
+                                    
+                                    // 정확한 매칭 시도
                                     if (lowerFinal.includes(lowerGSent)) {
                                         const startIdx = lowerFinal.indexOf(lowerGSent);
                                         const actualMatch = finalEng.substring(startIdx, startIdx + gSent.length);
                                         
                                         grammarMarks += `<span class="grammar-badge" onclick="document.getElementById('grammar-box-${i}').scrollIntoView({behavior:'smooth', block:'center'})" title="${g.point.replace(/"/g, '&quot;')}">G${i+1}</span>`;
                                         
-                                        // 텍스트 길이에 맞춰 정확히 감싸기 (hl-grammar 클래스 적용)
                                         finalEng = finalEng.substring(0, startIdx) + 
                                                    `<span class="hl-grammar">${actualMatch}</span>` + 
                                                    finalEng.substring(startIdx + gSent.length);
+                                    } else {
+                                        // 우회 매칭(Fallback): 기호/공백 차이로 매칭 실패 시 텍스트 전체에 안전하게 반영
+                                        const normFinal = lowerFinal.replace(/[^a-z0-9]/g, '');
+                                        const normG = lowerGSent.replace(/[^a-z0-9]/g, '');
+                                        if (normFinal.includes(normG)) {
+                                            grammarMarks += `<span class="grammar-badge" onclick="document.getElementById('grammar-box-${i}').scrollIntoView({behavior:'smooth', block:'center'})" title="${g.point.replace(/"/g, '&quot;')}">G${i+1}</span>`;
+                                            finalEng = `<span class="hl-grammar">${finalEng}</span>`;
+                                        }
                                     }
                                 }
                             });
@@ -739,8 +748,8 @@
                         tempDiv.innerHTML = finalEng;
 
                         function makeTextNodesClickable(node) {
-                            if (node.nodeType === 3) { // 텍스트 노드일 때만 처리
-                                const words = node.nodeValue.split(/(\s+)/); // 공백을 유지하며 분할
+                            if (node.nodeType === 3) { 
+                                const words = node.nodeValue.split(/(\s+)/);
                                 const html = words.map(w => {
                                     if (/[a-zA-Z]/.test(w)) {
                                         const cleanW = w.toLowerCase().replace(/[^a-z]/g, '');
@@ -752,8 +761,10 @@
                                 const wrapper = document.createElement('span');
                                 wrapper.innerHTML = html;
                                 node.replaceWith(...wrapper.childNodes);
-                            } else if (node.nodeType === 1) { // 요소 노드 (span 등)일 때 안으로 파고들어 처리
-                                Array.from(node.childNodes).forEach(makeTextNodesClickable);
+                            } else if (node.nodeType === 1) { 
+                                if (!node.classList.contains('grammar-badge')) {
+                                    Array.from(node.childNodes).forEach(makeTextNodesClickable);
+                                }
                             }
                         }
                         
