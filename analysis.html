@@ -17,22 +17,22 @@
         .editable-area { width: 100%; min-height: 180px; max-height: 300px; background: #111; color: #fff; border: 1px solid #333; border-radius: 12px; padding: 15px; font-size: 1rem; line-height: 1.8; overflow-y: auto; outline: none; word-break: break-all; margin-bottom: 15px; box-sizing: border-box; }
         .result-card { background: rgba(255, 255, 255, 0.03); border: 1px solid #333; border-radius: 15px; padding: 20px; margin-bottom: 15px; }
         
-        /* 피드백 반영: 섹션 라벨 크기 h4(1.1rem) 통일 */
         .result-label { font-size: 1.1rem; color: var(--neon-blue); font-weight: bold; margin-bottom: 10px; display: block; letter-spacing: 1px; }
         .result-content { font-size: 0.95rem; line-height: 1.7; color: #eee; }
         .translation-row { border-bottom: 1px solid #222; padding: 15px 0; }
         .translation-row:last-child { border-bottom: none; }
         
-        /* 피드백 반영: 원문 글씨 30% 확대 */
         .eng-text { font-size: 1.15rem; color: #fff; margin-bottom: 6px; line-height: 1.5; font-weight: 400; }
         .kor-text { font-size: 0.95rem; color: #aaa; }
         .kakao-btn { width: 100%; padding: 18px; background: #fee500; color: #000; border: none; border-radius: 12px; font-weight: 900; font-size: 1.05rem; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         
-        /* 👇 피드백 반영: 단어 클릭 & 문법 보라색 밑줄 스타일 👇 */
+        /* 피드백 반영 2: 단어 배경색 제거, 글자색만 네온 그린 유지 */
         .clickable-word { cursor: pointer; display: inline-block; transition: 0.2s; border-bottom: 1px solid transparent; }
         .clickable-word:hover { color: var(--neon-green); }
-        .hl-voca { background: rgba(57, 255, 20, 0.2); color: var(--neon-green); font-weight: 600; padding: 0 2px; border-radius: 4px; border-bottom: none !important; }
-        .hl-grammar { border-bottom: 2px solid rgba(181, 55, 242, 0.6); }
+        .hl-voca { color: var(--neon-green); font-weight: 600; }
+        
+        /* 피드백 반영 1: 텍스트 길이에 딱 맞는 보라색 밑줄 */
+        .hl-grammar { border-bottom: 2px solid rgba(181, 55, 242, 0.8); padding-bottom: 1px; }
 
         .grammar-badge { background:#bc13fe; color:#fff; border-radius:4px; padding:2px 6px; font-size:0.75rem; font-weight:bold; cursor:pointer; margin-left: 6px; vertical-align: middle; transition: 0.2s; box-shadow: 0 0 5px rgba(181, 55, 242, 0.5); }
         .grammar-badge:hover { background: #d789ff; }
@@ -49,7 +49,6 @@
         .kw-save-btn { background: transparent; border: 1px solid #555; color: #aaa; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
         .kw-save-btn.active { background: var(--neon-green); color: #000; border-color: var(--neon-green); font-weight: bold; }
 
-        /* 모달 및 팝업 스타일 */
         #note-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 30000; padding: 20px; box-sizing: border-box; }
         .modal-card { background: #111; border: 1px solid #666; box-shadow: 0 0 15px rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px; width: 90%; max-width: 450px; text-align: center; max-height: 85vh; overflow-y: hidden; display: flex; flex-direction: column; box-sizing: border-box; }
         .modal-title { font-size: 1.3rem; font-weight: bold; margin-bottom: 15px; color: #fff; }
@@ -99,7 +98,12 @@
         <div id="ai-btn-area" style="display:none; margin-top: 15px;">
             <button id="ocr-btn" onclick="runGeminiAnalysis()" class="start-btn" style="border-color: var(--neon-orange);">트리거 AI 정밀 분석 시작 🔍</button>
         </div>
-        <div style="margin-top: 25px; text-align: center;"><button onclick="showDirectInput()" style="background: transparent; border: 1px solid #444; color: #888; padding: 8px 15px; border-radius: 8px; font-size: 0.8rem; cursor: pointer;">지문 직접 붙여넣기 ✍️</button></div>
+        
+        <div style="margin-top: 25px; text-align: center;">
+            <button onclick="showDirectInput()" style="background: rgba(255,255,255,0.05); border: 1px solid #ccc; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: 0.2s;">
+                지문 복사/붙여넣기로 분석하기 ✍️
+            </button>
+        </div>
     </div>
 
     <div id="edit-section">
@@ -146,7 +150,7 @@
         let currentNoteTab = 'grammar';
         let aiKeywordsObj = []; 
         let currentPassageTitle = ""; 
-        let fullWordMapGlobal = {}; // AI가 보내준 전체 단어 맵 저장용
+        let fullWordMapGlobal = {}; 
 
         function openPicker(type) {
             const input = document.getElementById('capture');
@@ -175,7 +179,6 @@
             document.getElementById('ocr-edit-area').focus();
         }
 
-        // --- 내부 DB 검색 ---
         function findWordInDB(rawWord) {
             const word = rawWord.toLowerCase().replace(/[^a-z]/g, '').trim();
             if(!word || typeof wordsData === 'undefined') return null;
@@ -198,7 +201,6 @@
             return found ? found.level : 'other';
         }
 
-        // --- 팝업 표시 ---
         function showWordPopup(eng, kor, level) {
             const popup = document.getElementById('word-popup');
             const savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
@@ -221,7 +223,6 @@
             popup.style.display = 'flex';
         }
 
-        // 피드백 반영: 지문 내 모든 단어 클릭 시 작동하는 중앙 관제탑
         window.handleWordClick = function(element) {
             const rawWord = element.innerText.toLowerCase().replace(/[^a-z-]/g, '').trim();
             if(!rawWord) return;
@@ -229,18 +230,15 @@
             let korMean = "사전에 없는 단어입니다.";
             let level = "other";
             
-            // 1순위: AI가 뽑은 필수 키워드에서 찾기
             const kw = aiKeywordsObj.find(k => k.eng.toLowerCase() === rawWord);
             if(kw) {
                 korMean = kw.kor;
                 level = kw.level;
             } 
-            // 2순위: AI가 숨겨서 보내준 전체 단어 맵(full_word_map)에서 찾기
             else if (fullWordMapGlobal && fullWordMapGlobal[rawWord]) {
                 korMean = fullWordMapGlobal[rawWord];
                 level = findVocaLevel(rawWord);
             }
-            // 3순위: 내부 DB (worddata.js)에서 찾기
             else {
                 const foundInDB = findWordInDB(rawWord);
                 if(foundInDB) {
@@ -260,7 +258,6 @@
             }
         }
 
-        // --- 사라져 연습 연동 ---
         function startVocaPractice() {
             if(aiKeywordsObj.length === 0) {
                 alert("추출된 필수 단어가 없습니다.");
@@ -268,7 +265,7 @@
             }
             const practiceData = aiKeywordsObj.map(kw => ({ word: kw.eng, mean: kw.kor }));
             localStorage.setItem('voca_practice_list', JSON.stringify(practiceData));
-            location.href = 'study.html'; // study.html로 연동!
+            location.href = 'study.html'; 
         }
 
         function toggleVocaList() {
@@ -306,7 +303,7 @@
 
         function toggleVocaSave(eng, kor, level, btnElement) {
             let savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
-            const idx = savedList.findIndex(item => item.eng === eng);
+            const idx = savedList.findIndex(item => item.eng.toLowerCase() === eng.toLowerCase());
 
             if (idx > -1) {
                 savedList.splice(idx, 1);
@@ -336,11 +333,11 @@
 
        function saveAllKeywords() {
             let savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
-            const isAllSaved = aiKeywordsObj.every(kw => savedList.some(item => item.eng === kw.eng));
+            const isAllSaved = aiKeywordsObj.every(kw => savedList.some(item => item.eng.toLowerCase() === kw.eng.toLowerCase()));
 
             if (isAllSaved) {
                 aiKeywordsObj.forEach(kw => {
-                    const idx = savedList.findIndex(item => item.eng === kw.eng);
+                    const idx = savedList.findIndex(item => item.eng.toLowerCase() === kw.eng.toLowerCase());
                     if (idx > -1) savedList.splice(idx, 1);
                 });
                 localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
@@ -353,7 +350,7 @@
                 });
             } else {
                 aiKeywordsObj.forEach(kw => {
-                    const isExist = savedList.some(item => item.eng === kw.eng);
+                    const isExist = savedList.some(item => item.eng.toLowerCase() === kw.eng.toLowerCase());
                     if(!isExist) {
                         savedList.push({ 
                             eng: kw.eng, kor: kw.kor, level: kw.level, 
@@ -379,7 +376,7 @@
             if(!allBtn || aiKeywordsObj.length === 0) return;
 
             let savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
-            const isAllSaved = aiKeywordsObj.every(kw => savedList.some(item => item.eng === kw.eng));
+            const isAllSaved = aiKeywordsObj.every(kw => savedList.some(item => item.eng.toLowerCase() === kw.eng.toLowerCase()));
             
             if(isAllSaved) {
                 allBtn.innerText = "✅ 저장됨 (누르면 해제)";
@@ -483,7 +480,6 @@
             ];
             let i = 0;
             btn.innerHTML = messages[0];
-            // 피드백 반영: 2.5초 간격으로 조절
             loadingInterval = setInterval(() => {
                 i++;
                 if(i < messages.length) {
@@ -517,7 +513,6 @@
 
             try {
                 let payload;
-                // 피드백 반영: full_word_map 추가 지령
                 const prompt = `당신은 대한민국 최고의 1타 영어 강사입니다. 입력된 지문을 분석하여 반드시 순수한 JSON 형식으로만 응답하세요. 마크다운 태그(\`\`\`json 등)는 절대 생략하세요.
 
 [필수 제약 조건]
@@ -604,7 +599,6 @@
                     res = JSON.parse(cleanJsonStr);
                 }
                 
-                // 글로벌 맵 업데이트
                 if(res.full_word_map) fullWordMapGlobal = res.full_word_map;
 
                 const categoryInfo = `${params.get('grade') || ''} ${params.get('type') || ''} ${params.get('detail') || ''}`.trim();
@@ -632,15 +626,16 @@
                     });
                 }
 
+                // 피드백 반영 3: 안내 문구 폰트 크기 2배 (0.75rem -> 1.5rem), 글자색 수정
                 let keywordHtml = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                    <span style="font-size:0.75rem; color:#888;">* 지문의 모든 단어는 클릭하면 뜻을 볼 수 있어요!</span>
+                    <span style="font-size:1.5rem; color:#ccc; font-weight:bold;">* 지문의 모든 단어는 클릭하면 뜻을 볼 수 있어요!</span>
                     <button id="save-all-btn" class="kw-save-btn" onclick="saveAllKeywords()">전체 저장</button>
                 </div>`;
                 
                 let vocaItemsArray = [];
                 if(aiKeywordsObj.length > 0) {
                     aiKeywordsObj.forEach(kw => {
-                        const isSaved = savedVocaList.some(item => item.eng === kw.eng);
+                        const isSaved = savedVocaList.some(item => item.eng.toLowerCase() === kw.eng.toLowerCase());
                         const btnClass = isSaved ? "kw-save-btn active" : "kw-save-btn";
                         const btnText = isSaved ? "✅" : "저장";
                         const safeEng = kw.eng.replace(/'/g, "\\'");
@@ -651,7 +646,7 @@
 
                         vocaItemsArray.push(`
                             <div class="kw-container">
-                                <div>${levelTag}<strong style="color:#fff; font-size:1.05rem;">${kw.eng}</strong> <span style="color:#aaa; font-size:0.9rem; margin-left:6px;">${kw.kor}</span></div>
+                                <div>${levelTag}<strong style="color:#fff; font-size:1.05rem; cursor:pointer;" onclick="showWordPopup('${safeEng}', '${safeKor}', '${kw.level}')">${kw.eng}</strong> <span style="color:#aaa; font-size:0.9rem; margin-left:6px;">${kw.kor}</span></div>
                                 <button id="btn-kw-${kw.eng}" class="${btnClass}" onclick="toggleVocaSave('${safeEng}', '${safeKor}', '${kw.level}', this)">${btnText}</button>
                             </div>
                         `);
@@ -670,7 +665,6 @@
                 
                 keywordHtml += `<button class="kakao-btn" style="background:var(--neon-green); color:#000; margin-top:15px;" onclick="startVocaPractice()">👉 사라져 VOCA로 나만의 단어 연습하기 ⚡</button>`;
 
-                // 피드백 반영: 문법 순서 정렬
                 if (res.grammar && Array.isArray(res.grammar) && res.full_translation && Array.isArray(res.full_translation)) {
                     res.grammar.forEach(g => {
                         const gClean = String(g.sentence || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -710,46 +704,68 @@
                     grammarHtml = '<div style="color:#888; font-size:0.9rem;">특이한 특수 구문은 발견되지 않았습니다.</div>';
                 }
 
-                // 해석 및 상호작용 (클릭, 보라색 밑줄, 초록색 하이라이트)
                 let transHtml = '';
                 if(res.full_translation && Array.isArray(res.full_translation)) {
                     transHtml = res.full_translation.map(s => {
                         let originalEng = String(s.eng || '');
                         
-                        // 단어 클릭 로직
-                        let wordsHtml = originalEng.split(' ').map(w => {
-                            const cleanW = w.toLowerCase().replace(/[^a-z]/g, '');
-                            const isTarget = aiKeywordsObj.some(kw => kw.eng.toLowerCase().replace(/[^a-z]/g, '') === cleanW);
-                            return `<span class="clickable-word ${isTarget?'hl-voca':''}" onclick="handleWordClick(this)">${w}</span>`;
-                        }).join(' ');
-
                         let grammarMarks = "";
-                        let hasGrammar = false;
+                        let grammarClasses = [];
 
+                        // 피드백 반영 1: 문법이 적용된 정확한 단어들에만 클래스를 입히기 위해 로직 변경
                         if (res.grammar) {
                             res.grammar.forEach((g, i) => {
-                                const sClean = originalEng.toLowerCase().replace(/[^a-z0-9]/g, '');
-                                const gClean = String(g.sentence || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-                                if (gClean.length > 5 && sClean.includes(gClean)) {
+                                const gClean = String(g.sentence || '').trim();
+                                if (gClean.length > 5 && originalEng.includes(gClean)) {
                                     grammarMarks += `<span class="grammar-badge" onclick="document.getElementById('grammar-box-${i}').scrollIntoView({behavior:'smooth', block:'center'})" title="${g.point}">G${i+1}</span>`;
-                                    hasGrammar = true;
+                                    // 원문에서 문법 문장을 찾아 hl-grammar span으로 감싸기
+                                    originalEng = originalEng.replace(gClean, `<span class="hl-grammar">${gClean}</span>`);
                                 }
                             });
                         }
 
-                        // 피드백 반영: 문법 포함 시 hl-grammar (보라색 밑줄) 추가
+                        // 단어 클릭 로직 (기존 단어 분할 방식 유지, 단 이미 태그로 감싸진 부분은 보호)
+                        // 주의: 정규식을 통해 순수 텍스트만 분할하도록 임시 처리
+                        let tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = originalEng;
+                        
+                        function processNode(node) {
+                            if (node.nodeType === 3) { // 텍스트 노드
+                                let text = node.nodeValue;
+                                let words = text.split(/\b/);
+                                let newHtml = '';
+                                words.forEach(w => {
+                                    if (/[a-zA-Z]/.test(w)) {
+                                        const cleanW = w.toLowerCase();
+                                        const isTarget = aiKeywordsObj.some(kw => kw.eng.toLowerCase() === cleanW);
+                                        newHtml += `<span class="clickable-word ${isTarget?'hl-voca':''}" onclick="handleWordClick(this)">${w}</span>`;
+                                    } else {
+                                        newHtml += w;
+                                    }
+                                });
+                                let wrapper = document.createElement('span');
+                                wrapper.innerHTML = newHtml;
+                                node.replaceWith(...wrapper.childNodes);
+                            } else if (node.nodeType === 1) { // 요소 노드 (span 등)
+                                if (node.className !== 'grammar-badge') { // 배지는 건드리지 않음
+                                    Array.from(node.childNodes).forEach(processNode);
+                                }
+                            }
+                        }
+                        
+                        Array.from(tempDiv.childNodes).forEach(processNode);
+                        let finalHtml = tempDiv.innerHTML;
+
                         return `
                         <div class="translation-row">
-                            <div class="eng-text ${hasGrammar ? 'hl-grammar' : ''}">${wordsHtml}${grammarMarks}</div>
+                            <div class="eng-text">${finalHtml}${grammarMarks}</div>
                             <div class="kor-text">${s.kor || ''}</div>
                         </div>`;
                     }).join('');
                 }
 
-                // 피드백 반영: 순서 변경 적용
                 document.getElementById('ai-report-area').innerHTML = `
                     <div class="result-card"><span class="result-label" style="color:var(--neon-green);">📝 해석</span><div class="result-content">
-                        <div style="font-size:0.75rem; color:#888; margin-bottom:10px;">* 지문의 모든 단어는 클릭하면 뜻을 볼 수 있어요!</div>
                         ${transHtml}
                     </div></div>
                     <div class="result-card" style="border-color: #bc13fe;"><span class="result-label" style="color:#bc13fe;">🛠️ 트리거 팀의 문법 포인트</span><div class="result-content">${grammarHtml}</div></div>
