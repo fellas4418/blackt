@@ -119,7 +119,7 @@
         
         <div class="guide-box" style="border-color: #b537f2; background: rgba(181, 55, 242, 0.05); margin-top: 25px;">
             <p class="guide-title" style="color: #d789ff; font-size:1.1rem;">🔥 근본적인 독해력을 올리고 싶다면?</p>
-            <p class="guide-text" style="color: #eee; font-size:0.95rem;">단어는 아는데 해석이 턱턱 막히고 문장 구조가 안 보이시나요?<br>특수 구문부터 필수 문법까지 <b>단 3시간 만에 뚫어내는 기적의 커리큘럼.</b></p>
+            <p class="guide-text" style="color: #eee; font-size:0.95rem;">단어는 아는데 해석이 턱턱 막히고 문장 구조가 안 보이시나요?<br>특수 구문부터 필수 문법까지 <b>단 3시간 만에 영어의 문을 여는 가장 명쾌한 로드맵.</b></p>
             <button onclick="window.open('https://tri3.imweb.me/', '_blank')" class="kakao-btn" style="background:#b537f2; color:#fff; border-radius:12px;">👉 된다니까 3시간 영문법 수강하기 ⚡</button>
         </div>
 
@@ -445,22 +445,27 @@
         function startLoadingText() {
             const btn = document.getElementById('ocr-btn') || document.getElementById('run-btn');
             const messages = [
-                "지문 난이도를 스캔하는 중이에요...",
-                "핵심 문법과 필수 어휘를 <br> 뽑아내는 중이에요...",
-                "거의 다 됐습니다! <br>리포트를 생성하는 중이에요..."
+                "지문 난이도를 파악하고 있어요.",
+                "핵심 문법과 필수 어휘 리스트를<br>정리하고 있어요.",
+                "거의 다 됐습니다!<br>곧 리포트를 생성합니다."
             ];
             let i = 0;
-            btn.innerText = messages[0];
+            btn.innerHTML = messages[0]; // innerHTML로 변경하여 <br> 적용
+            // 2초(2000ms) 간격으로 문구 변경
             loadingInterval = setInterval(() => {
                 i++;
-                if(i < messages.length) btn.innerText = messages[i];
-            }, 5500); 
+                if(i < messages.length) {
+                    btn.innerHTML = messages[i];
+                } else {
+                    clearInterval(loadingInterval);
+                }
+            }, 2000); 
         }
 
         function stopLoadingText(isTextMode, btn) {
             clearInterval(loadingInterval);
             btn.disabled = false;
-            btn.innerText = isTextMode ? "정밀 분석 실행 🚀" : "트리거 AI 정밀 분석 시작 🔍";
+            btn.innerHTML = isTextMode ? "정밀 분석 실행 🚀" : "트리거 AI 정밀 분석 시작 🔍";
         }
 
         async function runGeminiAnalysis(isTextMode = false) {
@@ -480,7 +485,6 @@
 
             try {
                 let payload;
-                // 🔥 프롬프트 변경: 단어 20~30개 강제 추출 로직 강화
                 const prompt = `당신은 대한민국 최고의 1타 영어 강사입니다. 입력된 지문을 분석하여 반드시 순수한 JSON 형식으로만 응답하세요. 마크다운 태그(\`\`\`json 등)는 절대 생략하세요.
 
 [필수 제약 조건]
@@ -576,13 +580,14 @@
                     <div style="font-size:0.9rem; color:#aaa; background:#222; padding:10px; border-radius:8px; line-height: 1.5;">💡 ${res.subject?.easy || ''}</div>
                 `;
 
-                // 🔥 단어 렌더링 & 아코디언 로직
+                // 🔥 단어 추출 (공백 보존을 위해 정규식 수정: [^a-zA-Z\s])
                 aiKeywordsObj = [];
                 let savedVocaList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
                 if (res.keywords && Array.isArray(res.keywords)) {
                     res.keywords.forEach(kw => {
                         const parts = String(kw || '').split('(');
-                        const engWord = parts[0].replace(/[^a-zA-Z]/g, '').trim();
+                        // 공백 보존 처리
+                        const engWord = parts[0].replace(/[^a-zA-Z\s-]/g, '').trim();
                         const korMean = parts.length > 1 ? parts[1].replace(')', '').trim() : '';
                         if (engWord.length > 1) {
                             const level = findVocaLevel(engWord);
@@ -630,8 +635,24 @@
                 // 사라져 VOCA 연습 버튼 추가
                 keywordHtml += `<button class="kakao-btn" style="background:var(--neon-green); color:#000; margin-top:15px;" onclick="startVocaPractice()">👉 사라져 VOCA로 나만의 단어 연습하기 ⚡</button>`;
 
+                // 🔥 문법 순서 정렬 (지문에 등장하는 순서 기준)
+                if (res.grammar && Array.isArray(res.grammar) && res.full_translation && Array.isArray(res.full_translation)) {
+                    res.grammar.forEach(g => {
+                        const gClean = String(g.sentence || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                        let fIndex = 999;
+                        for (let i = 0; i < res.full_translation.length; i++) {
+                            const sClean = String(res.full_translation[i].eng || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                            if (gClean.length > 5 && sClean.includes(gClean)) {
+                                fIndex = i;
+                                break;
+                            }
+                        }
+                        g._order = fIndex;
+                    });
+                    // 순서대로 정렬
+                    res.grammar.sort((a, b) => a._order - b._order);
+                }
 
-                // 🔥 문법 렌더링 & 지문 인덱싱 매칭
                 let grammarHtml = '';
                 let savedGrammarList = JSON.parse(localStorage.getItem('trigger_saved_grammar') || '[]');
                 if(res.grammar && res.grammar.length > 0) {
@@ -655,8 +676,7 @@
                     grammarHtml = '<div style="color:#888; font-size:0.9rem;">특이한 특수 구문은 발견되지 않았습니다.</div>';
                 }
 
-
-                // 🔥 해석 렌더링 (단어 팝업 + 문법 배지 적용)
+                // 🔥 해석 렌더링 (단어 팝업 + 문법 배지)
                 let transHtml = '';
                 if(res.full_translation && Array.isArray(res.full_translation)) {
                     transHtml = res.full_translation.map(s => {
@@ -674,9 +694,10 @@
                             });
                         }
 
-                        // 단어 클릭 하이라이트 달기
+                        // 단어 클릭 하이라이트
                         aiKeywordsObj.forEach(kw => {
                             if (kw.eng.length > 2) {
+                                // 공백 유지한 채로 정규식 매칭
                                 const regex = new RegExp(`\\b(${kw.eng})\\b`, "gi");
                                 const safeEng = kw.eng.replace(/'/g, "\\'");
                                 const safeKor = kw.kor.replace(/'/g, "\\'");
@@ -692,7 +713,6 @@
                     }).join('');
                 }
 
-                // 🔥 순서 변경 (해석 -> 문법 -> 단어 -> 주제 -> 배경지식)
                 document.getElementById('ai-report-area').innerHTML = `
                     <div class="result-card"><span class="result-label" style="color:var(--neon-green);">📝 해석</span><div class="result-content">${transHtml}</div></div>
                     <div class="result-card" style="border-color: #bc13fe;"><span class="result-label" style="color:#bc13fe;">🛠️ 트리거 팀의 문법 포인트</span><div class="result-content">${grammarHtml}</div></div>
