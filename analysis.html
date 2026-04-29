@@ -229,34 +229,52 @@
         }
 
         window.handleWordClick = function(element) {
-    // 1. 특수문자 완전히 날리기 (Cleaning)
-    let rawWord = element.innerText.toLowerCase().replace(/[^a-z-]/g, '').trim();
-    if(!rawWord) return;
-    
-    let korMean = "";
-    let level = "other";
+            const rawWord = element.innerText.toLowerCase().replace(/[^a-z-]/g, '').trim();
+            if(!rawWord) return;
+            
+            // 🔥 피드백 반영: 주요 문법 단어 예외 처리 (학습 가이드 제공)
+            const grammarExceptionMap = {
+                "which": "관계대명사: 앞의 명사를 보충 설명해 줘요.",
+                "that": "관계대명사/접속사: 문장을 연결하거나 명사를 보충 설명해요.",
+                "who": "관계대명사: 앞의 '사람' 명사를 구체적으로 설명해 줘요.",
+                "whom": "관계대명사(목적격): 설명하는 명사가 뒷문장의 목적어 역할을 해요.",
+                "whose": "관계대명사(소유격): '~의'라는 소유의 의미로 앞 명사를 설명해요.",
+                "where": "관계부사: 앞의 '장소' 명사를 문장으로 상세히 설명해요.",
+                "when": "관계부사: 앞의 '시간' 명사를 문장으로 상세히 설명해요.",
+                "why": "관계부사: 앞의 '이유' 명사를 문장으로 상세히 설명해요.",
+                "how": "관계부사: '~하는 방식'의 의미로 문장을 이끌어요."
+            };
 
-    // 2. 검색 함수 (원형 추론 포함)
-    function search(word) {
-        // AI가 준 맵 검색
-        if (fullWordMapGlobal && fullWordMapGlobal[word]) return fullWordMapGlobal[word];
-        // 내부 DB 검색
-        const db = findWordInDB(word);
-        if (db) return db.kor;
-        return null;
-    }
-
-    // 3. 무적의 3단계 검색
-    korMean = search(rawWord); // 그대로 검색
-    if(!korMean) korMean = search(rawWord.replace(/ed$|ing$|s$|es$|d$/g, '')); // 어미 떼고 검색
-    if(!korMean && rawWord.length > 5) korMean = search(rawWord.substring(0, rawWord.length - 1)); // 한글자 줄여보기
-
-    if(!korMean) {
-        korMean = "사전에 없는 단어입니다.";
-    }
-    
-    showWordPopup(element.innerText.replace(/[^a-zA-Z-]/g, ''), korMean, level);
-};
+            if (grammarExceptionMap[rawWord]) {
+                showWordPopup(element.innerText.replace(/[^a-zA-Z-]/g, ''), grammarExceptionMap[rawWord], "other");
+                return;
+            }
+            
+            let korMean = "사전에 없는 단어입니다.";
+            let level = "other";
+            
+            const kw = aiKeywordsObj.find(k => k.eng.toLowerCase() === rawWord);
+            if(kw) {
+                korMean = kw.kor;
+                level = kw.level;
+            } 
+            else if (fullWordMapGlobal) {
+                const mapKey = Object.keys(fullWordMapGlobal).find(k => k.toLowerCase() === rawWord);
+                if(mapKey) {
+                    korMean = fullWordMapGlobal[mapKey];
+                    level = findVocaLevel(rawWord) || "other";
+                } else {
+                    const foundInDB = findWordInDB(rawWord);
+                    if(foundInDB) { korMean = foundInDB.kor; level = foundInDB.level; }
+                }
+            }
+            else {
+                const foundInDB = findWordInDB(rawWord);
+                if(foundInDB) { korMean = foundInDB.kor; level = foundInDB.level; }
+            }
+            
+            showWordPopup(element.innerText.replace(/[^a-zA-Z-]/g, ''), korMean, level);
+        };
 
         function updatePassageTitleManually() {
             const inputVal = document.getElementById('passage-title-input').value.trim();
@@ -413,7 +431,6 @@
             document.getElementById('note-modal').style.display = 'flex';
         }
 
-        // 🔥 새롭게 추가된 기능: 폴더 접기/펼침 동작 함수
         window.togglePassageFolder = function(index) {
             const folder = document.getElementById('passage-folder-' + index);
             const icon = document.getElementById('passage-icon-' + index);
@@ -426,7 +443,6 @@
             }
         };
 
-        // 🔥 새롭게 추가된 기능: 내 학습 노트 렌더링 시 지문별로 묶어서 폴더(아코디언) UI 생성
         function renderNoteList() {
             const listArea = document.getElementById('note-list-container');
             let html = "";
