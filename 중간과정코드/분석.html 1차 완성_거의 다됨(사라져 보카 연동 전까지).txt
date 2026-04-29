@@ -229,34 +229,34 @@
         }
 
         window.handleWordClick = function(element) {
-            const rawWord = element.innerText.toLowerCase().replace(/[^a-z-]/g, '').trim();
-            if(!rawWord) return;
-            
-            let korMean = "사전에 없는 단어입니다.";
-            let level = "other";
-            
-            const kw = aiKeywordsObj.find(k => k.eng.toLowerCase() === rawWord);
-            if(kw) {
-                korMean = kw.kor;
-                level = kw.level;
-            } 
-            else if (fullWordMapGlobal) {
-                const mapKey = Object.keys(fullWordMapGlobal).find(k => k.toLowerCase() === rawWord);
-                if(mapKey) {
-                    korMean = fullWordMapGlobal[mapKey];
-                    level = findVocaLevel(rawWord) || "other";
-                } else {
-                    const foundInDB = findWordInDB(rawWord);
-                    if(foundInDB) { korMean = foundInDB.kor; level = foundInDB.level; }
-                }
-            }
-            else {
-                const foundInDB = findWordInDB(rawWord);
-                if(foundInDB) { korMean = foundInDB.kor; level = foundInDB.level; }
-            }
-            
-            showWordPopup(element.innerText.replace(/[^a-zA-Z-]/g, ''), korMean, level);
-        };
+    // 1. 특수문자 완전히 날리기 (Cleaning)
+    let rawWord = element.innerText.toLowerCase().replace(/[^a-z-]/g, '').trim();
+    if(!rawWord) return;
+    
+    let korMean = "";
+    let level = "other";
+
+    // 2. 검색 함수 (원형 추론 포함)
+    function search(word) {
+        // AI가 준 맵 검색
+        if (fullWordMapGlobal && fullWordMapGlobal[word]) return fullWordMapGlobal[word];
+        // 내부 DB 검색
+        const db = findWordInDB(word);
+        if (db) return db.kor;
+        return null;
+    }
+
+    // 3. 무적의 3단계 검색
+    korMean = search(rawWord); // 그대로 검색
+    if(!korMean) korMean = search(rawWord.replace(/ed$|ing$|s$|es$|d$/g, '')); // 어미 떼고 검색
+    if(!korMean && rawWord.length > 5) korMean = search(rawWord.substring(0, rawWord.length - 1)); // 한글자 줄여보기
+
+    if(!korMean) {
+        korMean = "사전에 없는 단어입니다.";
+    }
+    
+    showWordPopup(element.innerText.replace(/[^a-zA-Z-]/g, ''), korMean, level);
+};
 
         function updatePassageTitleManually() {
             const inputVal = document.getElementById('passage-title-input').value.trim();
@@ -413,6 +413,20 @@
             document.getElementById('note-modal').style.display = 'flex';
         }
 
+        // 🔥 새롭게 추가된 기능: 폴더 접기/펼침 동작 함수
+        window.togglePassageFolder = function(index) {
+            const folder = document.getElementById('passage-folder-' + index);
+            const icon = document.getElementById('passage-icon-' + index);
+            if(folder.style.display === 'none') {
+                folder.style.display = 'block';
+                icon.innerText = "▼";
+            } else {
+                folder.style.display = 'none';
+                icon.innerText = "▶";
+            }
+        };
+
+        // 🔥 새롭게 추가된 기능: 내 학습 노트 렌더링 시 지문별로 묶어서 폴더(아코디언) UI 생성
         function renderNoteList() {
             const listArea = document.getElementById('note-list-container');
             let html = "";
@@ -422,38 +436,55 @@
             if (savedList.length === 0) {
                 html = `<p style='text-align:center; color:#888; margin-top:20px;'>저장된 내역이 없습니다.</p>`;
             } else {
-                let lastPassageTitle = "";
-                savedList.slice().reverse().forEach((item, idx) => {
+                let groupedData = {};
+                savedList.slice().reverse().forEach((item, originalReverseIdx) => {
+                    const realIndex = savedList.length - 1 - originalReverseIdx;
                     const pTitle = item.passageTitle || "미지정 지문";
-                    if (pTitle !== lastPassageTitle) {
-                        html += `<div style="color:var(--neon-blue); font-size:0.8rem; font-weight:bold; margin: 18px 0 8px 0; border-bottom:1px solid #333; padding-bottom:4px; display:flex; align-items:center; gap:5px;">📌 ${pTitle}</div>`;
-                        lastPassageTitle = pTitle;
-                    }
-
-                    if (currentNoteTab === 'grammar') {
-                        html += `
-                            <div style="background: rgba(181, 55, 242, 0.05); border-left: 3px solid #bc13fe; padding: 12px; margin-bottom: 12px; border-radius: 4px; position: relative;">
-                                <button onclick="deleteNoteItem('grammar', ${savedList.length - 1 - idx})" style="position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #888; font-size: 1.2rem; cursor: pointer;">×</button>
-                                <strong style="color:#d789ff; display:block; margin-bottom:4px; padding-right:20px;">⚡ ${item.point}</strong>
-                                <div style="color:#ddd; font-size:0.85rem; font-style:italic; margin-bottom:6px;">"${item.sentence}"</div>
-                                <div style="color:#eee; font-size:0.9rem;">${item.explanation}</div>
-                            </div>
-                        `;
-                    } else {
-                        let levelTag = item.level === 'middle' ? '<span class="kw-tag kw-mid">중등</span>' : 
-                                       item.level === 'high' ? '<span class="kw-tag kw-high">고등</span>' : '';
-                        html += `
-                            <div class="kw-container" style="background:#1a1a1a;">
-                                <div>
-                                    ${levelTag}
-                                    <strong style="color:#fff; font-size:1.05rem;">${item.eng}</strong> 
-                                    <span style="color:#aaa; font-size:0.9rem; margin-left:6px;">${item.kor}</span>
-                                </div>
-                                <button onclick="deleteNoteItem('voca', ${savedList.length - 1 - idx})" style="background:transparent; border:none; color:#888; font-size:1.1rem; cursor:pointer;">×</button>
-                            </div>
-                        `;
-                    }
+                    if(!groupedData[pTitle]) groupedData[pTitle] = [];
+                    groupedData[pTitle].push({ item, realIndex });
                 });
+
+                let folderIndex = 0;
+                for(let title in groupedData) {
+                    html += `
+                        <div onclick="togglePassageFolder(${folderIndex})" style="color:var(--neon-blue); font-size:0.9rem; font-weight:bold; margin: 18px 0 8px 0; border-bottom:1px solid #333; padding-bottom:6px; display:flex; align-items:center; justify-content:space-between; cursor:pointer;">
+                            <span>📌 ${title} <span style="color:#888; font-size:0.75rem; font-weight:normal;">(${groupedData[title].length}개)</span></span>
+                            <span id="passage-icon-${folderIndex}" style="color:#888; font-size:0.8rem;">▼</span>
+                        </div>
+                        <div id="passage-folder-${folderIndex}" style="display:block;">
+                    `;
+                    
+                    groupedData[title].forEach(dataObj => {
+                        const item = dataObj.item;
+                        const idx = dataObj.realIndex;
+
+                        if (currentNoteTab === 'grammar') {
+                            html += `
+                                <div style="background: rgba(181, 55, 242, 0.05); border-left: 3px solid #bc13fe; padding: 12px; margin-bottom: 12px; border-radius: 4px; position: relative;">
+                                    <button onclick="deleteNoteItem('grammar', ${idx})" style="position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #888; font-size: 1.2rem; cursor: pointer;">×</button>
+                                    <strong style="color:#d789ff; display:block; margin-bottom:4px; padding-right:20px;">⚡ ${item.point}</strong>
+                                    <div style="color:#ddd; font-size:0.85rem; font-style:italic; margin-bottom:6px;">"${item.sentence}"</div>
+                                    <div style="color:#eee; font-size:0.9rem;">${item.explanation}</div>
+                                </div>
+                            `;
+                        } else {
+                            let levelTag = item.level === 'middle' ? '<span class="kw-tag kw-mid">중등</span>' : 
+                                           item.level === 'high' ? '<span class="kw-tag kw-high">고등</span>' : '';
+                            html += `
+                                <div class="kw-container" style="background:#1a1a1a;">
+                                    <div>
+                                        ${levelTag}
+                                        <strong style="color:#fff; font-size:1.05rem;">${item.eng}</strong> 
+                                        <span style="color:#aaa; font-size:0.9rem; margin-left:6px;">${item.kor}</span>
+                                    </div>
+                                    <button onclick="deleteNoteItem('voca', ${idx})" style="background:transparent; border:none; color:#888; font-size:1.1rem; cursor:pointer;">×</button>
+                                </div>
+                            `;
+                        }
+                    });
+                    html += `</div>`; 
+                    folderIndex++;
+                }
             }
             listArea.innerHTML = html;
         }
@@ -635,7 +666,6 @@
                     });
                 }
 
-                // 🔥 피드백 반영: 안내 문구 0.8rem으로 축소
                 let keywordHtml = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                     <span style="font-size:0.8rem; color:#ccc; font-weight:bold;">* 지문의 모든 단어는 클릭하면 뜻을 볼 수 있어요!</span>
                     <button id="save-all-btn" class="kw-save-btn" onclick="saveAllKeywords()">전체 저장</button>
@@ -713,14 +743,12 @@
                     grammarHtml = '<div style="color:#888; font-size:0.9rem;">특이한 특수 구문은 발견되지 않았습니다.</div>';
                 }
 
-                // 🔥 완벽하게 복원된 문법 하이라이트 & 단어 클릭 로직 (Fallback 우회 포함)
                 let transHtml = '';
                 if(res.full_translation && Array.isArray(res.full_translation)) {
                     transHtml = res.full_translation.map(s => {
                         let finalEng = String(s.eng || '');
                         let grammarMarks = "";
 
-                        // 1. 문법 문장 먼저 찾아 보라색 <span>으로 감싸고 배지 부착
                         if (res.grammar) {
                             res.grammar.forEach((g, i) => {
                                 const gSent = String(g.sentence || '').trim();
@@ -728,7 +756,6 @@
                                     const lowerFinal = finalEng.toLowerCase();
                                     const lowerGSent = gSent.toLowerCase();
                                     
-                                    // 정확한 매칭 시도
                                     if (lowerFinal.includes(lowerGSent)) {
                                         const startIdx = lowerFinal.indexOf(lowerGSent);
                                         const actualMatch = finalEng.substring(startIdx, startIdx + gSent.length);
@@ -739,7 +766,6 @@
                                                    `<span class="hl-grammar">${actualMatch}</span>` + 
                                                    finalEng.substring(startIdx + gSent.length);
                                     } else {
-                                        // 우회 매칭(Fallback): 기호/공백 차이로 매칭 실패 시 텍스트 전체에 안전하게 반영
                                         const normFinal = lowerFinal.replace(/[^a-z0-9]/g, '');
                                         const normG = lowerGSent.replace(/[^a-z0-9]/g, '');
                                         if (normFinal.includes(normG)) {
@@ -751,7 +777,6 @@
                             });
                         }
 
-                        // 2. 단어 개별 클릭 처리 (HTML 태그를 깨지 않도록 DOM 트리를 순회하며 안전하게 단어만 분리)
                         let tempDiv = document.createElement('div');
                         tempDiv.innerHTML = finalEng;
 
