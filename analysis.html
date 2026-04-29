@@ -17,22 +17,23 @@
         .editable-area { width: 100%; min-height: 180px; max-height: 300px; background: #111; color: #fff; border: 1px solid #333; border-radius: 12px; padding: 15px; font-size: 1rem; line-height: 1.8; overflow-y: auto; outline: none; word-break: break-all; margin-bottom: 15px; box-sizing: border-box; }
         .result-card { background: rgba(255, 255, 255, 0.03); border: 1px solid #333; border-radius: 15px; padding: 20px; margin-bottom: 15px; }
         
-        /* 피드백 반영: 섹션 라벨 크기 h4(1.1rem)급으로 통일 */
-        .result-label { font-size: 1.1rem; color: var(--neon-blue); font-weight: bold; margin-bottom: 15px; display: block; letter-spacing: 0.5px; }
+        /* 피드백 반영: 섹션 라벨 크기 h4(1.1rem) 통일 */
+        .result-label { font-size: 1.1rem; color: var(--neon-blue); font-weight: bold; margin-bottom: 10px; display: block; letter-spacing: 1px; }
         .result-content { font-size: 0.95rem; line-height: 1.7; color: #eee; }
         .translation-row { border-bottom: 1px solid #222; padding: 15px 0; }
         .translation-row:last-child { border-bottom: none; }
         
-        /* 피드백 반영: 원문 텍스트 30% 확대 (0.85rem -> 1.15rem) */
-        .eng-text { font-size: 1.15rem; color: #fff; margin-bottom: 6px; line-height: 1.5; }
+        /* 피드백 반영: 원문 글씨 30% 확대 */
+        .eng-text { font-size: 1.15rem; color: #fff; margin-bottom: 6px; line-height: 1.5; font-weight: 400; }
         .kor-text { font-size: 0.95rem; color: #aaa; }
         .kakao-btn { width: 100%; padding: 18px; background: #fee500; color: #000; border: none; border-radius: 12px; font-weight: 900; font-size: 1.05rem; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         
-        /* 피드백 반영: 클릭 가능 단어 스타일 추가 & 하이라이트는 점선 밑줄만 */
+        /* 👇 피드백 반영: 단어 클릭 & 문법 보라색 밑줄 스타일 👇 */
         .clickable-word { cursor: pointer; display: inline-block; transition: 0.2s; border-bottom: 1px solid transparent; }
         .clickable-word:hover { color: var(--neon-green); }
-        .hl-voca { border-bottom: 2px dashed rgba(57, 255, 20, 0.8) !important; color: var(--neon-green); font-weight: 600; }
-        
+        .hl-voca { background: rgba(57, 255, 20, 0.2); color: var(--neon-green); font-weight: 600; padding: 0 2px; border-radius: 4px; border-bottom: none !important; }
+        .hl-grammar { border-bottom: 2px solid rgba(181, 55, 242, 0.6); }
+
         .grammar-badge { background:#bc13fe; color:#fff; border-radius:4px; padding:2px 6px; font-size:0.75rem; font-weight:bold; cursor:pointer; margin-left: 6px; vertical-align: middle; transition: 0.2s; box-shadow: 0 0 5px rgba(181, 55, 242, 0.5); }
         .grammar-badge:hover { background: #d789ff; }
         
@@ -48,6 +49,7 @@
         .kw-save-btn { background: transparent; border: 1px solid #555; color: #aaa; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
         .kw-save-btn.active { background: var(--neon-green); color: #000; border-color: var(--neon-green); font-weight: bold; }
 
+        /* 모달 및 팝업 스타일 */
         #note-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 30000; padding: 20px; box-sizing: border-box; }
         .modal-card { background: #111; border: 1px solid #666; box-shadow: 0 0 15px rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px; width: 90%; max-width: 450px; text-align: center; max-height: 85vh; overflow-y: hidden; display: flex; flex-direction: column; box-sizing: border-box; }
         .modal-title { font-size: 1.3rem; font-weight: bold; margin-bottom: 15px; color: #fff; }
@@ -144,6 +146,7 @@
         let currentNoteTab = 'grammar';
         let aiKeywordsObj = []; 
         let currentPassageTitle = ""; 
+        let fullWordMapGlobal = {}; // AI가 보내준 전체 단어 맵 저장용
 
         function openPicker(type) {
             const input = document.getElementById('capture');
@@ -172,20 +175,18 @@
             document.getElementById('ocr-edit-area').focus();
         }
 
-        // 피드백 반영: 실시간 단어 검색 (모든 단어 대상)
+        // --- 내부 DB 검색 ---
         function findWordInDB(rawWord) {
             const word = rawWord.toLowerCase().replace(/[^a-z]/g, '').trim();
             if(!word || typeof wordsData === 'undefined') return null;
-            
-            const searchGroups = ['middle', 'high'];
-            for(let group of searchGroups) {
-                if(!wordsData[group]) continue;
-                for(let week in wordsData[group]) {
-                    for(let day in wordsData[group][week]) {
-                        const dayData = wordsData[group][week][day];
-                        const arr = Array.isArray(dayData) ? dayData : (dayData.test || []);
-                        const found = arr.find(w => w && w.word && w.word.toLowerCase() === word);
-                        if(found) return { eng: found.word, kor: found.mean, level: group };
+            const groups = ['middle', 'high'];
+            for(let g of groups) {
+                if(!wordsData[g]) continue;
+                for(let w in wordsData[g]) {
+                    for(let d in wordsData[g][w]) {
+                        const data = Array.isArray(wordsData[g][w][d]) ? wordsData[g][w][d] : (wordsData[g][w][d].test || []);
+                        const f = data.find(item => item && item.word && item.word.toLowerCase() === word);
+                        if(f) return { eng: f.word, kor: f.mean, level: g };
                     }
                 }
             }
@@ -197,31 +198,59 @@
             return found ? found.level : 'other';
         }
 
+        // --- 팝업 표시 ---
         function showWordPopup(eng, kor, level) {
             const popup = document.getElementById('word-popup');
             const savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
             const isSaved = savedList.some(item => item.eng.toLowerCase() === eng.toLowerCase());
+            const btnText = isSaved ? "✅" : "저장";
+            const btnClass = isSaved ? "kw-save-btn active" : "kw-save-btn";
             const safeEng = eng.replace(/'/g, "\\'");
             const safeKor = kor.replace(/'/g, "\\'");
             
             popup.innerHTML = `
-                <div style="flex:1;"><strong style="color:#fff; font-size:1.1rem;">${eng}</strong><div style="color:#aaa; font-size:0.85rem; margin-top:2px;">${kor}</div></div>
+                <div style="flex:1;">
+                    <strong style="color:#fff; font-size:1.15rem;">${eng}</strong>
+                    <div style="color:#aaa; font-size:0.9rem; margin-top:2px;">${kor}</div>
+                </div>
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <button class="kw-save-btn ${isSaved?'active':''}" onclick="toggleVocaSave('${safeEng}', '${safeKor}', '${level}', this)" style="padding: 6px 12px;">${isSaved?'✅':'저장'}</button>
+                    <button class="${btnClass}" onclick="toggleVocaSave('${safeEng}', '${safeKor}', '${level}', this)" style="padding: 6px 12px;">${btnText}</button>
                     <button onclick="document.getElementById('word-popup').style.display='none'" style="background:transparent; border:none; color:#888; font-size:1.5rem; cursor:pointer; line-height:1; padding:0;">×</button>
-                </div>`;
+                </div>
+            `;
             popup.style.display = 'flex';
         }
 
-        function handleWordClick(element) {
-            const rawWord = element.innerText;
-            const found = findWordInDB(rawWord);
-            if(found) {
-                showWordPopup(found.eng, found.kor, found.level);
-            } else {
-                showWordPopup(rawWord.replace(/[^a-zA-Z]/g, ''), "사전에 없는 단어입니다.", "other");
+        // 피드백 반영: 지문 내 모든 단어 클릭 시 작동하는 중앙 관제탑
+        window.handleWordClick = function(element) {
+            const rawWord = element.innerText.toLowerCase().replace(/[^a-z-]/g, '').trim();
+            if(!rawWord) return;
+            
+            let korMean = "사전에 없는 단어입니다.";
+            let level = "other";
+            
+            // 1순위: AI가 뽑은 필수 키워드에서 찾기
+            const kw = aiKeywordsObj.find(k => k.eng.toLowerCase() === rawWord);
+            if(kw) {
+                korMean = kw.kor;
+                level = kw.level;
+            } 
+            // 2순위: AI가 숨겨서 보내준 전체 단어 맵(full_word_map)에서 찾기
+            else if (fullWordMapGlobal && fullWordMapGlobal[rawWord]) {
+                korMean = fullWordMapGlobal[rawWord];
+                level = findVocaLevel(rawWord);
             }
-        }
+            // 3순위: 내부 DB (worddata.js)에서 찾기
+            else {
+                const foundInDB = findWordInDB(rawWord);
+                if(foundInDB) {
+                    korMean = foundInDB.kor;
+                    level = foundInDB.level;
+                }
+            }
+            
+            showWordPopup(element.innerText.replace(/[^a-zA-Z-]/g, ''), korMean, level);
+        };
 
         function updatePassageTitleManually() {
             const inputVal = document.getElementById('passage-title-input').value.trim();
@@ -229,6 +258,17 @@
                 currentPassageTitle = inputVal;
                 alert("지문 제목이 '" + currentPassageTitle + "'으로 설정되었습니다.");
             }
+        }
+
+        // --- 사라져 연습 연동 ---
+        function startVocaPractice() {
+            if(aiKeywordsObj.length === 0) {
+                alert("추출된 필수 단어가 없습니다.");
+                return;
+            }
+            const practiceData = aiKeywordsObj.map(kw => ({ word: kw.eng, mean: kw.kor }));
+            localStorage.setItem('voca_practice_list', JSON.stringify(practiceData));
+            location.href = 'study.html'; // study.html로 연동!
         }
 
         function toggleVocaList() {
@@ -241,18 +281,6 @@
                 moreList.style.display = 'none';
                 btn.innerText = "전체 단어 보기 ▼";
             }
-        }
-
-        // 피드백 반영: study.html로 단어 데이터 연동
-        function startVocaPractice() {
-            if(aiKeywordsObj.length === 0) {
-                alert("추출된 필수 단어가 없습니다.");
-                return;
-            }
-            // 사라져 시스템에서 읽을 수 있게 voca_practice_list에 저장
-            const practiceData = aiKeywordsObj.map(kw => ({ word: kw.eng, mean: kw.kor }));
-            localStorage.setItem('voca_practice_list', JSON.stringify(practiceData));
-            location.href = 'study.html';
         }
 
         function toggleGrammarSave(point, sentence, explanation, btnElement) {
@@ -278,46 +306,71 @@
 
         function toggleVocaSave(eng, kor, level, btnElement) {
             let savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
-            const idx = savedList.findIndex(item => item.eng.toLowerCase() === eng.toLowerCase());
+            const idx = savedList.findIndex(item => item.eng === eng);
 
             if (idx > -1) {
                 savedList.splice(idx, 1);
-                if(btnElement) { btnElement.innerText = "저장"; btnElement.classList.remove('active'); }
+                localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
+                if(btnElement) {
+                    btnElement.innerText = "저장";
+                    btnElement.classList.remove('active');
+                }
                 const listBtn = document.getElementById(`btn-kw-${eng}`);
                 if(listBtn) { listBtn.innerText = "저장"; listBtn.classList.remove('active'); }
             } else {
-                savedList.push({ eng: eng, kor: kor, level: level, passageTitle: currentPassageTitle, date: new Date().toLocaleDateString() });
-                if(btnElement) { btnElement.innerText = "✅"; btnElement.classList.add('active'); }
+                savedList.push({ 
+                    eng: eng, kor: kor, level: level, 
+                    passageTitle: currentPassageTitle, 
+                    date: new Date().toLocaleDateString() 
+                });
+                localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
+                if(btnElement) {
+                    btnElement.innerText = "✅";
+                    btnElement.classList.add('active');
+                }
                 const listBtn = document.getElementById(`btn-kw-${eng}`);
                 if(listBtn) { listBtn.innerText = "✅"; listBtn.classList.add('active'); }
             }
-            localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
             checkAllSavedStatus();
         }
 
        function saveAllKeywords() {
             let savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
-            const isAllSaved = aiKeywordsObj.every(kw => savedList.some(item => item.eng.toLowerCase() === kw.eng.toLowerCase()));
+            const isAllSaved = aiKeywordsObj.every(kw => savedList.some(item => item.eng === kw.eng));
 
             if (isAllSaved) {
                 aiKeywordsObj.forEach(kw => {
-                    const idx = savedList.findIndex(item => item.eng.toLowerCase() === kw.eng.toLowerCase());
+                    const idx = savedList.findIndex(item => item.eng === kw.eng);
                     if (idx > -1) savedList.splice(idx, 1);
                 });
+                localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
+                
                 document.querySelectorAll('.kw-save-btn').forEach(btn => {
-                    if(btn.id !== 'save-all-btn') { btn.innerText = "저장"; btn.classList.remove('active'); }
+                    if(btn.id !== 'save-all-btn') {
+                        btn.innerText = "저장";
+                        btn.classList.remove('active');
+                    }
                 });
             } else {
                 aiKeywordsObj.forEach(kw => {
-                    if(!savedList.some(item => item.eng.toLowerCase() === kw.eng.toLowerCase())) {
-                        savedList.push({ eng: kw.eng, kor: kw.kor, level: kw.level, passageTitle: currentPassageTitle, date: new Date().toLocaleDateString() });
+                    const isExist = savedList.some(item => item.eng === kw.eng);
+                    if(!isExist) {
+                        savedList.push({ 
+                            eng: kw.eng, kor: kw.kor, level: kw.level, 
+                            passageTitle: currentPassageTitle, 
+                            date: new Date().toLocaleDateString() 
+                        });
                     }
                 });
+                localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
+                
                 document.querySelectorAll('.kw-save-btn').forEach(btn => {
-                    if(btn.id !== 'save-all-btn') { btn.innerText = "✅"; btn.classList.add('active'); }
+                    if(btn.id !== 'save-all-btn') {
+                        btn.innerText = "✅";
+                        btn.classList.add('active');
+                    }
                 });
             }
-            localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
             checkAllSavedStatus();
         }
 
@@ -326,18 +379,20 @@
             if(!allBtn || aiKeywordsObj.length === 0) return;
 
             let savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
-            const isAllSaved = aiKeywordsObj.every(kw => savedList.some(item => item.eng.toLowerCase() === kw.eng.toLowerCase()));
+            const isAllSaved = aiKeywordsObj.every(kw => savedList.some(item => item.eng === kw.eng));
             
             if(isAllSaved) {
                 allBtn.innerText = "✅ 저장됨 (누르면 해제)";
                 allBtn.style.background = "var(--neon-green)";
                 allBtn.style.color = "#000";
                 allBtn.style.borderColor = "var(--neon-green)";
+                allBtn.disabled = false; 
             } else {
                 allBtn.innerText = "전체 저장";
                 allBtn.style.background = "transparent";
                 allBtn.style.color = "var(--neon-green)";
                 allBtn.style.borderColor = "var(--neon-green)";
+                allBtn.disabled = false;
             }
         }
 
@@ -406,8 +461,12 @@
             if(type === 'voca') {
                 const deletedWord = list[realIndex].eng;
                 const activeBtn = document.getElementById(`btn-kw-${deletedWord}`);
-                if(activeBtn) { activeBtn.innerText = "저장"; activeBtn.classList.remove('active'); }
+                if(activeBtn) {
+                    activeBtn.innerText = "저장";
+                    activeBtn.classList.remove('active');
+                }
             }
+
             list.splice(realIndex, 1);
             localStorage.setItem(key, JSON.stringify(list));
             renderNoteList();
@@ -423,8 +482,8 @@
                 "거의 다 됐습니다!<br>곧 리포트를 생성합니다."
             ];
             let i = 0;
-            btn.innerHTML = messages[0]; 
-            // 피드백 반영: 로딩 간격 3.5초 (3500ms)로 여유있게 변경
+            btn.innerHTML = messages[0];
+            // 피드백 반영: 2.5초 간격으로 조절
             loadingInterval = setInterval(() => {
                 i++;
                 if(i < messages.length) {
@@ -432,7 +491,7 @@
                 } else {
                     clearInterval(loadingInterval);
                 }
-            }, 3500); 
+            }, 2500); 
         }
 
         function stopLoadingText(isTextMode, btn) {
@@ -448,12 +507,17 @@
             const runBtn = document.getElementById('run-btn');
             const activeBtn = isTextMode ? runBtn : ocrBtn;
 
-            if (isTextMode && editedText === "") { alert("분석할 지문을 입력해주세요!"); return; }
+            if (isTextMode && editedText === "") {
+                alert("분석할 지문을 입력해주세요!");
+                return;
+            }
+
             activeBtn.disabled = true;
             startLoadingText();
 
             try {
                 let payload;
+                // 피드백 반영: full_word_map 추가 지령
                 const prompt = `당신은 대한민국 최고의 1타 영어 강사입니다. 입력된 지문을 분석하여 반드시 순수한 JSON 형식으로만 응답하세요. 마크다운 태그(\`\`\`json 등)는 절대 생략하세요.
 
 [필수 제약 조건]
@@ -461,6 +525,7 @@
 2. '배경지식'과 '쉬운 주제(easy)'는 반드시 '~해요', '~했어요' 체 사용.
 3. '격식 있는 주제(formal)'와 '문법 설명'은 반드시 '~합니다', '~했습니다' 체 사용.
 4. '원문 해석(kor)'은 '~하다', '~이다' 체 사용.
+5. 지문에 등장한 단어들 중 핵심 어휘로 뽑지 않은 일반 단어들도 사용자가 모를 수 있으니, 최대한 많이 'full_word_map'에 원형과 뜻을 포함해 주세요.
 
 출력 JSON 형식:
 {
@@ -475,7 +540,8 @@
   "grammar": [
     { "point": "핵심 문법 개념명 (가주어, 도치 등)", "sentence": "문법이 적용된 영어 원문 부분 (지문에서 그대로 발췌)", "explanation": "학생이 딱 보고 '아하!' 할 수 있는 쉽고 명쾌한 해석 팁" }
   ],
-  "keywords": ["determine(결정하다)", "evolution(진화)", "depend on(달려있다)"] 
+  "keywords": ["determine(결정하다)", "evolution(진화)", "depend on(달려있다)"],
+  "full_word_map": { "apple": "사과", "played": "놀았다" }
 }`;
 
                 if (!isTextMode && selectedBase64) {
@@ -537,6 +603,9 @@
                     }
                     res = JSON.parse(cleanJsonStr);
                 }
+                
+                // 글로벌 맵 업데이트
+                if(res.full_word_map) fullWordMapGlobal = res.full_word_map;
 
                 const categoryInfo = `${params.get('grade') || ''} ${params.get('type') || ''} ${params.get('detail') || ''}`.trim();
                 const aiSubjectSnippet = res.subject?.formal ? res.subject.formal.substring(0, 12).trim() : "지문 분석";
@@ -564,14 +633,14 @@
                 }
 
                 let keywordHtml = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                    <span style="font-size:0.75rem; color:#888;">* 추출된 단어를 클릭하면 뜻을 확인할 수 있어요.</span>
+                    <span style="font-size:0.75rem; color:#888;">* 지문의 모든 단어는 클릭하면 뜻을 볼 수 있어요!</span>
                     <button id="save-all-btn" class="kw-save-btn" onclick="saveAllKeywords()">전체 저장</button>
                 </div>`;
                 
                 let vocaItemsArray = [];
                 if(aiKeywordsObj.length > 0) {
                     aiKeywordsObj.forEach(kw => {
-                        const isSaved = savedVocaList.some(item => item.eng.toLowerCase() === kw.eng.toLowerCase());
+                        const isSaved = savedVocaList.some(item => item.eng === kw.eng);
                         const btnClass = isSaved ? "kw-save-btn active" : "kw-save-btn";
                         const btnText = isSaved ? "✅" : "저장";
                         const safeEng = kw.eng.replace(/'/g, "\\'");
@@ -582,7 +651,7 @@
 
                         vocaItemsArray.push(`
                             <div class="kw-container">
-                                <div>${levelTag}<strong style="color:#fff; font-size:1.05rem; cursor:pointer;" onclick="showWordPopup('${safeEng}', '${safeKor}', '${kw.level}')">${kw.eng}</strong> <span style="color:#aaa; font-size:0.9rem; margin-left:6px;">${kw.kor}</span></div>
+                                <div>${levelTag}<strong style="color:#fff; font-size:1.05rem;">${kw.eng}</strong> <span style="color:#aaa; font-size:0.9rem; margin-left:6px;">${kw.kor}</span></div>
                                 <button id="btn-kw-${kw.eng}" class="${btnClass}" onclick="toggleVocaSave('${safeEng}', '${safeKor}', '${kw.level}', this)">${btnText}</button>
                             </div>
                         `);
@@ -601,6 +670,7 @@
                 
                 keywordHtml += `<button class="kakao-btn" style="background:var(--neon-green); color:#000; margin-top:15px;" onclick="startVocaPractice()">👉 사라져 VOCA로 나만의 단어 연습하기 ⚡</button>`;
 
+                // 피드백 반영: 문법 순서 정렬
                 if (res.grammar && Array.isArray(res.grammar) && res.full_translation && Array.isArray(res.full_translation)) {
                     res.grammar.forEach(g => {
                         const gClean = String(g.sentence || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -640,35 +710,43 @@
                     grammarHtml = '<div style="color:#888; font-size:0.9rem;">특이한 특수 구문은 발견되지 않았습니다.</div>';
                 }
 
+                // 해석 및 상호작용 (클릭, 보라색 밑줄, 초록색 하이라이트)
                 let transHtml = '';
                 if(res.full_translation && Array.isArray(res.full_translation)) {
                     transHtml = res.full_translation.map(s => {
-                        let wordsHtml = s.eng.split(' ').map(w => {
+                        let originalEng = String(s.eng || '');
+                        
+                        // 단어 클릭 로직
+                        let wordsHtml = originalEng.split(' ').map(w => {
                             const cleanW = w.toLowerCase().replace(/[^a-z]/g, '');
                             const isTarget = aiKeywordsObj.some(kw => kw.eng.toLowerCase().replace(/[^a-z]/g, '') === cleanW);
-                            // 피드백 반영: 모든 단어 클릭 가능 (clickable-word), 추출된 단어는 점선(hl-voca)
                             return `<span class="clickable-word ${isTarget?'hl-voca':''}" onclick="handleWordClick(this)">${w}</span>`;
                         }).join(' ');
 
                         let grammarMarks = "";
+                        let hasGrammar = false;
+
                         if (res.grammar) {
                             res.grammar.forEach((g, i) => {
-                                const sClean = s.eng.toLowerCase().replace(/[^a-z0-9]/g, '');
+                                const sClean = originalEng.toLowerCase().replace(/[^a-z0-9]/g, '');
                                 const gClean = String(g.sentence || '').toLowerCase().replace(/[^a-z0-9]/g, '');
                                 if (gClean.length > 5 && sClean.includes(gClean)) {
                                     grammarMarks += `<span class="grammar-badge" onclick="document.getElementById('grammar-box-${i}').scrollIntoView({behavior:'smooth', block:'center'})" title="${g.point}">G${i+1}</span>`;
+                                    hasGrammar = true;
                                 }
                             });
                         }
 
+                        // 피드백 반영: 문법 포함 시 hl-grammar (보라색 밑줄) 추가
                         return `
                         <div class="translation-row">
-                            <div class="eng-text">${wordsHtml}${grammarMarks}</div>
+                            <div class="eng-text ${hasGrammar ? 'hl-grammar' : ''}">${wordsHtml}${grammarMarks}</div>
                             <div class="kor-text">${s.kor || ''}</div>
                         </div>`;
                     }).join('');
                 }
 
+                // 피드백 반영: 순서 변경 적용
                 document.getElementById('ai-report-area').innerHTML = `
                     <div class="result-card"><span class="result-label" style="color:var(--neon-green);">📝 해석</span><div class="result-content">
                         <div style="font-size:0.75rem; color:#888; margin-bottom:10px;">* 지문의 모든 단어는 클릭하면 뜻을 볼 수 있어요!</div>
