@@ -26,12 +26,12 @@
         .kor-text { font-size: 0.95rem; color: #aaa; }
         .kakao-btn { width: 100%; padding: 18px; background: #fee500; color: #000; border: none; border-radius: 12px; font-weight: 900; font-size: 1.05rem; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         
-        /* 피드백 반영 2: 단어 배경색 제거, 글자색만 네온 그린 유지 */
+        /* 단어 배경색 제거, 글자색만 네온 그린 유지 */
         .clickable-word { cursor: pointer; display: inline-block; transition: 0.2s; border-bottom: 1px solid transparent; }
         .clickable-word:hover { color: var(--neon-green); }
         .hl-voca { color: var(--neon-green); font-weight: 600; }
         
-        /* 피드백 반영 1: 텍스트 길이에 딱 맞는 보라색 밑줄 */
+        /* 복구된 문법 하이라이트 (텍스트 길이에 딱 맞는 보라색 밑줄) */
         .hl-grammar { border-bottom: 2px solid rgba(181, 55, 242, 0.8); padding-bottom: 1px; }
 
         .grammar-badge { background:#bc13fe; color:#fff; border-radius:4px; padding:2px 6px; font-size:0.75rem; font-weight:bold; cursor:pointer; margin-left: 6px; vertical-align: middle; transition: 0.2s; box-shadow: 0 0 5px rgba(181, 55, 242, 0.5); }
@@ -140,8 +140,6 @@
 
     <script>
         const WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev/'; 
-        const KAKAO_OPEN_CHAT = 'https://open.kakao.com/o/siKCrAqi';
-
         const params = new URLSearchParams(window.location.search);
         const info = `${params.get('grade') || ''} ${params.get('type') || ''} ${params.get('detail') || ''}`;
         document.getElementById('info-header').innerText = info + " 분석";
@@ -235,16 +233,19 @@
                 korMean = kw.kor;
                 level = kw.level;
             } 
-            else if (fullWordMapGlobal && fullWordMapGlobal[rawWord]) {
-                korMean = fullWordMapGlobal[rawWord];
-                level = findVocaLevel(rawWord);
+            else if (fullWordMapGlobal) {
+                const mapKey = Object.keys(fullWordMapGlobal).find(k => k.toLowerCase() === rawWord);
+                if(mapKey) {
+                    korMean = fullWordMapGlobal[mapKey];
+                    level = findVocaLevel(rawWord) || "other";
+                } else {
+                    const foundInDB = findWordInDB(rawWord);
+                    if(foundInDB) { korMean = foundInDB.kor; level = foundInDB.level; }
+                }
             }
             else {
                 const foundInDB = findWordInDB(rawWord);
-                if(foundInDB) {
-                    korMean = foundInDB.kor;
-                    level = foundInDB.level;
-                }
+                if(foundInDB) { korMean = foundInDB.kor; level = foundInDB.level; }
             }
             
             showWordPopup(element.innerText.replace(/[^a-zA-Z-]/g, ''), korMean, level);
@@ -513,6 +514,7 @@
 
             try {
                 let payload;
+                // 🔥 프롬프트 강화: full_word_map 포함 명령
                 const prompt = `당신은 대한민국 최고의 1타 영어 강사입니다. 입력된 지문을 분석하여 반드시 순수한 JSON 형식으로만 응답하세요. 마크다운 태그(\`\`\`json 등)는 절대 생략하세요.
 
 [필수 제약 조건]
@@ -626,7 +628,6 @@
                     });
                 }
 
-                // 피드백 반영 3: 안내 문구 폰트 크기 2배 (0.75rem -> 1.5rem), 글자색 수정
                 let keywordHtml = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                     <span style="font-size:1.5rem; color:#ccc; font-weight:bold;">* 지문의 모든 단어는 클릭하면 뜻을 볼 수 있어요!</span>
                     <button id="save-all-btn" class="kw-save-btn" onclick="saveAllKeywords()">전체 저장</button>
@@ -704,61 +705,64 @@
                     grammarHtml = '<div style="color:#888; font-size:0.9rem;">특이한 특수 구문은 발견되지 않았습니다.</div>';
                 }
 
+                // 🔥 완벽하게 복원된 문법 하이라이트 & 단어 클릭 로직
                 let transHtml = '';
                 if(res.full_translation && Array.isArray(res.full_translation)) {
                     transHtml = res.full_translation.map(s => {
-                        let originalEng = String(s.eng || '');
-                        
+                        let finalEng = String(s.eng || '');
                         let grammarMarks = "";
-                        let grammarClasses = [];
 
-                        // 피드백 반영 1: 문법이 적용된 정확한 단어들에만 클래스를 입히기 위해 로직 변경
+                        // 1. 문법 문장 먼저 찾아 보라색 <span>으로 감싸고 배지 부착
                         if (res.grammar) {
                             res.grammar.forEach((g, i) => {
-                                const gClean = String(g.sentence || '').trim();
-                                if (gClean.length > 5 && originalEng.includes(gClean)) {
-                                    grammarMarks += `<span class="grammar-badge" onclick="document.getElementById('grammar-box-${i}').scrollIntoView({behavior:'smooth', block:'center'})" title="${g.point}">G${i+1}</span>`;
-                                    // 원문에서 문법 문장을 찾아 hl-grammar span으로 감싸기
-                                    originalEng = originalEng.replace(gClean, `<span class="hl-grammar">${gClean}</span>`);
+                                const gSent = String(g.sentence || '').trim();
+                                if (gSent.length > 5) {
+                                    const lowerFinal = finalEng.toLowerCase();
+                                    const lowerGSent = gSent.toLowerCase();
+                                    if (lowerFinal.includes(lowerGSent)) {
+                                        const startIdx = lowerFinal.indexOf(lowerGSent);
+                                        const actualMatch = finalEng.substring(startIdx, startIdx + gSent.length);
+                                        
+                                        grammarMarks += `<span class="grammar-badge" onclick="document.getElementById('grammar-box-${i}').scrollIntoView({behavior:'smooth', block:'center'})" title="${g.point.replace(/"/g, '&quot;')}">G${i+1}</span>`;
+                                        
+                                        // 텍스트 길이에 맞춰 정확히 감싸기 (hl-grammar 클래스 적용)
+                                        finalEng = finalEng.substring(0, startIdx) + 
+                                                   `<span class="hl-grammar">${actualMatch}</span>` + 
+                                                   finalEng.substring(startIdx + gSent.length);
+                                    }
                                 }
                             });
                         }
 
-                        // 단어 클릭 로직 (기존 단어 분할 방식 유지, 단 이미 태그로 감싸진 부분은 보호)
-                        // 주의: 정규식을 통해 순수 텍스트만 분할하도록 임시 처리
+                        // 2. 단어 개별 클릭 처리 (HTML 태그를 깨지 않도록 DOM 트리를 순회하며 안전하게 단어만 분리)
                         let tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = originalEng;
-                        
-                        function processNode(node) {
-                            if (node.nodeType === 3) { // 텍스트 노드
-                                let text = node.nodeValue;
-                                let words = text.split(/\b/);
-                                let newHtml = '';
-                                words.forEach(w => {
+                        tempDiv.innerHTML = finalEng;
+
+                        function makeTextNodesClickable(node) {
+                            if (node.nodeType === 3) { // 텍스트 노드일 때만 처리
+                                const words = node.nodeValue.split(/(\s+)/); // 공백을 유지하며 분할
+                                const html = words.map(w => {
                                     if (/[a-zA-Z]/.test(w)) {
-                                        const cleanW = w.toLowerCase();
-                                        const isTarget = aiKeywordsObj.some(kw => kw.eng.toLowerCase() === cleanW);
-                                        newHtml += `<span class="clickable-word ${isTarget?'hl-voca':''}" onclick="handleWordClick(this)">${w}</span>`;
-                                    } else {
-                                        newHtml += w;
+                                        const cleanW = w.toLowerCase().replace(/[^a-z]/g, '');
+                                        const isTarget = aiKeywordsObj.some(kw => kw.eng.toLowerCase().replace(/[^a-z]/g, '') === cleanW);
+                                        return `<span class="clickable-word ${isTarget ? 'hl-voca' : ''}" onclick="handleWordClick(this)">${w}</span>`;
                                     }
-                                });
-                                let wrapper = document.createElement('span');
-                                wrapper.innerHTML = newHtml;
+                                    return w;
+                                }).join('');
+                                const wrapper = document.createElement('span');
+                                wrapper.innerHTML = html;
                                 node.replaceWith(...wrapper.childNodes);
-                            } else if (node.nodeType === 1) { // 요소 노드 (span 등)
-                                if (node.className !== 'grammar-badge') { // 배지는 건드리지 않음
-                                    Array.from(node.childNodes).forEach(processNode);
-                                }
+                            } else if (node.nodeType === 1) { // 요소 노드 (span 등)일 때 안으로 파고들어 처리
+                                Array.from(node.childNodes).forEach(makeTextNodesClickable);
                             }
                         }
                         
-                        Array.from(tempDiv.childNodes).forEach(processNode);
-                        let finalHtml = tempDiv.innerHTML;
+                        Array.from(tempDiv.childNodes).forEach(makeTextNodesClickable);
+                        finalEng = tempDiv.innerHTML;
 
                         return `
                         <div class="translation-row">
-                            <div class="eng-text">${finalHtml}${grammarMarks}</div>
+                            <div class="eng-text">${finalEng}${grammarMarks}</div>
                             <div class="kor-text">${s.kor || ''}</div>
                         </div>`;
                     }).join('');
