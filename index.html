@@ -1013,8 +1013,13 @@
         }
 
         function goToAnalysis() {
-            const grade = document.getElementById('exam-grade').value;
-            const type = document.getElementById('exam-type').value;
+    const grade = document.getElementById('exam-grade').value;
+    
+    // 🔥 선택한 학년 저장 로직 추가
+    localStorage.setItem('trigger_saved_exam_grade', grade);
+
+    const type = document.getElementById('exam-type').value;
+    // ... 이하 생략
             let detail = "";
             
             if(type === '내신') detail = document.getElementById('exam-period').value;
@@ -1155,8 +1160,17 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            handleKakaoAndInstall();
-        });
+    handleKakaoAndInstall();
+
+    // 🔥 저장된 학년 불러와서 자동 세팅
+    const savedGrade = localStorage.getItem('trigger_saved_exam_grade');
+    if (savedGrade) {
+        const gradeSelect = document.getElementById('exam-grade');
+        if (gradeSelect) {
+            gradeSelect.value = savedGrade;
+        }
+    }
+});
 
         window.addEventListener('load', () => {
             const savedName = localStorage.getItem('trigger_name');

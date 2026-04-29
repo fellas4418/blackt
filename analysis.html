@@ -229,34 +229,34 @@
         }
 
         window.handleWordClick = function(element) {
-            const rawWord = element.innerText.toLowerCase().replace(/[^a-z-]/g, '').trim();
-            if(!rawWord) return;
-            
-            let korMean = "사전에 없는 단어입니다.";
-            let level = "other";
-            
-            const kw = aiKeywordsObj.find(k => k.eng.toLowerCase() === rawWord);
-            if(kw) {
-                korMean = kw.kor;
-                level = kw.level;
-            } 
-            else if (fullWordMapGlobal) {
-                const mapKey = Object.keys(fullWordMapGlobal).find(k => k.toLowerCase() === rawWord);
-                if(mapKey) {
-                    korMean = fullWordMapGlobal[mapKey];
-                    level = findVocaLevel(rawWord) || "other";
-                } else {
-                    const foundInDB = findWordInDB(rawWord);
-                    if(foundInDB) { korMean = foundInDB.kor; level = foundInDB.level; }
-                }
-            }
-            else {
-                const foundInDB = findWordInDB(rawWord);
-                if(foundInDB) { korMean = foundInDB.kor; level = foundInDB.level; }
-            }
-            
-            showWordPopup(element.innerText.replace(/[^a-zA-Z-]/g, ''), korMean, level);
-        };
+    // 1. 특수문자 완전히 날리기 (Cleaning)
+    let rawWord = element.innerText.toLowerCase().replace(/[^a-z-]/g, '').trim();
+    if(!rawWord) return;
+    
+    let korMean = "";
+    let level = "other";
+
+    // 2. 검색 함수 (원형 추론 포함)
+    function search(word) {
+        // AI가 준 맵 검색
+        if (fullWordMapGlobal && fullWordMapGlobal[word]) return fullWordMapGlobal[word];
+        // 내부 DB 검색
+        const db = findWordInDB(word);
+        if (db) return db.kor;
+        return null;
+    }
+
+    // 3. 무적의 3단계 검색
+    korMean = search(rawWord); // 그대로 검색
+    if(!korMean) korMean = search(rawWord.replace(/ed$|ing$|s$|es$|d$/g, '')); // 어미 떼고 검색
+    if(!korMean && rawWord.length > 5) korMean = search(rawWord.substring(0, rawWord.length - 1)); // 한글자 줄여보기
+
+    if(!korMean) {
+        korMean = "사전에 없는 단어입니다.";
+    }
+    
+    showWordPopup(element.innerText.replace(/[^a-zA-Z-]/g, ''), korMean, level);
+};
 
         function updatePassageTitleManually() {
             const inputVal = document.getElementById('passage-title-input').value.trim();
