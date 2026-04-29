@@ -32,7 +32,14 @@
         .hl-voca { color: var(--neon-green); font-weight: 600; }
         
         /* 🔥 피드백 반영: 다중 라인에서 완벽하게 문장에만 밑줄이 그어지도록 text-decoration으로 변경 */
-        .hl-grammar { text-decoration: underline; text-decoration-color: rgba(181, 55, 242, 0.8); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+        .hl-grammar { 
+    display: inline;
+    background-image: linear-gradient(rgba(181, 55, 242, 0.8), rgba(181, 55, 242, 0.8));
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    background-size: 100% 2px;
+    padding-bottom: 3px;
+}
 
         .grammar-badge { background:#bc13fe; color:#fff; border-radius:4px; padding:2px 6px; font-size:0.75rem; font-weight:bold; cursor:pointer; margin-left: 6px; vertical-align: middle; transition: 0.2s; box-shadow: 0 0 5px rgba(181, 55, 242, 0.5); }
         .grammar-badge:hover { background: #d789ff; }
@@ -475,6 +482,7 @@
         function startLoadingText() {
             const btn = document.getElementById('ocr-btn') || document.getElementById('run-btn');
             const messages = [
+                "15초만 기다려 주세요.",
                 "지문 난이도를 파악하고 있어요.",
                 "핵심 문법과 필수 어휘 리스트를<br>정리하고 있어요.",
                 "거의 다 됐습니다!<br>곧 리포트를 생성합니다."
@@ -488,7 +496,7 @@
                 } else {
                     clearInterval(loadingInterval);
                 }
-            }, 3500); 
+            }, 5500); 
         }
 
         function stopLoadingText(isTextMode, btn) {
