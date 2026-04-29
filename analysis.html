@@ -228,15 +228,14 @@
             popup.style.display = 'flex';
         }
 
-        // 🔥 피드백 반영: 클릭 시 무조건 뜻이 나오게 하는 3단계 검색 로직
+        // 🔥 3단계 유연 검색 + 주요 문법 단어 예외 처리 (수정본)
         window.handleWordClick = function(element) {
-            // 특수문자 완전히 날리기 (Cleaning)
             const rawWord = element.innerText.toLowerCase().replace(/[^a-z-]/g, '').trim();
             if(!rawWord) return;
             
-            // 주요 문법 단어 예외 처리 (학습 가이드 제공)
+            // 주요 문법 단어 예외 처리
             const grammarExceptionMap = {
-                "which": "관계대명사: 앞의 명사를 보충 설명해 줘요.",
+                "which": "관계대명사/의문사: 바로 앞의 명사를 구체적으로 보충 설명해 줘요.",
                 "that": "관계대명사/접속사: 문장을 연결하거나 명사를 보충 설명해요.",
                 "who": "관계대명사: 앞의 '사람' 명사를 구체적으로 설명해 줘요.",
                 "whom": "관계대명사(목적격): 설명하는 명사가 뒷문장의 목적어 역할을 해요.",
@@ -248,34 +247,44 @@
             };
 
             if (grammarExceptionMap[rawWord]) {
-                showWordPopup(element.innerText.replace(/[^a-zA-Z-]/g, ''), grammarExceptionMap[rawWord], "other");
+                showWordPopup(element.innerText.replace(/[^a-zA-Z-]/g, ''), grammarExceptionMap[rawWord], "grammar");
                 return;
             }
             
-            let korMean = "";
-            let level = "other";
-
-            // 검색 함수 (AI 맵 -> DB 순서)
+            // 검색 로직 (변형 단어 포용)
             const search = (word) => {
-                const foundKw = aiKeywordsObj.find(k => k.eng.toLowerCase() === word);
-                if (foundKw) return foundKw.kor;
-                if (fullWordMapGlobal && fullWordMapGlobal[word]) return fullWordMapGlobal[word];
+                // 1) 리스트 검색
+                let foundKw = aiKeywordsObj.find(k => {
+                    const parts = k.eng.toLowerCase().split(/[^a-z]+/);
+                    return parts.some(p => p === word || (p.length > 2 && Math.abs(p.length - word.length) <= 3 && (word.startsWith(p) || p.startsWith(word))));
+                });
+                if (foundKw) return { mean: foundKw.kor, lvl: foundKw.level };
+
+                // 2) AI 맵 검색
+                if (fullWordMapGlobal) {
+                    if (fullWordMapGlobal[word]) return { mean: fullWordMapGlobal[word], lvl: "other" };
+                    const mapKey = Object.keys(fullWordMapGlobal).find(k => {
+                        const kClean = k.toLowerCase().replace(/[^a-z]/g, '');
+                        return kClean === word || (kClean.length > 2 && Math.abs(kClean.length - word.length) <= 3 && (word.startsWith(kClean) || kClean.startsWith(word)));
+                    });
+                    if (mapKey) return { mean: fullWordMapGlobal[mapKey], lvl: "other" };
+                }
+
+                // 3) 내부 DB 검색
                 const db = findWordInDB(word);
-                return db ? db.kor : null;
+                return db ? { mean: db.kor, lvl: db.level } : null;
             };
 
-            // 1단계 검색
-            korMean = search(rawWord);
+            let result = search(rawWord);
             
-            // 2단계 검색 (어미 떼고 원형 찾기)
-            if(!korMean) {
-                const stemmed = rawWord.replace(/s$|es$|ed$|ing$|d$/g, '');
-                if(stemmed.length > 2) korMean = search(stemmed);
+            if(!result) {
+                // 어미 떼고 원형 찾기 최후의 수단
+                const stemmed = rawWord.replace(/s$|es$|ed$|ing$|d$|ly$/g, '');
+                if(stemmed.length > 2) result = search(stemmed);
             }
             
-            if(!korMean) {
-                korMean = "사전에 없는 단어입니다.";
-            }
+            const korMean = result ? result.mean : "사전에 없는 단어입니다.";
+            const level = result ? result.lvl : "other";
             
             showWordPopup(element.innerText.replace(/[^a-zA-Z-]/g, ''), korMean, level);
         };
@@ -807,10 +816,17 @@
                                     if (/[a-zA-Z]/.test(w)) {
                                         const cleanW = w.toLowerCase().replace(/[^a-z]/g, '');
                                         
-                                        // 🔥 피드백 반영: 단어 변형 매칭 로직 적용 (본문 하이라이트 누락 방지)
+                                        // 🔥 피드백 반영: 단어 변형 매칭 로직 (긴 단어 우선 & 정규식 포함)
                                         const isTarget = aiKeywordsObj.some(kw => {
-                                            const kwEng = kw.eng.toLowerCase().replace(/[^a-z]/g, '');
-                                            return cleanW === kwEng || (cleanW.length > 3 && cleanW.startsWith(kwEng));
+                                            // 숙어 대응: 띄어쓰기 기준으로 쪼개서 검사
+                                            const kwParts = kw.eng.toLowerCase().split(/[^a-z]+/);
+                                            return kwParts.some(p => {
+                                                if (p.length < 3) return false; // a, in, on 같은 너무 짧은 단어는 변형 검사 제외
+                                                if (cleanW === p) return true;
+                                                // 글자 길이 차이가 3 이하이고, 본문 단어가 원형을 포함할 때 매칭 허용
+                                                if (Math.abs(cleanW.length - p.length) <= 3 && (cleanW.startsWith(p) || p.startsWith(cleanW))) return true;
+                                                return false;
+                                            });
                                         });
 
                                         return `<span class="clickable-word ${isTarget ? 'hl-voca' : ''}" onclick="handleWordClick(this)">${w}</span>`;
