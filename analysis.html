@@ -26,20 +26,22 @@
         .kor-text { font-size: 0.95rem; color: #aaa; }
         .kakao-btn { width: 100%; padding: 18px; background: #fee500; color: #000; border: none; border-radius: 12px; font-weight: 900; font-size: 1.05rem; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         
-        .clickable-word { cursor: pointer; display: inline-block; transition: 0.2s; border-bottom: 1px solid transparent; position: relative; z-index: 5; }
+        /* 단어 배경색 제거, 글자색만 네온 그린 유지 */
+        .clickable-word { cursor: pointer; display: inline-block; transition: 0.2s; border-bottom: 1px solid transparent; }
         .clickable-word:hover { color: var(--neon-green); }
         .hl-voca { color: var(--neon-green); font-weight: 600; }
         
+        /* 🔥 피드백 반영: 다중 라인에서 완벽하게 문장에만 밑줄이 그어지도록 text-decoration으로 변경 */
         .hl-grammar { 
-            display: inline;
-            background-image: linear-gradient(rgba(181, 55, 242, 0.8), rgba(181, 55, 242, 0.8));
-            background-position: 0 100%;
-            background-repeat: no-repeat;
-            background-size: 100% 2px;
-            padding-bottom: 3px;
-        }
+    display: inline;
+    background-image: linear-gradient(rgba(181, 55, 242, 0.8), rgba(181, 55, 242, 0.8));
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    background-size: 100% 2px;
+    padding-bottom: 3px;
+}
 
-        .grammar-badge { background:#bc13fe; color:#fff; border-radius:4px; padding:2px 6px; font-size:0.75rem; font-weight:bold; cursor:pointer; margin-left: 6px; vertical-align: middle; transition: 0.2s; box-shadow: 0 0 5px rgba(181, 55, 242, 0.5); position: relative; z-index: 10; }
+        .grammar-badge { background:#bc13fe; color:#fff; border-radius:4px; padding:2px 6px; font-size:0.75rem; font-weight:bold; cursor:pointer; margin-left: 6px; vertical-align: middle; transition: 0.2s; box-shadow: 0 0 5px rgba(181, 55, 242, 0.5); }
         .grammar-badge:hover { background: #d789ff; }
         
         .grammar-box { background: rgba(181, 55, 242, 0.1); border-left: 3px solid #bc13fe; padding: 12px; margin-bottom: 10px; border-radius: 4px; position: relative; }
@@ -99,6 +101,9 @@
         <div style="display: flex; gap: 10px; margin-top: 15px;">
             <button onclick="openPicker('camera')" class="login-btn" style="flex: 1; border-color: var(--neon-green); margin-top: 0;">실시간 촬영 📸</button>
             <button onclick="openPicker('gallery')" class="login-btn" style="flex: 1; border-color: var(--neon-blue); margin-top: 0;">사진 선택 🖼️</button>
+        </div>
+        <div id="ai-btn-area" style="display:none; margin-top: 15px;">
+            <button id="ocr-btn" onclick="runGeminiAnalysis()" class="start-btn" style="border-color: var(--neon-orange);">트리거 AI 정밀 분석 시작 🔍</button>
         </div>
         
         <div style="margin-top: 25px; text-align: center;">
@@ -223,13 +228,11 @@
             popup.style.display = 'flex';
         }
 
-        // 🔥 피드백 반영: 클릭 시 뜻이 무조건 나오게 하는 3단계 검색 로직 (handleWordClick 수정)
         window.handleWordClick = function(element) {
-            // element.innerText를 써서 태그 안의 순수 텍스트만 추출
             const rawWord = element.innerText.toLowerCase().replace(/[^a-z-]/g, '').trim();
             if(!rawWord) return;
             
-            // 0. 문법 단어 예외 처리
+            // 🔥 피드백 반영: 주요 문법 단어 예외 처리 (학습 가이드 제공)
             const grammarExceptionMap = {
                 "which": "관계대명사: 앞의 명사를 보충 설명해 줘요.",
                 "that": "관계대명사/접속사: 문장을 연결하거나 명사를 보충 설명해요.",
@@ -243,32 +246,32 @@
             };
 
             if (grammarExceptionMap[rawWord]) {
-                showWordPopup(element.innerText, grammarExceptionMap[rawWord], "grammar");
+                showWordPopup(element.innerText.replace(/[^a-zA-Z-]/g, ''), grammarExceptionMap[rawWord], "other");
                 return;
             }
-
-            let korMean = "";
+            
+            let korMean = "사전에 없는 단어입니다.";
             let level = "other";
             
-            // 🔥 강화된 검색 함수 (원형 추론 포함)
-            const search = (word) => {
-                const foundKw = aiKeywordsObj.find(k => k.eng.toLowerCase() === word);
-                if (foundKw) return foundKw.kor;
-                if (fullWordMapGlobal && fullWordMapGlobal[word]) return fullWordMapGlobal[word];
-                const db = findWordInDB(word);
-                return db ? db.kor : null;
-            };
-
-            // 1단계: 그대로 검색
-            korMean = search(rawWord);
-            
-            // 2단계: 어미(s, es, ed, ing, d) 떼고 검색 (변형 대비)
-            if(!korMean) {
-                const stemmed = rawWord.replace(/s$|es$|ed$|ing$|d$/g, '');
-                if(stemmed.length > 2) korMean = search(stemmed);
+            const kw = aiKeywordsObj.find(k => k.eng.toLowerCase() === rawWord);
+            if(kw) {
+                korMean = kw.kor;
+                level = kw.level;
+            } 
+            else if (fullWordMapGlobal) {
+                const mapKey = Object.keys(fullWordMapGlobal).find(k => k.toLowerCase() === rawWord);
+                if(mapKey) {
+                    korMean = fullWordMapGlobal[mapKey];
+                    level = findVocaLevel(rawWord) || "other";
+                } else {
+                    const foundInDB = findWordInDB(rawWord);
+                    if(foundInDB) { korMean = foundInDB.kor; level = foundInDB.level; }
+                }
             }
-            
-            if(!korMean) korMean = "사전에 없는 단어입니다.";
+            else {
+                const foundInDB = findWordInDB(rawWord);
+                if(foundInDB) { korMean = foundInDB.kor; level = foundInDB.level; }
+            }
             
             showWordPopup(element.innerText.replace(/[^a-zA-Z-]/g, ''), korMean, level);
         };
@@ -529,7 +532,7 @@
                 "15초만 기다려 주세요.",
                 "지문 난이도를 파악하고 있어요.",
                 "핵심 문법과 필수 어휘 리스트를<br>정리하고 있어요.",
-                "거의 다 됐습니다!<br>리포트를 생성 중입니다."
+                "거의 다 됐습니다!<br>곧 리포트를 생성 중입니다."
             ];
             let i = 0;
             btn.innerHTML = messages[0];
@@ -799,14 +802,7 @@
                                 const html = words.map(w => {
                                     if (/[a-zA-Z]/.test(w)) {
                                         const cleanW = w.toLowerCase().replace(/[^a-z]/g, '');
-                                        
-                                        // 🔥 피드백 반영: 본문 표시 누락 방지 로직 (유연한 매칭)
-                                        const isTarget = aiKeywordsObj.some(kw => {
-                                            const kwEng = kw.eng.toLowerCase().replace(/[^a-z]/g, '');
-                                            // 글자가 정확히 일치하거나, 본문 단어가 키워드 원형을 포함할 때
-                                            return cleanW === kwEng || (cleanW.length > 3 && cleanW.startsWith(kwEng));
-                                        });
-
+                                        const isTarget = aiKeywordsObj.some(kw => kw.eng.toLowerCase().replace(/[^a-z]/g, '') === cleanW);
                                         return `<span class="clickable-word ${isTarget ? 'hl-voca' : ''}" onclick="handleWordClick(this)">${w}</span>`;
                                     }
                                     return w;
