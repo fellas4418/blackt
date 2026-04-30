@@ -144,7 +144,7 @@
     <script src="worddata.js"></script>
 
     <script>
-        // 🔥 1. 기능어(Stopwords) 블랙리스트 정의
+        // 🔥 1. 기능어(Stopwords) 블랙리스트 정의 (하이라이트 방지용)
         const STOP_WORDS = new Set(['a', 'an', 'the', 'of', 'with', 'in', 'on', 'at', 'by', 'for', 'to', 'and', 'or', 'but', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'as']);
 
         const WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev/'; 
@@ -250,9 +250,6 @@
                 return;
             }
             
-            let korMean = "";
-            let level = "other";
-
             const search = (word) => {
                 let foundKw = aiKeywordsObj.find(k => {
                     const parts = k.eng.toLowerCase().split(/[^a-z]+/);
@@ -274,16 +271,15 @@
             };
 
             let result = search(rawWord);
-            
             if(!result) {
                 const stemmed = rawWord.replace(/s$|es$|ed$|ing$|d$|ly$/g, '');
                 if(stemmed.length > 2) result = search(stemmed);
             }
             
-            const finalKorMean = result ? result.mean : "사전에 없는 단어입니다.";
-            const finalLevel = result ? result.lvl : "other";
+            const korMean = result ? result.mean : "사전에 없는 단어입니다.";
+            const level = result ? result.lvl : "other";
             
-            showWordPopup(element.innerText.replace(/[^a-zA-Z-]/g, ''), finalKorMean, finalLevel);
+            showWordPopup(element.innerText.replace(/[^a-zA-Z-]/g, ''), korMean, level);
         };
 
         function updatePassageTitleManually() {
@@ -678,7 +674,7 @@
                     <div style="font-size:0.9rem; color:#aaa; background:#222; padding:10px; border-radius:8px; line-height: 1.5;">💡 ${res.subject?.easy || ''}</div>
                 `;
 
-                // 🔥 2. 복합어 분리 및 중복 제거 로직 (피드백 반영)
+                // 🔥 2. 복합어 스마트 분리 & 중복 제거 로직
                 aiKeywordsObj = [];
                 let savedVocaList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
                 let processedKeywords = [];
@@ -690,12 +686,12 @@
                         const fullEngText = parts[0].toLowerCase().trim();
                         const korMean = parts.length > 1 ? parts[1].replace(')', '').trim() : '';
                         
-                        // 복합어를 공백 기준으로 분리
+                        // 복합어 분리
                         const engWords = fullEngText.split(/\s+/);
                         
                         engWords.forEach(w => {
                             const cleanW = w.replace(/[^a-z]/g, '');
-                            // 길이가 2보다 크고, 기능어가 아니며, 아직 추가되지 않은 단어만 등록
+                            // 기능어 배제, 너무 짧은 단어 배제, 중복 배제
                             if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !seenWords.has(cleanW)) {
                                 const level = findVocaLevel(cleanW);
                                 processedKeywords.push({ eng: cleanW, kor: korMean, level: level });
@@ -827,22 +823,20 @@
                                     if (/[a-zA-Z]/.test(w)) {
                                         const cleanW = w.toLowerCase().replace(/[^a-z]/g, '');
                                         
-                                        // 🔥 3. 기능어 제외 로직 적용 (블랙리스트 기반)
+                                        // 🔥 3. 기능어 하이라이트 방지 (뜻은 나옴)
                                         if (STOP_WORDS.has(cleanW)) {
-                                            // 숙어로 등록된 단어의 일부인지 확인 (예: depend on의 on)
+                                            // 기능어지만, AI가 "depend on" 처럼 숙어로 뽑은 경우는 예외로 하이라이트 허용
                                             const isPartOfPhrase = aiKeywordsObj.some(kw => {
                                                 const kwEng = kw.eng.toLowerCase().replace(/[^a-z\s]/g, '');
                                                 return kwEng.includes(' ') && kwEng.includes(cleanW);
                                             });
-                                            if (!isPartOfPhrase) return w; // 숙어가 아니면 기능어는 색칠 안 함
+                                            if (!isPartOfPhrase) return `<span class="clickable-word" onclick="handleWordClick(this)">${w}</span>`;
                                         }
 
-                                        // 🔥 4. 단어 변형 매칭 로직 (어근 기반 Stemming 강화)
+                                        // 🔥 4. 향상된 Stemming 적용 (단어 변형 확실히 잡기)
                                         const isTarget = aiKeywordsObj.some(kw => {
                                             const kwEng = kw.eng.toLowerCase().replace(/[^a-z]/g, '');
-                                            // 리스트의 단어가 복합어에서 분리된 단어일 수도 있으므로 정확도 높은 매칭 진행
                                             const stem = kwEng.substring(0, Math.max(3, kwEng.length - 2)); 
-                                            // 어미 변화(provide -> provided, providing)를 유연하게 허용
                                             return cleanW === kwEng || (cleanW.length >= kwEng.length && cleanW.startsWith(stem));
                                         });
 
