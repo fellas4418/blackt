@@ -158,16 +158,18 @@
         let currentPassageTitle = ""; 
         let fullWordMapGlobal = {}; 
 
+        // 🔥 수정됨: 사진 선택 버튼 로직 복구 (예외 처리 강화)
         function openPicker(type) {
-    const input = document.getElementById('capture');
-    if (!input) return; // 🔥 null 에러 방지 안전장치
-    if (type === 'camera') {
-        input.setAttribute('capture', 'environment');
-    } else {
-        input.removeAttribute('capture');
-    }
-    input.click();
-}
+            const input = document.getElementById('capture');
+            if (!input) return; // 안전장치 추가
+            
+            if (type === 'camera') {
+                input.setAttribute('capture', 'environment');
+            } else {
+                input.removeAttribute('capture');
+            }
+            input.click();
+        }
     
         function loadImg(input) {
             if (input.files && input.files[0]) {
@@ -217,8 +219,8 @@
             const isSaved = savedList.some(item => item.eng.toLowerCase() === eng.toLowerCase());
             const btnText = isSaved ? "✅" : "저장";
             const btnClass = isSaved ? "kw-save-btn active" : "kw-save-btn";
-            const safeEng = eng.replace(/'/g, "\'");
-            const safeKor = kor.replace(/'/g, "\'");
+            const safeEng = eng.replace(/'/g, "\\'");
+            const safeKor = kor.replace(/'/g, "\\'");
             
             popup.innerHTML = `
                 <div style="flex:1;">
@@ -283,7 +285,7 @@
             let result = search(rawWord);
             
             if(!result) {
-                // 어미 떼고 원형 찾기
+                // 어미 떼고 원형 찾기 최후의 수단
                 const stemmed = rawWord.replace(/s$|es$|ed$|ing$|d$|ly$|ness$/g, '');
                 if(stemmed.length > 2) result = search(stemmed);
             }
@@ -544,9 +546,11 @@
         }
 
         let loadingInterval;
+        // 🔥 수정됨: 로딩 에러 방지 (버튼 존재 확인 강화)
         function startLoadingText() {
-    const btn = document.getElementById('ocr-btn') || document.getElementById('run-btn');
-    if (!btn) return; // 🔥 버튼이 화면에 없을 때는 멈춤
+            const btn = document.getElementById('ocr-btn') || document.getElementById('run-btn');
+            if (!btn) return; // 안전장치 추가
+            
             const messages = [
                 "15초만 기다려 주세요.",
                 "지문 난이도를 파악하고 있어요.",
@@ -554,11 +558,11 @@
                 "거의 다 됐습니다!<br>리포트를 생성 중입니다."
             ];
             let i = 0;
-            if(btn) btn.innerHTML = messages[0];
+            btn.innerHTML = messages[0];
             loadingInterval = setInterval(() => {
                 i++;
                 if(i < messages.length) {
-                    if(btn) btn.innerHTML = messages[i];
+                    if (btn) btn.innerHTML = messages[i];
                 } else {
                     clearInterval(loadingInterval);
                 }
@@ -585,7 +589,7 @@
                 return;
             }
 
-            if(activeBtn) activeBtn.disabled = true;
+            if (activeBtn) activeBtn.disabled = true;
             startLoadingText();
 
             try {
@@ -737,8 +741,8 @@
                         const isSaved = savedVocaList.some(item => item.eng.toLowerCase() === kw.eng.toLowerCase());
                         const btnClass = isSaved ? "kw-save-btn active" : "kw-save-btn";
                         const btnText = isSaved ? "✅" : "저장";
-                        const safeEng = kw.eng.replace(/'/g, "\'");
-                        const safeKor = kw.kor.replace(/'/g, "\'");
+                        const safeEng = kw.eng.replace(/'/g, "\\'");
+                        const safeKor = kw.kor.replace(/'/g, "\\'");
                         let levelTag = kw.level === 'middle' ? '<span class="kw-tag kw-mid">중등</span>' : 
                                        kw.level === 'high' ? '<span class="kw-tag kw-high">고등</span>' : 
                                        '<span class="kw-tag kw-other">기타</span>';
@@ -784,9 +788,9 @@
                 let savedGrammarList = JSON.parse(localStorage.getItem('trigger_saved_grammar') || '[]');
                 if(res.grammar && res.grammar.length > 0) {
                     grammarHtml = res.grammar.map((g, i) => {
-                        const safePoint = String(g.point || '').replace(/'/g, "\'").replace(/"/g, '&quot;');
-                        const safeSentence = String(g.sentence || '').replace(/'/g, "\'").replace(/"/g, '&quot;');
-                        const safeExplanation = String(g.explanation || '').replace(/'/g, "\'").replace(/"/g, '&quot;');
+                        const safePoint = String(g.point || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        const safeSentence = String(g.sentence || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        const safeExplanation = String(g.explanation || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
                         const isSaved = savedGrammarList.some(item => item.sentence === g.sentence);
                         const btnClass = isSaved ? "save-btn-small active" : "save-btn-small";
                         const btnText = isSaved ? "✅ 저장됨" : "⭐ 저장";
@@ -896,11 +900,13 @@
             } catch (error) {
                 console.error("🔥 진짜 에러 원인:", error);
                 stopLoadingText(isTextMode, activeBtn);
-                alert("에러 발생! 콘솔창을 확인하시거나 아래 에러를 복사해주세요.
-
-" + error.message);
+                alert("에러 발생! 콘솔창을 확인하시거나 아래 에러를 복사해주세요.\n\n" + error.message);
             }
         }
     </script>
 </body>
 </html>
+"""
+
+with open("analysis.html", "w", encoding="utf-8") as f:
+    f.write(html_content)}
