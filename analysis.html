@@ -27,7 +27,7 @@
         .kakao-btn { width: 100%; padding: 18px; background: #fee500; color: #000; border: none; border-radius: 12px; font-weight: 900; font-size: 1.05rem; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         
         /* 단어 배경색 제거, 글자색만 네온 그린 유지 */
-        .clickable-word { cursor: pointer; display: inline-block; transition: 0.2s; border-bottom: 1px solid transparent; }
+        .clickable-word { cursor: pointer; display: inline-block; transition: 0.2s; border-bottom: 1px solid transparent; position: relative; z-index: 5; }
         .clickable-word:hover { color: var(--neon-green); }
         .hl-voca { color: var(--neon-green); font-weight: 600; }
         
@@ -41,7 +41,7 @@
     padding-bottom: 3px;
 }
 
-        .grammar-badge { background:#bc13fe; color:#fff; border-radius:4px; padding:2px 6px; font-size:0.75rem; font-weight:bold; cursor:pointer; margin-left: 6px; vertical-align: middle; transition: 0.2s; box-shadow: 0 0 5px rgba(181, 55, 242, 0.5); }
+        .grammar-badge { background:#bc13fe; color:#fff; border-radius:4px; padding:2px 6px; font-size:0.75rem; font-weight:bold; cursor:pointer; margin-left: 6px; vertical-align: middle; transition: 0.2s; box-shadow: 0 0 5px rgba(181, 55, 242, 0.5); position: relative; z-index: 10; }
         .grammar-badge:hover { background: #d789ff; }
         
         .grammar-box { background: rgba(181, 55, 242, 0.1); border-left: 3px solid #bc13fe; padding: 12px; margin-bottom: 10px; border-radius: 4px; position: relative; }
@@ -146,6 +146,9 @@
     <script src="worddata.js"></script>
 
     <script>
+        // 🔥 하이라이트에서 제외할 기능어(전치사/관사 등) 리스트 보강
+        const STOP_WORDS = new Set(['a', 'an', 'the', 'of', 'with', 'in', 'on', 'at', 'by', 'for', 'to', 'and', 'or', 'but', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'as', 'around', 'about', 'between', 'among', 'up', 'down', 'out', 'into']);
+
         const WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev/'; 
         const params = new URLSearchParams(window.location.search);
         const info = `${params.get('grade') || ''} ${params.get('type') || ''} ${params.get('detail') || ''}`;
@@ -229,34 +232,63 @@
         }
 
         window.handleWordClick = function(element) {
-    // 1. 특수문자 완전히 날리기 (Cleaning)
-    let rawWord = element.innerText.toLowerCase().replace(/[^a-z-]/g, '').trim();
-    if(!rawWord) return;
-    
-    let korMean = "";
-    let level = "other";
+            const rawWord = element.innerText.toLowerCase().replace(/[^a-z-]/g, '').trim();
+            if(!rawWord) return;
+            
+            const grammarExceptionMap = {
+                "which": "관계대명사/의문사: 바로 앞의 명사를 구체적으로 보충 설명해 줘요.",
+                "that": "관계대명사/접속사: 문장을 연결하거나 명사를 보충 설명해요.",
+                "who": "관계대명사: 앞의 '사람' 명사를 구체적으로 설명해 줘요.",
+                "whom": "관계대명사(목적격): 설명하는 명사가 뒷문장의 목적어 역할을 해요.",
+                "whose": "관계대명사(소유격): '~의'라는 소유의 의미로 앞 명사를 설명해요.",
+                "where": "관계부사: 앞의 '장소' 명사를 문장으로 상세히 설명해요.",
+                "when": "관계부사: 앞의 '시간' 명사를 문장으로 상세히 설명해요.",
+                "why": "관계부사: 앞의 '이유' 명사를 문장으로 상세히 설명해요.",
+                "how": "관계부사: '~하는 방식'의 의미로 문장을 이끌어요."
+            };
 
-    // 2. 검색 함수 (원형 추론 포함)
-    function search(word) {
-        // AI가 준 맵 검색
-        if (fullWordMapGlobal && fullWordMapGlobal[word]) return fullWordMapGlobal[word];
-        // 내부 DB 검색
-        const db = findWordInDB(word);
-        if (db) return db.kor;
-        return null;
-    }
+            if (grammarExceptionMap[rawWord]) {
+                showWordPopup(element.innerText.replace(/[^a-zA-Z-]/g, ''), grammarExceptionMap[rawWord], "grammar");
+                return;
+            }
+            
+            // 검색 로직 (변형 단어 포용)
+            const search = (word) => {
+                // 1) 리스트 검색
+                let foundKw = aiKeywordsObj.find(k => {
+                    const parts = k.eng.toLowerCase().split(/[^a-z]+/);
+                    return parts.some(p => p === word || (p.length > 2 && Math.abs(p.length - word.length) <= 3 && (word.startsWith(p) || p.startsWith(word))));
+                });
+                if (foundKw) return { mean: foundKw.kor, lvl: foundKw.level };
 
-    // 3. 무적의 3단계 검색
-    korMean = search(rawWord); // 그대로 검색
-    if(!korMean) korMean = search(rawWord.replace(/ed$|ing$|s$|es$|d$/g, '')); // 어미 떼고 검색
-    if(!korMean && rawWord.length > 5) korMean = search(rawWord.substring(0, rawWord.length - 1)); // 한글자 줄여보기
+                // 2) AI 맵 검색
+                if (fullWordMapGlobal) {
+                    if (fullWordMapGlobal[word]) return { mean: fullWordMapGlobal[word], lvl: "other" };
+                    const mapKey = Object.keys(fullWordMapGlobal).find(k => {
+                        const kClean = k.toLowerCase().replace(/[^a-z]/g, '');
+                        return kClean === word || (kClean.length > 2 && Math.abs(kClean.length - word.length) <= 3 && (word.startsWith(kClean) || kClean.startsWith(word)));
+                    });
+                    if (mapKey) return { mean: fullWordMapGlobal[mapKey], lvl: "other" };
+                }
 
-    if(!korMean) {
-        korMean = "사전에 없는 단어입니다.";
-    }
-    
-    showWordPopup(element.innerText.replace(/[^a-zA-Z-]/g, ''), korMean, level);
-};
+                // 3) 내부 DB 검색
+                const db = findWordInDB(word);
+                return db ? { mean: db.kor, lvl: db.level } : null;
+            };
+
+            let result = search(rawWord);
+            
+            if(!result) {
+                // 어미 떼고 원형 찾기 최후의 수단
+                const stemmed = rawWord.replace(/s$|es$|ed$|ing$|d$|ly$/g, '');
+                if(stemmed.length > 2) result = search(stemmed);
+            }
+            
+            const korMean = result ? result.mean : "사전에 없는 단어입니다.";
+            const level = result ? result.lvl : "other";
+            
+            showWordPopup(element.innerText.replace(/[^a-zA-Z-]/g, ''), korMean, level);
+        };
 
         function updatePassageTitleManually() {
             const inputVal = document.getElementById('passage-title-input').value.trim();
@@ -413,7 +445,6 @@
             document.getElementById('note-modal').style.display = 'flex';
         }
 
-        // 🔥 새롭게 추가된 기능: 폴더 접기/펼침 동작 함수
         window.togglePassageFolder = function(index) {
             const folder = document.getElementById('passage-folder-' + index);
             const icon = document.getElementById('passage-icon-' + index);
@@ -426,7 +457,6 @@
             }
         };
 
-        // 🔥 새롭게 추가된 기능: 내 학습 노트 렌더링 시 지문별로 묶어서 폴더(아코디언) UI 생성
         function renderNoteList() {
             const listArea = document.getElementById('note-list-container');
             let html = "";
@@ -516,7 +546,7 @@
                 "15초만 기다려 주세요.",
                 "지문 난이도를 파악하고 있어요.",
                 "핵심 문법과 필수 어휘 리스트를<br>정리하고 있어요.",
-                "거의 다 됐습니다!<br>곧 리포트를 생성합니다."
+                "거의 다 됐습니다!<br>리포트를 생성 중입니다."
             ];
             let i = 0;
             btn.innerHTML = messages[0];
@@ -652,19 +682,33 @@
                     <div style="font-size:0.9rem; color:#aaa; background:#222; padding:10px; border-radius:8px; line-height: 1.5;">💡 ${res.subject?.easy || ''}</div>
                 `;
 
+                // 🔥 2. 복합어 스마트 분리 & 중복 제거 로직
                 aiKeywordsObj = [];
                 let savedVocaList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
+                let processedKeywords = [];
+                let seenWords = new Set();
+
                 if (res.keywords && Array.isArray(res.keywords)) {
                     res.keywords.forEach(kw => {
                         const parts = String(kw || '').split('(');
-                        const engWord = parts[0].replace(/[^a-zA-Z\s-]/g, '').trim();
+                        const fullEngText = parts[0].toLowerCase().trim();
                         const korMean = parts.length > 1 ? parts[1].replace(')', '').trim() : '';
-                        if (engWord.length > 1) {
-                            const level = findVocaLevel(engWord);
-                            aiKeywordsObj.push({ eng: engWord, kor: korMean, level: level });
-                        }
+                        
+                        // 복합어 분리
+                        const engWords = fullEngText.split(/\s+/);
+                        
+                        engWords.forEach(w => {
+                            const cleanW = w.replace(/[^a-z]/g, '');
+                            // 기능어 배제, 너무 짧은 단어 배제, 중복 배제
+                            if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !seenWords.has(cleanW)) {
+                                const level = findVocaLevel(cleanW);
+                                processedKeywords.push({ eng: cleanW, kor: korMean, level: level });
+                                seenWords.add(cleanW);
+                            }
+                        });
                     });
                 }
+                aiKeywordsObj = processedKeywords;
 
                 let keywordHtml = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                     <span style="font-size:0.8rem; color:#ccc; font-weight:bold;">* 지문의 모든 단어는 클릭하면 뜻을 볼 수 있어요!</span>
@@ -786,7 +830,16 @@
                                 const html = words.map(w => {
                                     if (/[a-zA-Z]/.test(w)) {
                                         const cleanW = w.toLowerCase().replace(/[^a-z]/g, '');
-                                        const isTarget = aiKeywordsObj.some(kw => kw.eng.toLowerCase().replace(/[^a-z]/g, '') === cleanW);
+                                        
+                                        let isTarget = false;
+                                        if (!STOP_WORDS.has(cleanW)) {
+                                            isTarget = aiKeywordsObj.some(kw => {
+                                                const kwEng = kw.eng.toLowerCase();
+                                                const stem = kwEng.substring(0, Math.max(3, kwEng.length - 2));
+                                                return cleanW === kwEng || (cleanW.length >= kwEng.length && cleanW.startsWith(stem));
+                                            });
+                                        }
+
                                         return `<span class="clickable-word ${isTarget ? 'hl-voca' : ''}" onclick="handleWordClick(this)">${w}</span>`;
                                     }
                                     return w;
@@ -832,3 +885,7 @@
     </script>
 </body>
 </html>
+"""
+
+with open("analysis.html", "w", encoding="utf-8") as f:
+    f.write(html_content)}
