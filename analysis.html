@@ -159,14 +159,15 @@
         let fullWordMapGlobal = {}; 
 
         function openPicker(type) {
-            const input = document.getElementById('capture');
-            if (type === 'camera') {
-                input.setAttribute('capture', 'environment');
-            } else {
-                input.removeAttribute('capture');
-            }
-            input.click();
-        }
+    const input = document.getElementById('capture');
+    if (!input) return; // 🔥 null 에러 방지 안전장치
+    if (type === 'camera') {
+        input.setAttribute('capture', 'environment');
+    } else {
+        input.removeAttribute('capture');
+    }
+    input.click();
+}
     
         function loadImg(input) {
             if (input.files && input.files[0]) {
@@ -544,7 +545,8 @@
 
         let loadingInterval;
         function startLoadingText() {
-            const btn = document.getElementById('ocr-btn') || document.getElementById('run-btn');
+    const btn = document.getElementById('ocr-btn') || document.getElementById('run-btn');
+    if (!btn) return; // 🔥 버튼이 화면에 없을 때는 멈춤
             const messages = [
                 "15초만 기다려 주세요.",
                 "지문 난이도를 파악하고 있어요.",
