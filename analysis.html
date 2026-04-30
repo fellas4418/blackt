@@ -144,13 +144,8 @@
     <script src="worddata.js"></script>
 
     <script>
-        // 🔥 1. 기능어(Stopwords) 블랙리스트 대폭 보강 (하이라이트 방지용)
-        const STOP_WORDS = new Set([
-            'a', 'an', 'the', 'of', 'with', 'in', 'on', 'at', 'by', 'for', 'to', 'and', 'or', 'but', 'so', 'yet',
-            'is', 'are', 'was', 'were', 'be', 'been', 'being', 'am', 'do', 'does', 'did', 'done', 'doing', 'have', 'has', 'had', 'having',
-            'as', 'around', 'about', 'between', 'among', 'up', 'down', 'out', 'into', 'over', 'under', 'through', 'after', 'before', 'from', 'without', 'within', 'during', 'until', 'since', 'than', 'because', 'while', 'although', 'if', 'unless',
-            'that', 'this', 'these', 'those', 'it', 'its', 'they', 'them', 'their', 'he', 'him', 'his', 'she', 'her', 'we', 'us', 'our', 'you', 'your', 'i', 'my', 'me', 'not', 'no', 'never', 'very', 'too', 'such', 'what', 'which', 'who', 'whom', 'whose', 'where', 'when', 'why', 'how', 'whatever', 'whoever', 'whichever', 'whenever', 'wherever', 'however'
-        ]);
+        // 🔥 1. 기능어(Stopwords) 블랙리스트 정의 (하이라이트 방지용)
+        const STOP_WORDS = new Set(['a', 'an', 'the', 'of', 'with', 'in', 'on', 'at', 'by', 'for', 'to', 'and', 'or', 'but', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'as']);
 
         const WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev/'; 
         const params = new URLSearchParams(window.location.search);
@@ -164,10 +159,14 @@
         let currentPassageTitle = ""; 
         let fullWordMapGlobal = {}; 
 
+        // 🔥 수정됨: 사진 선택 버튼 로직 복구
         function openPicker(type) {
             const input = document.getElementById('capture');
-            if (type === 'camera') input.setAttribute('capture', 'environment');
-            else input.removeAttribute('capture');
+            if (type === 'camera') {
+                input.setAttribute('capture', 'environment');
+            } else {
+                input.removeAttribute('capture');
+            }
             input.click();
         }
     
@@ -706,6 +705,7 @@
                     <div style="font-size:0.9rem; color:#aaa; background:#222; padding:10px; border-radius:8px; line-height: 1.5;">💡 ${res.subject?.easy ||
                     ''}</div>
                 `;
+                
                 // 🔥 2. 복합어 스마트 분리 & 중복 제거 로직
                 aiKeywordsObj = [];
                 let savedVocaList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
@@ -886,11 +886,9 @@
                                         const cleanW = w.toLowerCase().replace(/[^a-z]/g, '');
              
                                         
-                                        // 🔥 3. 기능어 하이라이트 방지 (뜻은 나옴)
+                                        // 🔥 3. 기능어 하이라이트 방지 
                           
                                         if (STOP_WORDS.has(cleanW)) {
-                                            // 기능어지만, AI가 "depend on" 처럼 숙어로 뽑은 경우는 예외로 하이라이트 허용
-                             
                                             const isPartOfPhrase = aiKeywordsObj.some(kw => {
                                                 const kwEng = kw.eng.toLowerCase().replace(/[^a-z\s]/g, '');
                             
@@ -900,7 +898,7 @@
                                             if (!isPartOfPhrase) return `<span class="clickable-word" onclick="handleWordClick(this)">${w}</span>`;
                                         }
 
-                                        // 🔥 4. 향상된 Stemming 적용 (단어 변형 확실히 잡기)
+                                        // 🔥 4. 향상된 Stemming 적용 
                                         const isTarget = aiKeywordsObj.some(kw => {
                                             const kwEng = kw.eng.toLowerCase().replace(/[^a-z]/g, '');
                                             const stem = kwEng.substring(0, Math.max(3, kwEng.length - 2)); 
