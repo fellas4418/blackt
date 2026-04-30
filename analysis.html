@@ -158,19 +158,19 @@
         let currentPassageTitle = ""; 
         let fullWordMapGlobal = {}; 
 
-        // 🔥 수정됨: 사진 선택 버튼 로직 복구 (예외 처리 강화)
         function openPicker(type) {
             const input = document.getElementById('capture');
-            if (!input) return; // 안전장치 추가
-            
-            if (type === 'camera') {
-                input.setAttribute('capture', 'environment');
+            if (input) {
+                if (type === 'camera') {
+                    input.setAttribute('capture', 'environment');
+                } else {
+                    input.removeAttribute('capture');
+                }
+                input.click();
             } else {
-                input.removeAttribute('capture');
+                alert("카메라 또는 사진 선택 기능을 불러올 수 없습니다. 화면을 새로고침 해주세요.");
             }
-            input.click();
         }
-    
         function loadImg(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
