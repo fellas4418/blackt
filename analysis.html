@@ -218,8 +218,10 @@
             const isSaved = savedList.some(item => item.eng.toLowerCase() === eng.toLowerCase());
             const btnText = isSaved ? "✅" : "저장";
             const btnClass = isSaved ? "kw-save-btn active" : "kw-save-btn";
-            const safeEng = eng.replace(/'/g, "\\'");
-            const safeKor = kor.replace(/'/g, "\\'");
+            
+            // 🔥 에러 방지를 위해 String() 처리 후 특수문자 이스케이프
+            const safeEng = String(eng || '').replace(/'/g, "\\'");
+            const safeKor = String(kor || '').replace(/'/g, "\\'");
             
             popup.innerHTML = `
                 <div style="flex:1;">
@@ -547,6 +549,7 @@
         }
 
         let loadingInterval;
+        // 🔥 로딩 에러 방지 (버튼 존재 여부 확인)
         function startLoadingText() {
             const btn = document.getElementById('ocr-btn') || document.getElementById('run-btn');
             if (!btn) return; // 안전장치 추가
@@ -699,39 +702,42 @@
                 let processedKeywords = [];
                 let seenWords = new Set();
 
-                if (res.keywords && Array.isArray(res.keywords)) {
-                    res.keywords.forEach(kw => {
-                        const parts = String(kw || '').split('(');
-                        const fullEngText = parts[0].toLowerCase().trim();
-                        const korMean = parts.length > 1 ? parts[1].replace(')', '').trim() : '';
-                        
-                        // 공백이 있는 복합어인지 확인
-                        if (fullEngText.includes(' ')) {
-                            const engWords = fullEngText.split(/\s+/);
-                            engWords.forEach(w => {
-                                const cleanW = w.replace(/[^a-z]/g, '');
-                                // 길이가 2보다 크고 중복되지 않은 단어만 개별 등록
-                                if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !seenWords.has(cleanW)) {
-                                    // 분리된 단어는 AI 뜻을 무시하고 내부 DB 뜻을 가져옴
-                                    const dbWord = findWordInDB(cleanW);
-                                    const individualMean = dbWord ? dbWord.kor : korMean; 
-                                    const level = dbWord ? dbWord.level : 'other';
-                                    
-                                    processedKeywords.push({ eng: cleanW, kor: individualMean, level: level });
-                                    seenWords.add(cleanW);
-                                }
-                            });
-                        } else {
-                            // 단일어일 경우 그대로 등록
-                            const cleanW = fullEngText.replace(/[^a-z]/g, '');
-                            if (cleanW.length > 2 && !seenWords.has(cleanW)) {
-                                const level = findVocaLevel(cleanW);
-                                processedKeywords.push({ eng: cleanW, kor: korMean, level: level });
+                // 안전한 배열 처리
+                const keywordArray = Array.isArray(res.keywords) ? res.keywords : [];
+                
+                keywordArray.forEach(kw => {
+                    if (!kw) return;
+                    const parts = String(kw).split('(');
+                    const fullEngText = parts[0].toLowerCase().trim();
+                    const korMean = parts.length > 1 ? parts[1].replace(')', '').trim() : '';
+                    
+                    // 공백이 있는 복합어인지 확인
+                    if (fullEngText.includes(' ')) {
+                        const engWords = fullEngText.split(/\s+/);
+                        engWords.forEach(w => {
+                            const cleanW = w.replace(/[^a-z]/g, '');
+                            // 길이가 2보다 크고 중복되지 않은 단어만 개별 등록
+                            if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !seenWords.has(cleanW)) {
+                                // 분리된 단어는 AI 뜻을 무시하고 내부 DB 뜻을 가져옴
+                                const dbWord = findWordInDB(cleanW);
+                                const individualMean = dbWord ? dbWord.kor : korMean; 
+                                const level = dbWord ? dbWord.level : 'other';
+                                
+                                processedKeywords.push({ eng: cleanW, kor: individualMean, level: level });
                                 seenWords.add(cleanW);
                             }
+                        });
+                    } else {
+                        // 단일어일 경우 그대로 등록
+                        const cleanW = fullEngText.replace(/[^a-z]/g, '');
+                        if (cleanW.length > 2 && !seenWords.has(cleanW)) {
+                            const level = findVocaLevel(cleanW);
+                            processedKeywords.push({ eng: cleanW, kor: korMean, level: level });
+                            seenWords.add(cleanW);
                         }
-                    });
-                }
+                    }
+                });
+                
                 aiKeywordsObj = processedKeywords;
 
                 let keywordHtml = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -742,11 +748,14 @@
                 let vocaItemsArray = [];
                 if(aiKeywordsObj.length > 0) {
                     aiKeywordsObj.forEach(kw => {
-                        const isSaved = savedVocaList.some(item => item.eng.toLowerCase() === kw.eng.toLowerCase());
+                        const isSaved = savedVocaList.some(item => item.eng.toLowerCase() === String(kw.eng || '').toLowerCase());
                         const btnClass = isSaved ? "kw-save-btn active" : "kw-save-btn";
                         const btnText = isSaved ? "✅" : "저장";
-                        const safeEng = kw.eng.replace(/'/g, "\\'");
-                        const safeKor = kw.kor.replace(/'/g, "\\'");
+                        
+                        // 🔥 에러 방지를 위한 안전한 문자열 변환 추가
+                        const safeEng = String(kw.eng || '').replace(/'/g, "\\'");
+                        const safeKor = String(kw.kor || '').replace(/'/g, "\\'");
+                        
                         let levelTag = kw.level === 'middle' ? '<span class="kw-tag kw-mid">중등</span>' : 
                                        kw.level === 'high' ? '<span class="kw-tag kw-high">고등</span>' : 
                                        '<span class="kw-tag kw-other">기타</span>';
@@ -828,7 +837,7 @@
                                         const startIdx = lowerFinal.indexOf(lowerGSent);
                                         const actualMatch = finalEng.substring(startIdx, startIdx + gSent.length);
                                         
-                                        grammarMarks += `<span class="grammar-badge" onclick="document.getElementById('grammar-box-${i}').scrollIntoView({behavior:'smooth', block:'center'})" title="${g.point.replace(/"/g, '&quot;')}">G${i+1}</span>`;
+                                        grammarMarks += `<span class="grammar-badge" onclick="document.getElementById('grammar-box-${i}').scrollIntoView({behavior:'smooth', block:'center'})" title="${String(g.point || '').replace(/"/g, '&quot;')}">G${i+1}</span>`;
                                         
                                         finalEng = finalEng.substring(0, startIdx) + 
                                                    `<span class="hl-grammar">${actualMatch}</span>` + 
@@ -837,7 +846,7 @@
                                         const normFinal = lowerFinal.replace(/[^a-z0-9]/g, '');
                                         const normG = lowerGSent.replace(/[^a-z0-9]/g, '');
                                         if (normFinal.includes(normG)) {
-                                            grammarMarks += `<span class="grammar-badge" onclick="document.getElementById('grammar-box-${i}').scrollIntoView({behavior:'smooth', block:'center'})" title="${g.point.replace(/"/g, '&quot;')}">G${i+1}</span>`;
+                                            grammarMarks += `<span class="grammar-badge" onclick="document.getElementById('grammar-box-${i}').scrollIntoView({behavior:'smooth', block:'center'})" title="${String(g.point || '').replace(/"/g, '&quot;')}">G${i+1}</span>`;
                                             finalEng = `<span class="hl-grammar">${finalEng}</span>`;
                                         }
                                     }
@@ -859,7 +868,7 @@
                                         let isTarget = false;
                                         if (!STOP_WORDS.has(cleanW)) {
                                             isTarget = aiKeywordsObj.some(kw => {
-                                                const kwEng = kw.eng.toLowerCase();
+                                                const kwEng = String(kw.eng || '').toLowerCase();
                                                 const stem = kwEng.substring(0, Math.max(3, kwEng.length - 2));
                                                 return cleanW === kwEng || (cleanW.length >= kwEng.length && cleanW.startsWith(stem));
                                             });
