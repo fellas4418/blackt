@@ -218,8 +218,10 @@
             const isSaved = savedList.some(item => item.eng.toLowerCase() === eng.toLowerCase());
             const btnText = isSaved ? "✅" : "저장";
             const btnClass = isSaved ? "kw-save-btn active" : "kw-save-btn";
-            const safeEng = eng.replace(/'/g, "\\'");
-            const safeKor = kor.replace(/'/g, "\\'");
+            
+            // 🔥 에러 방지를 위한 안전한 문자열 변환 추가
+            const safeEng = String(eng || '').replace(/'/g, "\\'");
+            const safeKor = String(kor || '').replace(/'/g, "\\'");
             
             popup.innerHTML = `
                 <div style="flex:1;">
@@ -742,11 +744,14 @@
                 let vocaItemsArray = [];
                 if(aiKeywordsObj.length > 0) {
                     aiKeywordsObj.forEach(kw => {
-                        const isSaved = savedVocaList.some(item => item.eng.toLowerCase() === kw.eng.toLowerCase());
+                        const isSaved = savedVocaList.some(item => item.eng.toLowerCase() === String(kw.eng || '').toLowerCase());
                         const btnClass = isSaved ? "kw-save-btn active" : "kw-save-btn";
                         const btnText = isSaved ? "✅" : "저장";
-                        const safeEng = kw.eng.replace(/'/g, "\\'");
-                        const safeKor = kw.kor.replace(/'/g, "\\'");
+                        
+                        // 🔥 에러 방지를 위한 안전한 문자열 변환 추가
+                        const safeEng = String(kw.eng || '').replace(/'/g, "\\'");
+                        const safeKor = String(kw.kor || '').replace(/'/g, "\\'");
+                        
                         let levelTag = kw.level === 'middle' ? '<span class="kw-tag kw-mid">중등</span>' : 
                                        kw.level === 'high' ? '<span class="kw-tag kw-high">고등</span>' : 
                                        '<span class="kw-tag kw-other">기타</span>';
@@ -828,7 +833,8 @@
                                         const startIdx = lowerFinal.indexOf(lowerGSent);
                                         const actualMatch = finalEng.substring(startIdx, startIdx + gSent.length);
                                         
-                                        grammarMarks += `<span class="grammar-badge" onclick="document.getElementById('grammar-box-${i}').scrollIntoView({behavior:'smooth', block:'center'})" title="${g.point.replace(/"/g, '&quot;')}">G${i+1}</span>`;
+                                        // 🔥 에러 방지를 위한 안전한 문자열 변환 추가
+                                        grammarMarks += `<span class="grammar-badge" onclick="document.getElementById('grammar-box-${i}').scrollIntoView({behavior:'smooth', block:'center'})" title="${String(g.point || '').replace(/"/g, '&quot;')}">G${i+1}</span>`;
                                         
                                         finalEng = finalEng.substring(0, startIdx) + 
                                                    `<span class="hl-grammar">${actualMatch}</span>` + 
@@ -837,7 +843,8 @@
                                         const normFinal = lowerFinal.replace(/[^a-z0-9]/g, '');
                                         const normG = lowerGSent.replace(/[^a-z0-9]/g, '');
                                         if (normFinal.includes(normG)) {
-                                            grammarMarks += `<span class="grammar-badge" onclick="document.getElementById('grammar-box-${i}').scrollIntoView({behavior:'smooth', block:'center'})" title="${g.point.replace(/"/g, '&quot;')}">G${i+1}</span>`;
+                                            // 🔥 에러 방지를 위한 안전한 문자열 변환 추가
+                                            grammarMarks += `<span class="grammar-badge" onclick="document.getElementById('grammar-box-${i}').scrollIntoView({behavior:'smooth', block:'center'})" title="${String(g.point || '').replace(/"/g, '&quot;')}">G${i+1}</span>`;
                                             finalEng = `<span class="hl-grammar">${finalEng}</span>`;
                                         }
                                     }
@@ -859,7 +866,7 @@
                                         let isTarget = false;
                                         if (!STOP_WORDS.has(cleanW)) {
                                             isTarget = aiKeywordsObj.some(kw => {
-                                                const kwEng = kw.eng.toLowerCase();
+                                                const kwEng = String(kw.eng || '').toLowerCase();
                                                 const stem = kwEng.substring(0, Math.max(3, kwEng.length - 2));
                                                 return cleanW === kwEng || (cleanW.length >= kwEng.length && cleanW.startsWith(stem));
                                             });
