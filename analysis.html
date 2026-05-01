@@ -145,7 +145,7 @@
 
     <script>
         // 🔥 하이라이트에서 제외할 기능어(전치사/관사 등) 리스트 
-        const STOP_WORDS = new Set(['a', 'an', 'the', 'of', 'with', 'in', 'on', 'at', 'by', 'for', 'to', 'and', 'or', 'but', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'as', 'around', 'about', 'between', 'among', 'up', 'down', 'out', 'into', 'over', 'under', 'through', 'after', 'before', 'from', 'without', 'within', 'during', 'until', 'since', 'than', 'because', 'while', 'although', 'if', 'unless', 'that', 'this', 'these', 'those', 'it', 'its', 'they', 'them', 'their', 'he', 'him', 'his', 'she', 'her', 'we', 'us', 'our', 'you', 'your', 'i', 'my', 'me', 'not', 'no', 'never', 'very', 'too', 'such', 'what', 'which', 'who', 'whom', 'whose', 'where', 'when', 'why', 'how', 'whatever', 'whoever', 'whichever', 'whenever', 'wherever', 'however']);
+        const STOP_WORDS = new Set(['a', 'an', 'the', 'of', 'with', 'in', 'on', 'at', 'by', 'for', 'to', 'and', 'or', 'but', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'as', 'around', 'about', 'between', 'among', 'up', 'down', 'out', 'into', 'over', 'under', 'through', 'after', 'before', 'from', 'without', 'within', 'during', 'until', 'since', 'than', 'because', 'while', 'although', 'if', 'unless', 'that', 'this', 'these', 'those', 'it', 'its', 'they', 'them', 'their', 'he', 'him', 'his', 'she', 'her', 'we', 'us', 'our', 'you', 'your', 'i', 'my', 'me', 'not', 'no', 'never', 'very', 'too', 'such', 'what', 'which', 'who', 'whom', 'whose', 'where', 'when', 'why', 'how', 'whatever', 'whoever', 'whichever', 'whenever', 'wherever', 'however', 'back']);
 
         const WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev/'; 
         const params = new URLSearchParams(window.location.search);
@@ -158,10 +158,10 @@
         let currentPassageTitle = ""; 
         let fullWordMapGlobal = {}; 
 
-        // 🔥 사진 선택 버튼 로직 완벽 복구
+        // 🔥 사진 선택 버튼 로직 에러 수정
         function openPicker(type) {
             const input = document.getElementById('capture');
-            if (!input) return; // 안전장치 추가
+            if (!input) return; // 요소가 없을 때 에러 방지 안전장치
             
             if (type === 'camera') {
                 input.setAttribute('capture', 'environment');
@@ -220,14 +220,15 @@
             const btnText = isSaved ? "✅" : "저장";
             const btnClass = isSaved ? "kw-save-btn active" : "kw-save-btn";
             
-            // 🔥 문자열 보호 (undefined 방지)
+            // 🔥 undefined 및 null 텍스트 렌더링 방지
             const safeEng = String(eng || '').replace(/'/g, "\\'");
-            const safeKor = String(kor || '').replace(/'/g, "\\'");
+            let safeKor = String(kor || '').replace(/'/g, "\\'");
+            if (safeKor === "undefined" || safeKor === "") safeKor = "사전 탐색 불가";
             
             popup.innerHTML = `
                 <div style="flex:1;">
-                    <strong style="color:#fff; font-size:1.15rem;">${eng}</strong>
-                    <div style="color:#aaa; font-size:0.9rem; margin-top:2px;">${kor}</div>
+                    <strong style="color:#fff; font-size:1.15rem;">${safeEng}</strong>
+                    <div style="color:#aaa; font-size:0.9rem; margin-top:2px;">${safeKor}</div>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <button class="${btnClass}" onclick="toggleVocaSave('${safeEng}', '${safeKor}', '${level}', this)" style="padding: 6px 12px;">${btnText}</button>
@@ -237,7 +238,7 @@
             popup.style.display = 'flex';
         }
 
-        // 🔥 무적의 3단계 뜻 찾기 로직 최적화 (어미 떼고 원형 찾기 강화)
+        // 🔥 무적의 3단계 뜻 찾기 (어미 변형 완벽 추론)
         window.handleWordClick = function(element) {
             const rawWord = element.innerText.toLowerCase().replace(/[^a-z-]/g, '').trim();
             if(!rawWord) return;
@@ -260,11 +261,11 @@
             }
             
             const search = (word) => {
-                // 1) 내부 DB 검색 (정확한 뜻 최우선 반영)
+                // 1) 내부 DB 검색 (단일어의 정확한 뜻 최우선)
                 const db = findWordInDB(word);
-                if (db) return { mean: db.kor, lvl: db.level };
+                if (db && db.kor) return { mean: db.kor, lvl: db.level };
 
-                // 2) AI 추출 리스트 검색
+                // 2) 리스트 검색 (AI 추출)
                 let foundKw = aiKeywordsObj.find(k => {
                     const kwEng = String(k.eng || '').toLowerCase();
                     if (kwEng.includes(' ')) {
@@ -274,33 +275,39 @@
                     const stem = kwEng.substring(0, Math.max(3, kwEng.length - 2));
                     return word === kwEng || (word.length >= kwEng.length && word.startsWith(stem));
                 });
-                if (foundKw) return { mean: foundKw.kor, lvl: foundKw.level };
+                if (foundKw && foundKw.kor && foundKw.kor !== "사전 탐색 불가") return { mean: foundKw.kor, lvl: foundKw.level };
 
-                // 3) AI 전체 단어장 맵 검색
+                // 3) AI 전체 단어장 검색
                 if (fullWordMapGlobal) {
-                    if (fullWordMapGlobal[word]) return { mean: fullWordMapGlobal[word], lvl: "other" };
                     const mapKey = Object.keys(fullWordMapGlobal).find(k => {
                         const kClean = String(k || '').toLowerCase().replace(/[^a-z]/g, '');
                         const stem = kClean.substring(0, Math.max(3, kClean.length - 2));
                         return word === kClean || (word.length >= kClean.length && word.startsWith(stem));
                     });
-                    if (mapKey) return { mean: fullWordMapGlobal[mapKey], lvl: "other" };
+                    if (mapKey && fullWordMapGlobal[mapKey]) return { mean: fullWordMapGlobal[mapKey], lvl: "other" };
                 }
+
                 return null;
             };
 
             let result = search(rawWord);
             
             if(!result) {
-                // 어미 떼고 원형 찾기 (s, es, ed, ing, d, ly, ness 등)
+                // 어미 떼고 원형 찾기 (s, es, ed, ing, d, ly, ness 등 포용)
                 const stemmed = rawWord.replace(/s$|es$|ed$|ing$|d$|ly$|ness$/g, '');
                 if(stemmed.length > 2) result = search(stemmed);
             }
             
-            const korMean = result ? result.mean : "사전에 없는 단어입니다.";
-            const level = result ? result.lvl : "other";
+            let finalKorMean = "사전에 없는 단어입니다.";
+            let finalLevel = "other";
             
-            showWordPopup(element.innerText.replace(/[^a-zA-Z-]/g, ''), korMean, level);
+            // undefined 텍스트 렌더링 원천 차단
+            if (result && result.mean && String(result.mean).trim() !== "" && String(result.mean) !== "undefined") {
+                finalKorMean = result.mean;
+                finalLevel = result.lvl || "other";
+            }
+            
+            showWordPopup(element.innerText.replace(/[^a-zA-Z-]/g, ''), finalKorMean, finalLevel);
         };
 
         function updatePassageTitleManually() {
@@ -386,11 +393,11 @@
 
        function saveAllKeywords() {
             let savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
-            const isAllSaved = aiKeywordsObj.every(kw => savedList.some(item => item.eng.toLowerCase() === kw.eng.toLowerCase()));
+            const isAllSaved = aiKeywordsObj.every(kw => savedList.some(item => item.eng.toLowerCase() === String(kw.eng || '').toLowerCase()));
 
             if (isAllSaved) {
                 aiKeywordsObj.forEach(kw => {
-                    const idx = savedList.findIndex(item => item.eng.toLowerCase() === kw.eng.toLowerCase());
+                    const idx = savedList.findIndex(item => item.eng.toLowerCase() === String(kw.eng || '').toLowerCase());
                     if (idx > -1) savedList.splice(idx, 1);
                 });
                 localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
@@ -403,7 +410,7 @@
                 });
             } else {
                 aiKeywordsObj.forEach(kw => {
-                    const isExist = savedList.some(item => item.eng.toLowerCase() === kw.eng.toLowerCase());
+                    const isExist = savedList.some(item => item.eng.toLowerCase() === String(kw.eng || '').toLowerCase());
                     if(!isExist) {
                         savedList.push({ 
                             eng: kw.eng, kor: kw.kor, level: kw.level, 
@@ -429,7 +436,7 @@
             if(!allBtn || aiKeywordsObj.length === 0) return;
 
             let savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
-            const isAllSaved = aiKeywordsObj.every(kw => savedList.some(item => item.eng.toLowerCase() === kw.eng.toLowerCase()));
+            const isAllSaved = aiKeywordsObj.every(kw => savedList.some(item => item.eng.toLowerCase() === String(kw.eng || '').toLowerCase()));
             
             if(isAllSaved) {
                 allBtn.innerText = "✅ 저장됨 (누르면 해제)";
@@ -555,7 +562,7 @@
         let loadingInterval;
         function startLoadingText() {
             const btn = document.getElementById('ocr-btn') || document.getElementById('run-btn');
-            if (!btn) return; // 🔥 버튼이 화면에 없으면 에러 안 나게 보호
+            if (!btn) return; 
             
             const messages = [
                 "15초만 기다려 주세요.",
@@ -699,7 +706,7 @@
                     <div style="font-size:0.9rem; color:#aaa; background:#222; padding:10px; border-radius:8px; line-height: 1.5;">💡 ${res.subject?.easy || ''}</div>
                 `;
 
-                // 🔥 복합어 스마트 분해 (의미 혼합 방지)
+                // 🔥 복합어 분리, 숙어 묶기 및 뜻(undefined) 오류 완전 해결
                 aiKeywordsObj = [];
                 let savedVocaList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
                 let processedKeywords = [];
@@ -711,29 +718,46 @@
                     if (!kw) return;
                     const parts = String(kw).split('(');
                     const fullEngText = parts[0].toLowerCase().trim();
-                    const korMean = parts.length > 1 ? parts[1].replace(')', '').trim() : '';
+                    let korMean = parts.length > 1 ? parts[1].replace(')', '').trim() : '';
+                    if(korMean === 'undefined') korMean = '';
                     
                     const engWords = fullEngText.split(/\s+/);
                     
-                    // 🌟 숙어(Idiom) 판별: 기능어가 포함되어 있거나, 내부 DB에 덩어리째 있으면 숙어로 인정
+                    // 🌟 숙어(Idiom) 판별
                     const hasStopWord = engWords.some(w => STOP_WORDS.has(w.replace(/[^a-z]/g, '')));
                     const dbPhrase = findWordInDB(fullEngText);
                     
                     if (engWords.length > 1 && (hasStopWord || dbPhrase)) {
                         // 숙어(Idiom)로 통째로 등록
                         if (!seenWords.has(fullEngText)) {
-                            const finalMean = dbPhrase ? dbPhrase.kor : korMean;
+                            let finalMean = dbPhrase ? dbPhrase.kor : korMean;
+                            if(!finalMean || finalMean === 'undefined') {
+                                finalMean = fullWordMapGlobal[fullEngText] || "뜻 확인 필요";
+                            }
                             processedKeywords.push({ eng: fullEngText, kor: finalMean, level: dbPhrase ? dbPhrase.level : 'other' });
                             seenWords.add(fullEngText);
                         }
                     } else if (engWords.length > 1) {
-                        // 숙어가 아닌 복합어 (예: social dynamics) -> 쪼개서 개별로 뜻 부여
+                        // 숙어가 아닌 복합어 -> 쪼개서 개별로 뜻 부여
                         engWords.forEach(w => {
                             const cleanW = w.replace(/[^a-z]/g, '');
                             if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !seenWords.has(cleanW)) {
                                 const dbWord = findWordInDB(cleanW);
-                                // 🔥 핵심: 쪼개진 단어는 AI의 복합어 뜻(korMean)을 쓰지 않고, 내부 DB나 AI Map 단일 뜻을 사용함
-                                const individualMean = dbWord ? dbWord.kor : (fullWordMapGlobal[cleanW] || ""); 
+                                
+                                let individualMean = "";
+                                if (dbWord && dbWord.kor) {
+                                    individualMean = dbWord.kor;
+                                } else if (fullWordMapGlobal && fullWordMapGlobal[cleanW]) {
+                                    individualMean = fullWordMapGlobal[cleanW];
+                                } else if (fullWordMapGlobal) {
+                                    const mKey = Object.keys(fullWordMapGlobal).find(k => String(k||'').toLowerCase().replace(/[^a-z]/g, '') === cleanW);
+                                    if(mKey) individualMean = fullWordMapGlobal[mKey];
+                                }
+                                
+                                if (!individualMean || individualMean === "undefined") {
+                                    individualMean = "사전 탐색 불가"; 
+                                }
+                                
                                 processedKeywords.push({ eng: cleanW, kor: individualMean, level: dbWord ? dbWord.level : 'other' });
                                 seenWords.add(cleanW);
                             }
@@ -743,7 +767,11 @@
                         const cleanW = fullEngText.replace(/[^a-z]/g, '');
                         if (cleanW.length > 2 && !seenWords.has(cleanW)) {
                             const dbWord = findWordInDB(cleanW);
-                            const finalMean = dbWord ? dbWord.kor : korMean;
+                            let finalMean = dbWord ? dbWord.kor : korMean;
+                            if(!finalMean || finalMean === "undefined") {
+                                finalMean = fullWordMapGlobal[cleanW] || "뜻 확인 필요";
+                            }
+                            
                             processedKeywords.push({ eng: cleanW, kor: finalMean, level: dbWord ? dbWord.level : 'other' });
                             seenWords.add(cleanW);
                         }
@@ -764,8 +792,10 @@
                         const btnClass = isSaved ? "kw-save-btn active" : "kw-save-btn";
                         const btnText = isSaved ? "✅" : "저장";
                         
+                        // 🔥 에러 방지를 위한 안전한 문자열 변환 추가
                         const safeEng = String(kw.eng || '').replace(/'/g, "\\'");
-                        const safeKor = String(kw.kor || '').replace(/'/g, "\\'");
+                        let safeKor = String(kw.kor || '').replace(/'/g, "\\'");
+                        if (safeKor === "undefined" || safeKor === "") safeKor = "사전 탐색 불가";
                         
                         let levelTag = kw.level === 'middle' ? '<span class="kw-tag kw-mid">중등</span>' : 
                                        kw.level === 'high' ? '<span class="kw-tag kw-high">고등</span>' : 
@@ -773,7 +803,7 @@
 
                         vocaItemsArray.push(`
                             <div class="kw-container">
-                                <div>${levelTag}<strong style="color:#fff; font-size:1.05rem; cursor:pointer;" onclick="showWordPopup('${safeEng}', '${safeKor}', '${kw.level}')">${kw.eng}</strong> <span style="color:#aaa; font-size:0.9rem; margin-left:6px;">${kw.kor}</span></div>
+                                <div>${levelTag}<strong style="color:#fff; font-size:1.05rem; cursor:pointer;" onclick="showWordPopup('${safeEng}', '${safeKor}', '${kw.level}')">${kw.eng}</strong> <span style="color:#aaa; font-size:0.9rem; margin-left:6px;">${safeKor}</span></div>
                                 <button id="btn-kw-${kw.eng}" class="${btnClass}" onclick="toggleVocaSave('${safeEng}', '${safeKor}', '${kw.level}', this)">${btnText}</button>
                             </div>
                         `);
