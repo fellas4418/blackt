@@ -26,18 +26,20 @@
         .kor-text { font-size: 0.95rem; color: #aaa; }
         .kakao-btn { width: 100%; padding: 18px; background: #fee500; color: #000; border: none; border-radius: 12px; font-weight: 900; font-size: 1.05rem; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         
+        /* 단어 배경색 제거, 글자색만 네온 그린 유지 */
         .clickable-word { cursor: pointer; display: inline-block; transition: 0.2s; border-bottom: 1px solid transparent; position: relative; z-index: 5; }
         .clickable-word:hover { color: var(--neon-green); }
         .hl-voca { color: var(--neon-green); font-weight: 600; }
         
+        /* 🔥 피드백 반영: 다중 라인에서 완벽하게 문장에만 밑줄이 그어지도록 text-decoration으로 변경 */
         .hl-grammar { 
-            display: inline;
-            background-image: linear-gradient(rgba(181, 55, 242, 0.8), rgba(181, 55, 242, 0.8));
-            background-position: 0 100%;
-            background-repeat: no-repeat;
-            background-size: 100% 2px;
-            padding-bottom: 3px;
-        }
+    display: inline;
+    background-image: linear-gradient(rgba(181, 55, 242, 0.8), rgba(181, 55, 242, 0.8));
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    background-size: 100% 2px;
+    padding-bottom: 3px;
+}
 
         .grammar-badge { background:#bc13fe; color:#fff; border-radius:4px; padding:2px 6px; font-size:0.75rem; font-weight:bold; cursor:pointer; margin-left: 6px; vertical-align: middle; transition: 0.2s; box-shadow: 0 0 5px rgba(181, 55, 242, 0.5); position: relative; z-index: 10; }
         .grammar-badge:hover { background: #d789ff; }
@@ -144,8 +146,8 @@
     <script src="worddata.js"></script>
 
     <script>
-        // 🔥 하이라이트에서 제외할 기능어(전치사/관사 등) 리스트 
-        const STOP_WORDS = new Set(['a', 'an', 'the', 'of', 'with', 'in', 'on', 'at', 'by', 'for', 'to', 'and', 'or', 'but', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'as', 'around', 'about', 'between', 'among', 'up', 'down', 'out', 'into', 'over', 'under', 'through', 'after', 'before', 'from', 'without', 'within', 'during', 'until', 'since', 'than', 'because', 'while', 'although', 'if', 'unless']);
+        // 🔥 하이라이트에서 제외할 기능어(전치사/관사 등) 리스트 보강
+        const STOP_WORDS = new Set(['a', 'an', 'the', 'of', 'with', 'in', 'on', 'at', 'by', 'for', 'to', 'and', 'or', 'but', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'as', 'around', 'about', 'between', 'among', 'up', 'down', 'out', 'into']);
 
         const WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev/'; 
         const params = new URLSearchParams(window.location.search);
@@ -158,16 +160,10 @@
         let currentPassageTitle = ""; 
         let fullWordMapGlobal = {}; 
 
-        // 🔥 수정됨: 사진 선택 버튼 로직 안전장치 추가
         function openPicker(type) {
             const input = document.getElementById('capture');
-            if (!input) return; // 안전장치 추가
-            
-            if (type === 'camera') {
-                input.setAttribute('capture', 'environment');
-            } else {
-                input.removeAttribute('capture');
-            }
+            if (type === 'camera') input.setAttribute('capture', 'environment');
+            else input.removeAttribute('capture');
             input.click();
         }
     
@@ -235,7 +231,6 @@
             popup.style.display = 'flex';
         }
 
-        // 🔥 수정됨: 클릭 시 단어 뜻 찾는 로직 롤백 및 안정화
         window.handleWordClick = function(element) {
             const rawWord = element.innerText.toLowerCase().replace(/[^a-z-]/g, '').trim();
             if(!rawWord) return;
@@ -257,13 +252,16 @@
                 return;
             }
             
+            // 검색 로직 (변형 단어 포용)
             const search = (word) => {
+                // 1) 리스트 검색
                 let foundKw = aiKeywordsObj.find(k => {
                     const parts = k.eng.toLowerCase().split(/[^a-z]+/);
                     return parts.some(p => p === word || (p.length > 2 && Math.abs(p.length - word.length) <= 3 && (word.startsWith(p) || p.startsWith(word))));
                 });
                 if (foundKw) return { mean: foundKw.kor, lvl: foundKw.level };
 
+                // 2) AI 맵 검색
                 if (fullWordMapGlobal) {
                     if (fullWordMapGlobal[word]) return { mean: fullWordMapGlobal[word], lvl: "other" };
                     const mapKey = Object.keys(fullWordMapGlobal).find(k => {
@@ -273,6 +271,7 @@
                     if (mapKey) return { mean: fullWordMapGlobal[mapKey], lvl: "other" };
                 }
 
+                // 3) 내부 DB 검색
                 const db = findWordInDB(word);
                 return db ? { mean: db.kor, lvl: db.level } : null;
             };
@@ -280,6 +279,7 @@
             let result = search(rawWord);
             
             if(!result) {
+                // 어미 떼고 원형 찾기 최후의 수단
                 const stemmed = rawWord.replace(/s$|es$|ed$|ing$|d$|ly$/g, '');
                 if(stemmed.length > 2) result = search(stemmed);
             }
@@ -519,11 +519,29 @@
             listArea.innerHTML = html;
         }
 
+        function deleteNoteItem(type, realIndex) {
+            if(!confirm("삭제하시겠습니까?")) return;
+            const key = type === 'grammar' ? 'trigger_saved_grammar' : 'trigger_saved_voca';
+            let list = JSON.parse(localStorage.getItem(key) || '[]');
+            
+            if(type === 'voca') {
+                const deletedWord = list[realIndex].eng;
+                const activeBtn = document.getElementById(`btn-kw-${deletedWord}`);
+                if(activeBtn) {
+                    activeBtn.innerText = "저장";
+                    activeBtn.classList.remove('active');
+                }
+            }
+
+            list.splice(realIndex, 1);
+            localStorage.setItem(key, JSON.stringify(list));
+            renderNoteList();
+            checkAllSavedStatus();
+        }
+
         let loadingInterval;
         function startLoadingText() {
             const btn = document.getElementById('ocr-btn') || document.getElementById('run-btn');
-            if (!btn) return;
-            
             const messages = [
                 "15초만 기다려 주세요.",
                 "지문 난이도를 파악하고 있어요.",
@@ -535,7 +553,7 @@
             loadingInterval = setInterval(() => {
                 i++;
                 if(i < messages.length) {
-                    if (btn) btn.innerHTML = messages[i];
+                    btn.innerHTML = messages[i];
                 } else {
                     clearInterval(loadingInterval);
                 }
@@ -544,10 +562,8 @@
 
         function stopLoadingText(isTextMode, btn) {
             clearInterval(loadingInterval);
-            if(btn) {
-                btn.disabled = false;
-                btn.innerHTML = isTextMode ? "정밀 분석 실행 🚀" : "트리거 AI 정밀 분석 시작 🔍";
-            }
+            btn.disabled = false;
+            btn.innerHTML = isTextMode ? "정밀 분석 실행 🚀" : "트리거 AI 정밀 분석 시작 🔍";
         }
 
         async function runGeminiAnalysis(isTextMode = false) {
@@ -562,7 +578,7 @@
                 return;
             }
 
-            if (activeBtn) activeBtn.disabled = true;
+            activeBtn.disabled = true;
             startLoadingText();
 
             try {
@@ -666,7 +682,7 @@
                     <div style="font-size:0.9rem; color:#aaa; background:#222; padding:10px; border-radius:8px; line-height: 1.5;">💡 ${res.subject?.easy || ''}</div>
                 `;
 
-                // 🔥 복합어 분리 및 숙어 유지 로직
+                // 🔥 2. 복합어 스마트 분리 & 중복 제거 로직
                 aiKeywordsObj = [];
                 let savedVocaList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
                 let processedKeywords = [];
@@ -678,35 +694,18 @@
                         const fullEngText = parts[0].toLowerCase().trim();
                         const korMean = parts.length > 1 ? parts[1].replace(')', '').trim() : '';
                         
+                        // 복합어 분리
                         const engWords = fullEngText.split(/\s+/);
                         
-                        // 전치사/관사가 포함되어 있으면 숙어로 취급하여 쪼개지 않음
-                        const isIdiom = engWords.some(w => STOP_WORDS.has(w.replace(/[^a-z]/g, '')));
-                        
-                        if (engWords.length > 1 && !isIdiom) {
-                            // 일반 복합어 -> 쪼개기
-                            engWords.forEach(w => {
-                                const cleanW = w.replace(/[^a-z]/g, '');
-                                if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !seenWords.has(cleanW)) {
-                                    const dbWord = findWordInDB(cleanW);
-                                    // 쪼갠 단어는 AI가 준 전체 뜻을 버리고 내부 DB에서 다시 찾음
-                                    const individualMean = dbWord ? dbWord.kor : (fullWordMapGlobal[cleanW] || "");
-                                    
-                                    if (individualMean) {
-                                        processedKeywords.push({ eng: cleanW, kor: individualMean, level: dbWord ? dbWord.level : 'other' });
-                                        seenWords.add(cleanW);
-                                    }
-                                }
-                            });
-                        } else {
-                            // 단일어 또는 숙어 -> 덩어리째 저장
-                            const cleanW = fullEngText.replace(/[^a-z\s]/g, '');
-                            if (cleanW.length > 2 && !seenWords.has(cleanW)) {
-                                const dbWord = findWordInDB(cleanW);
-                                processedKeywords.push({ eng: cleanW, kor: korMean || (dbWord ? dbWord.kor : ''), level: dbWord ? dbWord.level : 'other' });
+                        engWords.forEach(w => {
+                            const cleanW = w.replace(/[^a-z]/g, '');
+                            // 기능어 배제, 너무 짧은 단어 배제, 중복 배제
+                            if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !seenWords.has(cleanW)) {
+                                const level = findVocaLevel(cleanW);
+                                processedKeywords.push({ eng: cleanW, kor: korMean, level: level });
                                 seenWords.add(cleanW);
                             }
-                        }
+                        });
                     });
                 }
                 aiKeywordsObj = processedKeywords;
@@ -832,23 +831,12 @@
                                     if (/[a-zA-Z]/.test(w)) {
                                         const cleanW = w.toLowerCase().replace(/[^a-z]/g, '');
                                         
-                                        // 🔥 지문과 단어 리스트 완벽 동기화 (기능어는 색상 제외)
                                         let isTarget = false;
                                         if (!STOP_WORDS.has(cleanW)) {
                                             isTarget = aiKeywordsObj.some(kw => {
                                                 const kwEng = kw.eng.toLowerCase();
                                                 const stem = kwEng.substring(0, Math.max(3, kwEng.length - 2));
                                                 return cleanW === kwEng || (cleanW.length >= kwEng.length && cleanW.startsWith(stem));
-                                            });
-                                        } else {
-                                            // 기능어라도 AI가 덩어리 숙어로 뽑아줬다면 하이라이트 유지
-                                            isTarget = aiKeywordsObj.some(kw => {
-                                                const kwEng = kw.eng.toLowerCase();
-                                                if (kwEng.includes(' ')) {
-                                                    const parts = kwEng.split(/\s+/).map(p => p.replace(/[^a-z]/g, ''));
-                                                    return parts.includes(cleanW) && String(s.eng || '').toLowerCase().includes(kwEng);
-                                                }
-                                                return false;
                                             });
                                         }
 
