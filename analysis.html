@@ -157,11 +157,10 @@
         let currentPassageTitle = ""; 
         let fullWordMapGlobal = {}; 
 
-        // 🔥 사진 버튼 로직 안전장치
+        // 🔥 사진 선택 버튼 로직
         function openPicker(type) {
             const input = document.getElementById('capture');
-            if (!input) return; 
-            
+            if (!input) return; // 안전장치
             if (type === 'camera') {
                 input.setAttribute('capture', 'environment');
             } else {
@@ -213,25 +212,6 @@
             return found ? found.level : 'other';
         }
 
-        // 🔥 AI 맵 전체를 더 강력하고 유연하게 검색하는 함수
-        function robustSearchMap(word) {
-            if (!fullWordMapGlobal || typeof fullWordMapGlobal !== 'object') return "";
-            let w = String(word).toLowerCase().trim();
-            if (fullWordMapGlobal[w]) return fullWordMapGlobal[w];
-            
-            for (let k in fullWordMapGlobal) {
-                let keyClean = String(k).toLowerCase().replace(/[^a-z-]/g, '').trim();
-                if (keyClean === w) return fullWordMapGlobal[k];
-                
-                if (w.length >= 4 && keyClean.length >= 4) {
-                    if (w.startsWith(keyClean.substring(0, keyClean.length - 1)) || keyClean.startsWith(w.substring(0, w.length - 1))) {
-                        return fullWordMapGlobal[k];
-                    }
-                }
-            }
-            return "";
-        }
-
         function showWordPopup(eng, kor, level) {
             const popup = document.getElementById('word-popup');
             const savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
@@ -239,8 +219,10 @@
             const btnText = isSaved ? "✅" : "저장";
             const btnClass = isSaved ? "kw-save-btn active" : "kw-save-btn";
             
+            // undefined 렌더링 방지 및 문자열 보장
             const safeEng = String(eng || '').replace(/'/g, "\\'");
-            const safeKor = String(kor || '').replace(/'/g, "\\'");
+            let safeKor = String(kor || '').replace(/'/g, "\\'");
+            if (safeKor === "undefined" || safeKor === "null") safeKor = "";
             
             popup.innerHTML = `
                 <div style="flex:1;">
@@ -255,11 +237,9 @@
             popup.style.display = 'flex';
         }
 
-        // 🔥 클릭 시 매칭 로직 완벽 연동
+        // 🔥 매칭 엄격화: provides -> provide 정상 매칭, 변형 허용
         window.handleWordClick = function(element) {
-            // 우선 숙어(idiom) 데이터 속성이 있는지 확인하여 덩어리 자체를 검색어로 설정
-            const idiom = element.getAttribute('data-idiom');
-            let rawWord = idiom ? idiom : String(element.innerText || '').toLowerCase().replace(/[^a-z-]/g, '').trim();
+            const rawWord = String(element.innerText || '').toLowerCase().replace(/[^a-z-]/g, '').trim();
             if(!rawWord) return;
             
             const grammarExceptionMap = {
@@ -280,37 +260,42 @@
             }
             
             const search = (word) => {
+                // 1) 내부 DB 검색 (단일어의 정확한 뜻 최우선)
                 const db = findWordInDB(word);
-                if (db && db.kor) return { mean: db.kor, lvl: db.level };
+                if (db) return { mean: db.kor, lvl: db.level };
 
+                // 2) AI 추출 리스트 검색 (엄격한 형태소 매칭 적용)
                 let foundKw = aiKeywordsObj.find(k => {
                     const kwEng = String(k.eng || '').toLowerCase();
-                    if (kwEng === word) return true;
-                    if (kwEng.includes(' ')) return false; 
-                    const stem = kwEng.substring(0, Math.max(3, kwEng.length - 2));
-                    return word === kwEng || (word.length >= kwEng.length && word.startsWith(stem));
+                    return kwEng === word || word === kwEng + 's' || word === kwEng + 'es' || word === kwEng + 'd' || word === kwEng + 'ed' || word === kwEng + 'ing';
                 });
-                if (foundKw && foundKw.kor) return { mean: foundKw.kor, lvl: foundKw.level };
+                if (foundKw) return { mean: foundKw.kor, lvl: foundKw.level };
 
-                let mapMean = robustSearchMap(word);
-                if (mapMean) return { mean: mapMean, lvl: "other" };
-
+                // 3) AI 전체 맵 검색 (안전하게 객체 체크 후 엄격 매칭)
+                if (fullWordMapGlobal && typeof fullWordMapGlobal === 'object') {
+                    if (fullWordMapGlobal[word]) return { mean: fullWordMapGlobal[word], lvl: "other" };
+                    const mapKey = Object.keys(fullWordMapGlobal).find(k => {
+                        const kClean = String(k || '').toLowerCase().replace(/[^a-z]/g, '');
+                        return kClean === word || word === kClean + 's' || word === kClean + 'es' || word === kClean + 'd' || word === kClean + 'ed' || word === kClean + 'ing';
+                    });
+                    if (mapKey) return { mean: fullWordMapGlobal[mapKey], lvl: "other" };
+                }
                 return null;
             };
 
             let result = search(rawWord);
             
-            // 변형어(s, es, ed, ing 등)의 원형 찾기 (숙어가 아닐 경우에만)
-            if(!result && !rawWord.includes(' ')) {
+            if(!result) {
+                // 어미 떼고 원형 찾기 (provides -> provide 매칭 보장)
                 const stemmed = rawWord.replace(/s$|es$|ed$|ing$|d$|ly$/g, '');
                 if(stemmed !== rawWord && stemmed.length > 2) result = search(stemmed);
             }
             
-            let korMean = result && result.mean ? result.mean : "사전에서 찾을 수 없습니다.";
-            if (korMean === "undefined" || korMean === "null") korMean = "사전에서 찾을 수 없습니다.";
+            let korMean = result ? result.mean : "사전에 없는 단어입니다.";
+            if (korMean === "undefined" || korMean === "null") korMean = "";
             const level = result ? result.lvl : "other";
             
-            showWordPopup(rawWord, korMean, level);
+            showWordPopup(String(element.innerText || '').replace(/[^a-zA-Z-]/g, ''), korMean, level);
         };
 
         function updatePassageTitleManually() {
@@ -545,7 +530,7 @@
         let loadingInterval;
         function startLoadingText() {
             const btn = document.getElementById('ocr-btn') || document.getElementById('run-btn');
-            if (!btn) return; 
+            if (!btn) return;
             
             const messages = [
                 "15초만 기다려 주세요.",
@@ -676,7 +661,7 @@
                     res = JSON.parse(cleanJsonStr);
                 }
                 
-                // 🔥 AI 맵 안전 장치 (undefined 방어)
+                // 🔥 AI 맵 안전 로드
                 if(res.full_word_map && typeof res.full_word_map === 'object') {
                     fullWordMapGlobal = res.full_word_map;
                 } else {
@@ -694,7 +679,7 @@
                     <div style="font-size:0.9rem; color:#aaa; background:#222; padding:10px; border-radius:8px; line-height: 1.5;">💡 ${res.subject?.easy || ''}</div>
                 `;
 
-                // 🔥 단어 빈칸 원천 차단 로직 (DB 최우선, 실패 시에만 제외)
+                // 🔥 복합어 분리, 숙어 묶기 및 안전장치 결합
                 aiKeywordsObj = [];
                 let savedVocaList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
                 let processedKeywords = [];
@@ -710,35 +695,64 @@
                     
                     const engWords = fullEngText.split(/\s+/);
                     
-                    // 1. 단일어 또는 숙어(Idiom) 통째로 등록
-                    const cleanPhrase = fullEngText.replace(/[^a-z\s-]/g, '').trim();
-                    if (cleanPhrase && !seenWords.has(cleanPhrase)) {
-                        const dbPhrase = findWordInDB(cleanPhrase);
-                        let fMean = dbPhrase ? dbPhrase.kor : korMean;
-                        if (!fMean || fMean === "undefined") fMean = robustSearchMap(cleanPhrase);
-                        
-                        if (fMean && fMean !== "undefined") {
-                            processedKeywords.push({ eng: cleanPhrase, kor: fMean, level: dbPhrase ? dbPhrase.level : 'other' });
-                            seenWords.add(cleanPhrase);
+                    // 전치사/관사가 포함되어 있거나 내부 DB에 숙어로 등록되어 있으면 덩어리 유지
+                    const isIdiom = engWords.some(w => STOP_WORDS.has(w.replace(/[^a-z]/g, '')));
+                    const dbPhrase = findWordInDB(fullEngText);
+                    
+                    if (engWords.length > 1 && (isIdiom || dbPhrase)) {
+                        const cleanW = fullEngText.replace(/[^a-z\s]/g, '');
+                        if (!seenWords.has(cleanW)) {
+                            let finalMean = dbPhrase ? dbPhrase.kor : korMean;
+                            if (!finalMean || finalMean === 'undefined') {
+                                finalMean = fullWordMapGlobal[fullEngText] || fullWordMapGlobal[cleanW] || "";
+                            }
+                            processedKeywords.push({ eng: cleanW, kor: finalMean, level: dbPhrase ? dbPhrase.level : 'other' });
+                            seenWords.add(cleanW);
                         }
-                    }
-
-                    // 2. 복합어/숙어 내부의 서브 단어 각각 분해 등록
-                    if (engWords.length > 1) {
+                    } else if (engWords.length > 1) {
+                        // 일반 명사구 -> 쪼개기 (AI 뜻 버리고 DB 우선 매칭)
                         engWords.forEach(w => {
-                            const cleanW = w.replace(/[^a-z-]/g, '').trim();
-                            // 기능어(a, the, of 등)가 아니고 너무 짧지 않은 경우만
+                            const cleanW = w.replace(/[^a-z]/g, '');
                             if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !seenWords.has(cleanW)) {
                                 const dbWord = findWordInDB(cleanW);
-                                let indMean = dbWord ? dbWord.kor : robustSearchMap(cleanW);
                                 
-                                // 뜻을 찾았을 때만 리스트에 추가 (빈칸 원천 차단)
-                                if (indMean && indMean !== "undefined") {
-                                    processedKeywords.push({ eng: cleanW, kor: indMean, level: dbWord ? dbWord.level : 'other' });
-                                    seenWords.add(cleanW);
+                                let individualMean = dbWord ? dbWord.kor : "";
+                                if (!individualMean && fullWordMapGlobal) {
+                                    individualMean = fullWordMapGlobal[cleanW];
+                                    if (!individualMean) {
+                                        const mKey = Object.keys(fullWordMapGlobal).find(k => String(k||'').toLowerCase().replace(/[^a-z]/g, '') === cleanW);
+                                        if (mKey) individualMean = fullWordMapGlobal[mKey];
+                                    }
                                 }
+                                
+                                if (!individualMean || individualMean === "undefined") {
+                                    individualMean = "";
+                                }
+                                
+                                processedKeywords.push({ eng: cleanW, kor: individualMean, level: dbWord ? dbWord.level : 'other' });
+                                seenWords.add(cleanW);
                             }
                         });
+                    } else {
+                        // 단일어 그대로 등록
+                        const cleanW = fullEngText.replace(/[^a-z]/g, '');
+                        if (cleanW.length > 2 && !seenWords.has(cleanW)) {
+                            const dbWord = findWordInDB(cleanW);
+                            let finalMean = dbWord ? dbWord.kor : korMean;
+                            
+                            if (!finalMean || finalMean === "undefined") {
+                                finalMean = fullWordMapGlobal[cleanW];
+                                if (!finalMean && fullWordMapGlobal) {
+                                    const mKey = Object.keys(fullWordMapGlobal).find(k => String(k||'').toLowerCase().replace(/[^a-z]/g, '') === cleanW);
+                                    if(mKey) finalMean = fullWordMapGlobal[mKey];
+                                }
+                            }
+                            
+                            if (!finalMean || finalMean === "undefined") finalMean = "";
+                            
+                            processedKeywords.push({ eng: cleanW, kor: finalMean, level: dbWord ? dbWord.level : 'other' });
+                            seenWords.add(cleanW);
+                        }
                     }
                 });
                 
@@ -752,13 +766,12 @@
                 let vocaItemsArray = [];
                 if(aiKeywordsObj.length > 0) {
                     aiKeywordsObj.forEach(kw => {
-                        if (!kw.eng) return;
-                        const isSaved = savedVocaList.some(item => String(item.eng || '').toLowerCase() === String(kw.eng).toLowerCase());
+                        const isSaved = savedVocaList.some(item => String(item.eng || '').toLowerCase() === String(kw.eng || '').toLowerCase());
                         const btnClass = isSaved ? "kw-save-btn active" : "kw-save-btn";
                         const btnText = isSaved ? "✅" : "저장";
                         
                         const safeEng = String(kw.eng || '').replace(/'/g, "\\'");
-                        const safeKor = String(kw.kor || '').replace(/'/g, "\\'");
+                        let safeKor = String(kw.kor || '').replace(/'/g, "\\'");
                         
                         let levelTag = kw.level === 'middle' ? '<span class="kw-tag kw-mid">중등</span>' : 
                                        kw.level === 'high' ? '<span class="kw-tag kw-high">고등</span>' : 
@@ -766,7 +779,7 @@
 
                         vocaItemsArray.push(`
                             <div class="kw-container">
-                                <div>${levelTag}<strong style="color:#fff; font-size:1.05rem; cursor:pointer;" onclick="showWordPopup('${safeEng}', '${safeKor}', '${kw.level}')">${kw.eng}</strong> <span style="color:#aaa; font-size:0.9rem; margin-left:6px;">${kw.kor}</span></div>
+                                <div>${levelTag}<strong style="color:#fff; font-size:1.05rem; cursor:pointer;" onclick="showWordPopup('${safeEng}', '${safeKor}', '${kw.level}')">${kw.eng}</strong> <span style="color:#aaa; font-size:0.9rem; margin-left:6px;">${safeKor}</span></div>
                                 <button id="btn-kw-${kw.eng}" class="${btnClass}" onclick="toggleVocaSave('${safeEng}', '${safeKor}', '${kw.level}', this)">${btnText}</button>
                             </div>
                         `);
@@ -864,45 +877,30 @@
                         function makeTextNodesClickable(node) {
                             if (node.nodeType === 3) { 
                                 const words = node.nodeValue.split(/(\s+)/);
-                                const html = words.map((w, index) => {
+                                const html = words.map(w => {
                                     if (/[a-zA-Z]/.test(w)) {
-                                        const cleanW = w.toLowerCase().replace(/[^a-z-]/g, '');
+                                        const cleanW = w.toLowerCase().replace(/[^a-z]/g, '');
                                         
-                                        // 🔥 지문 클릭과 단어장 리스트의 완벽 동기화
+                                        // 🔥 지문과 단어 리스트 완벽 동기화 방어로직 추가
                                         let isTarget = false;
-                                        let targetIdiom = null;
-
-                                        let partOfIdiom = false;
-                                        let matchedIdiom = "";
-                                        for (let kw of aiKeywordsObj) {
-                                            const kwEng = String(kw.eng || '').toLowerCase();
-                                            if (kwEng.includes(' ')) {
-                                                const parts = kwEng.split(/\s+/).map(p => p.replace(/[^a-z-]/g, ''));
-                                                // 전치사가 껴있는 숙어의 일부분인지 검증
-                                                if (parts.includes(cleanW) && String(s.eng || '').toLowerCase().includes(kwEng)) {
-                                                    partOfIdiom = true;
-                                                    matchedIdiom = kwEng;
-                                                    break;
-                                                }
-                                            }
-                                        }
-
-                                        if (partOfIdiom) {
-                                            isTarget = true;
-                                            targetIdiom = matchedIdiom;
-                                        } else if (!STOP_WORDS.has(cleanW)) {
+                                        if (STOP_WORDS.has(cleanW)) {
                                             isTarget = aiKeywordsObj.some(kw => {
                                                 const kwEng = String(kw.eng || '').toLowerCase();
-                                                if (!kwEng.includes(' ')) {
-                                                    const stem = kwEng.substring(0, Math.max(3, kwEng.length - 2));
-                                                    return cleanW === kwEng || (cleanW.length >= kwEng.length && cleanW.startsWith(stem));
+                                                if (kwEng.includes(' ')) {
+                                                    const parts = kwEng.split(/\s+/).map(p => p.replace(/[^a-z]/g, ''));
+                                                    return parts.includes(cleanW) && String(s.eng || '').toLowerCase().includes(kwEng);
                                                 }
+                                                return false;
+                                            });
+                                        } else {
+                                            isTarget = aiKeywordsObj.some(kw => {
+                                                const kwEng = String(kw.eng || '').toLowerCase();
+                                                if (kwEng === cleanW || cleanW === kwEng + 's' || cleanW === kwEng + 'es' || cleanW === kwEng + 'd' || cleanW === kwEng + 'ed' || cleanW === kwEng + 'ing') return true;
                                                 return false;
                                             });
                                         }
 
-                                        const dataAttr = targetIdiom ? `data-idiom="${targetIdiom.replace(/"/g, '&quot;')}"` : '';
-                                        return `<span class="clickable-word ${isTarget ? 'hl-voca' : ''}" ${dataAttr} onclick="handleWordClick(this)">${w}</span>`;
+                                        return `<span class="clickable-word ${isTarget ? 'hl-voca' : ''}" onclick="handleWordClick(this)">${w}</span>`;
                                     }
                                     return w;
                                 }).join('');
