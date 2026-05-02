@@ -158,10 +158,10 @@
         let currentPassageTitle = ""; 
         let fullWordMapGlobal = {}; 
 
-        // 🔥 사진 선택 버튼 오류 수정 완벽 반영
+        // 🔥 사진 선택 버튼 로직 안전장치 추가
         function openPicker(type) {
             const input = document.getElementById('capture');
-            if (!input) return; // 안전장치 추가
+            if (!input) return; // 요소가 없을 때 에러 방지 안전장치
             
             if (type === 'camera') {
                 input.setAttribute('capture', 'environment');
@@ -223,12 +223,13 @@
             
             // 🔥 undefined 출력 방지 및 이스케이프 안전 처리
             const safeEng = String(eng || '').replace(/'/g, "\\'");
-            const safeKor = String(kor || '').replace(/'/g, "\\'");
+            let safeKor = String(kor || '').replace(/'/g, "\\'");
+            if (safeKor === "undefined" || safeKor === "") safeKor = "사전 탐색 불가";
             
             popup.innerHTML = `
                 <div style="flex:1;">
-                    <strong style="color:#fff; font-size:1.15rem;">${eng || ''}</strong>
-                    <div style="color:#aaa; font-size:0.9rem; margin-top:2px;">${kor || ''}</div>
+                    <strong style="color:#fff; font-size:1.15rem;">${safeEng}</strong>
+                    <div style="color:#aaa; font-size:0.9rem; margin-top:2px;">${safeKor}</div>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <button class="${btnClass}" onclick="toggleVocaSave('${safeEng}', '${safeKor}', '${level}', this)" style="padding: 6px 12px;">${btnText}</button>
@@ -273,8 +274,8 @@
                 });
                 if (foundKw) return { mean: foundKw.kor, lvl: foundKw.level };
 
-                // 3) AI 전체 맵 검색
-                if (fullWordMapGlobal) {
+                // 3) AI 전체 맵 검색 (🔥 에러 방어 로직 추가)
+                if (fullWordMapGlobal && typeof fullWordMapGlobal === 'object' && fullWordMapGlobal !== null) {
                     if (fullWordMapGlobal[word]) return { mean: fullWordMapGlobal[word], lvl: "other" };
                     const mapKey = Object.keys(fullWordMapGlobal).find(k => {
                         const kClean = String(k || '').toLowerCase().replace(/[^a-z]/g, '');
@@ -663,7 +664,12 @@
                     res = JSON.parse(cleanJsonStr);
                 }
                 
-                if(res.full_word_map) fullWordMapGlobal = res.full_word_map;
+                // 🔥 AI 맵 에러 방어 로직
+                if(res.full_word_map && typeof res.full_word_map === 'object' && res.full_word_map !== null) {
+                    fullWordMapGlobal = res.full_word_map;
+                } else {
+                    fullWordMapGlobal = {}; 
+                }
 
                 const categoryInfo = `${params.get('grade') || ''} ${params.get('type') || ''} ${params.get('detail') || ''}`.trim();
                 const aiSubjectSnippet = res.subject?.formal ? res.subject.formal.substring(0, 12).trim() : "지문 분석";
@@ -709,7 +715,7 @@
                             const cleanW = w.replace(/[^a-z]/g, '');
                             if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !seenWords.has(cleanW)) {
                                 const dbWord = findWordInDB(cleanW);
-                                const individualMean = dbWord ? dbWord.kor : (fullWordMapGlobal[cleanW] || korMean); 
+                                const individualMean = dbWord ? dbWord.kor : (fullWordMapGlobal[cleanW] || "뜻 확인 필요"); 
                                 processedKeywords.push({ eng: cleanW, kor: individualMean, level: dbWord ? dbWord.level : 'other' });
                                 seenWords.add(cleanW);
                             }
@@ -740,9 +746,9 @@
                         const btnClass = isSaved ? "kw-save-btn active" : "kw-save-btn";
                         const btnText = isSaved ? "✅" : "저장";
                         
-                        // 🔥 렌더링 에러 방지 처리 추가
                         const safeEng = String(kw.eng || '').replace(/'/g, "\\'");
-                        const safeKor = String(kw.kor || '').replace(/'/g, "\\'");
+                        let safeKor = String(kw.kor || '').replace(/'/g, "\\'");
+                        if (safeKor === "undefined" || safeKor === "null" || safeKor === "") safeKor = "사전 탐색 불가";
                         
                         let levelTag = kw.level === 'middle' ? '<span class="kw-tag kw-mid">중등</span>' : 
                                        kw.level === 'high' ? '<span class="kw-tag kw-high">고등</span>' : 
@@ -750,7 +756,7 @@
 
                         vocaItemsArray.push(`
                             <div class="kw-container">
-                                <div>${levelTag}<strong style="color:#fff; font-size:1.05rem; cursor:pointer;" onclick="showWordPopup('${safeEng}', '${safeKor}', '${kw.level}')">${kw.eng}</strong> <span style="color:#aaa; font-size:0.9rem; margin-left:6px;">${kw.kor}</span></div>
+                                <div>${levelTag}<strong style="color:#fff; font-size:1.05rem; cursor:pointer;" onclick="showWordPopup('${safeEng}', '${safeKor}', '${kw.level}')">${kw.eng}</strong> <span style="color:#aaa; font-size:0.9rem; margin-left:6px;">${safeKor}</span></div>
                                 <button id="btn-kw-${kw.eng}" class="${btnClass}" onclick="toggleVocaSave('${safeEng}', '${safeKor}', '${kw.level}', this)">${btnText}</button>
                             </div>
                         `);
