@@ -144,7 +144,6 @@
     <script src="worddata.js"></script>
 
     <script>
-        // 🔥 하이라이트에서 제외할 기능어(전치사/관사 등) 리스트 
         const STOP_WORDS = new Set(['a', 'an', 'the', 'of', 'with', 'in', 'on', 'at', 'by', 'for', 'to', 'and', 'or', 'but', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'as', 'around', 'about', 'between', 'among', 'up', 'down', 'out', 'into', 'over', 'under', 'through', 'after', 'before', 'from', 'without', 'within', 'during', 'until', 'since', 'than', 'because', 'while', 'although', 'if', 'unless']);
 
         const WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev/'; 
@@ -158,11 +157,10 @@
         let currentPassageTitle = ""; 
         let fullWordMapGlobal = {}; 
 
-        // 🔥 사진 선택 버튼 로직 안전장치 추가
+        // 🔥 사진 선택 버튼 로직
         function openPicker(type) {
             const input = document.getElementById('capture');
-            if (!input) return; // 요소가 없을 때 에러 방지 안전장치
-            
+            if (!input) return; // 안전장치
             if (type === 'camera') {
                 input.setAttribute('capture', 'environment');
             } else {
@@ -192,7 +190,7 @@
         }
 
         function findWordInDB(rawWord) {
-            if (!rawWord) return null; // 🔥 안전장치 추가
+            if (!rawWord) return null;
             const word = String(rawWord).toLowerCase().replace(/[^a-z]/g, '').trim();
             if(!word || typeof wordsData === 'undefined') return null;
             const groups = ['middle', 'high'];
@@ -221,14 +219,14 @@
             const btnText = isSaved ? "✅" : "저장";
             const btnClass = isSaved ? "kw-save-btn active" : "kw-save-btn";
             
-            // 🔥 undefined 출력 방지 및 이스케이프 안전 처리
+            // undefined 렌더링 방지 및 문자열 보장
             const safeEng = String(eng || '').replace(/'/g, "\\'");
             let safeKor = String(kor || '').replace(/'/g, "\\'");
-            if (safeKor === "undefined" || safeKor === "") safeKor = "사전 탐색 불가";
+            if (safeKor === "undefined" || safeKor === "null") safeKor = "";
             
             popup.innerHTML = `
                 <div style="flex:1;">
-                    <strong style="color:#fff; font-size:1.15rem;">${safeEng}</strong>
+                    <strong style="color:#fff; font-size:1.15rem;">${eng || ''}</strong>
                     <div style="color:#aaa; font-size:0.9rem; margin-top:2px;">${safeKor}</div>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
@@ -239,6 +237,7 @@
             popup.style.display = 'flex';
         }
 
+        // 🔥 매칭 엄격화: provides -> provide 정상 매칭, 변형 허용
         window.handleWordClick = function(element) {
             const rawWord = String(element.innerText || '').toLowerCase().replace(/[^a-z-]/g, '').trim();
             if(!rawWord) return;
@@ -260,27 +259,24 @@
                 return;
             }
             
-            // 🔥 AI가 전달한 데이터 중 undefined 필터링 (가장 강력한 원본 로직)
             const search = (word) => {
                 // 1) 내부 DB 검색 (단일어의 정확한 뜻 최우선)
                 const db = findWordInDB(word);
                 if (db) return { mean: db.kor, lvl: db.level };
 
-                // 2) AI 추출 리스트 검색
+                // 2) AI 추출 리스트 검색 (엄격한 형태소 매칭 적용)
                 let foundKw = aiKeywordsObj.find(k => {
                     const kwEng = String(k.eng || '').toLowerCase();
-                    const stem = kwEng.substring(0, Math.max(3, kwEng.length - 2));
-                    return word === kwEng || (word.length >= kwEng.length && word.startsWith(stem));
+                    return kwEng === word || word === kwEng + 's' || word === kwEng + 'es' || word === kwEng + 'd' || word === kwEng + 'ed' || word === kwEng + 'ing';
                 });
                 if (foundKw) return { mean: foundKw.kor, lvl: foundKw.level };
 
-                // 3) AI 전체 맵 검색 (🔥 에러 방어 로직 추가)
-                if (fullWordMapGlobal && typeof fullWordMapGlobal === 'object' && fullWordMapGlobal !== null) {
+                // 3) AI 전체 맵 검색 (안전하게 객체 체크 후 엄격 매칭)
+                if (fullWordMapGlobal && typeof fullWordMapGlobal === 'object') {
                     if (fullWordMapGlobal[word]) return { mean: fullWordMapGlobal[word], lvl: "other" };
                     const mapKey = Object.keys(fullWordMapGlobal).find(k => {
                         const kClean = String(k || '').toLowerCase().replace(/[^a-z]/g, '');
-                        const stem = kClean.substring(0, Math.max(3, kClean.length - 2));
-                        return word === kClean || (word.length >= kClean.length && word.startsWith(stem));
+                        return kClean === word || word === kClean + 's' || word === kClean + 'es' || word === kClean + 'd' || word === kClean + 'ed' || word === kClean + 'ing';
                     });
                     if (mapKey) return { mean: fullWordMapGlobal[mapKey], lvl: "other" };
                 }
@@ -290,12 +286,13 @@
             let result = search(rawWord);
             
             if(!result) {
-                // 어미 떼고 원형 찾기 (provides, taking 같은 변형 포용)
+                // 어미 떼고 원형 찾기 (provides -> provide 매칭 보장)
                 const stemmed = rawWord.replace(/s$|es$|ed$|ing$|d$|ly$/g, '');
-                if(stemmed.length > 2) result = search(stemmed);
+                if(stemmed !== rawWord && stemmed.length > 2) result = search(stemmed);
             }
             
-            const korMean = result ? result.mean : "사전에 없는 단어입니다.";
+            let korMean = result ? result.mean : "사전에 없는 단어입니다.";
+            if (korMean === "undefined" || korMean === "null") korMean = "";
             const level = result ? result.lvl : "other";
             
             showWordPopup(String(element.innerText || '').replace(/[^a-zA-Z-]/g, ''), korMean, level);
@@ -664,11 +661,11 @@
                     res = JSON.parse(cleanJsonStr);
                 }
                 
-                // 🔥 AI 맵 에러 방어 로직
-                if(res.full_word_map && typeof res.full_word_map === 'object' && res.full_word_map !== null) {
+                // 🔥 AI 맵 안전 로드
+                if(res.full_word_map && typeof res.full_word_map === 'object') {
                     fullWordMapGlobal = res.full_word_map;
                 } else {
-                    fullWordMapGlobal = {}; 
+                    fullWordMapGlobal = {};
                 }
 
                 const categoryInfo = `${params.get('grade') || ''} ${params.get('type') || ''} ${params.get('detail') || ''}`.trim();
@@ -705,7 +702,10 @@
                     if (engWords.length > 1 && (isIdiom || dbPhrase)) {
                         const cleanW = fullEngText.replace(/[^a-z\s]/g, '');
                         if (!seenWords.has(cleanW)) {
-                            const finalMean = dbPhrase ? dbPhrase.kor : korMean;
+                            let finalMean = dbPhrase ? dbPhrase.kor : korMean;
+                            if (!finalMean || finalMean === 'undefined') {
+                                finalMean = fullWordMapGlobal[fullEngText] || fullWordMapGlobal[cleanW] || "";
+                            }
                             processedKeywords.push({ eng: cleanW, kor: finalMean, level: dbPhrase ? dbPhrase.level : 'other' });
                             seenWords.add(cleanW);
                         }
@@ -715,7 +715,20 @@
                             const cleanW = w.replace(/[^a-z]/g, '');
                             if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !seenWords.has(cleanW)) {
                                 const dbWord = findWordInDB(cleanW);
-                                const individualMean = dbWord ? dbWord.kor : (fullWordMapGlobal[cleanW] || "뜻 확인 필요"); 
+                                
+                                let individualMean = dbWord ? dbWord.kor : "";
+                                if (!individualMean && fullWordMapGlobal) {
+                                    individualMean = fullWordMapGlobal[cleanW];
+                                    if (!individualMean) {
+                                        const mKey = Object.keys(fullWordMapGlobal).find(k => String(k||'').toLowerCase().replace(/[^a-z]/g, '') === cleanW);
+                                        if (mKey) individualMean = fullWordMapGlobal[mKey];
+                                    }
+                                }
+                                
+                                if (!individualMean || individualMean === "undefined") {
+                                    individualMean = "";
+                                }
+                                
                                 processedKeywords.push({ eng: cleanW, kor: individualMean, level: dbWord ? dbWord.level : 'other' });
                                 seenWords.add(cleanW);
                             }
@@ -725,7 +738,18 @@
                         const cleanW = fullEngText.replace(/[^a-z]/g, '');
                         if (cleanW.length > 2 && !seenWords.has(cleanW)) {
                             const dbWord = findWordInDB(cleanW);
-                            const finalMean = dbWord ? dbWord.kor : korMean;
+                            let finalMean = dbWord ? dbWord.kor : korMean;
+                            
+                            if (!finalMean || finalMean === "undefined") {
+                                finalMean = fullWordMapGlobal[cleanW];
+                                if (!finalMean && fullWordMapGlobal) {
+                                    const mKey = Object.keys(fullWordMapGlobal).find(k => String(k||'').toLowerCase().replace(/[^a-z]/g, '') === cleanW);
+                                    if(mKey) finalMean = fullWordMapGlobal[mKey];
+                                }
+                            }
+                            
+                            if (!finalMean || finalMean === "undefined") finalMean = "";
+                            
                             processedKeywords.push({ eng: cleanW, kor: finalMean, level: dbWord ? dbWord.level : 'other' });
                             seenWords.add(cleanW);
                         }
@@ -748,7 +772,6 @@
                         
                         const safeEng = String(kw.eng || '').replace(/'/g, "\\'");
                         let safeKor = String(kw.kor || '').replace(/'/g, "\\'");
-                        if (safeKor === "undefined" || safeKor === "null" || safeKor === "") safeKor = "사전 탐색 불가";
                         
                         let levelTag = kw.level === 'middle' ? '<span class="kw-tag kw-mid">중등</span>' : 
                                        kw.level === 'high' ? '<span class="kw-tag kw-high">고등</span>' : 
@@ -872,12 +895,8 @@
                                         } else {
                                             isTarget = aiKeywordsObj.some(kw => {
                                                 const kwEng = String(kw.eng || '').toLowerCase();
-                                                if (kwEng.includes(' ')) {
-                                                    const parts = kwEng.split(/\s+/).map(p => p.replace(/[^a-z]/g, ''));
-                                                    return parts.includes(cleanW) && String(s.eng || '').toLowerCase().includes(kwEng);
-                                                }
-                                                const stem = kwEng.substring(0, Math.max(3, kwEng.length - 2));
-                                                return cleanW === kwEng || (cleanW.length >= kwEng.length && cleanW.startsWith(stem));
+                                                if (kwEng === cleanW || cleanW === kwEng + 's' || cleanW === kwEng + 'es' || cleanW === kwEng + 'd' || cleanW === kwEng + 'ed' || cleanW === kwEng + 'ing') return true;
+                                                return false;
                                             });
                                         }
 
