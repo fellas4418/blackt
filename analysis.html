@@ -144,6 +144,7 @@
     <script src="worddata.js"></script>
 
     <script>
+        // 🔥 하이라이트에서 제외할 기능어(전치사/관사 등) 리스트 
         const STOP_WORDS = new Set(['a', 'an', 'the', 'of', 'with', 'in', 'on', 'at', 'by', 'for', 'to', 'and', 'or', 'but', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'as', 'around', 'about', 'between', 'among', 'up', 'down', 'out', 'into', 'over', 'under', 'through', 'after', 'before', 'from', 'without', 'within', 'during', 'until', 'since', 'than', 'because', 'while', 'although', 'if', 'unless']);
 
         const WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev/'; 
@@ -157,10 +158,9 @@
         let currentPassageTitle = ""; 
         let fullWordMapGlobal = {}; 
 
-        // 🔥 사진 버튼 로직 안전장치
         function openPicker(type) {
             const input = document.getElementById('capture');
-            if (!input) return; 
+            if (!input) return; // 안전장치 추가
             
             if (type === 'camera') {
                 input.setAttribute('capture', 'environment');
@@ -213,25 +213,6 @@
             return found ? found.level : 'other';
         }
 
-        // 🔥 AI 맵 전체를 더 강력하고 유연하게 검색하는 함수
-        function robustSearchMap(word) {
-            if (!fullWordMapGlobal || typeof fullWordMapGlobal !== 'object') return "";
-            let w = String(word).toLowerCase().trim();
-            if (fullWordMapGlobal[w]) return fullWordMapGlobal[w];
-            
-            for (let k in fullWordMapGlobal) {
-                let keyClean = String(k).toLowerCase().replace(/[^a-z-]/g, '').trim();
-                if (keyClean === w) return fullWordMapGlobal[k];
-                
-                if (w.length >= 4 && keyClean.length >= 4) {
-                    if (w.startsWith(keyClean.substring(0, keyClean.length - 1)) || keyClean.startsWith(w.substring(0, w.length - 1))) {
-                        return fullWordMapGlobal[k];
-                    }
-                }
-            }
-            return "";
-        }
-
         function showWordPopup(eng, kor, level) {
             const popup = document.getElementById('word-popup');
             const savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
@@ -240,7 +221,8 @@
             const btnClass = isSaved ? "kw-save-btn active" : "kw-save-btn";
             
             const safeEng = String(eng || '').replace(/'/g, "\\'");
-            const safeKor = String(kor || '').replace(/'/g, "\\'");
+            let safeKor = String(kor || '').replace(/'/g, "\\'");
+            if (safeKor === "undefined" || safeKor === "null") safeKor = "";
             
             popup.innerHTML = `
                 <div style="flex:1;">
@@ -255,9 +237,8 @@
             popup.style.display = 'flex';
         }
 
-        // 🔥 클릭 시 매칭 로직 완벽 연동
+        // 🔥 무적의 3단계 뜻 찾기 (어근 추출 알고리즘 강화)
         window.handleWordClick = function(element) {
-            // 우선 숙어(idiom) 데이터 속성이 있는지 확인하여 덩어리 자체를 검색어로 설정
             const idiom = element.getAttribute('data-idiom');
             let rawWord = idiom ? idiom : String(element.innerText || '').toLowerCase().replace(/[^a-z-]/g, '').trim();
             if(!rawWord) return;
@@ -280,37 +261,64 @@
             }
             
             const search = (word) => {
+                // 1) 내부 DB 검색
                 const db = findWordInDB(word);
                 if (db && db.kor) return { mean: db.kor, lvl: db.level };
 
+                // 2) AI 추출 리스트 검색
                 let foundKw = aiKeywordsObj.find(k => {
                     const kwEng = String(k.eng || '').toLowerCase();
                     if (kwEng === word) return true;
-                    if (kwEng.includes(' ')) return false; 
+                    if (kwEng.includes(' ')) return false;
                     const stem = kwEng.substring(0, Math.max(3, kwEng.length - 2));
                     return word === kwEng || (word.length >= kwEng.length && word.startsWith(stem));
                 });
                 if (foundKw && foundKw.kor) return { mean: foundKw.kor, lvl: foundKw.level };
 
-                let mapMean = robustSearchMap(word);
-                if (mapMean) return { mean: mapMean, lvl: "other" };
-
+                // 3) AI 전체 맵 검색
+                if (fullWordMapGlobal && typeof fullWordMapGlobal === 'object') {
+                    if (fullWordMapGlobal[word]) return { mean: fullWordMapGlobal[word], lvl: "other" };
+                    const mapKey = Object.keys(fullWordMapGlobal).find(k => {
+                        const kClean = String(k || '').toLowerCase().replace(/[^a-z-]/g, '').trim();
+                        if (kClean === word) return true;
+                        if (kClean.includes(' ')) return false;
+                        const stem = kClean.substring(0, Math.max(3, kClean.length - 2));
+                        return word === kClean || (word.length >= kClean.length && word.startsWith(stem));
+                    });
+                    if (mapKey && fullWordMapGlobal[mapKey]) return { mean: fullWordMapGlobal[mapKey], lvl: "other" };
+                }
                 return null;
             };
 
             let result = search(rawWord);
             
-            // 변형어(s, es, ed, ing 등)의 원형 찾기 (숙어가 아닐 경우에만)
             if(!result && !rawWord.includes(' ')) {
-                const stemmed = rawWord.replace(/s$|es$|ed$|ing$|d$|ly$/g, '');
-                if(stemmed !== rawWord && stemmed.length > 2) result = search(stemmed);
+                // 어미 떼고 원형 찾기 (영어 문법 변형 규칙 포용)
+                const stems = [
+                    rawWord.replace(/s$/g, ''),
+                    rawWord.replace(/es$/g, ''),
+                    rawWord.replace(/ies$/g, 'y'),
+                    rawWord.replace(/ed$/g, ''),
+                    rawWord.replace(/ied$/g, 'y'),
+                    rawWord.replace(/ed$/g, 'e'),
+                    rawWord.replace(/ing$/g, ''),
+                    rawWord.replace(/ing$/g, 'e'),
+                    rawWord.replace(/ly$/g, ''),
+                    rawWord === 'these' ? 'this' : '',
+                    rawWord === 'those' ? 'that' : ''
+                ].filter(v => v.length > 2 && v !== rawWord);
+
+                for (let stem of stems) {
+                    result = search(stem);
+                    if (result) break;
+                }
             }
             
             let korMean = result && result.mean ? result.mean : "사전에서 찾을 수 없습니다.";
             if (korMean === "undefined" || korMean === "null") korMean = "사전에서 찾을 수 없습니다.";
             const level = result ? result.lvl : "other";
             
-            showWordPopup(rawWord, korMean, level);
+            showWordPopup(idiom ? idiom : String(element.innerText || '').replace(/[^a-zA-Z-]/g, ''), korMean, level);
         };
 
         function updatePassageTitleManually() {
@@ -545,7 +553,7 @@
         let loadingInterval;
         function startLoadingText() {
             const btn = document.getElementById('ocr-btn') || document.getElementById('run-btn');
-            if (!btn) return; 
+            if (!btn) return;
             
             const messages = [
                 "15초만 기다려 주세요.",
@@ -676,7 +684,6 @@
                     res = JSON.parse(cleanJsonStr);
                 }
                 
-                // 🔥 AI 맵 안전 장치 (undefined 방어)
                 if(res.full_word_map && typeof res.full_word_map === 'object') {
                     fullWordMapGlobal = res.full_word_map;
                 } else {
@@ -694,7 +701,7 @@
                     <div style="font-size:0.9rem; color:#aaa; background:#222; padding:10px; border-radius:8px; line-height: 1.5;">💡 ${res.subject?.easy || ''}</div>
                 `;
 
-                // 🔥 단어 빈칸 원천 차단 로직 (DB 최우선, 실패 시에만 제외)
+                // 🔥 단어 추출 및 중복/숙어 처리 강화
                 aiKeywordsObj = [];
                 let savedVocaList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
                 let processedKeywords = [];
@@ -710,35 +717,60 @@
                     
                     const engWords = fullEngText.split(/\s+/);
                     
-                    // 1. 단일어 또는 숙어(Idiom) 통째로 등록
-                    const cleanPhrase = fullEngText.replace(/[^a-z\s-]/g, '').trim();
-                    if (cleanPhrase && !seenWords.has(cleanPhrase)) {
-                        const dbPhrase = findWordInDB(cleanPhrase);
-                        let fMean = dbPhrase ? dbPhrase.kor : korMean;
-                        if (!fMean || fMean === "undefined") fMean = robustSearchMap(cleanPhrase);
-                        
-                        if (fMean && fMean !== "undefined") {
-                            processedKeywords.push({ eng: cleanPhrase, kor: fMean, level: dbPhrase ? dbPhrase.level : 'other' });
-                            seenWords.add(cleanPhrase);
-                        }
-                    }
-
-                    // 2. 복합어/숙어 내부의 서브 단어 각각 분해 등록
+                    // 1. 다중 단어 (숙어 또는 복합어)
                     if (engWords.length > 1) {
+                        const cleanPhrase = fullEngText.replace(/[^a-z\s-]/g, '').trim();
+                        let idiomMean = "";
+                        
+                        if (cleanPhrase && !seenWords.has(cleanPhrase)) {
+                            const dbPhrase = findWordInDB(cleanPhrase);
+                            idiomMean = dbPhrase ? dbPhrase.kor : korMean;
+                            if (!idiomMean || idiomMean === "undefined") idiomMean = fullWordMapGlobal[cleanPhrase] || "";
+                            
+                            // 뜻이 유효할 때만 등록
+                            if (idiomMean) {
+                                processedKeywords.push({ eng: cleanPhrase, kor: idiomMean, level: dbPhrase ? dbPhrase.level : 'other' });
+                                seenWords.add(cleanPhrase);
+                            }
+                        }
+
+                        // 복합어 내부 개별 단어 추출
                         engWords.forEach(w => {
                             const cleanW = w.replace(/[^a-z-]/g, '').trim();
-                            // 기능어(a, the, of 등)가 아니고 너무 짧지 않은 경우만
                             if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !seenWords.has(cleanW)) {
                                 const dbWord = findWordInDB(cleanW);
-                                let indMean = dbWord ? dbWord.kor : robustSearchMap(cleanW);
+                                let indMean = dbWord ? dbWord.kor : "";
                                 
-                                // 뜻을 찾았을 때만 리스트에 추가 (빈칸 원천 차단)
-                                if (indMean && indMean !== "undefined") {
+                                if (!indMean && fullWordMapGlobal) {
+                                    indMean = fullWordMapGlobal[cleanW];
+                                    if (!indMean) {
+                                        const mKey = Object.keys(fullWordMapGlobal).find(k => String(k||'').toLowerCase().replace(/[^a-z-]/g, '') === cleanW);
+                                        if (mKey) indMean = fullWordMapGlobal[mKey];
+                                    }
+                                }
+                                
+                                // 개별 뜻이 숙어의 전체 뜻과 똑같으면 중복 방지를 위해 생략
+                                if (indMean && indMean !== "undefined" && indMean !== idiomMean) {
                                     processedKeywords.push({ eng: cleanW, kor: indMean, level: dbWord ? dbWord.level : 'other' });
                                     seenWords.add(cleanW);
                                 }
                             }
                         });
+                    } else {
+                        // 단일어 추출
+                        const cleanW = fullEngText.replace(/[^a-z-]/g, '').trim();
+                        if (cleanW.length > 2 && !seenWords.has(cleanW)) {
+                            const dbWord = findWordInDB(cleanW);
+                            let finalMean = dbWord ? dbWord.kor : korMean;
+                            if (!finalMean || finalMean === "undefined") {
+                                finalMean = fullWordMapGlobal[cleanW] || "";
+                            }
+                            
+                            if (finalMean) {
+                                processedKeywords.push({ eng: cleanW, kor: finalMean, level: dbWord ? dbWord.level : 'other' });
+                                seenWords.add(cleanW);
+                            }
+                        }
                     }
                 });
                 
@@ -868,21 +900,37 @@
                                     if (/[a-zA-Z]/.test(w)) {
                                         const cleanW = w.toLowerCase().replace(/[^a-z-]/g, '');
                                         
-                                        // 🔥 지문 클릭과 단어장 리스트의 완벽 동기화
+                                        // 🔥 지문 본문과 숙어 완벽 하이라이트 매칭
                                         let isTarget = false;
                                         let targetIdiom = null;
 
                                         let partOfIdiom = false;
                                         let matchedIdiom = "";
+                                        
                                         for (let kw of aiKeywordsObj) {
                                             const kwEng = String(kw.eng || '').toLowerCase();
                                             if (kwEng.includes(' ')) {
-                                                const parts = kwEng.split(/\s+/).map(p => p.replace(/[^a-z-]/g, ''));
-                                                // 전치사가 껴있는 숙어의 일부분인지 검증
-                                                if (parts.includes(cleanW) && String(s.eng || '').toLowerCase().includes(kwEng)) {
-                                                    partOfIdiom = true;
-                                                    matchedIdiom = kwEng;
-                                                    break;
+                                                const kwParts = kwEng.split(/\s+/).map(p => p.replace(/[^a-z-]/g, ''));
+                                                const wordIdxInIdiom = kwParts.indexOf(cleanW);
+                                                
+                                                if (wordIdxInIdiom !== -1) {
+                                                    let match = true;
+                                                    for (let i = 0; i < kwParts.length; i++) {
+                                                        const offset = i - wordIdxInIdiom;
+                                                        const targetWordIndex = index + (offset * 2);
+                                                        if (targetWordIndex < 0 || targetWordIndex >= words.length) {
+                                                            match = false; break;
+                                                        }
+                                                        const targetClean = words[targetWordIndex].toLowerCase().replace(/[^a-z-]/g, '');
+                                                        if (targetClean !== kwParts[i]) {
+                                                            match = false; break;
+                                                        }
+                                                    }
+                                                    if (match) {
+                                                        partOfIdiom = true;
+                                                        matchedIdiom = kwEng;
+                                                        break;
+                                                    }
                                                 }
                                             }
                                         }
@@ -891,6 +939,7 @@
                                             isTarget = true;
                                             targetIdiom = matchedIdiom;
                                         } else if (!STOP_WORDS.has(cleanW)) {
+                                            // 기능어(전치사 등)가 아닐 때만 단일 하이라이트 적용
                                             isTarget = aiKeywordsObj.some(kw => {
                                                 const kwEng = String(kw.eng || '').toLowerCase();
                                                 if (!kwEng.includes(' ')) {
