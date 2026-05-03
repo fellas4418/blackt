@@ -225,6 +225,12 @@
         /** 단·복수 통합 시 그대로 둘 명사 (복수형만 존재하는 단어 등) */
         const PLURAL_LEMMA_EXCEPTIONS = new Set(['news', 'physics', 'economics', 'species', 'series', 'billiards']);
 
+        /** 단수 원형이 s로 끝나 복수 오인하면 안 되는 단어 (focus→focu 방지) */
+        const SINGULAR_WORD_RETAIN_FINAL_S = new Set([
+            'focus', 'campus', 'virus', 'bonus', 'chaos', 'canvas', 'status', 'gas', 'plus', 'minus',
+            'his', 'this', 'thus', 'bus', 'yes', 'us'
+        ]);
+
         const WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev/'; 
         const params = new URLSearchParams(window.location.search);
         const info = `${params.get('grade') || ''} ${params.get('type') || ''} ${params.get('detail') || ''}`;
@@ -349,6 +355,9 @@
             const candidates = new Set([L]);
             if (L.length > 2) candidates.add(L + 's');
             if (L.endsWith('s') && L.length > 3) candidates.add(L.slice(0, -1));
+            if (L.length > 4 && L.endsWith('y') && /[bcdfghjklmnpqrstvwxz]y$/i.test(L)) {
+                candidates.add(L.slice(0, -1) + 'ies');
+            }
             getStems(L).forEach(s => { if (s && s.length > 1) candidates.add(s); });
             let best = 999999;
             candidates.forEach(c => {
@@ -365,6 +374,7 @@
             if (lemmaAppearsInPassage(L, passageLower)) return true;
             if (lemmaAppearsInPassage(L + 's', passageLower)) return true;
             if (L.endsWith('s') && L.length > 3 && lemmaAppearsInPassage(L.slice(0, -1), passageLower)) return true;
+            if (L.length > 4 && L.endsWith('y') && /[bcdfghjklmnpqrstvwxz]y$/i.test(L) && lemmaAppearsInPassage(L.slice(0, -1) + 'ies', passageLower)) return true;
             return false;
         }
 
@@ -373,8 +383,10 @@
             let raw = String(w || '').toLowerCase().replace(/[^a-z-]/g, '');
             if (!raw || raw.length <= 2) return raw;
             if (PLURAL_LEMMA_EXCEPTIONS.has(raw)) return raw;
+            if (SINGULAR_WORD_RETAIN_FINAL_S.has(raw)) return raw;
             if (raw.endsWith('ies') && raw.length > 4) return raw.slice(0, -3) + 'y';
             if (raw.endsWith('sses') || raw.endsWith('ches') || raw.endsWith('shes') || raw.endsWith('xes')) return raw.slice(0, -2);
+            if (/sis$|ous$|tics$|ocus$|ampus$|irus$|onus$|aos$|anvas$|atus$|epsis$|iasis$|ysis$/.test(raw)) return raw;
             if (raw.endsWith('s') && raw.length > 3 && !raw.endsWith('ss')) return raw.slice(0, -1);
             return raw;
         }
