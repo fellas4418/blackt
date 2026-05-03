@@ -144,8 +144,58 @@
     <script src="worddata.js"></script>
 
     <script>
-        // 🔥 하이라이트에서 제외할 기능어(전치사/관사 등) 리스트 
+        // 🔥 하이라이트·단어 리스트에서 제외할 기능어(전치사/관사 등). 본문 클릭 시에는 아래 STOP_WORD_CLICK_MEANINGS 등으로 대표 뜻 제공.
         const STOP_WORDS = new Set(['a', 'an', 'the', 'of', 'with', 'in', 'on', 'at', 'by', 'for', 'to', 'and', 'or', 'but', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'as', 'around', 'about', 'between', 'among', 'up', 'down', 'out', 'into', 'over', 'under', 'through', 'after', 'before', 'from', 'without', 'within', 'during', 'until', 'since', 'than', 'because', 'while', 'although', 'if', 'unless']);
+
+        const STOP_WORD_CLICK_MEANINGS = {
+            a: '불특정 단수 명사 앞 관사 (~한, 하나의)',
+            an: '불특정 단수 명사 앞 관사 (~한, 하나의)',
+            the: '특정 명사 앞 관사 (그, 해당)',
+            of: '~의; ~중의 (소속·재료 등)',
+            with: '~와 함께; ~을 가지고; ~으로',
+            in: '~안에; ~에서; ~동안',
+            on: '~위에; ~에 대하여',
+            at: '~에서 (위치·시점)',
+            by: '~옆에; ~에 의해; ~까지',
+            for: '~을 위해; ~동안; ~에 적합한',
+            to: '~로; ~에게 (방향·목적)',
+            and: '그리고 (나열)',
+            or: '또는 (선택)',
+            but: '그러나 (대조)',
+            is: '[be동사] ~이다, ~이다',
+            are: '[be동사] ~이다 (복수)',
+            was: '[be동사] ~이었다',
+            were: '[be동사] ~이었다 (복수)',
+            be: '[be동사] ~이다; ~되다 (원형)',
+            been: '[be동사] have been 형태로 쓰임',
+            being: '[be동사] ~인 상태; being ~ (~인)',
+            as: '~로서; ~처럼; ~할 때',
+            around: '~주변에; 대략; …을 두고',
+            about: '~에 대하여; 약…; 막',
+            between: '~와 ~ 사이에',
+            among: '~들 사이에서 (셋 이상)',
+            up: '위로; 완전히; up to …까지',
+            down: '아래로; 내려가서',
+            out: '밖으로; 소진·소멸',
+            into: '~안으로; ~가 되도록',
+            over: '~위에; 넘어서; 기간 내내',
+            under: '~아래에; ~미만으로',
+            through: '~을 통해; 내내',
+            after: '~후에; ~을 따라',
+            before: '~전에; ~앞에',
+            from: '~로부터; ~에서 출발하여',
+            without: '~없이',
+            within: '~안에서; 이내에',
+            during: '~동안',
+            until: '~까지',
+            since: '~이래로; ~이후부터',
+            than: '~보다 (비교)',
+            because: '~이므로 (~때문에)',
+            while: '~하는 동안; 반면에',
+            although: '~이지만',
+            if: '~하면; 만약',
+            unless: '~하지 않는 한'
+        };
 
         const WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev/'; 
         const params = new URLSearchParams(window.location.search);
@@ -247,6 +297,23 @@
             return new RegExp('(?:^|[^a-z])' + esc + '(?:[^a-z]|$)', 'i').test(passageLower);
         }
 
+        /** 단어·숙어가 지문 영어 본문에서 처음 나오는 위치(문자 인덱스). 리스트 정렬용 */
+        function passageFirstAppearanceOrder(entry, passageLower) {
+            const eng = String(entry.eng || '').trim();
+            if (!eng) return 999999;
+            const hay = passageLower.replace(/\s+/g, ' ');
+            if (/\s/.test(eng)) {
+                const needle = normPhraseLoose(eng).replace(/\s+/g, ' ');
+                const idx = hay.indexOf(needle);
+                return idx >= 0 ? idx : 999999;
+            }
+            const clean = eng.toLowerCase().replace(/[^a-z-]/g, '');
+            const esc = clean.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const re = new RegExp('(?:^|[^a-z])' + esc + '(?:[^a-z]|$)', 'i');
+            const m = re.exec(passageLower);
+            return m ? m.index : 999999;
+        }
+
         function findWordInDB(rawWord) {
             if (!rawWord) return null;
             const word = String(rawWord).toLowerCase().replace(/[^a-z]/g, '').trim();
@@ -332,7 +399,12 @@
                 showWordPopup(rawWord, grammarExceptionMap[rawWord], "grammar");
                 return;
             }
-            
+
+            if (rawWord === 'these') {
+                showWordPopup('these', '복수 지시대명사: 이것들; 한정사: 이러한 (~명사)', 'grammar');
+                return;
+            }
+
             // 파생 어근으로 DB·키워드·full_word_map 검색 (앞글자만 맞추는 fuzzy 매칭 제거 → seem≠seat 오류 방지)
             const searchAllStems = (rWord) => {
                 const forms = rWord.includes(' ') ? [rWord.toLowerCase().trim()] : getStems(rWord);
@@ -353,6 +425,18 @@
                 }
                 return null;
             };
+
+            if (STOP_WORDS.has(rawWord)) {
+                let result = searchAllStems(rawWord);
+                let korMean = result && result.mean ? result.mean : '';
+                if (!korMean || korMean === 'undefined' || korMean === 'null') korMean = '';
+                if (!korMean || korMean === '사전에서 찾을 수 없습니다.') {
+                    korMean = STOP_WORD_CLICK_MEANINGS[rawWord] || '문맥에 따라 기능어(관사·전치사·접속사 등)로 쓰입니다.';
+                }
+                const level = result && result.lvl ? result.lvl : 'other';
+                showWordPopup(rawWord, korMean, level);
+                return;
+            }
 
             let result = searchAllStems(rawWord);
             
@@ -797,9 +881,9 @@
                             }
                         });
                     } else {
-                        // 3. 단일어 저장
+                        // 3. 단일어 저장 (기능어는 리스트 제외 — 본문 클릭으로만 대표 뜻)
                         const cleanW = fullEngText.replace(/[^a-z-]/g, '').trim();
-                        if (cleanW.length > 2 && !seenWords.has(cleanW)) {
+                        if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !seenWords.has(cleanW)) {
                             const dbWord = findWordInDB(cleanW);
                             let finalMean = dbWord ? dbWord.kor : korMean;
                             if (!finalMean || finalMean === "undefined") finalMean = robustSearchMap(cleanW);
@@ -824,6 +908,10 @@
                     processedKeywords.push({ eng: keyClean, kor: String(mean).trim(), level: 'other' });
                     seenWords.add(keyClean);
                 });
+
+                processedKeywords.sort((a, b) =>
+                    passageFirstAppearanceOrder(a, passagePlainForSupplement) - passageFirstAppearanceOrder(b, passagePlainForSupplement)
+                );
 
                 aiKeywordsObj = processedKeywords;
 
