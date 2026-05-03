@@ -176,16 +176,8 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
             if (exitBtn) {
                 const fallback = 'analysis.html';
                 const url = (custom.returnUrl && String(custom.returnUrl).trim()) ? String(custom.returnUrl) : fallback;
-                window.customVocaGoBack = () => {
-                    try {
-                        // 직전 페이지(분석결과 화면)를 그대로 복원하려면 히스토리 백이 최우선
-                        if (window.history && window.history.length > 1) {
-                            window.history.back();
-                            return;
-                        }
-                    } catch (e) {}
-                    location.href = url;
-                };
+                // 분석 결과는 새로고침 시 DOM에 없음 → history.back 금지. 저장된 analysis URL로 이동 후 sessionStorage로 복원.
+                window.customVocaGoBack = () => { location.href = url; };
                 exitBtn.onclick = () => { window.customVocaGoBack(); };
             }
 
