@@ -574,13 +574,30 @@
         }
 
         function startVocaPractice() {
-            if(aiKeywordsObj.length === 0) {
-                alert("추출된 필수 단어가 없습니다.");
+            // '내 학습노트' 단어장(저장 단어)로 사라져 VOCA 방식 학습 시작
+            const savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
+            if (!Array.isArray(savedList) || savedList.length === 0) {
+                alert("내 학습 노트(단어장)에 저장된 단어가 없습니다.");
                 return;
             }
-            const practiceData = aiKeywordsObj.map(kw => ({ word: kw.eng, mean: kw.kor }));
+
+            const practiceData = savedList
+                .filter(x => x && x.eng && x.kor)
+                .map(x => ({
+                    word: String(x.eng).trim(),
+                    meanings: [String(x.kor).trim()]
+                }))
+                .filter(x => x.word && x.meanings && x.meanings[0]);
+
+            if (practiceData.length === 0) {
+                alert("학습할 수 있는 단어 데이터가 없습니다. (저장된 단어의 뜻이 비어있을 수 있어요)");
+                return;
+            }
+
             localStorage.setItem('voca_practice_list', JSON.stringify(practiceData));
-            location.href = 'study.html'; 
+            localStorage.setItem('trigger_custom_voca_mode', 'saved_voca');
+            localStorage.setItem('trigger_custom_voca_return_url', location.href);
+            location.href = 'study.html';
         }
 
         function toggleVocaList() {
@@ -1270,7 +1287,7 @@
                 }
 
                 document.getElementById('ai-report-area').innerHTML = `
-                    <div class="result-card"><span class="result-label" style="color:var(--neon-green);">📝 해석</span><div class="result-content">
+                    <div class="result-card"><span class="result-label" style="color:var(--neon-green);">📝 해석(단어를 클릭하면 뜻을 볼 수 있어요)</span><div class="result-content">
                         ${transHtml}
                     </div></div>
                     <div class="result-card" style="border-color: #bc13fe;"><span class="result-label" style="color:#bc13fe;">🛠️ 트리거 팀의 문법 포인트</span><div class="result-content">${grammarHtml}</div></div>

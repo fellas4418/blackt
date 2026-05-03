@@ -109,6 +109,36 @@ function closeGuide() {
 
 let isAppInitialized = false;
 
+function loadCustomVocaPracticeList() {
+    try {
+        const mode = localStorage.getItem('trigger_custom_voca_mode');
+        const raw = localStorage.getItem('voca_practice_list');
+        if (!raw || !mode) return null;
+
+        const list = JSON.parse(raw);
+        if (!Array.isArray(list) || list.length === 0) return null;
+
+        const normalized = list.map(x => {
+            const word = x && x.word ? String(x.word).trim() : "";
+            let meanings = [];
+            if (Array.isArray(x && x.meanings)) meanings = x.meanings.map(m => String(m).trim()).filter(Boolean);
+            else if (x && x.meaning) meanings = [String(x.meaning).trim()].filter(Boolean);
+            else if (x && x.mean) meanings = [String(x.mean).trim()].filter(Boolean);
+            return { word, meanings };
+        }).filter(x => x.word && x.meanings && x.meanings.length > 0);
+
+        if (normalized.length === 0) return null;
+
+        return {
+            mode,
+            words: normalized,
+            returnUrl: localStorage.getItem('trigger_custom_voca_return_url') || ''
+        };
+    } catch (e) {
+        return null;
+    }
+}
+
 function initApp() {
     if (isAppInitialized) return; 
     isAppInitialized = true;
@@ -123,6 +153,28 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
         const sessionTag = document.getElementById('session-tag'); 
         const footer = document.querySelector('.footer');
         if (footer) footer.style.display = 'none';
+
+        // ✅ 분석 결과 페이지 → "사라져 VOCA로 나만의 단어 연습하기" 전용 모드
+        // - 저장된 단어장으로만 학습
+        // - 5초(뜻 보임) + 3초(뜻 숨김) + 2초(뜻 보임) 타이머는 기존 startStudy 그대로 사용
+        // - 4지선다 테스트(복습 시스템)는 제외: 2회전 후 종료
+        const custom = loadCustomVocaPracticeList();
+        if (custom && custom.mode === 'saved_voca') {
+            window.__customVocaPractice = { active: true, returnUrl: custom.returnUrl };
+            targetWords = custom.words;
+            currentIdx = 0;
+            score = 0;
+            studyLoopCount = 1;
+            isPreReviewMode = false;
+
+            if (sessionTag) {
+                sessionTag.innerText = `🧠 내 학습노트 단어 연습 (${targetWords.length}개)`;
+                sessionTag.style.color = "var(--neon-green)";
+            }
+
+            startStudy();
+            return;
+        }
 
         const muteBtn = document.getElementById('mute-toggle-btn');
         if (muteBtn) muteBtn.innerText = isMuted ? '🔇' : '🔊';
@@ -316,6 +368,26 @@ function startStudy() {
             return;
         } else {
             currentIdx = 0;
+
+            // 커스텀 연습 모드면 테스트/진도 처리 없이 여기서 종료
+            if (window.__customVocaPractice && window.__customVocaPractice.active) {
+                const returnUrl = window.__customVocaPractice.returnUrl || '';
+                localStorage.removeItem('voca_practice_list');
+                localStorage.removeItem('trigger_custom_voca_mode');
+                localStorage.removeItem('trigger_custom_voca_return_url');
+                window.__customVocaPractice.active = false;
+
+                showSystemMessage(`
+                    <div style="text-align:center; padding:10px;">
+                        <div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold; margin-bottom:10px;">연습 완료!</div>
+                        <p style="color:#888; margin:0 0 18px 0; line-height:1.5;">사라져 VOCA 방식(5초→3초→마지막 뜻)으로<br>2회전 학습이 끝났습니다.</p>
+                        <button onclick="location.reload()" style="width:100%; padding:16px; background:var(--neon-blue); color:#fff; border-radius:12px; border:none; font-weight:bold; cursor:pointer;">한 번 더 연습하기</button>
+                        <button onclick="location.href='${returnUrl ? String(returnUrl).replace(/'/g, "\\'") : "index.html?tab=voca"}'" style="width:100%; padding:14px; margin-top:10px; background:transparent; border:1px solid #444; color:#aaa; border-radius:12px; font-weight:bold; cursor:pointer;">${returnUrl ? "분석 결과로 돌아가기" : "메인으로"}</button>
+                    </div>
+                `);
+                return;
+            }
+
             const currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
             const sNum = parseInt(currentSessionRaw); 
 
