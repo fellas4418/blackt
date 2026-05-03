@@ -1,4 +1,4 @@
-const CACHE_NAME = 'trigger-voca-v3'; // 버전업 (강제 갱신용)
+const CACHE_NAME = 'trigger-voca-v4'; // 버전업 (강제 갱신용)
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
