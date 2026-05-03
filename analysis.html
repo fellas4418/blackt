@@ -197,6 +197,12 @@
             unless: '~하지 않는 한'
         };
 
+        /** 2단어 숙어가 '단어 + 전치사' 형태일 때 숙어 줄은 넣지 않고 앞 단어만 리스트에 두기 (depend on / independently of 등) */
+        const PREPOSITION_TAIL_TWO_WORD = new Set(['on', 'of', 'to', 'for', 'from', 'with', 'at', 'by', 'about', 'into', 'onto', 'upon', 'over', 'off', 'out', 'up', 'down', 'as', 'than', 'without', 'within', 'after', 'before', 'since', 'until', 'during', 'against', 'among', 'between', 'through', 'under', 'above', 'below', 'beyond', 'behind', 'across', 'near', 'like', 'unlike']);
+
+        /** 긴 숙어(4어절 이상) 분해 시 맨 앞 경동사는 리스트 중복·부담을 줄이기 위해 제외 — take a back seat → back, seat 등 */
+        const IDIOM_FIRST_VERB_SKIP_DECOMP = new Set(['take', 'get', 'make', 'give', 'have', 'do', 'go', 'come', 'put', 'set', 'let']);
+
         const WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev/'; 
         const params = new URLSearchParams(window.location.search);
         const info = `${params.get('grade') || ''} ${params.get('type') || ''} ${params.get('detail') || ''}`;
@@ -848,23 +854,30 @@
                     if (engWords.length > 1) {
                         const cleanPhrase = fullEngText.replace(/[^a-z\s-]/g, '').trim();
                         let idiomMean = "";
-                        
-                        // 1. 숙어 본체 저장
-                        if (cleanPhrase && !seenWords.has(cleanPhrase)) {
-                            const dbPhrase = findWordInDB(cleanPhrase);
-                            idiomMean = dbPhrase ? dbPhrase.kor : korMean;
-                            if (!idiomMean || idiomMean === "undefined") idiomMean = robustSearchMap(cleanPhrase);
-                            
+                        const dbPhrase = findWordInDB(cleanPhrase);
+                        idiomMean = dbPhrase ? dbPhrase.kor : korMean;
+                        if (!idiomMean || idiomMean === "undefined") idiomMean = robustSearchMap(cleanPhrase);
+
+                        const firstTok = engWords[0].replace(/[^a-z-]/g, '').toLowerCase();
+                        const lastTok = engWords[engWords.length - 1].replace(/[^a-z-]/g, '').toLowerCase();
+                        const skipDupPrepPhraseRow = engWords.length === 2 &&
+                            PREPOSITION_TAIL_TWO_WORD.has(lastTok) &&
+                            !STOP_WORDS.has(firstTok);
+
+                        // 1. 숙어 본체 저장 (단어+전치사 2어구는 별도 줄 생략 → depend / independently 만 리스트에)
+                        if (cleanPhrase && !seenWords.has(cleanPhrase) && !skipDupPrepPhraseRow) {
                             if (idiomMean && idiomMean !== "undefined") {
                                 processedKeywords.push({ eng: cleanPhrase, kor: idiomMean, level: dbPhrase ? dbPhrase.level : 'other' });
                                 seenWords.add(cleanPhrase);
                             }
                         }
 
-                        // 2. 구성 요소 쪼개기 (숙어 내 개별 단어)
-                        engWords.forEach(w => {
+                        // 2. 구성 요소 쪼개기 (숙어 내 개별 단어; 4어절 이상 숙어는 맨 앞 경동사 제외해 back·seat 등만 추가)
+                        engWords.forEach((w, wi) => {
                             const cleanW = w.replace(/[^a-z-]/g, '').trim();
                             if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !seenWords.has(cleanW)) {
+                                if (engWords.length >= 4 && wi === 0 && IDIOM_FIRST_VERB_SKIP_DECOMP.has(cleanW)) return;
+
                                 const dbWord = findWordInDB(cleanW);
                                 let indMean = dbWord ? dbWord.kor : robustSearchMap(cleanW);
                                 
@@ -1039,11 +1052,9 @@
                                     if (/[a-zA-Z]/.test(w)) {
                                         const cleanW = w.toLowerCase().replace(/[^a-z-]/g, '');
                                         
-                                        // 🔥 지문 본문 내의 "숙어"와 "단일어" 동시 하이라이트 동기화
+                                        // 🔥 지문: 숙어 구간도 초록 하이라이트는 유지하되, 클릭 시에는 data-idiom 없이 각 단어만의 뜻 표시
                                         let isTarget = false;
-                                        let targetIdiom = null;
                                         let partOfIdiom = false;
-                                        let matchedIdiom = "";
                                         
                                         for (let kw of aiKeywordsObj) {
                                             const kwEng = String(kw.eng || '').toLowerCase();
@@ -1067,7 +1078,6 @@
                                                     }
                                                     if (match) {
                                                         partOfIdiom = true;
-                                                        matchedIdiom = kwEng;
                                                         break;
                                                     }
                                                 }
@@ -1076,7 +1086,6 @@
 
                                         if (partOfIdiom) {
                                             isTarget = true;
-                                            targetIdiom = matchedIdiom;
                                         } else if (!STOP_WORDS.has(cleanW)) {
                                             isTarget = aiKeywordsObj.some(kw => {
                                                 const kwEng = String(kw.eng || '');
@@ -1084,8 +1093,7 @@
                                             });
                                         }
 
-                                        const dataAttr = targetIdiom ? `data-idiom="${targetIdiom.replace(/"/g, '&quot;')}"` : '';
-                                        return `<span class="clickable-word ${isTarget ? 'hl-voca' : ''}" ${dataAttr} onclick="handleWordClick(this)">${w}</span>`;
+                                        return `<span class="clickable-word ${isTarget ? 'hl-voca' : ''}" onclick="handleWordClick(this)">${w}</span>`;
                                     }
                                     return w;
                                 }).join('');
