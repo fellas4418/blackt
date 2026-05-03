@@ -609,7 +609,8 @@
 
             localStorage.setItem('voca_practice_list', JSON.stringify(practiceData));
             localStorage.setItem('trigger_custom_voca_mode', 'saved_voca');
-            localStorage.setItem('trigger_custom_voca_return_url', location.href);
+            const retBase = location.href.split('#')[0];
+            localStorage.setItem('trigger_custom_voca_return_url', retBase + '#analysis-restore');
             location.href = 'study.html';
         }
 
@@ -1438,6 +1439,8 @@
 
         (function tryRestoreLastAnalysisReport() {
             try {
+                if (location.hash !== '#analysis-restore') return;
+                try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
                 const raw = sessionStorage.getItem('trigger_analysis_restore_v1');
                 if (!raw) return;
                 const o = JSON.parse(raw);
