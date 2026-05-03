@@ -203,6 +203,9 @@
         /** 긴 숙어(4어절 이상) 분해 시 맨 앞 경동사는 리스트 중복·부담을 줄이기 위해 제외 — take a back seat → back, seat 등 */
         const IDIOM_FIRST_VERB_SKIP_DECOMP = new Set(['take', 'get', 'make', 'give', 'have', 'do', 'go', 'come', 'put', 'set', 'let']);
 
+        /** 필수 단어 리스트에 넣지 않을 소유격 등 (본문 클릭 뜻은 그대로) */
+        const VOCAB_LIST_SKIP_WORDS = new Set(['its']);
+
         const WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev/'; 
         const params = new URLSearchParams(window.location.search);
         const info = `${params.get('grade') || ''} ${params.get('type') || ''} ${params.get('detail') || ''}`;
@@ -320,7 +323,33 @@
             return m ? m.index : 999999;
         }
 
-        /** 리스트에 '합쳐서' 넣을 숙어인지: 관사 포함, 경동사+3어절 이상, DB 숙어, because of 형(기능어+전치사) */
+        /** 단·복수·어형 변화까지 감안해 지문에서 첫 위치(정렬·등장 판별용) */
+        function passageFirstAppearanceOrderBest(entry, passageLower) {
+            const L = String(entry.eng || '').trim().toLowerCase().replace(/[^a-z-]/g, '');
+            if (!L) return 999999;
+            const candidates = new Set([L]);
+            if (L.length > 2) candidates.add(L + 's');
+            if (L.endsWith('s') && L.length > 3) candidates.add(L.slice(0, -1));
+            getStems(L).forEach(s => { if (s && s.length > 1) candidates.add(s); });
+            let best = 999999;
+            candidates.forEach(c => {
+                const v = passageFirstAppearanceOrder({ eng: c, kor: '' }, passageLower);
+                if (v < best) best = v;
+            });
+            return best;
+        }
+
+        function wordFormAppearsInPassage(lemma, passageLower) {
+            if (!lemma || !passageLower) return false;
+            const L = String(lemma).toLowerCase().replace(/[^a-z-]/g, '').trim();
+            if (!L) return false;
+            if (lemmaAppearsInPassage(L, passageLower)) return true;
+            if (lemmaAppearsInPassage(L + 's', passageLower)) return true;
+            if (L.endsWith('s') && L.length > 3 && lemmaAppearsInPassage(L.slice(0, -1), passageLower)) return true;
+            return false;
+        }
+
+        /** 리스트에 '합쳐서' 넣을 숙어인지: 관사 포함, 경동사+3어절 이상, DB 숙어, because of 형, supply … with … 형 등 */
         function isIdiomPhraseKeepRow(engWords, hasDbPhrase) {
             if (!engWords || engWords.length < 2) return false;
             if (hasDbPhrase) return true;
@@ -334,6 +363,8 @@
                 const fst = cleaned[0];
                 if (PREPOSITION_TAIL_TWO_WORD.has(last) && STOP_WORDS.has(fst)) return true;
             }
+            const wi = cleaned.indexOf('with');
+            if (engWords.length >= 3 && wi > 0 && wi < cleaned.length - 1) return true;
             return false;
         }
 
@@ -345,7 +376,7 @@
                 engWords.forEach(w => {
                     const cw = String(w || '').replace(/[^a-z-]/g, '').toLowerCase();
                     if (cw.length > 2 && !STOP_WORDS.has(cw)) {
-                        const u = passageFirstAppearanceOrder({ eng: cw, kor: '' }, passageLower);
+                        const u = passageFirstAppearanceOrderBest({ eng: cw, kor: '' }, passageLower);
                         if (u < m) m = u;
                     }
                 });
@@ -424,7 +455,7 @@
             if(!rawWord) return;
             
             const grammarExceptionMap = {
-                "which": "관계대명사/의문사: 바로 앞의 명사를 구체적으로 보충 설명해 줘요.",
+                "which": "관계대명사/의문사: 앞 명사를 이어받아 뒤 절이 그 명사를 설명할 때 '~한 …'으로 해석해요.",
                 "that": "관계대명사/접속사: 문장을 연결하거나 명사를 보충 설명해요.",
                 "who": "관계대명사: 앞의 '사람' 명사를 구체적으로 설명해 줘요.",
                 "whom": "관계대명사(목적격): 설명하는 명사가 뒷문장의 목적어 역할을 해요.",
@@ -916,19 +947,19 @@
                         // 2. 구성 단어 (4어절 이상 숙어는 맨 앞 경동사 제외); 정렬: 숙어 줄 직후 같은 앵커에서 clusterRank 순
                         engWords.forEach((w, wi) => {
                             const cleanW = w.replace(/[^a-z-]/g, '').trim();
-                            if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !seenWords.has(cleanW)) {
+                            if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !VOCAB_LIST_SKIP_WORDS.has(cleanW) && !seenWords.has(cleanW)) {
                                 if (engWords.length >= 4 && wi === 0 && IDIOM_FIRST_VERB_SKIP_DECOMP.has(cleanW)) return;
 
                                 const dbWord = findWordInDB(cleanW);
                                 let indMean = dbWord ? dbWord.kor : robustSearchMap(cleanW);
                                 
                                 let isDuplicateMeaning = false;
-                                if (indMean && idiomMean) {
+                                if (!keepPhraseRow && indMean && idiomMean) {
                                     isDuplicateMeaning = indMean.replace(/\s+/g,'') === idiomMean.replace(/\s+/g,'');
                                 }
                                 
                                 if (indMean && indMean !== "undefined" && !isDuplicateMeaning) {
-                                    const wordAnchor = passageFirstAppearanceOrder({ eng: cleanW, kor: '' }, passagePlainForSupplement);
+                                    const wordAnchor = passageFirstAppearanceOrderBest({ eng: cleanW, kor: '' }, passagePlainForSupplement);
                                     processedKeywords.push({
                                         eng: cleanW, kor: indMean, level: dbWord ? dbWord.level : 'other',
                                         _ordA: keepPhraseRow ? clusterAnchor : wordAnchor,
@@ -941,7 +972,7 @@
                         });
                     } else {
                         const cleanW = fullEngText.replace(/[^a-z-]/g, '').trim();
-                        if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !seenWords.has(cleanW)) {
+                        if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !VOCAB_LIST_SKIP_WORDS.has(cleanW) && !seenWords.has(cleanW)) {
                             const dbWord = findWordInDB(cleanW);
                             let finalMean = dbWord ? dbWord.kor : korMean;
                             if (!finalMean || finalMean === "undefined") finalMean = robustSearchMap(cleanW);
@@ -949,7 +980,7 @@
                             if (finalMean && finalMean !== "undefined") {
                                 processedKeywords.push({
                                     eng: cleanW, kor: finalMean, level: dbWord ? dbWord.level : 'other',
-                                    _ordA: passageFirstAppearanceOrder({ eng: cleanW, kor: '' }, passagePlainForSupplement),
+                                    _ordA: passageFirstAppearanceOrderBest({ eng: cleanW, kor: '' }, passagePlainForSupplement),
                                     _ordB: 0,
                                     _kwLineIdx: kwLineIdx
                                 });
@@ -964,14 +995,14 @@
                     const rawKey = String(mapKey).trim();
                     if (/\s/.test(rawKey)) return;
                     const keyClean = rawKey.toLowerCase().replace(/[^a-z-]/g, '').trim();
-                    if (!keyClean || keyClean.length <= 2 || STOP_WORDS.has(keyClean)) return;
+                    if (!keyClean || keyClean.length <= 2 || STOP_WORDS.has(keyClean) || VOCAB_LIST_SKIP_WORDS.has(keyClean)) return;
                     if (seenWords.has(keyClean)) return;
                     const mean = fullWordMapGlobal[mapKey];
                     if (mean == null || String(mean).trim() === '' || String(mean) === 'undefined') return;
-                    if (!lemmaAppearsInPassage(keyClean, passagePlainForSupplement)) return;
+                    if (!wordFormAppearsInPassage(keyClean, passagePlainForSupplement)) return;
                     processedKeywords.push({
                         eng: keyClean, kor: String(mean).trim(), level: 'other',
-                        _ordA: passageFirstAppearanceOrder({ eng: keyClean, kor: '' }, passagePlainForSupplement),
+                        _ordA: passageFirstAppearanceOrderBest({ eng: keyClean, kor: '' }, passagePlainForSupplement),
                         _ordB: 0,
                         _kwLineIdx: 100000 + supOrder++
                     });
