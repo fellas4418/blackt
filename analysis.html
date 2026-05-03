@@ -488,11 +488,24 @@
                     <div style="color:#aaa; font-size:0.9rem; margin-top:2px;">${safeKor}</div>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <button class="${btnClass}" onclick="toggleVocaSave('${safeEng}', '${safeKor}', '${level}', this)" style="padding: 6px 12px;">${btnText}</button>
-                    <button onclick="document.getElementById('word-popup').style.display='none'" style="background:transparent; border:none; color:#888; font-size:1.5rem; cursor:pointer; line-height:1; padding:0;">×</button>
+                    <button class="${btnClass}" onclick="toggleVocaSave('${safeEng}', '${safeKor}', '${level}', this)" style="padding: 8px 14px; border-radius: 8px;">${btnText}</button>
+                    <button onclick="document.getElementById('word-popup').style.display='none'" style="padding: 8px 14px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid #555; color:#bbb; font-weight:bold; cursor:pointer;">닫기</button>
                 </div>
             `;
             popup.style.display = 'flex';
+        }
+
+        function deleteNoteItem(type, index, event) {
+            try {
+                if (event && typeof event.stopPropagation === 'function') event.stopPropagation();
+                const key = type === 'grammar' ? 'trigger_saved_grammar' : 'trigger_saved_voca';
+                let savedList = JSON.parse(localStorage.getItem(key) || '[]');
+                if (!Array.isArray(savedList)) savedList = [];
+                if (index < 0 || index >= savedList.length) return;
+                savedList.splice(index, 1);
+                localStorage.setItem(key, JSON.stringify(savedList));
+                renderNoteList();
+            } catch (e) {}
         }
 
         // 🔥 초정밀 어근 추출 및 무적 매칭 로직
@@ -783,7 +796,7 @@
                         if (currentNoteTab === 'grammar') {
                             html += `
                                 <div style="background: rgba(181, 55, 242, 0.05); border-left: 3px solid #bc13fe; padding: 12px; margin-bottom: 12px; border-radius: 4px; position: relative;">
-                                    <button onclick="deleteNoteItem('grammar', ${idx})" style="position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #888; font-size: 1.2rem; cursor: pointer;">×</button>
+                                    <button onclick="deleteNoteItem('grammar', ${idx}, event)" style="position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #888; font-size: 1.2rem; cursor: pointer;">×</button>
                                     <strong style="color:#d789ff; display:block; margin-bottom:4px; padding-right:20px;">⚡ ${item.point}</strong>
                                     <div style="color:#ddd; font-size:0.85rem; font-style:italic; margin-bottom:6px;">"${item.sentence}"</div>
                                     <div style="color:#eee; font-size:0.9rem;">${item.explanation}</div>
@@ -799,7 +812,7 @@
                                         <strong style="color:#fff; font-size:1.05rem;">${item.eng}</strong> 
                                         <span style="color:#aaa; font-size:0.9rem; margin-left:6px;">${item.kor}</span>
                                     </div>
-                                    <button onclick="deleteNoteItem('voca', ${idx})" style="background:transparent; border:none; color:#888; font-size:1.1rem; cursor:pointer;">×</button>
+                                    <button onclick="deleteNoteItem('voca', ${idx}, event)" style="background:transparent; border:none; color:#888; font-size:1.1rem; cursor:pointer;">×</button>
                                 </div>
                             `;
                         }
@@ -1287,7 +1300,7 @@
                 }
 
                 document.getElementById('ai-report-area').innerHTML = `
-                    <div class="result-card"><span class="result-label" style="color:var(--neon-green);">📝 해석(단어를 클릭하면 뜻을 볼 수 있어요)</span><div class="result-content">
+                    <div class="result-card"><span class="result-label" style="color:var(--neon-green);">📝 해석 (단어를 클릭하면 뜻을 볼 수 있어요)</span><div class="result-content">
                         ${transHtml}
                     </div></div>
                     <div class="result-card" style="border-color: #bc13fe;"><span class="result-label" style="color:#bc13fe;">🛠️ 트리거 팀의 문법 포인트</span><div class="result-content">${grammarHtml}</div></div>

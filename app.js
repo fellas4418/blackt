@@ -172,6 +172,13 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
                 sessionTag.style.color = "var(--neon-green)";
             }
 
+            const exitBtn = document.getElementById('exit-btn');
+            if (exitBtn) {
+                const fallback = 'analysis.html';
+                const url = (custom.returnUrl && String(custom.returnUrl).trim()) ? String(custom.returnUrl) : fallback;
+                exitBtn.onclick = () => { location.href = url; };
+            }
+
             startStudy();
             return;
         }
