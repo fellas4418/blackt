@@ -1228,7 +1228,8 @@
 
                         function makeTextNodesClickable(node) {
                             if (node.nodeType === 3) { 
-                                const words = node.nodeValue.split(/(\s+)/);
+                                // em dash(—)·en dash(–)는 앞뒤 보충 구조용이므로 단어 경계로 취급 (stomach—such → 분리)
+                                const words = node.nodeValue.split(/(\s+|[\u2014\u2013]+)/);
                                 const html = words.map((w, index) => {
                                     if (/[a-zA-Z]/.test(w)) {
                                         const cleanW = w.toLowerCase().replace(/[^a-z-]/g, '');
