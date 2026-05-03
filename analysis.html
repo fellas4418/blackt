@@ -197,7 +197,7 @@
             unless: '~하지 않는 한'
         };
 
-        /** 2단어 숙어가 '단어 + 전치사' 형태일 때 숙어 줄은 넣지 않고 앞 단어만 리스트에 두기 (depend on / independently of 등) */
+        /** 전치사로 끝나는 2어절 구동사·숙어 (depend on, look at 등) */
         const PREPOSITION_TAIL_TWO_WORD = new Set(['on', 'of', 'to', 'for', 'from', 'with', 'at', 'by', 'about', 'into', 'onto', 'upon', 'over', 'off', 'out', 'up', 'down', 'as', 'than', 'without', 'within', 'after', 'before', 'since', 'until', 'during', 'against', 'among', 'between', 'through', 'under', 'above', 'below', 'beyond', 'behind', 'across', 'near', 'like', 'unlike']);
 
         /** 긴 숙어(4어절 이상) 분해 시 맨 앞 경동사는 리스트 중복·부담을 줄이기 위해 제외 — take a back seat → back, seat 등 */
@@ -205,6 +205,25 @@
 
         /** 필수 단어 리스트에 넣지 않을 소유격 등 (본문 클릭 뜻은 그대로) */
         const VOCAB_LIST_SKIP_WORDS = new Set(['its']);
+
+        /** 단어장 목록에서 제외할 초등·기초 어휘 (본문 클릭은 유지) */
+        const VOCAB_TOO_EASY_FOR_LIST = new Set([
+            'can', 'could', 'would', 'should', 'may', 'might', 'must', 'will', 'shall',
+            'do', 'does', 'did', 'done',
+            'not', 'no', 'nor',
+            'our', 'your', 'my', 'their', 'its', 'we', 'you', 'they', 'it', 'he', 'she', 'i', 'me', 'us', 'them', 'him', 'her',
+            'food', 'drink', 'water', 'bread', 'milk', 'egg', 'rice', 'apple', 'dog', 'cat',
+            'boy', 'girl', 'mom', 'dad', 'home', 'car', 'book', 'school', 'pen', 'sun', 'moon',
+            'day', 'night', 'yes', 'no', 'hello', 'hi', 'bye', 'good', 'bad', 'big', 'small', 'new', 'old',
+            'happy', 'sad', 'nice', 'fine', 'man', 'woman', 'child', 'baby',
+            'one', 'two', 'three', 'four', 'five', 'red', 'blue', 'green', 'black', 'white',
+            'today', 'now', 'here', 'there', 'this', 'that', 'these', 'those',
+            'some', 'any', 'many', 'much', 'more', 'most', 'very', 'too', 'also', 'just', 'only', 'even',
+            'well', 'then', 'again', 'first', 'last', 'next', 'please', 'thanks', 'thank', 'sorry'
+        ]);
+
+        /** 단·복수 통합 시 그대로 둘 명사 (복수형만 존재하는 단어 등) */
+        const PLURAL_LEMMA_EXCEPTIONS = new Set(['news', 'physics', 'economics', 'species', 'series', 'billiards']);
 
         const WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev/'; 
         const params = new URLSearchParams(window.location.search);
@@ -349,7 +368,18 @@
             return false;
         }
 
-        /** 리스트에 '합쳐서' 넣을 숙어인지: 관사 포함, 경동사+3어절 이상, DB 숙어, because of 형, supply … with … 형 등 */
+        /** 단어장 표기용 단수 기준형 (gatherings/gathering → gathering) */
+        function englishCanonicalLemmaForList(w) {
+            let raw = String(w || '').toLowerCase().replace(/[^a-z-]/g, '');
+            if (!raw || raw.length <= 2) return raw;
+            if (PLURAL_LEMMA_EXCEPTIONS.has(raw)) return raw;
+            if (raw.endsWith('ies') && raw.length > 4) return raw.slice(0, -3) + 'y';
+            if (raw.endsWith('sses') || raw.endsWith('ches') || raw.endsWith('shes') || raw.endsWith('xes')) return raw.slice(0, -2);
+            if (raw.endsWith('s') && raw.length > 3 && !raw.endsWith('ss')) return raw.slice(0, -1);
+            return raw;
+        }
+
+        /** 리스트에 '합쳐서' 넣을 숙어인지: 관사 포함, 경동사+3어절 이상, DB 숙어, because of 형, supply … with … 형, 동사+전치사 2어절 숙어 등 */
         function isIdiomPhraseKeepRow(engWords, hasDbPhrase) {
             if (!engWords || engWords.length < 2) return false;
             if (hasDbPhrase) return true;
@@ -362,6 +392,11 @@
                 const last = cleaned[cleaned.length - 1];
                 const fst = cleaned[0];
                 if (PREPOSITION_TAIL_TWO_WORD.has(last) && STOP_WORDS.has(fst)) return true;
+            }
+            if (engWords.length === 2 && cleaned.length === 2) {
+                const la = cleaned[1];
+                const fi = cleaned[0];
+                if (PREPOSITION_TAIL_TWO_WORD.has(la) && fi && fi.length > 1 && !STOP_WORDS.has(fi)) return true;
             }
             const wi = cleaned.indexOf('with');
             if (engWords.length >= 3 && wi > 0 && wi < cleaned.length - 1) return true;
@@ -925,66 +960,74 @@
 
                         const firstTok = engWords[0].replace(/[^a-z-]/g, '').toLowerCase();
                         const lastTok = engWords[engWords.length - 1].replace(/[^a-z-]/g, '').toLowerCase();
-                        const skipDupPrepPhraseRow = engWords.length === 2 &&
-                            PREPOSITION_TAIL_TWO_WORD.has(lastTok) &&
-                            !STOP_WORDS.has(firstTok);
+                        const phraseSeenKey = cleanPhrase.replace(/\s+/g, ' ').trim().toLowerCase();
 
-                        const keepPhraseRow = !skipDupPrepPhraseRow && isIdiomPhraseKeepRow(engWords, !!dbPhrase);
+                        const keepPhraseRow = isIdiomPhraseKeepRow(engWords, !!dbPhrase);
+                        const skipComponentsForTwoWordPhrasal = keepPhraseRow && engWords.length === 2 &&
+                            PREPOSITION_TAIL_TWO_WORD.has(lastTok) && !STOP_WORDS.has(firstTok);
                         const clusterAnchor = idiomClusterAnchor(cleanPhrase, engWords, passagePlainForSupplement);
                         let clusterRank = 0;
 
                         // 1. 숙어 본체: 진짜 숙어일 때만 리스트에 합친 줄로 저장 (복합어는 개별 단어만)
-                        if (keepPhraseRow && cleanPhrase && !seenWords.has(cleanPhrase) && !skipDupPrepPhraseRow) {
+                        if (keepPhraseRow && cleanPhrase && !seenWords.has(phraseSeenKey)) {
                             if (idiomMean && idiomMean !== "undefined") {
                                 processedKeywords.push({
                                     eng: cleanPhrase, kor: idiomMean, level: dbPhrase ? dbPhrase.level : 'other',
                                     _ordA: clusterAnchor, _ordB: clusterRank++, _kwLineIdx: kwLineIdx
                                 });
-                                seenWords.add(cleanPhrase);
+                                seenWords.add(phraseSeenKey);
                             }
                         }
 
-                        // 2. 구성 단어 (4어절 이상 숙어는 맨 앞 경동사 제외); 정렬: 숙어 줄 직후 같은 앵커에서 clusterRank 순
-                        engWords.forEach((w, wi) => {
-                            const cleanW = w.replace(/[^a-z-]/g, '').trim();
-                            if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !VOCAB_LIST_SKIP_WORDS.has(cleanW) && !seenWords.has(cleanW)) {
-                                if (engWords.length >= 4 && wi === 0 && IDIOM_FIRST_VERB_SKIP_DECOMP.has(cleanW)) return;
+                        // 2. 구성 단어 (2어절 구동사 숙어는 합친 줄만; 긴 숙어는 맨 앞 경동사 제외)
+                        if (!skipComponentsForTwoWordPhrasal) {
+                            engWords.forEach((w, wi) => {
+                                const cleanW = w.replace(/[^a-z-]/g, '').trim();
+                                const canonW = englishCanonicalLemmaForList(cleanW);
+                                if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !VOCAB_LIST_SKIP_WORDS.has(cleanW) &&
+                                    !VOCAB_TOO_EASY_FOR_LIST.has(cleanW) && !VOCAB_TOO_EASY_FOR_LIST.has(canonW) &&
+                                    !seenWords.has(canonW)) {
+                                    if (engWords.length >= 4 && wi === 0 && IDIOM_FIRST_VERB_SKIP_DECOMP.has(cleanW)) return;
 
-                                const dbWord = findWordInDB(cleanW);
-                                let indMean = dbWord ? dbWord.kor : robustSearchMap(cleanW);
-                                
-                                let isDuplicateMeaning = false;
-                                if (!keepPhraseRow && indMean && idiomMean) {
-                                    isDuplicateMeaning = indMean.replace(/\s+/g,'') === idiomMean.replace(/\s+/g,'');
+                                    const dbWord = findWordInDB(cleanW);
+                                    let indMean = dbWord ? dbWord.kor : robustSearchMap(cleanW);
+                                    
+                                    let isDuplicateMeaning = false;
+                                    if (!keepPhraseRow && indMean && idiomMean) {
+                                        isDuplicateMeaning = indMean.replace(/\s+/g,'') === idiomMean.replace(/\s+/g,'');
+                                    }
+                                    
+                                    if (indMean && indMean !== "undefined" && !isDuplicateMeaning) {
+                                        const wordAnchor = passageFirstAppearanceOrderBest({ eng: canonW, kor: '' }, passagePlainForSupplement);
+                                        processedKeywords.push({
+                                            eng: canonW, kor: indMean, level: dbWord ? dbWord.level : 'other',
+                                            _ordA: keepPhraseRow ? clusterAnchor : wordAnchor,
+                                            _ordB: keepPhraseRow ? clusterRank++ : 0,
+                                            _kwLineIdx: kwLineIdx
+                                        });
+                                        seenWords.add(canonW);
+                                    }
                                 }
-                                
-                                if (indMean && indMean !== "undefined" && !isDuplicateMeaning) {
-                                    const wordAnchor = passageFirstAppearanceOrderBest({ eng: cleanW, kor: '' }, passagePlainForSupplement);
-                                    processedKeywords.push({
-                                        eng: cleanW, kor: indMean, level: dbWord ? dbWord.level : 'other',
-                                        _ordA: keepPhraseRow ? clusterAnchor : wordAnchor,
-                                        _ordB: keepPhraseRow ? clusterRank++ : 0,
-                                        _kwLineIdx: kwLineIdx
-                                    });
-                                    seenWords.add(cleanW);
-                                }
-                            }
-                        });
+                            });
+                        }
                     } else {
                         const cleanW = fullEngText.replace(/[^a-z-]/g, '').trim();
-                        if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !VOCAB_LIST_SKIP_WORDS.has(cleanW) && !seenWords.has(cleanW)) {
+                        const canonW = englishCanonicalLemmaForList(cleanW);
+                        if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !VOCAB_LIST_SKIP_WORDS.has(cleanW) &&
+                            !VOCAB_TOO_EASY_FOR_LIST.has(cleanW) && !VOCAB_TOO_EASY_FOR_LIST.has(canonW) &&
+                            !seenWords.has(canonW)) {
                             const dbWord = findWordInDB(cleanW);
                             let finalMean = dbWord ? dbWord.kor : korMean;
                             if (!finalMean || finalMean === "undefined") finalMean = robustSearchMap(cleanW);
                             
                             if (finalMean && finalMean !== "undefined") {
                                 processedKeywords.push({
-                                    eng: cleanW, kor: finalMean, level: dbWord ? dbWord.level : 'other',
-                                    _ordA: passageFirstAppearanceOrderBest({ eng: cleanW, kor: '' }, passagePlainForSupplement),
+                                    eng: canonW, kor: finalMean, level: dbWord ? dbWord.level : 'other',
+                                    _ordA: passageFirstAppearanceOrderBest({ eng: canonW, kor: '' }, passagePlainForSupplement),
                                     _ordB: 0,
                                     _kwLineIdx: kwLineIdx
                                 });
-                                seenWords.add(cleanW);
+                                seenWords.add(canonW);
                             }
                         }
                     }
@@ -995,18 +1038,20 @@
                     const rawKey = String(mapKey).trim();
                     if (/\s/.test(rawKey)) return;
                     const keyClean = rawKey.toLowerCase().replace(/[^a-z-]/g, '').trim();
+                    const canonKey = englishCanonicalLemmaForList(keyClean);
                     if (!keyClean || keyClean.length <= 2 || STOP_WORDS.has(keyClean) || VOCAB_LIST_SKIP_WORDS.has(keyClean)) return;
-                    if (seenWords.has(keyClean)) return;
+                    if (VOCAB_TOO_EASY_FOR_LIST.has(keyClean) || VOCAB_TOO_EASY_FOR_LIST.has(canonKey)) return;
+                    if (seenWords.has(canonKey)) return;
                     const mean = fullWordMapGlobal[mapKey];
                     if (mean == null || String(mean).trim() === '' || String(mean) === 'undefined') return;
                     if (!wordFormAppearsInPassage(keyClean, passagePlainForSupplement)) return;
                     processedKeywords.push({
-                        eng: keyClean, kor: String(mean).trim(), level: 'other',
-                        _ordA: passageFirstAppearanceOrderBest({ eng: keyClean, kor: '' }, passagePlainForSupplement),
+                        eng: canonKey, kor: String(mean).trim(), level: 'other',
+                        _ordA: passageFirstAppearanceOrderBest({ eng: canonKey, kor: '' }, passagePlainForSupplement),
                         _ordB: 0,
                         _kwLineIdx: 100000 + supOrder++
                     });
-                    seenWords.add(keyClean);
+                    seenWords.add(canonKey);
                 });
 
                 processedKeywords.sort((a, b) => {
