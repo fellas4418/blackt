@@ -320,6 +320,40 @@
             return m ? m.index : 999999;
         }
 
+        /** 리스트에 '합쳐서' 넣을 숙어인지: 관사 포함, 경동사+3어절 이상, DB 숙어, because of 형(기능어+전치사) */
+        function isIdiomPhraseKeepRow(engWords, hasDbPhrase) {
+            if (!engWords || engWords.length < 2) return false;
+            if (hasDbPhrase) return true;
+            const cleaned = engWords.map(w => String(w || '').replace(/[^a-z-]/g, '').toLowerCase()).filter(Boolean);
+            const articleSet = new Set(['a', 'an', 'the']);
+            if (cleaned.some(t => articleSet.has(t))) return true;
+            const first = cleaned[0] || '';
+            if (IDIOM_FIRST_VERB_SKIP_DECOMP.has(first) && engWords.length >= 3) return true;
+            if (cleaned.length >= 2) {
+                const last = cleaned[cleaned.length - 1];
+                const fst = cleaned[0];
+                if (PREPOSITION_TAIL_TWO_WORD.has(last) && STOP_WORDS.has(fst)) return true;
+            }
+            return false;
+        }
+
+        /** 숙어 줄+구성 단어 묶음의 정렬 앵커(지문에서 숙어 문자열이 안 맞으면 구성 단어 최소 위치) */
+        function idiomClusterAnchor(cleanPhrase, engWords, passageLower) {
+            let p = passageFirstAppearanceOrder({ eng: cleanPhrase, kor: '' }, passageLower);
+            if (p >= 999999) {
+                let m = 999999;
+                engWords.forEach(w => {
+                    const cw = String(w || '').replace(/[^a-z-]/g, '').toLowerCase();
+                    if (cw.length > 2 && !STOP_WORDS.has(cw)) {
+                        const u = passageFirstAppearanceOrder({ eng: cw, kor: '' }, passageLower);
+                        if (u < m) m = u;
+                    }
+                });
+                if (m < 999999) return m;
+            }
+            return p;
+        }
+
         function findWordInDB(rawWord) {
             if (!rawWord) return null;
             const word = String(rawWord).toLowerCase().replace(/[^a-z]/g, '').trim();
@@ -843,7 +877,7 @@
                 const keywordArray = Array.isArray(res.keywords) ? res.keywords : [];
                 const passagePlainForSupplement = (res.full_translation || []).map(x => String(x.eng || '')).join(' ').toLowerCase();
 
-                keywordArray.forEach(kw => {
+                keywordArray.forEach((kw, kwLineIdx) => {
                     if (!kw) return;
                     const parts = String(kw).split('(');
                     const fullEngText = parts[0].toLowerCase().trim();
@@ -864,15 +898,22 @@
                             PREPOSITION_TAIL_TWO_WORD.has(lastTok) &&
                             !STOP_WORDS.has(firstTok);
 
-                        // 1. 숙어 본체 저장 (단어+전치사 2어구는 별도 줄 생략 → depend / independently 만 리스트에)
-                        if (cleanPhrase && !seenWords.has(cleanPhrase) && !skipDupPrepPhraseRow) {
+                        const keepPhraseRow = !skipDupPrepPhraseRow && isIdiomPhraseKeepRow(engWords, !!dbPhrase);
+                        const clusterAnchor = idiomClusterAnchor(cleanPhrase, engWords, passagePlainForSupplement);
+                        let clusterRank = 0;
+
+                        // 1. 숙어 본체: 진짜 숙어일 때만 리스트에 합친 줄로 저장 (복합어는 개별 단어만)
+                        if (keepPhraseRow && cleanPhrase && !seenWords.has(cleanPhrase) && !skipDupPrepPhraseRow) {
                             if (idiomMean && idiomMean !== "undefined") {
-                                processedKeywords.push({ eng: cleanPhrase, kor: idiomMean, level: dbPhrase ? dbPhrase.level : 'other' });
+                                processedKeywords.push({
+                                    eng: cleanPhrase, kor: idiomMean, level: dbPhrase ? dbPhrase.level : 'other',
+                                    _ordA: clusterAnchor, _ordB: clusterRank++, _kwLineIdx: kwLineIdx
+                                });
                                 seenWords.add(cleanPhrase);
                             }
                         }
 
-                        // 2. 구성 요소 쪼개기 (숙어 내 개별 단어; 4어절 이상 숙어는 맨 앞 경동사 제외해 back·seat 등만 추가)
+                        // 2. 구성 단어 (4어절 이상 숙어는 맨 앞 경동사 제외); 정렬: 숙어 줄 직후 같은 앵커에서 clusterRank 순
                         engWords.forEach((w, wi) => {
                             const cleanW = w.replace(/[^a-z-]/g, '').trim();
                             if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !seenWords.has(cleanW)) {
@@ -881,20 +922,24 @@
                                 const dbWord = findWordInDB(cleanW);
                                 let indMean = dbWord ? dbWord.kor : robustSearchMap(cleanW);
                                 
-                                // 중복 뜻 방지 완벽 처리: 공백 제거 후 비교하여 100% 동일하면 패스
                                 let isDuplicateMeaning = false;
                                 if (indMean && idiomMean) {
                                     isDuplicateMeaning = indMean.replace(/\s+/g,'') === idiomMean.replace(/\s+/g,'');
                                 }
                                 
                                 if (indMean && indMean !== "undefined" && !isDuplicateMeaning) {
-                                    processedKeywords.push({ eng: cleanW, kor: indMean, level: dbWord ? dbWord.level : 'other' });
+                                    const wordAnchor = passageFirstAppearanceOrder({ eng: cleanW, kor: '' }, passagePlainForSupplement);
+                                    processedKeywords.push({
+                                        eng: cleanW, kor: indMean, level: dbWord ? dbWord.level : 'other',
+                                        _ordA: keepPhraseRow ? clusterAnchor : wordAnchor,
+                                        _ordB: keepPhraseRow ? clusterRank++ : 0,
+                                        _kwLineIdx: kwLineIdx
+                                    });
                                     seenWords.add(cleanW);
                                 }
                             }
                         });
                     } else {
-                        // 3. 단일어 저장 (기능어는 리스트 제외 — 본문 클릭으로만 대표 뜻)
                         const cleanW = fullEngText.replace(/[^a-z-]/g, '').trim();
                         if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !seenWords.has(cleanW)) {
                             const dbWord = findWordInDB(cleanW);
@@ -902,13 +947,19 @@
                             if (!finalMean || finalMean === "undefined") finalMean = robustSearchMap(cleanW);
                             
                             if (finalMean && finalMean !== "undefined") {
-                                processedKeywords.push({ eng: cleanW, kor: finalMean, level: dbWord ? dbWord.level : 'other' });
+                                processedKeywords.push({
+                                    eng: cleanW, kor: finalMean, level: dbWord ? dbWord.level : 'other',
+                                    _ordA: passageFirstAppearanceOrder({ eng: cleanW, kor: '' }, passagePlainForSupplement),
+                                    _ordB: 0,
+                                    _kwLineIdx: kwLineIdx
+                                });
                                 seenWords.add(cleanW);
                             }
                         }
                     }
                 });
 
+                let supOrder = 0;
                 Object.keys(fullWordMapGlobal || {}).forEach(mapKey => {
                     const rawKey = String(mapKey).trim();
                     if (/\s/.test(rawKey)) return;
@@ -918,13 +969,25 @@
                     const mean = fullWordMapGlobal[mapKey];
                     if (mean == null || String(mean).trim() === '' || String(mean) === 'undefined') return;
                     if (!lemmaAppearsInPassage(keyClean, passagePlainForSupplement)) return;
-                    processedKeywords.push({ eng: keyClean, kor: String(mean).trim(), level: 'other' });
+                    processedKeywords.push({
+                        eng: keyClean, kor: String(mean).trim(), level: 'other',
+                        _ordA: passageFirstAppearanceOrder({ eng: keyClean, kor: '' }, passagePlainForSupplement),
+                        _ordB: 0,
+                        _kwLineIdx: 100000 + supOrder++
+                    });
                     seenWords.add(keyClean);
                 });
 
-                processedKeywords.sort((a, b) =>
-                    passageFirstAppearanceOrder(a, passagePlainForSupplement) - passageFirstAppearanceOrder(b, passagePlainForSupplement)
-                );
+                processedKeywords.sort((a, b) => {
+                    const da = a._ordA !== undefined ? a._ordA : 999999;
+                    const dbv = b._ordA !== undefined ? b._ordA : 999999;
+                    if (da !== dbv) return da - dbv;
+                    const ra = a._ordB !== undefined ? a._ordB : 0;
+                    const rb = b._ordB !== undefined ? b._ordB : 0;
+                    if (ra !== rb) return ra - rb;
+                    return (a._kwLineIdx !== undefined ? a._kwLineIdx : 0) - (b._kwLineIdx !== undefined ? b._kwLineIdx : 0);
+                });
+                processedKeywords.forEach(x => { delete x._ordA; delete x._ordB; delete x._kwLineIdx; });
 
                 aiKeywordsObj = processedKeywords;
 
