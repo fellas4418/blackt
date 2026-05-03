@@ -176,7 +176,17 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
             if (exitBtn) {
                 const fallback = 'analysis.html';
                 const url = (custom.returnUrl && String(custom.returnUrl).trim()) ? String(custom.returnUrl) : fallback;
-                exitBtn.onclick = () => { location.href = url; };
+                window.customVocaGoBack = () => {
+                    try {
+                        // 직전 페이지(분석결과 화면)를 그대로 복원하려면 히스토리 백이 최우선
+                        if (window.history && window.history.length > 1) {
+                            window.history.back();
+                            return;
+                        }
+                    } catch (e) {}
+                    location.href = url;
+                };
+                exitBtn.onclick = () => { window.customVocaGoBack(); };
             }
 
             startStudy();
@@ -389,7 +399,7 @@ function startStudy() {
                         <div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold; margin-bottom:10px;">연습 완료!</div>
                         <p style="color:#888; margin:0 0 18px 0; line-height:1.5;">사라져 VOCA 방식(5초→3초→마지막 뜻)으로<br>2회전 학습이 끝났습니다.</p>
                         <button onclick="location.reload()" style="width:100%; padding:16px; background:var(--neon-blue); color:#fff; border-radius:12px; border:none; font-weight:bold; cursor:pointer;">한 번 더 연습하기</button>
-                        <button onclick="location.href='${returnUrl ? String(returnUrl).replace(/'/g, "\\'") : "index.html?tab=voca"}'" style="width:100%; padding:14px; margin-top:10px; background:transparent; border:1px solid #444; color:#aaa; border-radius:12px; font-weight:bold; cursor:pointer;">${returnUrl ? "분석 결과로 돌아가기" : "메인으로"}</button>
+                        <button onclick="(window.customVocaGoBack ? window.customVocaGoBack() : (location.href='${returnUrl ? String(returnUrl).replace(/'/g, "\\'") : "analysis.html"}'))" style="width:100%; padding:14px; margin-top:10px; background:transparent; border:1px solid #444; color:#aaa; border-radius:12px; font-weight:bold; cursor:pointer;">분석 결과로 돌아가기</button>
                     </div>
                 `);
                 return;
