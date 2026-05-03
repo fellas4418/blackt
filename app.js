@@ -177,13 +177,26 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
                 const fallback = 'analysis.html';
                 const url = (custom.returnUrl && String(custom.returnUrl).trim()) ? String(custom.returnUrl) : fallback;
                 // 분석 결과는 새로고침 시 DOM에 없음 → history.back 금지. 저장된 analysis URL로 이동 후 sessionStorage로 복원.
-                window.customVocaGoBack = () => { location.href = url; };
+                window.customVocaGoBack = () => {
+                    try {
+                        localStorage.removeItem('voca_practice_list');
+                        localStorage.removeItem('trigger_custom_voca_mode');
+                        localStorage.removeItem('trigger_custom_voca_return_url');
+                    } catch (e) {}
+                    location.href = url;
+                };
                 exitBtn.onclick = () => { window.customVocaGoBack(); };
             }
 
             startStudy();
             return;
         }
+
+        try {
+            localStorage.removeItem('voca_practice_list');
+            localStorage.removeItem('trigger_custom_voca_mode');
+            localStorage.removeItem('trigger_custom_voca_return_url');
+        } catch (e) {}
 
         const muteBtn = document.getElementById('mute-toggle-btn');
         if (muteBtn) muteBtn.innerText = isMuted ? '🔇' : '🔊';
@@ -381,9 +394,6 @@ function startStudy() {
             // 커스텀 연습 모드면 테스트/진도 처리 없이 여기서 종료
             if (window.__customVocaPractice && window.__customVocaPractice.active) {
                 const returnUrl = window.__customVocaPractice.returnUrl || '';
-                localStorage.removeItem('voca_practice_list');
-                localStorage.removeItem('trigger_custom_voca_mode');
-                localStorage.removeItem('trigger_custom_voca_return_url');
                 window.__customVocaPractice.active = false;
 
                 showSystemMessage(`
