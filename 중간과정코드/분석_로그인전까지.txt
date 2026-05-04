@@ -130,7 +130,7 @@
             <p style="font-size: 0.75rem; color: #888; margin-top: 8px; margin-bottom: 0;">* 미입력 시 카테고리와 AI 요약 제목이 기본 적용됩니다.</p>
         </div>
 
-        <div style="margin-bottom: 25px;"><h4 style="color: var(--neon-green); margin-top: 0; font-size: 1.1rem;">✅ AI 정밀 분석 보고서</h4><div id="ai-report-area"></div></div>
+        <div style="margin-bottom: 25px;"><h4 style="color: var(--neon-green); margin-top: 0; font-size: 1.1rem;">✅ AI 정밀 분석 보고서 <span id="analysis-source-badge" style="display:none; margin-left:8px; font-size:0.72rem; color:#111; background:#9fe870; border-radius:999px; padding:2px 8px; vertical-align:middle;">기존 분석 결과 불러옴</span></h4><div id="ai-report-area"></div></div>
         
         <div class="guide-box" style="border-color: #b537f2; background: rgba(181, 55, 242, 0.05); margin-top: 25px;">
             <p class="guide-title" style="color: #d789ff; font-size:1.1rem;">🔥 근본적인 독해력을 올리고 싶다면?</p>
@@ -856,6 +856,12 @@
             }
         }
 
+        function setAnalysisSourceBadge(isCached) {
+            const badge = document.getElementById('analysis-source-badge');
+            if (!badge) return;
+            badge.style.display = isCached ? 'inline-block' : 'none';
+        }
+
         function applyParsedAnalysisResult(res) {
             if(res.full_word_map && typeof res.full_word_map === 'object') {
                 fullWordMapGlobal = res.full_word_map;
@@ -905,11 +911,13 @@
                     const keepPhraseRow = isIdiomPhraseKeepRow(engWords, !!dbPhrase);
                     const skipComponentsForTwoWordPhrasal = keepPhraseRow && engWords.length === 2 &&
                         PREPOSITION_TAIL_TWO_WORD.has(lastTok) && !STOP_WORDS.has(firstTok);
+                    const skipPhraseRowBecauseBaseAlreadySeen = keepPhraseRow && engWords.length === 2 &&
+                        PREPOSITION_TAIL_TWO_WORD.has(lastTok) && seenWords.has(englishCanonicalLemmaForList(firstTok));
                     const clusterAnchor = idiomClusterAnchor(cleanPhrase, engWords, passagePlainForSupplement);
                     let clusterRank = 0;
 
                     // 1. 숙어 본체: 진짜 숙어일 때만 리스트에 합친 줄로 저장 (복합어는 개별 단어만)
-                    if (keepPhraseRow && cleanPhrase && !seenWords.has(phraseSeenKey)) {
+                    if (keepPhraseRow && !skipPhraseRowBecauseBaseAlreadySeen && cleanPhrase && !seenWords.has(phraseSeenKey)) {
                         if (idiomMean && idiomMean !== "undefined") {
                             processedKeywords.push({
                                 eng: cleanPhrase, kor: idiomMean, level: dbPhrase ? dbPhrase.level : 'other',
@@ -1355,6 +1363,7 @@
                         document.getElementById('input-section').style.display = 'none';
                         document.getElementById('edit-section').style.display = 'none';
                         document.getElementById('result-section').style.display = 'block';
+                        setAnalysisSourceBadge(true);
                         applyParsedAnalysisResult(hit.res);
                         stopLoadingText(isTextMode, activeBtn);
                         return;
@@ -1413,6 +1422,7 @@
                 if (passageFingerprint) {
                     try { setCachedAnalysis(passageFingerprint, res); } catch (e) {}
                 }
+                setAnalysisSourceBadge(false);
                 applyParsedAnalysisResult(res);
 
             } catch (error) {
@@ -1451,6 +1461,7 @@
                 const es = document.getElementById('edit-section');
                 if (es) es.style.display = 'none';
                 document.getElementById('result-section').style.display = 'block';
+                setAnalysisSourceBadge(true);
                 applyParsedAnalysisResult(o.res);
             } catch (e) {}
         })();

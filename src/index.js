@@ -1,0 +1,179 @@
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { "Content-Type": "application/json; charset=utf-8", ...CORS_HEADERS },
+  });
+}
+
+async function sha256Hex(text) {
+  const enc = new TextEncoder();
+  const digest = await crypto.subtle.digest("SHA-256", enc.encode(String(text || "")));
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function verifyUser(env, userId, password) {
+  if (!userId || !password) return false;
+  const hash = await sha256Hex(password);
+  const row = await env.DB.prepare("SELECT id FROM users WHERE id = ?1 AND password_hash = ?2")
+    .bind(userId, hash)
+    .first();
+  return !!row;
+}
+
+async function handleSignup(env, body) {
+  const id = String(body.id || "").trim();
+  const password = String(body.password || "");
+  if (!id || !password) return json({ error: "id/password가 필요합니다." }, 400);
+
+  const exists = await env.DB.prepare("SELECT id FROM users WHERE id = ?1").bind(id).first();
+  if (exists) return json({ error: "이미 존재하는 아이디입니다." }, 409);
+
+  const passwordHash = await sha256Hex(password);
+  await env.DB.prepare("INSERT INTO users (id, password_hash) VALUES (?1, ?2)")
+    .bind(id, passwordHash)
+    .run();
+  return json({ ok: true, message: "signup_success", user_id: id });
+}
+
+async function handleLogin(env, body) {
+  const id = String(body.id || "").trim();
+  const password = String(body.password || "");
+  if (!id || !password) return json({ error: "id/password가 필요합니다." }, 400);
+  const ok = await verifyUser(env, id, password);
+  if (!ok) return json({ error: "아이디 또는 비밀번호가 올바르지 않습니다." }, 401);
+  return json({ ok: true, message: "login_success", user_id: id });
+}
+
+async function handleSyncSave(env, body) {
+  const userId = String(body.user_id || "").trim();
+  const password = String(body.password || "");
+  if (!(await verifyUser(env, userId, password))) return json({ error: "인증 실패" }, 401);
+
+  const voca = Array.isArray(body.voca) ? body.voca : [];
+  const grammar = Array.isArray(body.grammar) ? body.grammar : [];
+
+  for (const row of voca) {
+    const eng = String(row.eng || "").trim();
+    const kor = String(row.kor || "").trim();
+    if (!eng || !kor) continue;
+    const level = String(row.level || "other").trim() || "other";
+    const passageTitle = String(row.passageTitle || row.passage_title || "").trim();
+    await env.DB.prepare(
+      "INSERT OR IGNORE INTO saved_voca (user_id, eng, kor, level, passage_title) VALUES (?1, ?2, ?3, ?4, ?5)"
+    ).bind(userId, eng, kor, level, passageTitle).run();
+  }
+
+  for (const row of grammar) {
+    const point = String(row.point || "").trim();
+    const sentence = String(row.sentence || "").trim();
+    const explanation = String(row.explanation || "").trim();
+    if (!point || !sentence || !explanation) continue;
+    const passageTitle = String(row.passageTitle || row.passage_title || "").trim();
+    await env.DB.prepare(
+      "INSERT OR IGNORE INTO saved_grammar (user_id, point, sentence, explanation, passage_title) VALUES (?1, ?2, ?3, ?4, ?5)"
+    ).bind(userId, point, sentence, explanation, passageTitle).run();
+  }
+
+  return json({ ok: true });
+}
+
+async function handleSyncLoad(env, body) {
+  const userId = String(body.user_id || "").trim();
+  const password = String(body.password || "");
+  if (!(await verifyUser(env, userId, password))) return json({ error: "인증 실패" }, 401);
+
+  const vocaRows = await env.DB.prepare(
+    "SELECT eng, kor, level, passage_title AS passageTitle FROM saved_voca WHERE user_id = ?1 ORDER BY id DESC"
+  ).bind(userId).all();
+  const grammarRows = await env.DB.prepare(
+    "SELECT point, sentence, explanation, passage_title AS passageTitle FROM saved_grammar WHERE user_id = ?1 ORDER BY id DESC"
+  ).bind(userId).all();
+
+  return json({
+    ok: true,
+    saved_voca: vocaRows.results || [],
+    saved_grammar: grammarRows.results || [],
+  });
+}
+
+async function handleSyncDelete(env, body) {
+  const userId = String(body.user_id || "").trim();
+  const password = String(body.password || "");
+  if (!(await verifyUser(env, userId, password))) return json({ error: "인증 실패" }, 401);
+
+  const type = String(body.type || "").trim();
+  const item = body.item || {};
+
+  if (type === "voca") {
+    const eng = String(item.eng || "").trim();
+    if (!eng) return json({ error: "eng가 필요합니다." }, 400);
+    await env.DB.prepare("DELETE FROM saved_voca WHERE user_id = ?1 AND lower(eng) = lower(?2)")
+      .bind(userId, eng)
+      .run();
+    return json({ ok: true });
+  }
+
+  if (type === "grammar") {
+    const sentence = String(item.sentence || "").trim();
+    if (!sentence) return json({ error: "sentence가 필요합니다." }, 400);
+    await env.DB.prepare("DELETE FROM saved_grammar WHERE user_id = ?1 AND sentence = ?2")
+      .bind(userId, sentence)
+      .run();
+    return json({ ok: true });
+  }
+
+  return json({ error: "지원하지 않는 삭제 타입입니다." }, 400);
+}
+
+async function handleGeminiProxy(env, request) {
+  const body = await request.json();
+  const endpoint =
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${env.GEMINI_API_KEY}`;
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await response.json();
+  return json(data, response.status);
+}
+
+export default {
+  async fetch(request, env) {
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: CORS_HEADERS });
+    }
+
+    const url = new URL(request.url);
+    const path = url.pathname;
+    try {
+      if (request.method === "POST" && path === "/api/signup") {
+        return handleSignup(env, await request.json());
+      }
+      if (request.method === "POST" && path === "/api/login") {
+        return handleLogin(env, await request.json());
+      }
+      if (request.method === "POST" && path === "/api/sync/save") {
+        return handleSyncSave(env, await request.json());
+      }
+      if (request.method === "POST" && path === "/api/sync/load") {
+        return handleSyncLoad(env, await request.json());
+      }
+      if (request.method === "POST" && path === "/api/sync/delete") {
+        return handleSyncDelete(env, await request.json());
+      }
+      if (request.method === "POST" && path === "/") {
+        return handleGeminiProxy(env, request);
+      }
+      return json({ error: "not_found" }, 404);
+    } catch (e) {
+      return json({ error: e?.message || "internal_error" }, 500);
+    }
+  },
+};

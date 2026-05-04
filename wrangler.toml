@@ -1,0 +1,8 @@
+name = "trigger-ocr-api"
+main = "src/index.js"
+compatibility_date = "2026-05-04"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "blackt"
+database_id = "712accf3-9e1d-4de7-8274-dbe5975ae5fc"

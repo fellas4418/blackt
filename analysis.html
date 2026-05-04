@@ -53,6 +53,11 @@
         .kw-other { background: #333; color: #aaa; border: 1px solid #555; }
         .kw-save-btn { background: transparent; border: 1px solid #555; color: #aaa; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
         .kw-save-btn.active { background: var(--neon-green); color: #000; border-color: var(--neon-green); font-weight: bold; }
+        .auth-box { background: rgba(255,255,255,0.03); border:1px solid #333; border-radius:12px; padding:12px; margin-bottom:14px; }
+        .auth-input { flex:1; background:#111; border:1px solid #444; color:#fff; padding:9px 10px; border-radius:8px; font-size:0.9rem; min-width: 0; }
+        .auth-btn { background:transparent; border:1px solid #666; color:#fff; padding:9px 12px; border-radius:8px; font-size:0.82rem; font-weight:bold; cursor:pointer; white-space:nowrap; }
+        .auth-btn.primary { border-color: var(--neon-green); color: var(--neon-green); }
+        .auth-status { margin-top:8px; font-size:0.8rem; color:#9aa; }
 
         #note-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 30000; padding: 20px; box-sizing: border-box; }
         .modal-card { background: #111; border: 1px solid #666; box-shadow: 0 0 15px rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px; width: 90%; max-width: 450px; text-align: center; max-height: 85vh; overflow-y: hidden; display: flex; flex-direction: column; box-sizing: border-box; }
@@ -68,6 +73,15 @@
 </head>
 <body>
     <div id="nav-area">
+        <div id="auth-box" class="auth-box">
+            <div style="display:flex; gap:8px; align-items:center;">
+                <input id="auth-id" class="auth-input" placeholder="아이디" autocomplete="username">
+                <input id="auth-pw" class="auth-input" type="password" placeholder="비밀번호" autocomplete="current-password">
+                <button class="auth-btn" onclick="signup()">회원가입</button>
+                <button class="auth-btn primary" onclick="login()">로그인</button>
+            </div>
+            <div id="auth-status" class="auth-status">로그인하면 기기 간 저장 데이터가 자동 동기화됩니다.</div>
+        </div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <div onclick="location.href='index.html?tab=analysis'" style="color: var(--neon-blue); cursor: pointer;">← 분석 설정으로 돌아가기</div>
             <button onclick="showNoteModal('grammar')" style="background: rgba(255,255,255,0.05); border: 1px solid #666; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight:bold;">⭐ 내 학습 노트</button>
@@ -241,6 +255,100 @@
         let aiKeywordsObj = []; 
         let currentPassageTitle = ""; 
         let fullWordMapGlobal = {}; 
+        let savedVocaCache = [];
+        let savedGrammarCache = [];
+        let authUserId = '';
+        let authPassword = '';
+
+        function setAuthStatus(msg, isError = false) {
+            const el = document.getElementById('auth-status');
+            if (!el) return;
+            el.innerText = msg || '';
+            el.style.color = isError ? '#ff7b7b' : '#9aa';
+        }
+
+        function escapeHtml(s) {
+            return String(s || '').replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m]));
+        }
+
+        function setAnalysisEnabled(enabled) {
+            const ids = ['input-section', 'edit-section'];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.style.display = enabled ? '' : 'none';
+            });
+            if (!enabled) {
+                const rs = document.getElementById('result-section');
+                if (rs) rs.style.display = 'none';
+            }
+        }
+
+        async function postJson(path, body) {
+            const res = await fetch(WORKER_URL.replace(/\/$/, '') + path, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body || {})
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok || data.error) {
+                throw new Error(data.error || `요청 실패 (${res.status})`);
+            }
+            return data;
+        }
+
+        async function syncLoad() {
+            const data = await postJson('/api/sync/load', { user_id: authUserId, password: authPassword });
+            savedVocaCache = Array.isArray(data.saved_voca) ? data.saved_voca : [];
+            savedGrammarCache = Array.isArray(data.saved_grammar) ? data.saved_grammar : [];
+            checkAllSavedStatus();
+        }
+
+        async function signup() {
+            const id = (document.getElementById('auth-id').value || '').trim();
+            const pw = document.getElementById('auth-pw').value || '';
+            if (!id || !pw) return alert('아이디/비밀번호를 입력해주세요.');
+            try {
+                await postJson('/api/signup', { id, password: pw });
+                setAuthStatus('회원가입 완료. 로그인해주세요.');
+            } catch (e) {
+                setAuthStatus(String(e.message || e), true);
+            }
+        }
+
+        async function login() {
+            const id = (document.getElementById('auth-id').value || '').trim();
+            const pw = document.getElementById('auth-pw').value || '';
+            if (!id || !pw) return alert('아이디/비밀번호를 입력해주세요.');
+            try {
+                const data = await postJson('/api/login', { id, password: pw });
+                authUserId = id;
+                authPassword = pw;
+                sessionStorage.setItem('trigger_auth_user', authUserId);
+                sessionStorage.setItem('trigger_auth_pw', authPassword);
+                await syncLoad();
+                setAnalysisEnabled(true);
+                setAuthStatus(`${data.user_id} 로그인 성공 · 단어 ${savedVocaCache.length}개 · 문법 ${savedGrammarCache.length}개 동기화됨`);
+            } catch (e) {
+                setAuthStatus(String(e.message || e), true);
+                setAnalysisEnabled(false);
+            }
+        }
+
+        (function restoreAuthAndLockUI() {
+            authUserId = sessionStorage.getItem('trigger_auth_user') || '';
+            authPassword = sessionStorage.getItem('trigger_auth_pw') || '';
+            setAnalysisEnabled(false);
+            if (!authUserId || !authPassword) {
+                setAuthStatus('로그인 후 분석 기능이 활성화됩니다.');
+                return;
+            }
+            const idEl = document.getElementById('auth-id');
+            const pwEl = document.getElementById('auth-pw');
+            if (idEl) idEl.value = authUserId;
+            if (pwEl) pwEl.value = authPassword;
+            login();
+        })();
 
         function openPicker(type) {
             const input = document.getElementById('capture');
@@ -473,8 +581,7 @@
 
         function showWordPopup(eng, kor, level) {
             const popup = document.getElementById('word-popup');
-            const savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
-            const isSaved = savedList.some(item => String(item.eng || '').toLowerCase() === String(eng || '').toLowerCase());
+            const isSaved = savedVocaCache.some(item => String(item.eng || '').toLowerCase() === String(eng || '').toLowerCase());
             const btnText = isSaved ? "✅" : "저장";
             const btnClass = isSaved ? "kw-save-btn active" : "kw-save-btn";
             
@@ -489,22 +596,28 @@
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <button class="${btnClass}" onclick="toggleVocaSave('${safeEng}', '${safeKor}', '${level}', this)" style="padding: 8px 14px; border-radius: 8px;">${btnText}</button>
-                    <button onclick="document.getElementById('word-popup').style.display='none'" style="padding: 8px 14px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid #555; color:#bbb; font-weight:bold; cursor:pointer;">닫기</button>
+                    <button onclick="document.getElementById('word-popup').style.display='none'" style="padding: 8px 14px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid #555; color:#bbb; font-weight:bold; cursor:pointer; font-size:0.75rem; line-height:1.2;">닫기</button>
                 </div>
             `;
             popup.style.display = 'flex';
         }
 
-        function deleteNoteItem(type, index, event) {
+        async function deleteNoteItem(type, index, event) {
             try {
                 if (event && typeof event.stopPropagation === 'function') event.stopPropagation();
-                const key = type === 'grammar' ? 'trigger_saved_grammar' : 'trigger_saved_voca';
-                let savedList = JSON.parse(localStorage.getItem(key) || '[]');
-                if (!Array.isArray(savedList)) savedList = [];
+                let savedList = type === 'grammar' ? savedGrammarCache : savedVocaCache;
                 if (index < 0 || index >= savedList.length) return;
+                const target = savedList[index];
+                await postJson('/api/sync/delete', {
+                    user_id: authUserId, password: authPassword, type,
+                    item: type === 'grammar'
+                        ? { sentence: target.sentence, point: target.point, explanation: target.explanation, passage_title: target.passageTitle || '' }
+                        : { eng: target.eng, kor: target.kor, level: target.level || 'other', passage_title: target.passageTitle || '' }
+                });
                 savedList.splice(index, 1);
-                localStorage.setItem(key, JSON.stringify(savedList));
+                if (type === 'grammar') savedGrammarCache = savedList; else savedVocaCache = savedList;
                 renderNoteList();
+                checkAllSavedStatus();
             } catch (e) {}
         }
 
@@ -588,7 +701,7 @@
 
         function startVocaPractice() {
             // '내 학습노트' 단어장(저장 단어)로 사라져 VOCA 방식 학습 시작
-            const savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
+            const savedList = savedVocaCache;
             if (!Array.isArray(savedList) || savedList.length === 0) {
                 alert("내 학습 노트(단어장)에 저장된 단어가 없습니다.");
                 return;
@@ -626,34 +739,44 @@
             }
         }
 
-        function toggleGrammarSave(point, sentence, explanation, btnElement) {
-            let savedList = JSON.parse(localStorage.getItem('trigger_saved_grammar') || '[]');
+        async function toggleGrammarSave(point, sentence, explanation, btnElement) {
+            let savedList = savedGrammarCache;
             const idx = savedList.findIndex(item => item.sentence === sentence);
 
             if (idx > -1) {
+                await postJson('/api/sync/delete', {
+                    user_id: authUserId, password: authPassword, type: 'grammar',
+                    item: { point, sentence, explanation, passage_title: savedList[idx].passageTitle || currentPassageTitle || '' }
+                });
                 savedList.splice(idx, 1);
-                localStorage.setItem('trigger_saved_grammar', JSON.stringify(savedList));
+                savedGrammarCache = savedList;
                 btnElement.innerText = "⭐ 저장";
                 btnElement.classList.remove('active');
             } else {
-                savedList.push({
+                const item = {
                     point: point, sentence: sentence, explanation: explanation,
                     passageTitle: currentPassageTitle, 
                     date: new Date().toLocaleDateString()
-                });
-                localStorage.setItem('trigger_saved_grammar', JSON.stringify(savedList));
+                };
+                await postJson('/api/sync/save', { user_id: authUserId, password: authPassword, grammar: [item], voca: [] });
+                savedList.push(item);
+                savedGrammarCache = savedList;
                 btnElement.innerText = "✅ 저장됨";
                 btnElement.classList.add('active');
             }
         }
 
-        function toggleVocaSave(eng, kor, level, btnElement) {
-            let savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
+        async function toggleVocaSave(eng, kor, level, btnElement) {
+            let savedList = savedVocaCache;
             const idx = savedList.findIndex(item => String(item.eng || '').toLowerCase() === String(eng || '').toLowerCase());
 
             if (idx > -1) {
+                await postJson('/api/sync/delete', {
+                    user_id: authUserId, password: authPassword, type: 'voca',
+                    item: { eng, kor, level: level || 'other', passage_title: savedList[idx].passageTitle || currentPassageTitle || '' }
+                });
                 savedList.splice(idx, 1);
-                localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
+                savedVocaCache = savedList;
                 if(btnElement) {
                     btnElement.innerText = "저장";
                     btnElement.classList.remove('active');
@@ -661,12 +784,14 @@
                 const listBtn = document.getElementById(`btn-kw-${eng}`);
                 if(listBtn) { listBtn.innerText = "저장"; listBtn.classList.remove('active'); }
             } else {
-                savedList.push({ 
+                const item = { 
                     eng: eng, kor: kor, level: level, 
                     passageTitle: currentPassageTitle, 
                     date: new Date().toLocaleDateString() 
-                });
-                localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
+                };
+                await postJson('/api/sync/save', { user_id: authUserId, password: authPassword, voca: [item], grammar: [] });
+                savedList.push(item);
+                savedVocaCache = savedList;
                 if(btnElement) {
                     btnElement.innerText = "✅";
                     btnElement.classList.add('active');
@@ -677,16 +802,25 @@
             checkAllSavedStatus();
         }
 
-       function saveAllKeywords() {
-            let savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
+       async function saveAllKeywords() {
+            let savedList = savedVocaCache;
             const isAllSaved = aiKeywordsObj.every(kw => savedList.some(item => String(item.eng || '').toLowerCase() === String(kw.eng || '').toLowerCase()));
 
             if (isAllSaved) {
+                const toDelete = aiKeywordsObj
+                    .map(kw => savedList.find(item => String(item.eng || '').toLowerCase() === String(kw.eng || '').toLowerCase()))
+                    .filter(Boolean);
+                for (const item of toDelete) {
+                    await postJson('/api/sync/delete', {
+                        user_id: authUserId, password: authPassword, type: 'voca',
+                        item: { eng: item.eng, kor: item.kor, level: item.level || 'other', passage_title: item.passageTitle || '' }
+                    });
+                }
                 aiKeywordsObj.forEach(kw => {
                     const idx = savedList.findIndex(item => String(item.eng || '').toLowerCase() === String(kw.eng || '').toLowerCase());
                     if (idx > -1) savedList.splice(idx, 1);
                 });
-                localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
+                savedVocaCache = savedList;
                 
                 document.querySelectorAll('.kw-save-btn').forEach(btn => {
                     if(btn.id !== 'save-all-btn') {
@@ -695,17 +829,23 @@
                     }
                 });
             } else {
+                const toSave = [];
                 aiKeywordsObj.forEach(kw => {
                     const isExist = savedList.some(item => String(item.eng || '').toLowerCase() === String(kw.eng || '').toLowerCase());
                     if(!isExist) {
-                        savedList.push({ 
+                        const item = { 
                             eng: kw.eng, kor: kw.kor, level: kw.level, 
                             passageTitle: currentPassageTitle, 
                             date: new Date().toLocaleDateString() 
-                        });
+                        };
+                        savedList.push(item);
+                        toSave.push(item);
                     }
                 });
-                localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
+                if (toSave.length) {
+                    await postJson('/api/sync/save', { user_id: authUserId, password: authPassword, voca: toSave, grammar: [] });
+                }
+                savedVocaCache = savedList;
                 
                 document.querySelectorAll('.kw-save-btn').forEach(btn => {
                     if(btn.id !== 'save-all-btn') {
@@ -721,7 +861,7 @@
             const allBtn = document.getElementById('save-all-btn');
             if(!allBtn || aiKeywordsObj.length === 0) return;
 
-            let savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
+            let savedList = savedVocaCache;
             const isAllSaved = aiKeywordsObj.every(kw => savedList.some(item => String(item.eng || '').toLowerCase() === String(kw.eng || '').toLowerCase()));
             
             if(isAllSaved) {
@@ -766,8 +906,7 @@
         function renderNoteList() {
             const listArea = document.getElementById('note-list-container');
             let html = "";
-            const key = currentNoteTab === 'grammar' ? 'trigger_saved_grammar' : 'trigger_saved_voca';
-            let savedList = JSON.parse(localStorage.getItem(key) || '[]');
+            let savedList = currentNoteTab === 'grammar' ? savedGrammarCache : savedVocaCache;
 
             if (savedList.length === 0) {
                 html = `<p style='text-align:center; color:#888; margin-top:20px;'>저장된 내역이 없습니다.</p>`;
@@ -882,7 +1021,7 @@
 
             // 🔥 7대 원칙: 완벽한 단어 분할 & 중복 제거 로직
             aiKeywordsObj = [];
-            let savedVocaList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
+            let savedVocaList = savedVocaCache;
             let processedKeywords = [];
             let seenWords = new Set();
 
@@ -1073,7 +1212,7 @@
             }
 
             let grammarHtml = '';
-            let savedGrammarList = JSON.parse(localStorage.getItem('trigger_saved_grammar') || '[]');
+            let savedGrammarList = savedGrammarCache;
             if(res.grammar && res.grammar.length > 0) {
                 grammarHtml = res.grammar.map((g, i) => {
                     const safePoint = String(g.point || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
