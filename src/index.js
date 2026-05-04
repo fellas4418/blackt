@@ -26,6 +26,10 @@ async function verifyUser(env, userId, password) {
   return !!row;
 }
 
+function normalizePhone(raw) {
+  return String(raw || "").replace(/[^0-9]/g, "");
+}
+
 async function handleSignup(env, body) {
   const id = String(body.id || "").trim();
   const password = String(body.password || "");
@@ -48,6 +52,26 @@ async function handleLogin(env, body) {
   const ok = await verifyUser(env, id, password);
   if (!ok) return json({ error: "아이디 또는 비밀번호가 올바르지 않습니다." }, 401);
   return json({ ok: true, message: "login_success", user_id: id });
+}
+
+async function handleSimpleAuth(env, body) {
+  const name = String(body.name || "").trim();
+  const phone = normalizePhone(body.phone);
+  if (!name || !phone) return json({ error: "name/phone이 필요합니다." }, 400);
+
+  const userId = phone;
+  const password = phone;
+  const passwordHash = await sha256Hex(password);
+  await env.DB.prepare(
+    "INSERT INTO users (id, password_hash) VALUES (?1, ?2) ON CONFLICT(id) DO UPDATE SET password_hash = excluded.password_hash"
+  ).bind(userId, passwordHash).run();
+
+  return json({
+    ok: true,
+    message: "simple_auth_success",
+    user_id: userId,
+    auth_password: password,
+  });
 }
 
 async function handleSyncSave(env, body) {
@@ -158,6 +182,9 @@ export default {
       }
       if (request.method === "POST" && path === "/api/login") {
         return handleLogin(env, await request.json());
+      }
+      if (request.method === "POST" && path === "/api/auth/simple") {
+        return handleSimpleAuth(env, await request.json());
       }
       if (request.method === "POST" && path === "/api/sync/save") {
         return handleSyncSave(env, await request.json());

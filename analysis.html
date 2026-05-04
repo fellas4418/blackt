@@ -302,10 +302,11 @@
             checkAllSavedStatus();
         }
 
-        async function loginWithCredential(id, pw) {
-            const data = await postJson('/api/login', { id, password: pw });
-            authUserId = id;
-            authPassword = pw;
+        async function loginWithNamePhone(name, phone) {
+            const data = await postJson('/api/auth/simple', { name, phone });
+            authUserId = String(data.user_id || '').trim();
+            authPassword = String(data.auth_password || '').trim();
+            if (!authUserId || !authPassword) throw new Error('자동 인증 정보가 올바르지 않습니다.');
             sessionStorage.setItem('trigger_auth_user', authUserId);
             await syncLoad();
             setAnalysisEnabled(true);
@@ -316,19 +317,11 @@
             const profileName = (localStorage.getItem('trigger_name') || '').trim();
             const profilePhone = String(localStorage.getItem('trigger_phone') || '').replace(/[^0-9]/g, '');
             if (!profileName || !profilePhone) return false;
-            const autoId = profilePhone;
-            const autoPw = profileName;
             try {
-                await loginWithCredential(autoId, autoPw);
+                await loginWithNamePhone(profileName, profilePhone);
                 return true;
             } catch (e) {
-                try {
-                    await postJson('/api/signup', { id: autoId, password: autoPw });
-                    await loginWithCredential(autoId, autoPw);
-                    return true;
-                } catch (e2) {
-                    return false;
-                }
+                return false;
             }
         }
 
