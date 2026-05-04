@@ -67,9 +67,55 @@ async function handleSimpleAuth(env, body) {
   const userId = `${phone}::${normalizeName(name)}`;
   const password = userId;
   const passwordHash = await sha256Hex(password);
-  await env.DB.prepare(
-    "INSERT INTO users (id, password_hash) VALUES (?1, ?2) ON CONFLICT(id) DO UPDATE SET password_hash = excluded.password_hash"
-  ).bind(userId, passwordHash).run();
+
+  // 1) 정확히 같은 (전화번호+이름) 계정이 있으면 그대로 로그인
+  const exact = await env.DB.prepare("SELECT id FROM users WHERE id = ?1").bind(userId).first();
+  if (exact) {
+    await env.DB.prepare("UPDATE users SET password_hash = ?2 WHERE id = ?1").bind(userId, passwordHash).run();
+    return json({
+      ok: true,
+      message: "simple_auth_success",
+      user_id: userId,
+      auth_password: password,
+    });
+  }
+
+  // 2) 같은 전화번호로 기존 계정이 있는지 검사
+  const byPhone = await env.DB
+    .prepare("SELECT id FROM users WHERE id = ?1 OR id LIKE ?2")
+    .bind(phone, `${phone}::%`)
+    .all();
+  const ids = Array.isArray(byPhone.results) ? byPhone.results.map((r) => String(r.id || "")) : [];
+
+  // 2-1) 레거시(전화번호만 id) 계정만 있으면 최초 1회 이름 결합 계정으로 승격
+  //      이후에는 해당 이름+전화번호 조합으로만 접속 가능
+  if (ids.length === 1 && ids[0] === phone) {
+    await env.DB.prepare("UPDATE users SET id = ?1, password_hash = ?2 WHERE id = ?3")
+      .bind(userId, passwordHash, phone)
+      .run();
+    await env.DB.prepare("UPDATE saved_voca SET user_id = ?1 WHERE user_id = ?2")
+      .bind(userId, phone)
+      .run();
+    await env.DB.prepare("UPDATE saved_grammar SET user_id = ?1 WHERE user_id = ?2")
+      .bind(userId, phone)
+      .run();
+    return json({
+      ok: true,
+      message: "simple_auth_success",
+      user_id: userId,
+      auth_password: password,
+    });
+  }
+
+  // 2-2) 같은 전화번호의 다른 이름 계정이 이미 있으면 접속 차단
+  if (ids.length > 0) {
+    return json({ error: "동일한 전화번호의 기존 계정과 이름이 일치하지 않습니다." }, 403);
+  }
+
+  // 3) 완전 신규면 생성
+  await env.DB.prepare("INSERT INTO users (id, password_hash) VALUES (?1, ?2)")
+    .bind(userId, passwordHash)
+    .run();
 
   return json({
     ok: true,
