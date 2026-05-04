@@ -1440,6 +1440,29 @@
             startLoadingText();
 
             try {
+                async function requestAnalyze(payload) {
+                    const base = WORKER_URL.replace(/\/$/, '');
+                    const urls = [base + '/api/analyze', base + '/'];
+                    let lastErr = null;
+                    for (const u of urls) {
+                        try {
+                            const r = await fetch(u, {
+                                method: 'POST',
+                                cache: 'no-store',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload)
+                            });
+                            const d = await r.json().catch(() => ({}));
+                            if (!r.ok) throw new Error((d && (d.error?.message || d.error)) ? (d.error.message || d.error) : `HTTP ${r.status}`);
+                            if (d && d.error) throw new Error(d.error.message || d.error || 'API Error');
+                            return d;
+                        } catch (e) {
+                            lastErr = e;
+                        }
+                    }
+                    throw lastErr || new Error('API Error');
+                }
+
                 const prompt = `당신은 대한민국 최고의 1타 영어 강사입니다. 입력된 지문을 분석하여 반드시 순수한 JSON 형식으로만 응답하세요. 마크다운 태그(\`\`\`json 등)는 절대 생략하세요.
 
 [필수 제약 조건]
@@ -1523,13 +1546,7 @@
                 let data = null;
                 let maxRetries = 3;
                 for (let attempt = 1; attempt <= maxRetries; attempt++) {
-                    const response = await fetch(WORKER_URL.replace(/\/$/, '') + '/api/analyze', {
-                        method: 'POST',
-                        cache: 'no-store',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    data = await response.json();
+                    data = await requestAnalyze(payload);
                     if (data.error && data.error.message && data.error.message.includes("high demand")) {
                         if (attempt < maxRetries) {
                             await new Promise(r => setTimeout(r, 3000));
