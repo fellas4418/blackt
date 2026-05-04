@@ -577,6 +577,29 @@
             return "";
         }
 
+        function supplementFullWordMapFromDB(res) {
+            try {
+                if (!res || !Array.isArray(res.full_translation)) return;
+                res.full_translation.forEach(row => {
+                    const eng = String((row && row.eng) || '').toLowerCase();
+                    if (!eng) return;
+                    const tokens = eng.split(/[^a-z-]+/).map(t => t.trim()).filter(Boolean);
+                    tokens.forEach(tok => {
+                        if (tok.length <= 1) return;
+                        if (fullWordMapGlobal[tok]) return;
+                        const stems = getStems(tok);
+                        for (const s of stems) {
+                            const db = findWordInDB(s);
+                            if (db && db.kor) {
+                                fullWordMapGlobal[tok] = db.kor;
+                                break;
+                            }
+                        }
+                    });
+                });
+            } catch (e) {}
+        }
+
         function showWordPopup(eng, kor, level) {
             const popup = document.getElementById('word-popup');
             const isSaved = savedVocaCache.some(item => String(item.eng || '').toLowerCase() === String(eng || '').toLowerCase());
@@ -614,6 +637,22 @@
                 });
                 savedList.splice(index, 1);
                 if (type === 'grammar') savedGrammarCache = savedList; else savedVocaCache = savedList;
+                if (type === 'grammar' && target && target.sentence) {
+                    const targetSentence = String(target.sentence);
+                    document.querySelectorAll('.save-btn-small').forEach(btn => {
+                        if (btn.getAttribute('data-grammar-sentence') === targetSentence) {
+                            btn.innerText = "⭐ 저장";
+                            btn.classList.remove('active');
+                        }
+                    });
+                }
+                if (type === 'voca' && target && target.eng) {
+                    const listBtn = document.getElementById(`btn-kw-${target.eng}`);
+                    if (listBtn) {
+                        listBtn.innerText = "저장";
+                        listBtn.classList.remove('active');
+                    }
+                }
                 renderNoteList();
                 checkAllSavedStatus();
             } catch (e) {}
@@ -1005,6 +1044,7 @@
             } else {
                 fullWordMapGlobal = {};
             }
+            supplementFullWordMapFromDB(res);
 
             const categoryInfo = `${params.get('grade') || ''} ${params.get('type') || ''} ${params.get('detail') || ''}`.trim();
             const aiSubjectSnippet = res.subject?.formal ? res.subject.formal.substring(0, 12).trim() : "지문 분석";
@@ -1222,7 +1262,7 @@
 
                     return `
                     <div class="grammar-box" id="grammar-box-${i}">
-                        <button class="${btnClass}" onclick="toggleGrammarSave('${safePoint}', '${safeSentence}', '${safeExplanation}', this)">${btnText}</button>
+                        <button class="${btnClass}" data-grammar-sentence="${String(g.sentence || '').replace(/"/g, '&quot;')}" onclick="toggleGrammarSave('${safePoint}', '${safeSentence}', '${safeExplanation}', this)">${btnText}</button>
                         <strong style="color:#bc13fe; display:block; margin-bottom:4px; padding-right:60px;">⚡ [G${i+1}] ${g.point}</strong>
                         <div style="color:#ddd; font-size:0.85rem; font-style:italic; margin-bottom:6px;">"${g.sentence}"</div>
                         <div style="color:#eee; font-size:0.9rem;">${g.explanation}</div>
