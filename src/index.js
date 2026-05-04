@@ -157,8 +157,9 @@ async function handleSyncDelete(env, body) {
 
 async function handleGeminiProxy(env, request) {
   const body = await request.json();
+  const model = env.GEMINI_MODEL || "gemini-2.5-flash";
   const endpoint =
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${env.GEMINI_API_KEY}`;
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`;
   const response = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
