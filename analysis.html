@@ -53,7 +53,7 @@
         .kw-other { background: #333; color: #aaa; border: 1px solid #555; }
         .kw-save-btn { background: transparent; border: 1px solid #555; color: #aaa; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
         .kw-save-btn.active { background: var(--neon-green); color: #000; border-color: var(--neon-green); font-weight: bold; }
-        .auth-box { background: rgba(255,255,255,0.03); border:1px solid #333; border-radius:12px; padding:12px; margin-bottom:14px; }
+        .auth-box { display: none; background: rgba(255,255,255,0.03); border:1px solid #333; border-radius:12px; padding:12px; margin-bottom:14px; }
         .auth-input { flex:1; background:#111; border:1px solid #444; color:#fff; padding:9px 10px; border-radius:8px; font-size:0.9rem; min-width: 0; }
         .auth-btn { background:transparent; border:1px solid #666; color:#fff; padding:9px 12px; border-radius:8px; font-size:0.82rem; font-weight:bold; cursor:pointer; white-space:nowrap; }
         .auth-btn.primary { border-color: var(--neon-green); color: var(--neon-green); }
@@ -326,7 +326,6 @@
         }
 
         async function retryAutoSync() {
-            setAnalysisEnabled(false);
             setAuthStatus('자동 동기화 재시도 중...');
             const ok = await tryAutoLoginByProfile();
             if (!ok) {
@@ -338,7 +337,7 @@
         }
 
         (function restoreAuthAndLockUI() {
-            setAnalysisEnabled(false);
+            setAnalysisEnabled(true);
             setAuthStatus('가입 시 입력한 이름/전화번호로 자동 연결 중...');
             tryAutoLoginByProfile().then((ok) => {
                 if (ok) return;
@@ -1524,7 +1523,7 @@
                 let data = null;
                 let maxRetries = 3;
                 for (let attempt = 1; attempt <= maxRetries; attempt++) {
-                    const response = await fetch(WORKER_URL, {
+                    const response = await fetch(WORKER_URL.replace(/\/$/, '') + '/api/analyze', {
                         method: 'POST',
                         cache: 'no-store',
                         headers: { 'Content-Type': 'application/json' },

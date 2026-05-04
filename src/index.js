@@ -195,6 +195,9 @@ export default {
       if (request.method === "POST" && path === "/api/sync/delete") {
         return handleSyncDelete(env, await request.json());
       }
+      if (request.method === "POST" && path === "/api/analyze") {
+        return handleGeminiProxy(env, request);
+      }
       if (request.method === "POST" && path === "/") {
         return handleGeminiProxy(env, request);
       }
