@@ -30,6 +30,10 @@ function normalizePhone(raw) {
   return String(raw || "").replace(/[^0-9]/g, "");
 }
 
+function normalizeName(raw) {
+  return String(raw || "").trim().replace(/\s+/g, " ").toLowerCase();
+}
+
 async function handleSignup(env, body) {
   const id = String(body.id || "").trim();
   const password = String(body.password || "");
@@ -59,8 +63,9 @@ async function handleSimpleAuth(env, body) {
   const phone = normalizePhone(body.phone);
   if (!name || !phone) return json({ error: "name/phone이 필요합니다." }, 400);
 
-  const userId = phone;
-  const password = phone;
+  // 같은 이름+전화번호 조합일 때만 동일 계정으로 연결
+  const userId = `${phone}::${normalizeName(name)}`;
+  const password = userId;
   const passwordHash = await sha256Hex(password);
   await env.DB.prepare(
     "INSERT INTO users (id, password_hash) VALUES (?1, ?2) ON CONFLICT(id) DO UPDATE SET password_hash = excluded.password_hash"
