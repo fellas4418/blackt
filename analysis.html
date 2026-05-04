@@ -74,13 +74,11 @@
 <body>
     <div id="nav-area">
         <div id="auth-box" class="auth-box">
-            <div style="display:flex; gap:8px; align-items:center;">
-                <input id="auth-id" class="auth-input" placeholder="아이디" autocomplete="username">
-                <input id="auth-pw" class="auth-input" type="password" placeholder="비밀번호" autocomplete="current-password">
-                <button class="auth-btn" onclick="signup()">회원가입</button>
-                <button class="auth-btn primary" onclick="login()">로그인</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                <div style="font-size:0.85rem; color:#ccc;">이름+전화번호 기반 자동 동기화</div>
+                <button class="auth-btn primary" onclick="retryAutoSync()">동기화 다시 시도</button>
             </div>
-            <div id="auth-status" class="auth-status">로그인하면 기기 간 저장 데이터가 자동 동기화됩니다.</div>
+            <div id="auth-status" class="auth-status">가입 시 입력한 이름/전화번호로 자동 연결됩니다.</div>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <div onclick="location.href='index.html?tab=analysis'" style="color: var(--neon-blue); cursor: pointer;">← 분석 설정으로 돌아가기</div>
@@ -304,50 +302,58 @@
             checkAllSavedStatus();
         }
 
-        async function signup() {
-            const id = (document.getElementById('auth-id').value || '').trim();
-            const pw = document.getElementById('auth-pw').value || '';
-            if (!id || !pw) return alert('아이디/비밀번호를 입력해주세요.');
+        async function loginWithCredential(id, pw) {
+            const data = await postJson('/api/login', { id, password: pw });
+            authUserId = id;
+            authPassword = pw;
+            sessionStorage.setItem('trigger_auth_user', authUserId);
+            await syncLoad();
+            setAnalysisEnabled(true);
+            setAuthStatus(`자동 연결 완료 · 단어 ${savedVocaCache.length}개 · 문법 ${savedGrammarCache.length}개 동기화됨`);
+        }
+
+        async function tryAutoLoginByProfile() {
+            const profileName = (localStorage.getItem('trigger_name') || '').trim();
+            const profilePhone = String(localStorage.getItem('trigger_phone') || '').replace(/[^0-9]/g, '');
+            if (!profileName || !profilePhone) return false;
+            const autoId = profilePhone;
+            const autoPw = profileName;
             try {
-                await postJson('/api/signup', { id, password: pw });
-                setAuthStatus('회원가입 완료. 로그인해주세요.');
+                await loginWithCredential(autoId, autoPw);
+                return true;
             } catch (e) {
-                setAuthStatus(String(e.message || e), true);
+                try {
+                    await postJson('/api/signup', { id: autoId, password: autoPw });
+                    await loginWithCredential(autoId, autoPw);
+                    return true;
+                } catch (e2) {
+                    return false;
+                }
             }
         }
 
-        async function login() {
-            const id = (document.getElementById('auth-id').value || '').trim();
-            const pw = document.getElementById('auth-pw').value || '';
-            if (!id || !pw) return alert('아이디/비밀번호를 입력해주세요.');
-            try {
-                const data = await postJson('/api/login', { id, password: pw });
-                authUserId = id;
-                authPassword = pw;
-                sessionStorage.setItem('trigger_auth_user', authUserId);
-                sessionStorage.setItem('trigger_auth_pw', authPassword);
-                await syncLoad();
-                setAnalysisEnabled(true);
-                setAuthStatus(`${data.user_id} 로그인 성공 · 단어 ${savedVocaCache.length}개 · 문법 ${savedGrammarCache.length}개 동기화됨`);
-            } catch (e) {
-                setAuthStatus(String(e.message || e), true);
-                setAnalysisEnabled(false);
+        async function retryAutoSync() {
+            setAnalysisEnabled(false);
+            setAuthStatus('자동 동기화 재시도 중...');
+            const ok = await tryAutoLoginByProfile();
+            if (!ok) {
+                const hasName = !!(localStorage.getItem('trigger_name') || '').trim();
+                const hasPhone = !!String(localStorage.getItem('trigger_phone') || '').replace(/[^0-9]/g, '');
+                if (!hasName || !hasPhone) setAuthStatus('먼저 메인 화면에서 이름/전화번호 입력 후 다시 시도해주세요.', true);
+                else setAuthStatus('자동 동기화에 실패했습니다. 잠시 후 다시 시도해주세요.', true);
             }
         }
 
         (function restoreAuthAndLockUI() {
-            authUserId = sessionStorage.getItem('trigger_auth_user') || '';
-            authPassword = sessionStorage.getItem('trigger_auth_pw') || '';
             setAnalysisEnabled(false);
-            if (!authUserId || !authPassword) {
-                setAuthStatus('로그인 후 분석 기능이 활성화됩니다.');
-                return;
-            }
-            const idEl = document.getElementById('auth-id');
-            const pwEl = document.getElementById('auth-pw');
-            if (idEl) idEl.value = authUserId;
-            if (pwEl) pwEl.value = authPassword;
-            login();
+            setAuthStatus('가입 시 입력한 이름/전화번호로 자동 연결 중...');
+            tryAutoLoginByProfile().then((ok) => {
+                if (ok) return;
+                const hasName = !!(localStorage.getItem('trigger_name') || '').trim();
+                const hasPhone = !!String(localStorage.getItem('trigger_phone') || '').replace(/[^0-9]/g, '');
+                if (!hasName || !hasPhone) setAuthStatus('먼저 메인 화면에서 이름/전화번호를 입력해주세요.');
+                else setAuthStatus('자동 연결에 실패했습니다. "동기화 다시 시도"를 눌러주세요.', true);
+            });
         })();
 
         function openPicker(type) {
