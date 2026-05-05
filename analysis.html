@@ -521,6 +521,25 @@
             return false;
         }
 
+        /** 지문에서 문장 첫 단어가 아닌 위치에 대문자로 등장한 토큰을 고유명사 후보로 수집 */
+        function collectProperNounHintsFromPassage(fullTranslation) {
+            const hints = new Set();
+            const rows = Array.isArray(fullTranslation) ? fullTranslation : [];
+            rows.forEach(row => {
+                const eng = String((row && row.eng) || '').trim();
+                if (!eng) return;
+                const tokens = eng.match(/[A-Za-z][A-Za-z'-]*/g) || [];
+                tokens.forEach((tok, idx) => {
+                    const clean = tok.replace(/[^A-Za-z-]/g, '');
+                    if (!clean) return;
+                    if (idx === 0) return; // 문장 첫 단어 대문자 기본 규칙은 제외
+                    if (clean.length <= 2) return;
+                    if (/^[A-Z][a-z'-]+$/.test(clean)) hints.add(clean.toLowerCase());
+                });
+            });
+            return hints;
+        }
+
         /** 단어장 표기용 단수 기준형 (gatherings/gathering → gathering) */
         function englishCanonicalLemmaForList(w) {
             let raw = String(w || '').toLowerCase().replace(/[^a-z-]/g, '');
@@ -726,7 +745,8 @@
                 "where": "관계부사: 앞의 '장소' 명사를 문장으로 상세히 설명해요.",
                 "when": "관계부사: 앞의 '시간' 명사를 문장으로 상세히 설명해요.",
                 "why": "관계부사: 앞의 '이유' 명사를 문장으로 상세히 설명해요.",
-                "how": "관계부사: '~하는 방식'의 의미로 문장을 이끌어요."
+                "how": "관계부사: '~하는 방식'의 의미로 문장을 이끌어요.",
+                "such": "그런, 그러한"
             };
 
             if (grammarExceptionMap[rawWord]) {
@@ -1162,6 +1182,7 @@
 
             const keywordArray = Array.isArray(res.keywords) ? res.keywords : [];
             const passagePlainForSupplement = (res.full_translation || []).map(x => String(x.eng || '')).join(' ').toLowerCase();
+            const properNounHints = collectProperNounHintsFromPassage(res.full_translation);
 
             keywordArray.forEach((kw, kwLineIdx) => {
                 if (!kw) return;
@@ -1211,6 +1232,7 @@
                             if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !VOCAB_LIST_SKIP_WORDS.has(cleanW) &&
                                 !VOCAB_TOO_EASY_FOR_LIST.has(cleanW) && !VOCAB_TOO_EASY_FOR_LIST.has(canonW) &&
                                 !seenWords.has(canonW)) {
+                                if (properNounHints.has(canonW)) return;
                                 if (engWords.length >= 4 && wi === 0 && IDIOM_FIRST_VERB_SKIP_DECOMP.has(cleanW)) return;
 
                                 const dbWord = findWordInDB(cleanW);
@@ -1240,6 +1262,7 @@
                     if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !VOCAB_LIST_SKIP_WORDS.has(cleanW) &&
                         !VOCAB_TOO_EASY_FOR_LIST.has(cleanW) && !VOCAB_TOO_EASY_FOR_LIST.has(canonW) &&
                         !seenWords.has(canonW)) {
+                        if (properNounHints.has(canonW)) return;
                         const dbWord = findWordInDB(cleanW);
                         let finalMean = dbWord ? dbWord.kor : korMean;
                         if (!finalMean || finalMean === "undefined") finalMean = robustSearchMap(cleanW);
