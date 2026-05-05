@@ -58,6 +58,19 @@
         .auth-btn { background:transparent; border:1px solid #666; color:#fff; padding:9px 12px; border-radius:8px; font-size:0.82rem; font-weight:bold; cursor:pointer; white-space:nowrap; }
         .auth-btn.primary { border-color: var(--neon-green); color: var(--neon-green); }
         .auth-status { margin-top:8px; font-size:0.8rem; color:#9aa; }
+        @keyframes spinLoader { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .inline-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.25);
+            border-top-color: var(--neon-blue);
+            border-radius: 50%;
+            animation: spinLoader 0.8s linear infinite;
+            vertical-align: middle;
+            margin-left: 8px;
+            box-shadow: 0 0 6px rgba(0, 243, 255, 0.45);
+        }
 
         #note-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 30000; padding: 20px; box-sizing: border-box; }
         .modal-card { background: #111; border: 1px solid #666; box-shadow: 0 0 15px rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px; width: 90%; max-width: 450px; text-align: center; max-height: 85vh; overflow-y: hidden; display: flex; flex-direction: column; box-sizing: border-box; }
@@ -263,7 +276,6 @@
         let savedGrammarCache = [];
         let authUserId = '';
         let authPassword = '';
-        let loadingDotInterval = null;
         let quickReviewEntry = false;
         let noteSyncResolved = false;
 
@@ -1094,18 +1106,11 @@
                 "거의 다 됐습니다!<br>리포트를 생성 중입니다."
             ];
             let i = 0;
-            let dot = 0;
             const baseMsg = () => messages[Math.min(i, messages.length - 1)];
             const render = () => {
-                const dots = '.'.repeat(dot);
-                btn.innerHTML = `<span>${baseMsg()}</span><span style="display:inline-block; min-width:20px; text-align:left;">${dots}</span>`;
+                btn.innerHTML = `<span>${baseMsg()}</span><span class="inline-spinner" aria-hidden="true"></span>`;
             };
             render();
-            if (loadingDotInterval) clearInterval(loadingDotInterval);
-            loadingDotInterval = setInterval(() => {
-                dot = (dot + 1) % 4;
-                render();
-            }, 450);
             loadingInterval = setInterval(() => {
                 i++;
                 if(i < messages.length) {
@@ -1118,7 +1123,6 @@
 
         function stopLoadingText(isTextMode, btn) {
             clearInterval(loadingInterval);
-            clearInterval(loadingDotInterval);
             if(btn) {
                 btn.disabled = false;
                 btn.innerHTML = isTextMode ? "정밀 분석 실행 🚀" : "트리거 AI 정밀 분석 시작 🔍";
