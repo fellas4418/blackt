@@ -34,6 +34,15 @@ function normalizeName(raw) {
   return String(raw || "").trim().replace(/\s+/g, " ").toLowerCase();
 }
 
+async function promoteLegacySimpleAuthUser(env, legacyUserId, userId, passwordHash) {
+  await env.DB.batch([
+    env.DB.prepare("INSERT INTO users (id, password_hash) VALUES (?1, ?2)").bind(userId, passwordHash),
+    env.DB.prepare("UPDATE saved_voca SET user_id = ?1 WHERE user_id = ?2").bind(userId, legacyUserId),
+    env.DB.prepare("UPDATE saved_grammar SET user_id = ?1 WHERE user_id = ?2").bind(userId, legacyUserId),
+    env.DB.prepare("DELETE FROM users WHERE id = ?1").bind(legacyUserId),
+  ]);
+}
+
 async function handleSignup(env, body) {
   const id = String(body.id || "").trim();
   const password = String(body.password || "");
@@ -90,15 +99,7 @@ async function handleSimpleAuth(env, body) {
   // 2-1) 레거시(전화번호만 id) 계정만 있으면 최초 1회 이름 결합 계정으로 승격
   //      이후에는 해당 이름+전화번호 조합으로만 접속 가능
   if (ids.length === 1 && ids[0] === phone) {
-    await env.DB.prepare("UPDATE users SET id = ?1, password_hash = ?2 WHERE id = ?3")
-      .bind(userId, passwordHash, phone)
-      .run();
-    await env.DB.prepare("UPDATE saved_voca SET user_id = ?1 WHERE user_id = ?2")
-      .bind(userId, phone)
-      .run();
-    await env.DB.prepare("UPDATE saved_grammar SET user_id = ?1 WHERE user_id = ?2")
-      .bind(userId, phone)
-      .run();
+    await promoteLegacySimpleAuthUser(env, phone, userId, passwordHash);
     return json({
       ok: true,
       message: "simple_auth_success",
@@ -259,3 +260,5 @@ export default {
     }
   },
 };
+
+export { handleSimpleAuth, promoteLegacySimpleAuthUser };
