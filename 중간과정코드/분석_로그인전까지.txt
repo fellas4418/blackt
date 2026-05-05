@@ -53,6 +53,11 @@
         .kw-other { background: #333; color: #aaa; border: 1px solid #555; }
         .kw-save-btn { background: transparent; border: 1px solid #555; color: #aaa; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
         .kw-save-btn.active { background: var(--neon-green); color: #000; border-color: var(--neon-green); font-weight: bold; }
+        .auth-box { display: none; background: rgba(255,255,255,0.03); border:1px solid #333; border-radius:12px; padding:12px; margin-bottom:14px; }
+        .auth-input { flex:1; background:#111; border:1px solid #444; color:#fff; padding:9px 10px; border-radius:8px; font-size:0.9rem; min-width: 0; }
+        .auth-btn { background:transparent; border:1px solid #666; color:#fff; padding:9px 12px; border-radius:8px; font-size:0.82rem; font-weight:bold; cursor:pointer; white-space:nowrap; }
+        .auth-btn.primary { border-color: var(--neon-green); color: var(--neon-green); }
+        .auth-status { margin-top:8px; font-size:0.8rem; color:#9aa; }
 
         #note-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 30000; padding: 20px; box-sizing: border-box; }
         .modal-card { background: #111; border: 1px solid #666; box-shadow: 0 0 15px rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px; width: 90%; max-width: 450px; text-align: center; max-height: 85vh; overflow-y: hidden; display: flex; flex-direction: column; box-sizing: border-box; }
@@ -68,6 +73,13 @@
 </head>
 <body>
     <div id="nav-area">
+        <div id="auth-box" class="auth-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                <div style="font-size:0.85rem; color:#ccc;">이름+전화번호 기반 자동 동기화</div>
+                <button class="auth-btn primary" onclick="retryAutoSync()">동기화 다시 시도</button>
+            </div>
+            <div id="auth-status" class="auth-status">가입 시 입력한 이름/전화번호로 자동 연결됩니다.</div>
+        </div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <div onclick="location.href='index.html?tab=analysis'" style="color: var(--neon-blue); cursor: pointer;">← 분석 설정으로 돌아가기</div>
             <button onclick="showNoteModal('grammar')" style="background: rgba(255,255,255,0.05); border: 1px solid #666; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight:bold;">⭐ 내 학습 노트</button>
@@ -241,6 +253,110 @@
         let aiKeywordsObj = []; 
         let currentPassageTitle = ""; 
         let fullWordMapGlobal = {}; 
+        let savedVocaCache = [];
+        let savedGrammarCache = [];
+        let authUserId = '';
+        let authPassword = '';
+
+        function setAuthStatus(msg, isError = false) {
+            const el = document.getElementById('auth-status');
+            if (!el) return;
+            el.innerText = msg || '';
+            el.style.color = isError ? '#ff7b7b' : '#9aa';
+        }
+
+        function escapeHtml(s) {
+            return String(s || '').replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m]));
+        }
+
+        function setAnalysisEnabled(enabled) {
+            const ids = ['input-section', 'edit-section'];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.style.display = enabled ? '' : 'none';
+            });
+            if (!enabled) {
+                const rs = document.getElementById('result-section');
+                if (rs) rs.style.display = 'none';
+            }
+        }
+
+        async function postJson(path, body) {
+            const res = await fetch(WORKER_URL.replace(/\/$/, '') + path, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body || {})
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok || data.error) {
+                const err = new Error(data.error || `요청 실패 (${res.status})`);
+                err.httpStatus = res.status;
+                throw err;
+            }
+            return data;
+        }
+
+        async function syncLoad() {
+            const data = await postJson('/api/sync/load', { user_id: authUserId, password: authPassword });
+            savedVocaCache = Array.isArray(data.saved_voca) ? data.saved_voca : [];
+            savedGrammarCache = Array.isArray(data.saved_grammar) ? data.saved_grammar : [];
+            checkAllSavedStatus();
+        }
+
+        async function loginWithNamePhone(name, phone) {
+            const data = await postJson('/api/auth/simple', { name, phone });
+            authUserId = String(data.user_id || '').trim();
+            authPassword = String(data.auth_password || '').trim();
+            if (!authUserId || !authPassword) throw new Error('자동 인증 정보가 올바르지 않습니다.');
+            sessionStorage.setItem('trigger_auth_user', authUserId);
+            await syncLoad();
+            setAnalysisEnabled(true);
+            setAuthStatus(`자동 연결 완료 · 단어 ${savedVocaCache.length}개 · 문법 ${savedGrammarCache.length}개 동기화됨`);
+        }
+
+        async function tryAutoLoginByProfile() {
+            const profileName = (localStorage.getItem('trigger_name') || '').trim();
+            const profilePhone = String(localStorage.getItem('trigger_phone') || '').replace(/[^0-9]/g, '');
+            if (!profileName || !profilePhone) return false;
+            try {
+                await loginWithNamePhone(profileName, profilePhone);
+                return true;
+            } catch (e) {
+                if (e && e.httpStatus === 403) {
+                    alert(
+                        (e.message ? e.message + '\n\n' : '') +
+                        '이 전화번호로 이미 가입된 이름이 있습니다.\n' +
+                        '처음 가입할 때 입력한 이름과 전화번호가 모두 같아야 접속됩니다.\n' +
+                        '메인 화면에서 이름을 확인한 뒤 다시 시도해주세요.'
+                    );
+                }
+                return false;
+            }
+        }
+
+        async function retryAutoSync() {
+            setAuthStatus('자동 동기화 재시도 중...');
+            const ok = await tryAutoLoginByProfile();
+            if (!ok) {
+                const hasName = !!(localStorage.getItem('trigger_name') || '').trim();
+                const hasPhone = !!String(localStorage.getItem('trigger_phone') || '').replace(/[^0-9]/g, '');
+                if (!hasName || !hasPhone) setAuthStatus('먼저 메인 화면에서 이름/전화번호 입력 후 다시 시도해주세요.', true);
+                else setAuthStatus('자동 동기화에 실패했습니다. 잠시 후 다시 시도해주세요.', true);
+            }
+        }
+
+        (function restoreAuthAndLockUI() {
+            setAnalysisEnabled(true);
+            setAuthStatus('가입 시 입력한 이름/전화번호로 자동 연결 중...');
+            tryAutoLoginByProfile().then((ok) => {
+                if (ok) return;
+                const hasName = !!(localStorage.getItem('trigger_name') || '').trim();
+                const hasPhone = !!String(localStorage.getItem('trigger_phone') || '').replace(/[^0-9]/g, '');
+                if (!hasName || !hasPhone) setAuthStatus('먼저 메인 화면에서 이름/전화번호를 입력해주세요.');
+                else setAuthStatus('자동 연결에 실패했습니다. "동기화 다시 시도"를 눌러주세요.', true);
+            });
+        })();
 
         function openPicker(type) {
             const input = document.getElementById('capture');
@@ -471,10 +587,32 @@
             return "";
         }
 
+        function supplementFullWordMapFromDB(res) {
+            try {
+                if (!res || !Array.isArray(res.full_translation)) return;
+                res.full_translation.forEach(row => {
+                    const eng = String((row && row.eng) || '').toLowerCase();
+                    if (!eng) return;
+                    const tokens = eng.split(/[^a-z-]+/).map(t => t.trim()).filter(Boolean);
+                    tokens.forEach(tok => {
+                        if (tok.length <= 1) return;
+                        if (fullWordMapGlobal[tok]) return;
+                        const stems = getStems(tok);
+                        for (const s of stems) {
+                            const db = findWordInDB(s);
+                            if (db && db.kor) {
+                                fullWordMapGlobal[tok] = db.kor;
+                                break;
+                            }
+                        }
+                    });
+                });
+            } catch (e) {}
+        }
+
         function showWordPopup(eng, kor, level) {
             const popup = document.getElementById('word-popup');
-            const savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
-            const isSaved = savedList.some(item => String(item.eng || '').toLowerCase() === String(eng || '').toLowerCase());
+            const isSaved = savedVocaCache.some(item => String(item.eng || '').toLowerCase() === String(eng || '').toLowerCase());
             const btnText = isSaved ? "✅" : "저장";
             const btnClass = isSaved ? "kw-save-btn active" : "kw-save-btn";
             
@@ -489,22 +627,44 @@
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <button class="${btnClass}" onclick="toggleVocaSave('${safeEng}', '${safeKor}', '${level}', this)" style="padding: 8px 14px; border-radius: 8px;">${btnText}</button>
-                    <button onclick="document.getElementById('word-popup').style.display='none'" style="padding: 8px 14px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid #555; color:#bbb; font-weight:bold; cursor:pointer;">닫기</button>
+                    <button onclick="document.getElementById('word-popup').style.display='none'" style="padding: 8px 14px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid #555; color:#bbb; font-weight:bold; cursor:pointer; font-size:0.75rem; line-height:1.2;">닫기</button>
                 </div>
             `;
             popup.style.display = 'flex';
         }
 
-        function deleteNoteItem(type, index, event) {
+        async function deleteNoteItem(type, index, event) {
             try {
                 if (event && typeof event.stopPropagation === 'function') event.stopPropagation();
-                const key = type === 'grammar' ? 'trigger_saved_grammar' : 'trigger_saved_voca';
-                let savedList = JSON.parse(localStorage.getItem(key) || '[]');
-                if (!Array.isArray(savedList)) savedList = [];
+                let savedList = type === 'grammar' ? savedGrammarCache : savedVocaCache;
                 if (index < 0 || index >= savedList.length) return;
+                const target = savedList[index];
+                await postJson('/api/sync/delete', {
+                    user_id: authUserId, password: authPassword, type,
+                    item: type === 'grammar'
+                        ? { sentence: target.sentence, point: target.point, explanation: target.explanation, passage_title: target.passageTitle || '' }
+                        : { eng: target.eng, kor: target.kor, level: target.level || 'other', passage_title: target.passageTitle || '' }
+                });
                 savedList.splice(index, 1);
-                localStorage.setItem(key, JSON.stringify(savedList));
+                if (type === 'grammar') savedGrammarCache = savedList; else savedVocaCache = savedList;
+                if (type === 'grammar' && target && target.sentence) {
+                    const targetSentence = String(target.sentence);
+                    document.querySelectorAll('.save-btn-small').forEach(btn => {
+                        if (btn.getAttribute('data-grammar-sentence') === targetSentence) {
+                            btn.innerText = "⭐ 저장";
+                            btn.classList.remove('active');
+                        }
+                    });
+                }
+                if (type === 'voca' && target && target.eng) {
+                    const listBtn = document.getElementById(`btn-kw-${target.eng}`);
+                    if (listBtn) {
+                        listBtn.innerText = "저장";
+                        listBtn.classList.remove('active');
+                    }
+                }
                 renderNoteList();
+                checkAllSavedStatus();
             } catch (e) {}
         }
 
@@ -588,7 +748,7 @@
 
         function startVocaPractice() {
             // '내 학습노트' 단어장(저장 단어)로 사라져 VOCA 방식 학습 시작
-            const savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
+            const savedList = savedVocaCache;
             if (!Array.isArray(savedList) || savedList.length === 0) {
                 alert("내 학습 노트(단어장)에 저장된 단어가 없습니다.");
                 return;
@@ -626,34 +786,44 @@
             }
         }
 
-        function toggleGrammarSave(point, sentence, explanation, btnElement) {
-            let savedList = JSON.parse(localStorage.getItem('trigger_saved_grammar') || '[]');
+        async function toggleGrammarSave(point, sentence, explanation, btnElement) {
+            let savedList = savedGrammarCache;
             const idx = savedList.findIndex(item => item.sentence === sentence);
 
             if (idx > -1) {
+                await postJson('/api/sync/delete', {
+                    user_id: authUserId, password: authPassword, type: 'grammar',
+                    item: { point, sentence, explanation, passage_title: savedList[idx].passageTitle || currentPassageTitle || '' }
+                });
                 savedList.splice(idx, 1);
-                localStorage.setItem('trigger_saved_grammar', JSON.stringify(savedList));
+                savedGrammarCache = savedList;
                 btnElement.innerText = "⭐ 저장";
                 btnElement.classList.remove('active');
             } else {
-                savedList.push({
+                const item = {
                     point: point, sentence: sentence, explanation: explanation,
                     passageTitle: currentPassageTitle, 
                     date: new Date().toLocaleDateString()
-                });
-                localStorage.setItem('trigger_saved_grammar', JSON.stringify(savedList));
+                };
+                await postJson('/api/sync/save', { user_id: authUserId, password: authPassword, grammar: [item], voca: [] });
+                savedList.push(item);
+                savedGrammarCache = savedList;
                 btnElement.innerText = "✅ 저장됨";
                 btnElement.classList.add('active');
             }
         }
 
-        function toggleVocaSave(eng, kor, level, btnElement) {
-            let savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
+        async function toggleVocaSave(eng, kor, level, btnElement) {
+            let savedList = savedVocaCache;
             const idx = savedList.findIndex(item => String(item.eng || '').toLowerCase() === String(eng || '').toLowerCase());
 
             if (idx > -1) {
+                await postJson('/api/sync/delete', {
+                    user_id: authUserId, password: authPassword, type: 'voca',
+                    item: { eng, kor, level: level || 'other', passage_title: savedList[idx].passageTitle || currentPassageTitle || '' }
+                });
                 savedList.splice(idx, 1);
-                localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
+                savedVocaCache = savedList;
                 if(btnElement) {
                     btnElement.innerText = "저장";
                     btnElement.classList.remove('active');
@@ -661,12 +831,14 @@
                 const listBtn = document.getElementById(`btn-kw-${eng}`);
                 if(listBtn) { listBtn.innerText = "저장"; listBtn.classList.remove('active'); }
             } else {
-                savedList.push({ 
+                const item = { 
                     eng: eng, kor: kor, level: level, 
                     passageTitle: currentPassageTitle, 
                     date: new Date().toLocaleDateString() 
-                });
-                localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
+                };
+                await postJson('/api/sync/save', { user_id: authUserId, password: authPassword, voca: [item], grammar: [] });
+                savedList.push(item);
+                savedVocaCache = savedList;
                 if(btnElement) {
                     btnElement.innerText = "✅";
                     btnElement.classList.add('active');
@@ -677,16 +849,25 @@
             checkAllSavedStatus();
         }
 
-       function saveAllKeywords() {
-            let savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
+       async function saveAllKeywords() {
+            let savedList = savedVocaCache;
             const isAllSaved = aiKeywordsObj.every(kw => savedList.some(item => String(item.eng || '').toLowerCase() === String(kw.eng || '').toLowerCase()));
 
             if (isAllSaved) {
+                const toDelete = aiKeywordsObj
+                    .map(kw => savedList.find(item => String(item.eng || '').toLowerCase() === String(kw.eng || '').toLowerCase()))
+                    .filter(Boolean);
+                for (const item of toDelete) {
+                    await postJson('/api/sync/delete', {
+                        user_id: authUserId, password: authPassword, type: 'voca',
+                        item: { eng: item.eng, kor: item.kor, level: item.level || 'other', passage_title: item.passageTitle || '' }
+                    });
+                }
                 aiKeywordsObj.forEach(kw => {
                     const idx = savedList.findIndex(item => String(item.eng || '').toLowerCase() === String(kw.eng || '').toLowerCase());
                     if (idx > -1) savedList.splice(idx, 1);
                 });
-                localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
+                savedVocaCache = savedList;
                 
                 document.querySelectorAll('.kw-save-btn').forEach(btn => {
                     if(btn.id !== 'save-all-btn') {
@@ -695,17 +876,23 @@
                     }
                 });
             } else {
+                const toSave = [];
                 aiKeywordsObj.forEach(kw => {
                     const isExist = savedList.some(item => String(item.eng || '').toLowerCase() === String(kw.eng || '').toLowerCase());
                     if(!isExist) {
-                        savedList.push({ 
+                        const item = { 
                             eng: kw.eng, kor: kw.kor, level: kw.level, 
                             passageTitle: currentPassageTitle, 
                             date: new Date().toLocaleDateString() 
-                        });
+                        };
+                        savedList.push(item);
+                        toSave.push(item);
                     }
                 });
-                localStorage.setItem('trigger_saved_voca', JSON.stringify(savedList));
+                if (toSave.length) {
+                    await postJson('/api/sync/save', { user_id: authUserId, password: authPassword, voca: toSave, grammar: [] });
+                }
+                savedVocaCache = savedList;
                 
                 document.querySelectorAll('.kw-save-btn').forEach(btn => {
                     if(btn.id !== 'save-all-btn') {
@@ -721,7 +908,7 @@
             const allBtn = document.getElementById('save-all-btn');
             if(!allBtn || aiKeywordsObj.length === 0) return;
 
-            let savedList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
+            let savedList = savedVocaCache;
             const isAllSaved = aiKeywordsObj.every(kw => savedList.some(item => String(item.eng || '').toLowerCase() === String(kw.eng || '').toLowerCase()));
             
             if(isAllSaved) {
@@ -766,8 +953,7 @@
         function renderNoteList() {
             const listArea = document.getElementById('note-list-container');
             let html = "";
-            const key = currentNoteTab === 'grammar' ? 'trigger_saved_grammar' : 'trigger_saved_voca';
-            let savedList = JSON.parse(localStorage.getItem(key) || '[]');
+            let savedList = currentNoteTab === 'grammar' ? savedGrammarCache : savedVocaCache;
 
             if (savedList.length === 0) {
                 html = `<p style='text-align:center; color:#888; margin-top:20px;'>저장된 내역이 없습니다.</p>`;
@@ -868,6 +1054,7 @@
             } else {
                 fullWordMapGlobal = {};
             }
+            supplementFullWordMapFromDB(res);
 
             const categoryInfo = `${params.get('grade') || ''} ${params.get('type') || ''} ${params.get('detail') || ''}`.trim();
             const aiSubjectSnippet = res.subject?.formal ? res.subject.formal.substring(0, 12).trim() : "지문 분석";
@@ -882,7 +1069,7 @@
 
             // 🔥 7대 원칙: 완벽한 단어 분할 & 중복 제거 로직
             aiKeywordsObj = [];
-            let savedVocaList = JSON.parse(localStorage.getItem('trigger_saved_voca') || '[]');
+            let savedVocaList = savedVocaCache;
             let processedKeywords = [];
             let seenWords = new Set();
 
@@ -1073,7 +1260,7 @@
             }
 
             let grammarHtml = '';
-            let savedGrammarList = JSON.parse(localStorage.getItem('trigger_saved_grammar') || '[]');
+            let savedGrammarList = savedGrammarCache;
             if(res.grammar && res.grammar.length > 0) {
                 grammarHtml = res.grammar.map((g, i) => {
                     const safePoint = String(g.point || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
@@ -1085,7 +1272,7 @@
 
                     return `
                     <div class="grammar-box" id="grammar-box-${i}">
-                        <button class="${btnClass}" onclick="toggleGrammarSave('${safePoint}', '${safeSentence}', '${safeExplanation}', this)">${btnText}</button>
+                        <button class="${btnClass}" data-grammar-sentence="${String(g.sentence || '').replace(/"/g, '&quot;')}" onclick="toggleGrammarSave('${safePoint}', '${safeSentence}', '${safeExplanation}', this)">${btnText}</button>
                         <strong style="color:#bc13fe; display:block; margin-bottom:4px; padding-right:60px;">⚡ [G${i+1}] ${g.point}</strong>
                         <div style="color:#ddd; font-size:0.85rem; font-style:italic; margin-bottom:6px;">"${g.sentence}"</div>
                         <div style="color:#eee; font-size:0.9rem;">${g.explanation}</div>
@@ -1303,6 +1490,29 @@
             startLoadingText();
 
             try {
+                async function requestAnalyze(payload) {
+                    const base = WORKER_URL.replace(/\/$/, '');
+                    const urls = [base + '/api/analyze', base + '/'];
+                    let lastErr = null;
+                    for (const u of urls) {
+                        try {
+                            const r = await fetch(u, {
+                                method: 'POST',
+                                cache: 'no-store',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload)
+                            });
+                            const d = await r.json().catch(() => ({}));
+                            if (!r.ok) throw new Error((d && (d.error?.message || d.error)) ? (d.error.message || d.error) : `HTTP ${r.status}`);
+                            if (d && d.error) throw new Error(d.error.message || d.error || 'API Error');
+                            return d;
+                        } catch (e) {
+                            lastErr = e;
+                        }
+                    }
+                    throw lastErr || new Error('API Error');
+                }
+
                 const prompt = `당신은 대한민국 최고의 1타 영어 강사입니다. 입력된 지문을 분석하여 반드시 순수한 JSON 형식으로만 응답하세요. 마크다운 태그(\`\`\`json 등)는 절대 생략하세요.
 
 [필수 제약 조건]
@@ -1386,13 +1596,7 @@
                 let data = null;
                 let maxRetries = 3;
                 for (let attempt = 1; attempt <= maxRetries; attempt++) {
-                    const response = await fetch(WORKER_URL, {
-                        method: 'POST',
-                        cache: 'no-store',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    data = await response.json();
+                    data = await requestAnalyze(payload);
                     if (data.error && data.error.message && data.error.message.includes("high demand")) {
                         if (attempt < maxRetries) {
                             await new Promise(r => setTimeout(r, 3000));

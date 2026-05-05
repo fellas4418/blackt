@@ -507,6 +507,20 @@
             return raw;
         }
 
+        /** 키워드 원문 표기 기준 고유명사/이름 후보(Anna, Einstein 등) 판별 */
+        function isLikelyProperNounKeyword(rawEngText) {
+            const src = String(rawEngText || '').trim();
+            if (!src) return false;
+            const onlyLetters = src.replace(/[^A-Za-z\s-]/g, '').trim();
+            if (!onlyLetters) return false;
+            if (/\s/.test(onlyLetters)) return false; // 복합어는 맥락상 일반 어휘일 수 있어 과차단 방지
+            if (!/[A-Z]/.test(onlyLetters)) return false;
+            const firstChar = onlyLetters.charAt(0);
+            const rest = onlyLetters.slice(1);
+            const titleCaseSingle = /[A-Z]/.test(firstChar) && !/[A-Z]/.test(rest) && /[a-z]/.test(rest);
+            return titleCaseSingle;
+        }
+
         /** 리스트에 '합쳐서' 넣을 숙어인지: 관사 포함, 경동사+3어절 이상, DB 숙어, because of 형, supply … with … 형, 동사+전치사 2어절 숙어 등 */
         function isIdiomPhraseKeepRow(engWords, hasDbPhrase) {
             if (!engWords || engWords.length < 2) return false;
@@ -1079,8 +1093,10 @@
             keywordArray.forEach((kw, kwLineIdx) => {
                 if (!kw) return;
                 const parts = String(kw).split('(');
-                const fullEngText = parts[0].toLowerCase().trim();
+                const fullEngTextRaw = parts[0].trim();
+                const fullEngText = fullEngTextRaw.toLowerCase().trim();
                 const korMean = parts.length > 1 ? parts[1].replace(')', '').trim() : '';
+                if (isLikelyProperNounKeyword(fullEngTextRaw)) return;
                 
                 const engWords = fullEngText.split(/\s+/);
                 
@@ -1516,7 +1532,7 @@
                 const prompt = `당신은 대한민국 최고의 1타 영어 강사입니다. 입력된 지문을 분석하여 반드시 순수한 JSON 형식으로만 응답하세요. 마크다운 태그(\`\`\`json 등)는 절대 생략하세요.
 
 [필수 제약 조건]
-1. 초등학교~중학교 2학년 수준의 기초 단어는 절대 제외. 중3~수능 수준의 핵심 어휘를 무조건 20~30개 추출 (숙어의 공백 유지).
+1. 초등학교~중학교 2학년 수준의 기초 단어는 절대 제외. 중3~수능 수준의 핵심 어휘를 무조건 20~30개 추출 (숙어의 공백 유지). 단, 사람 이름(예: Anna), 특정 인명·지명·기관명 등 고유명사는 keywords에서 제외.
 2. '배경지식'과 '쉬운 주제(easy)'는 반드시 '~해요', '~했어요' 체 사용.
 3. '격식 있는 주제(formal)'와 '문법 설명'은 반드시 '~합니다', '~했습니다' 체 사용.
 4. '원문 해석(kor)'은 '~하다', '~이다' 체 사용.
@@ -1526,10 +1542,11 @@
 8. 문법 항목은 지문 **앞에서 뒤로 읽는 순서**(full_translation의 eng 문장 순서)에 맞춰 정렬하고, 'point'는 **교과서·모의고사 해설에서 쓰는 표준 용어**로 통일합니다(같은 현상에 다른 이름을 붙이지 않습니다).
 9. 같은 지문(동일 입력)에 대해서는 **grammar의 개수·종류·point 명칭이 매번 바뀌지 않도록** 가장 확실하고 보수적인 해석만 선택합니다. 창의적인 대안 나열, '이것도 가능하다' 식의 분기 설명은 하지 않습니다. 필요하면 grammar 항목은 **8~15개**까지 늘려도 됩니다(중복 관점은 한 항목으로 합칩니다).
 10. 우선 검토할 범주 예시(해당 없으면 생략): 관계사·관계대명사/관계부사, 분사·분사구문·줄임표현, 도치·강조, 가정법, 병렬구조·상관접속, 수 일치·대명사 지시, 명사절·부사절·형용사절, 준동사, 관용 전치사구·구동사형 숙어 등.
+11. background에는 지문에 특별한 지명, 인물(유명 위인 포함), 사건, 정치·경제·문화·사회적 상황, 이론이 등장하고 그것이 지문 이해에 실제 도움이 될 때만 핵심 배경을 2~4문장으로 간단히 포함하세요. 과도하게 길거나 학술적으로 깊은 설명은 금지합니다.
 
 출력 JSON 형식:
 {
-  "background": "지문을 이해하는 데 필요한 외부 배경지식을 흥미롭게 설명 (3~4줄)",
+  "background": "지문 이해에 필요한 배경지식을 짧고 명확하게 설명(2~4문장). 필요 시 지명·인물·사건·정치/경제/문화/사회 맥락·이론을 포함",
   "subject": {
     "formal": "글의 핵심 주제를 모의고사 해설지처럼 격식 있는 한 문장으로 요약",
     "easy": "그러니까 한마디로~ (시작말 포함하여 비유나 쉬운 일상어로 풀어쓴 주제)"
