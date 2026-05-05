@@ -102,6 +102,14 @@
     </div>
 
     <div id="input-section">
+        <div class="result-card" style="padding:14px; margin-bottom:12px;">
+            <span class="result-label" style="font-size:1rem; margin-bottom:8px;">⭐ 내 학습노트 빠른 복습</span>
+            <div style="display:flex; gap:8px; margin-bottom:10px;">
+                <button class="auth-btn" style="flex:1;" onclick="showNoteModal('grammar')">문법 노트 보기</button>
+                <button class="auth-btn primary" style="flex:1;" onclick="showNoteModal('voca')">단어장 보기</button>
+            </div>
+            <div id="main-note-preview" style="font-size:0.82rem; color:#aaa; line-height:1.6;">동기화 후 최근 저장 항목이 여기에 표시됩니다.</div>
+        </div>
         <div class="guide-box">
             <p class="guide-title">📷 AI 지문 분석</p>
             <p class="guide-text">지문을 촬영하면 <strong>트리거 AI의 실시간 정밀 분석</strong>이 시작됩니다. 선명하게 찍을수록 정확도가 올라갑니다.</p>
@@ -257,6 +265,7 @@
         let savedGrammarCache = [];
         let authUserId = '';
         let authPassword = '';
+        let loadingDotInterval = null;
 
         function setAuthStatus(msg, isError = false) {
             const el = document.getElementById('auth-status');
@@ -302,6 +311,7 @@
             savedVocaCache = Array.isArray(data.saved_voca) ? data.saved_voca : [];
             savedGrammarCache = Array.isArray(data.saved_grammar) ? data.saved_grammar : [];
             checkAllSavedStatus();
+            renderMainNotePreview();
         }
 
         async function loginWithNamePhone(name, phone) {
@@ -788,6 +798,24 @@
             location.href = 'study.html';
         }
 
+        function renderMainNotePreview() {
+            const el = document.getElementById('main-note-preview');
+            if (!el) return;
+            const recentVoca = (savedVocaCache || []).slice(-3).reverse();
+            const recentGrammar = (savedGrammarCache || []).slice(-2).reverse();
+            const vocaText = recentVoca.length
+                ? recentVoca.map(v => `${v.eng}(${v.kor || ''})`).join(', ')
+                : '저장된 단어 없음';
+            const grammarText = recentGrammar.length
+                ? recentGrammar.map(g => g.point || '문법 포인트').join(', ')
+                : '저장된 문법 없음';
+            el.innerHTML = `
+                <div>단어 ${savedVocaCache.length}개 · 문법 ${savedGrammarCache.length}개 저장됨</div>
+                <div style="margin-top:4px;">최근 단어: ${escapeHtml(vocaText)}</div>
+                <div style="margin-top:2px;">최근 문법: ${escapeHtml(grammarText)}</div>
+            `;
+        }
+
         function toggleVocaList() {
             const moreList = document.getElementById('voca-more-list');
             const btn = document.getElementById('voca-toggle-btn');
@@ -825,6 +853,7 @@
                 btnElement.innerText = "✅ 저장됨";
                 btnElement.classList.add('active');
             }
+            renderMainNotePreview();
         }
 
         async function toggleVocaSave(eng, kor, level, btnElement) {
@@ -861,6 +890,7 @@
                 if(listBtn) { listBtn.innerText = "✅"; listBtn.classList.add('active'); }
             }
             checkAllSavedStatus();
+            renderMainNotePreview();
         }
 
        async function saveAllKeywords() {
@@ -969,8 +999,16 @@
             let html = "";
             let savedList = currentNoteTab === 'grammar' ? savedGrammarCache : savedVocaCache;
 
+            if (currentNoteTab === 'voca') {
+                html += `
+                    <div style="margin-bottom:12px;">
+                        <button class="kakao-btn" style="background:var(--neon-green); color:#000; margin-top:0;" onclick="startVocaPractice()">👉 사라져 VOCA로 나만의 단어 연습하기 ⚡</button>
+                    </div>
+                `;
+            }
+
             if (savedList.length === 0) {
-                html = `<p style='text-align:center; color:#888; margin-top:20px;'>저장된 내역이 없습니다.</p>`;
+                html += `<p style='text-align:center; color:#888; margin-top:20px;'>저장된 내역이 없습니다.</p>`;
             } else {
                 let groupedData = {};
                 savedList.slice().reverse().forEach((item, originalReverseIdx) => {
@@ -1037,11 +1075,22 @@
                 "거의 다 됐습니다!<br>리포트를 생성 중입니다."
             ];
             let i = 0;
-            btn.innerHTML = messages[0];
+            let dot = 0;
+            const baseMsg = () => messages[Math.min(i, messages.length - 1)];
+            const render = () => {
+                const dots = '.'.repeat(dot);
+                btn.innerHTML = baseMsg() + dots;
+            };
+            render();
+            if (loadingDotInterval) clearInterval(loadingDotInterval);
+            loadingDotInterval = setInterval(() => {
+                dot = (dot + 1) % 4;
+                render();
+            }, 450);
             loadingInterval = setInterval(() => {
                 i++;
                 if(i < messages.length) {
-                    if (btn) btn.innerHTML = messages[i];
+                    render();
                 } else {
                     clearInterval(loadingInterval);
                 }
@@ -1050,6 +1099,7 @@
 
         function stopLoadingText(isTextMode, btn) {
             clearInterval(loadingInterval);
+            clearInterval(loadingDotInterval);
             if(btn) {
                 btn.disabled = false;
                 btn.innerHTML = isTextMode ? "정밀 분석 실행 🚀" : "트리거 AI 정밀 분석 시작 🔍";
@@ -1542,11 +1592,11 @@
 8. 문법 항목은 지문 **앞에서 뒤로 읽는 순서**(full_translation의 eng 문장 순서)에 맞춰 정렬하고, 'point'는 **교과서·모의고사 해설에서 쓰는 표준 용어**로 통일합니다(같은 현상에 다른 이름을 붙이지 않습니다).
 9. 같은 지문(동일 입력)에 대해서는 **grammar의 개수·종류·point 명칭이 매번 바뀌지 않도록** 가장 확실하고 보수적인 해석만 선택합니다. 창의적인 대안 나열, '이것도 가능하다' 식의 분기 설명은 하지 않습니다. 필요하면 grammar 항목은 **8~15개**까지 늘려도 됩니다(중복 관점은 한 항목으로 합칩니다).
 10. 우선 검토할 범주 예시(해당 없으면 생략): 관계사·관계대명사/관계부사, 분사·분사구문·줄임표현, 도치·강조, 가정법, 병렬구조·상관접속, 수 일치·대명사 지시, 명사절·부사절·형용사절, 준동사, 관용 전치사구·구동사형 숙어 등.
-11. background에는 지문에 특별한 지명, 인물(유명 위인 포함), 사건, 정치·경제·문화·사회적 상황, 이론이 등장하고 그것이 지문 이해에 실제 도움이 될 때만 핵심 배경을 2~4문장으로 간단히 포함하세요. 과도하게 길거나 학술적으로 깊은 설명은 금지합니다.
+11. background는 항상 기본 배경지식(이전처럼 지문 이해를 돕는 일반 맥락)을 2~3문장 포함하세요. 여기에 더해, 지문에 특별한 지명, 인물(유명 위인 포함), 사건, 정치·경제·문화·사회적 상황, 이론이 등장하고 그것이 이해에 실제 도움이 될 때만 추가 정보를 1~2문장 보강하세요. 과도하게 길거나 학술적으로 깊은 설명은 금지합니다.
 
 출력 JSON 형식:
 {
-  "background": "지문 이해에 필요한 배경지식을 짧고 명확하게 설명(2~4문장). 필요 시 지명·인물·사건·정치/경제/문화/사회 맥락·이론을 포함",
+  "background": "항상 기본 배경지식 2~3문장을 제공하고, 필요 시 지명·인물·사건·정치/경제/문화/사회 맥락·이론을 1~2문장 추가",
   "subject": {
     "formal": "글의 핵심 주제를 모의고사 해설지처럼 격식 있는 한 문장으로 요약",
     "easy": "그러니까 한마디로~ (시작말 포함하여 비유나 쉬운 일상어로 풀어쓴 주제)"
