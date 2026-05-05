@@ -310,6 +310,10 @@
             savedVocaCache = Array.isArray(data.saved_voca) ? data.saved_voca : [];
             savedGrammarCache = Array.isArray(data.saved_grammar) ? data.saved_grammar : [];
             checkAllSavedStatus();
+            const noteModal = document.getElementById('note-modal');
+            if (noteModal && noteModal.style.display === 'flex') {
+                renderNoteList();
+            }
         }
 
         async function loginWithNamePhone(name, phone) {
