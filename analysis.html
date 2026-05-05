@@ -102,14 +102,6 @@
     </div>
 
     <div id="input-section">
-        <div class="result-card" style="padding:14px; margin-bottom:12px;">
-            <span class="result-label" style="font-size:1rem; margin-bottom:8px;">⭐ 내 학습노트 빠른 복습</span>
-            <div style="display:flex; gap:8px; margin-bottom:10px;">
-                <button class="auth-btn" style="flex:1;" onclick="showNoteModal('grammar')">문법 노트 보기</button>
-                <button class="auth-btn primary" style="flex:1;" onclick="showNoteModal('voca')">단어장 보기</button>
-            </div>
-            <div id="main-note-preview" style="font-size:0.82rem; color:#aaa; line-height:1.6;">동기화 후 최근 저장 항목이 여기에 표시됩니다.</div>
-        </div>
         <div class="guide-box">
             <p class="guide-title">📷 AI 지문 분석</p>
             <p class="guide-text">지문을 촬영하면 <strong>트리거 AI의 실시간 정밀 분석</strong>이 시작됩니다. 선명하게 찍을수록 정확도가 올라갑니다.</p>
@@ -311,7 +303,6 @@
             savedVocaCache = Array.isArray(data.saved_voca) ? data.saved_voca : [];
             savedGrammarCache = Array.isArray(data.saved_grammar) ? data.saved_grammar : [];
             checkAllSavedStatus();
-            renderMainNotePreview();
         }
 
         async function loginWithNamePhone(name, phone) {
@@ -798,24 +789,6 @@
             location.href = 'study.html';
         }
 
-        function renderMainNotePreview() {
-            const el = document.getElementById('main-note-preview');
-            if (!el) return;
-            const recentVoca = (savedVocaCache || []).slice(-3).reverse();
-            const recentGrammar = (savedGrammarCache || []).slice(-2).reverse();
-            const vocaText = recentVoca.length
-                ? recentVoca.map(v => `${v.eng}(${v.kor || ''})`).join(', ')
-                : '저장된 단어 없음';
-            const grammarText = recentGrammar.length
-                ? recentGrammar.map(g => g.point || '문법 포인트').join(', ')
-                : '저장된 문법 없음';
-            el.innerHTML = `
-                <div>단어 ${savedVocaCache.length}개 · 문법 ${savedGrammarCache.length}개 저장됨</div>
-                <div style="margin-top:4px;">최근 단어: ${escapeHtml(vocaText)}</div>
-                <div style="margin-top:2px;">최근 문법: ${escapeHtml(grammarText)}</div>
-            `;
-        }
-
         function toggleVocaList() {
             const moreList = document.getElementById('voca-more-list');
             const btn = document.getElementById('voca-toggle-btn');
@@ -853,7 +826,6 @@
                 btnElement.innerText = "✅ 저장됨";
                 btnElement.classList.add('active');
             }
-            renderMainNotePreview();
         }
 
         async function toggleVocaSave(eng, kor, level, btnElement) {
@@ -890,7 +862,6 @@
                 if(listBtn) { listBtn.innerText = "✅"; listBtn.classList.add('active'); }
             }
             checkAllSavedStatus();
-            renderMainNotePreview();
         }
 
        async function saveAllKeywords() {
@@ -1010,6 +981,26 @@
             if (savedList.length === 0) {
                 html += `<p style='text-align:center; color:#888; margin-top:20px;'>저장된 내역이 없습니다.</p>`;
             } else {
+                if (currentNoteTab === 'voca') {
+                    html += savedList.slice().reverse().map((item, originalReverseIdx) => {
+                        const idx = savedList.length - 1 - originalReverseIdx;
+                        let levelTag = item.level === 'middle' ? '<span class="kw-tag kw-mid">중등</span>' : 
+                                       item.level === 'high' ? '<span class="kw-tag kw-high">고등</span>' : '';
+                        return `
+                            <div class="kw-container" style="background:#1a1a1a;">
+                                <div>
+                                    ${levelTag}
+                                    <strong style="color:#fff; font-size:1.05rem;">${item.eng}</strong> 
+                                    <span style="color:#aaa; font-size:0.9rem; margin-left:6px;">${item.kor}</span>
+                                </div>
+                                <button onclick="deleteNoteItem('voca', ${idx}, event)" style="background:transparent; border:none; color:#888; font-size:1.1rem; cursor:pointer;">×</button>
+                            </div>
+                        `;
+                    }).join('');
+                    listArea.innerHTML = html;
+                    return;
+                }
+
                 let groupedData = {};
                 savedList.slice().reverse().forEach((item, originalReverseIdx) => {
                     const realIndex = savedList.length - 1 - originalReverseIdx;
@@ -1079,7 +1070,7 @@
             const baseMsg = () => messages[Math.min(i, messages.length - 1)];
             const render = () => {
                 const dots = '.'.repeat(dot);
-                btn.innerHTML = baseMsg() + dots;
+                btn.innerHTML = `<span>${baseMsg()}</span><span style="display:inline-block; min-width:20px; text-align:left;">${dots}</span>`;
             };
             render();
             if (loadingDotInterval) clearInterval(loadingDotInterval);
@@ -1734,6 +1725,15 @@
                 document.getElementById('result-section').style.display = 'block';
                 setAnalysisSourceBadge(true);
                 applyParsedAnalysisResult(o.res);
+            } catch (e) {}
+        })();
+
+        (function openNoteModalFromQuery() {
+            try {
+                const q = new URLSearchParams(location.search);
+                const openNote = (q.get('open_note') || '').toLowerCase();
+                if (openNote !== 'grammar' && openNote !== 'voca') return;
+                setTimeout(() => showNoteModal(openNote), 120);
             } catch (e) {}
         })();
 

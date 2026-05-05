@@ -366,6 +366,8 @@
                     <span class="input-label" style="color: #ddd;">교재명</span>
                     <input type="text" id="book-name" class="neon-input" placeholder="예: EBS 수능특강, 자이스토리 등">
                 </div>
+
+                <button onclick="goToAnalysisQuickReview()" style="width: 100%; padding: 14px; background: rgba(255,255,255,0.03); border: 1px solid #666; color: #fff; font-size: 0.98rem; font-weight: bold; border-radius: 12px; cursor: pointer; margin-top:8px;">⭐ 내 학습노트 빠른 복습</button>
         
                 <button onclick="goToAnalysis()" style="width: 100%; padding: 18px; background: transparent; border: 2px solid var(--neon-blue); color: #fff; font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer; margin-top:10px;">지문 분석 시작하기📷</button>
             </div>
@@ -1012,22 +1014,27 @@
             document.getElementById('sub-menu-book').style.display = (type === '교재') ? 'block' : 'none';
         }
 
-        function goToAnalysis() {
-    const grade = document.getElementById('exam-grade').value;
-    
-    // 🔥 선택한 학년 저장 로직 추가
-    localStorage.setItem('trigger_saved_exam_grade', grade);
-
-    const type = document.getElementById('exam-type').value;
-    // ... 이하 생략
+        function buildAnalysisQuery() {
+            const grade = document.getElementById('exam-grade').value;
+            localStorage.setItem('trigger_saved_exam_grade', grade);
+            const type = document.getElementById('exam-type').value;
             let detail = "";
             
             if(type === '내신') detail = document.getElementById('exam-period').value;
             else if(type === '모의고사') detail = `${document.getElementById('mock-year').value}년 ${document.getElementById('mock-month').value}`;
             else detail = document.getElementById('book-name').value;
 
-            const query = `?grade=${encodeURIComponent(grade)}&type=${encodeURIComponent(type)}&detail=${encodeURIComponent(detail)}`;
+            return `?grade=${encodeURIComponent(grade)}&type=${encodeURIComponent(type)}&detail=${encodeURIComponent(detail)}`;
+        }
+
+        function goToAnalysis() {
+            const query = buildAnalysisQuery();
             location.href = 'analysis.html' + query;
+        }
+
+        function goToAnalysisQuickReview() {
+            const query = buildAnalysisQuery();
+            location.href = 'analysis.html' + query + '&open_note=voca';
         }
 
         function startCameraAnalysis() { alert("분석 모듈 연동 준비 중입니다."); }
