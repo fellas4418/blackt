@@ -265,6 +265,7 @@
         let authPassword = '';
         let loadingDotInterval = null;
         let quickReviewEntry = false;
+        let noteSyncResolved = false;
 
         function setAuthStatus(msg, isError = false) {
             const el = document.getElementById('auth-status');
@@ -309,6 +310,7 @@
             const data = await postJson('/api/sync/load', { user_id: authUserId, password: authPassword });
             savedVocaCache = Array.isArray(data.saved_voca) ? data.saved_voca : [];
             savedGrammarCache = Array.isArray(data.saved_grammar) ? data.saved_grammar : [];
+            noteSyncResolved = true;
             checkAllSavedStatus();
             const noteModal = document.getElementById('note-modal');
             if (noteModal && noteModal.style.display === 'flex') {
@@ -363,6 +365,7 @@
             setAuthStatus('가입 시 입력한 이름/전화번호로 자동 연결 중...');
             tryAutoLoginByProfile().then((ok) => {
                 if (ok) return;
+                noteSyncResolved = true;
                 const hasName = !!(localStorage.getItem('trigger_name') || '').trim();
                 const hasPhone = !!String(localStorage.getItem('trigger_phone') || '').replace(/[^0-9]/g, '');
                 if (!hasName || !hasPhone) setAuthStatus('먼저 메인 화면에서 이름/전화번호를 입력해주세요.');
@@ -1000,7 +1003,11 @@
             }
 
             if (savedList.length === 0) {
-                html += `<p style='text-align:center; color:#888; margin-top:20px;'>저장된 내역이 없습니다.</p>`;
+                if (!noteSyncResolved) {
+                    html += `<p style='text-align:center; color:#888; margin-top:20px;'>저장 내역을 불러오는 중입니다...</p>`;
+                } else {
+                    html += `<p style='text-align:center; color:#888; margin-top:20px;'>저장된 내역이 없습니다.</p>`;
+                }
             } else {
                 if (currentNoteTab === 'voca') {
                     html += savedList.slice().reverse().map((item, originalReverseIdx) => {
