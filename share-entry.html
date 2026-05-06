@@ -72,12 +72,31 @@
 
     <script>
         (function () {
+            const encodeAuthBundle = (name, phone) => {
+                try {
+                    const payload = JSON.stringify({ n: String(name || ""), p: String(phone || ""), t: Date.now() });
+                    return btoa(unescape(encodeURIComponent(payload)));
+                } catch (e) {
+                    return "";
+                }
+            };
+
             const params = new URLSearchParams(location.search);
             const path = (params.get('path') || '/index.html').trim();
             const praise = params.get('praise') === '1';
             const targetPath = path.startsWith('/') ? path : '/' + path;
             const finalUrl = new URL(targetPath, location.origin);
             if (praise) finalUrl.searchParams.set('praise', 'true');
+
+            // 같은 기기에서 카톡 인앱 -> 외부 브라우저로 이동할 때 가입 상태를 1회 전달합니다.
+            try {
+                const name = String(localStorage.getItem('trigger_name') || '').trim();
+                const phone = String(localStorage.getItem('trigger_phone') || '').replace(/[^0-9]/g, '');
+                if (name && /^010\d{8}$/.test(phone)) {
+                    const au = encodeAuthBundle(name, phone);
+                    if (au) finalUrl.searchParams.set('au', au);
+                }
+            } catch (e) {}
 
             const ua = navigator.userAgent || '';
             const isKakao = /KAKAO/i.test(ua);

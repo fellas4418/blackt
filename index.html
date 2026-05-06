@@ -437,6 +437,74 @@
         const todayStr = new Date().toLocaleDateString();
         
         const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzQM_AXzcq1vth9e1j9v54puAoJAur3gELmfvIq3e8fO7C8-D3RwTHs83cyCo0rsPp1/exec";
+
+        function encodeAuthBundle(name, phone) {
+            try {
+                const payload = JSON.stringify({ n: String(name || ""), p: String(phone || ""), t: Date.now() });
+                return btoa(unescape(encodeURIComponent(payload)));
+            } catch (e) {
+                return "";
+            }
+        }
+
+        function decodeAuthBundle(token) {
+            try {
+                if (!token) return null;
+                const json = decodeURIComponent(escape(atob(String(token))));
+                const parsed = JSON.parse(json);
+                const name = String(parsed && parsed.n ? parsed.n : "").trim();
+                const phone = String(parsed && parsed.p ? parsed.p : "").replace(/[^0-9]/g, "");
+                if (!name || !/^010\d{8}$/.test(phone)) return null;
+                return { name, phone };
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function persistLoginMirror(name, phone) {
+            try {
+                const token = encodeAuthBundle(name, phone);
+                if (!token) return;
+                document.cookie = `trigger_auth_v1=${token}; Max-Age=${60 * 60 * 24 * 30}; Path=/; SameSite=Lax`;
+            } catch (e) {}
+        }
+
+        function getCookie(name) {
+            try {
+                const parts = document.cookie ? document.cookie.split(';') : [];
+                for (let i = 0; i < parts.length; i++) {
+                    const p = parts[i].trim();
+                    if (p.startsWith(name + '=')) return p.substring(name.length + 1);
+                }
+            } catch (e) {}
+            return "";
+        }
+
+        function tryRestoreLoginState() {
+            try {
+                const hasName = !!localStorage.getItem('trigger_name');
+                const hasPhone = !!localStorage.getItem('trigger_phone');
+                if (hasName && hasPhone) return;
+
+                const url = new URL(window.location.href);
+                let restored = null;
+
+                const qToken = url.searchParams.get('au');
+                if (qToken) {
+                    restored = decodeAuthBundle(qToken);
+                    url.searchParams.delete('au');
+                    window.history.replaceState({}, document.title, url.pathname + (url.search ? url.search : "") + url.hash);
+                }
+                if (!restored) {
+                    restored = decodeAuthBundle(getCookie('trigger_auth_v1'));
+                }
+                if (!restored) return;
+
+                localStorage.setItem('trigger_name', restored.name);
+                localStorage.setItem('trigger_phone', restored.phone);
+                persistLoginMirror(restored.name, restored.phone);
+            } catch (e) {}
+        }
         
         if (localStorage.getItem('trigger_date') !== todayStr) {
             localStorage.setItem('trigger_date', todayStr);
@@ -521,6 +589,7 @@
 
             localStorage.setItem('trigger_name', name);
             localStorage.setItem('trigger_phone', phone);
+            persistLoginMirror(name, phone);
             checkLoginStatus(); 
 
             const formData = new URLSearchParams();
@@ -1167,6 +1236,7 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
+    tryRestoreLoginState();
     handleKakaoAndInstall();
 
     // 🔥 저장된 학년 불러와서 자동 세팅
