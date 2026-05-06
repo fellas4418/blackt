@@ -1,4 +1,4 @@
-const CACHE_NAME = 'trigger-voca-v4'; // 버전업 (강제 갱신용)
+const CACHE_NAME = 'trigger-voca-v5'; // 버전업 (강제 갱신용)
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -6,7 +6,8 @@ const ASSETS_TO_CACHE = [
     '/style.css',
     '/app.js',
     '/wordData.js',
-    '/manifest.json'
+    '/manifest.json',
+    '/share-entry.html'
 ];
 
 self.addEventListener('install', (e) => {

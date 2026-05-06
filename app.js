@@ -173,6 +173,7 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
             }
 
             const exitBtn = document.getElementById('exit-btn');
+            const mainBackBtn = document.getElementById('main-back-btn');
             if (exitBtn) {
                 const fallback = 'analysis.html';
                 const url = (custom.returnUrl && String(custom.returnUrl).trim()) ? String(custom.returnUrl) : fallback;
@@ -186,6 +187,7 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
                     location.href = url;
                 };
                 exitBtn.onclick = () => { window.customVocaGoBack(); };
+                if (mainBackBtn) mainBackBtn.onclick = () => { window.customVocaGoBack(); };
             }
 
             startStudy();
@@ -959,7 +961,8 @@ function shareKakao() {
     let displayDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
     if (localStorage.getItem(`trigger_session_${currentLevel}`) === '1' && displayDay > 1) displayDay--; 
 
-    const shareUrl = window.location.origin; 
+    const shareUrl = window.location.origin + '/share-entry.html?path=index.html'; 
+    const praiseShareUrl = window.location.origin + '/share-entry.html?path=index.html&praise=1';
     const acc = targetWords.length > 0 ? Math.floor((score/targetWords.length)*100) : 0; 
 
     // 화면(메인 대시보드)에 없는 데이터이므로 누적 단어수를 즉시 계산합니다.
@@ -988,8 +991,8 @@ function shareKakao() {
                     {
                         title: '👍 칭찬 응원 배지 보내기',
                         link: { 
-                            mobileWebUrl: shareUrl + '?praise=true', 
-                            webUrl: shareUrl + '?praise=true'
+                            mobileWebUrl: praiseShareUrl, 
+                            webUrl: praiseShareUrl
                         }
                     }
                 ]

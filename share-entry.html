@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사라져 VOCA - 공유 진입</title>
+    <meta name="theme-color" content="#000000">
+    <style>
+        :root {
+            --bg: #050505;
+            --card: #111;
+            --line: #333;
+            --txt: #fff;
+            --muted: #b0b0b0;
+            --accent: #00f3ff;
+            --warn: #ff9800;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--txt);
+            font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            width: 100%;
+            max-width: 520px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.08);
+        }
+        h1 { margin: 0 0 10px; font-size: 1.25rem; }
+        p { margin: 8px 0; line-height: 1.6; color: var(--muted); }
+        .status { color: var(--accent); font-weight: 700; margin-top: 8px; }
+        .btn {
+            width: 100%;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 12px;
+            font-weight: 800;
+            font-size: 0.98rem;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn-warn { background: var(--warn); color: #111; }
+        .btn-main { background: var(--accent); color: #111; }
+        .small { font-size: 0.86rem; }
+        .guide { margin-top: 10px; padding: 10px; border-radius: 10px; border: 1px solid #444; background: #0d0d0d; }
+        .hide { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>공유 링크 확인 중...</h1>
+        <p id="desc">최적의 방식으로 앱을 열고 있어요.</p>
+        <p id="status" class="status">환경을 확인하는 중입니다.</p>
+
+        <button id="open-external-btn" class="btn btn-warn hide">브라우저에서 열기</button>
+        <button id="continue-btn" class="btn btn-main hide">계속 진행하기</button>
+
+        <div id="guide" class="guide hide">
+            <p id="guide-text" class="small"></p>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const params = new URLSearchParams(location.search);
+            const path = (params.get('path') || '/index.html').trim();
+            const praise = params.get('praise') === '1';
+            const targetPath = path.startsWith('/') ? path : '/' + path;
+            const finalUrl = new URL(targetPath, location.origin);
+            if (praise) finalUrl.searchParams.set('praise', 'true');
+
+            const ua = navigator.userAgent || '';
+            const isKakao = /KAKAO/i.test(ua);
+            const isIOS = /iPhone|iPad|iPod/i.test(ua);
+            const isAndroid = /Android/i.test(ua);
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+            const descEl = document.getElementById('desc');
+            const statusEl = document.getElementById('status');
+            const openExternalBtn = document.getElementById('open-external-btn');
+            const continueBtn = document.getElementById('continue-btn');
+            const guide = document.getElementById('guide');
+            const guideText = document.getElementById('guide-text');
+
+            const goFinal = () => { location.replace(finalUrl.toString()); };
+
+            if (!isKakao || isStandalone) {
+                statusEl.textContent = '곧 메인 화면으로 이동합니다.';
+                setTimeout(goFinal, 350);
+                return;
+            }
+
+            descEl.textContent = '카카오톡 안에서는 설치 버튼이 보이지 않을 수 있어요.';
+            statusEl.textContent = '브라우저(크롬/사파리)로 열면 바로 설치할 수 있습니다.';
+
+            const externalUrl = `kakaotalk://web/openExternal?url=${encodeURIComponent(finalUrl.toString())}`;
+            openExternalBtn.classList.remove('hide');
+            continueBtn.classList.remove('hide');
+            guide.classList.remove('hide');
+
+            openExternalBtn.onclick = function () {
+                location.href = externalUrl;
+                setTimeout(function () {
+                    if (document.visibilityState === 'visible') {
+                        continueBtn.focus();
+                    }
+                }, 1200);
+            };
+            continueBtn.onclick = goFinal;
+
+            if (isAndroid) {
+                guideText.textContent = '안드로이드: 위 버튼으로 크롬에서 열면 설치 버튼이 바로 나옵니다.';
+            } else if (isIOS) {
+                guideText.textContent = '아이폰/아이패드: 사파리에서 열고 공유 버튼 -> 홈 화면에 추가를 눌러 주세요.';
+            } else {
+                guideText.textContent = '브라우저로 열면 설치와 로그인 흐름이 더 안정적으로 동작합니다.';
+            }
+        })();
+    </script>
+</body>
+</html>
