@@ -86,7 +86,7 @@
 
         <div id="ios-alert" class="ios-alert hide">
             <p class="ios-alert-title">아이폰/아이패드는 사파리에서 진행해 주세요</p>
-            <p class="ios-alert-desc">아래 버튼을 누른 뒤 크롬이 열리면, 사파리로 주소를 열어 홈 화면에 추가하면 가장 안정적입니다.</p>
+            <p class="ios-alert-desc">1) 아래 '브라우저에서 열기' 버튼을 누르세요.<br>2) 크롬이 열리면 주소를 복사해 사파리에서 열어주세요.<br>3) 사파리에서 더보기(공유) -> 홈 화면에 추가를 눌러주세요.</p>
         </div>
 
         <div id="guide" class="guide hide">
@@ -168,7 +168,7 @@
             } else if (isIOS) {
                 openExternalBtn.textContent = '브라우저에서 열기 (사파리 권장)';
                 if (iosAlert) iosAlert.classList.remove('hide');
-                guideText.textContent = '아이폰/아이패드: 사파리에서 열고 공유 버튼 -> 홈 화면에 추가를 눌러 주세요.';
+                guide.classList.add('hide');
             } else {
                 guideText.textContent = '브라우저로 열면 설치와 로그인 흐름이 더 안정적으로 동작합니다.';
             }
