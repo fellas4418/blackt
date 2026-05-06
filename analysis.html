@@ -170,7 +170,7 @@
 
     <script>
         // 🔥 하이라이트·단어 리스트에서 제외할 기능어(전치사/관사 등). 본문 클릭 시에는 아래 STOP_WORD_CLICK_MEANINGS 등으로 대표 뜻 제공.
-        const STOP_WORDS = new Set(['a', 'an', 'the', 'of', 'with', 'in', 'on', 'at', 'by', 'for', 'to', 'and', 'or', 'but', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'as', 'around', 'about', 'between', 'among', 'up', 'down', 'out', 'into', 'over', 'under', 'through', 'after', 'before', 'from', 'without', 'within', 'during', 'until', 'since', 'than', 'because', 'while', 'although', 'if', 'unless']);
+        const STOP_WORDS = new Set(['a', 'an', 'the', 'of', 'with', 'in', 'on', 'at', 'by', 'for', 'to', 'and', 'or', 'but', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'as', 'around', 'about', 'between', 'among', 'up', 'down', 'out', 'into', 'over', 'under', 'through', 'after', 'before', 'from', 'without', 'within', 'during', 'until', 'since', 'than', 'because', 'while', 'although', 'if', 'unless', 'all']);
 
         const STOP_WORD_CLICK_MEANINGS = {
             a: '불특정 단수 명사 앞 관사 (~한, 하나의)',
@@ -219,7 +219,8 @@
             while: '~하는 동안; 반면에',
             although: '~이지만',
             if: '~하면; 만약',
-            unless: '~하지 않는 한'
+            unless: '~하지 않는 한',
+            all: '모든 (~한); 전부; 모두 (~을)'
         };
 
         /** 전치사로 끝나는 2어절 구동사·숙어 (depend on, look at 등) */
@@ -817,22 +818,6 @@
                     let mapMean = robustSearchMap(w);
                     if (mapMean) return { mean: mapMean, lvl: "other" };
                 }
-                if (!rWord.includes(' ')) {
-                    const rw = String(rWord || '').toLowerCase().replace(/[^a-z-]/g, '');
-                    const hay = (typeof window.__triggerPassagePlainLower === 'string' && window.__triggerPassagePlainLower) ? window.__triggerPassagePlainLower : '';
-                    if (rw && hay) {
-                        let best = null;
-                        for (const kw of aiKeywordsObj) {
-                            const e = String(kw.eng || '').trim();
-                            if (!/\s/.test(e) || !kw.kor) continue;
-                            if (!phraseAppearsInPassageBoundaries(e, hay)) continue;
-                            const parts = e.toLowerCase().split(/\s+/).map(p => p.replace(/[^a-z-]/g, ''));
-                            if (!parts.includes(rw)) continue;
-                            if (!best || e.length > best.len) best = { len: e.length, eng: e, mean: kw.kor, lvl: kw.level || 'other' };
-                        }
-                        if (best) return { mean: `「${best.eng}」(숙어): ${best.mean}`, lvl: best.lvl };
-                    }
-                }
                 return null;
             };
 
@@ -1238,7 +1223,6 @@
 
             const keywordArray = Array.isArray(res.keywords) ? res.keywords : [];
             const passagePlainForSupplement = (res.full_translation || []).map(x => String(x.eng || '')).join(' ').toLowerCase();
-            try { window.__triggerPassagePlainLower = passagePlainForSupplement; } catch (e) {}
             const properNounHints = collectProperNounHintsFromPassage(res.full_translation);
 
             keywordArray.forEach((kw, kwLineIdx) => {
@@ -1505,6 +1489,8 @@
                                     for (let kw of aiKeywordsObj) {
                                         const kwEng = String(kw.eng || '').toLowerCase();
                                         if (kwEng.includes(' ')) {
+                                            const phraseKey = kwEng.replace(/\s+/g, ' ').trim();
+                                            if (IMPORTANT_CONNECTIVE_PHRASES.has(phraseKey)) continue;
                                             const kwParts = kwEng.split(/\s+/).map(p => p.replace(/[^a-z-]/g, ''));
                                             const wordIdxInIdiom = kwParts.indexOf(cleanW);
                                             
