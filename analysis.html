@@ -873,10 +873,7 @@
 
             localStorage.setItem('voca_practice_list', JSON.stringify(practiceData));
             localStorage.setItem('trigger_custom_voca_mode', 'saved_voca');
-            const retUrl = new URL(location.href);
-            retUrl.hash = '';
-            retUrl.searchParams.delete('open_note');
-            localStorage.setItem('trigger_custom_voca_return_url', retUrl.toString() + '#analysis-restore');
+            localStorage.setItem('trigger_custom_voca_return_url', 'index.html?tab=analysis');
             location.href = 'study.html';
         }
 
