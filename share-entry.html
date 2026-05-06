@@ -39,27 +39,6 @@
         h1 { margin: 0 0 10px; font-size: 1.25rem; }
         p { margin: 8px 0; line-height: 1.6; color: var(--muted); }
         .status { color: var(--accent); font-weight: 700; margin-top: 8px; }
-        .install-state {
-            margin-top: 10px;
-            display: inline-block;
-            padding: 6px 10px;
-            border-radius: 999px;
-            font-size: 0.82rem;
-            font-weight: 800;
-            border: 1px solid #444;
-            background: #0f0f0f;
-            color: #cfd8dc;
-        }
-        .install-state.installed {
-            border-color: #2e7d32;
-            background: rgba(46, 125, 50, 0.2);
-            color: #8ef59a;
-        }
-        .install-state.not-installed {
-            border-color: #ff9800;
-            background: rgba(255, 152, 0, 0.15);
-            color: #ffd08a;
-        }
         .btn {
             width: 100%;
             border: none;
@@ -82,7 +61,6 @@
         <h1>공유 링크 확인 중...</h1>
         <p id="desc">최적의 방식으로 앱을 열고 있어요.</p>
         <p id="status" class="status">환경을 확인하는 중입니다.</p>
-        <div id="install-state" class="install-state">앱 설치 상태 확인 중...</div>
 
         <button id="open-external-btn" class="btn btn-warn hide">브라우저에서 열기</button>
         <button id="continue-btn" class="btn btn-main hide">계속 진행하기</button>
@@ -113,21 +91,8 @@
             const continueBtn = document.getElementById('continue-btn');
             const guide = document.getElementById('guide');
             const guideText = document.getElementById('guide-text');
-            const installStateEl = document.getElementById('install-state');
 
             const goFinal = () => { location.replace(finalUrl.toString()); };
-            const setInstallState = (installed) => {
-                if (!installStateEl) return;
-                installStateEl.classList.remove('installed', 'not-installed');
-                if (installed) {
-                    installStateEl.classList.add('installed');
-                    installStateEl.textContent = '이 기기: 앱 설치됨';
-                } else {
-                    installStateEl.classList.add('not-installed');
-                    installStateEl.textContent = '이 기기: 앱 미설치';
-                }
-            };
-            setInstallState(!!isStandalone);
 
             if (!isKakao || isStandalone) {
                 statusEl.textContent = '곧 메인 화면으로 이동합니다.';
