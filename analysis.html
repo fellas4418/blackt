@@ -1489,8 +1489,6 @@
                                     for (let kw of aiKeywordsObj) {
                                         const kwEng = String(kw.eng || '').toLowerCase();
                                         if (kwEng.includes(' ')) {
-                                            const phraseKey = kwEng.replace(/\s+/g, ' ').trim();
-                                            if (IMPORTANT_CONNECTIVE_PHRASES.has(phraseKey)) continue;
                                             const kwParts = kwEng.split(/\s+/).map(p => p.replace(/[^a-z-]/g, ''));
                                             const wordIdxInIdiom = kwParts.indexOf(cleanW);
                                             
