@@ -53,6 +53,25 @@
         .btn-main { background: var(--accent); color: #111; }
         .small { font-size: 0.86rem; }
         .guide { margin-top: 10px; padding: 10px; border-radius: 10px; border: 1px solid #444; background: #0d0d0d; }
+        .ios-alert {
+            margin-top: 12px;
+            padding: 14px;
+            border-radius: 12px;
+            border: 2px solid #ff9800;
+            background: rgba(255, 152, 0, 0.16);
+        }
+        .ios-alert-title {
+            margin: 0 0 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            color: #ffd08a;
+        }
+        .ios-alert-desc {
+            margin: 0;
+            font-size: 0.92rem;
+            line-height: 1.6;
+            color: #ffe5be;
+        }
         .hide { display: none !important; }
     </style>
 </head>
@@ -64,6 +83,11 @@
 
         <button id="open-external-btn" class="btn btn-warn hide">브라우저에서 열기</button>
         <button id="continue-btn" class="btn btn-main hide">계속 진행하기</button>
+
+        <div id="ios-alert" class="ios-alert hide">
+            <p class="ios-alert-title">아이폰/아이패드는 사파리에서 진행해 주세요</p>
+            <p class="ios-alert-desc">아래 버튼을 누른 뒤 크롬이 열리면, 사파리로 주소를 열어 홈 화면에 추가하면 가장 안정적입니다.</p>
+        </div>
 
         <div id="guide" class="guide hide">
             <p id="guide-text" class="small"></p>
@@ -110,6 +134,7 @@
             const continueBtn = document.getElementById('continue-btn');
             const guide = document.getElementById('guide');
             const guideText = document.getElementById('guide-text');
+            const iosAlert = document.getElementById('ios-alert');
 
             const goFinal = () => { location.replace(finalUrl.toString()); };
 
@@ -138,8 +163,11 @@
             continueBtn.onclick = goFinal;
 
             if (isAndroid) {
+                openExternalBtn.textContent = '크롬/브라우저로 열기';
                 guideText.textContent = '안드로이드: 위 버튼으로 크롬에서 열면 설치 버튼이 바로 나옵니다.';
             } else if (isIOS) {
+                openExternalBtn.textContent = '브라우저에서 열기 (사파리 권장)';
+                if (iosAlert) iosAlert.classList.remove('hide');
                 guideText.textContent = '아이폰/아이패드: 사파리에서 열고 공유 버튼 -> 홈 화면에 추가를 눌러 주세요.';
             } else {
                 guideText.textContent = '브라우저로 열면 설치와 로그인 흐름이 더 안정적으로 동작합니다.';
