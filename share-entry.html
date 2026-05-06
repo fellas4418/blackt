@@ -77,10 +77,9 @@
 </head>
 <body>
     <div class="card">
-        <h1>공유 링크 확인 중...</h1>
-        <p id="desc">최적의 방식으로 앱을 열고 있어요.</p>
-        <p id="status" class="status">환경을 확인하는 중입니다.</p>
-        <p style="margin-top:4px; font-size:0.9rem; color:#9ad7dd;">앱처럼 설치해서 사용하면 다음 접속부터 훨씬 빠르고 편합니다.</p>
+        <h1>이용 방법 안내</h1>
+        <p id="desc"></p>
+        <p id="status" class="status"></p>
 
         <button id="open-external-btn" class="btn btn-warn hide">브라우저에서 열기</button>
         <button id="continue-btn" class="btn btn-main hide">계속 진행하기</button>
@@ -140,13 +139,14 @@
             const goFinal = () => { location.replace(finalUrl.toString()); };
 
             if (!isKakao || isStandalone) {
+                descEl.textContent = '';
                 statusEl.textContent = '곧 메인 화면으로 이동합니다.';
                 setTimeout(goFinal, 350);
                 return;
             }
 
-            descEl.textContent = '카카오톡 안에서는 설치 버튼이 보이지 않습니다.';
-            statusEl.textContent = '브라우저(크롬/사파리)로 열면 바로 설치할 수 있습니다.';
+            descEl.textContent = '';
+            statusEl.textContent = '브라우저(크롬/사파리)로 열면 앱처럼 설치해서 편리하게 사용할 수 있습니다.';
 
             const externalUrl = `kakaotalk://web/openExternal?url=${encodeURIComponent(finalUrl.toString())}`;
             openExternalBtn.classList.remove('hide');
