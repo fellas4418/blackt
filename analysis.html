@@ -283,9 +283,9 @@
                     eng: phraseSeenKey,
                     kor: String(kor).trim(),
                     level: dbPhrase ? dbPhrase.level : 'other',
-                    _ordA: passageFirstAppearanceOrderBest({ eng: phraseSeenKey, kor: '' }, passageLower),
+                    _ordA: passageFirstAppearanceOrder({ eng: phraseSeenKey, kor: '' }, passageLower),
                     _ordB: 0,
-                    _kwLineIdx: 200000 + idx++
+                    _kwLineIdx: idx++
                 });
                 seenWords.add(phraseSeenKey);
             });
@@ -531,7 +531,9 @@
 
         /** 단·복수·어형 변화까지 감안해 지문에서 첫 위치(정렬·등장 판별용) */
         function passageFirstAppearanceOrderBest(entry, passageLower) {
-            const L = String(entry.eng || '').trim().toLowerCase().replace(/[^a-z-]/g, '');
+            const engRaw = String(entry.eng || '').trim();
+            if (/\s/.test(engRaw)) return passageFirstAppearanceOrder(entry, passageLower);
+            const L = engRaw.toLowerCase().replace(/[^a-z-]/g, '');
             if (!L) return 999999;
             const candidates = new Set([L]);
             if (L.length > 2) candidates.add(L + 's');
@@ -814,6 +816,22 @@
                 for (let w of forms) {
                     let mapMean = robustSearchMap(w);
                     if (mapMean) return { mean: mapMean, lvl: "other" };
+                }
+                if (!rWord.includes(' ')) {
+                    const rw = String(rWord || '').toLowerCase().replace(/[^a-z-]/g, '');
+                    const hay = (typeof window.__triggerPassagePlainLower === 'string' && window.__triggerPassagePlainLower) ? window.__triggerPassagePlainLower : '';
+                    if (rw && hay) {
+                        let best = null;
+                        for (const kw of aiKeywordsObj) {
+                            const e = String(kw.eng || '').trim();
+                            if (!/\s/.test(e) || !kw.kor) continue;
+                            if (!phraseAppearsInPassageBoundaries(e, hay)) continue;
+                            const parts = e.toLowerCase().split(/\s+/).map(p => p.replace(/[^a-z-]/g, ''));
+                            if (!parts.includes(rw)) continue;
+                            if (!best || e.length > best.len) best = { len: e.length, eng: e, mean: kw.kor, lvl: kw.level || 'other' };
+                        }
+                        if (best) return { mean: `「${best.eng}」(숙어): ${best.mean}`, lvl: best.lvl };
+                    }
                 }
                 return null;
             };
@@ -1220,6 +1238,7 @@
 
             const keywordArray = Array.isArray(res.keywords) ? res.keywords : [];
             const passagePlainForSupplement = (res.full_translation || []).map(x => String(x.eng || '')).join(' ').toLowerCase();
+            try { window.__triggerPassagePlainLower = passagePlainForSupplement; } catch (e) {}
             const properNounHints = collectProperNounHintsFromPassage(res.full_translation);
 
             keywordArray.forEach((kw, kwLineIdx) => {
