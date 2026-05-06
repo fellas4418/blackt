@@ -86,7 +86,7 @@
 
         <div id="ios-alert" class="ios-alert hide">
             <p class="ios-alert-title">아이폰/아이패드는 사파리에서 진행해 주세요</p>
-            <p class="ios-alert-desc">1) 아래 '브라우저에서 열기' 버튼을 누르세요.<br>2) 크롬이 열리면 주소를 복사해 사파리에서 열어주세요.<br>3) 사파리에서 더보기(공유) -> 홈 화면에 추가를 눌러주세요.</p>
+            <p class="ios-alert-desc">1) 위의 '브라우저에서 열기' 버튼을 누르세요.<br>2) 크롬이 열리면 주소를 복사해 사파리에서 열어주세요.<br>3) 사파리에서 더보기(공유) -> 홈 화면에 추가를 눌러주세요.</p>
         </div>
 
         <div id="guide" class="guide hide">
@@ -163,8 +163,8 @@
             continueBtn.onclick = goFinal;
 
             if (isAndroid) {
-                openExternalBtn.textContent = '크롬/브라우저로 열기';
-                guideText.textContent = '안드로이드: 위 버튼으로 크롬에서 열면 설치 버튼이 바로 나옵니다.';
+                openExternalBtn.textContent = '크롬 브라우저로 열기';
+                guide.classList.add('hide');
             } else if (isIOS) {
                 openExternalBtn.textContent = '브라우저에서 열기 (사파리 권장)';
                 if (iosAlert) iosAlert.classList.remove('hide');
