@@ -304,7 +304,7 @@
                     🎯 엔딩 화면 강제 확인 (Day 70)
                 </button>
             
-                <button onclick="if(confirm('정말 모든 데이터를 초기화할까요?')) { localStorage.clear(); location.reload(); }" style="background: none; border: none; color: #666; text-decoration: underline; cursor: pointer; font-size: 0.8rem; margin-top:5px;">
+                <button onclick="if(confirm('정말 모든 데이터를 초기화할까요?')) { clearAllAppDataForTest(); }" style="background: none; border: none; color: #666; text-decoration: underline; cursor: pointer; font-size: 0.8rem; margin-top:5px;">
                     🔄 데이터 완전 초기화
                 </button>
             </div>
@@ -467,6 +467,22 @@
                 if (!token) return;
                 document.cookie = `trigger_auth_v1=${token}; Max-Age=${60 * 60 * 24 * 30}; Path=/; SameSite=Lax`;
             } catch (e) {}
+        }
+
+        function clearLoginMirror() {
+            try {
+                document.cookie = 'trigger_auth_v1=; Max-Age=0; Path=/; SameSite=Lax';
+                document.cookie = 'trigger_auth_v1=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/; SameSite=Lax';
+            } catch (e) {}
+        }
+
+        function clearAllAppDataForTest() {
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+                clearLoginMirror();
+            } catch (e) {}
+            location.reload();
         }
 
         function getCookie(name) {
