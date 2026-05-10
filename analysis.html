@@ -1116,11 +1116,13 @@
                             let levelTag = item.level === 'middle' ? '<span class="kw-tag kw-mid">중등</span>' : 
                                            item.level === 'high' ? '<span class="kw-tag kw-high">고등</span>' : '';
                             html += `
-                                <div style="background: rgba(181, 55, 242, 0.05); border-left: 3px solid #bc13fe; padding: 12px; margin-bottom: 12px; border-radius: 4px; position: relative;">
-                                    <button onclick="deleteNoteItem('voca', ${idx}, event)" style="position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #888; font-size: 1.2rem; cursor: pointer;">×</button>
-                                    <div style="margin-bottom:6px;">${levelTag}</div>
-                                    <strong style="color:#d789ff; display:block; margin-bottom:4px; padding-right:20px;">⚡ ${item.eng}</strong>
-                                    <div style="color:#ddd; font-size:0.85rem; font-style:italic; margin-bottom:6px;">${item.kor}</div>
+                                <div class="kw-container" style="background:#1a1a1a;">
+                                    <div>
+                                        ${levelTag}
+                                        <strong style="color:#fff; font-size:1.05rem;">${item.eng}</strong> 
+                                        <span style="color:#aaa; font-size:0.9rem; margin-left:6px;">${item.kor}</span>
+                                    </div>
+                                    <button onclick="deleteNoteItem('voca', ${idx}, event)" style="background:transparent; border:none; color:#888; font-size:1.1rem; cursor:pointer;">×</button>
                                 </div>
                             `;
                         }
