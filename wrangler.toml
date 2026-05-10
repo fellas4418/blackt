@@ -6,3 +6,5 @@ compatibility_date = "2026-05-04"
 binding = "DB"
 database_name = "blackt"
 database_id = "712accf3-9e1d-4de7-8274-dbe5975ae5fc"
+
+# /api/payment/confirm 검증용: wrangler secret put API_SECRET_KEY

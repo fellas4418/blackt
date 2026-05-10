@@ -72,6 +72,8 @@
             box-shadow: 0 0 6px rgba(0, 243, 255, 0.45);
         }
 
+        .topic-focus-card .topic-focus-inner { position: relative; z-index: 1; }
+
         #note-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 30000; padding: 20px; box-sizing: border-box; }
         .modal-card { background: #111; border: 1px solid #666; box-shadow: 0 0 15px rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px; width: 90%; max-width: 450px; text-align: center; max-height: 85vh; overflow-y: hidden; display: flex; flex-direction: column; box-sizing: border-box; }
         .modal-title { font-size: 1.3rem; font-weight: bold; margin-bottom: 15px; color: #fff; }
@@ -315,8 +317,37 @@
         let savedGrammarCache = [];
         let authUserId = '';
         let authPassword = '';
+        let isPremiumUser = false;
         let quickReviewEntry = false;
         let noteSyncResolved = false;
+
+        const TOPIC_REVEAL_STORAGE_KEY = 'trigger_topic_reveal_daily_v1';
+        const FREE_TOPIC_REVEALS_PER_DAY = 2;
+        const PREMIUM_PAYMENT_URL = 'https://tri3.imweb.me/';
+
+        function topicRevealTodayKey() {
+            try {
+                return new Date().toLocaleDateString('en-CA');
+            } catch (e) {
+                return new Date().toISOString().slice(0, 10);
+            }
+        }
+
+        /** 무료·비회원: 하루 2회까지 주제·키워드 섹션 공개. 3회째부터 잠금. 프리미엄은 항상 공개. */
+        function evaluateTopicSectionReveal() {
+            if (isPremiumUser) return { locked: false };
+            const today = topicRevealTodayKey();
+            let o = {};
+            try {
+                o = JSON.parse(localStorage.getItem(TOPIC_REVEAL_STORAGE_KEY) || '{}');
+            } catch (e) {}
+            if (o.date !== today) o = { date: today, count: 0 };
+            const n = Number(o.count) || 0;
+            if (n >= FREE_TOPIC_REVEALS_PER_DAY) return { locked: true };
+            o.count = n + 1;
+            localStorage.setItem(TOPIC_REVEAL_STORAGE_KEY, JSON.stringify({ date: today, count: o.count }));
+            return { locked: false };
+        }
 
         function setAuthStatus(msg, isError = false) {
             const el = document.getElementById('auth-status');
@@ -359,6 +390,7 @@
 
         async function syncLoad() {
             const data = await postJson('/api/sync/load', { user_id: authUserId, password: authPassword });
+            isPremiumUser = Number(data.is_premium) === 1;
             savedVocaCache = Array.isArray(data.saved_voca) ? data.saved_voca : [];
             savedGrammarCache = Array.isArray(data.saved_grammar) ? data.saved_grammar : [];
             noteSyncResolved = true;
@@ -377,7 +409,8 @@
             sessionStorage.setItem('trigger_auth_user', authUserId);
             await syncLoad();
             setAnalysisEnabled(true);
-            setAuthStatus(`자동 연결 완료 · 단어 ${savedVocaCache.length}개 · 문법 ${savedGrammarCache.length}개 동기화됨`);
+            const premHint = isPremiumUser ? ' · 정답 근거(주제문·키워드) 무제한' : '';
+            setAuthStatus(`자동 연결 완료 · 단어 ${savedVocaCache.length}개 · 문법 ${savedGrammarCache.length}개 동기화됨${premHint}`);
         }
 
         async function tryAutoLoginByProfile() {
@@ -1563,10 +1596,24 @@
                             <p style="font-size:0.8rem; color:#777; margin:0; line-height:1.45;">보기 중 위 표현들을 <strong style="color:#aaa;">가장 잘 함께 담고 있는</strong> 선택지가 정답에 가깝습니다.</p>
                         </div>`;
                 }
+                const topicReveal = evaluateTopicSectionReveal();
+                const topicLocked = topicReveal.locked;
+                const lockOverlay = topicLocked ? `
+                    <div style="position:absolute; inset:0; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:22px 16px; text-align:center; z-index:4; box-sizing:border-box; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); background: rgba(5,5,5,0.55);">
+                        <p style="margin:0 0 16px; font-size:0.92rem; line-height:1.55; color:#eee; max-width:320px;">오늘의 정답 열쇠 확인 횟수(2회)를 초과했습니다. 3시간 영문법 수강생은 모든 지문의 정답 근거를 무제한으로 확인할 수 있습니다.</p>
+                        <button type="button" style="padding:14px 22px; border-radius:12px; border:none; font-weight:bold; font-size:0.95rem; cursor:pointer; background: linear-gradient(135deg, #9fe870, #39ff14); color:#000; box-shadow: 0 0 20px rgba(57,255,20,0.35);" onclick="window.location.href='${PREMIUM_PAYMENT_URL}'">결제하고 무제한 열기</button>
+                    </div>` : '';
+                const innerBlur = topicLocked ? 'filter: blur(8px); pointer-events: none; user-select: none;' : '';
                 topicFocusHtml = `
-                <div class="result-card" style="border-color: var(--neon-blue);">
-                    <span class="result-label" style="color:var(--neon-blue);">📍 주제문 · 주제 찾기 단서</span>
-                    <div class="result-content">${tfInner}</div>
+                <div class="result-card topic-focus-card" style="border-color: #9fe870; box-shadow: 0 0 18px rgba(159, 232, 112, 0.12);">
+                    <span class="result-label" style="color:#9fe870; margin-bottom:4px;">🔐 지문 속 정답 근거 · 주제문 &amp; 주제 찾기 키워드</span>
+                    <div style="font-size:0.8rem; color:#bbb; line-height:1.55; margin-bottom:12px; padding:10px 12px; background:rgba(159,232,112,0.07); border-radius:10px; border:1px solid rgba(159,232,112,0.28);">
+                        <strong style="color:#d8ffc4;">실전 정답 직결</strong> — 단순 요약이 아니라, <strong style="color:#fff;">지문 원문에서 발췌한 주제문</strong>(있을 때)과 <strong style="color:#fff;">보기 판별용 핵심 키워드 2~4개</strong>입니다. 주제·요지·제목 유형에서 정답 근거로 쓰세요.
+                    </div>
+                    <div class="result-content" style="position:relative; min-height:72px; overflow:hidden; border-radius:12px;">
+                        <div class="topic-focus-inner" style="${innerBlur}">${tfInner}</div>
+                        ${lockOverlay}
+                    </div>
                 </div>`;
             }
 

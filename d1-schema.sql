@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS users (
   id TEXT PRIMARY KEY,
-  password_hash TEXT NOT NULL
+  password_hash TEXT NOT NULL,
+  is_premium INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS saved_voca (

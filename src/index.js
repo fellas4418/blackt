@@ -1,7 +1,7 @@
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-API-Secret",
 };
 
 function json(data, status = 200) {
@@ -170,11 +170,53 @@ async function handleSyncLoad(env, body) {
     "SELECT point, sentence, explanation, passage_title AS passageTitle FROM saved_grammar WHERE user_id = ?1 ORDER BY id DESC"
   ).bind(userId).all();
 
+  const premRow = await env.DB.prepare("SELECT is_premium FROM users WHERE id = ?1").bind(userId).first();
+  const isPremium = premRow && Number(premRow.is_premium) === 1 ? 1 : 0;
+
   return json({
     ok: true,
     saved_voca: vocaRows.results || [],
     saved_grammar: grammarRows.results || [],
+    is_premium: isPremium,
   });
+}
+
+function verifyPaymentSecret(env, request, body) {
+  const expected = String(env.API_SECRET_KEY || "").trim();
+  if (!expected) return false;
+  const headerSecret = String(request.headers.get("X-API-Secret") || request.headers.get("x-api-secret") || "").trim();
+  const auth = String(request.headers.get("Authorization") || "").trim();
+  const bearer = auth.toLowerCase().startsWith("bearer ") ? auth.slice(7).trim() : "";
+  const bodySecret = String(body.api_secret_key || body.API_SECRET_KEY || "").trim();
+  if (headerSecret === expected) return true;
+  if (bearer === expected) return true;
+  if (bodySecret === expected) return true;
+  return false;
+}
+
+async function handlePaymentConfirm(env, request) {
+  let body = {};
+  try {
+    body = await request.json();
+  } catch {
+    return json({ error: "invalid_json" }, 400);
+  }
+  if (!verifyPaymentSecret(env, request, body)) {
+    return json({ error: "unauthorized" }, 401);
+  }
+  const userId = String(body.user_id || body.userId || "").trim();
+  if (!userId) return json({ error: "user_id가 필요합니다." }, 400);
+
+  const existing = await env.DB.prepare("SELECT id FROM users WHERE id = ?1").bind(userId).first();
+  if (!existing) return json({ error: "해당 user_id를 찾을 수 없습니다." }, 404);
+
+  await env.DB.prepare("UPDATE users SET is_premium = 1 WHERE id = ?1").bind(userId).run();
+
+  const verify = await env.DB.prepare("SELECT is_premium FROM users WHERE id = ?1").bind(userId).first();
+  const okPremium = verify && Number(verify.is_premium) === 1;
+  if (!okPremium) return json({ error: "is_premium 반영에 실패했습니다. DB 스키마를 확인해 주세요." }, 500);
+
+  return json({ ok: true, user_id: userId, is_premium: 1 });
 }
 
 async function handleSyncDelete(env, body) {
@@ -246,6 +288,9 @@ export default {
       }
       if (request.method === "POST" && path === "/api/sync/delete") {
         return handleSyncDelete(env, await request.json());
+      }
+      if (request.method === "POST" && path === "/api/payment/confirm") {
+        return handlePaymentConfirm(env, request);
       }
       if (request.method === "POST" && path === "/api/analyze") {
         return handleGeminiProxy(env, request);
