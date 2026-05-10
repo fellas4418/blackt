@@ -1155,8 +1155,8 @@
         }
 
         let loadingInterval;
-        function startLoadingText() {
-            const btn = document.getElementById('ocr-btn') || document.getElementById('run-btn');
+        function startLoadingText(btnEl) {
+            const btn = btnEl || document.getElementById('ocr-btn') || document.getElementById('run-btn');
             if (!btn) return;
             
             const messages = [
@@ -1641,7 +1641,7 @@
             }
 
             if (activeBtn) activeBtn.disabled = true;
-            startLoadingText();
+            startLoadingText(activeBtn);
 
             try {
                 async function requestAnalyze(payload) {

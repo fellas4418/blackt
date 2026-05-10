@@ -952,59 +952,95 @@ function retryOnlyWrongs() {
 }
 
 // [수정 완료] 학습 종료 후 나타나는 카카오톡 공유 기능
+function copyTextForShareFallback(text) {
+    try {
+        if (navigator.clipboard && window.isSecureContext) {
+            return navigator.clipboard.writeText(text).then(() => true);
+        }
+    } catch (e) {}
+    return new Promise((resolve) => {
+        try {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.setAttribute('readonly', '');
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            ta.setSelectionRange(0, text.length);
+            const ok = document.execCommand('copy');
+            document.body.removeChild(ta);
+            resolve(ok);
+        } catch (e) {
+            resolve(false);
+        }
+    });
+}
+
 function shareKakao() {
-    if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
-        Kakao.init('fbb1520306ffaad0a882e993109a801c'); 
-    }
-    
     const userName = localStorage.getItem('trigger_name') || '학습자';
     let displayDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
-    if (localStorage.getItem(`trigger_session_${currentLevel}`) === '1' && displayDay > 1) displayDay--; 
+    if (localStorage.getItem(`trigger_session_${currentLevel}`) === '1' && displayDay > 1) displayDay--;
 
-    const shareUrl = window.location.origin + '/share-entry.html?path=index.html'; 
+    const shareUrl = window.location.origin + '/share-entry.html?path=index.html';
     const praiseShareUrl = window.location.origin + '/share-entry.html?path=index.html&praise=1';
-    const acc = targetWords.length > 0 ? Math.floor((score/targetWords.length)*100) : 0; 
 
-    // 화면(메인 대시보드)에 없는 데이터이므로 누적 단어수를 즉시 계산합니다.
     let learnedTotal = 0;
     let unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
-    for (let i = 1; i < unlockedDay; i++) { 
+    for (let i = 1; i < unlockedDay; i++) {
         if (i % 7 === 6 || i % 7 === 0) continue;
         learnedTotal += getWordsForDay(currentLevel, i).length;
     }
 
-    if (typeof Kakao !== 'undefined' && Kakao.isInitialized()) {
-        try {
-            Kakao.Share.sendDefault({
-                objectType: 'feed',
-                content: { 
-                    title: `🔥 [${userName}]님, 단어 학습 완료!`, 
-                    description: `누적 클리어: ${learnedTotal} 단어\n오늘의 진도: Day ${displayDay}\n\n오늘도 목표를 달성했습니다! 칭찬 배지를 보내주세요.`, 
-                    imageUrl: 'https://blackt.pages.dev/share-v2.png', 
-                    link: { mobileWebUrl: shareUrl, webUrl: shareUrl } 
-                },
-                buttons: [
-                    {
-                        title: '결과 자세히 보기',
-                        link: { mobileWebUrl: shareUrl, webUrl: shareUrl }
-                    },
-                    {
-                        title: '👍 칭찬 응원 배지 보내기',
-                        link: { 
-                            mobileWebUrl: praiseShareUrl, 
-                            webUrl: praiseShareUrl
-                        }
-                    }
-                ]
-            });
-        } catch(e) {
-            navigator.clipboard.writeText(shareUrl).then(() => { alert("카카오톡 연결 에러로 링크가 복사되었습니다!"); });
+    const alertCopied = () => {
+        alert('✅ 공유 링크를 복사했어요.\n카톡 채팅창에 길게 눌러 붙여넣기로 보내 주세요.');
+    };
+    const alertCopyFailed = () => {
+        alert('링크를 자동으로 복사하지 못했어요. 아래 주소를 직접 복사해 주세요.\n\n' + shareUrl);
+    };
+    const runClipboardFallback = () => {
+        copyTextForShareFallback(shareUrl).then((ok) => (ok ? alertCopied() : alertCopyFailed()));
+    };
+
+    try {
+        if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
+            Kakao.init('fbb1520306ffaad0a882e993109a801c');
         }
-    } else {
-        // 카카오 설정 전 예외 처리 (기존 링크 복사)
-        navigator.clipboard.writeText(shareUrl).then(() => { alert("✅ 링크가 복사되었습니다!"); });
+    } catch (e) {
+        runClipboardFallback();
+        return;
+    }
+
+    if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) {
+        runClipboardFallback();
+        return;
+    }
+
+    const payload = {
+        objectType: 'feed',
+        content: {
+            title: `🔥 [${userName}]님, 단어 학습 완료!`,
+            description: `누적 클리어: ${learnedTotal} 단어\n오늘의 진도: Day ${displayDay}\n\n오늘도 목표를 달성했습니다! 칭찬 배지를 보내주세요.`,
+            imageUrl: 'https://blackt.pages.dev/share-v2.png',
+            link: { mobileWebUrl: shareUrl, webUrl: shareUrl }
+        },
+        buttons: [
+            { title: '결과 자세히 보기', link: { mobileWebUrl: shareUrl, webUrl: shareUrl } },
+            { title: '👍 칭찬 응원 배지 보내기', link: { mobileWebUrl: praiseShareUrl, webUrl: praiseShareUrl } }
+        ]
+    };
+
+    try {
+        const ret = Kakao.Share.sendDefault(payload);
+        if (ret && typeof ret.then === 'function') {
+            ret.catch(() => runClipboardFallback());
+        }
+    } catch (e) {
+        runClipboardFallback();
     }
 }
+
+window.shareKakao = shareKakao;
 
 window.jumpToSession = function(n) {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
