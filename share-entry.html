@@ -108,8 +108,15 @@
             const params = new URLSearchParams(location.search);
             const path = (params.get('path') || '/index.html').trim();
             const praise = params.get('praise') === '1';
-            const targetPath = path.startsWith('/') ? path : '/' + path;
-            const finalUrl = new URL(targetPath, location.origin);
+            const resolveTargetUrl = (rawPath) => {
+                try {
+                    const normalizedPath = rawPath.startsWith('/') ? rawPath : '/' + rawPath;
+                    const url = new URL(normalizedPath, location.origin);
+                    if (url.origin === location.origin) return url;
+                } catch (e) {}
+                return new URL('/index.html', location.origin);
+            };
+            const finalUrl = resolveTargetUrl(path);
             if (praise) finalUrl.searchParams.set('praise', 'true');
 
             // 같은 기기에서 카톡 인앱 -> 외부 브라우저로 이동할 때 가입 상태를 1회 전달합니다.
