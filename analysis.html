@@ -136,6 +136,92 @@
                 지문 복사/붙여넣기로 분석하기 ✍️
             </button>
         </div>
+
+        <div class="guide-box" style="border-color: rgba(159,232,112,0.5); margin-top: 22px;">
+            <p class="guide-title" style="color:#9fe870;">📊 시험 분석 리포트</p>
+            <p class="guide-text">시험지 사진을 올리면 문항·배점을 AI가 읽고, 오답·서술 점수·유형별 그래프·진단 리포트를 만듭니다. (이름·학년은 메인 프로필에서만 사용합니다.)</p>
+            <button type="button" id="exam-report-open-btn" class="login-btn" style="width:100%; margin-top:12px; border-color:#9fe870; color:#9fe870; background:rgba(159,232,112,0.08);">
+                시험 분석 리포트 생성
+            </button>
+        </div>
+    </div>
+
+    <div id="exam-report-workspace" style="display:none; margin-top:10px;">
+        <div class="guide-box" style="border-color:#9fe870;">
+            <p class="guide-title" style="color:#9fe870;">촬영 가이드</p>
+            <p class="guide-text" style="color:#ffcc80;font-weight:bold;">1쪽부터 마지막 서술형까지 다 찍어야 정확한 리포트가 나옵니다.</p>
+        </div>
+        <div class="result-card" style="margin-top:12px;">
+            <span class="result-label" style="color:#9fe870;">학생 정보 (전화번호 미사용)</span>
+            <div style="display:grid; gap:10px;">
+                <div><span style="font-size:0.8rem;color:#888;">이름</span><div id="exam-rpt-display-name" style="font-weight:bold;"></div></div>
+                <div><span style="font-size:0.8rem;color:#888;">학년</span><div id="exam-rpt-display-grade" style="font-weight:bold;"></div></div>
+                <label style="font-size:0.85rem;color:#ccc;">학교 이름
+                    <input type="text" id="exam-rpt-school" class="auth-input" style="width:100%; margin-top:4px; box-sizing:border-box;" placeholder="예: ○○중학교" maxlength="80">
+                </label>
+                <label style="font-size:0.85rem;color:#ccc;">시험 종류
+                    <select id="exam-rpt-exam-type" class="auth-input" style="width:100%; margin-top:4px;">
+                        <option value="">선택</option>
+                        <optgroup label="1학기">
+                            <option value="1s-mid">1학기 중간</option>
+                            <option value="1s-fin">1학기 기말</option>
+                        </optgroup>
+                        <optgroup label="2학기">
+                            <option value="2s-mid">2학기 중간</option>
+                            <option value="2s-fin">2학기 기말</option>
+                        </optgroup>
+                        <optgroup label="모의고사">
+                            <option value="mock-3">3월 모의고사</option>
+                            <option value="mock-6">6월 모의고사</option>
+                            <option value="mock-9">9월 모의고사</option>
+                            <option value="mock-10">10월 모의고사</option>
+                        </optgroup>
+                    </select>
+                </label>
+            </div>
+        </div>
+        <div class="result-card">
+            <span class="result-label">시험지 사진</span>
+            <input type="file" id="exam-rpt-files" accept="image/*" multiple style="display:none;">
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button type="button" class="login-btn" style="flex:1; min-width:120px; margin-top:0; border-color:var(--neon-green);" onclick="document.getElementById('exam-rpt-files').click()">사진 추가 📷</button>
+            </div>
+            <p id="exam-rpt-photo-count" style="margin:10px 0 0; font-size:0.95rem; color:var(--neon-blue); font-weight:bold;">현재 0장 촬영 완료</p>
+            <div id="exam-rpt-thumbs" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;"></div>
+        </div>
+        <button type="button" id="exam-rpt-run-extract" class="start-btn" style="width:100%; margin-top:12px; border-color:var(--neon-orange);">분석 시작 (OCR)</button>
+        <button type="button" class="login-btn" style="width:100%; margin-top:10px; border-color:#666; color:#ccc; background:transparent;" onclick="closeExamReportWorkspace()">닫기</button>
+
+        <div id="exam-rpt-after-extract" style="display:none; margin-top:18px;">
+            <div class="result-card">
+                <span class="result-label">문항 · 배점 (AI)</span>
+                <p id="exam-rpt-total-points-hint" style="font-size:0.85rem;color:#888;"></p>
+                <div id="exam-rpt-questions-wrap" style="overflow-x:auto;"></div>
+            </div>
+            <div class="result-card">
+                <span class="result-label">오답 원인 (문항별 중복 선택)</span>
+                <div id="exam-rpt-reason-legend" style="font-size:0.75rem;color:#aaa; margin-bottom:8px;"></div>
+                <div id="exam-rpt-wrong-reasons"></div>
+            </div>
+            <div class="result-card">
+                <span class="result-label">성적 요약</span>
+                <div id="exam-rpt-score-summary" style="font-size:0.95rem; line-height:1.7;"></div>
+                <div style="margin-top:14px; text-align:center;">
+                    <canvas id="exam-rpt-pie" width="220" height="220" style="max-width:100%;"></canvas>
+                </div>
+            </div>
+            <div class="result-card">
+                <span class="result-label">AI 진단 (오답·유형 기반)</span>
+                <div id="exam-rpt-ai-diagnosis" style="font-size:0.9rem; color:#ddd; line-height:1.6; white-space:pre-wrap;"></div>
+                <button type="button" id="exam-rpt-gen-diagnosis" class="login-btn" style="margin-top:10px; width:100%; border-color:var(--neon-blue);">AI 진단 다시 생성</button>
+            </div>
+            <div class="result-card">
+                <span class="result-label">선생님(관리자) 추가 코멘트</span>
+                <textarea id="exam-rpt-admin-comment" rows="4" style="width:100%; box-sizing:border-box; background:#111; border:1px solid #444; color:#fff; border-radius:8px; padding:10px; font-size:0.9rem;" placeholder="학생에게 전달할 메모를 입력하세요."></textarea>
+            </div>
+            <button type="button" id="exam-rpt-submit-save" class="kakao-btn" style="margin-top:8px;">리포트 저장 · PDF 안내</button>
+            <button type="button" id="exam-rpt-download-pdf" class="login-btn" style="width:100%; margin-top:10px; border-color:#fff; display:none;">리포트 PDF(인쇄) 열기</button>
+        </div>
     </div>
 
     <div id="edit-section">
@@ -370,6 +456,8 @@
             if (!enabled) {
                 const rs = document.getElementById('result-section');
                 if (rs) rs.style.display = 'none';
+                const er = document.getElementById('exam-report-workspace');
+                if (er) er.style.display = 'none';
             }
         }
 
@@ -1699,6 +1787,473 @@
             }
         }
 
+        /* ========== 시험 분석 리포트 ========== */
+        const EXAM_RPT_REASON_OPTIONS = [
+            '단어 미숙', '지문 숙지 부족', '구문 오류', '주제 파악 안 됨', '문법 부정확',
+            '선지 해석 오류', '시간 부족', '매력적 오답', '조건 미충족'
+        ];
+        let examRptImages = [];
+        let examRptQuestions = [];
+        let examRptReportId = '';
+        let examRptWrong = {};
+        let examRptReasons = {};
+        let examRptEssayEarned = {};
+        let examRptAiDiagnosis = null;
+        let examRptPointsWarned = false;
+
+        function examRptResetSession() {
+            examRptImages = [];
+            examRptQuestions = [];
+            examRptReportId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : ('er' + Date.now());
+            examRptWrong = {};
+            examRptReasons = {};
+            examRptEssayEarned = {};
+            examRptAiDiagnosis = null;
+            examRptPointsWarned = false;
+            const th = document.getElementById('exam-rpt-thumbs');
+            if (th) th.innerHTML = '';
+            const c = document.getElementById('exam-rpt-photo-count');
+            if (c) c.innerText = '현재 0장 촬영 완료';
+            const aft = document.getElementById('exam-rpt-after-extract');
+            if (aft) aft.style.display = 'none';
+            const pdfB = document.getElementById('exam-rpt-download-pdf');
+            if (pdfB) pdfB.style.display = 'none';
+        }
+
+        function openExamReportWorkspace() {
+            if (!authUserId || !authPassword) {
+                alert('먼저 메인에서 이름·전화번호를 입력한 뒤, 이 페이지에서 자동 연결이 완료되어야 합니다.');
+                return;
+            }
+            examRptResetSession();
+            const ws = document.getElementById('exam-report-workspace');
+            if (ws) {
+                ws.style.display = 'block';
+                ws.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            const nm = document.getElementById('exam-rpt-display-name');
+            if (nm) nm.textContent = (localStorage.getItem('trigger_name') || '').trim() || '—';
+            const gr = document.getElementById('exam-rpt-display-grade');
+            const savedG = (localStorage.getItem('trigger_saved_exam_grade') || '').trim();
+            const urlG = params.get('grade') || '';
+            if (gr) gr.textContent = savedG || urlG || '—';
+            const sc = document.getElementById('exam-rpt-school');
+            if (sc) sc.value = '';
+            const ex = document.getElementById('exam-rpt-exam-type');
+            if (ex) ex.value = '';
+        }
+
+        function closeExamReportWorkspace() {
+            const ws = document.getElementById('exam-report-workspace');
+            if (ws) ws.style.display = 'none';
+        }
+
+        function examRptUpdatePhotoUi() {
+            const c = document.getElementById('exam-rpt-photo-count');
+            if (c) c.innerText = '현재 ' + examRptImages.length + '장 촬영 완료';
+            const th = document.getElementById('exam-rpt-thumbs');
+            if (!th) return;
+            th.innerHTML = examRptImages.map((img, i) => {
+                const u = 'data:' + img.mimeType + ';base64,' + img.data;
+                return '<span style="position:relative;display:inline-block;"><img src="' + u + '" style="width:56px;height:56px;object-fit:cover;border-radius:6px;border:1px solid #444;"><button type="button" data-ix="' + i + '" class="exam-rpt-rm" style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:none;background:#c00;color:#fff;font-size:11px;cursor:pointer;">×</button></span>';
+            }).join('');
+            th.querySelectorAll('.exam-rpt-rm').forEach((btn) => {
+                btn.onclick = () => {
+                    const ix = parseInt(btn.getAttribute('data-ix'), 10);
+                    examRptImages.splice(ix, 1);
+                    examRptUpdatePhotoUi();
+                };
+            });
+        }
+
+        function examRptEnsureQuestionState() {
+            examRptQuestions.forEach((q) => {
+                const n = q.number;
+                if (examRptWrong[n] === undefined) examRptWrong[n] = false;
+                if (!Array.isArray(examRptReasons[n])) examRptReasons[n] = [];
+                if (examRptEssayEarned[n] === undefined) examRptEssayEarned[n] = '';
+            });
+        }
+
+        function examRptComputeTotals() {
+            let mcPts = 0, mcEarn = 0, esPts = 0, esEarn = 0;
+            examRptQuestions.forEach((q) => {
+                const n = q.number;
+                const p = Number(q.points) || 0;
+                if (q.type === 'essay') {
+                    esPts += p;
+                    const earned = Math.min(p, Math.max(0, parseFloat(examRptEssayEarned[n]) || 0));
+                    esEarn += earned;
+                } else {
+                    mcPts += p;
+                    if (!examRptWrong[n]) mcEarn += p;
+                }
+            });
+            const mcAcc = mcPts > 0 ? Math.round((mcEarn / mcPts) * 1000) / 10 : 0;
+            return { mcPts, mcEarn, mcAcc, esPts, esEarn };
+        }
+
+        function examRptDrawPie(t) {
+            const canvas = document.getElementById('exam-rpt-pie');
+            if (!canvas || !canvas.getContext) return;
+            const ctx = canvas.getContext('2d');
+            const cx = 110, cy = 110, r = 90;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const parts = [];
+            if (t.mcEarn > 0) parts.push({ v: t.mcEarn, c: '#39ff14', l: '객관식 득점' });
+            const mcLose = Math.max(0, t.mcPts - t.mcEarn);
+            if (mcLose > 0) parts.push({ v: mcLose, c: '#ff4444', l: '객관식 실점' });
+            if (t.esEarn > 0) parts.push({ v: t.esEarn, c: '#00f3ff', l: '서술 득점' });
+            const esLose = Math.max(0, t.esPts - t.esEarn);
+            if (esLose > 0) parts.push({ v: esLose, c: '#666', l: '서술 실점' });
+            const sum = parts.reduce((a, b) => a + b.v, 0);
+            if (sum <= 0) {
+                ctx.fillStyle = '#333';
+                ctx.beginPath();
+                ctx.arc(cx, cy, r, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#888';
+                ctx.font = '14px sans-serif';
+                ctx.fillText('데이터 없음', cx - 36, cy);
+                return;
+            }
+            let ang = -Math.PI / 2;
+            parts.forEach((p) => {
+                const slice = (p.v / sum) * Math.PI * 2;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, r, ang, ang + slice);
+                ctx.closePath();
+                ctx.fillStyle = p.c;
+                ctx.fill();
+                ang += slice;
+            });
+            ctx.beginPath();
+            ctx.arc(cx, cy, 40, 0, Math.PI * 2);
+            ctx.fillStyle = '#111';
+            ctx.fill();
+        }
+
+        function examRptRenderQuestions() {
+            examRptEnsureQuestionState();
+            const wrap = document.getElementById('exam-rpt-questions-wrap');
+            if (!wrap) return;
+            let totalPts = 0;
+            const rows = examRptQuestions.map((q) => {
+                totalPts += Number(q.points) || 0;
+                const n = q.number;
+                const isEs = q.type === 'essay';
+                const wrongActive = !!examRptWrong[n];
+                const rowStyle = wrongActive ? 'background:rgba(255,68,68,0.12);' : '';
+                let cell = '';
+                if (isEs) {
+                    const ev = examRptEssayEarned[n] === '' ? '' : String(examRptEssayEarned[n]);
+                    cell = '<label style="font-size:0.8rem;color:#aaa;">획득 <input type="number" min="0" step="0.5" class="exam-essay-in" data-n="' + n + '" style="width:64px;background:#111;border:1px solid #444;color:#fff;border-radius:6px;" value="' + escapeHtml(ev) + '"> / ' + q.points + '</label>';
+                } else {
+                    cell = '<button type="button" class="exam-wrong-btn login-btn" data-n="' + n + '" style="margin:0;padding:6px 12px;font-size:0.8rem;border-color:' + (wrongActive ? '#ff4444' : '#666') + ';">' + (wrongActive ? '오답(취소)' : '오답') + '</button>';
+                }
+                return '<tr style="' + rowStyle + '"><td style="padding:8px;border-bottom:1px solid #222;">' + n + '</td><td style="padding:8px;border-bottom:1px solid #222;">' + (isEs ? '서술' : '객관식') + '</td><td style="padding:8px;border-bottom:1px solid #222;">' + q.points + '</td><td style="padding:8px;border-bottom:1px solid #222;">' + cell + '</td></tr>';
+            }).join('');
+            wrap.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:0.88rem;"><thead><tr style="color:#9fe870;"><th style="text-align:left;padding:8px;">번호</th><th style="text-align:left;padding:8px;">유형</th><th style="text-align:left;padding:8px;">배점</th><th style="text-align:left;padding:8px;">입력</th></tr></thead><tbody>' + rows + '</tbody></table>';
+            const hint = document.getElementById('exam-rpt-total-points-hint');
+            if (hint) hint.innerText = '인식된 배점 합계: ' + totalPts + '점';
+            if (Math.abs(totalPts - 100) > 0.01 && !examRptPointsWarned) {
+                examRptPointsWarned = true;
+                alert('합계가 100점이 아닙니다. 빠진 쪽이 없는지 확인하세요.');
+            }
+            wrap.querySelectorAll('.exam-wrong-btn').forEach((b) => {
+                b.onclick = () => {
+                    const n = parseInt(b.getAttribute('data-n'), 10);
+                    examRptWrong[n] = !examRptWrong[n];
+                    examRptRenderQuestions();
+                    examRptRenderReasons();
+                    examRptRefreshScores();
+                };
+            });
+            wrap.querySelectorAll('.exam-essay-in').forEach((inp) => {
+                inp.oninput = () => {
+                    const n = parseInt(inp.getAttribute('data-n'), 10);
+                    examRptEssayEarned[n] = inp.value;
+                    examRptRefreshScores();
+                };
+            });
+            examRptRenderReasons();
+            examRptRefreshScores();
+        }
+
+        function examRptRenderReasons() {
+            const box = document.getElementById('exam-rpt-wrong-reasons');
+            const leg = document.getElementById('exam-rpt-reason-legend');
+            if (leg) leg.innerText = '오답으로 표시한 문항에만 원인을 표시할 수 있습니다.';
+            if (!box) return;
+            const html = examRptQuestions.map((q) => {
+                const n = q.number;
+                if (q.type === 'essay' || !examRptWrong[n]) return '';
+                const chips = EXAM_RPT_REASON_OPTIONS.map((label) => {
+                    const on = (examRptReasons[n] || []).indexOf(label) >= 0;
+                    return '<label style="display:inline-flex;align-items:center;margin:3px 6px 3px 0;font-size:0.78rem;cursor:pointer;"><input type="checkbox" class="exam-reason-cb" data-n="' + n + '" data-l="' + escapeHtml(label) + '" ' + (on ? 'checked' : '') + '> ' + escapeHtml(label) + '</label>';
+                }).join('');
+                return '<div style="margin-bottom:10px;padding:8px;border:1px solid #333;border-radius:8px;"><strong style="color:#ff9900;">#' + n + '</strong> ' + chips + '</div>';
+            }).join('');
+            box.innerHTML = html || '<span style="color:#666;font-size:0.85rem;">오답 문항을 먼저 표시해 주세요.</span>';
+            box.querySelectorAll('.exam-reason-cb').forEach((cb) => {
+                cb.onchange = () => {
+                    const n = parseInt(cb.getAttribute('data-n'), 10);
+                    const l = cb.getAttribute('data-l');
+                    let arr = examRptReasons[n] || [];
+                    if (cb.checked) {
+                        if (arr.indexOf(l) < 0) arr.push(l);
+                    } else {
+                        arr = arr.filter((x) => x !== l);
+                    }
+                    examRptReasons[n] = arr;
+                };
+            });
+        }
+
+        function examRptRefreshScores() {
+            const t = examRptComputeTotals();
+            const el = document.getElementById('exam-rpt-score-summary');
+            if (el) {
+                el.innerHTML =
+                    '<div><strong>객관식</strong> 정답률 ' + t.mcAcc + '% · 획득 ' + t.mcEarn + ' / ' + t.mcPts + '점</div>' +
+                    '<div style="margin-top:6px;"><strong>서술형</strong> 획득 ' + t.esEarn + ' / ' + t.esPts + '점</div>';
+            }
+            examRptDrawPie(t);
+        }
+
+        async function examRptRunExtract() {
+            if (!authUserId) return;
+            const school = (document.getElementById('exam-rpt-school') && document.getElementById('exam-rpt-school').value || '').trim();
+            const examType = (document.getElementById('exam-rpt-exam-type') && document.getElementById('exam-rpt-exam-type').value) || '';
+            if (!school) {
+                alert('학교 이름을 입력해 주세요.');
+                return;
+            }
+            if (!examType) {
+                alert('시험 종류를 선택해 주세요.');
+                return;
+            }
+            if (examRptImages.length < 1) {
+                alert('시험지 사진을 1장 이상 추가해 주세요.');
+                return;
+            }
+            if (!confirm('빠진 페이지가 없나요? 누락 시 결과가 부정확할 수 있습니다.')) return;
+            const btn = document.getElementById('exam-rpt-run-extract');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = '분석 중…';
+            }
+            try {
+                const data = await postJson('/api/exam-report/extract', {
+                    user_id: authUserId,
+                    password: authPassword,
+                    images: examRptImages,
+                    meta: { school_name: school, exam_type: examType }
+                });
+                examRptQuestions = Array.isArray(data.questions) ? data.questions : [];
+                examRptEnsureQuestionState();
+                document.getElementById('exam-rpt-after-extract').style.display = 'block';
+                examRptRenderQuestions();
+            } catch (e) {
+                alert(e.message || String(e));
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = '분석 시작 (OCR)';
+                }
+            }
+        }
+
+        async function examRptGenDiagnosis() {
+            const btn = document.getElementById('exam-rpt-gen-diagnosis');
+            if (btn) {
+                btn.disabled = true;
+            }
+            try {
+                const wrongLines = [];
+                examRptQuestions.forEach((q) => {
+                    if (q.type !== 'essay' && examRptWrong[q.number]) {
+                        wrongLines.push('문항' + q.number + ': ' + (examRptReasons[q.number] || []).join(', '));
+                    }
+                });
+                const t = examRptComputeTotals();
+                const prompt = '학생 영어 시험 오답 진단. 순수 JSON만 출력.\n' +
+                    '{"summary":"2~4문장 한국어 총평","tips":["실천 팁1","팁2","팁3"]}\n' +
+                    '객관식 정답률 ' + t.mcAcc + '%, 서술 ' + t.esEarn + '/' + t.esPts + '.\n' +
+                    '오답·원인:\n' + (wrongLines.join('\n') || '(오답 없음)');
+                const base = WORKER_URL.replace(/\/$/, '');
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: { temperature: 0.3, responseMimeType: 'application/json' }
+                };
+                let data = null;
+                for (const u of [base + '/api/analyze', base + '/']) {
+                    const r = await fetch(u, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    data = await r.json().catch(() => ({}));
+                    if (!r.ok) continue;
+                    if (data && data.error) continue;
+                    if (data && data.candidates && data.candidates[0]) break;
+                }
+                if (!data || !data.candidates || !data.candidates[0]) throw new Error('AI 응답이 비어 있습니다.');
+                let obj = data;
+                if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
+                    let s = data.candidates[0].content.parts[0].text;
+                    const a = s.indexOf('{');
+                    const b = s.lastIndexOf('}');
+                    if (a !== -1 && b !== -1) s = s.substring(a, b + 1);
+                    try {
+                        obj = JSON.parse(s);
+                    } catch (pe) {
+                        throw new Error('AI 진단 JSON 파싱 실패');
+                    }
+                } else {
+                    throw new Error('AI 응답에 본문이 없습니다.');
+                }
+                examRptAiDiagnosis = obj;
+                const out = document.getElementById('exam-rpt-ai-diagnosis');
+                if (out) {
+                    const tips = Array.isArray(obj.tips) ? obj.tips.map((x) => '· ' + x).join('\n') : '';
+                    out.textContent = (obj.summary || '') + (tips ? '\n\n' + tips : '');
+                }
+            } catch (e) {
+                alert('AI 진단 생성 실패: ' + (e.message || e));
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        function examRptSchedulePdfNotify() {
+            const DAY = 24 * 60 * 60 * 1000;
+            try {
+                if ('Notification' in window && Notification.permission === 'default') {
+                    Notification.requestPermission();
+                }
+            } catch (e) {}
+            setTimeout(function () {
+                try {
+                    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+                    const title = '📄 사라져 시험 리포트';
+                    const options = { body: '저장한 시험 분석 리포트 PDF를 다운로드해 보세요.', tag: 'exam-report-pdf', icon: 'icon-192.png' };
+                    if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker.getRegistration().then(function (reg) {
+                            if (reg && reg.showNotification) reg.showNotification(title, options);
+                            else new Notification(title, options);
+                        }).catch(function () { new Notification(title, options); });
+                    } else {
+                        new Notification(title, options);
+                    }
+                } catch (e) {}
+            }, DAY);
+        }
+
+        function examRptOpenPdfWindow() {
+            const name = (localStorage.getItem('trigger_name') || '').trim();
+            const school = (document.getElementById('exam-rpt-school') && document.getElementById('exam-rpt-school').value || '').trim();
+            const examSel = document.getElementById('exam-rpt-exam-type');
+            const examLabel = examSel && examSel.options[examSel.selectedIndex] ? examSel.options[examSel.selectedIndex].text : '';
+            const t = examRptComputeTotals();
+            const adm = (document.getElementById('exam-rpt-admin-comment') && document.getElementById('exam-rpt-admin-comment').value) || '';
+            const aiTxt = (document.getElementById('exam-rpt-ai-diagnosis') && document.getElementById('exam-rpt-ai-diagnosis').textContent) || '';
+            const rows = examRptQuestions.map((q) => {
+                const w = q.type !== 'essay' && examRptWrong[q.number] ? '오답' : (q.type === 'essay' ? ('득점 ' + (examRptEssayEarned[q.number] || 0)) : '정답');
+                const rs = (examRptReasons[q.number] || []).join(', ');
+                return '<tr><td>' + q.number + '</td><td>' + (q.type === 'essay' ? '서술' : '객관') + '</td><td>' + q.points + '</td><td>' + w + '</td><td>' + escapeHtml(rs) + '</td></tr>';
+            }).join('');
+            const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>시험 분석 리포트</title>' +
+                '<style>body{font-family:sans-serif;padding:24px;color:#111;}h1{font-size:1.2rem;}table{border-collapse:collapse;width:100%;margin-top:12px;}th,td{border:1px solid #333;padding:6px;font-size:12px;}</style></head><body>' +
+                '<h1>시험 분석 리포트</h1><p><strong>이름</strong> ' + escapeHtml(name) + ' · <strong>학교</strong> ' + escapeHtml(school) + ' · <strong>시험</strong> ' + escapeHtml(examLabel) + '</p>' +
+                '<p>객관식 ' + t.mcAcc + '% (' + t.mcEarn + '/' + t.mcPts + ') · 서술 ' + t.esEarn + '/' + t.esPts + '</p>' +
+                '<h2>문항</h2><table><thead><tr><th>번호</th><th>유형</th><th>배점</th><th>결과</th><th>오답 원인</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+                '<h2>AI 진단</h2><pre style="white-space:pre-wrap;font-size:12px;">' + escapeHtml(aiTxt) + '</pre>' +
+                '<h2>선생님 코멘트</h2><pre style="white-space:pre-wrap;font-size:12px;">' + escapeHtml(adm) + '</pre>' +
+                '<p style="margin-top:24px;font-size:11px;color:#666;">브라우저 메뉴에서 인쇄 → PDF로 저장하세요.</p></body></html>';
+            const w = window.open('', '_blank');
+            if (w) {
+                w.document.write(html);
+                w.document.close();
+                setTimeout(function () { w.print(); }, 400);
+            }
+        }
+
+        async function examRptSubmitSave() {
+            if (!authUserId) return;
+            const school = (document.getElementById('exam-rpt-school') && document.getElementById('exam-rpt-school').value || '').trim();
+            const examType = (document.getElementById('exam-rpt-exam-type') && document.getElementById('exam-rpt-exam-type').value) || '';
+            const studentName = (localStorage.getItem('trigger_name') || '').trim();
+            const grade = (localStorage.getItem('trigger_saved_exam_grade') || params.get('grade') || '').trim();
+            const vocaLink = (localStorage.getItem('trigger_level') || 'middle').trim();
+            const t = examRptComputeTotals();
+            const sessionPayload = {
+                wrong: examRptWrong,
+                reasons: examRptReasons,
+                essayEarned: examRptEssayEarned,
+                totals: t,
+                submittedAt: new Date().toISOString()
+            };
+            try {
+                await postJson('/api/exam-report/save', {
+                    id: examRptReportId,
+                    user_id: authUserId,
+                    password: authPassword,
+                    student_name: studentName,
+                    grade: grade,
+                    school_name: school,
+                    exam_type: examType,
+                    voca_level_link: vocaLink,
+                    questions_json: examRptQuestions,
+                    session_json: JSON.stringify(sessionPayload),
+                    ai_diagnosis_json: examRptAiDiagnosis ? JSON.stringify(examRptAiDiagnosis) : null,
+                    admin_comment: (document.getElementById('exam-rpt-admin-comment') && document.getElementById('exam-rpt-admin-comment').value) || ''
+                });
+                alert('저장되었습니다.\n\n24시간 이내에 리포트 PDF를 다운로드할 수 있습니다.\n(아래 버튼으로 인쇄/PDF 저장 또는 24시간 후 알림을 확인하세요.)');
+                examRptSchedulePdfNotify();
+                const pdfB = document.getElementById('exam-rpt-download-pdf');
+                if (pdfB) {
+                    pdfB.style.display = 'block';
+                    pdfB.onclick = examRptOpenPdfWindow;
+                }
+            } catch (e) {
+                alert(e.message || String(e));
+            }
+        }
+
+        (function initExamReportUi() {
+            const openBtn = document.getElementById('exam-report-open-btn');
+            if (openBtn) openBtn.addEventListener('click', openExamReportWorkspace);
+            const f = document.getElementById('exam-rpt-files');
+            if (f) {
+                f.addEventListener('change', function (ev) {
+                    const files = ev.target.files;
+                    if (!files || !files.length) return;
+                    const arr = Array.from(files);
+                    Promise.all(arr.map(function (file) {
+                        return new Promise(function (resolve) {
+                            const reader = new FileReader();
+                            reader.onload = function (e) {
+                                const dataUrl = e.target.result;
+                                const mime = String(file.type || 'image/jpeg');
+                                const data = String(dataUrl).split(',')[1] || '';
+                                resolve(data ? { mimeType: mime, data: data } : null);
+                            };
+                            reader.onerror = function () { resolve(null); };
+                            reader.readAsDataURL(file);
+                        });
+                    })).then(function (parts) {
+                        parts.filter(Boolean).forEach(function (p) { examRptImages.push(p); });
+                        examRptUpdatePhotoUi();
+                        f.value = '';
+                    });
+                });
+            }
+            const run = document.getElementById('exam-rpt-run-extract');
+            if (run) run.addEventListener('click', examRptRunExtract);
+            const gd = document.getElementById('exam-rpt-gen-diagnosis');
+            if (gd) gd.addEventListener('click', examRptGenDiagnosis);
+            const sv = document.getElementById('exam-rpt-submit-save');
+            if (sv) sv.addEventListener('click', examRptSubmitSave);
+        })();
+
         async function runGeminiAnalysis(isTextMode = false) {
             const editArea = document.getElementById('ocr-edit-area');
             const editedText = (editArea.innerText || editArea.textContent || "").trim();
@@ -1911,6 +2466,15 @@
             } catch (e) {}
         })();
 
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('./service-worker.js').then(function (reg) {
+                    if (reg) reg.update();
+                }).catch(function () {});
+            });
+        }
     </script>
 </body>
 </html>

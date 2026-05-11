@@ -262,6 +262,197 @@ async function handleGeminiProxy(env, request) {
   return json(data, response.status);
 }
 
+async function callGeminiStructured(env, parts, responseMimeType = "application/json") {
+  const model = env.GEMINI_MODEL || "gemini-2.5-flash";
+  const endpoint =
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`;
+  const payload = {
+    contents: [{ role: "user", parts }],
+    generationConfig: { temperature: 0.1, responseMimeType },
+  };
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    const msg = data?.error?.message || data?.error || `gemini_${response.status}`;
+    return { ok: false, error: msg, raw: data };
+  }
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) return { ok: false, error: "empty_gemini_response", raw: data };
+  try {
+    return { ok: true, json: JSON.parse(String(text).trim()) };
+  } catch {
+    const s = String(text);
+    const a = s.indexOf("{");
+    const b = s.lastIndexOf("}");
+    if (a !== -1 && b !== -1) {
+      try {
+        return { ok: true, json: JSON.parse(s.slice(a, b + 1)) };
+      } catch {
+        /* fallthrough */
+      }
+    }
+    return { ok: false, error: "json_parse_failed", snippet: s.slice(0, 400) };
+  }
+}
+
+async function handleExamExtract(env, body) {
+  const userId = String(body.user_id || "").trim();
+  const password = String(body.password || "");
+  if (!(await verifyUser(env, userId, password))) return json({ error: "인증 실패" }, 401);
+
+  const images = Array.isArray(body.images) ? body.images : [];
+  if (images.length === 0) return json({ error: "images 배열이 필요합니다." }, 400);
+  if (images.length > 15) return json({ error: "이미지는 최대 15장까지 업로드할 수 있습니다." }, 400);
+
+  const prompt = `You extract structure from Korean school English exam paper photos.
+Return ONLY valid JSON (no markdown) with this exact shape:
+{"questions":[{"number":1,"type":"multiple","points":2},{"number":2,"type":"essay","points":10}]}
+Rules:
+- "number": visible problem index (integer).
+- "type": "multiple" for 객관식·선택·빈칸 고르기 등, "essay" for 서술·논술·장문·단답 서술.
+- "points": 배점 숫자 (unknown이면 합리적으로 추정).
+- Merge pages: include every numbered item you can read across all images.
+- If unreadable, omit that item (do not guess numbers).`;
+
+  const parts = [{ text: prompt }];
+  let added = 0;
+  for (const img of images) {
+    const mime = String(img.mimeType || "image/jpeg");
+    let data = String(img.data || "").trim();
+    data = data.replace(/^data:image\/\w+;base64,/, "");
+    if (!data) continue;
+    if (data.length > 6_000_000) return json({ error: "단일 이미지 base64가 너무 큽니다." }, 400);
+    parts.push({ inlineData: { mimeType: mime, data } });
+    added++;
+  }
+  if (parts.length < 2) return json({ error: "유효한 이미지 base64가 없습니다." }, 400);
+
+  const g = await callGeminiStructured(env, parts);
+  if (!g.ok) return json({ error: g.error, detail: g.snippet || g.raw }, 500);
+  const questions = g.json?.questions;
+  if (!Array.isArray(questions) || questions.length === 0) {
+    return json({ error: "문항을 인식하지 못했습니다. 더 선명한 사진으로 다시 시도해주세요.", preview: JSON.stringify(g.json).slice(0, 300) }, 422);
+  }
+  const normalized = questions
+    .map((q) => ({
+      number: Number(q.number),
+      type: String(q.type || "").toLowerCase() === "essay" ? "essay" : "multiple",
+      points: Number(q.points) || 0,
+    }))
+    .filter((q) => Number.isFinite(q.number) && q.number > 0 && q.points >= 0);
+  if (!normalized.length) return json({ error: "정규화된 문항이 없습니다." }, 422);
+  return json({ ok: true, questions: normalized });
+}
+
+async function handleExamReportSave(env, body) {
+  const userId = String(body.user_id || "").trim();
+  const password = String(body.password || "");
+  if (!(await verifyUser(env, userId, password))) return json({ error: "인증 실패" }, 401);
+
+  const id = String(body.id || crypto.randomUUID());
+  const student_name = String(body.student_name || "").trim();
+  const grade = String(body.grade || "").trim();
+  const school_name = String(body.school_name || "").trim();
+  const exam_type = String(body.exam_type || "").trim();
+  if (!student_name || !school_name || !exam_type) {
+    return json({ error: "student_name, school_name, exam_type이 필요합니다." }, 400);
+  }
+
+  const questions_json =
+    typeof body.questions_json === "string" ? body.questions_json : JSON.stringify(body.questions_json ?? []);
+  const session_json =
+    typeof body.session_json === "string" ? body.session_json : JSON.stringify(body.session_json ?? {});
+  let ai_diagnosis_json = null;
+  if (body.ai_diagnosis_json != null) {
+    ai_diagnosis_json =
+      typeof body.ai_diagnosis_json === "string"
+        ? body.ai_diagnosis_json
+        : JSON.stringify(body.ai_diagnosis_json);
+  }
+  const admin_comment = String(body.admin_comment || "").trim();
+  const voca_level_link = String(body.voca_level_link || "").trim();
+  const now = new Date().toISOString();
+
+  const existing = await env.DB.prepare("SELECT id FROM exam_analysis WHERE id = ?1 AND user_id = ?2")
+    .bind(id, userId)
+    .first();
+
+  if (existing) {
+    await env.DB.prepare(
+      `UPDATE exam_analysis SET student_name=?1, grade=?2, school_name=?3, exam_type=?4, voca_level_link=?5,
+       questions_json=?6, session_json=?7, ai_diagnosis_json=?8, admin_comment=?9, updated_at=?10
+       WHERE id=?11 AND user_id=?12`
+    )
+      .bind(
+        student_name,
+        grade,
+        school_name,
+        exam_type,
+        voca_level_link,
+        questions_json,
+        session_json,
+        ai_diagnosis_json,
+        admin_comment,
+        now,
+        id,
+        userId
+      )
+      .run();
+  } else {
+    await env.DB.prepare(
+      `INSERT INTO exam_analysis (id, user_id, student_name, grade, school_name, exam_type, voca_level_link,
+        questions_json, session_json, ai_diagnosis_json, admin_comment, created_at, updated_at)
+       VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?12)`
+    )
+      .bind(
+        id,
+        userId,
+        student_name,
+        grade,
+        school_name,
+        exam_type,
+        voca_level_link,
+        questions_json,
+        session_json,
+        ai_diagnosis_json,
+        admin_comment,
+        now
+      )
+      .run();
+  }
+  return json({ ok: true, id });
+}
+
+async function handleExamReportList(env, body) {
+  const userId = String(body.user_id || "").trim();
+  const password = String(body.password || "");
+  if (!(await verifyUser(env, userId, password))) return json({ error: "인증 실패" }, 401);
+  const rows = await env.DB.prepare(
+    `SELECT id, student_name, grade, school_name, exam_type, created_at, updated_at
+     FROM exam_analysis WHERE user_id = ?1 ORDER BY datetime(created_at) DESC LIMIT 50`
+  )
+    .bind(userId)
+    .all();
+  return json({ ok: true, items: rows.results || [] });
+}
+
+async function handleExamReportGet(env, body) {
+  const userId = String(body.user_id || "").trim();
+  const password = String(body.password || "");
+  if (!(await verifyUser(env, userId, password))) return json({ error: "인증 실패" }, 401);
+  const id = String(body.id || "").trim();
+  if (!id) return json({ error: "id가 필요합니다." }, 400);
+  const row = await env.DB.prepare("SELECT * FROM exam_analysis WHERE id = ?1 AND user_id = ?2")
+    .bind(id, userId)
+    .first();
+  if (!row) return json({ error: "not_found" }, 404);
+  return json({ ok: true, report: row });
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") {
@@ -294,6 +485,18 @@ export default {
       }
       if (request.method === "POST" && path === "/api/analyze") {
         return handleGeminiProxy(env, request);
+      }
+      if (request.method === "POST" && path === "/api/exam-report/extract") {
+        return handleExamExtract(env, await request.json());
+      }
+      if (request.method === "POST" && path === "/api/exam-report/save") {
+        return handleExamReportSave(env, await request.json());
+      }
+      if (request.method === "POST" && path === "/api/exam-report/list") {
+        return handleExamReportList(env, await request.json());
+      }
+      if (request.method === "POST" && path === "/api/exam-report/get") {
+        return handleExamReportGet(env, await request.json());
       }
       if (request.method === "POST" && path === "/") {
         return handleGeminiProxy(env, request);

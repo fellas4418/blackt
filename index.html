@@ -296,7 +296,7 @@
                     <button onclick="jumpToSession(6)" style="flex:1; background: #222; border: 1px solid var(--neon-orange); color: var(--neon-orange); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight:bold;">🔥 사이클 6 점프</button>
                 </div>
             
-                <button onclick="localStorage.removeItem('blackt_cooldown'); alert('⏳ 쿨타임 삭제 완료!'); location.reload();" style="background: #111; border: 1px solid var(--neon-green); color: var(--neon-green); padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%;">
+                <button onclick="if(typeof window.clearBlacktCooldownNotifySchedule==='function')window.clearBlacktCooldownNotifySchedule();localStorage.removeItem('blackt_cooldown');alert('⏳ 쿨타임 삭제 완료!');location.reload();" style="background: #111; border: 1px solid var(--neon-green); color: var(--neon-green); padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%;">
                     ⚡ 쿨타임(3분 휴식) 즉시 삭제
                 </button>
             
@@ -558,6 +558,7 @@
         function jumpToSession(sessionNum) {
             const lvl = localStorage.getItem('trigger_level') || 'middle';
             localStorage.setItem('trigger_session_' + lvl, sessionNum.toString());
+            if (typeof window.clearBlacktCooldownNotifySchedule === 'function') window.clearBlacktCooldownNotifySchedule();
             localStorage.removeItem('blackt_cooldown');
             
             localStorage.setItem('trigger_jump_test', 'true');
@@ -571,6 +572,7 @@
             localStorage.setItem('trigger_current_day_' + lvl, '70');
             localStorage.setItem('trigger_unlocked_day_' + lvl, '71');
             localStorage.setItem('trigger_session_' + lvl, 'final');
+            if (typeof window.clearBlacktCooldownNotifySchedule === 'function') window.clearBlacktCooldownNotifySchedule();
             localStorage.removeItem('blackt_cooldown');
 
             alert('🏆 70일 완주 축하 화면으로 이동합니다.');
@@ -724,7 +726,11 @@
                     const remaining = endTime - Date.now();
                     if (remaining <= 0) {
                         clearInterval(window.cooldownInterval);
-                        localStorage.removeItem('blackt_cooldown');
+                        if (typeof window.handleCooldownExpiredUi === 'function') {
+                            window.handleCooldownExpiredUi();
+                        } else {
+                            localStorage.removeItem('blackt_cooldown');
+                        }
                         startBtn.disabled = false;
                         startBtn.innerText = "학습 시작하기";
                         startBtn.style.borderColor = "var(--neon-orange)";
@@ -1149,6 +1155,7 @@
 
             const finalSession = isReviewDay ? '2' : '6';
             localStorage.setItem('trigger_session_' + lvl, finalSession); 
+            if (typeof window.clearBlacktCooldownNotifySchedule === 'function') window.clearBlacktCooldownNotifySchedule();
             localStorage.removeItem('blackt_cooldown');
             
             localStorage.setItem('trigger_jump_test', 'true');
@@ -1236,18 +1243,8 @@
         }
 
         function sendRecoveryNotification() {
-            if (Notification.permission !== 'granted') return;
-            const title = "🧠 에너지 회복 완료!";
-            const options = {
-                body: "3분이 지났습니다. 다음 사이클을 시작해 보세요! 🔥",
-                icon: "icon-192.png",
-                vibrate: [200, 100, 200],
-                tag: "recovery-done"
-            };
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.ready.then(reg => reg.showNotification(title, options));
-            } else {
-                new Notification(title, options);
+            if (typeof window.triggerShowCooldownDoneNotification === 'function') {
+                window.triggerShowCooldownDoneNotification();
             }
         }
 
@@ -1327,14 +1324,6 @@
             }
         });
 
-        const cooldownTime = localStorage.getItem('blackt_cooldown');
-        if (cooldownTime) {
-            const remaining = parseInt(cooldownTime) - Date.now();
-            if (remaining > 0) {
-                setTimeout(sendRecoveryNotification, remaining);
-            }
-        }
-    
         async function secureHandleLogin() {
             await requestNotificationPermission();
             await handleLogin();
@@ -1345,6 +1334,15 @@
     <script src="worddata.js"></script>
     <script src="words.js"></script>
     <script src="app.js?v=victory"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('./service-worker.js').then(function (reg) {
+                    if (reg) reg.update();
+                }).catch(function () {});
+            });
+        }
+    </script>
     
 </body>
 </html>

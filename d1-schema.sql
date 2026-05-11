@@ -31,3 +31,26 @@ ON saved_voca(user_id, lower(eng));
 
 CREATE UNIQUE INDEX IF NOT EXISTS ux_saved_grammar_user_sentence
 ON saved_grammar(user_id, sentence);
+
+-- 시험지 OCR·리포트(학교/시험별 내신 축적, Trigger Voca 레벨 연동)
+CREATE TABLE IF NOT EXISTS exam_analysis (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  student_name TEXT NOT NULL,
+  grade TEXT,
+  school_name TEXT NOT NULL,
+  exam_type TEXT NOT NULL,
+  voca_level_link TEXT,
+  questions_json TEXT NOT NULL,
+  session_json TEXT NOT NULL,
+  ai_diagnosis_json TEXT,
+  admin_comment TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_exam_analysis_user_created
+ON exam_analysis(user_id, datetime(created_at) DESC);
+
+CREATE INDEX IF NOT EXISTS idx_exam_analysis_school_exam
+ON exam_analysis(school_name, exam_type);

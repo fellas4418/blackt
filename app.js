@@ -33,6 +33,77 @@ let targetWords = [];
 let studyLoopCount = 1; 
 const COOL_DOWN_TIME = 3 * 60 * 1000; 
 
+let __blacktCooldownNotifyTimerId = null;
+let __cooldownNotifAlreadySent = false;
+
+function clearBlacktCooldownNotifySchedule() {
+    if (__blacktCooldownNotifyTimerId != null) {
+        clearTimeout(__blacktCooldownNotifyTimerId);
+        __blacktCooldownNotifyTimerId = null;
+    }
+}
+
+function triggerShowCooldownDoneNotification() {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    const title = '🧠 사라져 Voca';
+    const options = {
+        body: '3분 쉼이 끝났어요. 다음 사이클을 시작해 보세요! 🔥',
+        icon: 'icon-192.png',
+        tag: 'blackt-cooldown-done',
+        vibrate: [200, 100, 200]
+    };
+    try {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistration().then(function (reg) {
+                if (reg && typeof reg.showNotification === 'function') {
+                    reg.showNotification(title, options);
+                } else {
+                    new Notification(title, options);
+                }
+            }).catch(function () {
+                try { new Notification(title, options); } catch (e) {}
+            });
+        } else {
+            new Notification(title, options);
+        }
+    } catch (e) {}
+}
+
+window.triggerShowCooldownDoneNotification = triggerShowCooldownDoneNotification;
+
+function scheduleBlacktCooldownEndNotification() {
+    clearBlacktCooldownNotifySchedule();
+    __cooldownNotifAlreadySent = false;
+    const raw = localStorage.getItem('blackt_cooldown');
+    const endTime = parseInt(raw, 10);
+    if (!raw || Number.isNaN(endTime)) return;
+    const remaining = endTime - Date.now();
+    if (remaining <= 0) return;
+    if (Notification.permission === 'default') {
+        try { Notification.requestPermission(); } catch (e) {}
+    }
+    __blacktCooldownNotifyTimerId = setTimeout(function () {
+        __blacktCooldownNotifyTimerId = null;
+        if (!__cooldownNotifAlreadySent) {
+            triggerShowCooldownDoneNotification();
+        }
+        __cooldownNotifAlreadySent = true;
+    }, remaining);
+}
+
+function handleCooldownExpiredUi() {
+    clearBlacktCooldownNotifySchedule();
+    if (!__cooldownNotifAlreadySent) {
+        triggerShowCooldownDoneNotification();
+    }
+    __cooldownNotifAlreadySent = false;
+    localStorage.removeItem('blackt_cooldown');
+}
+
+window.scheduleBlacktCooldownEndNotification = scheduleBlacktCooldownEndNotification;
+window.clearBlacktCooldownNotifySchedule = clearBlacktCooldownNotifySchedule;
+window.handleCooldownExpiredUi = handleCooldownExpiredUi;
+
 let isPreReviewMode = false;
 let todayWords = [];
 let reviewRetryCount = 0; 
@@ -712,6 +783,7 @@ function finishSession(didTest = true) {
         if (didTest && accuracy >= 80) {
             const reviewStatusKey = `trigger_review_done_${currentLevel}_${currentDay}`;
             localStorage.setItem(reviewStatusKey, 'true');
+            clearBlacktCooldownNotifySchedule();
             localStorage.removeItem('blackt_cooldown');
             reviewRetryCount = 0; 
     
@@ -857,6 +929,7 @@ function finishSession(didTest = true) {
     } else {
         localStorage.setItem(`trigger_session_${currentLevel}`, (finishedNum + 1).toString());
         localStorage.setItem('blackt_cooldown', Date.now() + COOL_DOWN_TIME);
+        scheduleBlacktCooldownEndNotification();
         localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));
         
         if (didTest) {
@@ -1049,6 +1122,7 @@ window.jumpToSession = function(n) {
     localStorage.setItem(`trigger_session_${lvl}`, n.toString());
     
     // 2. 쿨타임 및 점프용 임시 플래그 제거
+    clearBlacktCooldownNotifySchedule();
     localStorage.removeItem('blackt_cooldown');
     
     // 3. [핵심] 만약 마지막 6사이클(또는 주말 2사이클)로 점프한다면 
@@ -1068,6 +1142,7 @@ function jumpToFinish() {
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
     const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
     localStorage.setItem('trigger_session_' + lvl, isReviewDay ? '2' : '6'); 
+    clearBlacktCooldownNotifySchedule();
     localStorage.removeItem('blackt_cooldown');
     localStorage.removeItem('trigger_jump_test'); 
     alert(`🛠️ 최종 테스트 단계로 점프 완료!\n메인 화면에서 '학습 시작하기'를 눌러주세요.`);
@@ -1120,6 +1195,7 @@ window.forceComplete70 = function() {
     localStorage.setItem('trigger_session_' + lvl, 'final');
     
     // 2. 방해 요소(쿨타임) 제거
+    clearBlacktCooldownNotifySchedule();
     localStorage.removeItem('blackt_cooldown');
 
     alert('🏆 70일 완주 및 전 코스 잠금 해제 완료!\n이제 리스트 하단에 완주 축하 섹션이 나타납니다.');
@@ -1237,13 +1313,11 @@ window.addEventListener('focus', () => {
         
         // 만약 자리를 비운 사이 이미 쿨타임이 끝났다면
         if (remaining <= 0) {
-            localStorage.removeItem('blackt_cooldown');
+            handleCooldownExpiredUi();
             // 대시보드라면 버튼 상태를 즉시 '학습 시작'으로 변경
             if (typeof updateDashboardUI === 'function') {
                 updateDashboardUI();
             }
-            // 알림이 필요하다면 여기에 추가
-            console.log("휴식 종료됨 - 데이터 동기화 완료");
         } else {
             // 아직 시간이 남았다면 남은 시간에 맞춰 타이머/UI 재설정
             if (typeof updateDashboardUI === 'function') {
@@ -1252,6 +1326,16 @@ window.addEventListener('focus', () => {
         }
     }
 });
+
+(function scheduleCooldownNotifOnAppLoad() {
+    function run() {
+        if (typeof scheduleBlacktCooldownEndNotification === 'function') {
+            scheduleBlacktCooldownEndNotification();
+        }
+    }
+    if (document.readyState === 'complete') run();
+    else window.addEventListener('load', run);
+})();
 
 function goToAnalysis() {
     const grade = document.getElementById('exam-grade').value;
