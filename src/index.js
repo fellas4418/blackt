@@ -310,11 +310,12 @@ async function handleExamExtract(env, body) {
 
   const prompt = `You extract structure from Korean school English exam paper photos.
 Return ONLY valid JSON (no markdown) with this exact shape:
-{"questions":[{"number":1,"type":"multiple","points":2},{"number":2,"type":"essay","points":10}]}
+{"questions":[{"number":1,"type":"multiple","points":2.5},{"number":2,"type":"essay","points":10}]}
 Rules:
-- "number": visible problem index (integer).
+- "number": visible problem index (integer). Each numbered item appears once only.
 - "type": "multiple" for 객관식·선택·빈칸 고르기 등, "essay" for 서술·논술·장문·단답 서술.
-- "points": 배점 숫자 (unknown이면 합리적으로 추정).
+- "points": read the score printed at the end of each question line (e.g. 2.5점, [3점], (4.5)). Use decimals when shown; do not round to integers.
+- Do not count sub-parts twice; use the score shown for the whole numbered item.
 - Merge pages: include every numbered item you can read across all images.
 - If unreadable, omit that item (do not guess numbers).`;
 
@@ -337,13 +338,23 @@ Rules:
   if (!Array.isArray(questions) || questions.length === 0) {
     return json({ error: "문항을 인식하지 못했습니다. 더 선명한 사진으로 다시 시도해주세요.", preview: JSON.stringify(g.json).slice(0, 300) }, 422);
   }
-  const normalized = questions
-    .map((q) => ({
-      number: Number(q.number),
-      type: String(q.type || "").toLowerCase() === "essay" ? "essay" : "multiple",
-      points: Number(q.points) || 0,
-    }))
-    .filter((q) => Number.isFinite(q.number) && q.number > 0 && q.points >= 0);
+  const parsePoints = (value) => {
+    if (value == null) return 0;
+    const s = String(value).replace(/점/g, "").replace(/[^\d.]/g, " ").trim().split(/\s+/)[0];
+    const n = parseFloat(s);
+    if (!Number.isFinite(n) || n < 0) return 0;
+    return Math.round(n * 10) / 10;
+  };
+  const byNumber = new Map();
+  for (const q of questions) {
+    const number = Number(q.number);
+    const type = String(q.type || "").toLowerCase() === "essay" ? "essay" : "multiple";
+    const points = parsePoints(q.points);
+    if (!Number.isFinite(number) || number <= 0 || points < 0) continue;
+    const prev = byNumber.get(number);
+    if (!prev || points > prev.points) byNumber.set(number, { number, type, points });
+  }
+  const normalized = Array.from(byNumber.values()).sort((a, b) => a.number - b.number);
   if (!normalized.length) return json({ error: "정규화된 문항이 없습니다." }, 422);
   return json({ ok: true, questions: normalized });
 }
