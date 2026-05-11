@@ -193,9 +193,10 @@
             </button>
         </div>
 
-        <div class="guide-box" style="border-color: rgba(159,232,112,0.5); margin-top: 22px; text-align: center;">
+        <div class="guide-box" style="border-color: rgba(159,232,112,0.5); margin-top: 22px;">
             <p class="guide-title" style="color:#9fe870; font-size:1.18rem; text-align:center; margin-bottom:10px; letter-spacing:-0.02em;">📋 내가 본 시험 한 눈에 분석하기 ✨</p>
-            <p class="guide-text" style="text-align:center;">시험지 사진을 올리면 문항·배점을 AI가 읽고, 오답·서술 점수·유형별 그래프·진단 리포트를 만듭니다. (이름·학년은 메인 프로필에서만 사용합니다.)</p>
+            <p class="guide-text" style="text-align:justify;">시험지 사진을 올리면 문항·배점을 AI가 읽고, 오답·서술 점수·유형별 그래프·진단 리포트를 만듭니다.</p>
+            <p class="guide-text" style="text-align:justify; margin-top:8px;">(이름·학년은 메인 프로필에서만 사용합니다.)</p>
             <button type="button" id="exam-report-open-btn" class="login-btn" style="width:100%; margin-top:12px; border-color:#9fe870; color:#9fe870; background:rgba(159,232,112,0.08);">
                 클릭
             </button>
@@ -253,7 +254,7 @@
             <div class="result-card">
                 <button type="button" id="exam-rpt-toggle-questions" class="login-btn" style="width:100%; margin-top:0; border-color:#9fe870; color:#9fe870; background:rgba(159,232,112,0.06);">문항·배점 접기 ▲</button>
                 <div id="exam-rpt-questions-collapsible" style="display:block; margin-top:12px;">
-                    <p class="guide-text" style="font-size:0.95rem;color:#f0f0f0;margin:0 0 10px 0;padding:12px 14px;border-radius:10px;background:rgba(255,204,128,0.1);border:1px solid rgba(255,204,128,0.35);line-height:1.65;">객관식은 틀린 문항에 <strong style="color:#ff8888;">오답</strong>을 눌러 주세요. 서술형은 획득점수를 직접 입력합니다.</p>
+                    <p class="guide-text" style="font-size:0.95rem;color:#f0f0f0;margin:0 0 10px 0;padding:12px 14px;border-radius:10px;background:rgba(255,204,128,0.1);border:1px solid rgba(255,204,128,0.35);line-height:1.65;">객관식은 틀린 문항에 <strong style="color:#ff8888;">오답</strong>을 눌러 주세요.<br>서술형은 획득점수를 직접 입력합니다.</p>
                     <p id="exam-rpt-total-points-hint" style="font-size:0.92rem;color:#ffcc80;margin:0 0 10px 0;line-height:1.55;"></p>
                     <div id="exam-rpt-questions-wrap" style="overflow-x:auto;"></div>
                 </div>
@@ -265,7 +266,7 @@
             </div>
             <div class="result-card">
                 <span class="result-label">성적 요약</span>
-                <div id="exam-rpt-score-summary" style="font-size:0.95rem; line-height:1.7;"></div>
+                <div id="exam-rpt-score-summary" style="font-size:1.05rem; line-height:1.75;"></div>
                 <div id="exam-rpt-charts-row" style="position:relative;display:flex; flex-direction:column; gap:22px; align-items:center; margin-top:16px; padding-top:34px;">
                     <p id="exam-rpt-chart-legend" style="position:absolute;top:0;left:0;margin:0;font-size:0.8rem;color:#ccc;line-height:1.55;text-align:left;"><span style="color:#39ff14">■ 획득점수</span><br><span style="color:#ff4444">■ 실점</span></p>
                     <div style="text-align:center; width:100%; max-width:220px;">
@@ -281,14 +282,15 @@
             </div>
             <div class="result-card">
                 <span class="result-label">AI 진단 (오답 유형 기반)</span>
-                <div id="exam-rpt-ai-diagnosis" style="font-size:0.92rem; color:#ddd; line-height:1.65;"></div>
+                <div id="exam-rpt-ai-diagnosis" style="font-size:0.92rem; color:#ddd; line-height:1.65; text-align:justify;"></div>
                 <button type="button" id="exam-rpt-gen-diagnosis" class="login-btn" style="margin-top:10px; width:100%; border-color:var(--neon-blue);">AI 진단 생성</button>
             </div>
             <div class="result-card">
-                <span class="result-label">선생님(관리자) 추가 코멘트</span>
-                <p class="guide-text" style="font-size:0.8rem; color:#888; margin:0 0 10px 0;">입력한 내용은 <strong>아래「리포트 저장」후 인쇄·PDF로 저장</strong>할 때 리포트에 함께 실립니다. 학생에게는 이 화면을 보여 주거나 PDF·캡처를 주면 확인할 수 있어요. (별도 학생 계정 자동 전송은 없습니다.)</p>
-                <textarea id="exam-rpt-admin-comment" rows="4" style="width:100%; box-sizing:border-box; background:#111; border:1px solid #444; color:#fff; border-radius:8px; padding:10px; font-size:0.9rem;" placeholder="학생에게 전달할 메모를 입력하세요."></textarea>
+                <span class="result-label">선생님(관리자) 메모</span>
+                <p class="guide-text" style="font-size:0.8rem; color:#888; margin:0 0 10px 0;">선생님만 보는 메모입니다. 학생용 인쇄·PDF에는 넣지 않습니다. (학생 의뢰 알림·관리자 전용 접수 화면은 아직 없으며, 추후 연결 예정입니다.)</p>
+                <textarea id="exam-rpt-admin-comment" rows="4" style="width:100%; box-sizing:border-box; background:#111; border:1px solid #444; color:#fff; border-radius:8px; padding:10px; font-size:0.9rem;" placeholder="선생님만 보는 메모"></textarea>
             </div>
+            <p id="exam-rpt-save-hint" class="guide-text" style="font-size:0.82rem;color:#aaa;margin:8px 0 0 0;line-height:1.55;">「리포트 저장」을 누르면 서버 저장을 시도한 뒤, 아래 <strong>인쇄·PDF 저장</strong> 버튼이 나타납니다. (처음에는 PDF 버튼이 숨겨져 있습니다.)</p>
             <button type="button" id="exam-rpt-submit-save" class="kakao-btn" style="margin-top:8px;">리포트 저장 · PDF 안내</button>
             <button type="button" id="exam-rpt-download-pdf" class="login-btn" style="width:100%; margin-top:10px; border-color:#fff; display:none;">분석 결과 인쇄·PDF 저장</button>
         </div>
@@ -1950,14 +1952,14 @@
             if (!out || !obj) return;
             const summary = escapeHtml(String(obj.summary || '').trim());
             let html =
-                '<p style="margin:0 0 14px 0;padding-bottom:10px;border-bottom:1px solid #333;color:#f4f4f4;font-weight:600;">' +
+                '<p style="margin:0 0 14px 0;padding-bottom:10px;border-bottom:1px solid #333;color:#f4f4f4;font-weight:600;text-align:justify;">' +
                 summary +
                 '</p>';
             if (Array.isArray(obj.tips) && obj.tips.length) {
-                html += '<ol style="margin:0;padding-left:1.15em;">';
+                html += '<ol style="margin:0;padding-left:1.2em;text-align:justify;">';
                 obj.tips.forEach((tip) => {
                     html +=
-                        '<li style="margin:0 0 10px 0;color:#9fe870;list-style:decimal;"><span style="text-decoration:underline;text-underline-offset:3px;">' +
+                        '<li style="margin:0 0 12px 0;color:#d8ffd0;list-style:decimal;line-height:1.65;"><span style="color:#b8ff8a;font-weight:600;">' +
                         escapeHtml(String(tip)) +
                         '</span></li>';
                 });
@@ -2198,18 +2200,31 @@
             ctx.fillStyle = '#111';
             ctx.fill();
             const fmt = examRptFmt1;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
+            const labelR = r * 0.72;
+            const drawRingScore = (midAng, text, color) => {
+                const x = cx + Math.cos(midAng) * labelR;
+                const y = cy + Math.sin(midAng) * labelR;
+                ctx.font = 'bold 12px sans-serif';
+                ctx.fillStyle = color;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(text, x, y);
+            };
+            let angScore = -Math.PI / 2;
+            parts.forEach((p) => {
+                const slice = (p.v / sum) * Math.PI * 2;
+                if (p.v > 0) {
+                    drawRingScore(angScore + slice / 2, fmt(p.v), p.c);
+                }
+                angScore += slice;
+            });
             if (centerLabel) {
                 ctx.fillStyle = '#e8e8e8';
                 ctx.font = 'bold 13px sans-serif';
-                ctx.fillText(centerLabel, cx, cy - 14);
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(centerLabel, cx, cy);
             }
-            ctx.font = 'bold 11px sans-serif';
-            ctx.fillStyle = '#39ff14';
-            ctx.fillText('획득 ' + fmt(earned), cx, cy + 4);
-            ctx.fillStyle = '#ff4444';
-            ctx.fillText('실점 ' + fmt(lost), cx, cy + 20);
             ctx.textAlign = 'start';
             ctx.textBaseline = 'alphabetic';
         }
@@ -2349,7 +2364,7 @@
                           '%</td></tr>'
                         : '<tr><td style="padding:8px;border-bottom:1px solid #333;">서술형</td><td colspan="4" style="padding:8px;border-bottom:1px solid #333;color:#666;">해당 없음</td></tr>';
                 el.innerHTML =
-                    '<table style="width:100%;border-collapse:collapse;font-size:0.82rem;margin-top:4px;table-layout:fixed;"><thead><tr style="color:#9fe870;"><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">구분</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">문항</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">만점</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">획득</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">대비</th></tr></thead><tbody>' +
+                    '<table style="width:100%;border-collapse:collapse;font-size:1.08rem;margin-top:4px;table-layout:fixed;"><thead><tr style="color:#9fe870;font-size:0.92rem;"><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">구분</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">문항</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">만점</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">획득</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">대비</th></tr></thead><tbody>' +
                     mcRow +
                     esRow +
                     '<tr style="color:#fff;"><td style="padding:8px;">전체</td><td style="padding:8px;">' +
@@ -2578,9 +2593,9 @@
             const school = (document.getElementById('exam-rpt-school') && document.getElementById('exam-rpt-school').value || '').trim();
             const examSel = document.getElementById('exam-rpt-exam-type');
             const examLabel = examSel && examSel.options[examSel.selectedIndex] ? examSel.options[examSel.selectedIndex].text : '';
+            const grade = (document.getElementById('exam-rpt-display-grade') && document.getElementById('exam-rpt-display-grade').textContent || '').trim();
             const t = examRptComputeTotals();
             const fmt = examRptFmt1;
-            const adm = (document.getElementById('exam-rpt-admin-comment') && document.getElementById('exam-rpt-admin-comment').value) || '';
             const aiEl = document.getElementById('exam-rpt-ai-diagnosis');
             const aiTxt = (aiEl && (aiEl.innerText || aiEl.textContent)) || '';
             const rows = examRptQuestions.map((q) => {
@@ -2595,11 +2610,10 @@
             }).join('');
             const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>내가 본 시험 한 눈에 분석</title>' +
                 '<style>body{font-family:sans-serif;padding:24px;color:#111;}h1{font-size:1.2rem;}table{border-collapse:collapse;width:100%;margin-top:12px;}th,td{border:1px solid #333;padding:6px;font-size:12px;}</style></head><body>' +
-                '<h1>내가 본 시험 한 눈에 분석</h1><p><strong>이름</strong> ' + escapeHtml(name) + ' · <strong>학교</strong> ' + escapeHtml(school) + ' · <strong>시험</strong> ' + escapeHtml(examLabel) + '</p>' +
+                '<h1>내가 본 시험 한 눈에 분석</h1><p><strong>이름</strong> ' + escapeHtml(name) + ' · <strong>학년</strong> ' + escapeHtml(grade || '—') + ' · <strong>학교</strong> ' + escapeHtml(school) + ' · <strong>시험</strong> ' + escapeHtml(examLabel) + '</p>' +
                 '<p>객관식 문항 ' + t.mcRightCnt + '/' + t.mcCnt + ' 정답(' + fmt(t.mcAccByCount) + '%) · 획득점수 ' + fmt(t.mcEarn) + '/' + fmt(t.mcPts) + ' (배점 대비 ' + fmt(t.mcAcc) + '%) · 서술 획득점수 ' + fmt(t.esEarn) + '/' + fmt(t.esPts) + '</p>' +
                 '<h2>문항</h2><table><thead><tr><th>번호</th><th>유형</th><th>배점</th><th>결과</th><th>오답 원인</th></tr></thead><tbody>' + rows + '</tbody></table>' +
                 '<h2>AI 진단</h2><pre style="white-space:pre-wrap;font-size:12px;">' + escapeHtml(aiTxt) + '</pre>' +
-                '<h2>선생님 코멘트</h2><pre style="white-space:pre-wrap;font-size:12px;">' + escapeHtml(adm) + '</pre>' +
                 '<p style="margin-top:24px;font-size:11px;color:#666;">브라우저 메뉴에서 인쇄 → PDF로 저장하세요.</p></body></html>';
             const w = window.open('', '_blank');
             if (w) {
@@ -2659,9 +2673,10 @@
                         );
                     } catch (ignore) {}
                     alert(
-                        '서버에 시험 리포트 저장 API가 없거나(not_found) 아직 배포되지 않았습니다.\n\n' +
-                            '이 기기 브라우저에 임시로 복사해 두었습니다. 아래「인쇄·PDF」로 리포트는 그대로 만들 수 있어요.\n' +
-                            '나중에 API가 켜지면 같은 화면에서 다시「리포트 저장」을 눌러 주세요.'
+                        '서버에 시험 리포트 저장 API가 아직 없습니다(not_found).\n\n' +
+                            '개발 PC에서 Cloudflare Worker를 다시 배포하고 D1에 exam_analysis 테이블을 적용해야 합니다.\n' +
+                            '(wrangler deploy, wrangler d1 execute … d1-schema.sql)\n\n' +
+                            '지금은 이 기기에 임시 복사해 두었고, 아래「인쇄·PDF 저장」으로 학생용 리포트는 만들 수 있습니다.'
                     );
                     afterSaveOk();
                 } else {
