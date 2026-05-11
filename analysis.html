@@ -285,10 +285,16 @@
                 <div id="exam-rpt-ai-diagnosis" style="font-size:0.92rem; color:#ddd; line-height:1.65; text-align:justify;"></div>
                 <button type="button" id="exam-rpt-gen-diagnosis" class="login-btn" style="margin-top:10px; width:100%; border-color:var(--neon-blue);">AI 진단 생성</button>
             </div>
-            <div class="result-card">
+            <div class="result-card" id="exam-rpt-admin-section" style="display:none;">
                 <span class="result-label">선생님(관리자) 메모</span>
-                <p class="guide-text" style="font-size:0.8rem; color:#888; margin:0 0 10px 0;">선생님만 보는 메모입니다. 학생용 인쇄·PDF에는 넣지 않습니다. (학생 의뢰 알림·관리자 전용 접수 화면은 아직 없으며, 추후 연결 예정입니다.)</p>
-                <textarea id="exam-rpt-admin-comment" rows="4" style="width:100%; box-sizing:border-box; background:#111; border:1px solid #444; color:#fff; border-radius:8px; padding:10px; font-size:0.9rem;" placeholder="선생님만 보는 메모"></textarea>
+                <p class="guide-text" style="font-size:0.8rem; color:#888; margin:0 0 10px 0;">관리자 모드에서만 보입니다. 학생 화면·인쇄·PDF에는 넣지 않습니다. 학생이 리포트를 저장하면 서버 접수함에 쌓이며, 아래에서 확인한 뒤 코멘트를 남길 수 있습니다.</p>
+                <label style="font-size:0.78rem;color:#777;display:block;margin:0 0 8px 0;">관리자 API 키 (Cloudflare Worker API_SECRET_KEY)
+                    <input type="password" id="exam-rpt-admin-api-key" class="auth-input" style="width:100%;margin-top:4px;box-sizing:border-box;" placeholder="wrangler secret put API_SECRET_KEY 값" autocomplete="off">
+                </label>
+                <button type="button" id="exam-rpt-admin-load-list" class="login-btn" style="width:100%;margin:0 0 10px 0;border-color:#ffcc80;color:#ffcc80;">의뢰 목록 새로고침</button>
+                <div id="exam-rpt-admin-list" style="font-size:0.82rem;color:#ccc;margin:0 0 12px 0;line-height:1.55;"></div>
+                <textarea id="exam-rpt-admin-comment" rows="4" style="width:100%; box-sizing:border-box; background:#111; border:1px solid #444; color:#fff; border-radius:8px; padding:10px; font-size:0.9rem;" placeholder="선택한 의뢰에 남길 코멘트"></textarea>
+                <button type="button" id="exam-rpt-admin-save-comment" class="login-btn" style="width:100%;margin-top:8px;border-color:#9fe870;color:#9fe870;">선택 의뢰에 코멘트 저장</button>
             </div>
             <p id="exam-rpt-save-hint" class="guide-text" style="font-size:0.82rem;color:#aaa;margin:8px 0 0 0;line-height:1.55;">「리포트 저장」을 누르면 서버 저장을 시도한 뒤, 아래 <strong>인쇄·PDF 저장</strong> 버튼이 나타납니다. (처음에는 PDF 버튼이 숨겨져 있습니다.)</p>
             <button type="button" id="exam-rpt-submit-save" class="kakao-btn" style="margin-top:8px;">리포트 저장 · PDF 안내</button>
@@ -556,8 +562,10 @@
             });
             const data = await res.json().catch(() => ({}));
             if (!res.ok || data.error) {
-                const err = new Error(data.error || `요청 실패 (${res.status})`);
+                const apiError = typeof data.error === 'string' ? data.error : (data.error && data.error.message) || '';
+                const err = new Error(apiError || `요청 실패 (${res.status})`);
                 err.httpStatus = res.status;
+                err.apiError = apiError;
                 throw err;
             }
             return data;
@@ -1947,25 +1955,144 @@
             btn.textContent = examRptAiDiagnosis ? 'AI 진단 다시 생성' : 'AI 진단 생성';
         }
 
+        function examRptFormatDiagnosisLine(text) {
+            const raw = String(text || '').trim();
+            if (!raw) return '';
+            const safe = escapeHtml(raw);
+            const lead = safe.match(/^([^:：]{2,36}[:：])(.*)$/);
+            if (lead) {
+                return (
+                    '<span style="color:#b8ff8a;font-weight:700;">' +
+                    lead[1] +
+                    '</span><span style="color:#e6e6e6;">' +
+                    lead[2] +
+                    '</span>'
+                );
+            }
+            return safe.replace(
+                /(&#39;[^&#39;]+&#39;|&quot;[^&quot;]+&quot;|「[^」]+」|\[[^\]]+\]|\([^)]{2,}\))/g,
+                '<span style="color:#d8ffbf;font-weight:600;">$1</span>'
+            );
+        }
+
         function examRptRenderDiagnosisOutput(obj) {
             const out = document.getElementById('exam-rpt-ai-diagnosis');
             if (!out || !obj) return;
             const summary = escapeHtml(String(obj.summary || '').trim());
             let html =
-                '<p style="margin:0 0 14px 0;padding-bottom:10px;border-bottom:1px solid #333;color:#f4f4f4;font-weight:600;text-align:justify;">' +
+                '<p style="margin:0 0 14px 0;padding-bottom:10px;border-bottom:1px solid #333;color:#f4f4f4;font-weight:600;text-align:justify;text-justify:inter-ideograph;text-align-last:left;line-height:1.75;">' +
                 summary +
                 '</p>';
             if (Array.isArray(obj.tips) && obj.tips.length) {
-                html += '<ol style="margin:0;padding-left:1.2em;text-align:justify;">';
+                html += '<ol style="margin:0;padding-left:1.35em;list-style-position:outside;">';
                 obj.tips.forEach((tip) => {
                     html +=
-                        '<li style="margin:0 0 12px 0;color:#d8ffd0;list-style:decimal;line-height:1.65;"><span style="color:#b8ff8a;font-weight:600;">' +
-                        escapeHtml(String(tip)) +
-                        '</span></li>';
+                        '<li style="margin:0 0 12px 0;color:#d0d0d0;list-style:decimal;line-height:1.75;text-align:justify;text-justify:inter-ideograph;text-align-last:left;">' +
+                        examRptFormatDiagnosisLine(tip) +
+                        '</li>';
                 });
                 html += '</ol>';
             }
             out.innerHTML = html;
+        }
+
+        function examRptIsAdminMode() {
+            return localStorage.getItem('trigger_admin_mode') === 'true';
+        }
+
+        function examRptSyncAdminSection() {
+            const sec = document.getElementById('exam-rpt-admin-section');
+            if (!sec) return;
+            sec.style.display = examRptIsAdminMode() ? 'block' : 'none';
+            const keyEl = document.getElementById('exam-rpt-admin-api-key');
+            if (keyEl && !keyEl.value) {
+                keyEl.value = localStorage.getItem('trigger_exam_admin_api_key') || '';
+            }
+        }
+
+        let examRptAdminSelectedId = '';
+
+        async function examRptAdminPost(path, body) {
+            const keyEl = document.getElementById('exam-rpt-admin-api-key');
+            const apiKey = (keyEl && keyEl.value || localStorage.getItem('trigger_exam_admin_api_key') || '').trim();
+            if (!apiKey) throw new Error('관리자 API 키를 입력해 주세요.');
+            localStorage.setItem('trigger_exam_admin_api_key', apiKey);
+            const res = await fetch(WORKER_URL.replace(/\/$/, '') + path, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-API-Secret': apiKey },
+                body: JSON.stringify(body || {})
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok || data.error) {
+                const apiError = typeof data.error === 'string' ? data.error : (data.error && data.error.message) || '';
+                throw new Error(apiError || `요청 실패 (${res.status})`);
+            }
+            return data;
+        }
+
+        async function examRptAdminLoadList() {
+            const listEl = document.getElementById('exam-rpt-admin-list');
+            if (!listEl) return;
+            listEl.textContent = '불러오는 중…';
+            try {
+                const data = await examRptAdminPost('/api/exam-report/admin/list', {});
+                const items = Array.isArray(data.items) ? data.items : [];
+                if (!items.length) {
+                    listEl.textContent = '접수된 리포트가 없습니다.';
+                    return;
+                }
+                listEl.innerHTML = items
+                    .map(function (item) {
+                        const pending = !String(item.admin_comment || '').trim();
+                        const label =
+                            escapeHtml(String(item.student_name || '')) +
+                            ' · ' +
+                            escapeHtml(String(item.grade || '—')) +
+                            ' · ' +
+                            escapeHtml(String(item.school_name || '')) +
+                            ' · ' +
+                            escapeHtml(String(item.exam_type || ''));
+                        return (
+                            '<button type="button" class="exam-rpt-admin-pick login-btn" data-id="' +
+                            escapeHtml(String(item.id || '')) +
+                            '" style="width:100%;margin:0 0 8px 0;text-align:left;border-color:' +
+                            (pending ? '#ffcc80' : '#666') +
+                            ';color:#eee;">' +
+                            label +
+                            (pending ? ' · 검토 대기' : ' · 코멘트 있음') +
+                            '</button>'
+                        );
+                    })
+                    .join('');
+                listEl.querySelectorAll('.exam-rpt-admin-pick').forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        examRptAdminSelectedId = btn.getAttribute('data-id') || '';
+                        listEl.querySelectorAll('.exam-rpt-admin-pick').forEach(function (b) {
+                            b.style.outline = b === btn ? '1px solid #9fe870' : '';
+                        });
+                    });
+                });
+            } catch (e) {
+                listEl.textContent = e.message || String(e);
+            }
+        }
+
+        async function examRptAdminSaveComment() {
+            if (!examRptAdminSelectedId) {
+                alert('의뢰 목록에서 리포트를 먼저 선택해 주세요.');
+                return;
+            }
+            const comment = (document.getElementById('exam-rpt-admin-comment') && document.getElementById('exam-rpt-admin-comment').value) || '';
+            try {
+                await examRptAdminPost('/api/exam-report/admin/comment', {
+                    id: examRptAdminSelectedId,
+                    admin_comment: comment
+                });
+                alert('코멘트를 저장했습니다.');
+                examRptAdminLoadList();
+            } catch (e) {
+                alert(e.message || String(e));
+            }
         }
 
         function examRptRestoreWorkspaceUi() {
@@ -2061,6 +2188,7 @@
             const savedG = (localStorage.getItem('trigger_saved_exam_grade') || '').trim();
             const urlG = params.get('grade') || '';
             if (gr) gr.textContent = savedG || urlG || '—';
+            examRptSyncAdminSection();
         }
 
         function closeExamReportWorkspace() {
@@ -2163,7 +2291,7 @@
             if (!canvas || !canvas.getContext) return;
             const ctx = canvas.getContext('2d');
             const w = canvas.width, h = canvas.height;
-            const cx = w / 2, cy = h / 2, r = Math.min(w, h) / 2 - 6;
+            const cx = w / 2, cy = h / 2, r = Math.min(w, h) / 2 - 16;
             ctx.clearRect(0, 0, w, h);
             const max = Math.max(0, Number(maxRaw) || 0);
             const earned = Math.max(0, Math.min(Number(earnedRaw) || 0, max));
@@ -2200,14 +2328,17 @@
             ctx.fillStyle = '#111';
             ctx.fill();
             const fmt = examRptFmt1;
-            const labelR = r * 0.72;
+            const labelR = r + 2;
             const drawRingScore = (midAng, text, color) => {
                 const x = cx + Math.cos(midAng) * labelR;
                 const y = cy + Math.sin(midAng) * labelR;
-                ctx.font = 'bold 12px sans-serif';
-                ctx.fillStyle = color;
+                ctx.font = 'bold 13px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = '#111';
+                ctx.strokeText(text, x, y);
+                ctx.fillStyle = color;
                 ctx.fillText(text, x, y);
             };
             let angScore = -Math.PI / 2;
@@ -2450,9 +2581,9 @@
         }
 
         function examRptIsApiNotFoundError(err) {
-            const m = String((err && err.message) || '');
+            const apiError = String((err && err.apiError) || (err && err.message) || '');
             const st = err && err.httpStatus;
-            return st === 404 || m.indexOf('not_found') !== -1 || m.indexOf('요청 실패 (404)') !== -1;
+            return st === 404 && (apiError === 'not_found' || apiError.indexOf('not_found') !== -1);
         }
 
         async function examRptRunExtract() {
@@ -2649,8 +2780,7 @@
                 voca_level_link: vocaLink,
                 questions_json: examRptQuestions,
                 session_json: JSON.stringify(sessionPayload),
-                ai_diagnosis_json: examRptAiDiagnosis ? JSON.stringify(examRptAiDiagnosis) : null,
-                admin_comment: (document.getElementById('exam-rpt-admin-comment') && document.getElementById('exam-rpt-admin-comment').value) || ''
+                ai_diagnosis_json: examRptAiDiagnosis ? JSON.stringify(examRptAiDiagnosis) : null
             };
             const afterSaveOk = function () {
                 examRptSchedulePdfNotify();
@@ -2743,6 +2873,11 @@
             examRptSyncDiagnosisButton();
             const sv = document.getElementById('exam-rpt-submit-save');
             if (sv) sv.addEventListener('click', examRptSubmitSave);
+            const adminListBtn = document.getElementById('exam-rpt-admin-load-list');
+            if (adminListBtn) adminListBtn.addEventListener('click', examRptAdminLoadList);
+            const adminSaveBtn = document.getElementById('exam-rpt-admin-save-comment');
+            if (adminSaveBtn) adminSaveBtn.addEventListener('click', examRptAdminSaveComment);
+            examRptSyncAdminSection();
             const lb = document.getElementById('exam-rpt-lightbox');
             const lbClose = document.getElementById('exam-rpt-lightbox-close');
             if (lb) {

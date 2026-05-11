@@ -384,13 +384,15 @@ async function handleExamReportSave(env, body) {
         ? body.ai_diagnosis_json
         : JSON.stringify(body.ai_diagnosis_json);
   }
-  const admin_comment = String(body.admin_comment || "").trim();
   const voca_level_link = String(body.voca_level_link || "").trim();
   const now = new Date().toISOString();
 
-  const existing = await env.DB.prepare("SELECT id FROM exam_analysis WHERE id = ?1 AND user_id = ?2")
+  const existing = await env.DB.prepare(
+    "SELECT id, admin_comment FROM exam_analysis WHERE id = ?1 AND user_id = ?2"
+  )
     .bind(id, userId)
     .first();
+  const admin_comment = existing ? String(existing.admin_comment || "").trim() : "";
 
   if (existing) {
     await env.DB.prepare(
@@ -435,6 +437,30 @@ async function handleExamReportSave(env, body) {
       )
       .run();
   }
+  return json({ ok: true, id });
+}
+
+async function handleExamReportAdminList(env, request, body) {
+  if (!verifyPaymentSecret(env, request, body)) return json({ error: "unauthorized" }, 401);
+  const rows = await env.DB.prepare(
+    `SELECT id, user_id, student_name, grade, school_name, exam_type, admin_comment, created_at, updated_at
+     FROM exam_analysis ORDER BY datetime(created_at) DESC LIMIT 80`
+  ).all();
+  return json({ ok: true, items: rows.results || [] });
+}
+
+async function handleExamReportAdminComment(env, request, body) {
+  if (!verifyPaymentSecret(env, request, body)) return json({ error: "unauthorized" }, 401);
+  const id = String(body.id || "").trim();
+  const admin_comment = String(body.admin_comment || "").trim();
+  if (!id) return json({ error: "id가 필요합니다." }, 400);
+  const now = new Date().toISOString();
+  const result = await env.DB.prepare(
+    "UPDATE exam_analysis SET admin_comment = ?1, updated_at = ?2 WHERE id = ?3"
+  )
+    .bind(admin_comment, now, id)
+    .run();
+  if (!result.meta || !result.meta.changes) return json({ error: "not_found" }, 404);
   return json({ ok: true, id });
 }
 
@@ -508,6 +534,12 @@ export default {
       }
       if (request.method === "POST" && path === "/api/exam-report/get") {
         return handleExamReportGet(env, await request.json());
+      }
+      if (request.method === "POST" && path === "/api/exam-report/admin/list") {
+        return handleExamReportAdminList(env, request, await request.json());
+      }
+      if (request.method === "POST" && path === "/api/exam-report/admin/comment") {
+        return handleExamReportAdminComment(env, request, await request.json());
       }
       if (request.method === "POST" && path === "/") {
         return handleGeminiProxy(env, request);
