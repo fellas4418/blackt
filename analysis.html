@@ -138,10 +138,10 @@
         </div>
 
         <div class="guide-box" style="border-color: rgba(159,232,112,0.5); margin-top: 22px;">
-            <p class="guide-title" style="color:#9fe870;">📊 시험 분석 리포트</p>
+            <p class="guide-title" style="color:#9fe870;">내가 본 시험 한 눈에 분석하기</p>
             <p class="guide-text">시험지 사진을 올리면 문항·배점을 AI가 읽고, 오답·서술 점수·유형별 그래프·진단 리포트를 만듭니다. (이름·학년은 메인 프로필에서만 사용합니다.)</p>
             <button type="button" id="exam-report-open-btn" class="login-btn" style="width:100%; margin-top:12px; border-color:#9fe870; color:#9fe870; background:rgba(159,232,112,0.08);">
-                시험 분석 리포트 생성
+                내가 본 시험 한 눈에 분석하기
             </button>
         </div>
     </div>
@@ -183,13 +183,14 @@
         <div class="result-card">
             <span class="result-label">시험지 사진</span>
             <input type="file" id="exam-rpt-files" accept="image/*" multiple style="display:none;">
-            <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                <button type="button" class="login-btn" style="flex:1; min-width:120px; margin-top:0; border-color:var(--neon-green);" onclick="document.getElementById('exam-rpt-files').click()">사진 추가 📷</button>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button type="button" id="exam-rpt-open-camera" class="login-btn" style="flex:1; min-width:120px; margin-top:0; border-color:var(--neon-green);">실시간 촬영 📸</button>
+                <button type="button" id="exam-rpt-open-gallery" class="login-btn" style="flex:1; min-width:120px; margin-top:0; border-color:var(--neon-blue);">사진 선택 🖼️</button>
             </div>
             <p id="exam-rpt-photo-count" style="margin:10px 0 0; font-size:0.95rem; color:var(--neon-blue); font-weight:bold;">현재 0장 촬영 완료</p>
             <div id="exam-rpt-thumbs" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;"></div>
         </div>
-        <button type="button" id="exam-rpt-run-extract" class="start-btn" style="width:100%; margin-top:12px; border-color:var(--neon-orange);">분석 시작 (OCR)</button>
+        <button type="button" id="exam-rpt-run-extract" class="start-btn" style="width:100%; margin-top:12px; border-color:var(--neon-orange);">분석 시작</button>
         <button type="button" class="login-btn" style="width:100%; margin-top:10px; border-color:#666; color:#ccc; background:transparent;" onclick="closeExamReportWorkspace()">닫기</button>
 
         <div id="exam-rpt-after-extract" style="display:none; margin-top:18px;">
@@ -220,7 +221,7 @@
                 <textarea id="exam-rpt-admin-comment" rows="4" style="width:100%; box-sizing:border-box; background:#111; border:1px solid #444; color:#fff; border-radius:8px; padding:10px; font-size:0.9rem;" placeholder="학생에게 전달할 메모를 입력하세요."></textarea>
             </div>
             <button type="button" id="exam-rpt-submit-save" class="kakao-btn" style="margin-top:8px;">리포트 저장 · PDF 안내</button>
-            <button type="button" id="exam-rpt-download-pdf" class="login-btn" style="width:100%; margin-top:10px; border-color:#fff; display:none;">리포트 PDF(인쇄) 열기</button>
+            <button type="button" id="exam-rpt-download-pdf" class="login-btn" style="width:100%; margin-top:10px; border-color:#fff; display:none;">분석 결과 인쇄·PDF 저장</button>
         </div>
     </div>
 
@@ -1787,7 +1788,7 @@
             }
         }
 
-        /* ========== 시험 분석 리포트 ========== */
+        /* ========== 내가 본 시험 한 눈에 분석 ========== */
         const EXAM_RPT_REASON_OPTIONS = [
             '단어 미숙', '지문 숙지 부족', '구문 오류', '주제 파악 안 됨', '문법 부정확',
             '선지 해석 오류', '시간 부족', '매력적 오답', '조건 미충족'
@@ -2022,6 +2023,80 @@
             examRptDrawPie(t);
         }
 
+        function examRptNormalizeQuestions(questions) {
+            if (!Array.isArray(questions)) return [];
+            return questions
+                .map((q) => ({
+                    number: Number(q.number),
+                    type: String(q.type || '').toLowerCase() === 'essay' ? 'essay' : 'multiple',
+                    points: Number(q.points) || 0,
+                }))
+                .filter((q) => Number.isFinite(q.number) && q.number > 0 && q.points >= 0);
+        }
+
+        async function examRptExtractViaGeminiProxy() {
+            const prompt =
+                'You extract structure from Korean school English exam paper photos.\n' +
+                'Return ONLY valid JSON (no markdown) with this exact shape:\n' +
+                '{"questions":[{"number":1,"type":"multiple","points":2},{"number":2,"type":"essay","points":10}]}\n' +
+                'Rules:\n' +
+                '- "number": visible problem index (integer).\n' +
+                '- "type": "multiple" for 객관식·선택·빈칸 고르기 등, "essay" for 서술·논술·장문·단답 서술.\n' +
+                '- "points": 배점 숫자 (unknown이면 합리적으로 추정).\n' +
+                '- Merge pages: include every numbered item you can read across all images.\n' +
+                '- If unreadable, omit that item (do not guess numbers).';
+            const parts = [{ text: prompt }];
+            examRptImages.forEach(function (img) {
+                parts.push({ inlineData: { mimeType: img.mimeType, data: img.data } });
+            });
+            const payload = {
+                contents: [{ parts }],
+                generationConfig: { temperature: 0.1, responseMimeType: 'application/json' },
+            };
+            const base = WORKER_URL.replace(/\/$/, '');
+            let lastErr = null;
+            for (const u of [base + '/api/analyze', base + '/']) {
+                try {
+                    const r = await fetch(u, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload),
+                    });
+                    const data = await r.json().catch(() => ({}));
+                    if (!r.ok) {
+                        lastErr = new Error(data.error?.message || data.error || 'HTTP ' + r.status);
+                        continue;
+                    }
+                    if (data.error) {
+                        lastErr = new Error(data.error.message || data.error);
+                        continue;
+                    }
+                    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (!text) {
+                        lastErr = new Error('empty_response');
+                        continue;
+                    }
+                    let clean = String(text).trim();
+                    const a = clean.indexOf('{');
+                    const b = clean.lastIndexOf('}');
+                    if (a !== -1 && b !== -1) clean = clean.substring(a, b + 1);
+                    const parsed = JSON.parse(clean);
+                    const normalized = examRptNormalizeQuestions(parsed.questions);
+                    if (!normalized.length) throw new Error('문항을 인식하지 못했습니다. 더 선명한 사진으로 다시 시도해 주세요.');
+                    return normalized;
+                } catch (ex) {
+                    lastErr = ex;
+                }
+            }
+            throw lastErr || new Error('분석에 실패했습니다.');
+        }
+
+        function examRptIsExtractNotFoundError(err) {
+            const m = String((err && err.message) || '');
+            const st = err && err.httpStatus;
+            return st === 404 || m.indexOf('not_found') !== -1 || m.indexOf('요청 실패 (404)') !== -1;
+        }
+
         async function examRptRunExtract() {
             if (!authUserId) return;
             const school = (document.getElementById('exam-rpt-school') && document.getElementById('exam-rpt-school').value || '').trim();
@@ -2045,13 +2120,20 @@
                 btn.innerText = '분석 중…';
             }
             try {
-                const data = await postJson('/api/exam-report/extract', {
-                    user_id: authUserId,
-                    password: authPassword,
-                    images: examRptImages,
-                    meta: { school_name: school, exam_type: examType }
-                });
-                examRptQuestions = Array.isArray(data.questions) ? data.questions : [];
+                let questions = [];
+                try {
+                    const data = await postJson('/api/exam-report/extract', {
+                        user_id: authUserId,
+                        password: authPassword,
+                        images: examRptImages,
+                        meta: { school_name: school, exam_type: examType },
+                    });
+                    questions = examRptNormalizeQuestions(data.questions);
+                } catch (err) {
+                    if (!examRptIsExtractNotFoundError(err)) throw err;
+                    questions = await examRptExtractViaGeminiProxy();
+                }
+                examRptQuestions = questions;
                 examRptEnsureQuestionState();
                 document.getElementById('exam-rpt-after-extract').style.display = 'block';
                 examRptRenderQuestions();
@@ -2060,7 +2142,7 @@
             } finally {
                 if (btn) {
                     btn.disabled = false;
-                    btn.innerText = '분석 시작 (OCR)';
+                    btn.innerText = '분석 시작';
                 }
             }
         }
@@ -2133,8 +2215,8 @@
             setTimeout(function () {
                 try {
                     if (!('Notification' in window) || Notification.permission !== 'granted') return;
-                    const title = '📄 사라져 시험 리포트';
-                    const options = { body: '저장한 시험 분석 리포트 PDF를 다운로드해 보세요.', tag: 'exam-report-pdf', icon: 'icon-192.png' };
+                    const title = '📄 사라져 Voca · 내 시험 분석';
+                    const options = { body: '저장한 「내가 본 시험 한 눈에 분석」 리포트를 확인해 보세요.', tag: 'exam-report-pdf', icon: 'icon-192.png' };
                     if ('serviceWorker' in navigator) {
                         navigator.serviceWorker.getRegistration().then(function (reg) {
                             if (reg && reg.showNotification) reg.showNotification(title, options);
@@ -2160,9 +2242,9 @@
                 const rs = (examRptReasons[q.number] || []).join(', ');
                 return '<tr><td>' + q.number + '</td><td>' + (q.type === 'essay' ? '서술' : '객관') + '</td><td>' + q.points + '</td><td>' + w + '</td><td>' + escapeHtml(rs) + '</td></tr>';
             }).join('');
-            const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>시험 분석 리포트</title>' +
+            const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>내가 본 시험 한 눈에 분석</title>' +
                 '<style>body{font-family:sans-serif;padding:24px;color:#111;}h1{font-size:1.2rem;}table{border-collapse:collapse;width:100%;margin-top:12px;}th,td{border:1px solid #333;padding:6px;font-size:12px;}</style></head><body>' +
-                '<h1>시험 분석 리포트</h1><p><strong>이름</strong> ' + escapeHtml(name) + ' · <strong>학교</strong> ' + escapeHtml(school) + ' · <strong>시험</strong> ' + escapeHtml(examLabel) + '</p>' +
+                '<h1>내가 본 시험 한 눈에 분석</h1><p><strong>이름</strong> ' + escapeHtml(name) + ' · <strong>학교</strong> ' + escapeHtml(school) + ' · <strong>시험</strong> ' + escapeHtml(examLabel) + '</p>' +
                 '<p>객관식 ' + t.mcAcc + '% (' + t.mcEarn + '/' + t.mcPts + ') · 서술 ' + t.esEarn + '/' + t.esPts + '</p>' +
                 '<h2>문항</h2><table><thead><tr><th>번호</th><th>유형</th><th>배점</th><th>결과</th><th>오답 원인</th></tr></thead><tbody>' + rows + '</tbody></table>' +
                 '<h2>AI 진단</h2><pre style="white-space:pre-wrap;font-size:12px;">' + escapeHtml(aiTxt) + '</pre>' +
@@ -2206,7 +2288,7 @@
                     ai_diagnosis_json: examRptAiDiagnosis ? JSON.stringify(examRptAiDiagnosis) : null,
                     admin_comment: (document.getElementById('exam-rpt-admin-comment') && document.getElementById('exam-rpt-admin-comment').value) || ''
                 });
-                alert('저장되었습니다.\n\n24시간 이내에 리포트 PDF를 다운로드할 수 있습니다.\n(아래 버튼으로 인쇄/PDF 저장 또는 24시간 후 알림을 확인하세요.)');
+                alert('저장되었습니다.\n\n24시간 이내에 아래 버튼으로 분석 결과를 인쇄·PDF 저장할 수 있습니다.\n(알림을 켜 두면 24시간 후에도 안내를 받을 수 있어요.)');
                 examRptSchedulePdfNotify();
                 const pdfB = document.getElementById('exam-rpt-download-pdf');
                 if (pdfB) {
@@ -2222,6 +2304,20 @@
             const openBtn = document.getElementById('exam-report-open-btn');
             if (openBtn) openBtn.addEventListener('click', openExamReportWorkspace);
             const f = document.getElementById('exam-rpt-files');
+            const camBtn = document.getElementById('exam-rpt-open-camera');
+            const galBtn = document.getElementById('exam-rpt-open-gallery');
+            if (f && camBtn) {
+                camBtn.addEventListener('click', function () {
+                    f.setAttribute('capture', 'environment');
+                    f.click();
+                });
+            }
+            if (f && galBtn) {
+                galBtn.addEventListener('click', function () {
+                    f.removeAttribute('capture');
+                    f.click();
+                });
+            }
             if (f) {
                 f.addEventListener('change', function (ev) {
                     const files = ev.target.files;
