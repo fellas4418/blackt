@@ -193,11 +193,11 @@
             </button>
         </div>
 
-        <div class="guide-box" style="border-color: rgba(159,232,112,0.5); margin-top: 22px;">
-            <p class="guide-title" style="color:#9fe870;">내가 본 시험 한 눈에 분석하기</p>
-            <p class="guide-text">시험지 사진을 올리면 문항·배점을 AI가 읽고, 오답·서술 점수·유형별 그래프·진단 리포트를 만듭니다. (이름·학년은 메인 프로필에서만 사용합니다.)</p>
+        <div class="guide-box" style="border-color: rgba(159,232,112,0.5); margin-top: 22px; text-align: center;">
+            <p class="guide-title" style="color:#9fe870; font-size:1.18rem; text-align:center; margin-bottom:10px; letter-spacing:-0.02em;">📋 내가 본 시험 한 눈에 분석하기 ✨</p>
+            <p class="guide-text" style="text-align:center;">시험지 사진을 올리면 문항·배점을 AI가 읽고, 오답·서술 점수·유형별 그래프·진단 리포트를 만듭니다. (이름·학년은 메인 프로필에서만 사용합니다.)</p>
             <button type="button" id="exam-report-open-btn" class="login-btn" style="width:100%; margin-top:12px; border-color:#9fe870; color:#9fe870; background:rgba(159,232,112,0.08);">
-                내가 본 시험 한 눈에 분석하기
+                클릭
             </button>
         </div>
     </div>
@@ -211,7 +211,6 @@
             <span class="result-label" style="color:#9fe870;">학생 정보</span>
             <div style="display:grid; gap:10px;">
                 <div><span style="font-size:0.8rem;color:#888;">이름</span><div id="exam-rpt-display-name" style="font-weight:bold;"></div></div>
-                <div><span style="font-size:0.8rem;color:#888;">가입 연락처</span><div id="exam-rpt-display-phone" style="font-weight:bold;"></div></div>
                 <div><span style="font-size:0.8rem;color:#888;">학년</span><div id="exam-rpt-display-grade" style="font-weight:bold;"></div></div>
                 <label style="font-size:0.85rem;color:#ccc;">학교 이름
                     <input type="text" id="exam-rpt-school" class="auth-input" style="width:100%; margin-top:4px; box-sizing:border-box;" placeholder="예: ○○중학교" maxlength="80">
@@ -254,9 +253,8 @@
             <div class="result-card">
                 <button type="button" id="exam-rpt-toggle-questions" class="login-btn" style="width:100%; margin-top:0; border-color:#9fe870; color:#9fe870; background:rgba(159,232,112,0.06);">문항·배점 접기 ▲</button>
                 <div id="exam-rpt-questions-collapsible" style="display:block; margin-top:12px;">
-                    <span class="result-label" style="margin-top:0;">문항 · 배점</span>
-                    <p class="guide-text" style="font-size:0.82rem;color:#aaa;margin:0 0 8px 0;">객관식은 틀린 문항에 <strong>오답</strong>을 눌러 주세요. 서술형은 획득점수를 직접 입력합니다.</p>
-                    <p id="exam-rpt-total-points-hint" style="font-size:0.85rem;color:#888;"></p>
+                    <p class="guide-text" style="font-size:0.95rem;color:#f0f0f0;margin:0 0 10px 0;padding:12px 14px;border-radius:10px;background:rgba(255,204,128,0.1);border:1px solid rgba(255,204,128,0.35);line-height:1.65;">객관식은 틀린 문항에 <strong style="color:#ff8888;">오답</strong>을 눌러 주세요. 서술형은 획득점수를 직접 입력합니다.</p>
+                    <p id="exam-rpt-total-points-hint" style="font-size:0.92rem;color:#ffcc80;margin:0 0 10px 0;line-height:1.55;"></p>
                     <div id="exam-rpt-questions-wrap" style="overflow-x:auto;"></div>
                 </div>
             </div>
@@ -268,26 +266,23 @@
             <div class="result-card">
                 <span class="result-label">성적 요약</span>
                 <div id="exam-rpt-score-summary" style="font-size:0.95rem; line-height:1.7;"></div>
-                <div id="exam-rpt-charts-row" style="display:flex; flex-direction:column; gap:22px; align-items:center; margin-top:16px;">
+                <div id="exam-rpt-charts-row" style="position:relative;display:flex; flex-direction:column; gap:22px; align-items:center; margin-top:16px; padding-top:34px;">
+                    <p id="exam-rpt-chart-legend" style="position:absolute;top:0;left:0;margin:0;font-size:0.8rem;color:#ccc;line-height:1.55;text-align:left;"><span style="color:#39ff14">■ 획득점수</span><br><span style="color:#ff4444">■ 실점</span></p>
                     <div style="text-align:center; width:100%; max-width:220px;">
-                        <div id="exam-rpt-lbl-total" style="font-size:0.88rem; color:#ccc; line-height:1.55; margin-bottom:8px;"></div>
                         <canvas id="exam-rpt-pie-total" width="184" height="184" style="max-width:100%;"></canvas>
                     </div>
                     <div style="text-align:center; width:100%; max-width:220px;">
-                        <div id="exam-rpt-lbl-mc" style="font-size:0.88rem; color:#ccc; line-height:1.55; margin-bottom:8px;"></div>
                         <canvas id="exam-rpt-pie-mc" width="184" height="184" style="max-width:100%;"></canvas>
                     </div>
                     <div style="text-align:center; width:100%; max-width:220px;">
-                        <div id="exam-rpt-lbl-essay" style="font-size:0.88rem; color:#ccc; line-height:1.55; margin-bottom:8px;"></div>
                         <canvas id="exam-rpt-pie-essay" width="184" height="184" style="max-width:100%;"></canvas>
                     </div>
                 </div>
-                <p style="font-size:0.78rem;color:#888;margin:14px 0 0 0;text-align:center;line-height:1.65;"><span style="color:#39ff14">■ 획득점수</span><br><span style="color:#ff4444">■ 실점</span></p>
             </div>
             <div class="result-card">
-                <span class="result-label">AI 진단 (오답·유형 기반)</span>
-                <div id="exam-rpt-ai-diagnosis" style="font-size:0.9rem; color:#ddd; line-height:1.6; white-space:pre-wrap;"></div>
-                <button type="button" id="exam-rpt-gen-diagnosis" class="login-btn" style="margin-top:10px; width:100%; border-color:var(--neon-blue);">AI 진단 다시 생성</button>
+                <span class="result-label">AI 진단 (오답 유형 기반)</span>
+                <div id="exam-rpt-ai-diagnosis" style="font-size:0.92rem; color:#ddd; line-height:1.65;"></div>
+                <button type="button" id="exam-rpt-gen-diagnosis" class="login-btn" style="margin-top:10px; width:100%; border-color:var(--neon-blue);">AI 진단 생성</button>
             </div>
             <div class="result-card">
                 <span class="result-label">선생님(관리자) 추가 코멘트</span>
@@ -1352,6 +1347,12 @@
             "핵심 문법과 필수 어휘 리스트를<br>정리하고 있어요.",
             "거의 다 됐습니다!<br>리포트를 생성 중입니다."
         ];
+        const EXAM_RPT_LOADING_MESSAGES = [
+            "시험지 페이지를 확인하고 있어요.",
+            "문항 번호와 배점을 읽고 있어요.",
+            "객관식·서술형을 구분 중이에요.",
+            "거의 다 됐어요!<br>문항·배점표를 정리 중입니다."
+        ];
 
         function startLoadingText(btnEl, messages) {
             const btn = btnEl || document.getElementById('ocr-btn') || document.getElementById('run-btn');
@@ -1933,6 +1934,36 @@
                 runBtn.disabled = false;
                 runBtn.innerHTML = '분석 시작';
             }
+            const diagOut = document.getElementById('exam-rpt-ai-diagnosis');
+            if (diagOut) diagOut.innerHTML = '';
+            examRptSyncDiagnosisButton();
+        }
+
+        function examRptSyncDiagnosisButton() {
+            const btn = document.getElementById('exam-rpt-gen-diagnosis');
+            if (!btn) return;
+            btn.textContent = examRptAiDiagnosis ? 'AI 진단 다시 생성' : 'AI 진단 생성';
+        }
+
+        function examRptRenderDiagnosisOutput(obj) {
+            const out = document.getElementById('exam-rpt-ai-diagnosis');
+            if (!out || !obj) return;
+            const summary = escapeHtml(String(obj.summary || '').trim());
+            let html =
+                '<p style="margin:0 0 14px 0;padding-bottom:10px;border-bottom:1px solid #333;color:#f4f4f4;font-weight:600;">' +
+                summary +
+                '</p>';
+            if (Array.isArray(obj.tips) && obj.tips.length) {
+                html += '<ol style="margin:0;padding-left:1.15em;">';
+                obj.tips.forEach((tip) => {
+                    html +=
+                        '<li style="margin:0 0 10px 0;color:#9fe870;list-style:decimal;"><span style="text-decoration:underline;text-underline-offset:3px;">' +
+                        escapeHtml(String(tip)) +
+                        '</span></li>';
+                });
+                html += '</ol>';
+            }
+            out.innerHTML = html;
         }
 
         function examRptRestoreWorkspaceUi() {
@@ -2024,8 +2055,6 @@
             }
             const nm = document.getElementById('exam-rpt-display-name');
             if (nm) nm.textContent = (localStorage.getItem('trigger_name') || '').trim() || '—';
-            const ph = document.getElementById('exam-rpt-display-phone');
-            if (ph) ph.textContent = examRptFormatProfilePhone();
             const gr = document.getElementById('exam-rpt-display-grade');
             const savedG = (localStorage.getItem('trigger_saved_exam_grade') || '').trim();
             const urlG = params.get('grade') || '';
@@ -2100,12 +2129,13 @@
         }
 
         function examRptComputeTotals() {
-            let mcPts = 0, mcEarn = 0, esPts = 0, esEarn = 0, mcCnt = 0, mcRightCnt = 0;
+            let mcPts = 0, mcEarn = 0, esPts = 0, esEarn = 0, mcCnt = 0, mcRightCnt = 0, esCnt = 0;
             examRptQuestions.forEach((q) => {
                 const n = q.number;
                 const p = Number(q.points) || 0;
                 if (q.type === 'essay') {
                     esPts += p;
+                    esCnt += 1;
                     const earned = Math.min(p, Math.max(0, parseFloat(examRptEssayEarned[n]) || 0));
                     esEarn += earned;
                 } else {
@@ -2119,9 +2149,12 @@
             });
             const mcAcc = mcPts > 0 ? examRptRound1((mcEarn / mcPts) * 100) : 0;
             const mcAccByCount = mcCnt > 0 ? examRptRound1((mcRightCnt / mcCnt) * 100) : 0;
+            const esAcc = esPts > 0 ? examRptRound1((esEarn / esPts) * 100) : 0;
             const totalPts = mcPts + esPts;
             const totalEarn = mcEarn + esEarn;
-            return { mcPts, mcEarn, mcAcc, mcCnt, mcRightCnt, mcAccByCount, esPts, esEarn, totalPts, totalEarn };
+            const totalCnt = mcCnt + esCnt;
+            const totalAcc = totalPts > 0 ? examRptRound1((totalEarn / totalPts) * 100) : 0;
+            return { mcPts, mcEarn, mcAcc, mcCnt, mcRightCnt, mcAccByCount, esPts, esEarn, esCnt, esAcc, totalPts, totalEarn, totalCnt, totalAcc };
         }
 
         function examRptDrawTwoPartPie(canvas, earnedRaw, maxRaw, centerLabel) {
@@ -2164,46 +2197,29 @@
             ctx.arc(cx, cy, r * 0.38, 0, Math.PI * 2);
             ctx.fillStyle = '#111';
             ctx.fill();
+            const fmt = examRptFmt1;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
             if (centerLabel) {
                 ctx.fillStyle = '#e8e8e8';
                 ctx.font = 'bold 13px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(centerLabel, cx, cy);
-                ctx.textAlign = 'start';
-                ctx.textBaseline = 'alphabetic';
+                ctx.fillText(centerLabel, cx, cy - 14);
             }
-        }
-
-        function examRptChartScoreHtml(earned, lost) {
-            const fmt = examRptFmt1;
-            return (
-                '<span style="color:#39ff14">획득점수 ' +
-                fmt(earned) +
-                '점</span><br><span style="color:#ff4444">실점 ' +
-                fmt(lost) +
-                '점</span>'
-            );
+            ctx.font = 'bold 11px sans-serif';
+            ctx.fillStyle = '#39ff14';
+            ctx.fillText('획득 ' + fmt(earned), cx, cy + 4);
+            ctx.fillStyle = '#ff4444';
+            ctx.fillText('실점 ' + fmt(lost), cx, cy + 20);
+            ctx.textAlign = 'start';
+            ctx.textBaseline = 'alphabetic';
         }
 
         function examRptRefreshCharts(t) {
-            const setLbl = (id, html) => {
-                const el = document.getElementById(id);
-                if (el) el.innerHTML = html;
-            };
             const te = t.totalPts > 0 ? t.totalEarn : 0;
-            const tl = Math.max(0, t.totalPts - te);
-            setLbl('exam-rpt-lbl-total', examRptChartScoreHtml(te, tl));
             examRptDrawTwoPartPie(document.getElementById('exam-rpt-pie-total'), te, t.totalPts, '전체');
-
             const me = t.mcPts > 0 ? t.mcEarn : 0;
-            const ml = Math.max(0, t.mcPts - me);
-            setLbl('exam-rpt-lbl-mc', examRptChartScoreHtml(me, ml));
             examRptDrawTwoPartPie(document.getElementById('exam-rpt-pie-mc'), me, t.mcPts, '객관식');
-
             const ee = t.esPts > 0 ? t.esEarn : 0;
-            const el = Math.max(0, t.esPts - ee);
-            setLbl('exam-rpt-lbl-essay', examRptChartScoreHtml(ee, el));
             examRptDrawTwoPartPie(document.getElementById('exam-rpt-pie-essay'), ee, t.esPts, '서술형');
         }
 
@@ -2232,7 +2248,12 @@
             if (hint) {
                 let hintText = '인식된 배점 합계: ' + examRptFmt1(totalPts) + '점';
                 if (Math.abs(totalPts - 100) > 0.05) {
-                    hintText += ' · 합이 100점이 아니면 아래 배점을 고치거나 사진을 다시 올려 주세요.';
+                    hintText += '\n합이 100점이 아니면 아래 배점을 고치거나 사진을 다시 올려 주세요.';
+                    hint.style.color = '#ffb347';
+                    hint.style.fontWeight = '600';
+                } else {
+                    hint.style.color = '#ffcc80';
+                    hint.style.fontWeight = 'normal';
                 }
                 hint.innerText = hintText;
             }
@@ -2316,22 +2337,30 @@
                           '%</td></tr>'
                         : '<tr><td style="padding:8px;border-bottom:1px solid #333;">객관식</td><td colspan="4" style="padding:8px;border-bottom:1px solid #333;color:#666;">해당 없음</td></tr>';
                 const esRow =
-                    t.esPts > 0
-                        ? '<tr><td style="padding:8px;border-bottom:1px solid #333;">서술형</td><td style="padding:8px;border-bottom:1px solid #333;">—</td><td style="padding:8px;border-bottom:1px solid #333;">' +
+                    t.esCnt > 0
+                        ? '<tr><td style="padding:8px;border-bottom:1px solid #333;">서술형</td><td style="padding:8px;border-bottom:1px solid #333;">' +
+                          t.esCnt +
+                          '개</td><td style="padding:8px;border-bottom:1px solid #333;">' +
                           fmt(t.esPts) +
                           '</td><td style="padding:8px;border-bottom:1px solid #333;color:#39ff14;">' +
                           fmt(t.esEarn) +
-                          '</td><td style="padding:8px;border-bottom:1px solid #333;">—</td></tr>'
+                          '</td><td style="padding:8px;border-bottom:1px solid #333;">' +
+                          fmt(t.esAcc) +
+                          '%</td></tr>'
                         : '<tr><td style="padding:8px;border-bottom:1px solid #333;">서술형</td><td colspan="4" style="padding:8px;border-bottom:1px solid #333;color:#666;">해당 없음</td></tr>';
                 el.innerHTML =
-                    '<table style="width:100%;border-collapse:collapse;font-size:0.88rem;margin-top:4px;"><thead><tr style="color:#9fe870;"><th style="text-align:left;padding:8px;border-bottom:1px solid #444;">구분</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;">문항</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;">만점</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;">획득점수</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;">배점 대비</th></tr></thead><tbody>' +
+                    '<table style="width:100%;border-collapse:collapse;font-size:0.82rem;margin-top:4px;table-layout:fixed;"><thead><tr style="color:#9fe870;"><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">구분</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">문항</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">만점</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">획득</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">대비</th></tr></thead><tbody>' +
                     mcRow +
                     esRow +
-                    '<tr style="color:#fff;"><td style="padding:8px;">전체</td><td style="padding:8px;">—</td><td style="padding:8px;">' +
+                    '<tr style="color:#fff;"><td style="padding:8px;">전체</td><td style="padding:8px;">' +
+                    t.totalCnt +
+                    '개</td><td style="padding:8px;">' +
                     fmt(t.totalPts) +
                     '</td><td style="padding:8px;color:#39ff14;">' +
                     fmt(t.totalEarn) +
-                    '</td><td style="padding:8px;">—</td></tr></tbody></table>';
+                    '</td><td style="padding:8px;">' +
+                    fmt(t.totalAcc) +
+                    '%</td></tr></tbody></table>';
             }
             examRptRefreshCharts(t);
         }
@@ -2431,7 +2460,7 @@
             const btn = document.getElementById('exam-rpt-run-extract');
             if (btn) {
                 btn.disabled = true;
-                startLoadingText(btn);
+                startLoadingText(btn, EXAM_RPT_LOADING_MESSAGES);
             }
             try {
                 let questions = [];
@@ -2511,15 +2540,12 @@
                     throw new Error('AI 응답에 본문이 없습니다.');
                 }
                 examRptAiDiagnosis = obj;
-                const out = document.getElementById('exam-rpt-ai-diagnosis');
-                if (out) {
-                    const tips = Array.isArray(obj.tips) ? obj.tips.map((x) => '· ' + x).join('\n') : '';
-                    out.textContent = (obj.summary || '') + (tips ? '\n\n' + tips : '');
-                }
+                examRptRenderDiagnosisOutput(obj);
             } catch (e) {
                 alert('AI 진단 생성 실패: ' + (e.message || e));
             } finally {
                 if (btn) btn.disabled = false;
+                examRptSyncDiagnosisButton();
             }
         }
 
@@ -2555,7 +2581,8 @@
             const t = examRptComputeTotals();
             const fmt = examRptFmt1;
             const adm = (document.getElementById('exam-rpt-admin-comment') && document.getElementById('exam-rpt-admin-comment').value) || '';
-            const aiTxt = (document.getElementById('exam-rpt-ai-diagnosis') && document.getElementById('exam-rpt-ai-diagnosis').textContent) || '';
+            const aiEl = document.getElementById('exam-rpt-ai-diagnosis');
+            const aiTxt = (aiEl && (aiEl.innerText || aiEl.textContent)) || '';
             const rows = examRptQuestions.map((q) => {
                 const w =
                     q.type !== 'essay' && examRptWrong[q.number]
@@ -2698,6 +2725,7 @@
             if (run) run.addEventListener('click', examRptRunExtract);
             const gd = document.getElementById('exam-rpt-gen-diagnosis');
             if (gd) gd.addEventListener('click', examRptGenDiagnosis);
+            examRptSyncDiagnosisButton();
             const sv = document.getElementById('exam-rpt-submit-save');
             if (sv) sv.addEventListener('click', examRptSubmitSave);
             const lb = document.getElementById('exam-rpt-lightbox');
