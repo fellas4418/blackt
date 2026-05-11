@@ -72,6 +72,62 @@
             box-shadow: 0 0 6px rgba(0, 243, 255, 0.45);
         }
 
+        .exam-rpt-confirm-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.82);
+            z-index: 25000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .exam-rpt-confirm-box {
+            background: #141414;
+            border: 2px solid #9fe870;
+            border-radius: 16px;
+            padding: 26px 22px;
+            max-width: 440px;
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.55);
+        }
+        .exam-rpt-confirm-title {
+            font-size: 1.35rem;
+            font-weight: bold;
+            margin: 0 0 14px 0;
+            color: #9fe870;
+            letter-spacing: -0.02em;
+        }
+        .exam-rpt-confirm-text {
+            font-size: 1.17rem;
+            line-height: 1.55;
+            color: #e8e8e8;
+            margin: 0 0 24px 0;
+        }
+
+        .exam-rpt-lightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 26000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.92);
+            padding: 16px;
+            box-sizing: border-box;
+        }
+        .exam-rpt-lightbox img {
+            max-width: 100%;
+            max-height: 82vh;
+            object-fit: contain;
+            border-radius: 8px;
+            border: 1px solid #444;
+        }
+
         .topic-focus-card .topic-focus-inner { position: relative; z-index: 1; }
 
         #note-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 30000; padding: 20px; box-sizing: border-box; }
@@ -152,9 +208,10 @@
             <p class="guide-text" style="color:#ffcc80;font-weight:bold;">1쪽부터 마지막 서술형까지 다 찍어야 정확한 리포트가 나옵니다.</p>
         </div>
         <div class="result-card" style="margin-top:12px;">
-            <span class="result-label" style="color:#9fe870;">학생 정보 (전화번호 미사용)</span>
+            <span class="result-label" style="color:#9fe870;">학생 정보</span>
             <div style="display:grid; gap:10px;">
                 <div><span style="font-size:0.8rem;color:#888;">이름</span><div id="exam-rpt-display-name" style="font-weight:bold;"></div></div>
+                <div><span style="font-size:0.8rem;color:#888;">가입 연락처</span><div id="exam-rpt-display-phone" style="font-weight:bold;"></div></div>
                 <div><span style="font-size:0.8rem;color:#888;">학년</span><div id="exam-rpt-display-grade" style="font-weight:bold;"></div></div>
                 <label style="font-size:0.85rem;color:#ccc;">학교 이름
                     <input type="text" id="exam-rpt-school" class="auth-input" style="width:100%; margin-top:4px; box-sizing:border-box;" placeholder="예: ○○중학교" maxlength="80">
@@ -195,9 +252,12 @@
 
         <div id="exam-rpt-after-extract" style="display:none; margin-top:18px;">
             <div class="result-card">
-                <span class="result-label">문항 · 배점 (AI)</span>
-                <p id="exam-rpt-total-points-hint" style="font-size:0.85rem;color:#888;"></p>
-                <div id="exam-rpt-questions-wrap" style="overflow-x:auto;"></div>
+                <button type="button" id="exam-rpt-toggle-questions" class="login-btn" style="width:100%; margin-top:0; border-color:#9fe870; color:#9fe870; background:rgba(159,232,112,0.06);">문항·배점 펼치기 ▼</button>
+                <div id="exam-rpt-questions-collapsible" style="display:none; margin-top:12px;">
+                    <span class="result-label" style="margin-top:0;">문항 · 배점</span>
+                    <p id="exam-rpt-total-points-hint" style="font-size:0.85rem;color:#888;"></p>
+                    <div id="exam-rpt-questions-wrap" style="overflow-x:auto;"></div>
+                </div>
             </div>
             <div class="result-card">
                 <span class="result-label">오답 원인 (문항별 중복 선택)</span>
@@ -207,9 +267,21 @@
             <div class="result-card">
                 <span class="result-label">성적 요약</span>
                 <div id="exam-rpt-score-summary" style="font-size:0.95rem; line-height:1.7;"></div>
-                <div style="margin-top:14px; text-align:center;">
-                    <canvas id="exam-rpt-pie" width="220" height="220" style="max-width:100%;"></canvas>
+                <div id="exam-rpt-charts-row" style="display:flex; flex-wrap:wrap; gap:18px; justify-content:center; margin-top:16px;">
+                    <div style="text-align:center; flex:1; min-width:150px; max-width:200px;">
+                        <div id="exam-rpt-lbl-total" style="font-size:0.78rem; color:#ccc; line-height:1.45; margin-bottom:6px; min-height:2.8em;"></div>
+                        <canvas id="exam-rpt-pie-total" width="168" height="168" style="max-width:100%;"></canvas>
+                    </div>
+                    <div style="text-align:center; flex:1; min-width:150px; max-width:200px;">
+                        <div id="exam-rpt-lbl-mc" style="font-size:0.78rem; color:#ccc; line-height:1.45; margin-bottom:6px; min-height:2.8em;"></div>
+                        <canvas id="exam-rpt-pie-mc" width="168" height="168" style="max-width:100%;"></canvas>
+                    </div>
+                    <div style="text-align:center; flex:1; min-width:150px; max-width:200px;">
+                        <div id="exam-rpt-lbl-essay" style="font-size:0.78rem; color:#ccc; line-height:1.45; margin-bottom:6px; min-height:2.8em;"></div>
+                        <canvas id="exam-rpt-pie-essay" width="168" height="168" style="max-width:100%;"></canvas>
+                    </div>
                 </div>
+                <p style="font-size:0.75rem;color:#888;margin:12px 0 0 0;text-align:center;">원 그래프 색: <span style="color:#39ff14">■</span> 획득점수 · <span style="color:#ff4444">■</span> 실점(만점−획득). 왼쪽부터 전체·객관식·서술형입니다.</p>
             </div>
             <div class="result-card">
                 <span class="result-label">AI 진단 (오답·유형 기반)</span>
@@ -218,11 +290,27 @@
             </div>
             <div class="result-card">
                 <span class="result-label">선생님(관리자) 추가 코멘트</span>
+                <p class="guide-text" style="font-size:0.8rem; color:#888; margin:0 0 10px 0;">입력한 내용은 <strong>아래「리포트 저장」후 인쇄·PDF로 저장</strong>할 때 리포트에 함께 실립니다. 학생에게는 이 화면을 보여 주거나 PDF·캡처를 주면 확인할 수 있어요. (별도 학생 계정 자동 전송은 없습니다.)</p>
                 <textarea id="exam-rpt-admin-comment" rows="4" style="width:100%; box-sizing:border-box; background:#111; border:1px solid #444; color:#fff; border-radius:8px; padding:10px; font-size:0.9rem;" placeholder="학생에게 전달할 메모를 입력하세요."></textarea>
             </div>
             <button type="button" id="exam-rpt-submit-save" class="kakao-btn" style="margin-top:8px;">리포트 저장 · PDF 안내</button>
             <button type="button" id="exam-rpt-download-pdf" class="login-btn" style="width:100%; margin-top:10px; border-color:#fff; display:none;">분석 결과 인쇄·PDF 저장</button>
         </div>
+    </div>
+
+    <div id="exam-rpt-confirm-overlay" class="exam-rpt-confirm-overlay" aria-hidden="true">
+        <div class="exam-rpt-confirm-box" role="dialog" aria-modal="true" aria-labelledby="exam-rpt-confirm-title">
+            <div id="exam-rpt-confirm-title" class="exam-rpt-confirm-title">페이지 확인 📄</div>
+            <p class="exam-rpt-confirm-text">빠진 페이지가 없나요?<br>누락 시 결과가 부정확할 수 있습니다.</p>
+            <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+                <button type="button" id="exam-rpt-confirm-yes" class="start-btn" style="margin:0;min-width:130px;border-color:var(--neon-green);">네, 없어요 ✅</button>
+                <button type="button" id="exam-rpt-confirm-no" class="login-btn" style="margin:0;min-width:110px;border-color:#666;color:#ccc;">취소</button>
+            </div>
+        </div>
+    </div>
+    <div id="exam-rpt-lightbox" class="exam-rpt-lightbox" aria-hidden="true">
+        <button type="button" id="exam-rpt-lightbox-close" class="login-btn" style="margin-bottom:14px;border-color:#fff;color:#fff;">닫기</button>
+        <img id="exam-rpt-lightbox-img" src="" alt="시험지 미리보기">
     </div>
 
     <div id="edit-section">
@@ -1257,37 +1345,43 @@
         }
 
         let loadingInterval;
-        function startLoadingText(btnEl) {
+        const GEMINI_ANALYSIS_LOADING_MESSAGES = [
+            "15초만 기다려 주세요.",
+            "지문 난이도를 파악하고 있어요.",
+            "핵심 문법과 필수 어휘 리스트를<br>정리하고 있어요.",
+            "거의 다 됐습니다!<br>리포트를 생성 중입니다."
+        ];
+
+        function startLoadingText(btnEl, messages) {
             const btn = btnEl || document.getElementById('ocr-btn') || document.getElementById('run-btn');
             if (!btn) return;
-            
-            const messages = [
-                "15초만 기다려 주세요.",
-                "지문 난이도를 파악하고 있어요.",
-                "핵심 문법과 필수 어휘 리스트를<br>정리하고 있어요.",
-                "거의 다 됐습니다!<br>리포트를 생성 중입니다."
-            ];
+            clearInterval(loadingInterval);
+            const seq = Array.isArray(messages) && messages.length ? messages : GEMINI_ANALYSIS_LOADING_MESSAGES;
             let i = 0;
-            const baseMsg = () => messages[Math.min(i, messages.length - 1)];
+            const baseMsg = () => seq[Math.min(i, seq.length - 1)];
             const render = () => {
-                btn.innerHTML = `<span>${baseMsg()}</span><span class="inline-spinner" aria-hidden="true"></span>`;
+                btn.innerHTML = '<span>' + baseMsg() + '</span><span class="inline-spinner" aria-hidden="true"></span>';
             };
             render();
             loadingInterval = setInterval(() => {
                 i++;
-                if(i < messages.length) {
+                if (i < seq.length) {
                     render();
                 } else {
                     clearInterval(loadingInterval);
                 }
-            }, 5500); 
+            }, 5500);
         }
 
-        function stopLoadingText(isTextMode, btn) {
+        function stopLoadingText(isTextMode, btn, restoreHtml) {
             clearInterval(loadingInterval);
-            if(btn) {
+            if (btn) {
                 btn.disabled = false;
-                btn.innerHTML = isTextMode ? "정밀 분석 실행 🚀" : "트리거 AI 정밀 분석 시작 🔍";
+                if (typeof restoreHtml === 'string') {
+                    btn.innerHTML = restoreHtml;
+                } else {
+                    btn.innerHTML = isTextMode ? '정밀 분석 실행 🚀' : '트리거 AI 정밀 분석 시작 🔍';
+                }
             }
         }
 
@@ -1821,6 +1915,68 @@
             if (pdfB) pdfB.style.display = 'none';
         }
 
+        function examRptFormatProfilePhone() {
+            const raw = String(localStorage.getItem('trigger_phone') || '').replace(/[^0-9]/g, '');
+            if (!raw) return '— (메인에서 전화번호를 저장하면 표시됩니다)';
+            if (raw.length === 11 && raw.indexOf('010') === 0) {
+                return raw.slice(0, 3) + '-' + raw.slice(3, 7) + '-' + raw.slice(7);
+            }
+            if (raw.length === 10) {
+                return raw.slice(0, 3) + '-' + raw.slice(3, 6) + '-' + raw.slice(6);
+            }
+            return raw;
+        }
+
+        function examRptConfirmMissingPages() {
+            return new Promise((resolve) => {
+                const ov = document.getElementById('exam-rpt-confirm-overlay');
+                const yes = document.getElementById('exam-rpt-confirm-yes');
+                const no = document.getElementById('exam-rpt-confirm-no');
+                if (!ov || !yes || !no) {
+                    resolve(window.confirm('빠진 페이지가 없나요? 누락 시 결과가 부정확할 수 있습니다.'));
+                    return;
+                }
+                const cleanup = () => {
+                    ov.style.display = 'none';
+                    ov.setAttribute('aria-hidden', 'true');
+                    yes.removeEventListener('click', onYes);
+                    no.removeEventListener('click', onNo);
+                };
+                const onYes = () => {
+                    cleanup();
+                    resolve(true);
+                };
+                const onNo = () => {
+                    cleanup();
+                    resolve(false);
+                };
+                yes.addEventListener('click', onYes);
+                no.addEventListener('click', onNo);
+                ov.style.display = 'flex';
+                ov.setAttribute('aria-hidden', 'false');
+            });
+        }
+
+        function examRptOpenThumbLightbox(ix) {
+            const item = examRptImages[ix];
+            if (!item) return;
+            const lb = document.getElementById('exam-rpt-lightbox');
+            const big = document.getElementById('exam-rpt-lightbox-img');
+            if (!lb || !big) return;
+            big.src = 'data:' + item.mimeType + ';base64,' + item.data;
+            lb.style.display = 'flex';
+            lb.setAttribute('aria-hidden', 'false');
+        }
+
+        function examRptCloseLightbox() {
+            const lb = document.getElementById('exam-rpt-lightbox');
+            if (!lb || lb.style.display !== 'flex') return;
+            const big = document.getElementById('exam-rpt-lightbox-img');
+            if (big) big.src = '';
+            lb.style.display = 'none';
+            lb.setAttribute('aria-hidden', 'true');
+        }
+
         function openExamReportWorkspace() {
             if (!authUserId || !authPassword) {
                 alert('먼저 메인에서 이름·전화번호를 입력한 뒤, 이 페이지에서 자동 연결이 완료되어야 합니다.');
@@ -1834,6 +1990,8 @@
             }
             const nm = document.getElementById('exam-rpt-display-name');
             if (nm) nm.textContent = (localStorage.getItem('trigger_name') || '').trim() || '—';
+            const ph = document.getElementById('exam-rpt-display-phone');
+            if (ph) ph.textContent = examRptFormatProfilePhone();
             const gr = document.getElementById('exam-rpt-display-grade');
             const savedG = (localStorage.getItem('trigger_saved_exam_grade') || '').trim();
             const urlG = params.get('grade') || '';
@@ -1854,16 +2012,41 @@
             if (c) c.innerText = '현재 ' + examRptImages.length + '장 촬영 완료';
             const th = document.getElementById('exam-rpt-thumbs');
             if (!th) return;
-            th.innerHTML = examRptImages.map((img, i) => {
-                const u = 'data:' + img.mimeType + ';base64,' + img.data;
-                return '<span style="position:relative;display:inline-block;"><img src="' + u + '" style="width:56px;height:56px;object-fit:cover;border-radius:6px;border:1px solid #444;"><button type="button" data-ix="' + i + '" class="exam-rpt-rm" style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:none;background:#c00;color:#fff;font-size:11px;cursor:pointer;">×</button></span>';
-            }).join('');
+            th.innerHTML = examRptImages
+                .map((img, i) => {
+                    const u = 'data:' + img.mimeType + ';base64,' + img.data;
+                    return (
+                        '<span class="exam-rpt-thumb-wrap" style="position:relative;display:inline-block;">' +
+                        '<img class="exam-rpt-thumb-img" data-ix="' +
+                        i +
+                        '" src="' +
+                        u +
+                        '" alt="썸네일 ' +
+                        (i + 1) +
+                        '" role="button" tabindex="0" style="width:56px;height:56px;object-fit:cover;border-radius:6px;border:1px solid #444;cursor:pointer;display:block;">' +
+                        '<button type="button" data-ix="' +
+                        i +
+                        '" class="exam-rpt-rm" title="삭제" style="position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;border:none;background:#c00;color:#fff;font-size:12px;cursor:pointer;line-height:1;z-index:2;">×</button></span>'
+                    );
+                })
+                .join('');
+            th.querySelectorAll('.exam-rpt-thumb-img').forEach((el) => {
+                const open = () => examRptOpenThumbLightbox(parseInt(el.getAttribute('data-ix'), 10));
+                el.addEventListener('click', open);
+                el.addEventListener('keydown', (ke) => {
+                    if (ke.key === 'Enter' || ke.key === ' ') {
+                        ke.preventDefault();
+                        open();
+                    }
+                });
+            });
             th.querySelectorAll('.exam-rpt-rm').forEach((btn) => {
-                btn.onclick = () => {
+                btn.addEventListener('click', (ev) => {
+                    ev.stopPropagation();
                     const ix = parseInt(btn.getAttribute('data-ix'), 10);
                     examRptImages.splice(ix, 1);
                     examRptUpdatePhotoUi();
-                };
+                });
             });
         }
 
@@ -1876,8 +2059,18 @@
             });
         }
 
+        function examRptRound1(n) {
+            const x = Number(n);
+            if (!Number.isFinite(x)) return 0;
+            return Math.round(x * 10) / 10;
+        }
+
+        function examRptFmt1(n) {
+            return examRptRound1(n).toFixed(1);
+        }
+
         function examRptComputeTotals() {
-            let mcPts = 0, mcEarn = 0, esPts = 0, esEarn = 0;
+            let mcPts = 0, mcEarn = 0, esPts = 0, esEarn = 0, mcCnt = 0, mcRightCnt = 0;
             examRptQuestions.forEach((q) => {
                 const n = q.number;
                 const p = Number(q.points) || 0;
@@ -1887,37 +2080,45 @@
                     esEarn += earned;
                 } else {
                     mcPts += p;
-                    if (!examRptWrong[n]) mcEarn += p;
+                    mcCnt += 1;
+                    if (!examRptWrong[n]) {
+                        mcEarn += p;
+                        mcRightCnt += 1;
+                    }
                 }
             });
-            const mcAcc = mcPts > 0 ? Math.round((mcEarn / mcPts) * 1000) / 10 : 0;
-            return { mcPts, mcEarn, mcAcc, esPts, esEarn };
+            const mcAcc = mcPts > 0 ? examRptRound1((mcEarn / mcPts) * 100) : 0;
+            const mcAccByCount = mcCnt > 0 ? examRptRound1((mcRightCnt / mcCnt) * 100) : 0;
+            const totalPts = mcPts + esPts;
+            const totalEarn = mcEarn + esEarn;
+            return { mcPts, mcEarn, mcAcc, mcCnt, mcRightCnt, mcAccByCount, esPts, esEarn, totalPts, totalEarn };
         }
 
-        function examRptDrawPie(t) {
-            const canvas = document.getElementById('exam-rpt-pie');
+        function examRptDrawTwoPartPie(canvas, earnedRaw, maxRaw) {
             if (!canvas || !canvas.getContext) return;
             const ctx = canvas.getContext('2d');
-            const cx = 110, cy = 110, r = 90;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const parts = [];
-            if (t.mcEarn > 0) parts.push({ v: t.mcEarn, c: '#39ff14', l: '객관식 득점' });
-            const mcLose = Math.max(0, t.mcPts - t.mcEarn);
-            if (mcLose > 0) parts.push({ v: mcLose, c: '#ff4444', l: '객관식 실점' });
-            if (t.esEarn > 0) parts.push({ v: t.esEarn, c: '#00f3ff', l: '서술 득점' });
-            const esLose = Math.max(0, t.esPts - t.esEarn);
-            if (esLose > 0) parts.push({ v: esLose, c: '#666', l: '서술 실점' });
-            const sum = parts.reduce((a, b) => a + b.v, 0);
-            if (sum <= 0) {
+            const w = canvas.width, h = canvas.height;
+            const cx = w / 2, cy = h / 2, r = Math.min(w, h) / 2 - 6;
+            ctx.clearRect(0, 0, w, h);
+            const max = Math.max(0, Number(maxRaw) || 0);
+            const earned = Math.max(0, Math.min(Number(earnedRaw) || 0, max));
+            const lost = Math.max(0, max - earned);
+            if (max <= 0) {
                 ctx.fillStyle = '#333';
                 ctx.beginPath();
                 ctx.arc(cx, cy, r, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.fillStyle = '#888';
-                ctx.font = '14px sans-serif';
-                ctx.fillText('데이터 없음', cx - 36, cy);
+                ctx.font = '12px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('해당 없음', cx, cy + 4);
+                ctx.textAlign = 'start';
                 return;
             }
+            const parts = [];
+            if (earned > 0) parts.push({ v: earned, c: '#39ff14' });
+            if (lost > 0) parts.push({ v: lost, c: '#ff4444' });
+            const sum = earned + lost;
             let ang = -Math.PI / 2;
             parts.forEach((p) => {
                 const slice = (p.v / sum) * Math.PI * 2;
@@ -1930,9 +2131,31 @@
                 ang += slice;
             });
             ctx.beginPath();
-            ctx.arc(cx, cy, 40, 0, Math.PI * 2);
+            ctx.arc(cx, cy, r * 0.38, 0, Math.PI * 2);
             ctx.fillStyle = '#111';
             ctx.fill();
+        }
+
+        function examRptRefreshCharts(t) {
+            const fmt = examRptFmt1;
+            const setLbl = (id, html) => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = html;
+            };
+            const te = t.totalPts > 0 ? t.totalEarn : 0;
+            const tl = Math.max(0, t.totalPts - te);
+            setLbl('exam-rpt-lbl-total', '<strong>전체</strong><br>획득 ' + fmt(te) + '점 · 실점 ' + fmt(tl) + '점<br><span style="color:#888">(만점 ' + fmt(t.totalPts) + '점)</span>');
+            examRptDrawTwoPartPie(document.getElementById('exam-rpt-pie-total'), te, t.totalPts);
+
+            const me = t.mcPts > 0 ? t.mcEarn : 0;
+            const ml = Math.max(0, t.mcPts - me);
+            setLbl('exam-rpt-lbl-mc', '<strong>객관식</strong><br>획득 ' + fmt(me) + '점 · 실점 ' + fmt(ml) + '점<br><span style="color:#888">(만점 ' + fmt(t.mcPts) + '점)</span>');
+            examRptDrawTwoPartPie(document.getElementById('exam-rpt-pie-mc'), me, t.mcPts);
+
+            const ee = t.esPts > 0 ? t.esEarn : 0;
+            const el = Math.max(0, t.esPts - ee);
+            setLbl('exam-rpt-lbl-essay', '<strong>서술형</strong><br>획득 ' + fmt(ee) + '점 · 실점 ' + fmt(el) + '점<br><span style="color:#888">(만점 ' + fmt(t.esPts) + '점)</span>');
+            examRptDrawTwoPartPie(document.getElementById('exam-rpt-pie-essay'), ee, t.esPts);
         }
 
         function examRptRenderQuestions() {
@@ -1949,15 +2172,15 @@
                 let cell = '';
                 if (isEs) {
                     const ev = examRptEssayEarned[n] === '' ? '' : String(examRptEssayEarned[n]);
-                    cell = '<label style="font-size:0.8rem;color:#aaa;">획득 <input type="number" min="0" step="0.5" class="exam-essay-in" data-n="' + n + '" style="width:64px;background:#111;border:1px solid #444;color:#fff;border-radius:6px;" value="' + escapeHtml(ev) + '"> / ' + q.points + '</label>';
+                    cell = '<label style="font-size:0.8rem;color:#aaa;">획득점수 <input type="number" min="0" max="' + q.points + '" step="0.1" class="exam-essay-in" data-n="' + n + '" title="0~' + q.points + '점 부분 점수" style="width:72px;background:#111;border:1px solid #444;color:#fff;border-radius:6px;" value="' + escapeHtml(ev) + '" placeholder="0~' + q.points + '"> / 배점 ' + q.points + '</label>';
                 } else {
                     cell = '<button type="button" class="exam-wrong-btn login-btn" data-n="' + n + '" style="margin:0;padding:6px 12px;font-size:0.8rem;border-color:' + (wrongActive ? '#ff4444' : '#666') + ';">' + (wrongActive ? '오답(취소)' : '오답') + '</button>';
                 }
                 return '<tr style="' + rowStyle + '"><td style="padding:8px;border-bottom:1px solid #222;">' + n + '</td><td style="padding:8px;border-bottom:1px solid #222;">' + (isEs ? '서술' : '객관식') + '</td><td style="padding:8px;border-bottom:1px solid #222;">' + q.points + '</td><td style="padding:8px;border-bottom:1px solid #222;">' + cell + '</td></tr>';
             }).join('');
-            wrap.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:0.88rem;"><thead><tr style="color:#9fe870;"><th style="text-align:left;padding:8px;">번호</th><th style="text-align:left;padding:8px;">유형</th><th style="text-align:left;padding:8px;">배점</th><th style="text-align:left;padding:8px;">입력</th></tr></thead><tbody>' + rows + '</tbody></table>';
+            wrap.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:0.88rem;"><thead><tr style="color:#9fe870;"><th style="text-align:left;padding:8px;">번호</th><th style="text-align:left;padding:8px;">유형</th><th style="text-align:left;padding:8px;">배점</th><th style="text-align:left;padding:8px;">획득·채점</th></tr></thead><tbody>' + rows + '</tbody></table>';
             const hint = document.getElementById('exam-rpt-total-points-hint');
-            if (hint) hint.innerText = '인식된 배점 합계: ' + totalPts + '점';
+            if (hint) hint.innerText = '인식된 배점 합계: ' + examRptFmt1(totalPts) + '점';
             if (Math.abs(totalPts - 100) > 0.01 && !examRptPointsWarned) {
                 examRptPointsWarned = true;
                 alert('합계가 100점이 아닙니다. 빠진 쪽이 없는지 확인하세요.');
@@ -2014,13 +2237,39 @@
 
         function examRptRefreshScores() {
             const t = examRptComputeTotals();
+            const fmt = examRptFmt1;
             const el = document.getElementById('exam-rpt-score-summary');
             if (el) {
+                const ptsNote =
+                    t.mcPts > 0 && Math.abs(t.mcPts - 100) > 0.05
+                        ? '<div style="font-size:0.78rem;color:#888;margin-top:8px;">※ 객관식 <strong>배점 대비 %</strong>는 인식된 객관식 배점 합(' +
+                          fmt(t.mcPts) +
+                          '점)으로 나눈 값입니다. 합이 100이 아니면 「문항 개수로 센 정답률」(' +
+                          fmt(t.mcAccByCount) +
+                          '%)과 숫자가 어긋날 수 있습니다.</div>'
+                        : '';
                 el.innerHTML =
-                    '<div><strong>객관식</strong> 정답률 ' + t.mcAcc + '% · 획득 ' + t.mcEarn + ' / ' + t.mcPts + '점</div>' +
-                    '<div style="margin-top:6px;"><strong>서술형</strong> 획득 ' + t.esEarn + ' / ' + t.esPts + '점</div>';
+                    '<div><strong>객관식</strong> 문항 ' +
+                    t.mcRightCnt +
+                    '/' +
+                    t.mcCnt +
+                    ' 정답(' +
+                    fmt(t.mcAccByCount) +
+                    '%) · 획득점수 ' +
+                    fmt(t.mcEarn) +
+                    ' / ' +
+                    fmt(t.mcPts) +
+                    '점 (배점 대비 ' +
+                    fmt(t.mcAcc) +
+                    '%)</div>' +
+                    '<div style="margin-top:6px;"><strong>서술형</strong> 획득점수 ' +
+                    fmt(t.esEarn) +
+                    ' / ' +
+                    fmt(t.esPts) +
+                    '점</div>' +
+                    ptsNote;
             }
-            examRptDrawPie(t);
+            examRptRefreshCharts(t);
         }
 
         function examRptNormalizeQuestions(questions) {
@@ -2091,7 +2340,7 @@
             throw lastErr || new Error('분석에 실패했습니다.');
         }
 
-        function examRptIsExtractNotFoundError(err) {
+        function examRptIsApiNotFoundError(err) {
             const m = String((err && err.message) || '');
             const st = err && err.httpStatus;
             return st === 404 || m.indexOf('not_found') !== -1 || m.indexOf('요청 실패 (404)') !== -1;
@@ -2113,11 +2362,11 @@
                 alert('시험지 사진을 1장 이상 추가해 주세요.');
                 return;
             }
-            if (!confirm('빠진 페이지가 없나요? 누락 시 결과가 부정확할 수 있습니다.')) return;
+            if (!(await examRptConfirmMissingPages())) return;
             const btn = document.getElementById('exam-rpt-run-extract');
             if (btn) {
                 btn.disabled = true;
-                btn.innerText = '분석 중…';
+                startLoadingText(btn);
             }
             try {
                 let questions = [];
@@ -2130,7 +2379,7 @@
                     });
                     questions = examRptNormalizeQuestions(data.questions);
                 } catch (err) {
-                    if (!examRptIsExtractNotFoundError(err)) throw err;
+                    if (!examRptIsApiNotFoundError(err)) throw err;
                     questions = await examRptExtractViaGeminiProxy();
                 }
                 examRptQuestions = questions;
@@ -2140,10 +2389,7 @@
             } catch (e) {
                 alert(e.message || String(e));
             } finally {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerText = '분석 시작';
-                }
+                if (btn) stopLoadingText(false, btn, '분석 시작');
             }
         }
 
@@ -2160,9 +2406,10 @@
                     }
                 });
                 const t = examRptComputeTotals();
+                const fmt = examRptFmt1;
                 const prompt = '학생 영어 시험 오답 진단. 순수 JSON만 출력.\n' +
                     '{"summary":"2~4문장 한국어 총평","tips":["실천 팁1","팁2","팁3"]}\n' +
-                    '객관식 정답률 ' + t.mcAcc + '%, 서술 ' + t.esEarn + '/' + t.esPts + '.\n' +
+                    '객관식 문항 ' + t.mcRightCnt + '/' + t.mcCnt + ' 정답(' + fmt(t.mcAccByCount) + '%), 배점 대비 ' + fmt(t.mcAcc) + '%, 획득점수 ' + fmt(t.mcEarn) + '/' + fmt(t.mcPts) + '. 서술 획득점수 ' + fmt(t.esEarn) + '/' + fmt(t.esPts) + '.\n' +
                     '오답·원인:\n' + (wrongLines.join('\n') || '(오답 없음)');
                 const base = WORKER_URL.replace(/\/$/, '');
                 const payload = {
@@ -2235,17 +2482,23 @@
             const examSel = document.getElementById('exam-rpt-exam-type');
             const examLabel = examSel && examSel.options[examSel.selectedIndex] ? examSel.options[examSel.selectedIndex].text : '';
             const t = examRptComputeTotals();
+            const fmt = examRptFmt1;
             const adm = (document.getElementById('exam-rpt-admin-comment') && document.getElementById('exam-rpt-admin-comment').value) || '';
             const aiTxt = (document.getElementById('exam-rpt-ai-diagnosis') && document.getElementById('exam-rpt-ai-diagnosis').textContent) || '';
             const rows = examRptQuestions.map((q) => {
-                const w = q.type !== 'essay' && examRptWrong[q.number] ? '오답' : (q.type === 'essay' ? ('득점 ' + (examRptEssayEarned[q.number] || 0)) : '정답');
+                const w =
+                    q.type !== 'essay' && examRptWrong[q.number]
+                        ? '오답'
+                        : q.type === 'essay'
+                          ? '획득점수 ' + fmt(parseFloat(examRptEssayEarned[q.number]) || 0)
+                          : '정답';
                 const rs = (examRptReasons[q.number] || []).join(', ');
                 return '<tr><td>' + q.number + '</td><td>' + (q.type === 'essay' ? '서술' : '객관') + '</td><td>' + q.points + '</td><td>' + w + '</td><td>' + escapeHtml(rs) + '</td></tr>';
             }).join('');
             const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>내가 본 시험 한 눈에 분석</title>' +
                 '<style>body{font-family:sans-serif;padding:24px;color:#111;}h1{font-size:1.2rem;}table{border-collapse:collapse;width:100%;margin-top:12px;}th,td{border:1px solid #333;padding:6px;font-size:12px;}</style></head><body>' +
                 '<h1>내가 본 시험 한 눈에 분석</h1><p><strong>이름</strong> ' + escapeHtml(name) + ' · <strong>학교</strong> ' + escapeHtml(school) + ' · <strong>시험</strong> ' + escapeHtml(examLabel) + '</p>' +
-                '<p>객관식 ' + t.mcAcc + '% (' + t.mcEarn + '/' + t.mcPts + ') · 서술 ' + t.esEarn + '/' + t.esPts + '</p>' +
+                '<p>객관식 문항 ' + t.mcRightCnt + '/' + t.mcCnt + ' 정답(' + fmt(t.mcAccByCount) + '%) · 획득점수 ' + fmt(t.mcEarn) + '/' + fmt(t.mcPts) + ' (배점 대비 ' + fmt(t.mcAcc) + '%) · 서술 획득점수 ' + fmt(t.esEarn) + '/' + fmt(t.esPts) + '</p>' +
                 '<h2>문항</h2><table><thead><tr><th>번호</th><th>유형</th><th>배점</th><th>결과</th><th>오답 원인</th></tr></thead><tbody>' + rows + '</tbody></table>' +
                 '<h2>AI 진단</h2><pre style="white-space:pre-wrap;font-size:12px;">' + escapeHtml(aiTxt) + '</pre>' +
                 '<h2>선생님 코멘트</h2><pre style="white-space:pre-wrap;font-size:12px;">' + escapeHtml(adm) + '</pre>' +
@@ -2273,34 +2526,62 @@
                 totals: t,
                 submittedAt: new Date().toISOString()
             };
-            try {
-                await postJson('/api/exam-report/save', {
-                    id: examRptReportId,
-                    user_id: authUserId,
-                    password: authPassword,
-                    student_name: studentName,
-                    grade: grade,
-                    school_name: school,
-                    exam_type: examType,
-                    voca_level_link: vocaLink,
-                    questions_json: examRptQuestions,
-                    session_json: JSON.stringify(sessionPayload),
-                    ai_diagnosis_json: examRptAiDiagnosis ? JSON.stringify(examRptAiDiagnosis) : null,
-                    admin_comment: (document.getElementById('exam-rpt-admin-comment') && document.getElementById('exam-rpt-admin-comment').value) || ''
-                });
-                alert('저장되었습니다.\n\n24시간 이내에 아래 버튼으로 분석 결과를 인쇄·PDF 저장할 수 있습니다.\n(알림을 켜 두면 24시간 후에도 안내를 받을 수 있어요.)');
+            const saveBody = {
+                id: examRptReportId,
+                user_id: authUserId,
+                password: authPassword,
+                student_name: studentName,
+                grade: grade,
+                school_name: school,
+                exam_type: examType,
+                voca_level_link: vocaLink,
+                questions_json: examRptQuestions,
+                session_json: JSON.stringify(sessionPayload),
+                ai_diagnosis_json: examRptAiDiagnosis ? JSON.stringify(examRptAiDiagnosis) : null,
+                admin_comment: (document.getElementById('exam-rpt-admin-comment') && document.getElementById('exam-rpt-admin-comment').value) || ''
+            };
+            const afterSaveOk = function () {
                 examRptSchedulePdfNotify();
                 const pdfB = document.getElementById('exam-rpt-download-pdf');
                 if (pdfB) {
                     pdfB.style.display = 'block';
                     pdfB.onclick = examRptOpenPdfWindow;
                 }
+            };
+            try {
+                await postJson('/api/exam-report/save', saveBody);
+                alert('저장되었습니다.\n\n24시간 이내에 아래 버튼으로 분석 결과를 인쇄·PDF 저장할 수 있습니다.\n(알림을 켜 두면 24시간 후에도 안내를 받을 수 있어요.)');
+                afterSaveOk();
             } catch (e) {
-                alert(e.message || String(e));
+                if (examRptIsApiNotFoundError(e)) {
+                    try {
+                        localStorage.setItem(
+                            'exam_report_local_save_' + examRptReportId,
+                            JSON.stringify({ savedAt: new Date().toISOString(), body: saveBody })
+                        );
+                    } catch (ignore) {}
+                    alert(
+                        '서버에 시험 리포트 저장 API가 없거나(not_found) 아직 배포되지 않았습니다.\n\n' +
+                            '이 기기 브라우저에 임시로 복사해 두었습니다. 아래「인쇄·PDF」로 리포트는 그대로 만들 수 있어요.\n' +
+                            '나중에 API가 켜지면 같은 화면에서 다시「리포트 저장」을 눌러 주세요.'
+                    );
+                    afterSaveOk();
+                } else {
+                    alert(e.message || String(e));
+                }
             }
         }
 
         (function initExamReportUi() {
+            const tq = document.getElementById('exam-rpt-toggle-questions');
+            const col = document.getElementById('exam-rpt-questions-collapsible');
+            if (tq && col) {
+                tq.addEventListener('click', function () {
+                    const hidden = col.style.display === 'none';
+                    col.style.display = hidden ? 'block' : 'none';
+                    tq.textContent = hidden ? '문항·배점 접기 ▲' : '문항·배점 펼치기 ▼';
+                });
+            }
             const openBtn = document.getElementById('exam-report-open-btn');
             if (openBtn) openBtn.addEventListener('click', openExamReportWorkspace);
             const f = document.getElementById('exam-rpt-files');
@@ -2348,6 +2629,19 @@
             if (gd) gd.addEventListener('click', examRptGenDiagnosis);
             const sv = document.getElementById('exam-rpt-submit-save');
             if (sv) sv.addEventListener('click', examRptSubmitSave);
+            const lb = document.getElementById('exam-rpt-lightbox');
+            const lbClose = document.getElementById('exam-rpt-lightbox-close');
+            if (lb) {
+                lb.addEventListener('click', function (e) {
+                    if (e.target === lb) examRptCloseLightbox();
+                });
+            }
+            if (lbClose) lbClose.addEventListener('click', examRptCloseLightbox);
+            document.addEventListener('keydown', function (ev) {
+                if (ev.key !== 'Escape') return;
+                const el = document.getElementById('exam-rpt-lightbox');
+                if (el && el.style.display === 'flex') examRptCloseLightbox();
+            });
         })();
 
         async function runGeminiAnalysis(isTextMode = false) {
