@@ -1026,6 +1026,20 @@ function retryOnlyWrongs() {
 }
 
 // [수정 완료] 학습 종료 후 나타나는 카카오톡 공유 기능
+function getWordsForDay(level, absoluteDay) {
+    if (typeof wordsData === 'undefined' || !wordsData[level]) return [];
+    const week = Math.ceil(absoluteDay / 7);
+    const localDay = absoluteDay % 7 === 0 ? 7 : absoluteDay % 7;
+    const weekData = wordsData[level]['week' + week];
+    if (!weekData) return [];
+    const dayData = weekData[String(localDay)];
+    if (!dayData) return [];
+    if ((localDay === 6 || localDay === 7) && !Array.isArray(dayData)) {
+        return dayData.test || [];
+    }
+    return Array.isArray(dayData) ? dayData : [];
+}
+
 function copyTextForShareFallback(text) {
     try {
         if (navigator.clipboard && window.isSecureContext) {
