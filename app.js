@@ -113,6 +113,20 @@ let isPaused = false;
 const currentLevel = localStorage.getItem('trigger_level') || 'middle';
 window.lastWrongOptions = [];
 
+function normalizeDailySessionForLevel(level) {
+    const key = `trigger_session_${level}`;
+    const raw = localStorage.getItem(key);
+    if (!raw || raw === 'final') return raw || '1';
+    const session = parseInt(raw, 10);
+    if (Number.isFinite(session) && session > DAILY_CYCLE_COUNT) {
+        localStorage.setItem(key, String(DAILY_CYCLE_COUNT));
+        return String(DAILY_CYCLE_COUNT);
+    }
+    return raw;
+}
+
+normalizeDailySessionForLevel(currentLevel);
+
 // [QR 유입 경로 기억 로직] 즉시 실행형으로 교체 (43번 줄 아래)
 (function() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -1151,7 +1165,7 @@ function jumpToFinish() {
 }
 
 let adminClickCount = 0;
-let adminTimer = null;
+let appAdminTimer = null;
 
 function activateAdminMode(e) {
     const isLogo = e.target.closest('.logo');
@@ -1159,8 +1173,8 @@ function activateAdminMode(e) {
 
     if (isLogo || isTitle) {
         adminClickCount++;
-        clearTimeout(adminTimer);
-        adminTimer = setTimeout(() => { adminClickCount = 0; }, 1500);
+        clearTimeout(appAdminTimer);
+        appAdminTimer = setTimeout(() => { adminClickCount = 0; }, 1500);
 
         if (adminClickCount === 3) {
             const menu = document.getElementById('admin-menu');

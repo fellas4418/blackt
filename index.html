@@ -434,9 +434,22 @@
         }
 
         const TOTAL_DAYS = 70; 
+        const DASHBOARD_DAILY_CYCLE_COUNT = 5;
         const todayStr = new Date().toLocaleDateString();
         
         const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzQM_AXzcq1vth9e1j9v54puAoJAur3gELmfvIq3e8fO7C8-D3RwTHs83cyCo0rsPp1/exec";
+
+        function normalizeDailySessionForLevel(level) {
+            const key = `trigger_session_${level}`;
+            const raw = localStorage.getItem(key);
+            if (!raw || raw === 'final') return raw || '1';
+            const session = parseInt(raw, 10);
+            if (Number.isFinite(session) && session > DASHBOARD_DAILY_CYCLE_COUNT) {
+                localStorage.setItem(key, String(DASHBOARD_DAILY_CYCLE_COUNT));
+                return String(DASHBOARD_DAILY_CYCLE_COUNT);
+            }
+            return raw;
+        }
 
         function encodeAuthBundle(name, phone) {
             try {
@@ -652,6 +665,7 @@
         function checkLoginStatus() {
             const savedName = localStorage.getItem('trigger_name');
             const currentLevel = localStorage.getItem('trigger_level') || 'middle';
+            normalizeDailySessionForLevel(currentLevel);
             const currentSession = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`)) || 1;
             const modal = document.getElementById('login-modal');
             const welcomeMsg = document.getElementById('welcome-msg');
@@ -667,6 +681,7 @@
 
         function updateDashboardUI() {
             const lvl = localStorage.getItem('trigger_level') || 'middle';
+            normalizeDailySessionForLevel(lvl);
             const name = localStorage.getItem('trigger_name');
             const day = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
             const session = parseInt(localStorage.getItem(`trigger_session_${lvl}`)) || 1;
