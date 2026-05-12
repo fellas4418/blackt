@@ -32,6 +32,7 @@ let score = 0;
 let targetWords = []; 
 let studyLoopCount = 1; 
 const COOL_DOWN_TIME = 3 * 60 * 1000; 
+const DAILY_CYCLE_COUNT = 5;
 
 let __blacktCooldownNotifyTimerId = null;
 let __cooldownNotifAlreadySent = false;
@@ -376,11 +377,11 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
             } else if (isReviewDay) {
                 let sNum = parseInt(currentSessionVal) || 1;
                 let displaySession = sNum >= 6 ? 2 : 1;
-                sessionTag.innerText = sNum > 6 ? `자유 복습 모드` : `${displaySession} / 2 사이클 (주말복습)`;
+                sessionTag.innerText = sNum > DAILY_CYCLE_COUNT ? `자유 복습 모드` : `${displaySession} / 2 사이클 (주말복습)`;
                 sessionTag.style.color = "";
             } else {
                 let sNum = parseInt(currentSessionVal) || 1;
-                sessionTag.innerText = sNum > 6 ? `자유 복습 모드` : `${sNum} / 6 사이클 진행 중`;
+                sessionTag.innerText = sNum > DAILY_CYCLE_COUNT ? `자유 복습 모드` : `${sNum} / ${DAILY_CYCLE_COUNT} 사이클 진행 중`;
                 sessionTag.style.color = "";
             }
         }
@@ -395,7 +396,7 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
         }
 
         const endTime = localStorage.getItem('blackt_cooldown');
-        if (endTime && endTime - Date.now() > 0 && parseInt(currentSession) <= 6 && currentSession !== 'final') {
+        if (endTime && endTime - Date.now() > 0 && parseInt(currentSession) <= DAILY_CYCLE_COUNT && currentSession !== 'final') {
             showSystemMessage("잠시 쉬어주세요.<br>곧 다시 시작할 수 있습니다.");
             setTimeout(() => { location.href = 'index.html?tab=voca'; }, 1800);
         } else {
@@ -483,7 +484,7 @@ function startStudy() {
             const currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
             const sNum = parseInt(currentSessionRaw); 
 
-            if (sNum === 3 || sNum === 6 || currentSessionRaw === 'final' || isPreReviewMode) {
+            if (sNum === 3 || sNum === DAILY_CYCLE_COUNT || currentSessionRaw === 'final' || isPreReviewMode) {
                 score = 0; 
                 startCountdown("곧 테스트를 시작합니다.", startTest); 
             } else {
@@ -712,7 +713,7 @@ function handleAnswer(isCorrect) {
         
         const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
         let currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`);
-        let isFinalStep = (currentSessionRaw === '6' || currentSessionRaw === 'final' || (isReviewDay && currentSessionRaw === '2'));
+        let isFinalStep = (currentSessionRaw === String(DAILY_CYCLE_COUNT) || currentSessionRaw === 'final' || (isReviewDay && currentSessionRaw === '2'));
 
         if (!isFinalStep) {
             const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
@@ -725,7 +726,7 @@ function handleAnswer(isCorrect) {
             }
         }
     } else {
-        // [오답 시 처리] 3회차 중간 테스트는 무시하고 6회/최종만 리스트에 저장
+        // [오답 시 처리] 3회차 중간 테스트는 무시하고 5회/최종만 리스트에 저장
         const currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`);
         
         if (currentSessionRaw !== '3') {
@@ -794,7 +795,7 @@ function finishSession(didTest = true) {
             studyLoopCount = 1;       
 
             if (sessionTag) {
-                sessionTag.innerText = "1 / 6 사이클 진행 중";
+                sessionTag.innerText = `1 / ${DAILY_CYCLE_COUNT} 사이클 진행 중`;
                 sessionTag.style.color = ""; 
             }
     
@@ -825,7 +826,7 @@ function finishSession(didTest = true) {
                 studyLoopCount = 1;
 
                 if (sessionTag) {
-                    sessionTag.innerText = "1 / 6 사이클 진행 중";
+                    sessionTag.innerText = `1 / ${DAILY_CYCLE_COUNT} 사이클 진행 중`;
                     sessionTag.style.color = "";
                 }
 
@@ -853,7 +854,7 @@ function finishSession(didTest = true) {
     const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
     const today = new Date().toLocaleDateString();
     
-    let totalSessions = isReviewDay ? 2 : 6;
+    let totalSessions = isReviewDay ? 2 : DAILY_CYCLE_COUNT;
     let finishedNum = 0;
 
     if (currentSessionRaw === 'final') {
@@ -874,7 +875,7 @@ function finishSession(didTest = true) {
     let currentSessionDisplay = finishedNum >= totalSessions ? "완료 👑" : `${finishedNum} / ${totalSessions} 사이클`;
     stats[currentDay].status = currentSessionDisplay;
 
-    if (didTest && accuracy < 80 && (currentSessionRaw === '6' || (isReviewDay && currentSessionRaw === '2'))) {
+    if (didTest && accuracy < 80 && (currentSessionRaw === String(DAILY_CYCLE_COUNT) || (isReviewDay && currentSessionRaw === '2'))) {
         localStorage.setItem(`trigger_session_${currentLevel}`, 'final'); 
         
         let warningText = "아쉬운 점수!";
@@ -905,7 +906,7 @@ function finishSession(didTest = true) {
         localStorage.setItem(`trigger_current_day_${currentLevel}`, currentDay + 1);
         localStorage.setItem(`trigger_session_${currentLevel}`, '1');
 
-        if ((currentSessionRaw === '6' || currentSessionRaw === 'final' || (isReviewDay && currentSessionRaw === '2')) && accuracy >= 80) {
+        if ((currentSessionRaw === String(DAILY_CYCLE_COUNT) || currentSessionRaw === 'final' || (isReviewDay && currentSessionRaw === '2')) && accuracy >= 80) {
             if (currentDay === 70) {
                 const giftSection = document.getElementById('final-gift-section');
                 if (giftSection) {
@@ -1125,9 +1126,9 @@ window.jumpToSession = function(n) {
     clearBlacktCooldownNotifySchedule();
     localStorage.removeItem('blackt_cooldown');
     
-    // 3. [핵심] 만약 마지막 6사이클(또는 주말 2사이클)로 점프한다면 
+    // 3. [핵심] 만약 마지막 5사이클(또는 주말 2사이클)로 점프한다면 
     // 이미 학습 루프를 다 돌았다고 가정하고 바로 테스트로 진입하도록 플래그 설정
-    if (n === 6 || n === 2) {
+    if (n === DAILY_CYCLE_COUNT || n === 2) {
         localStorage.setItem('trigger_jump_test', 'true');
     }
 
@@ -1141,7 +1142,7 @@ function jumpToFinish() {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
     const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
-    localStorage.setItem('trigger_session_' + lvl, isReviewDay ? '2' : '6'); 
+    localStorage.setItem('trigger_session_' + lvl, isReviewDay ? '2' : String(DAILY_CYCLE_COUNT));
     clearBlacktCooldownNotifySchedule();
     localStorage.removeItem('blackt_cooldown');
     localStorage.removeItem('trigger_jump_test'); 

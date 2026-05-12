@@ -133,7 +133,7 @@
             <div style="color: #ddd; font-size: 0.95rem; line-height: 1.6; max-height: 400px; overflow-y: auto; padding-right: 10px;">
                 <p style="margin-bottom: 20px;">
                     <strong style="color:var(--neon-blue); font-size: 1.1rem;">1. 15단계 '블링크' 루틴</strong><br>
-                    뜻이 보였다 사라지는 깜빡임 학습으로 뇌를 자극합니다. 12회 반복에 이어 중간테스트·최종테스트를 통해 당일 루틴을 완료합니다.
+                    하루 5사이클 루틴으로 뜻이 보였다 사라지는 깜빡임 학습을 반복합니다. 3·5사이클 복습 테스트를 거쳐 당일 목표를 완료합니다.
                 </p>
     
                 <p style="margin-bottom: 20px;">
@@ -230,7 +230,7 @@
 
             <div class="stats-row">
                 <div class="stat-item"><div class="stat-label">진행 중인 Day</div><div class="stat-value" id="stat-current-day" style="color: #fff;">Day 1</div></div>
-                <div class="stat-item" style="border-left: 1px solid #444; border-right: 1px solid #444;"><div class="stat-label">오늘의 사이클</div><div class="stat-value" id="stat-session" style="color: #fff;">1 / 6</div></div>
+                <div class="stat-item" style="border-left: 1px solid #444; border-right: 1px solid #444;"><div class="stat-label">오늘의 사이클</div><div class="stat-value" id="stat-session" style="color: #fff;">1 / 5</div></div>
                 <div class="stat-item clickable-card" onclick="showWeeklyReport()"><div class="stat-label">누적 리포트</div><div class="stat-value" style="color:#ddd; text-decoration:underline; font-size: 1rem; margin-top: 3px;">보기 📊</div></div>
             </div>
 
@@ -293,7 +293,7 @@
                 <div style="display:flex; gap:10px; width: 100%;">
                     <button onclick="jumpToSession(3)" style="flex:1; background: #222; border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight:bold;">⏩ 사이클 3 점프</button>
                     
-                    <button onclick="jumpToSession(6)" style="flex:1; background: #222; border: 1px solid var(--neon-orange); color: var(--neon-orange); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight:bold;">🔥 사이클 6 점프</button>
+                    <button onclick="jumpToSession(5)" style="flex:1; background: #222; border: 1px solid var(--neon-orange); color: var(--neon-orange); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight:bold;">🔥 사이클 5 점프</button>
                 </div>
             
                 <button onclick="if(typeof window.clearBlacktCooldownNotifySchedule==='function')window.clearBlacktCooldownNotifySchedule();localStorage.removeItem('blackt_cooldown');alert('⏳ 쿨타임 삭제 완료!');location.reload();" style="background: #111; border: 1px solid var(--neon-green); color: var(--neon-green); padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%;">
@@ -658,7 +658,7 @@
 
             if (savedName) {
                 modal.style.display = 'none';
-                welcomeMsg.innerText = currentSession > 6 ? `환영합니다, ${savedName}님! (오늘 목표 완료!)` : `환영합니다, ${savedName}님!`;
+                welcomeMsg.innerText = currentSession > 5 ? `환영합니다, ${savedName}님! (오늘 목표 완료!)` : `환영합니다, ${savedName}님!`;
             } else {
                 modal.style.display = 'flex';
             }
@@ -678,7 +678,7 @@
 
             const welcomeMsg = document.getElementById('welcome-msg');
             if (name && welcomeMsg) {
-                welcomeMsg.innerText = session > 6 ? `환영합니다, ${name}님! (오늘 목표 완료!)` : `환영합니다, ${name}님!`;
+                welcomeMsg.innerText = session > 5 ? `환영합니다, ${name}님! (오늘 목표 완료!)` : `환영합니다, ${name}님!`;
             }
 
             if (typeof wordsData !== 'undefined') {
@@ -704,11 +704,11 @@
             const endTime = parseInt(localStorage.getItem('blackt_cooldown')) || 0; 
             const startBtn = document.getElementById('start-btn-main');
             
-            document.getElementById('stat-session').innerText = session > 6 ? 'Clear 리스트' : `${session} / 6`;
+            document.getElementById('stat-session').innerText = session > 5 ? 'Clear 리스트' : `${session} / 5`;
 
             if (window.cooldownInterval) clearInterval(window.cooldownInterval);
 
-            if (session > 6) {
+            if (session > 5) {
                 startBtn.disabled = false;
                 startBtn.innerText = "자유 복습 모드";
                 startBtn.style.borderColor = "var(--neon-blue)";
@@ -1020,8 +1020,8 @@
                 if (dayStat) {
                     if (typeof dayStat === 'number') { 
                         dayStat = { progress: 100, accuracy: dayStat, status: "완료 👑" }; 
-                    } else if (dayStat.progress > 0 && dayStat.progress <= 6) {
-                        let totalS = isReview ? 2 : 6;
+                    } else if (dayStat.progress > 0 && dayStat.progress <= 5) {
+                        let totalS = isReview ? 2 : 5;
                         let p = dayStat.progress > totalS ? totalS : dayStat.progress;
                         dayStat.progress = Math.floor((p / totalS) * 100);
                         dayStat.status = p >= totalS ? "완료 👑" : `${p} / ${totalS} 사이클`;
@@ -1153,7 +1153,7 @@
             let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
             const isReviewDay = (localDay === 6 || localDay === 7);
 
-            const finalSession = isReviewDay ? '2' : '6';
+            const finalSession = isReviewDay ? '2' : '5';
             localStorage.setItem('trigger_session_' + lvl, finalSession); 
             if (typeof window.clearBlacktCooldownNotifySchedule === 'function') window.clearBlacktCooldownNotifySchedule();
             localStorage.removeItem('blackt_cooldown');
