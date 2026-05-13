@@ -35,6 +35,7 @@ const COOL_DOWN_TIME = 3 * 60 * 1000;
 const DAILY_CYCLE_COUNT = 5;
 
 let __studyCkptPhase = 'study';
+let __studyCkptSavesEnabled = true;
 const STUDY_CHECKPOINT_KEY = 'trigger_study_ckpt_v1';
 
 let __blacktCooldownNotifyTimerId = null;
@@ -143,6 +144,7 @@ window.lastWrongOptions = [];
 })();
 
 function startCountdown(message, callback) {
+    __studyCkptSavesEnabled = true;
     __studyCkptPhase = 'pre_countdown';
     let count = 3;
     const renderHtml = (c) => `
@@ -229,8 +231,14 @@ function clearStudyCheckpoint() {
     } catch (e) {}
 }
 
+function suspendStudyCheckpoint() {
+    __studyCkptSavesEnabled = false;
+    clearStudyCheckpoint();
+}
+
 function saveStudyCheckpoint() {
     if (!isStudyHtmlHost()) return;
+    if (!__studyCkptSavesEnabled) return;
     if (!targetWords || targetWords.length < 1) return;
     const sessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
     const dayNow = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`), 10) || 1;
@@ -271,6 +279,7 @@ function tryRestoreStudyCheckpoint(ctx) {
     if (!!ck.preReview !== !!ctx.isPreReviewMode) return null;
     if (!!ck.customSavedVoca !== !!ctx.customSavedVoca) return null;
     if (ctx.customSavedVoca && ctx.firstCustomWord && ck.firstWord !== ctx.firstCustomWord) return null;
+    if (ctx.firstExpectedWord && ck.firstWord !== ctx.firstExpectedWord) return null;
 
     let words;
     try {
@@ -385,7 +394,7 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
                 const url = (custom.returnUrl && String(custom.returnUrl).trim()) ? String(custom.returnUrl) : fallback;
                 // 분석 결과는 새로고침 시 DOM에 없음 → history.back 금지. 저장된 analysis URL로 이동 후 sessionStorage로 복원.
                 window.customVocaGoBack = () => {
-                    clearStudyCheckpoint();
+                    suspendStudyCheckpoint();
                     try {
                         localStorage.removeItem('voca_practice_list');
                         localStorage.removeItem('trigger_custom_voca_mode');
@@ -500,7 +509,8 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
 
                 const restorePre = tryRestoreStudyCheckpoint({
                     isPreReviewMode: true,
-                    customSavedVoca: false
+                    customSavedVoca: false,
+                    firstExpectedWord: targetWords[0] && targetWords[0].word ? String(targetWords[0].word) : ''
                 });
                 if (restorePre) {
                     if (sessionTag) {
@@ -537,7 +547,11 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
             isPreReviewMode = false;
         }
 
-        const restoreMain = tryRestoreStudyCheckpoint({ isPreReviewMode: false, customSavedVoca: false });
+        const restoreMain = tryRestoreStudyCheckpoint({
+            isPreReviewMode: false,
+            customSavedVoca: false,
+            firstExpectedWord: targetWords[0] && targetWords[0].word ? String(targetWords[0].word) : ''
+        });
         runStudyHtmlEntryTail(sessionTag, currentSession, isReviewDay, restoreMain);
     } catch (err) {
         clearStudyCheckpoint();
@@ -583,6 +597,7 @@ function togglePause() {
 }
 
 function startStudy() {
+    __studyCkptSavesEnabled = true;
     __studyCkptPhase = 'study';
     const slot1 = document.getElementById('slot-1');
     const slot2 = document.getElementById('slot-2');
@@ -608,7 +623,7 @@ function startStudy() {
             if (window.__customVocaPractice && window.__customVocaPractice.active) {
                 const returnUrl = window.__customVocaPractice.returnUrl || '';
                 window.__customVocaPractice.active = false;
-                clearStudyCheckpoint();
+                suspendStudyCheckpoint();
 
                 showSystemMessage(`
                     <div style="text-align:center; padding:10px;">
@@ -689,6 +704,7 @@ function startStudy() {
 }
 
 function startTest() {
+    __studyCkptSavesEnabled = true;
     __studyCkptPhase = 'test';
     if (currentIdx >= targetWords.length) {
         finishSession(true); 
@@ -915,7 +931,7 @@ function handleAnswer(isCorrect) {
 }
 
 function finishSession(didTest = true) {
-    clearStudyCheckpoint();
+    suspendStudyCheckpoint();
     let currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
     let currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
     const accuracy = targetWords.length > 0 ? Math.floor((score / targetWords.length) * 100) : 0;
