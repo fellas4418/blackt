@@ -282,6 +282,10 @@
                     <div style="text-align:center; width:100%; max-width:220px;">
                         <canvas id="exam-rpt-pie-essay" width="184" height="184" style="max-width:100%;"></canvas>
                     </div>
+                    <div style="text-align:center; width:100%; max-width:360px; margin-top:4px;">
+                        <p style="margin:0 0 8px; font-size:0.82rem; color:#bbb; line-height:1.45;">총점 추이 <span style="color:#888;">(배점 대비 % · 이 기기에 저장된 최근 분석)</span></p>
+                        <canvas id="exam-rpt-trend-chart" width="320" height="132" style="max-width:100%; height:auto; border-radius:10px; border:1px solid #333; background:#0a0a0a;"></canvas>
+                    </div>
                 </div>
             </div>
             <div class="result-card">
@@ -509,6 +513,11 @@
         const TOPIC_REVEAL_STORAGE_KEY = 'trigger_topic_reveal_daily_v1';
         const FREE_TOPIC_REVEALS_PER_DAY = 2;
         const PREMIUM_PAYMENT_URL = 'https://tri3.imweb.me/';
+        /** 이 문자열을 코드에서 바꾸면 됩니다. 잠금 화면 왼쪽 아래 모서리를 5번 연속 탄 후 입력합니다. */
+        const TRIGGER_TOPIC_ADMIN_SECRET = 'tri3black-topic-admin-26';
+        const TOPIC_ANALYSIS_UNLOCK_LS = 'trigger_analysis_topic_unlock_v1';
+        const EXAM_RPT_TREND_STORAGE_KEY = 'exam_rpt_total_trend_v1';
+        const EXAM_RPT_TREND_MAX = 20;
 
         function topicRevealTodayKey() {
             try {
@@ -521,6 +530,10 @@
         /** 무료·비회원: 하루 2회까지 주제·키워드 섹션 공개. 3회째부터 잠금. 프리미엄은 항상 공개. */
         function evaluateTopicSectionReveal() {
             if (isPremiumUser) return { locked: false };
+            if (localStorage.getItem('trigger_admin_mode') === 'true') return { locked: false };
+            try {
+                if (localStorage.getItem(TOPIC_ANALYSIS_UNLOCK_LS) === '1') return { locked: false };
+            } catch (e) {}
             const today = topicRevealTodayKey();
             let o = {};
             try {
@@ -1768,7 +1781,7 @@
             const topicSent = (rawTopicSent != null && String(rawTopicSent).trim() !== '' && String(rawTopicSent).trim().toLowerCase() !== 'null')
                 ? String(rawTopicSent).trim() : '';
             let topicKws = Array.isArray(res.topic_keywords)
-                ? res.topic_keywords.map(k => String(k || '').trim()).filter(Boolean).slice(0, 4)
+                ? res.topic_keywords.map(k => String(k || '').trim()).filter(Boolean).slice(0, 5)
                 : [];
             const topicSentenceFallback = `
                         <div style="margin-bottom:14px;">
@@ -1794,7 +1807,7 @@
                     const chips = topicKws.map(k => `<span style="display:inline-block; margin:4px 6px 4px 0; padding:6px 10px; background:rgba(255,0,85,0.12); border:1px solid rgba(255,0,85,0.45); border-radius:999px; font-size:0.85rem; color:#ffb3c6;">${escapeHtml(k)}</span>`).join('');
                     tfInner += `
                         <div>
-                            <div style="font-size:0.78rem; color:#888; font-weight:bold; margin-bottom:6px;">🎯 주제 찾기 핵심 키워드 <span style="font-weight:normal; color:#666;">(2~4개 · 정답 보기에 함께 드러나는 단서)</span></div>
+                            <div style="font-size:0.78rem; color:#888; font-weight:bold; margin-bottom:6px;">🎯 주제 찾기 핵심 키워드 <span style="font-weight:normal; color:#666;">(2~5개 · 정답 보기에 함께 드러나는 단서)</span></div>
                             <div style="margin-bottom:8px;">${chips}</div>
                             <p style="font-size:0.8rem; color:#777; margin:0; line-height:1.45;">보기 중 위 표현들을 <strong style="color:#aaa;">가장 잘 함께 담고 있는</strong> 선택지가 정답에 가깝습니다.</p>
                         </div>`;
@@ -1805,13 +1818,14 @@
                     <div style="position:absolute; inset:0; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:22px 16px; text-align:center; z-index:4; box-sizing:border-box; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); background: rgba(5,5,5,0.55);">
                         <p style="margin:0 0 16px; font-size:0.92rem; line-height:1.55; color:#eee; max-width:320px;">오늘의 정답 열쇠 확인 횟수(2회)를 초과했습니다. 3시간 영문법 수강생은 모든 지문의 정답 근거를 무제한으로 확인할 수 있습니다.</p>
                         <button type="button" style="padding:14px 22px; border-radius:12px; border:none; font-weight:bold; font-size:0.95rem; cursor:pointer; background: linear-gradient(135deg, #9fe870, #39ff14); color:#000; box-shadow: 0 0 20px rgba(57,255,20,0.35);" onclick="window.location.href='${PREMIUM_PAYMENT_URL}'">결제하고 무제한 열기</button>
+                        <div data-analysis-topic-admin-corner="1" style="position:absolute;bottom:2px;left:2px;width:64px;height:64px;border-radius:12px;background:rgba(255,255,255,0.04);cursor:default;z-index:6;" aria-hidden="true"></div>
                     </div>` : '';
                 const innerBlur = topicLocked ? 'filter: blur(8px); pointer-events: none; user-select: none;' : '';
                 topicFocusHtml = `
                 <div class="result-card topic-focus-card" style="border-color: #9fe870; box-shadow: 0 0 18px rgba(159, 232, 112, 0.12);">
                     <span class="result-label" style="color:#9fe870; margin-bottom:4px;">🔐 지문 속 정답 근거 · 주제문 &amp; 주제 찾기 키워드</span>
                     <div style="font-size:0.8rem; color:#bbb; line-height:1.55; margin-bottom:12px; padding:10px 12px; background:rgba(159,232,112,0.07); border-radius:10px; border:1px solid rgba(159,232,112,0.28);">
-                        <strong style="color:#d8ffc4;">실전 정답 직결</strong> — 단순 요약이 아니라, <strong style="color:#fff;">지문 원문에서 발췌한 주제문</strong>(있을 때)과 <strong style="color:#fff;">보기 판별용 핵심 키워드 2~4개</strong>입니다. 주제·요지·제목 유형에서 정답 근거로 쓰세요.
+                        <strong style="color:#d8ffc4;">실전 정답 직결</strong> — 단순 요약이 아니라, <strong style="color:#fff;">지문 원문에서 발췌한 주제문</strong>(있을 때)과 <strong style="color:#fff;">보기 판별용 핵심 키워드 2~5개</strong>입니다. 주제·요지·제목 유형에서 정답 근거로 쓰세요.
                     </div>
                     <div class="result-content" style="position:relative; min-height:72px; overflow:hidden; border-radius:12px;">
                         <div class="topic-focus-inner" style="${innerBlur}">${tfInner}</div>
@@ -2008,8 +2022,9 @@
                 return;
             }
             body.innerHTML = list
-                .map(function (row) {
+                .map(function (row, idx) {
                     if (!row || !row.fp) return '';
+                    const num = idx + 1;
                     const safeTitle = escapeHtml(String(row.title || '지문').substring(0, 100));
                     const safeFp = escapeHtml(row.fp);
                     const dlab = escapeHtml(fmtPassageHistoryDate(row.ts));
@@ -2018,6 +2033,9 @@
                         '<button type="button" class="passage-history-open" data-fp="' +
                         safeFp +
                         '" style="flex:1;text-align:left;background:rgba(255,255,255,0.04);border:1px solid #333;color:#eee;cursor:pointer;font-size:0.86rem;line-height:1.45;padding:8px 10px;border-radius:8px;">' +
+                        '<span style="color:var(--neon-orange);font-weight:bold;margin-right:6px;">' +
+                        num +
+                        '.</span>' +
                         '<span style="color:#888;font-size:0.72rem;">' +
                         dlab +
                         '</span><br>' +
@@ -2054,6 +2072,39 @@
                 });
             }
             renderPassageHistoryPanel();
+        })();
+
+        (function initAnalysisTopicAdminCornerUnlock() {
+            let taps = 0;
+            let tapTimer = null;
+            document.addEventListener(
+                'click',
+                function (ev) {
+                    const corner = ev.target.closest('[data-analysis-topic-admin-corner]');
+                    if (!corner) return;
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    taps++;
+                    clearTimeout(tapTimer);
+                    tapTimer = setTimeout(function () {
+                        taps = 0;
+                    }, 2200);
+                    if (taps < 5) return;
+                    taps = 0;
+                    const code = window.prompt('관리자 코드를 입력하세요. (이 브라우저에서 주제·키워드 무제한)');
+                    if (code == null) return;
+                    if (String(code).trim() !== TRIGGER_TOPIC_ADMIN_SECRET) {
+                        alert('코드가 일치하지 않습니다.');
+                        return;
+                    }
+                    try {
+                        localStorage.setItem(TOPIC_ANALYSIS_UNLOCK_LS, '1');
+                    } catch (e) {}
+                    alert('이 기기에서 주제·키워드 표시 잠금이 해제되었습니다. 화면을 새로고침합니다.');
+                    location.reload();
+                },
+                true
+            );
         })();
 
         /* ========== 내가 본 시험 한 눈에 분석 ========== */
@@ -2531,6 +2582,146 @@
             examRptDrawTwoPartPie(document.getElementById('exam-rpt-pie-essay'), ee, t.esPts, '서술형');
         }
 
+        function examRptRecordTrendSnapshot(t) {
+            try {
+                const ws = document.getElementById('exam-rpt-after-extract');
+                if (!ws || ws.style.display === 'none') return;
+                if (!examRptQuestions || examRptQuestions.length === 0) return;
+                const sid = String(examRptReportId || '').trim();
+                if (!sid) return;
+                let arr = [];
+                try {
+                    arr = JSON.parse(localStorage.getItem(EXAM_RPT_TREND_STORAGE_KEY) || '[]');
+                } catch (e) {
+                    arr = [];
+                }
+                if (!Array.isArray(arr)) arr = [];
+                const row = { sid: sid, ts: Date.now(), totalAcc: t.totalAcc, totalEarn: t.totalEarn, totalPts: t.totalPts };
+                const ix = arr.findIndex(function (x) {
+                    return x && x.sid === sid;
+                });
+                if (ix >= 0) arr[ix] = row;
+                else {
+                    arr.push(row);
+                    while (arr.length > EXAM_RPT_TREND_MAX) arr.shift();
+                }
+                localStorage.setItem(EXAM_RPT_TREND_STORAGE_KEY, JSON.stringify(arr));
+            } catch (e) {}
+        }
+
+        function examRptDrawTrendChart() {
+            const canvas = document.getElementById('exam-rpt-trend-chart');
+            if (!canvas || !canvas.getContext) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+            let arr = [];
+            try {
+                arr = JSON.parse(localStorage.getItem(EXAM_RPT_TREND_STORAGE_KEY) || '[]');
+            } catch (e) {
+                arr = [];
+            }
+            if (!Array.isArray(arr)) arr = [];
+            arr = arr
+                .filter(function (x) {
+                    return x && Number.isFinite(Number(x.totalAcc));
+                })
+                .sort(function (a, b) {
+                    return (Number(a.ts) || 0) - (Number(b.ts) || 0);
+                });
+            const pts = arr.slice(-12);
+            ctx.clearRect(0, 0, w, h);
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, w, h);
+            const padL = 34;
+            const padR = 10;
+            const padT = 12;
+            const padB = 26;
+            const gw = w - padL - padR;
+            const gh = h - padT - padB;
+            if (pts.length < 1) {
+                ctx.fillStyle = '#666';
+                ctx.font = '12px sans-serif';
+                ctx.fillText('점수 기록이 쌓이면 그래프가 표시됩니다.', padL, h / 2);
+                return;
+            }
+            const yMin = 0;
+            const yMax = 100;
+            const yScale = function (acc) {
+                const v = Math.max(yMin, Math.min(yMax, Number(acc) || 0));
+                return padT + gh - (v / (yMax - yMin)) * gh;
+            };
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            for (let g = 0; g <= 4; g++) {
+                const yy = padT + (gh * g) / 4;
+                ctx.beginPath();
+                ctx.moveTo(padL, yy);
+                ctx.lineTo(padL + gw, yy);
+                ctx.stroke();
+                const pct = 100 - g * 25;
+                ctx.fillStyle = '#666';
+                ctx.font = '10px sans-serif';
+                ctx.textAlign = 'right';
+                ctx.fillText(String(pct), padL - 4, yy + 3);
+            }
+            ctx.textAlign = 'left';
+            if (pts.length === 1) {
+                const x = padL + gw / 2;
+                const y = yScale(pts[0].totalAcc);
+                ctx.beginPath();
+                ctx.arc(x, y, 7, 0, Math.PI * 2);
+                ctx.fillStyle = '#39ff14';
+                ctx.fill();
+                ctx.strokeStyle = '#9fe870';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.fillStyle = '#ddd';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('총점 ' + examRptFmt1(pts[0].totalAcc) + '%', x, padT - 2);
+                ctx.textAlign = 'left';
+                return;
+            }
+            ctx.strokeStyle = '#39ff14';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            pts.forEach(function (p, i) {
+                const x = padL + (gw * i) / Math.max(1, pts.length - 1);
+                const y = yScale(p.totalAcc);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            pts.forEach(function (p, i) {
+                const x = padL + (gw * i) / Math.max(1, pts.length - 1);
+                const y = yScale(p.totalAcc);
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, Math.PI * 2);
+                ctx.fillStyle = '#39ff14';
+                ctx.fill();
+            });
+            ctx.fillStyle = '#888';
+            ctx.font = '9px sans-serif';
+            ctx.textAlign = 'center';
+            pts.forEach(function (p, i) {
+                const x = padL + (gw * i) / Math.max(1, pts.length - 1);
+                let lab = '';
+                try {
+                    const d = new Date(p.ts);
+                    lab = (d.getMonth() + 1) + '/' + d.getDate();
+                } catch (e) {
+                    lab = String(i + 1);
+                }
+                ctx.fillText(lab, x, h - 8);
+            });
+            ctx.textAlign = 'left';
+            const last = pts[pts.length - 1];
+            ctx.fillStyle = '#9fe870';
+            ctx.font = '11px sans-serif';
+            ctx.fillText('최근 총점 ' + examRptFmt1(last.totalAcc) + '%', padL, padT - 2);
+        }
+
         function examRptRenderQuestions() {
             examRptEnsureQuestionState();
             const wrap = document.getElementById('exam-rpt-questions-wrap');
@@ -2671,6 +2862,8 @@
                     '%</td></tr></tbody></table>';
             }
             examRptRefreshCharts(t);
+            examRptRecordTrendSnapshot(t);
+            examRptDrawTrendChart();
         }
 
         function examRptParsePoints(value) {
@@ -3226,7 +3419,7 @@
 11. background는 항상 기본 배경지식(이전처럼 지문 이해를 돕는 일반 맥락)을 2~3문장 포함하세요. 여기에 더해, 지문에 특별한 지명, 인물(유명 위인 포함), 사건, 정치·경제·문화·사회적 상황, 이론이 등장하고 그것이 이해에 실제 도움이 될 때만 추가 정보를 1~2문장 보강하세요. 과도하게 길거나 학술적으로 깊은 설명은 금지합니다.
 12. 지문에 실제로 나온 담화 표현·고정 구문(after all, as well, in fact, on the other hand 등 해석의 뉘앙스에 영향을 주는 표현)은 기초 단어라도 keywords에서 빼지 말고, 반드시 숙어 형태로 공백을 유지해 포함하세요.
 13. topic_sentence: 지문에 **전형적인 주제문**이 한 문장으로 특정되면, 그 **영어 원문 한 문장**을 수정·요약·번역 없이 **그대로 복사**하세요. 첫 문장이 주제문이 아닐 수 있음을 감안하세요. 특정할 수 없으면 JSON **null** 또는 빈 문자열 \`""\` — 앱이 학생에게 보여 줄 친절한 안내 문구로만 처리되며, 화면에 "null" 같은 기계적인 글자는 나오지 않습니다.
-14. topic_keywords: **주제·제목·요지·글의 목적 고르기** 유형에서, **정답 보기에 공통으로 드러나야 하는** 결정적 단서 **2~4개**(원칙 **2~3개**). 각 항목은 keywords와 동일하게 \`영어(한국어 뜻)\` 형식이며 **반드시 지문 원문에 실제로 등장하는 표기**만 사용하세요. 서로 의미가 겹치지 않게 고르고, 이 키워드들이 **함께** 드러나는 보기가 정답에 가깝도록 선정하세요. 고유명사만으로 구성된 항목은 피하세요.
+14. topic_keywords: **주제·제목·요지·글의 목적 고르기** 유형에서, **정답 보기에 공통으로 드러나야 하는** 결정적 단서 **2~5개**(원칙 **2~4개**). 각 항목은 keywords와 동일하게 \`영어(한국어 뜻)\` 형식이며 **반드시 지문 원문에 실제로 등장하는 표기**만 사용하세요. 서로 의미가 겹치지 않게 고르고, 이 키워드들이 **함께** 드러나는 보기가 정답에 가깝도록 선정하세요. 고유명사만으로 구성된 항목은 피하세요.
 
 출력 JSON 형식:
 {
