@@ -34,6 +34,9 @@ let studyLoopCount = 1;
 const COOL_DOWN_TIME = 3 * 60 * 1000; 
 const DAILY_CYCLE_COUNT = 5;
 
+let __studyCkptPhase = 'study';
+const STUDY_CHECKPOINT_KEY = 'trigger_study_ckpt_v1';
+
 let __blacktCooldownNotifyTimerId = null;
 let __cooldownNotifAlreadySent = false;
 
@@ -140,6 +143,7 @@ window.lastWrongOptions = [];
 })();
 
 function startCountdown(message, callback) {
+    __studyCkptPhase = 'pre_countdown';
     let count = 3;
     const renderHtml = (c) => `
         <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:160px;">
@@ -211,6 +215,143 @@ function loadCustomVocaPracticeList() {
     }
 }
 
+function isStudyHtmlHost() {
+    try {
+        if (/\/study\.html/i.test(window.location.pathname || '')) return true;
+        if (document.body && document.body.classList.contains('study-bg')) return true;
+    } catch (e) {}
+    return false;
+}
+
+function clearStudyCheckpoint() {
+    try {
+        sessionStorage.removeItem(STUDY_CHECKPOINT_KEY);
+    } catch (e) {}
+}
+
+function saveStudyCheckpoint() {
+    if (!isStudyHtmlHost()) return;
+    if (!targetWords || targetWords.length < 1) return;
+    const sessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
+    const dayNow = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`), 10) || 1;
+    try {
+        const payload = {
+            v: 1,
+            level: currentLevel,
+            day: dayNow,
+            session: sessionRaw,
+            preReview: !!isPreReviewMode,
+            customSavedVoca: !!(window.__customVocaPractice && window.__customVocaPractice.active),
+            firstWord: targetWords[0] && targetWords[0].word ? String(targetWords[0].word) : '',
+            wordsJson: JSON.stringify(targetWords),
+            currentIdx,
+            studyLoopCount,
+            score,
+            phase: __studyCkptPhase,
+            reviewRetryCount
+        };
+        sessionStorage.setItem(STUDY_CHECKPOINT_KEY, JSON.stringify(payload));
+    } catch (e) {}
+}
+
+function tryRestoreStudyCheckpoint(ctx) {
+    if (!isStudyHtmlHost()) return null;
+    let ck;
+    try {
+        const raw = sessionStorage.getItem(STUDY_CHECKPOINT_KEY);
+        if (!raw) return null;
+        ck = JSON.parse(raw);
+    } catch (e) {
+        return null;
+    }
+    if (!ck || ck.v !== 1) return null;
+    const sessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
+    const dayNow = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`), 10) || 1;
+    if (ck.level !== currentLevel || ck.day !== dayNow || ck.session !== sessionRaw) return null;
+    if (!!ck.preReview !== !!ctx.isPreReviewMode) return null;
+    if (!!ck.customSavedVoca !== !!ctx.customSavedVoca) return null;
+    if (ctx.customSavedVoca && ctx.firstCustomWord && ck.firstWord !== ctx.firstCustomWord) return null;
+
+    let words;
+    try {
+        words = typeof ck.wordsJson === 'string' ? JSON.parse(ck.wordsJson) : ck.wordsJson;
+    } catch (e) {
+        return null;
+    }
+    if (!Array.isArray(words) || words.length < 1) return null;
+
+    targetWords = words;
+    let idx = parseInt(ck.currentIdx, 10);
+    if (Number.isNaN(idx) || idx < 0) idx = 0;
+    currentIdx = Math.min(idx, targetWords.length);
+    studyLoopCount = ck.studyLoopCount === 2 ? 2 : 1;
+    score = parseInt(ck.score, 10) || 0;
+    isPreReviewMode = !!ck.preReview;
+    reviewRetryCount = parseInt(ck.reviewRetryCount, 10) || 0;
+
+    let phase = ck.phase === 'test' || ck.phase === 'pre_countdown' ? ck.phase : 'study';
+    return { phase, customSavedVoca: !!ck.customSavedVoca };
+}
+
+function runStudyHtmlEntryTail(sessionTag, currentSession, isReviewDay, restored) {
+    const isCustomHost = !!(window.__customVocaPractice && window.__customVocaPractice.active);
+
+    if (sessionTag) {
+        if (isCustomHost) {
+            sessionTag.innerText = `🧠 내 학습노트 단어 연습 (${targetWords.length}개)`;
+            sessionTag.style.color = "var(--neon-green)";
+        } else {
+            let currentSessionVal = localStorage.getItem(`trigger_session_${currentLevel}`);
+
+            if (currentSessionVal === 'final') {
+                sessionTag.innerText = `최종 테스트 사이클 🔥`;
+                sessionTag.style.color = "var(--neon-orange)";
+            } else if (isReviewDay) {
+                let sNum = parseInt(currentSessionVal) || 1;
+                let displaySession = sNum >= 6 ? 2 : 1;
+                sessionTag.innerText = sNum > DAILY_CYCLE_COUNT ? `자유 복습 모드` : `${displaySession} / 2 사이클 (주말복습)`;
+                sessionTag.style.color = "";
+            } else {
+                let sNum = parseInt(currentSessionVal) || 1;
+                sessionTag.innerText = sNum > DAILY_CYCLE_COUNT ? `자유 복습 모드` : `${sNum} / ${DAILY_CYCLE_COUNT} 사이클 진행 중`;
+                sessionTag.style.color = "";
+            }
+        }
+    }
+
+    if (!isCustomHost) {
+        const endTime = localStorage.getItem('blackt_cooldown');
+        if (endTime && endTime - Date.now() > 0 && parseInt(currentSession, 10) <= DAILY_CYCLE_COUNT && currentSession !== 'final') {
+            clearStudyCheckpoint();
+            showSystemMessage("잠시 쉬어주세요.<br>곧 다시 시작할 수 있습니다.");
+            setTimeout(() => { location.href = 'index.html?tab=voca'; }, 1800);
+            return;
+        }
+    }
+
+    if (restored) {
+        if (restored.phase === 'pre_countdown') {
+            startCountdown("곧 테스트를 시작합니다.", startTest);
+        } else if (restored.phase === 'test') {
+            startTest();
+        } else {
+            startStudy();
+        }
+        return;
+    }
+
+    if (localStorage.getItem('trigger_jump_test') === 'true') {
+        localStorage.removeItem('trigger_jump_test');
+        currentIdx = 0;
+        studyLoopCount = 2;
+        score = 0;
+        startCountdown("곧 테스트를 시작합니다.", startTest);
+        return;
+    }
+
+    startStudy();
+}
+
 function initApp() {
     if (isAppInitialized) return; 
     isAppInitialized = true;
@@ -234,15 +375,8 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
         if (custom && custom.mode === 'saved_voca') {
             window.__customVocaPractice = { active: true, returnUrl: custom.returnUrl };
             targetWords = custom.words;
-            currentIdx = 0;
-            score = 0;
-            studyLoopCount = 1;
-            isPreReviewMode = false;
 
-            if (sessionTag) {
-                sessionTag.innerText = `🧠 내 학습노트 단어 연습 (${targetWords.length}개)`;
-                sessionTag.style.color = "var(--neon-green)";
-            }
+            const sessionForCk = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
 
             const exitBtn = document.getElementById('exit-btn');
             const mainBackBtn = document.getElementById('main-back-btn');
@@ -251,6 +385,7 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
                 const url = (custom.returnUrl && String(custom.returnUrl).trim()) ? String(custom.returnUrl) : fallback;
                 // 분석 결과는 새로고침 시 DOM에 없음 → history.back 금지. 저장된 analysis URL로 이동 후 sessionStorage로 복원.
                 window.customVocaGoBack = () => {
+                    clearStudyCheckpoint();
                     try {
                         localStorage.removeItem('voca_practice_list');
                         localStorage.removeItem('trigger_custom_voca_mode');
@@ -260,6 +395,26 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
                 };
                 exitBtn.onclick = () => { window.customVocaGoBack(); };
                 if (mainBackBtn) mainBackBtn.onclick = () => { window.customVocaGoBack(); };
+            }
+
+            const restoreC = tryRestoreStudyCheckpoint({
+                isPreReviewMode: false,
+                customSavedVoca: true,
+                firstCustomWord: custom.words[0] && custom.words[0].word
+            });
+            if (restoreC) {
+                runStudyHtmlEntryTail(sessionTag, sessionForCk, false, restoreC);
+                return;
+            }
+
+            currentIdx = 0;
+            score = 0;
+            studyLoopCount = 1;
+            isPreReviewMode = false;
+
+            if (sessionTag) {
+                sessionTag.innerText = `🧠 내 학습노트 단어 연습 (${targetWords.length}개)`;
+                sessionTag.style.color = "var(--neon-green)";
             }
 
             startStudy();
@@ -298,6 +453,7 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
         }
 
         if (!dayData || (startDay && currentDay >= startDay + 3)) {
+            clearStudyCheckpoint();
             if (startDay && currentDay >= startDay + 3) {
                 showSystemMessage(`뇌의 휴식이 필요합니다! 🧠<br>하루 최대 3일치까지만 학습 가능합니다.<br>내일 이어서 완주해 볼까요?`);
             } else {
@@ -341,7 +497,20 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
             if (preReviewWords.length > 0 && localStorage.getItem(reviewStatusKey) !== 'true') {
                 isPreReviewMode = true;
                 targetWords = preReviewWords;
-                
+
+                const restorePre = tryRestoreStudyCheckpoint({
+                    isPreReviewMode: true,
+                    customSavedVoca: false
+                });
+                if (restorePre) {
+                    if (sessionTag) {
+                        sessionTag.innerText = "🚨 망각 차단 복습 진행 중";
+                        sessionTag.style.color = "var(--neon-orange)";
+                    }
+                    runStudyHtmlEntryTail(sessionTag, currentSession, isReviewDay, restorePre);
+                    return;
+                }
+
                 showSystemMessage(`
                     <div style="text-align:center; padding:10px;">
                         <div style="font-size:1.3rem; color:var(--neon-orange); font-weight:bold; margin-bottom:15px;">망각 차단 1단계</div>
@@ -368,41 +537,10 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
             isPreReviewMode = false;
         }
 
-        if (sessionTag) {
-            let currentSessionVal = localStorage.getItem(`trigger_session_${currentLevel}`);
-            
-            if (currentSessionVal === 'final') {
-                sessionTag.innerText = `최종 테스트 사이클 🔥`;
-                sessionTag.style.color = "var(--neon-orange)";
-            } else if (isReviewDay) {
-                let sNum = parseInt(currentSessionVal) || 1;
-                let displaySession = sNum >= 6 ? 2 : 1;
-                sessionTag.innerText = sNum > DAILY_CYCLE_COUNT ? `자유 복습 모드` : `${displaySession} / 2 사이클 (주말복습)`;
-                sessionTag.style.color = "";
-            } else {
-                let sNum = parseInt(currentSessionVal) || 1;
-                sessionTag.innerText = sNum > DAILY_CYCLE_COUNT ? `자유 복습 모드` : `${sNum} / ${DAILY_CYCLE_COUNT} 사이클 진행 중`;
-                sessionTag.style.color = "";
-            }
-        }
-
-        if (localStorage.getItem('trigger_jump_test') === 'true') {
-            localStorage.removeItem('trigger_jump_test'); 
-            currentIdx = 0; 
-            studyLoopCount = 2; 
-            score = 0; 
-            startCountdown("곧 테스트를 시작합니다.", startTest);
-            return; 
-        }
-
-        const endTime = localStorage.getItem('blackt_cooldown');
-        if (endTime && endTime - Date.now() > 0 && parseInt(currentSession) <= DAILY_CYCLE_COUNT && currentSession !== 'final') {
-            showSystemMessage("잠시 쉬어주세요.<br>곧 다시 시작할 수 있습니다.");
-            setTimeout(() => { location.href = 'index.html?tab=voca'; }, 1800);
-        } else {
-            startStudy(); 
-        }
+        const restoreMain = tryRestoreStudyCheckpoint({ isPreReviewMode: false, customSavedVoca: false });
+        runStudyHtmlEntryTail(sessionTag, currentSession, isReviewDay, restoreMain);
     } catch (err) {
+        clearStudyCheckpoint();
         showSystemMessage("에러 발생: " + err.message);
         setTimeout(() => { location.href = 'index.html?tab=voca'; }, 3000);
     }
@@ -445,6 +583,7 @@ function togglePause() {
 }
 
 function startStudy() {
+    __studyCkptPhase = 'study';
     const slot1 = document.getElementById('slot-1');
     const slot2 = document.getElementById('slot-2');
 
@@ -469,6 +608,7 @@ function startStudy() {
             if (window.__customVocaPractice && window.__customVocaPractice.active) {
                 const returnUrl = window.__customVocaPractice.returnUrl || '';
                 window.__customVocaPractice.active = false;
+                clearStudyCheckpoint();
 
                 showSystemMessage(`
                     <div style="text-align:center; padding:10px;">
@@ -549,6 +689,7 @@ function startStudy() {
 }
 
 function startTest() {
+    __studyCkptPhase = 'test';
     if (currentIdx >= targetWords.length) {
         finishSession(true); 
         return;
@@ -774,6 +915,7 @@ function handleAnswer(isCorrect) {
 }
 
 function finishSession(didTest = true) {
+    clearStudyCheckpoint();
     let currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
     let currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
     const accuracy = targetWords.length > 0 ? Math.floor((score / targetWords.length) * 100) : 0;
@@ -1350,6 +1492,14 @@ window.addEventListener('focus', () => {
     }
     if (document.readyState === 'complete') run();
     else window.addEventListener('load', run);
+})();
+
+(function registerStudyProgressCheckpoint() {
+    if (!isStudyHtmlHost()) return;
+    window.addEventListener('pagehide', saveStudyCheckpoint);
+    document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'hidden') saveStudyCheckpoint();
+    });
 })();
 
 function goToAnalysis() {
