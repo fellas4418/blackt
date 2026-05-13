@@ -156,6 +156,10 @@
             <button onclick="showNoteModal('grammar')" style="background: rgba(255,255,255,0.05); border: 1px solid #666; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight:bold;">⭐ 내 학습 노트</button>
         </div>
         <h3 id="info-header" style="color: #fff; margin-bottom: 15px;">AI 지문 정밀 분석</h3>
+        <div id="passage-history-bar" style="margin-bottom:14px;">
+            <button type="button" id="passage-history-toggle" class="login-btn" style="width:100%; margin-top:0; border-color:var(--neon-orange); color:#ffb36b;">📚 저장된 지문 분석 보기</button>
+            <div id="passage-history-body" style="display:none; margin-top:10px; max-height:240px; overflow-y:auto; border:1px solid #333; border-radius:12px; padding:8px 6px; background:rgba(0,0,0,0.35);"></div>
+        </div>
     </div>
 
     <div id="word-popup"></div>
@@ -299,6 +303,7 @@
             <p id="exam-rpt-save-hint" class="guide-text" style="font-size:0.82rem;color:#aaa;margin:8px 0 0 0;line-height:1.55;">「리포트 저장」을 누르면 서버 저장을 시도한 뒤, 아래 <strong>인쇄·PDF 저장</strong> 버튼이 나타납니다. (처음에는 PDF 버튼이 숨겨져 있습니다.)</p>
             <button type="button" id="exam-rpt-submit-save" class="kakao-btn" style="margin-top:8px;">리포트 저장 · PDF 안내</button>
             <button type="button" id="exam-rpt-download-pdf" class="login-btn" style="width:100%; margin-top:10px; border-color:#fff; display:none;">분석 결과 인쇄·PDF 저장</button>
+            <button type="button" id="exam-rpt-share-kakao" class="kakao-btn" style="margin-top:10px;">🟡 카톡으로 리포트 공유</button>
         </div>
     </div>
 
@@ -348,6 +353,7 @@
     </div>
 
     <script src="worddata.js"></script>
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
 
     <script>
         // 🔥 하이라이트·단어 리스트에서 제외할 기능어(전치사/관사 등). 본문 클릭 시에는 아래 STOP_WORD_CLICK_MEANINGS 등으로 대표 뜻 제공.
@@ -1350,6 +1356,8 @@
             listArea.innerHTML = html;
         }
 
+        let lastPassageAnalysisFingerprint = '';
+
         let loadingInterval;
         const GEMINI_ANALYSIS_LOADING_MESSAGES = [
             "15초만 기다려 주세요.",
@@ -1403,7 +1411,7 @@
             badge.style.display = isCached ? 'inline-block' : 'none';
         }
 
-        function applyParsedAnalysisResult(res) {
+        function applyParsedAnalysisResult(res, options) {
             if(res.full_word_map && typeof res.full_word_map === 'object') {
                 fullWordMapGlobal = res.full_word_map;
             } else {
@@ -1823,9 +1831,12 @@
                 <div class="result-card" style="border-color: var(--neon-orange);"><span class="result-label" style="color:var(--neon-orange);">🌎 쓸데없이 고퀄인 배경지식</span><div class="result-content">${backgroundHtml}</div></div>
             `;
             checkAllSavedStatus();
-                try {
-                    sessionStorage.setItem('trigger_analysis_restore_v1', JSON.stringify({ res, q: window.location.search || '' }));
-                } catch (e) {}
+            try {
+                sessionStorage.setItem('trigger_analysis_restore_v1', JSON.stringify({ res, q: window.location.search || '' }));
+            } catch (e) {}
+            try {
+                if (!options || !options.skipPassageHistory) passageHistoryUpsertFromCurrent();
+            } catch (e) {}
         }
 
         const ANALYSIS_PASSAGE_CACHE_KEY = 'trigger_analysis_passage_cache_v1';
@@ -1893,6 +1904,157 @@
                 } catch (e2) {}
             }
         }
+
+        const PASSAGE_HISTORY_KEY = 'trigger_analysis_passage_history_v1';
+        const PASSAGE_HISTORY_MAX = 40;
+
+        function loadPassageHistoryList() {
+            try {
+                const o = JSON.parse(localStorage.getItem(PASSAGE_HISTORY_KEY) || '[]');
+                return Array.isArray(o) ? o : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function savePassageHistoryList(list) {
+            try {
+                localStorage.setItem(PASSAGE_HISTORY_KEY, JSON.stringify(list.slice(0, PASSAGE_HISTORY_MAX)));
+            } catch (e) {}
+        }
+
+        function fmtPassageHistoryDate(ts) {
+            try {
+                const d = new Date(ts);
+                return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
+            } catch (e) {
+                return '';
+            }
+        }
+
+        function passageHistoryUpsertFromCurrent() {
+            const fp = lastPassageAnalysisFingerprint;
+            if (!fp) return;
+            const titleEl = document.getElementById('passage-title-input');
+            const title =
+                (titleEl && titleEl.value && titleEl.value.trim()) ||
+                (typeof currentPassageTitle === 'string' && currentPassageTitle.trim()) ||
+                '지문 분석';
+            const q = window.location.search || '';
+            let list = loadPassageHistoryList().filter(function (x) {
+                return x && x.fp !== fp;
+            });
+            list.unshift({ fp: fp, title: title, ts: Date.now(), q: q });
+            savePassageHistoryList(list);
+            renderPassageHistoryPanel();
+        }
+
+        function passageHistoryRemoveItem(fp) {
+            if (!fp) return;
+            let list = loadPassageHistoryList().filter(function (x) {
+                return x && x.fp !== fp;
+            });
+            savePassageHistoryList(list);
+            try {
+                const s = loadPassageCacheStore();
+                if (s.entries[fp]) delete s.entries[fp];
+                s.order = (s.order || []).filter(function (x) {
+                    return x !== fp;
+                });
+                savePassageCacheStore(s);
+            } catch (e) {}
+            renderPassageHistoryPanel();
+        }
+
+        function openPassageHistoryItem(fp) {
+            if (!fp) return;
+            closeExamReportWorkspace();
+            const hit = getCachedAnalysis(fp);
+            if (!hit || !hit.res) {
+                alert('이 기기에 저장된 분석이 없거나 저장 공간 정리로 지워졌어요.\n같은 지문으로 다시 분석하면 다시 저장돼요.');
+                return;
+            }
+            lastPassageAnalysisFingerprint = fp;
+            const inp = document.getElementById('input-section');
+            const ed = document.getElementById('edit-section');
+            const rs = document.getElementById('result-section');
+            if (inp) inp.style.display = 'none';
+            if (ed) ed.style.display = 'none';
+            if (rs) rs.style.display = 'block';
+            setAnalysisSourceBadge(true);
+            applyParsedAnalysisResult(hit.res, { skipPassageHistory: true });
+            const hist = loadPassageHistoryList().find(function (x) {
+                return x && x.fp === fp;
+            });
+            if (hist && hist.title && document.getElementById('passage-title-input')) {
+                document.getElementById('passage-title-input').value = hist.title;
+                currentPassageTitle = hist.title;
+            }
+            try {
+                passageHistoryUpsertFromCurrent();
+            } catch (e) {}
+            try {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (e) {}
+        }
+
+        function renderPassageHistoryPanel() {
+            const body = document.getElementById('passage-history-body');
+            if (!body) return;
+            const list = loadPassageHistoryList();
+            if (list.length === 0) {
+                body.innerHTML =
+                    '<p style="margin:8px;font-size:0.85rem;color:#888;text-align:center;line-height:1.55;">저장된 지문 분석이 없어요.<br>한 번 분석하면 여기에 자동으로 쌓여요.</p>';
+                return;
+            }
+            body.innerHTML = list
+                .map(function (row) {
+                    if (!row || !row.fp) return '';
+                    const safeTitle = escapeHtml(String(row.title || '지문').substring(0, 100));
+                    const safeFp = escapeHtml(row.fp);
+                    const dlab = escapeHtml(fmtPassageHistoryDate(row.ts));
+                    return (
+                        '<div style="display:flex;align-items:stretch;gap:6px;padding:6px 4px;border-bottom:1px solid #222;">' +
+                        '<button type="button" class="passage-history-open" data-fp="' +
+                        safeFp +
+                        '" style="flex:1;text-align:left;background:rgba(255,255,255,0.04);border:1px solid #333;color:#eee;cursor:pointer;font-size:0.86rem;line-height:1.45;padding:8px 10px;border-radius:8px;">' +
+                        '<span style="color:#888;font-size:0.72rem;">' +
+                        dlab +
+                        '</span><br>' +
+                        safeTitle +
+                        '</button>' +
+                        '<button type="button" class="passage-history-del" data-fp="' +
+                        safeFp +
+                        '" style="flex-shrink:0;align-self:center;padding:8px 10px;border-radius:8px;border:1px solid #555;background:#1a1a1a;color:#aaa;cursor:pointer;font-size:0.74rem;">삭제</button>' +
+                        '</div>'
+                    );
+                })
+                .join('');
+            body.querySelectorAll('.passage-history-open').forEach(function (b) {
+                b.addEventListener('click', function () {
+                    openPassageHistoryItem(b.getAttribute('data-fp'));
+                });
+            });
+            body.querySelectorAll('.passage-history-del').forEach(function (b) {
+                b.addEventListener('click', function (ev) {
+                    ev.stopPropagation();
+                    if (confirm('이 항목을 저장함에서 삭제할까요?')) passageHistoryRemoveItem(b.getAttribute('data-fp'));
+                });
+            });
+        }
+
+        (function initPassageHistoryUi() {
+            const t = document.getElementById('passage-history-toggle');
+            const body = document.getElementById('passage-history-body');
+            if (t && body) {
+                t.addEventListener('click', function () {
+                    const open = body.style.display !== 'block';
+                    body.style.display = open ? 'block' : 'none';
+                    if (open) renderPassageHistoryPanel();
+                });
+            }
+            renderPassageHistoryPanel();
+        })();
 
         /* ========== 내가 본 시험 한 눈에 분석 ========== */
         const EXAM_RPT_REASON_OPTIONS = [
@@ -2695,6 +2857,120 @@
             }
         }
 
+        function copyTextForShareFallback(text) {
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    return navigator.clipboard.writeText(text).then(function () {
+                        return true;
+                    });
+                }
+            } catch (e) {}
+            return new Promise(function (resolve) {
+                try {
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.setAttribute('readonly', '');
+                    ta.style.position = 'fixed';
+                    ta.style.left = '-9999px';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    ta.setSelectionRange(0, text.length);
+                    const ok = document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    resolve(ok);
+                } catch (e) {
+                    resolve(false);
+                }
+            });
+        }
+
+        function examRptShareKakao() {
+            const userName = (localStorage.getItem('trigger_name') || '').trim() || '학생';
+            const shareUrl = window.location.origin + '/share-entry.html?path=analysis.html';
+            const praiseShareUrl = window.location.origin + '/share-entry.html?path=index.html&praise=1';
+            const school = (document.getElementById('exam-rpt-school') && document.getElementById('exam-rpt-school').value || '').trim() || '—';
+            const examSel = document.getElementById('exam-rpt-exam-type');
+            const examLabel = examSel && examSel.options[examSel.selectedIndex] ? examSel.options[examSel.selectedIndex].text : '시험';
+            const grade = (document.getElementById('exam-rpt-display-grade') && document.getElementById('exam-rpt-display-grade').textContent || '').trim() || '—';
+            const t = examRptComputeTotals();
+            const fmt = examRptFmt1;
+            const desc =
+                '학교: ' +
+                school +
+                '\n학년: ' +
+                grade +
+                '\n시험: ' +
+                examLabel +
+                '\n객관식 ' +
+                t.mcRightCnt +
+                '/' +
+                t.mcCnt +
+                ' 정답 (' +
+                fmt(t.mcAccByCount) +
+                '%)\n획득점수 객관 ' +
+                fmt(t.mcEarn) +
+                '/' +
+                fmt(t.mcPts) +
+                ' · 서술 ' +
+                fmt(t.esEarn) +
+                '/' +
+                fmt(t.esPts) +
+                '\n전체 배점 대비 ' +
+                fmt(t.totalAcc) +
+                '%\n\n앱에서 상세 리포트를 확인해 주세요.';
+
+            const alertCopied = function () {
+                alert('✅ 공유 링크를 복사했어요.\n카톡 채팅창에 붙여넣어 부모님께 보내 주세요.');
+            };
+            const alertCopyFailed = function () {
+                alert('링크를 자동으로 복사하지 못했어요. 아래 주소를 직접 복사해 주세요.\n\n' + shareUrl);
+            };
+            const runClipboardFallback = function () {
+                copyTextForShareFallback(shareUrl).then(function (ok) {
+                    return ok ? alertCopied() : alertCopyFailed();
+                });
+            };
+
+            try {
+                if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
+                    Kakao.init('fbb1520306ffaad0a882e993109a801c');
+                }
+            } catch (e) {
+                runClipboardFallback();
+                return;
+            }
+
+            if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) {
+                runClipboardFallback();
+                return;
+            }
+
+            const payload = {
+                objectType: 'feed',
+                content: {
+                    title: '📊 [' + userName + ']님 시험 분석 리포트',
+                    description: desc,
+                    imageUrl: 'https://blackt.pages.dev/share-v2.png',
+                    link: { mobileWebUrl: shareUrl, webUrl: shareUrl }
+                },
+                buttons: [
+                    { title: '리포트 앱에서 보기', link: { mobileWebUrl: shareUrl, webUrl: shareUrl } },
+                    { title: '👍 칭찬 응원 보내기', link: { mobileWebUrl: praiseShareUrl, webUrl: praiseShareUrl } }
+                ]
+            };
+
+            try {
+                const ret = Kakao.Share.sendDefault(payload);
+                if (ret && typeof ret.then === 'function') {
+                    ret.catch(function () {
+                        runClipboardFallback();
+                    });
+                }
+            } catch (e) {
+                runClipboardFallback();
+            }
+        }
+
         function examRptSchedulePdfNotify() {
             const DAY = 24 * 60 * 60 * 1000;
             try {
@@ -2873,6 +3149,8 @@
             examRptSyncDiagnosisButton();
             const sv = document.getElementById('exam-rpt-submit-save');
             if (sv) sv.addEventListener('click', examRptSubmitSave);
+            const kShare = document.getElementById('exam-rpt-share-kakao');
+            if (kShare) kShare.addEventListener('click', examRptShareKakao);
             const adminListBtn = document.getElementById('exam-rpt-admin-load-list');
             if (adminListBtn) adminListBtn.addEventListener('click', examRptAdminLoadList);
             const adminSaveBtn = document.getElementById('exam-rpt-admin-save-comment');
@@ -2990,6 +3268,8 @@
                 } else if (finalImageData) {
                     passageFingerprint = 'i:' + await fingerprintString(finalImageData);
                 }
+
+                lastPassageAnalysisFingerprint = passageFingerprint || '';
 
                 if (passageFingerprint) {
                     const hit = getCachedAnalysis(passageFingerprint);
