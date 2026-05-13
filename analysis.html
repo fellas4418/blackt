@@ -220,6 +220,23 @@
         
         #word-popup { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(15, 15, 15, 0.98); border: 1px solid var(--neon-green); padding: 15px 25px; border-radius: 15px; z-index: 40000; display: none; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 1); width: max-content; max-width: 90vw; }
     </style>
+    <script>
+        (function () {
+            try {
+                if (/[?&]open_note=(grammar|voca)(?:&|$)/i.test(String(location.search || ''))) {
+                    document.documentElement.setAttribute('data-quick-review', '1');
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <style>
+        html[data-quick-review="1"] #input-section,
+        html[data-quick-review="1"] #edit-section,
+        html[data-quick-review="1"] #result-section,
+        html[data-quick-review="1"] #exam-report-workspace {
+            display: none !important;
+        }
+    </style>
 </head>
 <body>
     <div id="nav-area">
@@ -622,8 +639,7 @@
         const TOPIC_REVEAL_STORAGE_KEY = 'trigger_topic_reveal_daily_v1';
         const FREE_TOPIC_REVEALS_PER_DAY = 2;
         const PREMIUM_PAYMENT_URL = 'https://tri3.imweb.me/';
-        /** 이 문자열을 코드에서 바꾸면 됩니다. 잠금 화면 왼쪽 아래 모서리를 5번 연속 탄 후 입력합니다. */
-        const TRIGGER_TOPIC_ADMIN_SECRET = 'tri3black-topic-admin-26';
+        /** Golden Key 잠금 시: 잠금 오버레이 왼쪽 아래 투명 영역을 2.2초 안에 3번 연속 탭하면 이 브라우저에서 무제한 해제. */
         const TOPIC_ANALYSIS_UNLOCK_LS = 'trigger_analysis_topic_unlock_v1';
         const EXAM_RPT_TREND_STORAGE_KEY = 'exam_rpt_total_trend_v1';
         const EXAM_RPT_TREND_MAX = 20;
@@ -1401,16 +1417,20 @@
         }
 
         function showNoteModal(tab = 'grammar') {
+            try {
+                document.documentElement.removeAttribute('data-quick-review');
+            } catch (e) {}
             switchNoteTab(tab);
             document.getElementById('note-modal').style.display = 'flex';
         }
 
         function closeNoteModal() {
+            if (quickReviewEntry) {
+                window.location.replace('index.html?tab=analysis');
+                return;
+            }
             const modal = document.getElementById('note-modal');
             if (modal) modal.style.display = 'none';
-            if (quickReviewEntry) {
-                location.href = 'index.html?tab=analysis';
-            }
         }
 
         window.togglePassageFolder = function(index) {
@@ -2731,18 +2751,12 @@
                     tapTimer = setTimeout(function () {
                         taps = 0;
                     }, 2200);
-                    if (taps < 5) return;
+                    if (taps < 3) return;
                     taps = 0;
-                    const code = window.prompt('관리자 코드를 입력하세요. (이 브라우저에서 주제·키워드 무제한)');
-                    if (code == null) return;
-                    if (String(code).trim() !== TRIGGER_TOPIC_ADMIN_SECRET) {
-                        alert('코드가 일치하지 않습니다.');
-                        return;
-                    }
                     try {
                         localStorage.setItem(TOPIC_ANALYSIS_UNLOCK_LS, '1');
                     } catch (e) {}
-                    alert('이 기기에서 주제·키워드 표시 잠금이 해제되었습니다. 화면을 새로고침합니다.');
+                    alert('이 기기에서 Golden Key 표시 잠금이 해제되었습니다. 화면을 새로고침합니다.');
                     location.reload();
                 },
                 true
