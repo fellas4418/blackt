@@ -54,3 +54,15 @@ ON exam_analysis(user_id, datetime(created_at) DESC);
 
 CREATE INDEX IF NOT EXISTS idx_exam_analysis_school_exam
 ON exam_analysis(school_name, exam_type);
+
+-- 지문 분석: 트리거 AI 실시간 질문 기록
+CREATE TABLE IF NOT EXISTS chat_history (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  question TEXT NOT NULL,
+  answer TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_chat_history_user_created
+ON chat_history(user_id, datetime(created_at) DESC);

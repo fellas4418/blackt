@@ -219,6 +219,94 @@ async function handlePaymentConfirm(env, request) {
   return json({ ok: true, user_id: userId, is_premium: 1 });
 }
 
+async function callGeminiChatSimple(env, fullPrompt) {
+  const model = env.GEMINI_MODEL || "gemini-2.5-flash";
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`;
+  const payload = {
+    contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
+    generationConfig: { temperature: 0.35, maxOutputTokens: 512 },
+  };
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    return { error: data?.error?.message || data?.error || `gemini_http_${response.status}` };
+  }
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) return { error: "empty_response" };
+  return { text: String(text).trim() };
+}
+
+async function handleChatAsk(env, body) {
+  /**
+   * 권한 확장 포인트(주석):
+   * 향후 users.is_premium 외에 video_package / prepass / golden_key_entitlement 등
+   * 별도 컬럼·JSON entitlement로 분기해 이 엔드포인트 접근을 세분화할 수 있음.
+   */
+  const userId = String(body.user_id || "").trim();
+  const password = String(body.password || "");
+  if (!(await verifyUser(env, userId, password))) return json({ error: "인증 실패" }, 401);
+
+  const premRow = await env.DB.prepare("SELECT is_premium FROM users WHERE id = ?1").bind(userId).first();
+  const isPremium = premRow && Number(premRow.is_premium) === 1;
+  if (!isPremium) return json({ error: "premium_required" }, 403);
+
+  const question = String(body.question || "").trim();
+  const contextSentence = String(body.context_sentence || "").trim();
+  if (!question) return json({ error: "question이 필요합니다." }, 400);
+  if (question.length > 800) return json({ error: "question_too_long" }, 400);
+
+  const systemBlock =
+    "역할: 대한민국 고등 영어 강사. 고3 수능 3등급 이하 학생에게 말하듯 짧고 친절한 구어체(~요체)로 답합니다.\n" +
+    "분량: 전체 200자 내외(공백 포함 가깝게).\n" +
+    "반드시 아래 3단 구성으로만 답하세요. 각 줄 앞에 라벨을 붙입니다.\n" +
+    "1) 해석: (질문·문맥에 맞는 핵심 한두 문장)\n" +
+    "2) 핵심문법: (관련 규칙 한 줄)\n" +
+    "3) 출제포인트: (시험에서 어떻게 묻는지 한 줄)\n" +
+    "문장 맥락이 주어지면 그 문장을 우선 반영하고, 없으면 일반 영어·문법 질문으로 개념 설명 + 쉬운 예문을 1~2개 괄호 안에 짧게 넣어도 됩니다.\n" +
+    "마크다운·코드블록 없이 일반 텍스트만 출력합니다.";
+
+  const ctxBlock = contextSentence
+    ? `\n[선택된 지문 문장]\n${contextSentence}\n`
+    : "\n(지문 문장 미선택: 일반 질문으로 처리)\n";
+
+  const fullPrompt = `${systemBlock}${ctxBlock}\n[학생 질문]\n${question}`;
+
+  const g = await callGeminiChatSimple(env, fullPrompt);
+  if (g.error) return json({ error: g.error }, 500);
+
+  const id = crypto.randomUUID();
+  const now = new Date().toISOString();
+  const questionForDb = contextSentence
+    ? `[선택 지문 문장]\n${contextSentence}\n\n[질문]\n${question}`
+    : question;
+  await env.DB.prepare(
+    "INSERT INTO chat_history (id, user_id, question, answer, created_at) VALUES (?1, ?2, ?3, ?4, ?5)"
+  )
+    .bind(id, userId, questionForDb, g.text, now)
+    .run();
+
+  return json({ ok: true, answer: g.text, id });
+}
+
+async function handleChatHistory(env, body) {
+  const userId = String(body.user_id || "").trim();
+  const password = String(body.password || "");
+  if (!(await verifyUser(env, userId, password))) return json({ error: "인증 실패" }, 401);
+
+  const rows = await env.DB
+    .prepare(
+      "SELECT id, question, answer, created_at FROM chat_history WHERE user_id = ?1 ORDER BY datetime(created_at) DESC LIMIT 80"
+    )
+    .bind(userId)
+    .all();
+
+  return json({ ok: true, items: rows.results || [] });
+}
+
 async function handleSyncDelete(env, body) {
   const userId = String(body.user_id || "").trim();
   const password = String(body.password || "");
@@ -248,6 +336,11 @@ async function handleSyncDelete(env, body) {
   return json({ error: "지원하지 않는 삭제 타입입니다." }, 400);
 }
 
+/**
+ * POST /api/analyze — Gemini generateContent 프록시(요청 본문 그대로 전달).
+ * 지문 유형·passage_layout JSON 스키마는 analysis.html 분석 프롬프트에서 정의되며,
+ * Worker는 본문 검증·변환을 하지 않습니다. (향후 서버 검증 추가 시 이 주석 근처 확장)
+ */
 async function handleGeminiProxy(env, request) {
   const body = await request.json();
   const model = env.GEMINI_MODEL || "gemini-2.5-flash";
@@ -519,6 +612,12 @@ export default {
       }
       if (request.method === "POST" && path === "/api/payment/confirm") {
         return handlePaymentConfirm(env, request);
+      }
+      if (request.method === "POST" && path === "/api/chat/ask") {
+        return handleChatAsk(env, await request.json());
+      }
+      if (request.method === "POST" && path === "/api/chat/history") {
+        return handleChatHistory(env, await request.json());
       }
       if (request.method === "POST" && path === "/api/analyze") {
         return handleGeminiProxy(env, request);

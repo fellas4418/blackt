@@ -130,6 +130,85 @@
 
         .topic-focus-card .topic-focus-inner { position: relative; z-index: 1; }
 
+        /* Golden Key · 문장 선택 질문 */
+        #result-section.sentence-pick-mode .clickable-word { pointer-events: none !important; cursor: default !important; }
+        .translation-row.pick-selectable { cursor: pointer; border-radius: 8px; transition: box-shadow 0.15s; }
+        .translation-row.sentence-pick-selected { box-shadow: 0 0 0 2px var(--neon-blue); background: rgba(0,243,255,0.08); }
+        .gk-term-btn { background: #1a1a1a; border: 1px solid #555; color: #9fe870; padding: 4px 8px; border-radius: 6px; font-size: 0.82rem; cursor: pointer; }
+        .gk-term-mean { font-size: 0.82rem; color: #9fd; }
+
+        /* 지문 유형 레이아웃 · ①~⑳ 원형 강조 */
+        .passage-circ-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 1.35em;
+            height: 1.35em;
+            padding: 0 0.2em;
+            border-radius: 50%;
+            background: rgba(0, 243, 255, 0.12);
+            border: 1px solid rgba(0, 243, 255, 0.55);
+            font-size: 0.82em;
+            line-height: 1;
+            margin: 0 2px;
+            vertical-align: middle;
+            font-weight: 700;
+            color: #9fe8ff;
+        }
+        .passage-layout-card .passage-layout-inner { line-height: 1.65; }
+        .passage-insert-box {
+            border: 2px dashed rgba(159, 232, 112, 0.75);
+            background: rgba(159, 232, 112, 0.07);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            color: #e8ffe8;
+            font-size: 0.95rem;
+        }
+        .passage-order-card {
+            border: 1px solid #444;
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .passage-order-marker { font-size: 0.78rem; color: #9fe870; font-weight: bold; margin-bottom: 6px; }
+        .passage-order-body { color: #eee; font-size: 0.92rem; }
+        .passage-summary-box {
+            margin-top: 14px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 0, 85, 0.45);
+            background: rgba(255, 0, 85, 0.06);
+            color: #ffd6e0;
+            font-size: 0.9rem;
+        }
+        .passage-grammar-panel { font-size: 0.93rem; color: #eee; margin-bottom: 12px; line-height: 1.7; }
+        .passage-grammar-panel del.passage-del,
+        del.passage-del { color: #ff7b7b; text-decoration: line-through; text-decoration-thickness: 2px; }
+        .passage-grammar-panel ins.passage-ins,
+        ins.passage-ins { color: #39ff14; text-decoration: none; font-weight: 600; }
+        .passage-clean-list { margin: 0; padding-left: 1.2em; color: #ddd; }
+        .passage-clean-list li { margin: 6px 0; }
+        .passage-row-subtitle {
+            font-size: 0.78rem;
+            font-weight: bold;
+            color: #b8a8ff;
+            margin: 10px 0 4px;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(188, 19, 254, 0.35);
+        }
+        .passage-corrections-list { margin-top: 12px; font-size: 0.86rem; color: #ccc; }
+        .passage-corrections-h { font-weight: bold; color: #aaa; margin-bottom: 6px; }
+        .passage-corrections-list ul { margin: 0; padding-left: 1.1em; }
+        .passage-corrections-list li { margin: 4px 0; }
+        .passage-cor-num { color: #00f3ff; font-weight: bold; margin-right: 4px; }
+
+        #premium-ai-ask-panel textarea { width: 100%; min-height: 72px; box-sizing: border-box; background: #111; border: 1px solid #444; color: #fff; border-radius: 10px; padding: 10px; font-size: 0.92rem; margin-top: 8px; }
+        #chat-history-modal { position: fixed; inset: 0; z-index: 35000; background: rgba(0,0,0,0.92); display: none; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; }
+        #chat-history-modal .chat-history-inner { background: #111; border: 1px solid #444; border-radius: 16px; max-width: 480px; width: 100%; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; }
+        #chat-history-list { overflow-y: auto; padding: 12px; flex: 1; font-size: 0.88rem; color: #ddd; line-height: 1.5; }
+
         #note-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 30000; padding: 20px; box-sizing: border-box; }
         .modal-card { background: #111; border: 1px solid #666; box-shadow: 0 0 15px rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px; width: 90%; max-width: 450px; text-align: center; max-height: 85vh; overflow-y: hidden; display: flex; flex-direction: column; box-sizing: border-box; }
         .modal-title { font-size: 1.3rem; font-weight: bold; margin-bottom: 15px; color: #fff; }
@@ -353,9 +432,32 @@
             <button onclick="window.open('https://tri3.imweb.me/', '_blank')" class="kakao-btn" style="background:#b537f2; color:#fff; border-radius:12px;">👉 된다니까 3시간 영문법 수강하기 ⚡</button>
         </div>
 
+        <div id="premium-ai-ask-panel" style="display:none; margin-top: 20px; border: 1px solid rgba(57,255,20,0.45); border-radius: 16px; padding: 16px; background: rgba(57,255,20,0.06);">
+            <div style="font-weight: 900; color: #39ff14; margin-bottom: 10px; font-size: 1.02rem;">트리거 AI 실시간 질문하기 <span style="font-weight:600;font-size:0.72rem;color:#888;">(프리미엄 전용)</span></div>
+            <p style="font-size:0.82rem;color:#aaa;margin:0 0 10px;line-height:1.5;">문장을 고르면 그 문장 맥락 위주로, 안 고르면 일반 문법·영어 질문으로 답해 드려요. (약 200자·3단 구성)</p>
+            <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+                <button type="button" id="btn-sentence-pick-toggle" class="login-btn" style="margin:0;border-color:var(--neon-blue);color:var(--neon-blue);">질문할 문장 선택</button>
+                <button type="button" id="btn-sentence-pick-done" class="login-btn" style="margin:0;display:none;border-color:#9fe870;color:#9fe870;">선택 완료</button>
+                <button type="button" id="btn-chat-history" class="login-btn" style="margin:0;border-color:#888;color:#ccc;">나의 질문 기록 보기</button>
+            </div>
+            <div id="picked-sentence-preview" style="display:none; font-size:0.85rem; color:#9fe870; background:#151515; border:1px solid #333; border-radius:8px; padding:10px; margin-bottom:8px; line-height:1.45;"></div>
+            <textarea id="ai-ask-input" placeholder="궁금한 점을 입력해 주세요."></textarea>
+            <button type="button" id="ai-ask-submit" class="start-btn" style="width:100%; margin-top:10px; border-color:var(--neon-green);">질문 보내기</button>
+            <div id="ai-ask-reply" style="margin-top:12px; font-size:0.9rem; color:#eee; line-height:1.55; white-space:pre-wrap;"></div>
+        </div>
+
         <button onclick="location.reload()" class="login-btn" style="border-color: #fff; margin-top: 20px; background: transparent; width: 100%;">다른 지문 분석하기</button>
     </div>
 
+    <div id="chat-history-modal" aria-hidden="true">
+        <div class="chat-history-inner">
+            <div style="padding:14px 16px; border-bottom:1px solid #333; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-weight:bold;color:#fff;">나의 질문 기록</span>
+                <button type="button" id="chat-history-close" class="auth-btn">닫기</button>
+            </div>
+            <div id="chat-history-list"></div>
+        </div>
+    </div>
     <script src="worddata.js"></script>
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
 
@@ -510,6 +612,13 @@
         let quickReviewEntry = false;
         let noteSyncResolved = false;
 
+        let lastAnalysisResForChat = null;
+
+        /** 문장 선택 모드(프리미엄 질문). true일 때 단어 클릭(뜻) 비활성화. */
+        window.sentencePickModeActive = false;
+        let confirmedChatContextSentence = '';
+        let premiumAiAskPanelInited = false;
+
         const TOPIC_REVEAL_STORAGE_KEY = 'trigger_topic_reveal_daily_v1';
         const FREE_TOPIC_REVEALS_PER_DAY = 2;
         const PREMIUM_PAYMENT_URL = 'https://tri3.imweb.me/';
@@ -527,13 +636,27 @@
             }
         }
 
-        /** 무료·비회원: 하루 2회까지 주제·키워드 섹션 공개. 3회째부터 잠금. 프리미엄은 항상 공개. */
-        function evaluateTopicSectionReveal() {
-            if (isPremiumUser) return { locked: false };
-            if (localStorage.getItem('trigger_admin_mode') === 'true') return { locked: false };
+        /**
+         * 권한 확장 포인트(주석):
+         * 향후 users.product_flags JSON, entitlement_tier, 별도 구독 테이블 등으로
+         * golden_key / video_package / prepass 등을 분리 검사할 수 있음.
+         * 현재는 is_premium(1) + 로컬 관리자/개발 잠금 해제 플래그만 사용.
+         */
+        function userHasGoldenKeyUnlimitedAccess() {
+            if (isPremiumUser) return true;
+            if (localStorage.getItem('trigger_admin_mode') === 'true') return true;
             try {
-                if (localStorage.getItem(TOPIC_ANALYSIS_UNLOCK_LS) === '1') return { locked: false };
+                if (localStorage.getItem(TOPIC_ANALYSIS_UNLOCK_LS) === '1') return true;
             } catch (e) {}
+            return false;
+        }
+
+        /**
+         * Golden Key(주제 요약·3종 주제문·핵심 키워드) 일 2회 공개. 유료·관리자·개발 잠금해제는 무제한.
+         * @param {{ skipConsume?: boolean }} [opts] — 로컬 캐시/히스토리 재표시 시 true로 일일 횟수를 소비하지 않음.
+         */
+        function evaluateTopicSectionReveal(opts) {
+            if (userHasGoldenKeyUnlimitedAccess()) return { locked: false };
             const today = topicRevealTodayKey();
             let o = {};
             try {
@@ -542,8 +665,12 @@
             if (o.date !== today) o = { date: today, count: 0 };
             const n = Number(o.count) || 0;
             if (n >= FREE_TOPIC_REVEALS_PER_DAY) return { locked: true };
-            o.count = n + 1;
-            localStorage.setItem(TOPIC_REVEAL_STORAGE_KEY, JSON.stringify({ date: today, count: o.count }));
+            if (!opts || !opts.skipConsume) {
+                o.count = n + 1;
+                try {
+                    localStorage.setItem(TOPIC_REVEAL_STORAGE_KEY, JSON.stringify({ date: today, count: o.count }));
+                } catch (e) {}
+            }
             return { locked: false };
         }
 
@@ -597,6 +724,7 @@
             savedGrammarCache = Array.isArray(data.saved_grammar) ? data.saved_grammar : [];
             noteSyncResolved = true;
             checkAllSavedStatus();
+            refreshPremiumAiPanelVisibility();
             const noteModal = document.getElementById('note-modal');
             if (noteModal && noteModal.style.display === 'flex') {
                 renderNoteList();
@@ -1008,6 +1136,7 @@
 
         // 🔥 초정밀 어근 추출 및 무적 매칭 로직
         window.handleWordClick = function(element) {
+            if (window.sentencePickModeActive) return;
             const idiom = element.getAttribute('data-idiom');
             let rawWord = idiom ? idiom : String(element.innerText || '').toLowerCase().replace(/[^a-z-]/g, '').trim();
             if(!rawWord) return;
@@ -1424,6 +1553,539 @@
             badge.style.display = isCached ? 'inline-block' : 'none';
         }
 
+        function normalizeGoldenKey(res) {
+            const gk = res && res.golden_key && typeof res.golden_key === 'object' ? res.golden_key : null;
+            if (gk && Array.isArray(gk.topic_variants) && gk.topic_variants.length) {
+                const typeOrder = { original: 0, keyword_paraphrase: 1, structure_paraphrase: 2 };
+                const mapped = (gk.topic_variants || [])
+                    .map(function (v) {
+                        if (!v || typeof v !== 'object') return null;
+                        const keyTermsRaw = Array.isArray(v.key_terms) ? v.key_terms : [];
+                        const key_terms = keyTermsRaw
+                            .map(function (t) {
+                                if (t && typeof t === 'object') {
+                                    return {
+                                        eng: String(t.eng || t.word || '').trim(),
+                                        kor: String(t.kor || t.mean || '').trim()
+                                    };
+                                }
+                                if (typeof t === 'string') return { eng: t.trim(), kor: '' };
+                                return { eng: '', kor: '' };
+                            })
+                            .filter(function (t) {
+                                return t.eng;
+                            });
+                        return {
+                            type: String(v.type || '').trim(),
+                            sentence_en: String(v.sentence_en || '').trim(),
+                            interpretation_ko: String(v.interpretation_ko || '').trim(),
+                            key_terms: key_terms
+                        };
+                    })
+                    .filter(Boolean);
+                mapped.sort(function (a, b) {
+                    return (typeOrder[a.type] ?? 99) - (typeOrder[b.type] ?? 99);
+                });
+                return {
+                    topic_summary: {
+                        formal: String(
+                            (gk.topic_summary && gk.topic_summary.formal) || res.subject?.formal || ''
+                        ).trim(),
+                        easy: String((gk.topic_summary && gk.topic_summary.easy) || res.subject?.easy || '').trim()
+                    },
+                    topic_variants: mapped.slice(0, 3),
+                    topic_keywords:
+                        Array.isArray(gk.topic_keywords) && gk.topic_keywords.length
+                            ? gk.topic_keywords.map((k) => String(k || '').trim()).filter(Boolean).slice(0, 5)
+                            : Array.isArray(res.topic_keywords)
+                              ? res.topic_keywords.map((k) => String(k || '').trim()).filter(Boolean).slice(0, 5)
+                              : []
+                };
+            }
+            const rawTs = res.topic_sentence != null ? String(res.topic_sentence).trim() : '';
+            const one = rawTs && rawTs.toLowerCase() !== 'null' ? rawTs : '';
+            return {
+                topic_summary: {
+                    formal: String(res.subject?.formal || '').trim(),
+                    easy: String(res.subject?.easy || '').trim()
+                },
+                topic_variants: [
+                    { type: 'original', sentence_en: one, interpretation_ko: '', key_terms: [] },
+                    { type: 'keyword_paraphrase', sentence_en: '', interpretation_ko: '', key_terms: [] },
+                    { type: 'structure_paraphrase', sentence_en: '', interpretation_ko: '', key_terms: [] }
+                ],
+                topic_keywords: Array.isArray(res.topic_keywords) ? res.topic_keywords.map((k) => String(k || '').trim()).filter(Boolean).slice(0, 5) : []
+            };
+        }
+
+        function buildGkKeyTermsHtml(terms) {
+            if (!Array.isArray(terms) || !terms.length) return '<span style="color:#666;font-size:0.82rem;">(없음)</span>';
+            return terms
+                .map(function (t, idx) {
+                    const eng = escapeHtml(String(t.eng || t.word || '').trim());
+                    const kor = escapeHtml(String(t.kor || t.mean || '').trim());
+                    if (!eng) return '';
+                    return (
+                        '<span style="display:inline-block;margin:4px 6px 4px 0;">' +
+                        '<button type="button" class="gk-term-btn" onclick="toggleGkTermMean(this)" data-mean="' +
+                        kor +
+                        '">' +
+                        eng +
+                        '</button>' +
+                        '<span class="gk-term-mean" style="display:none;margin-left:6px;">' +
+                        kor +
+                        '</span></span>'
+                    );
+                })
+                .join('');
+        }
+
+        window.toggleGkTermMean = function (btn) {
+            const sp = btn && btn.nextElementSibling;
+            if (!sp || !sp.classList || !sp.classList.contains('gk-term-mean')) return;
+            sp.style.display = sp.style.display === 'none' ? 'inline' : 'none';
+        };
+
+        function getSelectedSentencePlainFromDom() {
+            const area = document.getElementById('ai-report-area');
+            if (!area) return '';
+            const rows = area.querySelectorAll('.translation-row.sentence-pick-selected');
+            const parts = [];
+            rows.forEach(function (row) {
+                const eng = row.querySelector('.eng-text');
+                if (!eng) return;
+                const t = (eng.innerText || eng.textContent || '').trim().replace(/\s+/g, ' ');
+                if (t) parts.push(t);
+            });
+            return parts.join('\n\n');
+        }
+
+        function updateChatContextPreview() {
+            const box = document.getElementById('picked-sentence-preview');
+            if (!box) return;
+            if (window.sentencePickModeActive) {
+                const live = getSelectedSentencePlainFromDom();
+                box.style.display = 'block';
+                box.textContent = live
+                    ? '[미리보기] ' + live
+                    : '[미리보기] 아직 선택된 문장이 없어요. 해석 영역의 문장 줄을 눌러 주세요.';
+                return;
+            }
+            if (confirmedChatContextSentence && confirmedChatContextSentence.trim()) {
+                box.style.display = 'block';
+                box.textContent = '[맥락 문장] ' + confirmedChatContextSentence.trim();
+            } else {
+                box.style.display = 'none';
+                box.textContent = '';
+            }
+        }
+
+        function exitSentencePickModeSilently() {
+            window.sentencePickModeActive = false;
+            const rs = document.getElementById('result-section');
+            if (rs) rs.classList.remove('sentence-pick-mode');
+            document.querySelectorAll('.translation-row.sentence-pick-selected').forEach(function (el) {
+                el.classList.remove('sentence-pick-selected');
+            });
+            const tb = document.getElementById('btn-sentence-pick-toggle');
+            const dn = document.getElementById('btn-sentence-pick-done');
+            if (tb) {
+                tb.style.display = '';
+                tb.textContent = '질문할 문장 선택';
+            }
+            if (dn) dn.style.display = 'none';
+            updateChatContextPreview();
+        }
+
+        function refreshPremiumAiPanelVisibility() {
+            const p = document.getElementById('premium-ai-ask-panel');
+            if (!p) return;
+            p.style.display = isPremiumUser ? 'block' : 'none';
+            if (!isPremiumUser) exitSentencePickModeSilently();
+        }
+
+        function initPremiumAiAskPanelOnce() {
+            if (premiumAiAskPanelInited) return;
+            premiumAiAskPanelInited = true;
+            const rs = document.getElementById('result-section');
+            if (rs) {
+                rs.addEventListener('click', function (ev) {
+                    if (!window.sentencePickModeActive) return;
+                    const row = ev.target.closest('.translation-row.pick-selectable');
+                    if (!row || !rs.contains(row)) return;
+                    ev.preventDefault();
+                    row.classList.toggle('sentence-pick-selected');
+                    updateChatContextPreview();
+                });
+            }
+            const tgl = document.getElementById('btn-sentence-pick-toggle');
+            const done = document.getElementById('btn-sentence-pick-done');
+            if (tgl) {
+                tgl.addEventListener('click', function () {
+                    if (!isPremiumUser) return;
+                    if (window.sentencePickModeActive) {
+                        exitSentencePickModeSilently();
+                        return;
+                    }
+                    window.sentencePickModeActive = true;
+                    const sec = document.getElementById('result-section');
+                    if (sec) sec.classList.add('sentence-pick-mode');
+                    tgl.textContent = '선택 모드 취소';
+                    if (done) done.style.display = '';
+                    updateChatContextPreview();
+                });
+            }
+            if (done) {
+                done.addEventListener('click', function () {
+                    if (!isPremiumUser) return;
+                    confirmedChatContextSentence = getSelectedSentencePlainFromDom();
+                    exitSentencePickModeSilently();
+                });
+            }
+            const sub = document.getElementById('ai-ask-submit');
+            if (sub) {
+                sub.addEventListener('click', async function () {
+                    if (!isPremiumUser || !authUserId) {
+                        alert('프리미엄 회원만 이용할 수 있어요.');
+                        return;
+                    }
+                    const qEl = document.getElementById('ai-ask-input');
+                    const out = document.getElementById('ai-ask-reply');
+                    const q = (qEl && qEl.value ? String(qEl.value) : '').trim();
+                    if (!q) {
+                        alert('질문을 입력해 주세요.');
+                        return;
+                    }
+                    if (out) {
+                        out.textContent = '답변을 불러오는 중…';
+                    }
+                    try {
+                        const data = await postJson('/api/chat/ask', {
+                            user_id: authUserId,
+                            password: authPassword,
+                            question: q,
+                            context_sentence: confirmedChatContextSentence.trim() || ''
+                        });
+                        if (out) out.textContent = data.answer || '';
+                    } catch (e) {
+                        if (out) {
+                            out.textContent =
+                                e && e.apiError === 'premium_required'
+                                    ? '프리미엄 전용 기능이에요.'
+                                    : (e && e.message) || '요청에 실패했어요.';
+                        }
+                    }
+                });
+            }
+            const histBtn = document.getElementById('btn-chat-history');
+            const modal = document.getElementById('chat-history-modal');
+            const listEl = document.getElementById('chat-history-list');
+            const closeBtn = document.getElementById('chat-history-close');
+            function closeHist() {
+                if (!modal) return;
+                modal.style.display = 'none';
+                modal.setAttribute('aria-hidden', 'true');
+            }
+            if (closeBtn) closeBtn.addEventListener('click', closeHist);
+            if (modal) {
+                modal.addEventListener('click', function (e) {
+                    if (e.target === modal) closeHist();
+                });
+            }
+            if (histBtn) {
+                histBtn.addEventListener('click', async function () {
+                    if (!isPremiumUser || !authUserId) {
+                        alert('프리미엄 회원만 이용할 수 있어요.');
+                        return;
+                    }
+                    if (!modal || !listEl) return;
+                    modal.style.display = 'flex';
+                    modal.setAttribute('aria-hidden', 'false');
+                    listEl.innerHTML = '불러오는 중…';
+                    try {
+                        const data = await postJson('/api/chat/history', {
+                            user_id: authUserId,
+                            password: authPassword
+                        });
+                        const items = Array.isArray(data.items) ? data.items : [];
+                        if (!items.length) {
+                            listEl.innerHTML = '<div style="color:#888;padding:12px;">아직 저장된 질문이 없어요.</div>';
+                            return;
+                        }
+                        listEl.innerHTML = items
+                            .map(function (row) {
+                                const qq = escapeHtml(String(row.question || ''));
+                                const aa = escapeHtml(String(row.answer || ''));
+                                const when = escapeHtml(String(row.created_at || ''));
+                                return (
+                                    '<div style="border-bottom:1px solid #2a2a2a;padding:12px 0;">' +
+                                    '<div style="font-size:0.72rem;color:#888;margin-bottom:4px;">' +
+                                    when +
+                                    '</div>' +
+                                    '<div style="color:#9fe870;margin-bottom:6px;font-weight:bold;">Q</div>' +
+                                    '<div style="white-space:pre-wrap;margin-bottom:8px;">' +
+                                    qq +
+                                    '</div>' +
+                                    '<div style="color:#39ff14;margin-bottom:6px;font-weight:bold;">A</div>' +
+                                    '<div style="white-space:pre-wrap;color:#ccc;">' +
+                                    aa +
+                                    '</div></div>'
+                                );
+                            })
+                            .join('');
+                    } catch (e) {
+                        listEl.innerHTML =
+                            '<div style="color:#f88;padding:12px;">' +
+                            escapeHtml((e && e.message) || '불러오기 실패') +
+                            '</div>';
+                    }
+                });
+            }
+        }
+
+        initPremiumAiAskPanelOnce();
+
+        function buildGoldenKeySectionHtml(res, topicReveal) {
+            const gk = normalizeGoldenKey(res);
+            const hasSummary = gk.topic_summary.formal || gk.topic_summary.easy;
+            const hasKw = gk.topic_keywords && gk.topic_keywords.length > 0;
+            const hasVar = (gk.topic_variants || []).some(function (v) {
+                return v && String(v.sentence_en || '').trim();
+            });
+            if (!hasSummary && !hasKw && !hasVar) return '';
+
+            const typeLabel = {
+                original: '① 원문 주제문',
+                keyword_paraphrase: '② 키워드 변형 주제문',
+                structure_paraphrase: '③ 구조 변형 주제문'
+            };
+
+            let inner = '';
+            if (hasSummary) {
+                inner +=
+                    '<div style="margin-bottom:16px;">' +
+                    '<div style="font-size:0.78rem;color:#888;font-weight:bold;margin-bottom:6px;">주제 요약</div>' +
+                    '<div style="font-weight:bold;color:var(--neon-blue);margin-bottom:6px;">' +
+                    escapeHtml(gk.topic_summary.formal || '—') +
+                    '</div>' +
+                    '<div style="font-size:0.9rem;color:#aaa;background:#222;padding:10px;border-radius:8px;line-height:1.5;">💡 ' +
+                    escapeHtml(gk.topic_summary.easy || '') +
+                    '</div></div>';
+            }
+
+            (gk.topic_variants || []).forEach(function (v) {
+                if (!v) return;
+                const typ = String(v.type || '').trim();
+                const lab = typeLabel[typ] || typ;
+                const sen = String(v.sentence_en || '').trim();
+                const interp = String(v.interpretation_ko || '').trim();
+                inner += '<div style="margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #2a2a2a;">';
+                inner += '<div style="font-size:0.78rem;color:#9fe870;font-weight:bold;margin-bottom:8px;">' + escapeHtml(lab) + '</div>';
+                if (sen) {
+                    inner +=
+                        '<div style="color:#e8e8e8;font-size:0.95rem;line-height:1.55;font-style:italic;background:#1a1a1a;padding:12px 14px;border-radius:10px;border-left:3px solid var(--neon-blue);margin-bottom:8px;">' +
+                        escapeHtml(sen) +
+                        '</div>';
+                } else {
+                    inner +=
+                        '<div style="color:#777;font-size:0.88rem;margin-bottom:8px;">(이 유형의 주제문은 이번 분석에서 비어 있을 수 있어요. 재분석 시 모델이 채웁니다.)</div>';
+                }
+                if (interp) {
+                    inner += '<div style="font-size:0.86rem;color:#ccc;margin-bottom:6px;"><strong style="color:#bbb;">해석</strong> ' + escapeHtml(interp) + '</div>';
+                }
+                inner += '<div style="font-size:0.78rem;color:#888;margin:6px 0 4px;">주요 단어 <span style="color:#666;font-weight:normal;">(클릭하면 뜻)</span></div>';
+                inner += '<div>' + buildGkKeyTermsHtml(v.key_terms) + '</div>';
+                inner += '</div>';
+            });
+
+            if (hasKw) {
+                const chips = gk.topic_keywords
+                    .map(function (k) {
+                        return '<span style="display:inline-block;margin:4px 6px 4px 0;padding:6px 10px;background:rgba(255,0,85,0.12);border:1px solid rgba(255,0,85,0.45);border-radius:999px;font-size:0.85rem;color:#ffb3c6;">' +
+                            escapeHtml(String(k)) +
+                            '</span>';
+                    })
+                    .join('');
+                inner +=
+                    '<div style="margin-top:12px;">' +
+                    '<div style="font-size:0.78rem;color:#888;font-weight:bold;margin-bottom:6px;">핵심 키워드 <span style="font-weight:normal;color:#666;">(2~5개)</span></div>' +
+                    '<div style="margin-bottom:8px;">' +
+                    chips +
+                    '</div>' +
+                    '<p style="font-size:0.8rem;color:#777;margin:0;line-height:1.45;">보기 중 위 표현들을 <strong style="color:#aaa;">가장 잘 함께 담고 있는</strong> 선택지가 정답에 가깝습니다.</p></div>';
+            }
+
+            const topicLocked = !!(topicReveal && topicReveal.locked);
+            const lockOverlay = topicLocked
+                ? '<div style="position:absolute;inset:0;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px 16px;text-align:center;z-index:4;box-sizing:border-box;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);background:rgba(5,5,5,0.55);">' +
+                  '<p style="margin:0 0 16px;font-size:0.92rem;line-height:1.55;color:#eee;max-width:320px;">오늘 Golden Key(정답의 열쇠) 확인 횟수(2회)를 썼어요.</p>' +
+                  '<button type="button" style="padding:14px 22px;border-radius:12px;border:none;font-weight:bold;font-size:0.95rem;cursor:pointer;background:linear-gradient(135deg,#9fe870,#39ff14);color:#000;box-shadow:0 0 20px rgba(57,255,20,0.35);" onclick="window.location.href=\'' +
+                  PREMIUM_PAYMENT_URL +
+                  '\'">결제하고 정답의 열쇠를 확인하세요</button>' +
+                  '<div data-analysis-topic-admin-corner="1" style="position:absolute;bottom:2px;left:2px;width:64px;height:64px;border-radius:12px;background:rgba(255,255,255,0.04);cursor:default;z-index:6;" aria-hidden="true"></div></div>'
+                : '';
+            const innerBlur = topicLocked ? 'filter: blur(10px); pointer-events: none; user-select: none;' : '';
+
+            return (
+                '<div class="result-card topic-focus-card" style="border-color:#ffd700;box-shadow:0 0 18px rgba(255,215,0,0.15);">' +
+                '<span class="result-label" style="color:#ffd700;margin-bottom:4px;">Golden Key · 정답의 열쇠</span>' +
+                '<div style="font-size:0.8rem;color:#bbb;line-height:1.55;margin-bottom:12px;padding:10px 12px;background:rgba(255,215,0,0.06);border-radius:10px;border:1px solid rgba(255,215,0,0.25);">' +
+                '<strong style="color:#ffe082;">주제 요약 + 3종 주제문 + 핵심 키워드</strong>를 한 묶음으로 모았어요. 무료는 하루 2회까지 열람, 유료는 무제한이에요.' +
+                '</div>' +
+                '<div class="result-content" style="position:relative;min-height:72px;overflow:hidden;border-radius:12px;">' +
+                '<div class="topic-focus-inner" style="' +
+                innerBlur +
+                '">' +
+                inner +
+                '</div>' +
+                lockOverlay +
+                '</div></div>'
+            );
+        }
+
+        function decorateCircledNumberMarks(str) {
+            return String(str || '').replace(/[\u2460-\u2473]/g, function (ch) {
+                return '<span class="passage-circ-num">' + ch + '</span>';
+            });
+        }
+
+        function sanitizeGrammarPanelHtml(html) {
+            const raw = String(html || '').trim();
+            if (!raw) return '';
+            try {
+                const tpl = document.createElement('template');
+                tpl.innerHTML = raw;
+                const banned = new Set([
+                    'script', 'style', 'iframe', 'object', 'embed', 'link', 'meta', 'form', 'input', 'button',
+                    'img', 'svg', 'a', 'video', 'audio'
+                ]);
+                for (let iter = 0; iter < 120; iter++) {
+                    const all = tpl.content.querySelectorAll('*');
+                    let changed = false;
+                    for (let i = 0; i < all.length; i++) {
+                        const el = all[i];
+                        const tag = el.tagName ? el.tagName.toLowerCase() : '';
+                        if (tag === 'del' || tag === 'ins' || tag === 'br') continue;
+                        if (banned.has(tag)) {
+                            el.replaceWith(document.createTextNode(''));
+                            changed = true;
+                            break;
+                        }
+                        const p = el.parentNode;
+                        if (p) {
+                            while (el.firstChild) p.insertBefore(el.firstChild, el);
+                            p.removeChild(el);
+                            changed = true;
+                            break;
+                        }
+                    }
+                    if (!changed) break;
+                }
+                tpl.content.querySelectorAll('del, ins').forEach(function (el) {
+                    const tag = el.tagName.toLowerCase();
+                    if (tag === 'del') el.classList.add('passage-del');
+                    if (tag === 'ins') el.classList.add('passage-ins');
+                    Array.from(el.attributes).forEach(function (a) {
+                        if (a.name !== 'class') el.removeAttribute(a.name);
+                    });
+                });
+                return tpl.innerHTML;
+            } catch (e) {
+                return escapeHtml(raw);
+            }
+        }
+
+        function buildPassageLayoutCardHtml(res) {
+            const pl = res && res.passage_layout && typeof res.passage_layout === 'object' ? res.passage_layout : null;
+            if (!pl) return '';
+            const t = String(pl.type || 'normal').trim().toLowerCase();
+            const headParts = [];
+            const tailParts = [];
+
+            if (t === 'insertion' && pl.box_sentence) {
+                headParts.push(
+                    '<div class="passage-insert-box">' +
+                    decorateCircledNumberMarks(escapeHtml(String(pl.box_sentence))) +
+                    '</div>'
+                );
+            }
+
+            if (t === 'grammar' && pl.grammar_panel_eng) {
+                headParts.push(
+                    '<div class="passage-grammar-panel">' +
+                    decorateCircledNumberMarks(sanitizeGrammarPanelHtml(pl.grammar_panel_eng)) +
+                    '</div>'
+                );
+            }
+
+            const paras = Array.isArray(pl.paragraphs) ? pl.paragraphs : [];
+            if ((t === 'ordering' || (t === 'grammar' && paras.length)) && paras.length) {
+                paras.forEach(function (p, idx) {
+                    const marker = escapeHtml(
+                        String(p.marker || p.label || p.mark || '(' + String.fromCharCode(65 + idx) + ')')
+                    );
+                    const body = decorateCircledNumberMarks(
+                        escapeHtml(String(p.eng_text || p.text || p.body || ''))
+                    );
+                    headParts.push(
+                        '<div class="passage-order-card">' +
+                        '<div class="passage-order-marker">' +
+                        marker +
+                        '</div>' +
+                        '<div class="passage-order-body">' +
+                        body +
+                        '</div></div>'
+                    );
+                });
+            }
+
+            if (t === 'normal_clean' && Array.isArray(pl.bulleted_lines) && pl.bulleted_lines.length) {
+                let u = '<ul class="passage-clean-list">';
+                pl.bulleted_lines.forEach(function (ln) {
+                    u += '<li>' + decorateCircledNumberMarks(escapeHtml(String(ln))) + '</li>';
+                });
+                u += '</ul>';
+                headParts.push(u);
+            }
+
+            if (t === 'grammar' && Array.isArray(pl.corrections) && pl.corrections.length) {
+                let c = '<div class="passage-corrections-list"><div class="passage-corrections-h">교정 요약</div><ul>';
+                pl.corrections.forEach(function (x) {
+                    const num = escapeHtml(String(x.num || x.number || x.label || ''));
+                    const w = escapeHtml(String(x.wrong || x.incorrect || ''));
+                    const cr = escapeHtml(String(x.correct || x.right || ''));
+                    c +=
+                        '<li><span class="passage-cor-num">' +
+                        num +
+                        '</span> <del class="passage-del">' +
+                        w +
+                        '</del> → <ins class="passage-ins">' +
+                        cr +
+                        '</ins></li>';
+                });
+                c += '</ul></div>';
+                tailParts.push(c);
+            }
+
+            if (t === 'summary' && pl.summary_box) {
+                tailParts.push(
+                    '<div class="passage-summary-box">' +
+                    decorateCircledNumberMarks(escapeHtml(String(pl.summary_box))) +
+                    '</div>'
+                );
+            }
+
+            const inner = (headParts.join('') + tailParts.join('')).trim();
+            if (!inner) return '';
+            return (
+                '<div class="result-card passage-layout-card" style="border-color:#00f3ff;">' +
+                '<span class="result-label" style="color:#00f3ff;margin-bottom:8px;">📐 지문 유형 · 표준 레이아웃</span>' +
+                '<div class="result-content passage-layout-inner">' +
+                inner +
+                '</div></div>'
+            );
+        }
+
         function applyParsedAnalysisResult(res, options) {
             if(res.full_word_map && typeof res.full_word_map === 'object') {
                 fullWordMapGlobal = res.full_word_map;
@@ -1438,10 +2100,6 @@
             document.getElementById('passage-title-input').value = currentPassageTitle;
 
             let backgroundHtml = res.background || '내용 확인 중';
-            let subjectHtml = `
-                <div style="font-weight:bold; color:var(--neon-blue); margin-bottom:8px;">${res.subject?.formal || '요약 중'}</div>
-                <div style="font-size:0.9rem; color:#aaa; background:#222; padding:10px; border-radius:8px; line-height: 1.5;">💡 ${res.subject?.easy || ''}</div>
-            `;
 
             // 🔥 7대 원칙: 완벽한 단어 분할 & 중복 제거 로직
             aiKeywordsObj = [];
@@ -1666,9 +2324,32 @@
             }
 
             let transHtml = '';
+            const passageLayoutCardHtml = buildPassageLayoutCardHtml(res);
             if(res.full_translation && Array.isArray(res.full_translation)) {
-                transHtml = res.full_translation.map(s => {
-                    let finalEng = String(s.eng || '');
+                transHtml = res.full_translation.map((s, rowIdx) => {
+                    let subLine = '';
+                    const plSub = res.passage_layout && Array.isArray(res.passage_layout.paragraph_subtitles)
+                        ? res.passage_layout.paragraph_subtitles
+                        : null;
+                    if (plSub) {
+                        const hit = plSub.find(function (x) {
+                            return Number(x.row_index) === rowIdx || Number(x.index) === rowIdx;
+                        });
+                        if (hit && (hit.subtitle || hit.title)) {
+                            subLine =
+                                '<div class="passage-row-subtitle">' +
+                                escapeHtml(String(hit.subtitle || hit.title || '')) +
+                                '</div>';
+                        }
+                    }
+                    if (!subLine && s && (s.subtitle || s.section_title)) {
+                        subLine =
+                            '<div class="passage-row-subtitle">' +
+                            escapeHtml(String(s.subtitle || s.section_title || '')) +
+                            '</div>';
+                    }
+
+                    let finalEng = decorateCircledNumberMarks(String(s.eng || ''));
                     let grammarMarks = "";
 
                     if (res.grammar) {
@@ -1703,7 +2384,10 @@
                     tempDiv.innerHTML = finalEng;
 
                     function makeTextNodesClickable(node) {
-                        if (node.nodeType === 3) { 
+                        if (node.nodeType === 3) {
+                            if (node.parentElement && node.parentElement.closest && node.parentElement.closest('del')) {
+                                return;
+                            }
                             // em dash(—)·en dash(–)는 앞뒤 보충 구조용이므로 단어 경계로 취급 (stomach—such → 분리)
                             const words = node.nodeValue.split(/(\s+|[\u2014\u2013]+)/);
                             const html = words.map((w, index) => {
@@ -1759,91 +2443,49 @@
                             wrapper.innerHTML = html;
                             node.replaceWith(...wrapper.childNodes);
                         } else if (node.nodeType === 1) { 
-                            if (!node.classList.contains('grammar-badge')) {
-                                Array.from(node.childNodes).forEach(makeTextNodesClickable);
-                            }
+                            if (node.classList.contains('grammar-badge')) return;
+                            if (node.tagName === 'DEL') return;
+                            Array.from(node.childNodes).forEach(makeTextNodesClickable);
                         }
                     }
                     
                     Array.from(tempDiv.childNodes).forEach(makeTextNodesClickable);
                     finalEng = tempDiv.innerHTML;
 
-                    return `
-                    <div class="translation-row">
-                        <div class="eng-text">${finalEng}${grammarMarks}</div>
-                        <div class="kor-text">${s.kor || ''}</div>
-                    </div>`;
+                    return (
+                        subLine +
+                        '<div class="translation-row pick-selectable">' +
+                        '<div class="eng-text">' +
+                        finalEng +
+                        grammarMarks +
+                        '</div>' +
+                        '<div class="kor-text">' +
+                        decorateCircledNumberMarks(String(s.kor || '')) +
+                        '</div></div>'
+                    );
                 }).join('');
             }
 
-            let topicFocusHtml = '';
-            const rawTopicSent = res.topic_sentence;
-            const topicSent = (rawTopicSent != null && String(rawTopicSent).trim() !== '' && String(rawTopicSent).trim().toLowerCase() !== 'null')
-                ? String(rawTopicSent).trim() : '';
-            let topicKws = Array.isArray(res.topic_keywords)
-                ? res.topic_keywords.map(k => String(k || '').trim()).filter(Boolean).slice(0, 5)
-                : [];
-            const topicSentenceFallback = `
-                        <div style="margin-bottom:14px;">
-                            <div style="font-size:0.78rem; color:#888; font-weight:bold; margin-bottom:6px;">📌 주제문 <span style="font-weight:normal; color:#666;">(지문 원문 발췌)</span></div>
-                            <div style="color:#c8c8c8; font-size:0.9rem; line-height:1.6; background:#1a1a1a; padding:12px 14px; border-radius:10px; border-left:3px solid #555;">
-                                이 지문은 한 문장만으로 글의 중심을 꿰뚫는 <strong style="color:#ddd;">전형적인 주제문</strong>이 뚜렷하지 않을 수 있어요. (예: 여러 문장에 걸쳐 논지가 펼쳐지거나, 도입부가 배경 설명에 가깝고 핵심은 뒤에 있는 경우 등)<br><br>
-                                그럴 때는 아래 <strong style="color:#ffb3c6;">주제 찾기 핵심 키워드</strong>와 위쪽 <strong style="color:var(--neon-blue);">직관적 주제 요약</strong>을 함께 참고해 보세요.
-                            </div>
-                        </div>`;
-
-            if (topicSent || topicKws.length > 0) {
-                let tfInner = '';
-                if (topicSent) {
-                    tfInner += `
-                        <div style="margin-bottom:14px;">
-                            <div style="font-size:0.78rem; color:#888; font-weight:bold; margin-bottom:6px;">📌 주제문 <span style="font-weight:normal; color:#666;">(지문 원문 발췌)</span></div>
-                            <div style="color:#e8e8e8; font-size:0.95rem; line-height:1.55; font-style:italic; background:#1a1a1a; padding:12px 14px; border-radius:10px; border-left:3px solid var(--neon-blue);">${escapeHtml(topicSent)}</div>
-                        </div>`;
-                } else {
-                    tfInner += topicSentenceFallback;
-                }
-                if (topicKws.length > 0) {
-                    const chips = topicKws.map(k => `<span style="display:inline-block; margin:4px 6px 4px 0; padding:6px 10px; background:rgba(255,0,85,0.12); border:1px solid rgba(255,0,85,0.45); border-radius:999px; font-size:0.85rem; color:#ffb3c6;">${escapeHtml(k)}</span>`).join('');
-                    tfInner += `
-                        <div>
-                            <div style="font-size:0.78rem; color:#888; font-weight:bold; margin-bottom:6px;">🎯 주제 찾기 핵심 키워드 <span style="font-weight:normal; color:#666;">(2~5개 · 정답 보기에 함께 드러나는 단서)</span></div>
-                            <div style="margin-bottom:8px;">${chips}</div>
-                            <p style="font-size:0.8rem; color:#777; margin:0; line-height:1.45;">보기 중 위 표현들을 <strong style="color:#aaa;">가장 잘 함께 담고 있는</strong> 선택지가 정답에 가깝습니다.</p>
-                        </div>`;
-                }
-                const topicReveal = evaluateTopicSectionReveal();
-                const topicLocked = topicReveal.locked;
-                const lockOverlay = topicLocked ? `
-                    <div style="position:absolute; inset:0; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:22px 16px; text-align:center; z-index:4; box-sizing:border-box; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); background: rgba(5,5,5,0.55);">
-                        <p style="margin:0 0 16px; font-size:0.92rem; line-height:1.55; color:#eee; max-width:320px;">오늘의 정답 열쇠 확인 횟수(2회)를 초과했습니다. 3시간 영문법 수강생은 모든 지문의 정답 근거를 무제한으로 확인할 수 있습니다.</p>
-                        <button type="button" style="padding:14px 22px; border-radius:12px; border:none; font-weight:bold; font-size:0.95rem; cursor:pointer; background: linear-gradient(135deg, #9fe870, #39ff14); color:#000; box-shadow: 0 0 20px rgba(57,255,20,0.35);" onclick="window.location.href='${PREMIUM_PAYMENT_URL}'">결제하고 무제한 열기</button>
-                        <div data-analysis-topic-admin-corner="1" style="position:absolute;bottom:2px;left:2px;width:64px;height:64px;border-radius:12px;background:rgba(255,255,255,0.04);cursor:default;z-index:6;" aria-hidden="true"></div>
-                    </div>` : '';
-                const innerBlur = topicLocked ? 'filter: blur(8px); pointer-events: none; user-select: none;' : '';
-                topicFocusHtml = `
-                <div class="result-card topic-focus-card" style="border-color: #9fe870; box-shadow: 0 0 18px rgba(159, 232, 112, 0.12);">
-                    <span class="result-label" style="color:#9fe870; margin-bottom:4px;">🔐 지문 속 정답 근거 · 주제문 &amp; 주제 찾기 키워드</span>
-                    <div style="font-size:0.8rem; color:#bbb; line-height:1.55; margin-bottom:12px; padding:10px 12px; background:rgba(159,232,112,0.07); border-radius:10px; border:1px solid rgba(159,232,112,0.28);">
-                        <strong style="color:#d8ffc4;">실전 정답 직결</strong> — 단순 요약이 아니라, <strong style="color:#fff;">지문 원문에서 발췌한 주제문</strong>(있을 때)과 <strong style="color:#fff;">보기 판별용 핵심 키워드 2~5개</strong>입니다. 주제·요지·제목 유형에서 정답 근거로 쓰세요.
-                    </div>
-                    <div class="result-content" style="position:relative; min-height:72px; overflow:hidden; border-radius:12px;">
-                        <div class="topic-focus-inner" style="${innerBlur}">${tfInner}</div>
-                        ${lockOverlay}
-                    </div>
-                </div>`;
-            }
+            const gkRevealOpts =
+                options && options.skipTopicRevealConsume ? { skipConsume: true } : undefined;
+            const goldenKeyReveal = evaluateTopicSectionReveal(gkRevealOpts);
+            const goldenKeyHtml = buildGoldenKeySectionHtml(res, goldenKeyReveal);
 
             document.getElementById('ai-report-area').innerHTML = `
+                ${passageLayoutCardHtml}
                 <div class="result-card"><span class="result-label" style="color:var(--neon-green);">📝 해석 (단어를 클릭하면 뜻을 볼 수 있어요)</span><div class="result-content">
                     ${transHtml}
                 </div></div>
                 <div class="result-card" style="border-color: #bc13fe;"><span class="result-label" style="color:#bc13fe;">🛠️ 트리거 팀의 문법 포인트</span><div class="result-content">${grammarHtml}</div></div>
                 <div class="result-card"><span class="result-label" style="color:#ff0055;">📚 주요 단어 리스트 (내 학습 노트에 저장)</span><div class="result-content">${keywordHtml}</div></div>
-                ${topicFocusHtml}
-                <div class="result-card"><span class="result-label" style="color:var(--neon-blue);">🎯 직관적 주제 요약</span><div class="result-content">${subjectHtml}</div></div>
+                ${goldenKeyHtml}
                 <div class="result-card" style="border-color: var(--neon-orange);"><span class="result-label" style="color:var(--neon-orange);">🌎 쓸데없이 고퀄인 배경지식</span><div class="result-content">${backgroundHtml}</div></div>
             `;
+            lastAnalysisResForChat = res;
+            confirmedChatContextSentence = '';
+            exitSentencePickModeSilently();
+            updateChatContextPreview();
+            refreshPremiumAiPanelVisibility();
             checkAllSavedStatus();
             try {
                 sessionStorage.setItem('trigger_analysis_restore_v1', JSON.stringify({ res, q: window.location.search || '' }));
@@ -1996,7 +2638,7 @@
             if (ed) ed.style.display = 'none';
             if (rs) rs.style.display = 'block';
             setAnalysisSourceBadge(true);
-            applyParsedAnalysisResult(hit.res, { skipPassageHistory: true });
+            applyParsedAnalysisResult(hit.res, { skipPassageHistory: true, skipTopicRevealConsume: true });
             const hist = loadPassageHistoryList().find(function (x) {
                 return x && x.fp === fp;
             });
@@ -3124,20 +3766,6 @@
                 });
             };
 
-            try {
-                if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
-                    Kakao.init('fbb1520306ffaad0a882e993109a801c');
-                }
-            } catch (e) {
-                runClipboardFallback();
-                return;
-            }
-
-            if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) {
-                runClipboardFallback();
-                return;
-            }
-
             const payload = {
                 objectType: 'feed',
                 content: {
@@ -3152,16 +3780,57 @@
                 ]
             };
 
-            try {
-                const ret = Kakao.Share.sendDefault(payload);
-                if (ret && typeof ret.then === 'function') {
-                    ret.catch(function () {
+            const tryKakaoSend = function () {
+                try {
+                    if (typeof Kakao === 'undefined' || !Kakao) {
                         runClipboardFallback();
-                    });
+                        return;
+                    }
+                    if (!Kakao.isInitialized()) {
+                        Kakao.init('fbb1520306ffaad0a882e993109a801c');
+                    }
+                    if (!Kakao.isInitialized()) {
+                        runClipboardFallback();
+                        return;
+                    }
+                    const ret = Kakao.Share.sendDefault(payload);
+                    if (ret && typeof ret.then === 'function') {
+                        ret.catch(function () {
+                            runClipboardFallback();
+                        });
+                    }
+                } catch (e) {
+                    runClipboardFallback();
                 }
-            } catch (e) {
-                runClipboardFallback();
+            };
+
+            if (typeof Kakao !== 'undefined' && Kakao) {
+                tryKakaoSend();
+                return;
             }
+
+            const KAKAO_SDK_URL = 'https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js';
+            let inject = document.querySelector('script[data-trigger-kakao-sdk="1"]');
+            if (inject) {
+                if (typeof Kakao !== 'undefined' && Kakao) {
+                    tryKakaoSend();
+                } else {
+                    inject.addEventListener('load', tryKakaoSend, { once: true });
+                    inject.addEventListener('error', runClipboardFallback, { once: true });
+                }
+                return;
+            }
+            inject = document.createElement('script');
+            inject.src = KAKAO_SDK_URL;
+            inject.async = true;
+            inject.setAttribute('data-trigger-kakao-sdk', '1');
+            inject.onload = function () {
+                tryKakaoSend();
+            };
+            inject.onerror = function () {
+                runClipboardFallback();
+            };
+            document.head.appendChild(inject);
         }
 
         function examRptSchedulePdfNotify() {
@@ -3420,6 +4089,24 @@
 12. 지문에 실제로 나온 담화 표현·고정 구문(after all, as well, in fact, on the other hand 등 해석의 뉘앙스에 영향을 주는 표현)은 기초 단어라도 keywords에서 빼지 말고, 반드시 숙어 형태로 공백을 유지해 포함하세요.
 13. topic_sentence: 지문에 **전형적인 주제문**이 한 문장으로 특정되면, 그 **영어 원문 한 문장**을 수정·요약·번역 없이 **그대로 복사**하세요. 첫 문장이 주제문이 아닐 수 있음을 감안하세요. 특정할 수 없으면 JSON **null** 또는 빈 문자열 \`""\` — 앱이 학생에게 보여 줄 친절한 안내 문구로만 처리되며, 화면에 "null" 같은 기계적인 글자는 나오지 않습니다.
 14. topic_keywords: **주제·제목·요지·글의 목적 고르기** 유형에서, **정답 보기에 공통으로 드러나야 하는** 결정적 단서 **2~5개**(원칙 **2~4개**). 각 항목은 keywords와 동일하게 \`영어(한국어 뜻)\` 형식이며 **반드시 지문 원문에 실제로 등장하는 표기**만 사용하세요. 서로 의미가 겹치지 않게 고르고, 이 키워드들이 **함께** 드러나는 보기가 정답에 가깝도록 선정하세요. 고유명사만으로 구성된 항목은 피하세요.
+15. golden_key: **Golden Key(정답의 열쇠)** 묶음. 반드시 포함하세요.
+    - golden_key.topic_summary: subject.formal / subject.easy와 **완전히 동일한 문장**을 넣으세요(복사).
+    - golden_key.topic_keywords: 위의 topic_keywords 배열과 **동일한 내용**을 넣으세요(복사).
+    - golden_key.topic_variants: **정확히 3개** 객체를 **아래 순서대로** 배열합니다.
+        (1) type \`"original"\` — **원문 주제문**: 지문에서 **실제 문장을 한 문장 그대로 발췌**(topic_sentence와 같아도 됨). 없으면 sentence_en은 빈 문자열.
+        (2) type \`"keyword_paraphrase"\` — **키워드 변형 주제문**: 핵심 키워드를 **동의어·유사어로 교체**한 문장(의미는 유지).
+        (3) type \`"structure_paraphrase"\` — **구조 변형 주제문**: **실제 시험 보기 Paraphrasing**처럼 **문장 구조를 바꾼** 버전(의미는 유지, 표현은 달라짐).
+    - 각 variant 객체 필드: \`type\`, \`sentence_en\`(영어 한 문장), \`interpretation_ko\`(한국어 해석 한 줄), \`key_terms\`(배열: { "eng": "단어", "kor": "뜻" } 형태로 **2~6개**, 주제문·지문에서 짚을 만한 핵심 낱말 위주).
+16. passage_layout: 지문 **텍스트 구조**를 분석해 수능/내신형 UI로 쓸 메타데이터. **반드시 포함**하세요.
+    - \`type\` 값 (하나만): \`"insertion"\` | \`"ordering"\` | \`"summary"\` | \`"grammar"\` | \`"normal"\` | \`"normal_clean"\`
+      · **insertion**: 본문과 분리된 **삽입 박스 문장**(박스 안 한 문장)이 있으면. \`box_sentence\`에 그 **영어 문장 전체**를 넣고, \`full_translation\`에는 본문 줄만(박스 문장은 중복하지 않거나 한 줄로만).
+      · **ordering**: \`(A)\`, \`(B)\`, \`(C)\` 같은 **단락 표지**가 있으면. \`paragraphs\` 배열: \`[{ "marker": "(A)", "eng_text": "해당 단락 영어" }, ...]\` 순서는 지문 순서와 동일. \`full_translation\` 행 순서도 이 단락과 맞출 것.
+      · **summary**: 지문 **하단**에 요약용 빈칸·보기 박스(A/B 등)가 있으면. \`summary_box\`에 그 **영어 블록 전체**(빈칸 표기 포함)를 문자열로.
+      · **grammar**: 본문에 **①~⑤** 등 번호가 있고 **어법·문맥**으로 틀린 낱말을 고르는 유형이면. \`grammar_panel_eng\`에는 **HTML로만** \`<del>...</del>\`(틀린 표현), \`<ins>...</ins>\`(교정)과 \`<br>\`만 사용(다른 태그 금지). \`corrections\`: \`[{ "num": "①", "wrong": "...", "correct": "..." }]\` 형태로 번호별 요약. **full_translation의 각 eng는 교정된 최종 문장(평문, HTML 없음)**으로 두고, **kor은 교정된 문장 기준 해석**.
+      · **normal_clean**: 안내문·표·실용문 등 위 유형에 딱 맞지 않으면. \`bulleted_lines\`: 줄 단위 문자열 배열(불렛으로 보여줄 각 줄).
+      · **normal**: 위 특이 구조가 없을 때.
+    - **장문 독해**: 문단이 많고 길면 \`paragraph_subtitles\`에 \`[{ "row_index": 0, "subtitle": "한 줄 소제목" }, ...]\` 형태로 \`full_translation\` **행 인덱스(0부터)**와 맞추거나, 각 \`full_translation\` 객체에 선택 필드 \`"subtitle"\`을 넣어도 됩니다.
+    - **복합**(예: 순서 배열 + 어법): **어법 우선** — \`type\`은 반드시 \`"grammar"\`로 하고, \`paragraphs\`와 \`grammar_panel_eng\`·\`corrections\`를 함께 채워 시각 요소를 모두 반영합니다.
 
 출력 JSON 형식:
 {
@@ -3430,8 +4117,27 @@
   },
   "topic_sentence": null,
   "topic_keywords": ["climate change(기후 변화)", "sea level(해수면)"],
+  "golden_key": {
+    "topic_summary": { "formal": "subject.formal과 동일", "easy": "subject.easy와 동일" },
+    "topic_keywords": ["topic_keywords와 동일"],
+    "topic_variants": [
+      { "type": "original", "sentence_en": "지문 원문 발췌 한 문장", "interpretation_ko": "한 줄 해석", "key_terms": [{ "eng": "word", "kor": "뜻" }] },
+      { "type": "keyword_paraphrase", "sentence_en": "...", "interpretation_ko": "...", "key_terms": [{ "eng": "...", "kor": "..." }] },
+      { "type": "structure_paraphrase", "sentence_en": "...", "interpretation_ko": "...", "key_terms": [{ "eng": "...", "kor": "..." }] }
+    ]
+  },
+  "passage_layout": {
+    "type": "normal",
+    "box_sentence": null,
+    "paragraphs": null,
+    "summary_box": null,
+    "grammar_panel_eng": null,
+    "corrections": [],
+    "bulleted_lines": null,
+    "paragraph_subtitles": null
+  },
   "full_translation": [
-    { "eng": "원문 문장", "kor": "해당 문장의 한국어 해석" }
+    { "eng": "원문 문장(grammar 유형이면 교정 완료 평문)", "kor": "해당 문장의 한국어 해석", "subtitle": "선택: 장문일 때 소제목" }
   ],
   "grammar": [
     { "point": "중·고 핵심 문법 표준 명칭 (수능·교과서 용어)", "sentence": "문법이 적용된 영어 원문 부분 (지문에서 그대로 발췌)", "explanation": "학생이 딱 보고 '아하!' 할 수 있는 쉽고 명쾌한 해석 팁" }
@@ -3472,7 +4178,7 @@
                         document.getElementById('edit-section').style.display = 'none';
                         document.getElementById('result-section').style.display = 'block';
                         setAnalysisSourceBadge(true);
-                        applyParsedAnalysisResult(hit.res);
+                        applyParsedAnalysisResult(hit.res, { skipTopicRevealConsume: true });
                         stopLoadingText(isTextMode, activeBtn);
                         return;
                     }
@@ -3564,7 +4270,7 @@
                 if (es) es.style.display = 'none';
                 document.getElementById('result-section').style.display = 'block';
                 setAnalysisSourceBadge(true);
-                applyParsedAnalysisResult(o.res);
+                applyParsedAnalysisResult(o.res, { skipTopicRevealConsume: true });
             } catch (e) {}
         })();
 

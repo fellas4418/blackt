@@ -8,7 +8,7 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#000000">
     
-    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js" integrity="sha384-l+xbElFSnPZ2rOaPrU//2FF5B4LB8FiX5q4fXYTlfcG4PGpMkE1vcL7kNXI6Cci0" crossorigin="anonymous"></script>
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
@@ -858,11 +858,36 @@
 
             alert(`🎊 ${completedWeeks}주차 마스터 보상!\n트리거 팀이 준비한 단어장 선물을 생성합니다.`);
             
+            let allWrongs = [];
+            try {
+                allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+            } catch (e) {
+                allWrongs = [];
+            }
+            if (!Array.isArray(allWrongs)) allWrongs = [];
+
+            function pdfWordMarkHtml(dayNum, wordStr) {
+                const rec = allWrongs.find(function (r) {
+                    return r && r.level === currentLevel && String(r.word) === String(wordStr) && Number(r.day) === Number(dayNum);
+                });
+                if (!rec) return '';
+                const labels = [];
+                if (rec.isWrong) labels.push('오답');
+                if (rec.isStarred) labels.push('별표');
+                if (!labels.length) return '';
+                return (
+                    ' <span style="font-size:10.5pt;font-weight:bold;color:#b71c1c;white-space:nowrap;">[' +
+                    labels.join(' · ') +
+                    ']</span>'
+                );
+            }
+
             let printHtml = `
                 <div style="text-align:center; padding: 20px 0; border: 2px solid #000; margin-bottom: 30px;">
                     <h1 style="font-size:28pt; margin: 0; color: #000;">사라져 Voca 마스터 단어장</h1>
                     <p style="font-size:14pt; margin-top: 10px; color: #000;">${currentLevel === 'middle' ? '중등' : '고등'} 코스 - ${completedWeeks}주차 누적분</p>
                     <p style="font-size:12pt; color: #666;">트리거 팀(Trigger Team)</p>
+                    <p style="font-size:10.5pt; color: #555; margin-top: 12px; line-height: 1.45;">※ 단어 옆 <strong>[오답]</strong>·<strong>[별표]</strong>는 이 기기에 저장된 테스트·별표 기록입니다.</p>
                 </div>`;
             
             printHtml += `<div style="font-size:12pt; line-height: 1.8; color: #000;">`; 
@@ -879,9 +904,10 @@
                     
                     dayWords.forEach(w => {
                         const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
+                        const markHtml = pdfWordMarkHtml(i, w.word);
                         printHtml += `
                             <li style="margin-bottom: 8px; font-size: 13pt; display: flex; align-items: baseline;">
-                                <strong style="min-width:140px; display:inline-block; color:#000;">${w.word}</strong> 
+                                <strong style="min-width:140px; display:inline-block; color:#000;">${w.word}</strong>${markHtml}
                                 <span style="color:#444; min-width:110px; display:inline-block; font-size:11pt; font-style: italic;">${w.ipa || ''}</span> 
                                 <span style="flex: 1; color:#000;">${safeMeanings}</span>
                             </li>`;

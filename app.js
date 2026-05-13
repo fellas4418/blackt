@@ -1232,20 +1232,6 @@ function shareKakao() {
         copyTextForShareFallback(shareUrl).then((ok) => (ok ? alertCopied() : alertCopyFailed()));
     };
 
-    try {
-        if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
-            Kakao.init('fbb1520306ffaad0a882e993109a801c');
-        }
-    } catch (e) {
-        runClipboardFallback();
-        return;
-    }
-
-    if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) {
-        runClipboardFallback();
-        return;
-    }
-
     const payload = {
         objectType: 'feed',
         content: {
@@ -1260,14 +1246,51 @@ function shareKakao() {
         ]
     };
 
-    try {
-        const ret = Kakao.Share.sendDefault(payload);
-        if (ret && typeof ret.then === 'function') {
-            ret.catch(() => runClipboardFallback());
+    const tryKakaoSend = () => {
+        try {
+            if (typeof Kakao === 'undefined' || !Kakao) {
+                runClipboardFallback();
+                return;
+            }
+            if (!Kakao.isInitialized()) {
+                Kakao.init('fbb1520306ffaad0a882e993109a801c');
+            }
+            if (!Kakao.isInitialized()) {
+                runClipboardFallback();
+                return;
+            }
+            const ret = Kakao.Share.sendDefault(payload);
+            if (ret && typeof ret.then === 'function') {
+                ret.catch(() => runClipboardFallback());
+            }
+        } catch (e) {
+            runClipboardFallback();
         }
-    } catch (e) {
-        runClipboardFallback();
+    };
+
+    if (typeof Kakao !== 'undefined' && Kakao) {
+        tryKakaoSend();
+        return;
     }
+
+    const KAKAO_SDK_URL = 'https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js';
+    let inject = document.querySelector('script[data-trigger-kakao-sdk="1"]');
+    if (inject) {
+        if (typeof Kakao !== 'undefined' && Kakao) {
+            tryKakaoSend();
+        } else {
+            inject.addEventListener('load', tryKakaoSend, { once: true });
+            inject.addEventListener('error', () => runClipboardFallback(), { once: true });
+        }
+        return;
+    }
+    inject = document.createElement('script');
+    inject.src = KAKAO_SDK_URL;
+    inject.async = true;
+    inject.setAttribute('data-trigger-kakao-sdk', '1');
+    inject.onload = () => tryKakaoSend();
+    inject.onerror = () => runClipboardFallback();
+    document.head.appendChild(inject);
 }
 
 window.shareKakao = shareKakao;
