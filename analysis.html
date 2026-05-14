@@ -539,6 +539,22 @@
             color: #888;
             margin: 8px 0 0;
         }
+        /* 시험 리포트: 시험 정보·시험지 사진은 지문 출처 설정과 같은 가로 폭(박스 없음) */
+        #analysis-exam-zone .exam-rpt-plain {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+        }
+        #analysis-exam-zone .exam-rpt-plain--info {
+            margin-top: 12px;
+            margin-bottom: 16px;
+        }
+        #analysis-exam-zone .exam-rpt-plain--photo {
+            margin-bottom: 16px;
+        }
         .passage-zone .analysis-zone-body { padding-top: 10px; }
         .exam-zone-value {
             font-size: 0.86rem;
@@ -710,7 +726,7 @@
         <div class="analysis-zone-body">
 
     <div id="exam-report-workspace" style="display:block; margin-top:0;">
-        <div class="result-card" style="margin-top:12px;">
+        <div class="exam-rpt-plain exam-rpt-plain--info">
             <span class="result-label" style="color:#ff9a5c;">시험 정보</span>
             <div style="display:grid; gap:10px;">
                 <label style="font-size:0.85rem;color:#ccc;">학교 이름
@@ -737,12 +753,12 @@
                 </label>
             </div>
         </div>
-        <div class="result-card">
+        <div class="exam-rpt-plain exam-rpt-plain--photo">
             <span class="result-label">시험지 사진</span>
             <input type="file" id="exam-rpt-files" accept="image/*" multiple style="display:none;">
-            <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <button type="button" id="exam-rpt-open-camera" class="login-btn" style="flex:1; min-width:120px; margin-top:0; border-color:var(--neon-green);">실시간 촬영 📸</button>
-                <button type="button" id="exam-rpt-open-gallery" class="login-btn" style="flex:1; min-width:120px; margin-top:0; border-color:var(--neon-blue);">사진 선택 🖼️</button>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button type="button" id="exam-rpt-open-camera" class="login-btn" style="flex: 1; border-color: var(--neon-green); margin-top: 0;">실시간 촬영 📸</button>
+                <button type="button" id="exam-rpt-open-gallery" class="login-btn" style="flex: 1; border-color: var(--neon-blue); margin-top: 0;">사진 선택 🖼️</button>
             </div>
             <p id="exam-rpt-photo-count" style="margin:10px 0 0; font-size:0.95rem; color:var(--neon-blue); font-weight:bold;">현재 0장 촬영 완료</p>
             <div id="exam-rpt-thumbs" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;"></div>
@@ -837,6 +853,9 @@
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
 
     <script>
+        try {
+            if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+        } catch (e) {}
         // 🔥 하이라이트·단어 리스트에서 제외할 기능어(전치사/관사 등). 본문 클릭 시에는 아래 STOP_WORD_CLICK_MEANINGS 등으로 대표 뜻 제공.
         const STOP_WORDS = new Set(['a', 'an', 'the', 'of', 'with', 'in', 'on', 'at', 'by', 'for', 'to', 'and', 'or', 'but', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'as', 'around', 'about', 'between', 'among', 'up', 'down', 'out', 'into', 'over', 'under', 'through', 'after', 'before', 'from', 'without', 'within', 'during', 'until', 'since', 'than', 'because', 'while', 'although', 'if', 'unless', 'all']);
 
