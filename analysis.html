@@ -308,11 +308,25 @@
         }
         .analysis-zone-card.passage-zone {
             border-color: rgba(0, 243, 255, 0.42);
-            background: linear-gradient(165deg, rgba(0, 52, 58, 0.42) 0%, rgba(10, 12, 16, 0.97) 42%, rgba(8, 8, 10, 0.99) 100%);
+            background: linear-gradient(
+                165deg,
+                rgba(0, 243, 255, 0.22) 0%,
+                rgba(0, 72, 78, 0.4) 26%,
+                rgba(55, 95, 58, 0.14) 52%,
+                rgba(10, 13, 16, 0.96) 78%,
+                rgba(6, 7, 9, 1) 100%
+            );
         }
         .analysis-zone-card.exam-zone {
             border-color: rgba(159, 232, 112, 0.45);
-            background: linear-gradient(165deg, rgba(28, 48, 24, 0.4) 0%, rgba(10, 12, 16, 0.97) 42%, rgba(8, 8, 10, 0.99) 100%);
+            background: linear-gradient(
+                195deg,
+                rgba(159, 232, 112, 0.24) 0%,
+                rgba(42, 68, 40, 0.42) 28%,
+                rgba(0, 200, 215, 0.14) 56%,
+                rgba(10, 14, 15, 0.96) 80%,
+                rgba(6, 7, 9, 1) 100%
+            );
         }
         .analysis-zone-label {
             display: block;
@@ -508,7 +522,7 @@
 
     <section id="analysis-exam-zone" class="analysis-zone-card exam-zone">
         <header class="analysis-zone-label">
-            <div class="analysis-zone-title-row">📋 시험 리포트 분석</div>
+            <div class="analysis-zone-title-row">📋 시험 분석 리포트 생성</div>
             <div class="analysis-zone-desc">
                 <div class="analysis-zone-desc-body">문항·배점 추출 → 오답·서술 입력 → 파이·추이 그래프 → 오답 유형별 AI 진단까지 한 번에 이어지는 리포트를 만듭니다. 1쪽부터 마지막 서술형까지 다 찍어야 정확한 리포트가 나옵니다.</div>
             </div>
@@ -555,7 +569,7 @@
             <p id="exam-rpt-photo-count" style="margin:10px 0 0; font-size:0.95rem; color:var(--neon-blue); font-weight:bold;">현재 0장 촬영 완료</p>
             <div id="exam-rpt-thumbs" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;"></div>
         </div>
-        <button type="button" id="exam-rpt-run-extract" class="start-btn" style="width:100%; margin-top:12px; border-color:var(--neon-orange);">분석 시작</button>
+        <button type="button" id="exam-rpt-run-extract" class="start-btn" style="width:100%; margin-top:12px; border-color:var(--neon-orange);">리포트 생성하기</button>
 
         <div id="exam-rpt-after-extract" style="display:none; margin-top:18px;">
             <div class="result-card">
@@ -3332,7 +3346,7 @@
             const runBtn = document.getElementById('exam-rpt-run-extract');
             if (runBtn) {
                 runBtn.disabled = false;
-                runBtn.innerHTML = '분석 시작';
+                runBtn.innerHTML = '리포트 생성하기';
             }
             const diagOut = document.getElementById('exam-rpt-ai-diagnosis');
             if (diagOut) diagOut.innerHTML = '';
@@ -4167,7 +4181,7 @@
                     if (examRptQuestions.length > 0) {
                         stopLoadingText(false, btn, '분석 완료! 아래 리포트를 확인해 주세요.');
                     } else {
-                        stopLoadingText(false, btn, '분석 시작');
+                        stopLoadingText(false, btn, '리포트 생성하기');
                     }
                 }
             }
