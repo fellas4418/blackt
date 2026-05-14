@@ -24,6 +24,71 @@
         
         .eng-text { font-size: 1.15rem; color: #fff; margin-bottom: 6px; line-height: 1.5; font-weight: 400; }
         .kor-text { font-size: 0.95rem; color: #aaa; }
+        .translation-card-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px 14px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(57, 255, 20, 0.2);
+        }
+        .translation-card-toolbar .translation-card-title { flex: 1 1 220px; line-height: 1.45; }
+        .passage-view-toggle-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            justify-content: flex-end;
+            flex: 0 1 auto;
+        }
+        .passage-toggle-btn {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid #444;
+            color: #c8cdd4;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: border-color 0.15s, color 0.15s, background 0.15s;
+        }
+        .passage-toggle-btn:hover { border-color: #666; color: #fff; }
+        .passage-toggle-btn.is-on {
+            border-color: rgba(159, 232, 112, 0.85);
+            color: #e8ffd0;
+            background: rgba(159, 232, 112, 0.12);
+            box-shadow: 0 0 12px rgba(159, 232, 112, 0.15);
+        }
+        .passage-toggle-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+        #translation-rows-root.passage-show-topic .translation-row[data-topic-focus="1"] .eng-text {
+            background: linear-gradient(90deg, rgba(255, 190, 70, 0.32), rgba(255, 120, 60, 0.14));
+            box-shadow: inset 0 0 0 1px rgba(255, 210, 120, 0.45);
+            border-radius: 12px;
+            padding: 8px 10px;
+            margin: -2px 0 4px;
+        }
+        #translation-rows-root.passage-show-kw .passage-topic-kw {
+            border: 2px solid rgba(0, 243, 255, 0.72);
+            border-radius: 12px;
+            padding: 1px 6px;
+            margin: 0 2px;
+            box-shadow: 0 0 0 1px rgba(0, 243, 255, 0.18);
+            display: inline-block;
+        }
+        .passage-topic-kw {
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 1px 6px;
+            margin: 0 2px;
+            display: inline-block;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
         .kakao-btn { width: 100%; padding: 18px; background: #fee500; color: #000; border: none; border-radius: 12px; font-weight: 900; font-size: 1.05rem; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         
         .clickable-word { cursor: pointer; display: inline-block; transition: 0.2s; border-bottom: 1px solid transparent; position: relative; z-index: 5; }
@@ -1474,6 +1539,127 @@
             btn.textContent = hidden ? '문법 포인트 접기 ▲' : '문법 포인트 펼치기 ▼';
         }
 
+        function topicKeywordPhrasesFromLines(lines) {
+            const arr = Array.isArray(lines) ? lines : [];
+            const out = [];
+            const seen = new Set();
+            arr.forEach(function (line) {
+                const raw = String(line || '')
+                    .split('(')[0]
+                    .trim();
+                if (raw.length < 2) return;
+                const low = raw.toLowerCase();
+                if (seen.has(low)) return;
+                seen.add(low);
+                out.push(raw);
+            });
+            return out.sort(function (a, b) {
+                return b.length - a.length;
+            });
+        }
+
+        function computeTopicFocusRowIndex(res, gk) {
+            const rows = Array.isArray(res.full_translation) ? res.full_translation : [];
+            if (!rows.length) return -1;
+            const raw = res.topic_focus_row != null ? res.topic_focus_row : res.topic_sentence_row != null ? res.topic_sentence_row : res.topic_row;
+            if (raw != null && raw !== '') {
+                const n = parseInt(String(raw), 10);
+                if (!Number.isNaN(n) && n >= 0 && n < rows.length) return n;
+            }
+            const lines = gk && Array.isArray(gk.topic_keywords) ? gk.topic_keywords : [];
+            const phLow = topicKeywordPhrasesFromLines(lines).map(function (p) {
+                return p.toLowerCase();
+            });
+            if (!phLow.length) return -1;
+            let best = 0;
+            let bestScore = -1;
+            rows.forEach(function (row, idx) {
+                const eng = String(row.eng || '').toLowerCase();
+                let sc = 0;
+                phLow.forEach(function (ph) {
+                    if (ph.length > 1 && eng.indexOf(ph) !== -1) sc++;
+                });
+                if (sc > bestScore) {
+                    bestScore = sc;
+                    best = idx;
+                }
+            });
+            return bestScore > 0 ? best : -1;
+        }
+
+        function wrapPhrasesInPlainSegment(segment, phrasesSorted) {
+            if (!segment || !phrasesSorted.length) return segment;
+            const lowerSeg = segment.toLowerCase();
+            const intervals = [];
+            phrasesSorted.forEach(function (ph) {
+                const phLow = ph.toLowerCase();
+                if (phLow.length < 2) return;
+                let pos = 0;
+                while (pos < segment.length) {
+                    const idx = lowerSeg.indexOf(phLow, pos);
+                    if (idx === -1) break;
+                    intervals.push({ s: idx, e: idx + ph.length, len: ph.length });
+                    pos = idx + ph.length;
+                }
+            });
+            intervals.sort(function (a, b) {
+                if (b.len !== a.len) return b.len - a.len;
+                return a.s - b.s;
+            });
+            const chosen = [];
+            intervals.forEach(function (iv) {
+                if (chosen.some(function (c) {
+                    return !(iv.e <= c.s || iv.s >= c.e);
+                })) {
+                    return;
+                }
+                chosen.push(iv);
+            });
+            chosen.sort(function (a, b) {
+                return a.s - b.s;
+            });
+            let out = '';
+            let cur = 0;
+            chosen.forEach(function (u) {
+                out += segment.slice(cur, u.s);
+                out +=
+                    '<span class="passage-topic-kw" data-passage-kw="1">' +
+                    segment.slice(u.s, u.e) +
+                    '</span>';
+                cur = u.e;
+            });
+            out += segment.slice(cur);
+            return out;
+        }
+
+        function wrapTopicKeywordPhrasesInEngHtml(html, phrasesSorted) {
+            if (!html || !phrasesSorted.length) return html;
+            return html.split(/(<[^>]+>)/g).map(function (part) {
+                if (part.charAt(0) === '<') return part;
+                return wrapPhrasesInPlainSegment(part, phrasesSorted);
+            }).join('');
+        }
+
+        window.togglePassageTopicHighlight = function (btn) {
+            const root = document.getElementById('translation-rows-root');
+            if (!root || !btn) return;
+            const on = !root.classList.contains('passage-show-topic');
+            root.classList.toggle('passage-show-topic', on);
+            btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+            btn.classList.toggle('is-on', on);
+            btn.textContent = on ? '주제문 끄기' : '주제문 보기';
+        };
+
+        window.togglePassageKeywordHighlight = function (btn) {
+            const root = document.getElementById('translation-rows-root');
+            if (!root || !btn) return;
+            const on = !root.classList.contains('passage-show-kw');
+            root.classList.toggle('passage-show-kw', on);
+            btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+            btn.classList.toggle('is-on', on);
+            btn.textContent = on ? '키워드 끄기' : '키워드 보기';
+        };
+
         async function toggleGrammarSave(point, sentence, explanation, btnElement) {
             let savedList = savedGrammarCache;
             const idx = savedList.findIndex(item => item.sentence === sentence);
@@ -2158,16 +2344,13 @@
 
         function buildGoldenKeySectionHtml(res, topicReveal) {
             const gk = normalizeGoldenKey(res);
-            const rawPassTs = res && res.topic_sentence != null ? String(res.topic_sentence).trim() : '';
-            const passTopicLine =
-                rawPassTs && rawPassTs.toLowerCase() !== 'null' ? rawPassTs : '';
 
             const hasSummary = gk.topic_summary.formal || gk.topic_summary.easy;
             const hasKw = gk.topic_keywords && gk.topic_keywords.length > 0;
             const hasVar = (gk.topic_variants || []).some(function (v) {
                 return v && String(v.sentence_en || '').trim();
             });
-            if (!hasSummary && !hasKw && !hasVar && !passTopicLine) return '';
+            if (!hasSummary && !hasKw && !hasVar) return '';
 
             const typeLabel = {
                 original: '① 실제 주제',
@@ -2194,15 +2377,7 @@
                     '<div style="padding-top:2px;">' +
                     '<p class="gk-topic-hint">아래 <strong style="color:#e8eaed;">①②③ 주제문</strong>은 이 키워드들을 반영해 만들었어요.</p>' +
                     '<p class="gk-topic-hint">보기 고르기에서는 위 표현들을 <strong style="color:#e8eaed;">함께 잘 드러내는</strong> 선택지가 정답에 가깝습니다.</p>' +
-                    '</div></div>';
-            }
-
-            if (passTopicLine) {
-                inner +=
-                    '<div style="margin-bottom:18px;padding:10px 12px;background:#151515;border-radius:10px;border:1px solid #333;">' +
-                    '<div style="font-size:0.72rem;color:#777;margin-bottom:6px;">지문 속 주제문 <span style="color:#555;font-weight:normal;">(발췌·참고 표시만)</span></div>' +
-                    '<div style="color:#bbb;font-size:0.9rem;line-height:1.55;">' +
-                    escapeHtml(passTopicLine) +
+                    '<p class="gk-topic-hint">해석 카드 오른쪽 <strong style="color:#e8eaed;">주제문 보기·키워드 보기</strong>를 켜면 영어 원문 줄에 바로 표시돼요.</p>' +
                     '</div></div>';
             }
 
@@ -2658,10 +2833,14 @@
                 grammarListWrap = grammarHtml;
             }
 
-            let transHtml = '';
+            const gkForPassage = normalizeGoldenKey(res);
+            const topicKwPhrases = topicKeywordPhrasesFromLines(gkForPassage.topic_keywords);
+            const topicFocusRow = computeTopicFocusRowIndex(res, gkForPassage);
+
+            let transRowsHtml = '';
             const passageLayoutCardHtml = buildPassageLayoutCardHtml(res);
-            if(res.full_translation && Array.isArray(res.full_translation)) {
-                transHtml = res.full_translation.map((s, rowIdx) => {
+            if (res.full_translation && Array.isArray(res.full_translation)) {
+                transRowsHtml = res.full_translation.map((s, rowIdx) => {
                     let subLine = '';
                     const plSub = res.passage_layout && Array.isArray(res.passage_layout.paragraph_subtitles)
                         ? res.passage_layout.paragraph_subtitles
@@ -2684,7 +2863,8 @@
                             '</div>';
                     }
 
-                    let finalEng = decorateCircledNumberMarks(String(s.eng || ''));
+                    let finalEng = escapeHtml(String(s.eng || ''));
+                    finalEng = decorateCircledNumberMarks(finalEng);
                     let grammarMarks = "";
 
                     if (res.grammar) {
@@ -2714,6 +2894,8 @@
                             }
                         });
                     }
+
+                    finalEng = wrapTopicKeywordPhrasesInEngHtml(finalEng, topicKwPhrases);
 
                     let tempDiv = document.createElement('div');
                     tempDiv.innerHTML = finalEng;
@@ -2789,17 +2971,39 @@
 
                     return (
                         subLine +
-                        '<div class="translation-row pick-selectable">' +
+                        '<div class="translation-row pick-selectable" data-topic-focus="' +
+                        (topicFocusRow >= 0 && rowIdx === topicFocusRow ? '1' : '0') +
+                        '">' +
                         '<div class="eng-text">' +
                         finalEng +
                         grammarMarks +
                         '</div>' +
                         '<div class="kor-text">' +
-                        decorateCircledNumberMarks(String(s.kor || '')) +
+                        decorateCircledNumberMarks(escapeHtml(String(s.kor || ''))) +
                         '</div></div>'
                     );
                 }).join('');
             }
+
+            const passageTopicToggleBtn =
+                topicFocusRow >= 0
+                    ? '<button type="button" class="passage-toggle-btn" id="btn-passage-topic-toggle" aria-pressed="false" onclick="togglePassageTopicHighlight(this)">주제문 보기</button>'
+                    : '';
+            const passageKwToggleBtn =
+                topicKwPhrases.length > 0
+                    ? '<button type="button" class="passage-toggle-btn" id="btn-passage-kw-toggle" aria-pressed="false" onclick="togglePassageKeywordHighlight(this)">키워드 보기</button>'
+                    : '';
+            const translationCardHtml =
+                '<div class="result-card">' +
+                '<div class="translation-card-toolbar">' +
+                '<span class="result-label translation-card-title" style="color:var(--neon-green);margin:0;">📝 해석 (단어를 클릭하면 뜻을 볼 수 있어요)</span>' +
+                '<div class="passage-view-toggle-wrap">' +
+                passageTopicToggleBtn +
+                passageKwToggleBtn +
+                '</div></div>' +
+                '<div class="result-content" id="translation-rows-root">' +
+                transRowsHtml +
+                '</div></div>';
 
             const gkRevealOpts =
                 options && options.skipTopicRevealConsume ? { skipConsume: true } : undefined;
@@ -2808,9 +3012,7 @@
 
             document.getElementById('ai-report-area').innerHTML = `
                 ${passageLayoutCardHtml}
-                <div class="result-card"><span class="result-label" style="color:var(--neon-green);">📝 해석 (단어를 클릭하면 뜻을 볼 수 있어요)</span><div class="result-content">
-                    ${transHtml}
-                </div></div>
+                ${translationCardHtml}
                 <div class="result-card" style="border-color: #bc13fe;"><span class="result-label" style="color:#bc13fe;">🛠️ 트리거 팀의 문법 포인트</span><div class="result-content">${grammarListWrap}</div></div>
                 <div class="result-card"><span class="result-label" style="color:#ff0055;">📚 주요 단어 리스트 (내 학습 노트에 저장)</span><div class="result-content">${keywordHtml}</div></div>
                 ${goldenKeyHtml}
@@ -4420,7 +4622,7 @@
 10. **된다니까 3시간 영문법** 본문 교재에서 다루는 내용·체계와 **모순 없이** 맞물리는 실전 포인트를 **우선** 짚고, 아래를 **체크리스트**로 빠짐없이 검토하세요(해당 없으면 생략): **It·that 강조구문·전치사+that 도치, 고급 문장 구조, 도치, 가정법(과거·완료·혼합 등), 분사구문·분사·준동사, 가주어·진주어, 가목적어·진목적어, 사역동사·감정동사·감각동사·수여동사, There 구문, 특수구문, the 비교급 the 비교급, suggest 등 주장·제안 뒤 that절의 should(생략 포함), 수일치, 수동태, 헷갈리는 시제(완료·완료진행·과거완료 등)**. 여기에 없어도 **수능·모평에서 헷갈리는** 관계사·관계대명사/관계부사, 명사절·부사절·형용사절, 병렬·상관접속, 관용 전치사구·구동사형 숙어 등을 포함합니다.
 11. background는 항상 기본 배경지식(이전처럼 지문 이해를 돕는 일반 맥락)을 2~3문장 포함하세요. 여기에 더해, 지문에 특별한 지명, 인물(유명 위인 포함), 사건, 정치·경제·문화·사회적 상황, 이론이 등장하고 그것이 이해에 실제 도움이 될 때만 추가 정보를 1~2문장 보강하세요. 과도하게 길거나 학술적으로 깊은 설명은 금지합니다.
 12. 지문에 실제로 나온 담화 표현·고정 구문(after all, as well, in fact, on the other hand 등 해석의 뉘앙스에 영향을 주는 표현)은 기초 단어라도 keywords에서 빼지 말고, 반드시 숙어 형태로 공백을 유지해 포함하세요.
-13. topic_sentence: **항상 JSON \`null\` 또는 빈 문자열 \`""\`만** 넣으세요. 지문에서 주제문으로 보이는 문장을 **복사·발췌하지 마세요.** (앱은 이 필드를 쓰지 않습니다.)
+13. topic_sentence: **항상 JSON \`null\` 또는 빈 문자열 \`""\`만** 넣으세요. 지문에서 주제문으로 보이는 문장을 **복사·발췌하지 마세요.** (앱은 이 필드를 쓰지 않습니다.) **추가 필드 \`topic_focus_row\`:** \`null\` 또는 **0 이상의 정수** — 주제·제목·요지·글의 목적 고르기 등 **주제형**이면 \`full_translation\` **행 인덱스(0부터)** 중 **글의 핵심 논지를 한 문장으로 가장 잘 대표하는 한 줄**을 지정하세요. \`topic_keywords\`의 **영어 표기가 그 eng 행에 가장 많이 포함되는 행**을 우선 고르세요. 앱은 **해석 카드**에서 **주제문 보기** 토글 시 해당 행 전체에 배경을 씁니다. 주제형이 아니면 \`null\`.
 14. topic_keywords: **주제·제목·요지·글의 목적 고르기** 유형에서, **정답 보기에 공통으로 드러나야 하는** 결정적 단서 **2~5개**(원칙 **2~4개**). 각 항목은 keywords와 동일하게 \`영어(한국어 뜻)\` 형식이며 **반드시 지문 원문에 실제로 등장하는 표기**만 사용하세요. 서로 의미가 겹치지 않게 고르세요. 이 키워드들은 아래 golden_key.topic_variants의 **① 실제 주제**(\`sentence_en\`)를 **처음부터 새로 쓸 때** 문장 안에 **반드시 녹여 넣으세요**(원형·어형 변화·굴절 포함). **①은 지문 문장을 고르거나 붙여 쓰는 것이 아니라**, 이 키워드들을 재료로 **완전히 새로운 한 문장**을 만드는 것입니다.
 15. golden_key: **Golden Key(정답의 열쇠)** 묶음. 반드시 포함하세요.
     - golden_key.topic_summary: subject.formal / subject.easy와 **완전히 동일한 문장**을 넣으세요(복사).
@@ -4453,6 +4655,7 @@
     "easy": "그러니까 한마디로~ (시작말 포함하여 비유나 쉬운 일상어로 풀어쓴 주제)"
   },
   "topic_sentence": null,
+  "topic_focus_row": null,
   "topic_keywords": ["climate change(기후 변화)", "sea level(해수면)"],
   "golden_key": {
     "topic_summary": { "formal": "subject.formal과 동일", "easy": "subject.easy와 동일" },
