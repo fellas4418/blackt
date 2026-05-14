@@ -6,7 +6,7 @@
     <title>AI 지문 정밀 분석 - Trigger</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        body { background: #050505; color: #fff; padding: 20px; font-family: 'Pretendard', sans-serif; }
+        body { background: #000000; color: #fff; padding: 20px; font-family: 'Pretendard', sans-serif; }
         .camera-ui { width: 100%; min-height: 200px; max-height: 40vh; background: #111; border: 2px dashed var(--neon-blue); border-radius: 15px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; margin-bottom: 10px; }
         #preview { width: 100%; height: 100%; object-fit: contain; display: none; }
         .guide-box { background: rgba(0, 243, 255, 0.05); border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid rgba(0, 243, 255, 0.2); }
@@ -136,6 +136,10 @@
             border-left: 4px solid var(--neon-blue);
             margin-bottom: 10px;
         }
+        .gk-variant-sentence .passage-topic-kw {
+            border-color: transparent;
+            box-shadow: none;
+        }
         .gk-golden-head { font-size: 1.14rem !important; letter-spacing: 0.02em; }
         .save-btn-small { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); border: 1px solid #666; color: #ccc; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: 0.2s; }
         .save-btn-small.active { background: #bc13fe; border-color: #bc13fe; color: #fff; }
@@ -232,22 +236,21 @@
         .gk-term-mean { font-size: 0.82rem; color: #9fd; }
 
         /* 지문 유형 레이아웃 · ①~⑳ 원형 강조 */
+        /* ① 등 유니코드 동그라미 숫자는 이미 원형이므로 겹치는 외곽 링 제거 */
         .passage-circ-num {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 1.35em;
-            height: 1.35em;
-            padding: 0 0.2em;
-            border-radius: 50%;
-            background: rgba(0, 243, 255, 0.12);
-            border: 1px solid rgba(0, 243, 255, 0.55);
-            font-size: 0.82em;
-            line-height: 1;
-            margin: 0 2px;
-            vertical-align: middle;
+            display: inline;
             font-weight: 700;
             color: #9fe8ff;
+            vertical-align: baseline;
+            margin: 0 1px;
+            padding: 0;
+            border: none;
+            background: none;
+            border-radius: 0;
+            font-size: inherit;
+            line-height: inherit;
+            min-width: 0;
+            height: auto;
         }
         .passage-layout-card .passage-layout-inner { line-height: 1.65; }
         .passage-insert-box {
@@ -316,14 +319,15 @@
                 transparent 70%
             );
         }
+        /* 지문 카드와 동일한 그라데이션 형식·강도, 색만 붉은 계열 */
         .analysis-zone-card.exam-zone {
-            border-color: rgba(255, 130, 75, 0.48);
-            background-color: #100806;
+            border-color: rgba(255, 95, 85, 0.42);
+            background-color: #0b0606;
             background-image: linear-gradient(
-                198deg,
-                rgba(255, 120, 65, 0.075) 0%,
-                rgba(200, 55, 45, 0.04) 45%,
-                transparent 78%
+                168deg,
+                rgba(255, 70, 60, 0.06) 0%,
+                rgba(255, 130, 100, 0.025) 42%,
+                transparent 70%
             );
         }
         .analysis-zone-label {
@@ -344,9 +348,9 @@
             background: linear-gradient(90deg, rgba(0, 243, 255, 0.07) 0%, transparent 55%);
         }
         .exam-zone .analysis-zone-label {
-            border-left: 5px solid rgba(255, 130, 75, 0.95);
+            border-left: 5px solid rgba(255, 90, 80, 0.95);
             padding-left: 14px;
-            background: linear-gradient(90deg, rgba(255, 120, 70, 0.1) 0%, transparent 55%);
+            background: linear-gradient(90deg, rgba(255, 75, 65, 0.1) 0%, transparent 55%);
         }
         .analysis-zone-sub { display: block; font-size: 0.78rem; font-weight: 600; color: #9aa; margin-top: 5px; line-height: 1.45; }
         .analysis-zone-title-row { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.02em; margin: 0; }
@@ -1677,6 +1681,87 @@
             }).join('');
         }
 
+        /** 해석 영어 줄·Golden Key 주제문 등: 단어 클릭·hl-voca(단어장 매칭) 적용 */
+        function applyEngFragmentClickableKeywords(htmlFragment, keywordsObj) {
+            const kwArr = Array.isArray(keywordsObj) && keywordsObj.length ? keywordsObj : [];
+            if (!htmlFragment || !kwArr.length) return htmlFragment;
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = htmlFragment;
+            function makeTextNodesClickable(node) {
+                if (node.nodeType === 3) {
+                    if (node.parentElement && node.parentElement.closest && node.parentElement.closest('del')) {
+                        return;
+                    }
+                    const words = node.nodeValue.split(/(\s+|[\u2014\u2013]+)/);
+                    const html = words.map(function (w, index) {
+                        if (/[a-zA-Z]/.test(w)) {
+                            const cleanW = w.toLowerCase().replace(/[^a-z-]/g, '');
+                            let isTarget = false;
+                            let partOfIdiom = false;
+                            for (let ki = 0; ki < kwArr.length; ki++) {
+                                const kw = kwArr[ki];
+                                const kwEng = String(kw.eng || '').toLowerCase();
+                                if (kwEng.includes(' ')) {
+                                    const kwParts = kwEng.split(/\s+/).map(function (p) {
+                                        return p.replace(/[^a-z-]/g, '');
+                                    });
+                                    const wordIdxInIdiom = kwParts.indexOf(cleanW);
+                                    if (wordIdxInIdiom !== -1) {
+                                        let match = true;
+                                        for (let i = 0; i < kwParts.length; i++) {
+                                            const offset = i - wordIdxInIdiom;
+                                            const targetWordIndex = index + offset * 2;
+                                            if (targetWordIndex < 0 || targetWordIndex >= words.length) {
+                                                match = false;
+                                                break;
+                                            }
+                                            const targetClean = words[targetWordIndex].toLowerCase().replace(/[^a-z-]/g, '');
+                                            if (
+                                                targetClean !== kwParts[i] &&
+                                                !targetClean.startsWith(kwParts[i].substring(0, kwParts[i].length - 1))
+                                            ) {
+                                                match = false;
+                                                break;
+                                            }
+                                        }
+                                        if (match) {
+                                            partOfIdiom = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            if (partOfIdiom) {
+                                isTarget = true;
+                            } else if (!STOP_WORDS.has(cleanW)) {
+                                isTarget = kwArr.some(function (kw) {
+                                    const kwEng = String(kw.eng || '');
+                                    return !/\s/.test(kwEng) && aiKeywordMatchesLemma(kwEng, cleanW);
+                                });
+                            }
+                            return (
+                                '<span class="clickable-word ' +
+                                (isTarget ? 'hl-voca' : '') +
+                                '" onclick="handleWordClick(this)">' +
+                                w +
+                                '</span>'
+                            );
+                        }
+                        return w;
+                    }).join('');
+                    const wrapper = document.createElement('span');
+                    wrapper.innerHTML = html;
+                    node.replaceWith.apply(node, Array.from(wrapper.childNodes));
+                } else if (node.nodeType === 1) {
+                    if (node.classList && node.classList.contains('grammar-badge')) return;
+                    if (node.tagName === 'DEL') return;
+                    Array.from(node.childNodes).forEach(makeTextNodesClickable);
+                }
+            }
+            Array.from(tempDiv.childNodes).forEach(makeTextNodesClickable);
+            return tempDiv.innerHTML;
+        }
+
         window.togglePassageTopicHighlight = function (btn) {
             const root = document.getElementById('translation-rows-root');
             if (!root || !btn) return;
@@ -2044,9 +2129,9 @@
                     topic_variants: mapped.slice(0, 3),
                     topic_keywords:
                         Array.isArray(gk.topic_keywords) && gk.topic_keywords.length
-                            ? gk.topic_keywords.map((k) => String(k || '').trim()).filter(Boolean).slice(0, 5)
+                            ? gk.topic_keywords.map((k) => String(k || '').trim()).filter(Boolean).slice(0, 3)
                             : Array.isArray(res.topic_keywords)
-                              ? res.topic_keywords.map((k) => String(k || '').trim()).filter(Boolean).slice(0, 5)
+                              ? res.topic_keywords.map((k) => String(k || '').trim()).filter(Boolean).slice(0, 3)
                               : []
                 };
             }
@@ -2062,7 +2147,7 @@
                     { type: 'keyword_paraphrase', sentence_en: '', interpretation_ko: '', key_terms: [] },
                     { type: 'structure_paraphrase', sentence_en: '', interpretation_ko: '', key_terms: [] }
                 ],
-                topic_keywords: Array.isArray(res.topic_keywords) ? res.topic_keywords.map((k) => String(k || '').trim()).filter(Boolean).slice(0, 5) : []
+                topic_keywords: Array.isArray(res.topic_keywords) ? res.topic_keywords.map((k) => String(k || '').trim()).filter(Boolean).slice(0, 3) : []
             };
         }
 
@@ -2379,7 +2464,7 @@
 
         initPremiumAiAskPanelOnce();
 
-        function buildGoldenKeySectionHtml(res, topicReveal) {
+        function buildGoldenKeySectionHtml(res, topicReveal, keywordHighlightObj) {
             const gk = normalizeGoldenKey(res);
 
             const hasSummary = gk.topic_summary.formal || gk.topic_summary.easy;
@@ -2407,7 +2492,7 @@
                     .join('');
                 inner +=
                     '<div style="margin-bottom:18px;padding:12px 14px 14px;border-bottom:1px solid #2a2a2a;border-radius:10px;background:rgba(255,0,85,0.04);">' +
-                    '<div style="font-size:0.82rem;color:#ff8da1;font-weight:bold;margin-bottom:10px;">핵심 키워드 <span style="font-weight:normal;color:#9aa;">(먼저 확인)</span></div>' +
+                    '<div class="gk-topic-summary-title" style="margin-bottom:10px;color:#ff8da1;">핵심 키워드</div>' +
                     '<div style="margin-bottom:10px;">' +
                     chips +
                     '</div>' +
@@ -2439,10 +2524,12 @@
                 inner += '<div style="margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid #2a2a2a;">';
                 inner += '<div class="gk-variant-label">' + escapeHtml(lab) + '</div>';
                 if (sen) {
-                    inner +=
-                        '<div class="gk-variant-sentence">' +
-                        escapeHtml(sen) +
-                        '</div>';
+                    let senHtml = escapeHtml(sen);
+                    senHtml = decorateCircledNumberMarks(senHtml);
+                    const gkKwPhrases = topicKeywordPhrasesFromLines(gk.topic_keywords || []);
+                    senHtml = wrapTopicKeywordPhrasesInEngHtml(senHtml, gkKwPhrases);
+                    senHtml = applyEngFragmentClickableKeywords(senHtml, keywordHighlightObj || []);
+                    inner += '<div class="gk-variant-sentence">' + senHtml + '</div>';
                 } else {
                     inner +=
                         '<div style="color:#888;font-size:0.92rem;margin-bottom:10px;">(이 유형의 주제문은 이번 분석에서 비어 있을 수 있어요. 재분석 시 모델이 채웁니다.)</div>';
@@ -2805,9 +2892,9 @@
                     `);
                 });
 
-                if(vocaItemsArray.length > 5) {
-                    keywordHtml += vocaItemsArray.slice(0, 5).join('');
-                    keywordHtml += `<div id="voca-more-list" style="display:none;">${vocaItemsArray.slice(5).join('')}</div>`;
+                if(vocaItemsArray.length > 3) {
+                    keywordHtml += vocaItemsArray.slice(0, 3).join('');
+                    keywordHtml += `<div id="voca-more-list" style="display:none;">${vocaItemsArray.slice(3).join('')}</div>`;
                     keywordHtml += `<button id="voca-toggle-btn" onclick="toggleVocaList()" style="width:100%; background:transparent; border:1px solid #444; color:#aaa; padding:10px; border-radius:8px; margin-top:10px; font-size:0.85rem; cursor:pointer;">전체 단어 보기 ▼</button>`;
                 } else {
                     keywordHtml += vocaItemsArray.join('');
@@ -2939,77 +3026,7 @@
 
                     finalEng = wrapTopicKeywordPhrasesInEngHtml(finalEng, topicKwPhrases);
 
-                    let tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = finalEng;
-
-                    function makeTextNodesClickable(node) {
-                        if (node.nodeType === 3) {
-                            if (node.parentElement && node.parentElement.closest && node.parentElement.closest('del')) {
-                                return;
-                            }
-                            // em dash(—)·en dash(–)는 앞뒤 보충 구조용이므로 단어 경계로 취급 (stomach—such → 분리)
-                            const words = node.nodeValue.split(/(\s+|[\u2014\u2013]+)/);
-                            const html = words.map((w, index) => {
-                                if (/[a-zA-Z]/.test(w)) {
-                                    const cleanW = w.toLowerCase().replace(/[^a-z-]/g, '');
-                                    
-                                    // 🔥 지문: 숙어 구간도 초록 하이라이트는 유지하되, 클릭 시에는 data-idiom 없이 각 단어만의 뜻 표시
-                                    let isTarget = false;
-                                    let partOfIdiom = false;
-                                    
-                                    for (let kw of aiKeywordsObj) {
-                                        const kwEng = String(kw.eng || '').toLowerCase();
-                                        if (kwEng.includes(' ')) {
-                                            const kwParts = kwEng.split(/\s+/).map(p => p.replace(/[^a-z-]/g, ''));
-                                            const wordIdxInIdiom = kwParts.indexOf(cleanW);
-                                            
-                                            if (wordIdxInIdiom !== -1) {
-                                                let match = true;
-                                                for (let i = 0; i < kwParts.length; i++) {
-                                                    const offset = i - wordIdxInIdiom;
-                                                    const targetWordIndex = index + (offset * 2); 
-                                                    if (targetWordIndex < 0 || targetWordIndex >= words.length) {
-                                                        match = false; break;
-                                                    }
-                                                    const targetClean = words[targetWordIndex].toLowerCase().replace(/[^a-z-]/g, '');
-                                                    // 변형어 포용 매칭
-                                                    if (targetClean !== kwParts[i] && !targetClean.startsWith(kwParts[i].substring(0, kwParts[i].length - 1))) {
-                                                        match = false; break;
-                                                    }
-                                                }
-                                                if (match) {
-                                                    partOfIdiom = true;
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    if (partOfIdiom) {
-                                        isTarget = true;
-                                    } else if (!STOP_WORDS.has(cleanW)) {
-                                        isTarget = aiKeywordsObj.some(kw => {
-                                            const kwEng = String(kw.eng || '');
-                                            return !/\s/.test(kwEng) && aiKeywordMatchesLemma(kwEng, cleanW);
-                                        });
-                                    }
-
-                                    return `<span class="clickable-word ${isTarget ? 'hl-voca' : ''}" onclick="handleWordClick(this)">${w}</span>`;
-                                }
-                                return w;
-                            }).join('');
-                            const wrapper = document.createElement('span');
-                            wrapper.innerHTML = html;
-                            node.replaceWith(...wrapper.childNodes);
-                        } else if (node.nodeType === 1) { 
-                            if (node.classList.contains('grammar-badge')) return;
-                            if (node.tagName === 'DEL') return;
-                            Array.from(node.childNodes).forEach(makeTextNodesClickable);
-                        }
-                    }
-                    
-                    Array.from(tempDiv.childNodes).forEach(makeTextNodesClickable);
-                    finalEng = tempDiv.innerHTML;
+                    finalEng = applyEngFragmentClickableKeywords(finalEng, aiKeywordsObj);
 
                     return (
                         subLine +
@@ -3050,7 +3067,7 @@
             const gkRevealOpts =
                 options && options.skipTopicRevealConsume ? { skipConsume: true } : undefined;
             const goldenKeyReveal = evaluateTopicSectionReveal(gkRevealOpts);
-            const goldenKeyHtml = buildGoldenKeySectionHtml(res, goldenKeyReveal);
+            const goldenKeyHtml = buildGoldenKeySectionHtml(res, goldenKeyReveal, aiKeywordsObj);
 
             document.getElementById('ai-report-area').innerHTML = `
                 ${passageLayoutCardHtml}
