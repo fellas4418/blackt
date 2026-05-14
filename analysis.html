@@ -205,14 +205,17 @@
         .gk-variant-label { font-size: 1rem; color: #b8ff9e; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.02em; }
         .gk-variant-sentence {
             color: #f5f5f5;
-            font-size: 1.08rem;
-            line-height: 1.58;
+            font-size: 1rem;
+            line-height: 1.48;
             font-style: italic;
             background: #141820;
             padding: 14px 16px;
             border-radius: 12px;
             border-left: 4px solid var(--neon-blue);
             margin-bottom: 10px;
+        }
+        #analysis-passage-zone .gk-variant-sentence .clickable-word {
+            line-height: inherit;
         }
         .gk-variant-sentence .passage-topic-kw {
             border-color: transparent;
@@ -222,12 +225,20 @@
         .save-btn-small { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); border: 1px solid #666; color: #ccc; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: 0.2s; }
         .save-btn-small.active { background: #bc13fe; border-color: #bc13fe; color: #fff; }
         
-        .kw-container { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #333; }
-        .kw-tag { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-right: 6px; font-weight: bold; }
-        .kw-mid { background: rgba(255,153,0,0.2); color: var(--neon-orange); border: 1px solid var(--neon-orange); }
-        .kw-high { background: rgba(0,243,255,0.2); color: var(--neon-blue); border: 1px solid var(--neon-blue); }
-        .kw-other { background: #333; color: #aaa; border: 1px solid #555; }
-        .kw-save-btn { background: transparent; border: 1px solid #555; color: #aaa; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
+        .kw-container { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #333; }
+        .kw-body { flex: 1; min-width: 0; }
+        .kw-save-btn {
+            flex-shrink: 0;
+            align-self: flex-start;
+            white-space: nowrap;
+            background: transparent;
+            border: 1px solid #555;
+            color: #aaa;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
         .kw-save-btn.active { background: var(--neon-green); color: #000; border-color: var(--neon-green); font-weight: bold; }
         .auth-box { display: none; background: rgba(255,255,255,0.03); border:1px solid #333; border-radius:12px; padding:12px; margin-bottom:14px; }
         .auth-input { flex:1; background:#111; border:1px solid #444; color:#fff; padding:9px 10px; border-radius:8px; font-size:0.9rem; min-width: 0; }
@@ -733,16 +744,10 @@
             <h4 class="passage-report-heading">✅ AI 정밀 분석 보고서 <span id="analysis-source-badge" style="display:none; margin-left:8px; font-size:0.72rem; color:#111; background:#9fe870; border-radius:999px; padding:2px 8px; vertical-align:middle;">기존 분석 결과 불러옴</span></h4>
             <div id="ai-report-area"></div>
         </div>
-        
-        <div class="guide-box" style="border-color: #b537f2; background: rgba(181, 55, 242, 0.05); margin-top: 25px;">
-            <p class="guide-title" style="color: #d789ff; font-size:1.1rem;">🔥 근본적인 독해력을 올리고 싶다면?</p>
-            <p class="guide-text" style="color: #eee; font-size:0.95rem;">단어는 아는데 해석이 턱턱 막히고 문장 구조가 안 보이시나요?<br>특수 구문부터 필수 문법까지 <b>단 3시간 만에 영어의 문을 여는 가장 명쾌한 로드맵.</b></p>
-            <button onclick="window.open('https://tri3.imweb.me/', '_blank')" class="kakao-btn" style="background:#b537f2; color:#fff; border-radius:12px;">👉 된다니까 3시간 영문법 수강하기 ⚡</button>
-        </div>
 
-        <div id="premium-ai-ask-panel" style="display:none; margin-top: 20px; border: 1px solid rgba(57,255,20,0.45); border-radius: 16px; padding: 16px; background: rgba(57,255,20,0.06);">
-            <div style="font-weight: 900; color: #39ff14; margin-bottom: 10px; font-size: 1.02rem;">트리거 AI 실시간 질문하기 <span style="font-weight:600;font-size:0.72rem;color:#888;">(프리미엄 전용)</span></div>
-            <p style="font-size:0.82rem;color:#aaa;margin:0 0 10px;line-height:1.5;">문장을 고르면 그 문장 맥락 위주로, 안 고르면 일반 문법·영어 질문으로 답해 드려요. (약 200자·3단 구성)</p>
+        <div id="premium-ai-ask-panel" style="display:none; margin-top: 22px; border: 1px solid rgba(57,255,20,0.45); border-radius: 16px; padding: 16px; background: rgba(57,255,20,0.06);">
+            <div style="font-weight: 900; color: #39ff14; margin-bottom: 10px; font-size: 1.02rem;">💬 모르는 거 1:1 질문 (트리거 AI) <span style="font-weight:600;font-size:0.72rem;color:#888;">(답변 전송은 프리미엄)</span></div>
+            <p style="font-size:0.82rem;color:#aaa;margin:0 0 10px;line-height:1.5;">지문·문법·단어 등 막히는 부분을 적어 주세요. 문장 줄을 골라 두면 그 맥락 위주로, 안 고르면 일반 질문으로 답해 드려요. (약 200자·3단 구성)</p>
             <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
                 <button type="button" id="btn-sentence-pick-toggle" class="login-btn" style="margin:0;border-color:var(--neon-blue);color:var(--neon-blue);">질문할 문장 선택</button>
                 <button type="button" id="btn-sentence-pick-done" class="login-btn" style="margin:0;display:none;border-color:#9fe870;color:#9fe870;">선택 완료</button>
@@ -752,6 +757,12 @@
             <textarea id="ai-ask-input" placeholder="궁금한 점을 입력해 주세요."></textarea>
             <button type="button" id="ai-ask-submit" class="start-btn" style="width:100%; margin-top:10px; border-color:var(--neon-green);">질문 보내기</button>
             <div id="ai-ask-reply" style="margin-top:12px; font-size:0.9rem; color:#eee; line-height:1.55; white-space:pre-wrap;"></div>
+        </div>
+        
+        <div class="guide-box" style="border-color: #b537f2; background: rgba(181, 55, 242, 0.05); margin-top: 25px;">
+            <p class="guide-title" style="color: #d789ff; font-size:1.1rem;">🔥 근본적인 독해력을 올리고 싶다면?</p>
+            <p class="guide-text" style="color: #eee; font-size:0.95rem;">단어는 아는데 해석이 턱턱 막히고 문장 구조가 안 보이시나요?<br>특수 구문부터 필수 문법까지 <b>단 3시간 만에 영어의 문을 여는 가장 명쾌한 로드맵.</b></p>
+            <button onclick="window.open('https://tri3.imweb.me/', '_blank')" class="kakao-btn" style="background:#b537f2; color:#fff; border-radius:12px;">👉 된다니까 3시간 영문법 수강하기 ⚡</button>
         </div>
 
         <button onclick="location.reload()" class="login-btn" style="border-color: #fff; margin-top: 20px; background: transparent; width: 100%;">다른 지문 분석하기</button>
@@ -1120,6 +1131,36 @@
 
         function escapeHtml(s) {
             return String(s || '').replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m]));
+        }
+
+        function stripLeadingCircledNumbersFromKorLine(line) {
+            return String(line || '').replace(/^[\s\u00A0\u3000]*[\u2460-\u2473]+(?:\s+|\t)*/u, '');
+        }
+
+        function formatKorTextForTranslationRow(korRaw) {
+            const raw = String(korRaw || '');
+            if (!raw.trim()) return '';
+            const stripped = raw.split(/\r?\n/).map(stripLeadingCircledNumbersFromKorLine).join('\n');
+            return decorateCircledNumberMarks(escapeHtml(stripped));
+        }
+
+        function normTranslationKeyCell(s) {
+            return String(s || '').replace(/\s+/g, ' ').trim();
+        }
+
+        function isConsecutiveDuplicateTranslationRow(rows, idx) {
+            if (idx <= 0 || !Array.isArray(rows) || !rows[idx - 1]) return false;
+            const cur = rows[idx];
+            const prev = rows[idx - 1];
+            const ck = normTranslationKeyCell(cur.kor);
+            const pk = normTranslationKeyCell(prev.kor);
+            const ce = normTranslationKeyCell(cur.eng);
+            const pe = normTranslationKeyCell(prev.eng);
+            if (!pk || !ck || ck.length < 10) return false;
+            if (ck !== pk) return false;
+            if (ce === pe) return true;
+            if (!ce || ce.length < 4) return true;
+            return false;
         }
 
         /** 단어장과 겹치는 「한 단어+품사·뜻풀이」 수준 문법 항목은 표시에서 제외 */
@@ -2269,7 +2310,7 @@
                                            item.level === 'high' ? '<span class="kw-tag kw-high">고등</span>' : '';
                             html += `
                                 <div class="kw-container" style="background:#1a1a1a;">
-                                    <div>
+                                    <div class="kw-body">
                                         ${levelTag}
                                         <strong style="color:#fff; font-size:1.05rem;">${item.eng}</strong> 
                                         <span style="color:#aaa; font-size:0.9rem; margin-left:6px;">${item.kor}</span>
@@ -2574,7 +2615,16 @@
         function refreshPremiumAiPanelVisibility() {
             const p = document.getElementById('premium-ai-ask-panel');
             if (!p) return;
-            p.style.display = isPremiumUser ? 'block' : 'none';
+            const rs = document.getElementById('result-section');
+            let show = false;
+            try {
+                if (rs) {
+                    const inline = rs.style.display;
+                    const computed = window.getComputedStyle(rs).display;
+                    show = inline === 'block' || (inline !== 'none' && computed === 'block');
+                }
+            } catch (e) {}
+            p.style.display = show ? 'block' : 'none';
             if (!isPremiumUser) exitSentencePickModeSilently();
         }
 
@@ -2749,7 +2799,6 @@
                     '<div style="margin-bottom:10px;line-height:1.75;text-align:left;">' +
                     chips +
                     '</div>' +
-                    '<p class="gk-topic-hint">아래 <strong style="color:#e8eaed;">①②③ 주제문</strong>은 이 키워드들을 반영해 만들었어요. 주제를 고를 때는 위의 키워드들이 나타난 선택지가 정답에 가깝습니다.</p>' +
                     '</div>';
             }
 
@@ -2776,7 +2825,11 @@
                 const lab = typeLabel[typ] || typ;
                 const sen = String(v.sentence_en || '').trim();
                 const interpRaw = String(v.interpretation_ko || '').trim();
-                const interp = interpRaw.replace(/:해석/g, '').replace(/\s{2,}/g, ' ').trim();
+                const interp = interpRaw
+                    .replace(/:\s*해석/gi, '')
+                    .replace(/:해석/g, '')
+                    .replace(/\s{2,}/g, ' ')
+                    .trim();
                 inner += '<div class="gk-variant-block" style="margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid #2a2a2a;">';
                 inner += '<div class="gk-variant-label">' + escapeHtml(lab) + '</div>';
                 if (sen) {
@@ -3144,7 +3197,7 @@
 
                     vocaItemsArray.push(`
                         <div class="kw-container">
-                            <div>${levelTag}<strong style="color:#fff; font-size:1.05rem; cursor:pointer;" onclick="showWordPopup('${safeEng}', '${safeKor}', '${kw.level}')">${kw.eng}</strong> <span style="color:#aaa; font-size:0.9rem; margin-left:6px;">${kw.kor}</span></div>
+                            <div class="kw-body">${levelTag}<strong style="color:#fff; font-size:1.05rem; cursor:pointer;" onclick="showWordPopup('${safeEng}', '${safeKor}', '${kw.level}')">${kw.eng}</strong> <span style="color:#aaa; font-size:0.9rem; margin-left:6px;">${kw.kor}</span></div>
                             <button id="btn-kw-${kw.eng}" class="${btnClass}" onclick="toggleVocaSave('${safeEng}', '${safeKor}', '${kw.level}', this)">${btnText}</button>
                         </div>
                     `);
@@ -3229,6 +3282,9 @@
             const passageTopicKwOnce = new Set();
             if (res.full_translation && Array.isArray(res.full_translation)) {
                 transRowsHtml = res.full_translation.map((s, rowIdx) => {
+                    if (isConsecutiveDuplicateTranslationRow(res.full_translation, rowIdx)) {
+                        return '';
+                    }
                     let subLine = '';
                     const plSub = res.passage_layout && Array.isArray(res.passage_layout.paragraph_subtitles)
                         ? res.passage_layout.paragraph_subtitles
@@ -3297,7 +3353,7 @@
                         grammarMarks +
                         '</div>' +
                         '<div class="kor-text">' +
-                        decorateCircledNumberMarks(escapeHtml(String(s.kor || ''))) +
+                        formatKorTextForTranslationRow(s.kor) +
                         '</div></div>'
                     );
                 }).join('');
