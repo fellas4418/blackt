@@ -789,7 +789,7 @@ function updateUI(data, isTest = false) {
     targetEl.style.setProperty('font-size', '3.3rem', 'important'); 
     targetEl.style.setProperty('text-shadow', '0 0 15px #fff', 'important');
     targetEl.style.setProperty('color', '#fff', 'important');
-    targetEl.style.setProperty('margin-top', '-40px', 'important'); 
+    targetEl.style.setProperty('margin-top', isTest ? '-58px' : '-40px', 'important'); 
 
     if (!isTest) {
         targetEl.innerHTML = `
@@ -838,7 +838,7 @@ function updateUI(data, isTest = false) {
 
         const choices = [fullMeaning, ...selectedWrongs].sort(() => Math.random() - 0.5);
         mBox.innerHTML = choices.map(c => `
-                <button class="choice-btn" style="font-size: 1.4rem !important; height: 75px !important; margin-bottom: 12px; font-weight: bold; width: 100%; display: flex; align-items: center; justify-content: center; text-align: center; padding: 5px 15px !important; line-height: 1.2; word-break: keep-all;" 
+                <button class="choice-btn" style="font-size: 1.4rem !important; min-height: 92px !important; height: auto !important; margin-bottom: 20px !important; font-weight: bold; width: 100%; max-width: 100%; display: flex; align-items: center; justify-content: center; text-align: center; padding: 14px 22px !important; line-height: 1.25; word-break: keep-all; box-sizing: border-box;" 
                 onclick="handleAnswer(${c === fullMeaning})">${c}</button>`).join('');
     }
 }
