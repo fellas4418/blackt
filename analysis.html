@@ -317,13 +317,13 @@
             );
         }
         .analysis-zone-card.exam-zone {
-            border-color: rgba(159, 232, 112, 0.45);
-            background-color: #070907;
+            border-color: rgba(255, 130, 75, 0.48);
+            background-color: #100806;
             background-image: linear-gradient(
                 198deg,
-                rgba(159, 232, 112, 0.065) 0%,
-                rgba(0, 243, 255, 0.035) 48%,
-                transparent 76%
+                rgba(255, 120, 65, 0.075) 0%,
+                rgba(200, 55, 45, 0.04) 45%,
+                transparent 78%
             );
         }
         .analysis-zone-label {
@@ -344,9 +344,9 @@
             background: linear-gradient(90deg, rgba(0, 243, 255, 0.07) 0%, transparent 55%);
         }
         .exam-zone .analysis-zone-label {
-            border-left: 5px solid rgba(159, 232, 112, 0.9);
+            border-left: 5px solid rgba(255, 130, 75, 0.95);
             padding-left: 14px;
-            background: linear-gradient(90deg, rgba(159, 232, 112, 0.06) 0%, transparent 55%);
+            background: linear-gradient(90deg, rgba(255, 120, 70, 0.1) 0%, transparent 55%);
         }
         .analysis-zone-sub { display: block; font-size: 0.78rem; font-weight: 600; color: #9aa; margin-top: 5px; line-height: 1.45; }
         .analysis-zone-title-row { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.02em; margin: 0; }
@@ -362,8 +362,17 @@
         }
         .exam-zone-desc-highlight {
             font-weight: 700;
-            color: #e8f8d8;
-            background: rgba(159, 232, 112, 0.22);
+            color: #fff0e6;
+            background: rgba(255, 120, 70, 0.28);
+            padding: 0.08em 0.32em;
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+        }
+        .passage-zone-desc-highlight {
+            font-weight: 700;
+            color: #e8fbff;
+            background: rgba(0, 243, 255, 0.22);
             padding: 0.08em 0.32em;
             border-radius: 4px;
             box-decoration-break: clone;
@@ -371,7 +380,7 @@
         }
         .analysis-zone-desc-muted { font-size: 0.76rem; font-weight: 500; color: #7d8794; line-height: 1.5; }
         .passage-zone .analysis-zone-desc-accent { font-size: 0.8rem; font-weight: 700; color: #9fe870; line-height: 1.45; }
-        .exam-zone .analysis-zone-desc-accent { font-size: 0.8rem; font-weight: 700; color: #c8f5a8; line-height: 1.45; }
+        .exam-zone .analysis-zone-desc-accent { font-size: 0.8rem; font-weight: 700; color: #ffc9a8; line-height: 1.45; }
         .analysis-zone-label .exam-sample-pill { margin-top: 2px; }
         .analysis-zone-body { padding: 14px 16px 18px; }
         .passage-zone .analysis-zone-body { padding-top: 10px; }
@@ -382,15 +391,15 @@
             margin: 0 0 12px;
             padding: 12px 14px;
             border-radius: 12px;
-            background: rgba(159, 232, 112, 0.06);
-            border: 1px solid rgba(159, 232, 112, 0.2);
+            background: rgba(255, 130, 75, 0.08);
+            border: 1px solid rgba(255, 130, 75, 0.26);
         }
         .exam-sample-pill {
             display: inline-block;
             margin-top: 6px;
             font-size: 0.72rem;
             font-weight: 700;
-            color: #9fe870;
+            color: #ff9a5c;
             letter-spacing: 0.04em;
             text-transform: uppercase;
         }
@@ -440,10 +449,6 @@
             <button onclick="showNoteModal('grammar')" style="background: rgba(255,255,255,0.05); border: 1px solid #666; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight:bold;">⭐ 내 학습 노트</button>
         </div>
         <h3 id="info-header" style="color: #fff; margin-bottom: 15px;">AI 지문 정밀 분석</h3>
-        <div id="passage-history-bar" style="margin-bottom:14px;">
-            <button type="button" id="passage-history-toggle" class="login-btn" style="width:100%; margin-top:0; border-color:var(--neon-orange); color:#ffb36b;">📚 저장된 지문 분석 보기</button>
-            <div id="passage-history-body" style="display:none; margin-top:10px; max-height:240px; overflow-y:auto; border:1px solid #333; border-radius:12px; padding:8px 6px; background:rgba(0,0,0,0.35);"></div>
-        </div>
     </div>
 
     <div id="word-popup"></div>
@@ -466,7 +471,7 @@
             <div class="analysis-zone-title-row">📷 지문 분석</div>
             <div class="analysis-zone-desc">
                 <div class="analysis-zone-desc-body">지문을 촬영하면 트리거 AI의 실시간 정밀 분석이 시작됩니다.</div>
-                <div class="analysis-zone-desc-body">선명하게 찍을수록 정확도가 올라갑니다. 한 문항(한 지문)만 프레임에 맞게 찍어 주세요.</div>
+                <div class="analysis-zone-desc-body">선명하게 찍을수록 정확도가 올라갑니다. <span class="passage-zone-desc-highlight">한 문항(한 지문)만 프레임에 맞게 찍어 주세요.</span></div>
             </div>
         </header>
         <div class="analysis-zone-body">
@@ -480,8 +485,11 @@
         <div id="ai-btn-area" style="display:none; margin-top: 15px;">
             <button id="ocr-btn" onclick="runGeminiAnalysis()" class="start-btn" style="border-color: var(--neon-orange);">트리거 AI 정밀 분석 시작 🔍</button>
         </div>
-        
-        <div style="margin-top: 25px; text-align: center;">
+        <div id="passage-history-bar" style="margin-top: 18px; margin-bottom: 12px;">
+            <button type="button" id="passage-history-toggle" class="login-btn" style="width:100%; margin-top:0; border-color:var(--neon-orange); color:#ffb36b;">📚 저장된 지문 분석 보기</button>
+            <div id="passage-history-body" style="display:none; margin-top:10px; max-height:240px; overflow-y:auto; border:1px solid #333; border-radius:12px; padding:8px 6px; background:rgba(0,0,0,0.35);"></div>
+        </div>
+        <div style="margin-top: 16px; text-align: center;">
             <button onclick="showDirectInput()" style="background: rgba(255,255,255,0.05); border: 1px solid #ccc; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: 0.2s;">
                 지문 복사/붙여넣기로 분석하기 ✍️
             </button>
@@ -546,10 +554,8 @@
 
     <div id="exam-report-workspace" style="display:block; margin-top:0;">
         <div class="result-card" style="margin-top:12px;">
-            <span class="result-label" style="color:#9fe870;">학생 정보</span>
+            <span class="result-label" style="color:#ff9a5c;">시험 정보</span>
             <div style="display:grid; gap:10px;">
-                <div><span style="font-size:0.8rem;color:#888;">이름</span><div id="exam-rpt-display-name" style="font-weight:bold;"></div></div>
-                <div><span style="font-size:0.8rem;color:#888;">학년</span><div id="exam-rpt-display-grade" style="font-weight:bold;"></div></div>
                 <label style="font-size:0.85rem;color:#ccc;">학교 이름
                     <input type="text" id="exam-rpt-school" class="auth-input" style="width:100%; margin-top:4px; box-sizing:border-box;" placeholder="예: ○○중학교" maxlength="80">
                 </label>
@@ -588,7 +594,7 @@
 
         <div id="exam-rpt-after-extract" style="display:none; margin-top:18px;">
             <div class="result-card">
-                <button type="button" id="exam-rpt-toggle-questions" class="login-btn" style="width:100%; margin-top:0; border-color:#9fe870; color:#9fe870; background:rgba(159,232,112,0.06);">문항·배점 접기 ▲</button>
+                <button type="button" id="exam-rpt-toggle-questions" class="login-btn" style="width:100%; margin-top:0; border-color:#ff9a5c; color:#ff9a5c; background:rgba(255,154,92,0.08);">문항·배점 접기 ▲</button>
                 <div id="exam-rpt-questions-collapsible" style="display:block; margin-top:12px;">
                     <p class="guide-text" style="font-size:0.95rem;color:#f0f0f0;margin:0 0 10px 0;padding:12px 14px;border-radius:10px;background:rgba(255,204,128,0.1);border:1px solid rgba(255,204,128,0.35);line-height:1.65;">객관식은 틀린 문항에 <strong style="color:#ff8888;">오답</strong>을 눌러 주세요.<br>서술형은 획득점수를 직접 입력합니다.</p>
                     <p id="exam-rpt-total-points-hint" style="font-size:0.92rem;color:#ffcc80;margin:0 0 10px 0;line-height:1.55;"></p>
@@ -634,7 +640,7 @@
                 <button type="button" id="exam-rpt-admin-load-list" class="login-btn" style="width:100%;margin:0 0 10px 0;border-color:#ffcc80;color:#ffcc80;">의뢰 목록 새로고침</button>
                 <div id="exam-rpt-admin-list" style="font-size:0.82rem;color:#ccc;margin:0 0 12px 0;line-height:1.55;"></div>
                 <textarea id="exam-rpt-admin-comment" rows="4" style="width:100%; box-sizing:border-box; background:#111; border:1px solid #444; color:#fff; border-radius:8px; padding:10px; font-size:0.9rem;" placeholder="선택한 의뢰에 남길 코멘트"></textarea>
-                <button type="button" id="exam-rpt-admin-save-comment" class="login-btn" style="width:100%;margin-top:8px;border-color:#9fe870;color:#9fe870;">선택 의뢰에 코멘트 저장</button>
+                <button type="button" id="exam-rpt-admin-save-comment" class="login-btn" style="width:100%;margin-top:8px;border-color:#ff9a5c;color:#ff9a5c;">선택 의뢰에 코멘트 저장</button>
             </div>
             <p id="exam-rpt-save-hint" class="guide-text" style="font-size:0.82rem;color:#aaa;margin:8px 0 0 0;line-height:1.55;">「리포트 저장」을 누르면 서버 저장을 시도한 뒤, 아래 <strong>인쇄·PDF 저장</strong> 버튼이 나타납니다. (처음에는 PDF 버튼이 숨겨져 있습니다.)</p>
             <button type="button" id="exam-rpt-submit-save" class="kakao-btn" style="margin-top:8px;">리포트 저장 · PDF 안내</button>
@@ -3487,7 +3493,7 @@
                     btn.addEventListener('click', function () {
                         examRptAdminSelectedId = btn.getAttribute('data-id') || '';
                         listEl.querySelectorAll('.exam-rpt-admin-pick').forEach(function (b) {
-                            b.style.outline = b === btn ? '1px solid #9fe870' : '';
+                            b.style.outline = b === btn ? '1px solid #ff9a5c' : '';
                         });
                     });
                 });
@@ -3594,12 +3600,6 @@
                 examRptRestoreWorkspaceUi();
             }
             if (ws) ws.style.display = 'block';
-            const nm = document.getElementById('exam-rpt-display-name');
-            if (nm) nm.textContent = (localStorage.getItem('trigger_name') || '').trim() || '—';
-            const gr = document.getElementById('exam-rpt-display-grade');
-            const savedG = (localStorage.getItem('trigger_saved_exam_grade') || '').trim();
-            const urlG = params.get('grade') || '';
-            if (gr) gr.textContent = savedG || urlG || '—';
             examRptSyncAdminSection();
         }
 
@@ -3881,7 +3881,7 @@
                 ctx.arc(x, y, 7, 0, Math.PI * 2);
                 ctx.fillStyle = '#39ff14';
                 ctx.fill();
-                ctx.strokeStyle = '#9fe870';
+                ctx.strokeStyle = '#ff9a5c';
                 ctx.lineWidth = 2;
                 ctx.stroke();
                 ctx.fillStyle = '#ddd';
@@ -3925,7 +3925,7 @@
             });
             ctx.textAlign = 'left';
             const last = pts[pts.length - 1];
-            ctx.fillStyle = '#9fe870';
+            ctx.fillStyle = '#ff9a5c';
             ctx.font = '11px sans-serif';
             ctx.fillText('최근 총점 ' + examRptFmt1(last.totalAcc) + '%', padL, padT - 2);
         }
@@ -3950,7 +3950,7 @@
                 }
                 return '<tr style="' + rowStyle + '"><td style="padding:8px;border-bottom:1px solid #222;">' + n + '</td><td style="padding:8px;border-bottom:1px solid #222;">' + (isEs ? '서술' : '객관식') + '</td><td style="padding:8px;border-bottom:1px solid #222;"><input type="number" min="0" step="0.1" class="exam-points-in" data-n="' + n + '" style="width:64px;background:#111;border:1px solid #444;color:#fff;border-radius:6px;" value="' + examRptFmt1(q.points) + '"></td><td style="padding:8px;border-bottom:1px solid #222;">' + cell + '</td></tr>';
             }).join('');
-            wrap.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:0.88rem;"><thead><tr style="color:#9fe870;"><th style="text-align:left;padding:8px;">번호</th><th style="text-align:left;padding:8px;">유형</th><th style="text-align:left;padding:8px;">배점</th><th style="text-align:left;padding:8px;">획득·채점</th></tr></thead><tbody>' + rows + '</tbody></table>';
+            wrap.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:0.88rem;"><thead><tr style="color:#ff9a5c;"><th style="text-align:left;padding:8px;">번호</th><th style="text-align:left;padding:8px;">유형</th><th style="text-align:left;padding:8px;">배점</th><th style="text-align:left;padding:8px;">획득·채점</th></tr></thead><tbody>' + rows + '</tbody></table>';
             const hint = document.getElementById('exam-rpt-total-points-hint');
             if (hint) {
                 let hintText = '인식된 배점 합계: ' + examRptFmt1(totalPts) + '점';
@@ -4056,7 +4056,7 @@
                           '%</td></tr>'
                         : '<tr><td style="padding:8px;border-bottom:1px solid #333;">서술형</td><td colspan="4" style="padding:8px;border-bottom:1px solid #333;color:#666;">해당 없음</td></tr>';
                 el.innerHTML =
-                    '<table style="width:100%;border-collapse:collapse;font-size:1.08rem;margin-top:4px;table-layout:fixed;"><thead><tr style="color:#9fe870;font-size:0.92rem;"><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">구분</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">문항</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">만점</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">획득</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">대비</th></tr></thead><tbody>' +
+                    '<table style="width:100%;border-collapse:collapse;font-size:1.08rem;margin-top:4px;table-layout:fixed;"><thead><tr style="color:#ff9a5c;font-size:0.92rem;"><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">구분</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">문항</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">만점</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">획득</th><th style="text-align:left;padding:8px;border-bottom:1px solid #444;white-space:nowrap;">대비</th></tr></thead><tbody>' +
                     mcRow +
                     esRow +
                     '<tr style="color:#fff;"><td style="padding:8px;">전체</td><td style="padding:8px;">' +
@@ -4292,7 +4292,8 @@
             const school = (document.getElementById('exam-rpt-school') && document.getElementById('exam-rpt-school').value || '').trim() || '—';
             const examSel = document.getElementById('exam-rpt-exam-type');
             const examLabel = examSel && examSel.options[examSel.selectedIndex] ? examSel.options[examSel.selectedIndex].text : '시험';
-            const grade = (document.getElementById('exam-rpt-display-grade') && document.getElementById('exam-rpt-display-grade').textContent || '').trim() || '—';
+            const grade =
+                ((localStorage.getItem('trigger_saved_exam_grade') || '').trim() || params.get('grade') || '').trim() || '—';
             const t = examRptComputeTotals();
             const fmt = examRptFmt1;
             const desc =
@@ -4428,7 +4429,7 @@
             const school = (document.getElementById('exam-rpt-school') && document.getElementById('exam-rpt-school').value || '').trim();
             const examSel = document.getElementById('exam-rpt-exam-type');
             const examLabel = examSel && examSel.options[examSel.selectedIndex] ? examSel.options[examSel.selectedIndex].text : '';
-            const grade = (document.getElementById('exam-rpt-display-grade') && document.getElementById('exam-rpt-display-grade').textContent || '').trim();
+            const grade = ((localStorage.getItem('trigger_saved_exam_grade') || '').trim() || params.get('grade') || '').trim();
             const t = examRptComputeTotals();
             const fmt = examRptFmt1;
             const aiEl = document.getElementById('exam-rpt-ai-diagnosis');
