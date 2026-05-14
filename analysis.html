@@ -1187,6 +1187,16 @@
             return data;
         }
 
+        function withAnalyzeAuth(payload) {
+            if (!authUserId || !authPassword) {
+                throw new Error('자동 연결 완료 후 다시 시도해 주세요.');
+            }
+            return Object.assign({}, payload || {}, {
+                user_id: authUserId,
+                password: authPassword
+            });
+        }
+
         async function syncLoad() {
             const data = await postJson('/api/sync/load', { user_id: authUserId, password: authPassword });
             isPremiumUser = Number(data.is_premium) === 1;
@@ -4323,7 +4333,7 @@
                     const r = await fetch(u, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload),
+                        body: JSON.stringify(withAnalyzeAuth(payload)),
                     });
                     const data = await r.json().catch(() => ({}));
                     if (!r.ok) {
@@ -4438,7 +4448,7 @@
                 };
                 let data = null;
                 for (const u of [base + '/api/analyze', base + '/']) {
-                    const r = await fetch(u, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    const r = await fetch(u, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(withAnalyzeAuth(payload)) });
                     data = await r.json().catch(() => ({}));
                     if (!r.ok) continue;
                     if (data && data.error) continue;
@@ -4836,7 +4846,7 @@
                                 method: 'POST',
                                 cache: 'no-store',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify(payload)
+                                body: JSON.stringify(withAnalyzeAuth(payload))
                             });
                             const d = await r.json().catch(() => ({}));
                             if (!r.ok) throw new Error((d && (d.error?.message || d.error)) ? (d.error.message || d.error) : `HTTP ${r.status}`);
