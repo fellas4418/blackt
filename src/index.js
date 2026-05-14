@@ -336,20 +336,31 @@ async function handleSyncDelete(env, body) {
   return json({ error: "지원하지 않는 삭제 타입입니다." }, 400);
 }
 
-/**
- * POST /api/analyze — Gemini generateContent 프록시(요청 본문 그대로 전달).
- * 지문 유형·passage_layout JSON 스키마는 analysis.html 분석 프롬프트에서 정의되며,
- * Worker는 본문 검증·변환을 하지 않습니다. (향후 서버 검증 추가 시 이 주석 근처 확장)
- */
 async function handleGeminiProxy(env, request) {
   const body = await request.json();
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return json({ error: "invalid_json" }, 400);
+  }
+
+  const userId = String(body.user_id || body.userId || "").trim();
+  const password = String(body.password || body.auth_password || "");
+  if (!(await verifyUser(env, userId, password))) return json({ error: "인증 실패" }, 401);
+
+  const {
+    user_id: _userId,
+    userId: _userIdCamel,
+    password: _password,
+    auth_password: _authPassword,
+    ...geminiPayload
+  } = body;
+
   const model = env.GEMINI_MODEL || "gemini-2.5-flash";
   const endpoint =
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`;
   const response = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    body: JSON.stringify(geminiPayload),
   });
   const data = await response.json();
   return json(data, response.status);
