@@ -32,6 +32,28 @@
         #analysis-passage-zone #ai-report-area .translation-passage-card {
             border: none;
         }
+        #analysis-passage-zone #ai-report-area .result-card {
+            padding: 18px 10px;
+            box-sizing: border-box;
+        }
+        #analysis-passage-zone .passage-ai-report-stack {
+            margin-bottom: 25px;
+            padding: 0 10px;
+            box-sizing: border-box;
+            max-width: 100%;
+        }
+        #analysis-passage-zone .passage-report-heading {
+            margin: 0 0 12px 0;
+            padding: 0;
+            text-align: left;
+            color: var(--neon-green);
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        .passage-zone .passage-zone-desc-lines {
+            margin: 0;
+            line-height: 1.58;
+        }
         
         .result-label { font-size: 1.1rem; color: var(--neon-blue); font-weight: bold; margin-bottom: 10px; display: block; letter-spacing: 1px; }
         .result-content { font-size: 0.95rem; line-height: 1.7; color: #eee; }
@@ -44,8 +66,7 @@
             margin-bottom: 6px;
             line-height: 1.48;
             font-weight: 400;
-            text-align: justify;
-            text-justify: inter-word;
+            text-align: left;
         }
         .kor-text { font-size: 0.95rem; color: #aaa; }
         #translation-rows-root.passage-hide-kor .kor-text {
@@ -401,6 +422,8 @@
         .passage-zone .analysis-zone-desc-body,
         .exam-zone .analysis-zone-desc-body {
             font-size: 0.85rem;
+        }
+        .exam-zone .analysis-zone-desc-body {
             line-height: 1.52;
         }
         .exam-zone-desc-highlight {
@@ -563,8 +586,7 @@
         <header class="analysis-zone-label">
             <div class="analysis-zone-title-row">📷 지문 분석</div>
             <div class="analysis-zone-desc">
-                <div class="analysis-zone-desc-body">지문을 촬영하면 트리거 AI의 실시간 정밀 분석이 시작됩니다.</div>
-                <div class="analysis-zone-desc-body">선명하게 찍을수록 정확도가 올라갑니다. <span class="passage-zone-desc-highlight">한 문항(한 지문)만 프레임에 맞게 찍어 주세요.</span></div>
+                <div class="analysis-zone-desc-body passage-zone-desc-lines">지문을 촬영하면 트리거 AI의 실시간 정밀 분석이 시작됩니다.<br>선명하게 찍을수록 정확도가 올라갑니다. <span class="passage-zone-desc-highlight">한 문항(한 지문)만 프레임에 맞게 찍어 주세요.</span></div>
             </div>
         </header>
         <div id="passage-source-below-header" class="passage-source-below-header">
@@ -607,7 +629,10 @@
     </div>
 
     <div id="result-section">
-        <div style="margin-bottom: 25px;"><h4 style="color: var(--neon-green); margin-top: 0; font-size: 1.1rem;">✅ AI 정밀 분석 보고서 <span id="analysis-source-badge" style="display:none; margin-left:8px; font-size:0.72rem; color:#111; background:#9fe870; border-radius:999px; padding:2px 8px; vertical-align:middle;">기존 분석 결과 불러옴</span></h4><div id="ai-report-area"></div></div>
+        <div class="passage-ai-report-stack">
+            <h4 class="passage-report-heading">✅ AI 정밀 분석 보고서 <span id="analysis-source-badge" style="display:none; margin-left:8px; font-size:0.72rem; color:#111; background:#9fe870; border-radius:999px; padding:2px 8px; vertical-align:middle;">기존 분석 결과 불러옴</span></h4>
+            <div id="ai-report-area"></div>
+        </div>
         
         <div class="guide-box" style="border-color: #b537f2; background: rgba(181, 55, 242, 0.05); margin-top: 25px;">
             <p class="guide-title" style="color: #d789ff; font-size:1.1rem;">🔥 근본적인 독해력을 올리고 싶다면?</p>
@@ -1733,7 +1758,7 @@
             return bestScore > 0 ? best : -1;
         }
 
-        function wrapPhrasesInPlainSegment(segment, phrasesSorted) {
+        function wrapPhrasesInPlainSegment(segment, phrasesSorted, globalPhraseOnce) {
             if (!segment || !phrasesSorted.length) return segment;
             const lowerSeg = segment.toLowerCase();
             const intervals = [];
@@ -1744,7 +1769,7 @@
                 while (pos < segment.length) {
                     const idx = lowerSeg.indexOf(phLow, pos);
                     if (idx === -1) break;
-                    intervals.push({ s: idx, e: idx + ph.length, len: ph.length });
+                    intervals.push({ s: idx, e: idx + ph.length, len: ph.length, phLow: phLow });
                     pos = idx + ph.length;
                 }
             });
@@ -1768,21 +1793,28 @@
             let cur = 0;
             chosen.forEach(function (u) {
                 out += segment.slice(cur, u.s);
-                out +=
-                    '<span class="passage-topic-kw" data-passage-kw="1">' +
-                    segment.slice(u.s, u.e) +
-                    '</span>';
+                const slice = segment.slice(u.s, u.e);
+                const phKey = u.phLow;
+                if (globalPhraseOnce && phKey && globalPhraseOnce.has(phKey)) {
+                    out += slice;
+                } else {
+                    out +=
+                        '<span class="passage-topic-kw" data-passage-kw="1">' +
+                        slice +
+                        '</span>';
+                    if (globalPhraseOnce && phKey) globalPhraseOnce.add(phKey);
+                }
                 cur = u.e;
             });
             out += segment.slice(cur);
             return out;
         }
 
-        function wrapTopicKeywordPhrasesInEngHtml(html, phrasesSorted) {
+        function wrapTopicKeywordPhrasesInEngHtml(html, phrasesSorted, globalPhraseOnce) {
             if (!html || !phrasesSorted.length) return html;
             return html.split(/(<[^>]+>)/g).map(function (part) {
                 if (part.charAt(0) === '<') return part;
-                return wrapPhrasesInPlainSegment(part, phrasesSorted);
+                return wrapPhrasesInPlainSegment(part, phrasesSorted, globalPhraseOnce);
             }).join('');
         }
 
@@ -3082,6 +3114,7 @@
 
             let transRowsHtml = '';
             const passageLayoutCardHtml = buildPassageLayoutCardHtml(res);
+            const passageTopicKwOnce = new Set();
             if (res.full_translation && Array.isArray(res.full_translation)) {
                 transRowsHtml = res.full_translation.map((s, rowIdx) => {
                     let subLine = '';
@@ -3138,7 +3171,7 @@
                         });
                     }
 
-                    finalEng = wrapTopicKeywordPhrasesInEngHtml(finalEng, topicKwPhrases);
+                    finalEng = wrapTopicKeywordPhrasesInEngHtml(finalEng, topicKwPhrases, passageTopicKwOnce);
 
                     finalEng = applyEngFragmentClickableKeywords(finalEng, aiKeywordsObj);
 
