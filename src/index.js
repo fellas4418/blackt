@@ -252,7 +252,9 @@ async function handleChatAsk(env, body) {
 
   const premRow = await env.DB.prepare("SELECT is_premium FROM users WHERE id = ?1").bind(userId).first();
   const isPremium = premRow && Number(premRow.is_premium) === 1;
-  if (!isPremium) return json({ error: "premium_required" }, 403);
+  const allowChatWithoutPremium =
+    String(env.ALLOW_CHAT_ASK_WITHOUT_PREMIUM || "").toLowerCase() === "true";
+  if (!isPremium && !allowChatWithoutPremium) return json({ error: "premium_required" }, 403);
 
   const question = String(body.question || "").trim();
   const contextSentence = String(body.context_sentence || "").trim();

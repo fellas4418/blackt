@@ -9,3 +9,7 @@ database_id = "712accf3-9e1d-4de7-8274-dbe5975ae5fc"
 
 # /api/payment/confirm 검증용: wrangler secret put API_SECRET_KEY
 # 시험 분석 리포트: POST /api/exam-report/extract | /save | /list | /get (D1 exam_analysis)
+#
+# 로컬에서 /api/chat/ask 를 비프리미엄 계정으로 시험할 때만 아래를 true 로 두세요. 배포 환경에서는 반드시 false.
+[vars]
+ALLOW_CHAT_ASK_WITHOUT_PREMIUM = "false"
