@@ -45,7 +45,7 @@
         }
         .passage-toggle-btn {
             background: rgba(0, 0, 0, 0.4);
-            border: 1px solid #444;
+            border: 1px solid rgba(200, 210, 220, 0.45);
             color: #c8cdd4;
             padding: 8px 14px;
             border-radius: 999px;
@@ -55,7 +55,7 @@
             white-space: nowrap;
             transition: border-color 0.15s, color 0.15s, background 0.15s;
         }
-        .passage-toggle-btn:hover { border-color: #666; color: #fff; }
+        .passage-toggle-btn:hover { border-color: rgba(220, 228, 236, 0.65); color: #fff; }
         .passage-toggle-btn.is-on {
             border-color: rgba(159, 232, 112, 0.85);
             color: #e8ffd0;
@@ -74,11 +74,11 @@
             margin: -2px 0 4px;
         }
         #translation-rows-root.passage-show-kw .passage-topic-kw {
-            border: 2px solid rgba(0, 243, 255, 0.72);
+            border: 2px solid rgba(255, 75, 75, 0.92);
             border-radius: 12px;
             padding: 1px 6px;
             margin: 0 2px;
-            box-shadow: 0 0 0 1px rgba(0, 243, 255, 0.18);
+            box-shadow: 0 0 0 1px rgba(255, 60, 60, 0.35), 0 0 10px rgba(255, 50, 50, 0.18);
             display: inline-block;
         }
         .passage-topic-kw {
@@ -486,7 +486,7 @@
             <button id="ocr-btn" onclick="runGeminiAnalysis()" class="start-btn" style="border-color: var(--neon-orange);">트리거 AI 정밀 분석 시작 🔍</button>
         </div>
         <div id="passage-history-bar" style="margin-top: 18px; margin-bottom: 12px;">
-            <button type="button" id="passage-history-toggle" class="login-btn" style="width:100%; margin-top:0; border-color:var(--neon-orange); color:#ffb36b;">📚 저장된 지문 분석 보기</button>
+            <button type="button" id="passage-history-toggle" class="login-btn" style="width:100%; margin-top:0; border-color:var(--neon-orange); color:#ffb36b;">📚 이전 지문 분석 기록 보기</button>
             <div id="passage-history-body" style="display:none; margin-top:10px; max-height:240px; overflow-y:auto; border:1px solid #333; border-radius:12px; padding:8px 6px; background:rgba(0,0,0,0.35);"></div>
         </div>
         <div style="margin-top: 16px; text-align: center;">
@@ -2413,7 +2413,7 @@
                     '</div>' +
                     '<div style="padding-top:2px;">' +
                     '<p class="gk-topic-hint">아래 <strong style="color:#e8eaed;">①②③ 주제문</strong>은 이 키워드들을 반영해 만들었어요.</p>' +
-                    '<p class="gk-topic-hint">보기 고르기에서는 위 표현들을 <strong style="color:#e8eaed;">함께 잘 드러내는</strong> 선택지가 정답에 가깝습니다.</p>' +
+                    '<p class="gk-topic-hint">주제를 고를 때는 위의 키워드들이 나타난 선택지가 정답에 가깝습니다.</p>' +
                     '<p class="gk-topic-hint">해석 카드 오른쪽 <strong style="color:#e8eaed;">주제문 보기·키워드 보기</strong>를 켜면 영어 원문 줄에 바로 표시돼요.</p>' +
                     '</div></div>';
             }
@@ -2448,7 +2448,7 @@
                         '<div style="color:#888;font-size:0.92rem;margin-bottom:10px;">(이 유형의 주제문은 이번 분석에서 비어 있을 수 있어요. 재분석 시 모델이 채웁니다.)</div>';
                 }
                 if (interp) {
-                    inner += '<div style="font-size:0.93rem;color:#d5dbe8;margin-bottom:8px;line-height:1.55;"><strong style="color:#b8c0cc;">해석</strong> ' + escapeHtml(interp) + '</div>';
+                    inner += '<div style="font-size:0.93rem;color:#d5dbe8;margin-bottom:8px;line-height:1.55;"><span style="color:#7d8694;font-weight:700;margin-right:0.35em;">:</span><strong style="color:#b8c0cc;">해석</strong> ' + escapeHtml(interp) + '</div>';
                 }
                 inner += '<div style="font-size:0.82rem;color:#9aa;margin:8px 0 4px;">주요 단어 <span style="color:#7a8088;font-weight:normal;">(클릭하면 뜻)</span></div>';
                 inner += '<div>' + buildGkKeyTermsHtml(v.key_terms) + '</div>';
@@ -2839,9 +2839,10 @@
 
             let grammarHtml = '';
             let grammarListWrap = '';
+            const GRAMMAR_PREVIEW_VISIBLE = 2;
             let savedGrammarList = savedGrammarCache;
-            if(res.grammar && res.grammar.length > 0) {
-                grammarHtml = res.grammar.map((g, i) => {
+            if (res.grammar && res.grammar.length > 0) {
+                const grammarBoxes = res.grammar.map((g, i) => {
                     const safePoint = String(g.point || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
                     const safeSentence = String(g.sentence || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
                     const safeExplanation = String(g.explanation || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
@@ -2856,17 +2857,21 @@
                         <div style="color:#ddd; font-size:0.85rem; font-style:italic; margin-bottom:6px;">"${g.sentence}"</div>
                         <div style="color:#eee; font-size:0.9rem;">${g.explanation}</div>
                     </div>
-                `}).join('');
+                `;
+                });
+                grammarHtml = grammarBoxes.join('');
+                if (grammarBoxes.length > GRAMMAR_PREVIEW_VISIBLE) {
+                    grammarListWrap =
+                        grammarBoxes.slice(0, GRAMMAR_PREVIEW_VISIBLE).join('') +
+                        '<button type="button" id="grammar-list-toggle-btn" class="grammar-list-toggle-btn" onclick="toggleGrammarPointList()">문법 포인트 펼치기 ▼</button>' +
+                        '<div id="grammar-list-body" style="display:none;margin-top:12px;">' +
+                        grammarBoxes.slice(GRAMMAR_PREVIEW_VISIBLE).join('') +
+                        '</div>';
+                } else {
+                    grammarListWrap = grammarHtml;
+                }
             } else {
                 grammarHtml = '<div style="color:#888; font-size:0.9rem;">특이한 특수 구문은 발견되지 않았습니다.</div>';
-            }
-            if (res.grammar && res.grammar.length > 0) {
-                grammarListWrap =
-                    '<button type="button" id="grammar-list-toggle-btn" class="grammar-list-toggle-btn" onclick="toggleGrammarPointList()">문법 포인트 펼치기 ▼</button>' +
-                    '<div id="grammar-list-body" style="display:none;margin-top:12px;">' +
-                    grammarHtml +
-                    '</div>';
-            } else {
                 grammarListWrap = grammarHtml;
             }
 
