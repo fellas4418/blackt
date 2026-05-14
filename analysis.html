@@ -902,8 +902,7 @@
         <header class="analysis-zone-label">
             <div class="analysis-zone-title-row">📋 시험 분석 리포트 생성</div>
             <div class="analysis-zone-desc">
-                <div class="analysis-zone-desc-body">문항·배점 추출 → 오답·서술 입력 → 파이·추이 그래프 → 오답 유형별 AI 진단까지 한 번에 이어지는 리포트를 만듭니다.</div>
-                <div class="analysis-zone-desc-body"><span class="exam-zone-desc-highlight">1쪽부터 마지막 서술형까지 다 찍어야</span> 정확한 리포트가 나옵니다.</div>
+                <div class="analysis-zone-desc-body">문항·배점 추출 → 오답·서술 입력 → 파이·추이 그래프 → 오답 유형별 AI 진단까지 한 번에 이어지는 리포트를 만듭니다. <span class="exam-zone-desc-highlight">1쪽부터 마지막 서술형까지 다 찍어야</span> 정확한 리포트가 나옵니다.</div>
             </div>
         </header>
         <div class="analysis-zone-body">
@@ -947,6 +946,11 @@
             <div id="exam-rpt-thumbs" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;"></div>
         </div>
         <button type="button" id="exam-rpt-run-extract" class="start-btn" style="width:100%; margin-top:12px; border-color:var(--neon-orange);">리포트 생성하기</button>
+
+        <div id="exam-rpt-history-bar" style="margin-top: 18px; margin-bottom: 12px;">
+            <button type="button" id="exam-rpt-history-toggle" class="login-btn" style="width:100%; margin-top:0; border-color:var(--neon-orange); color:#ffb36b;">📚 이전 시험 분석 기록 보기</button>
+            <div id="exam-rpt-history-body" style="display:none; margin-top:10px; max-height:240px; overflow-y:auto; border:1px solid #333; border-radius:12px; padding:8px 6px; background:rgba(0,0,0,0.35);"></div>
+        </div>
 
         <div id="exam-rpt-after-extract" style="display:none; margin-top:18px;">
             <div class="result-card">
@@ -3930,6 +3934,241 @@
             examRptSyncDiagnosisButton();
         }
 
+        const EXAM_HISTORY_KEY = 'trigger_analysis_exam_history_v1';
+        const EXAM_HISTORY_MAX = 15;
+        const EXAM_SNAPSHOT_PREFIX = 'trigger_exam_snap_v1::';
+
+        function loadExamHistoryList() {
+            try {
+                const o = JSON.parse(localStorage.getItem(EXAM_HISTORY_KEY) || '[]');
+                return Array.isArray(o) ? o : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveExamHistoryList(list) {
+            try {
+                localStorage.setItem(EXAM_HISTORY_KEY, JSON.stringify(list));
+            } catch (e) {}
+        }
+
+        function examHistoryDeleteSnapshot(id) {
+            if (!id) return;
+            try {
+                localStorage.removeItem(EXAM_SNAPSHOT_PREFIX + id);
+            } catch (e) {}
+        }
+
+        function examRptCollectSnapshot() {
+            const school = (document.getElementById('exam-rpt-school') && document.getElementById('exam-rpt-school').value || '').trim();
+            const examType = (document.getElementById('exam-rpt-exam-type') && document.getElementById('exam-rpt-exam-type').value) || '';
+            return {
+                v: 1,
+                examRptReportId: examRptReportId,
+                examRptImages: Array.isArray(examRptImages)
+                    ? examRptImages.map(function (im) {
+                          return { mimeType: String(im.mimeType || 'image/jpeg'), data: String(im.data || '') };
+                      })
+                    : [],
+                examRptQuestions: JSON.parse(JSON.stringify(examRptQuestions || [])),
+                examRptWrong: JSON.parse(JSON.stringify(examRptWrong || {})),
+                examRptReasons: JSON.parse(JSON.stringify(examRptReasons || {})),
+                examRptEssayEarned: JSON.parse(JSON.stringify(examRptEssayEarned || {})),
+                examRptAiDiagnosis: examRptAiDiagnosis ? JSON.parse(JSON.stringify(examRptAiDiagnosis)) : null,
+                school: school,
+                examType: examType
+            };
+        }
+
+        function examRptApplySnapshot(snap) {
+            if (!snap || Number(snap.v) !== 1) return;
+            examRptReportId =
+                String(snap.examRptReportId || '').trim() ||
+                ((typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'er' + Date.now());
+            examRptImages = Array.isArray(snap.examRptImages) ? snap.examRptImages.filter(function (x) { return x && x.data; }) : [];
+            examRptQuestions = Array.isArray(snap.examRptQuestions) ? examRptNormalizeQuestions(snap.examRptQuestions) : [];
+            examRptWrong = snap.examRptWrong && typeof snap.examRptWrong === 'object' ? snap.examRptWrong : {};
+            examRptReasons = snap.examRptReasons && typeof snap.examRptReasons === 'object' ? snap.examRptReasons : {};
+            examRptEssayEarned = snap.examRptEssayEarned && typeof snap.examRptEssayEarned === 'object' ? snap.examRptEssayEarned : {};
+            examRptAiDiagnosis =
+                snap.examRptAiDiagnosis && typeof snap.examRptAiDiagnosis === 'object' ? snap.examRptAiDiagnosis : null;
+            const sc = document.getElementById('exam-rpt-school');
+            if (sc) sc.value = String(snap.school || '');
+            const ex = document.getElementById('exam-rpt-exam-type');
+            if (ex) ex.value = String(snap.examType || '');
+            examRptEnsureQuestionState();
+            examRptUpdatePhotoUi();
+            const aft = document.getElementById('exam-rpt-after-extract');
+            if (aft) aft.style.display = examRptQuestions.length > 0 ? 'block' : 'none';
+            if (examRptQuestions.length > 0) {
+                examRptRenderQuestions();
+            }
+            const diagOut = document.getElementById('exam-rpt-ai-diagnosis');
+            if (examRptAiDiagnosis && diagOut) {
+                examRptRenderDiagnosisOutput(examRptAiDiagnosis);
+            } else if (diagOut) {
+                diagOut.innerHTML = '';
+            }
+            examRptSyncDiagnosisButton();
+            const runBtn = document.getElementById('exam-rpt-run-extract');
+            if (runBtn) {
+                runBtn.disabled = false;
+                runBtn.innerHTML =
+                    examRptQuestions.length > 0 ? '분석 완료! 아래 리포트를 확인해 주세요.' : '리포트 생성하기';
+            }
+        }
+
+        function examHistoryUpsertFromCurrent() {
+            try {
+                if (!examRptQuestions || examRptQuestions.length === 0) return;
+                if (!examRptReportId || !String(examRptReportId).trim()) {
+                    examRptReportId =
+                        (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'er' + Date.now();
+                }
+                const school = (document.getElementById('exam-rpt-school') && document.getElementById('exam-rpt-school').value || '').trim();
+                const examTypeEl = document.getElementById('exam-rpt-exam-type');
+                const examType = (examTypeEl && examTypeEl.value) || '';
+                let examLabel = '';
+                try {
+                    if (examTypeEl && examTypeEl.options && examTypeEl.selectedIndex >= 0) {
+                        examLabel = String(examTypeEl.options[examTypeEl.selectedIndex].text || '').trim();
+                    }
+                } catch (e) {}
+                const t = examRptComputeTotals();
+                const fmt = examRptFmt1;
+                const diagHint =
+                    examRptAiDiagnosis && String(examRptAiDiagnosis.summary || '').trim() ? ' · AI총평' : '';
+                const title =
+                    (school || '학교') +
+                    ' · ' +
+                    (examLabel || examType || '시험') +
+                    ' · 총점 ' +
+                    fmt(t.totalAcc) +
+                    '%' +
+                    diagHint;
+                const snap = examRptCollectSnapshot();
+                try {
+                    localStorage.setItem(EXAM_SNAPSHOT_PREFIX + examRptReportId, JSON.stringify(snap));
+                } catch (err) {
+                    try {
+                        const lite = Object.assign({}, snap, { examRptImages: [] });
+                        localStorage.setItem(EXAM_SNAPSHOT_PREFIX + examRptReportId, JSON.stringify(lite));
+                    } catch (err2) {
+                        return;
+                    }
+                }
+                let list = loadExamHistoryList().filter(function (x) {
+                    return x && x.id !== examRptReportId;
+                });
+                list.unshift({ id: examRptReportId, title: title, ts: Date.now() });
+                while (list.length > EXAM_HISTORY_MAX) {
+                    const rm = list.pop();
+                    if (rm && rm.id) examHistoryDeleteSnapshot(rm.id);
+                }
+                saveExamHistoryList(list);
+                renderExamHistoryPanel();
+            } catch (e) {}
+        }
+
+        function examHistoryRemoveItem(id) {
+            if (!id) return;
+            const list = loadExamHistoryList().filter(function (x) {
+                return x && x.id !== id;
+            });
+            saveExamHistoryList(list);
+            examHistoryDeleteSnapshot(id);
+            renderExamHistoryPanel();
+        }
+
+        function openExamHistoryItem(id) {
+            if (!id) return;
+            let raw = null;
+            try {
+                raw = localStorage.getItem(EXAM_SNAPSHOT_PREFIX + id);
+            } catch (e) {
+                raw = null;
+            }
+            if (!raw) {
+                alert('이 기기에 저장된 시험 분석이 없거나 저장 공간 정리로 지워졌어요.');
+                return;
+            }
+            let snap;
+            try {
+                snap = JSON.parse(raw);
+            } catch (e) {
+                alert('저장 데이터를 읽지 못했어요.');
+                return;
+            }
+            examRptApplySnapshot(snap);
+            try {
+                switchAnalysisMainTab('exam');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (e) {}
+        }
+
+        function renderExamHistoryPanel() {
+            const body = document.getElementById('exam-rpt-history-body');
+            if (!body) return;
+            const list = loadExamHistoryList();
+            if (list.length === 0) {
+                body.innerHTML =
+                    '<p style="margin:8px;font-size:0.85rem;color:#888;text-align:center;line-height:1.55;">저장된 시험 분석이 없어요.<br>리포트를 만든 뒤 AI 진단·저장 시 이 기기에 자동으로 쌓여요.</p>';
+                return;
+            }
+            body.innerHTML = list
+                .map(function (row, idx) {
+                    if (!row || !row.id) return '';
+                    const num = idx + 1;
+                    const safeTitle = escapeHtml(String(row.title || '시험').substring(0, 120));
+                    const safeId = escapeHtml(String(row.id));
+                    const dlab = escapeHtml(fmtPassageHistoryDate(row.ts));
+                    return (
+                        '<div style="display:flex;align-items:stretch;gap:6px;padding:6px 4px;border-bottom:1px solid #222;">' +
+                        '<button type="button" class="exam-history-open" data-id="' +
+                        safeId +
+                        '" style="flex:1;text-align:left;background:rgba(255,255,255,0.04);border:1px solid #333;color:#eee;cursor:pointer;font-size:0.86rem;line-height:1.45;padding:8px 10px;border-radius:8px;">' +
+                        '<span style="color:var(--neon-orange);font-weight:bold;margin-right:6px;">' +
+                        num +
+                        '.</span>' +
+                        '<span style="color:#888;font-size:0.72rem;">' +
+                        dlab +
+                        '</span><br>' +
+                        safeTitle +
+                        '</button>' +
+                        '<button type="button" class="exam-history-del" data-id="' +
+                        safeId +
+                        '" style="flex-shrink:0;align-self:center;padding:8px 10px;border-radius:8px;border:1px solid #555;background:#1a1a1a;color:#aaa;cursor:pointer;font-size:0.74rem;">삭제</button>' +
+                        '</div>'
+                    );
+                })
+                .join('');
+            body.querySelectorAll('.exam-history-open').forEach(function (b) {
+                b.addEventListener('click', function () {
+                    openExamHistoryItem(b.getAttribute('data-id'));
+                });
+            });
+            body.querySelectorAll('.exam-history-del').forEach(function (b) {
+                b.addEventListener('click', function (ev) {
+                    ev.stopPropagation();
+                    if (confirm('이 항목을 저장함에서 삭제할까요?')) examHistoryRemoveItem(b.getAttribute('data-id'));
+                });
+            });
+        }
+
+        (function initExamHistoryUi() {
+            const t = document.getElementById('exam-rpt-history-toggle');
+            const body = document.getElementById('exam-rpt-history-body');
+            if (t && body) {
+                t.addEventListener('click', function () {
+                    const open = body.style.display !== 'block';
+                    body.style.display = open ? 'block' : 'none';
+                    if (open) renderExamHistoryPanel();
+                });
+            }
+            renderExamHistoryPanel();
+        })();
+
         function examRptSyncDiagnosisButton() {
             const btn = document.getElementById('exam-rpt-gen-diagnosis');
             if (!btn) return;
@@ -4745,6 +4984,9 @@
                 examRptEnsureQuestionState();
                 document.getElementById('exam-rpt-after-extract').style.display = 'block';
                 examRptRenderQuestions();
+                try {
+                    examHistoryUpsertFromCurrent();
+                } catch (e) {}
             } catch (e) {
                 alert(e.message || String(e));
             } finally {
@@ -4806,6 +5048,9 @@
                 }
                 examRptAiDiagnosis = obj;
                 examRptRenderDiagnosisOutput(obj);
+                try {
+                    examHistoryUpsertFromCurrent();
+                } catch (e) {}
             } catch (e) {
                 alert('AI 진단 생성 실패: ' + (e.message || e));
             } finally {
@@ -5050,6 +5295,9 @@
                     pdfB.style.display = 'block';
                     pdfB.onclick = examRptOpenPdfWindow;
                 }
+                try {
+                    examHistoryUpsertFromCurrent();
+                } catch (e) {}
             };
             try {
                 await postJson('/api/exam-report/save', saveBody);
