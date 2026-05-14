@@ -245,16 +245,11 @@ async function handleChatAsk(env, body) {
    * 권한 확장 포인트(주석):
    * 향후 users.is_premium 외에 video_package / prepass / golden_key_entitlement 등
    * 별도 컬럼·JSON entitlement로 분기해 이 엔드포인트 접근을 세분화할 수 있음.
+   * 현재: 로그인(verifyUser)만 통과하면 질문·답변 허용.
    */
   const userId = String(body.user_id || "").trim();
   const password = String(body.password || "");
   if (!(await verifyUser(env, userId, password))) return json({ error: "인증 실패" }, 401);
-
-  const premRow = await env.DB.prepare("SELECT is_premium FROM users WHERE id = ?1").bind(userId).first();
-  const isPremium = premRow && Number(premRow.is_premium) === 1;
-  const allowChatWithoutPremium =
-    String(env.ALLOW_CHAT_ASK_WITHOUT_PREMIUM || "").toLowerCase() === "true";
-  if (!isPremium && !allowChatWithoutPremium) return json({ error: "premium_required" }, 403);
 
   const question = String(body.question || "").trim();
   const contextSentence = String(body.context_sentence || "").trim();

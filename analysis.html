@@ -680,6 +680,28 @@
         }
 
         #premium-ai-ask-panel textarea { width: 100%; min-height: 72px; box-sizing: border-box; background: #111; border: 1px solid #444; color: #fff; border-radius: 10px; padding: 10px; font-size: 0.92rem; margin-top: 8px; }
+        #premium-ai-ask-panel .ai-ask-reply-block {
+            margin-top: 14px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(57, 255, 20, 0.4);
+        }
+        #premium-ai-ask-panel .ai-ask-reply-label {
+            font-size: 0.84rem;
+            font-weight: 800;
+            color: #9fe870;
+            margin: 0 0 8px;
+            letter-spacing: -0.02em;
+        }
+        #premium-ai-ask-panel #ai-ask-reply {
+            margin-top: 0;
+            min-height: 2.6em;
+            font-size: 0.92rem;
+            color: #f0f2f5;
+            line-height: 1.55;
+            white-space: pre-wrap;
+        }
         #chat-history-modal { position: fixed; inset: 0; z-index: 35000; background: rgba(0,0,0,0.92); display: none; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; }
         #chat-history-modal .chat-history-inner { background: #111; border: 1px solid #444; border-radius: 16px; max-width: 480px; width: 100%; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; }
         #chat-history-list { overflow-y: auto; padding: 12px; flex: 1; font-size: 0.88rem; color: #ddd; line-height: 1.5; }
@@ -795,7 +817,7 @@
 
         <div id="premium-ai-ask-panel" style="display:none; margin-top: 22px; border: 1px solid rgba(57,255,20,0.45); border-radius: 16px; padding: 16px; background: rgba(57,255,20,0.06);">
             <div style="font-weight: 900; color: #39ff14; margin-bottom: 10px; font-size: 1.02rem;">트리거 AI로 1:1 질문 해결</div>
-            <p style="font-size:0.82rem;color:#aaa;margin:0 0 10px;line-height:1.5;">지문·문법·단어 등 막히는 부분을 적어 주세요. 문장 줄을 골라 두면 그 맥락 위주로, 안 고르면 일반 질문으로 답해 드려요. (약 200자·3단 구성)</p>
+            <p style="font-size:0.82rem;color:#aaa;margin:0 0 10px;line-height:1.5;">지문·문법·단어 등 막히는 부분을 적어 주세요. 문장 줄을 골라 두면 그 맥락 위주로, 안 고르면 일반 질문으로 답해 드려요. (약 200자·3단 구성) <strong style="color:#c8e8b0;">답은 이 박스 맨 아래 초록 테두리 칸에 바로 뜹니다.</strong></p>
             <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
                 <button type="button" id="btn-sentence-pick-toggle" class="login-btn" style="margin:0;border-color:var(--neon-blue);color:var(--neon-blue);">질문할 문장 선택</button>
                 <button type="button" id="btn-sentence-pick-done" class="login-btn" style="margin:0;display:none;border-color:#9fe870;color:#9fe870;">선택 완료</button>
@@ -804,7 +826,10 @@
             <div id="picked-sentence-preview" style="display:none; font-size:0.85rem; color:#9fe870; background:#151515; border:1px solid #333; border-radius:8px; padding:10px; margin-bottom:8px; line-height:1.45;"></div>
             <textarea id="ai-ask-input" placeholder="궁금한 점을 입력해 주세요."></textarea>
             <button type="button" id="ai-ask-submit" class="start-btn" style="width:100%; margin-top:10px; border-color:var(--neon-green);">질문 보내기</button>
-            <div id="ai-ask-reply" style="margin-top:12px; font-size:0.9rem; color:#eee; line-height:1.55; white-space:pre-wrap;"></div>
+            <div id="ai-ask-reply-block" class="ai-ask-reply-block">
+                <div class="ai-ask-reply-label">AI 답변 (질문 보내기 직후 아래에 표시됩니다)</div>
+                <div id="ai-ask-reply" aria-live="polite">여기에 답변이 나옵니다.</div>
+            </div>
         </div>
         
         <div class="guide-box" style="border-color: #b537f2; background: rgba(181, 55, 242, 0.05); margin-top: 25px;">
@@ -1143,15 +1168,6 @@
             if (localStorage.getItem('trigger_admin_mode') === 'true') return true;
             try {
                 if (localStorage.getItem(TOPIC_ANALYSIS_UNLOCK_LS) === '1') return true;
-            } catch (e) {}
-            return false;
-        }
-
-        /** 프리미엄 AI 질문(문장 선택·전송·기록 UI): 유료 또는 관리자 모드에서 시험 가능 */
-        function userCanUsePremiumAiAskFeatures() {
-            if (isPremiumUser) return true;
-            try {
-                if (localStorage.getItem('trigger_admin_mode') === 'true') return true;
             } catch (e) {}
             return false;
         }
@@ -2765,16 +2781,9 @@
                         alert('이름·전화번호로 자동 연결이 완료된 뒤에 질문을 보낼 수 있어요.');
                         return;
                     }
-                    if (!userCanUsePremiumAiAskFeatures()) {
-                        alert(
-                            '질문 보내기는 프리미엄 회원만 사용할 수 있어요.\n\n' +
-                            'UI 테스트: 메인에서 로고·제목 세 번 탭으로 관리자 모드 후 새로고침.\n' +
-                            'API까지 로컬에서 비프리미엄으로 시험하려면 wrangler.toml 의 ALLOW_CHAT_ASK_WITHOUT_PREMIUM 를 true 로 두고 wrangler dev 로 띄우세요.'
-                        );
-                        return;
-                    }
                     const qEl = document.getElementById('ai-ask-input');
                     const out = document.getElementById('ai-ask-reply');
+                    const replyBlock = document.getElementById('ai-ask-reply-block');
                     const q = (qEl && qEl.value ? String(qEl.value) : '').trim();
                     if (!q) {
                         alert('질문을 입력해 주세요.');
@@ -2782,6 +2791,11 @@
                     }
                     if (out) {
                         out.textContent = '답변을 불러오는 중…';
+                    }
+                    if (replyBlock) {
+                        try {
+                            replyBlock.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        } catch (e) {}
                     }
                     try {
                         const data = await postJson('/api/chat/ask', {
@@ -2793,11 +2807,13 @@
                         if (out) out.textContent = data.answer || '';
                     } catch (e) {
                         if (out) {
-                            out.textContent =
-                                e && e.apiError === 'premium_required'
-                                    ? '프리미엄 전용 기능이에요.'
-                                    : (e && e.message) || '요청에 실패했어요.';
+                            out.textContent = (e && e.message) || '요청에 실패했어요.';
                         }
+                    }
+                    if (replyBlock) {
+                        try {
+                            replyBlock.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        } catch (e) {}
                     }
                 });
             }
@@ -2820,13 +2836,6 @@
                 histBtn.addEventListener('click', async function () {
                     if (!authUserId || !authPassword) {
                         alert('이름·전화번호로 자동 연결이 완료된 뒤에 이용할 수 있어요.');
-                        return;
-                    }
-                    if (!userCanUsePremiumAiAskFeatures()) {
-                        alert(
-                            '질문 기록은 프리미엄 회원만 볼 수 있어요.\n\n' +
-                            'UI 테스트: 메인에서 로고·제목 세 번 탭으로 관리자 모드 후 새로고침.'
-                        );
                         return;
                     }
                     if (!modal || !listEl) return;
