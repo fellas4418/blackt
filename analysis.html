@@ -809,8 +809,8 @@
         function inferPassageProblemTypeLabel(res) {
             const pl = res && res.passage_layout && typeof res.passage_layout === 'object' ? res.passage_layout : null;
             const layoutType = pl ? String(pl.type || 'normal').trim().toLowerCase() : 'normal';
-            if (layoutType === 'insertion') return '문장삽입';
-            if (layoutType === 'ordering') return '순서배열';
+            if (layoutType === 'insertion' || layoutType.startsWith('insertion_')) return '문장삽입';
+            if (layoutType === 'ordering' || layoutType.startsWith('ordering_')) return '순서배열';
             if (layoutType === 'grammar') return '어법';
             if (layoutType === 'summary') return '지문요약';
             const hay = collectProblemTypeHaystack(res);
@@ -2285,26 +2285,7 @@
                 );
             }
 
-            const paras = Array.isArray(pl.paragraphs) ? pl.paragraphs : [];
-            if ((t === 'ordering' || (t === 'grammar' && paras.length)) && paras.length) {
-                paras.forEach(function (p, idx) {
-                    const marker = escapeHtml(
-                        String(p.marker || p.label || p.mark || '(' + String.fromCharCode(65 + idx) + ')')
-                    );
-                    const body = decorateCircledNumberMarks(
-                        escapeHtml(String(p.eng_text || p.text || p.body || ''))
-                    );
-                    headParts.push(
-                        '<div class="passage-order-card">' +
-                        '<div class="passage-order-marker">' +
-                        marker +
-                        '</div>' +
-                        '<div class="passage-order-body">' +
-                        body +
-                        '</div></div>'
-                    );
-                });
-            }
+            /* 순서배열 등 (A)(B)(C) 단락은 full_translation 해석 블록에 이미 나오므로 여기서는 중복 표시하지 않음 — 문제 유형 한 줄만 표시 */
 
             if (t === 'normal_clean' && Array.isArray(pl.bulleted_lines) && pl.bulleted_lines.length) {
                 let u = '<ul class="passage-clean-list">';
@@ -2343,8 +2324,17 @@
             }
 
             const inner = (headParts.join('') + tailParts.join('')).trim();
-            if (!inner) return '';
             const typeLabel = inferPassageProblemTypeLabel(res);
+            const layoutTypeRaw = String(pl.type || 'normal').trim().toLowerCase();
+            if (!inner) {
+                if (layoutTypeRaw === 'normal' || layoutTypeRaw === 'normal_clean') return '';
+                return (
+                    '<div class="result-card passage-layout-card" style="border-color:#00f3ff;">' +
+                    '<span class="result-label" style="color:#00f3ff;margin-bottom:0;">문제 유형: ' +
+                    escapeHtml(typeLabel) +
+                    '</span></div>'
+                );
+            }
             return (
                 '<div class="result-card passage-layout-card" style="border-color:#00f3ff;">' +
                 '<span class="result-label" style="color:#00f3ff;margin-bottom:8px;">문제 유형: ' +
