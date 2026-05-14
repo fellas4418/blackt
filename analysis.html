@@ -317,9 +317,53 @@
             padding-left: 1ch;
             box-sizing: border-box;
         }
+        .topic-focus-card .gk-variant-block {
+            padding-left: 1ch;
+            box-sizing: border-box;
+        }
+        .topic-focus-card .gk-variant-block > .gk-variant-label,
+        .topic-focus-card .gk-variant-block .gk-variant-kw-head {
+            padding-left: 0;
+        }
+        .topic-focus-card .gk-variant-block .gk-variant-interp {
+            padding-left: 0;
+        }
         .topic-focus-card .gk-variant-kw-head {
             padding-left: 1ch;
             box-sizing: border-box;
+        }
+        .topic-focus-card .gk-keywords-intro-block {
+            padding-left: 1ch;
+            box-sizing: border-box;
+        }
+        .topic-focus-card .gk-keywords-intro-block > .gk-topic-summary-title {
+            padding-left: 0;
+        }
+        .topic-focus-card .gk-topic-summary-formal {
+            padding-left: 1ch;
+            box-sizing: border-box;
+            text-align: left;
+        }
+        .topic-focus-card .gk-topic-summary-easy-outer {
+            padding-left: 1ch;
+            box-sizing: border-box;
+            text-align: left;
+        }
+        .topic-focus-card .gk-topic-summary-easy-inner {
+            font-size: 0.95rem;
+            color: #c9d0dc;
+            background: #1c1f26;
+            padding: 12px 14px 12px 0;
+            border-radius: 10px;
+            line-height: 1.55;
+            border: 1px solid #333;
+            text-align: left;
+        }
+        #analysis-passage-zone .passage-background-knowledge {
+            padding-left: 1ch;
+            box-sizing: border-box;
+            text-align: left;
+            line-height: 1.65;
         }
         .gk-kw-summary-divider {
             border: 0;
@@ -1744,7 +1788,12 @@
 
             localStorage.setItem('voca_practice_list', JSON.stringify(practiceData));
             localStorage.setItem('trigger_custom_voca_mode', 'saved_voca');
-            localStorage.setItem('trigger_custom_voca_return_url', 'index.html?tab=analysis');
+            try {
+                const q = window.location.search || '';
+                localStorage.setItem('trigger_custom_voca_return_url', 'analysis.html' + q + '#analysis-restore');
+            } catch (e) {
+                localStorage.setItem('trigger_custom_voca_return_url', 'analysis.html#analysis-restore');
+            }
             location.href = 'study.html';
         }
 
@@ -2695,7 +2744,7 @@
                     })
                     .join('');
                 inner +=
-                    '<div style="margin-bottom:18px;text-align:left;">' +
+                    '<div class="gk-keywords-intro-block" style="margin-bottom:18px;text-align:left;">' +
                     '<div class="gk-topic-summary-title" style="margin-bottom:8px;color:#ff8da1;text-align:left;">핵심 키워드</div>' +
                     '<div style="margin-bottom:10px;line-height:1.75;text-align:left;">' +
                     chips +
@@ -2712,12 +2761,13 @@
                 inner +=
                     '<div style="margin-bottom:18px;text-align:left;">' +
                     '<div class="gk-topic-summary-title" style="text-align:left;">주제 요약</div>' +
-                    '<div style="font-weight:bold;color:var(--neon-blue);font-size:1.02rem;margin-bottom:8px;line-height:1.5;">' +
+                    '<div class="gk-topic-summary-formal" style="font-weight:bold;color:var(--neon-blue);font-size:1.02rem;margin-bottom:8px;line-height:1.5;">' +
                     escapeHtml(gk.topic_summary.formal || '—') +
                     '</div>' +
-                    '<div style="font-size:0.95rem;color:#c9d0dc;background:#1c1f26;padding:12px 14px;border-radius:10px;line-height:1.55;border:1px solid #333;">💡 ' +
+                    '<div class="gk-topic-summary-easy-outer">' +
+                    '<div class="gk-topic-summary-easy-inner">💡 ' +
                     escapeHtml(gk.topic_summary.easy || '') +
-                    '</div></div>';
+                    '</div></div></div>';
             }
 
             (gk.topic_variants || []).forEach(function (v) {
@@ -2725,8 +2775,9 @@
                 const typ = String(v.type || '').trim();
                 const lab = typeLabel[typ] || typ;
                 const sen = String(v.sentence_en || '').trim();
-                const interp = String(v.interpretation_ko || '').trim();
-                inner += '<div style="margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid #2a2a2a;">';
+                const interpRaw = String(v.interpretation_ko || '').trim();
+                const interp = interpRaw.replace(/:해석/g, '').replace(/\s{2,}/g, ' ').trim();
+                inner += '<div class="gk-variant-block" style="margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid #2a2a2a;">';
                 inner += '<div class="gk-variant-label">' + escapeHtml(lab) + '</div>';
                 if (sen) {
                     let senHtml = escapeHtml(sen);
@@ -2740,7 +2791,10 @@
                         '<div style="color:#888;font-size:0.92rem;margin-bottom:10px;">(이 유형의 주제문은 이번 분석에서 비어 있을 수 있어요. 재분석 시 모델이 채웁니다.)</div>';
                 }
                 if (interp) {
-                    inner += '<div style="font-size:0.93rem;color:#d5dbe8;margin-bottom:8px;line-height:1.55;"><span style="color:#7d8694;font-weight:700;margin-right:0.35em;">:</span><strong style="color:#b8c0cc;">해석</strong> ' + escapeHtml(interp) + '</div>';
+                    inner +=
+                        '<div class="gk-variant-interp" style="font-size:0.93rem;color:#d5dbe8;margin-bottom:8px;line-height:1.55;box-sizing:border-box;text-align:left;">' +
+                        escapeHtml(interp) +
+                        '</div>';
                 }
                 inner += '<div class="gk-variant-kw-head" style="font-size:0.82rem;color:#9aa;margin:8px 0 4px;">주요 단어 <span style="color:#7a8088;font-weight:normal;">(클릭하면 뜻)</span></div>';
                 inner += '<div>' + buildGkKeyTermsHtml(v.key_terms) + '</div>';
@@ -3283,7 +3337,7 @@
                 <div class="result-card" style="border-color: #bc13fe;"><span class="result-label" style="color:#bc13fe;">🛠️ 트리거 팀의 문법 포인트</span><div class="result-content">${grammarListWrap}</div></div>
                 <div class="result-card"><span class="result-label" style="color:#ff0055;">📚 주요 단어 리스트 (내 학습 노트에 저장)</span><div class="result-content">${keywordHtml}</div></div>
                 ${goldenKeyHtml}
-                <div class="result-card" style="border-color: var(--neon-orange);"><span class="result-label" style="color:var(--neon-orange);">🌎 쓸데없이 고퀄인 배경지식</span><div class="result-content">${backgroundHtml}</div></div>
+                <div class="result-card" style="border-color: var(--neon-orange);"><span class="result-label" style="color:var(--neon-orange);">🌎 쓸데없이 고퀄인 배경지식</span><div class="result-content passage-background-knowledge">${backgroundHtml}</div></div>
             `;
             lastAnalysisResForChat = res;
             confirmedChatContextSentence = '';
