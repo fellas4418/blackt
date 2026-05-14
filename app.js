@@ -382,7 +382,7 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
             const mainBackBtn = document.getElementById('main-back-btn');
             if (exitBtn) {
                 const fallback = 'analysis.html';
-                const url = (custom.returnUrl && String(custom.returnUrl).trim()) ? String(custom.returnUrl) : fallback;
+                    const url = (custom.returnUrl && String(custom.returnUrl).trim()) ? String(custom.returnUrl) : fallback;
                 // 분석 결과는 새로고침 시 DOM에 없음 → history.back 금지. 저장된 analysis URL로 이동 후 sessionStorage로 복원.
                 window.customVocaGoBack = () => {
                     clearStudyCheckpoint();
@@ -391,7 +391,11 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
                         localStorage.removeItem('trigger_custom_voca_mode');
                         localStorage.removeItem('trigger_custom_voca_return_url');
                     } catch (e) {}
-                    location.href = url;
+                    if (/analysis\.html/i.test(url)) {
+                        location.replace(url);
+                    } else {
+                        location.href = url;
+                    }
                 };
                 exitBtn.onclick = () => { window.customVocaGoBack(); };
                 if (mainBackBtn) mainBackBtn.onclick = () => { window.customVocaGoBack(); };

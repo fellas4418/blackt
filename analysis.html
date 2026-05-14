@@ -214,8 +214,20 @@
             border-left: 4px solid var(--neon-blue);
             margin-bottom: 10px;
         }
-        #analysis-passage-zone .gk-variant-sentence .clickable-word {
+        #analysis-passage-zone .topic-focus-card .gk-variant-sentence .clickable-word {
+            display: inline;
             line-height: inherit;
+            vertical-align: baseline;
+        }
+        #analysis-passage-zone .topic-focus-card .gk-variant-sentence .passage-topic-kw {
+            display: inline;
+            padding: 0 2px;
+            margin: 0 1px;
+            vertical-align: baseline;
+            line-height: inherit;
+            border-width: 1px;
+            border-color: transparent;
+            box-shadow: none;
         }
         .gk-variant-sentence .passage-topic-kw {
             border-color: transparent;
@@ -226,6 +238,10 @@
         .save-btn-small.active { background: #bc13fe; border-color: #bc13fe; color: #fff; }
         
         .kw-container { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #333; }
+        .kw-tag { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-right: 6px; font-weight: bold; }
+        .kw-mid { background: rgba(255,153,0,0.2); color: var(--neon-orange); border: 1px solid var(--neon-orange); }
+        .kw-high { background: rgba(0,243,255,0.2); color: var(--neon-blue); border: 1px solid var(--neon-blue); }
+        .kw-other { background: #333; color: #aaa; border: 1px solid #555; }
         .kw-body { flex: 1; min-width: 0; }
         .kw-save-btn {
             flex-shrink: 0;
@@ -1197,6 +1213,43 @@
                 if (ez) ez.scrollIntoView({ behavior: 'smooth', block: 'start' });
             } catch (e) {}
         }
+
+        function notifyPassageResultShownInHistory() {
+            try {
+                const base = location.pathname + location.search;
+                const st = history.state;
+                if (st && st.passageUi === 'analysis-result') {
+                    history.replaceState({ passageUi: 'analysis-result' }, '', base);
+                    return;
+                }
+                history.replaceState({ passageUi: 'input' }, '', base);
+                history.pushState({ passageUi: 'analysis-result' }, '', base);
+            } catch (e) {}
+        }
+
+        function revertPassageAnalysisToInputShell() {
+            try {
+                const inp = document.getElementById('input-section');
+                const ed = document.getElementById('edit-section');
+                const rs = document.getElementById('result-section');
+                if (inp) inp.style.display = '';
+                if (ed) ed.style.display = 'none';
+                if (rs) rs.style.display = 'none';
+                refreshPremiumAiPanelVisibility();
+                focusPassageAnalysisSection();
+            } catch (e) {}
+        }
+
+        window.addEventListener('popstate', function (ev) {
+            try {
+                const st = ev.state;
+                const rs = document.getElementById('result-section');
+                const rsShow = rs && (rs.style.display === 'block' || window.getComputedStyle(rs).display === 'block');
+                if (rsShow && (!st || st.passageUi === 'input')) {
+                    revertPassageAnalysisToInputShell();
+                }
+            } catch (e) {}
+        });
 
         function collectProblemTypeHaystack(res) {
             const parts = [];
@@ -3410,6 +3463,9 @@
             try {
                 focusPassageAnalysisSection();
             } catch (e) {}
+            try {
+                notifyPassageResultShownInHistory();
+            } catch (e) {}
         }
 
         const ANALYSIS_PASSAGE_CACHE_KEY = 'trigger_analysis_passage_cache_v1';
@@ -5170,7 +5226,7 @@
         (function tryRestoreLastAnalysisReport() {
             try {
                 if (location.hash !== '#analysis-restore') return;
-                try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+                try { history.replaceState({ passageUi: 'input' }, '', location.pathname + location.search); } catch (e) {}
                 const raw = sessionStorage.getItem('trigger_analysis_restore_v1');
                 if (!raw) return;
                 const o = JSON.parse(raw);
@@ -5183,6 +5239,16 @@
                 document.getElementById('result-section').style.display = 'block';
                 setAnalysisSourceBadge(true);
                 applyParsedAnalysisResult(o.res, { skipTopicRevealConsume: true });
+            } catch (e) {}
+        })();
+
+        (function passageAnalysisSeedInputHistoryIfNeeded() {
+            try {
+                const rs = document.getElementById('result-section');
+                const show = rs && (rs.style.display === 'block' || window.getComputedStyle(rs).display === 'block');
+                if (!show) {
+                    history.replaceState({ passageUi: 'input' }, '', location.pathname + location.search);
+                }
             } catch (e) {}
         })();
 
