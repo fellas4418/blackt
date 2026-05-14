@@ -204,6 +204,67 @@
         .passage-corrections-list li { margin: 4px 0; }
         .passage-cor-num { color: #00f3ff; font-weight: bold; margin-right: 4px; }
 
+        .analysis-page-split { display: flex; flex-direction: column; gap: 22px; margin-top: 6px; }
+        .analysis-zone-card {
+            border-radius: 16px;
+            border: 1px solid #2a2a2a;
+            background: linear-gradient(165deg, rgba(20, 22, 28, 0.95) 0%, rgba(8, 8, 10, 0.98) 100%);
+            overflow: hidden;
+            box-shadow: 0 10px 36px rgba(0, 0, 0, 0.45);
+        }
+        .analysis-zone-card.passage-zone { border-color: rgba(0, 243, 255, 0.35); }
+        .analysis-zone-card.exam-zone { border-color: rgba(159, 232, 112, 0.4); }
+        .analysis-zone-head {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 16px;
+            margin: 0;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+            background: rgba(255, 255, 255, 0.04);
+            color: #fff;
+            font-family: inherit;
+            font-size: 1.02rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .analysis-zone-head:hover { background: rgba(255, 255, 255, 0.07); }
+        .analysis-zone-head .analysis-zone-chev {
+            flex-shrink: 0;
+            font-size: 0.78rem;
+            color: #888;
+            transition: transform 0.22s ease;
+        }
+        .analysis-zone-card[data-collapsed="1"] .analysis-zone-chev { transform: rotate(-90deg); }
+        .analysis-zone-card[data-collapsed="1"] .analysis-zone-body { display: none; }
+        .analysis-zone-sub { display: block; font-size: 0.78rem; font-weight: 600; color: #8a9; margin-top: 4px; line-height: 1.45; }
+        .analysis-zone-body { padding: 14px 16px 18px; }
+        .passage-zone .analysis-zone-body { padding-top: 10px; }
+        .exam-zone-value {
+            font-size: 0.86rem;
+            color: #bbb;
+            line-height: 1.6;
+            margin: 0 0 12px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: rgba(159, 232, 112, 0.06);
+            border: 1px solid rgba(159, 232, 112, 0.2);
+        }
+        .exam-sample-pill {
+            display: inline-block;
+            margin-top: 6px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #9fe870;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
         #premium-ai-ask-panel textarea { width: 100%; min-height: 72px; box-sizing: border-box; background: #111; border: 1px solid #444; color: #fff; border-radius: 10px; padding: 10px; font-size: 0.92rem; margin-top: 8px; }
         #chat-history-modal { position: fixed; inset: 0; z-index: 35000; background: rgba(0,0,0,0.92); display: none; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; }
         #chat-history-modal .chat-history-inner { background: #111; border: 1px solid #444; border-radius: 16px; max-width: 480px; width: 100%; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; }
@@ -230,10 +291,7 @@
         })();
     </script>
     <style>
-        html[data-quick-review="1"] #input-section,
-        html[data-quick-review="1"] #edit-section,
-        html[data-quick-review="1"] #result-section,
-        html[data-quick-review="1"] #exam-report-workspace {
+        html[data-quick-review="1"] #analysis-page-split {
             display: none !important;
         }
     </style>
@@ -272,6 +330,13 @@
         </div>
     </div>
 
+    <div id="analysis-page-split" class="analysis-page-split">
+    <section id="analysis-passage-zone" class="analysis-zone-card passage-zone" data-collapsed="0">
+        <button type="button" id="analysis-passage-zone-toggle" class="analysis-zone-head" aria-expanded="true">
+            <span>📷 지문 분석<span class="analysis-zone-sub">촬영·붙여넣기로 빠르게 해설 받기</span></span>
+            <span class="analysis-zone-chev" aria-hidden="true">▼</span>
+        </button>
+        <div class="analysis-zone-body">
     <div id="input-section">
         <div class="guide-box">
             <p class="guide-title">📷 AI 지문 분석</p>
@@ -292,16 +357,63 @@
                 지문 복사/붙여넣기로 분석하기 ✍️
             </button>
         </div>
-
-        <div class="guide-box" style="border-color: rgba(159,232,112,0.5); margin-top: 22px;">
-            <p class="guide-title" style="color:#9fe870; font-size:1.18rem; text-align:center; margin-bottom:10px; letter-spacing:-0.02em;">📋 내가 본 시험 한 눈에 분석하기 ✨</p>
-            <p class="guide-text" style="text-align:justify;">시험지 사진을 올리면 문항·배점을 AI가 읽고, 오답·서술 점수·유형별 그래프·진단 리포트를 만듭니다.</p>
-            <p class="guide-text" style="text-align:justify; margin-top:8px;">(이름·학년은 메인 프로필에서만 사용합니다.)</p>
-            <button type="button" id="exam-report-open-btn" class="login-btn" style="width:100%; margin-top:12px; border-color:#9fe870; color:#9fe870; background:rgba(159,232,112,0.08);">
-                클릭
-            </button>
-        </div>
     </div>
+
+    <div id="edit-section">
+        <div class="guide-box" style="border-color: var(--neon-orange);"><p class="guide-title" style="color: var(--neon-orange);">✍️ 지문 직접 입력</p><p class="guide-text">분석할 지문을 입력해주세요. 텍스트가 정확할수록 분석이 정교해집니다.</p></div>
+        <div id="ocr-edit-area" class="editable-area" contenteditable="true"></div>
+        <button id="run-btn" onclick="runGeminiAnalysis(true)" class="start-btn" style="border-color: var(--neon-orange);">정밀 분석 실행 🚀</button>
+    </div>
+
+    <div id="result-section">
+        <div class="result-card" style="border-color: var(--neon-blue); padding: 15px;">
+            <span class="result-label" style="color:var(--neon-blue); margin-bottom:5px;">📂 지문 출처 설정</span>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="passage-title-input" 
+                       style="flex: 1; background: #111; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 8px; font-size: 0.9rem;" 
+                       placeholder="예: 수능특강 12강 3번">
+                <button onclick="updatePassageTitleManually()" 
+                        style="background: var(--neon-blue); color: #000; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">확인</button>
+            </div>
+            <p style="font-size: 0.75rem; color: #888; margin-top: 8px; margin-bottom: 0;">* 미입력 시 카테고리와 AI 요약 제목이 기본 적용됩니다.</p>
+        </div>
+
+        <div style="margin-bottom: 25px;"><h4 style="color: var(--neon-green); margin-top: 0; font-size: 1.1rem;">✅ AI 정밀 분석 보고서 <span id="analysis-source-badge" style="display:none; margin-left:8px; font-size:0.72rem; color:#111; background:#9fe870; border-radius:999px; padding:2px 8px; vertical-align:middle;">기존 분석 결과 불러옴</span></h4><div id="ai-report-area"></div></div>
+        
+        <div class="guide-box" style="border-color: #b537f2; background: rgba(181, 55, 242, 0.05); margin-top: 25px;">
+            <p class="guide-title" style="color: #d789ff; font-size:1.1rem;">🔥 근본적인 독해력을 올리고 싶다면?</p>
+            <p class="guide-text" style="color: #eee; font-size:0.95rem;">단어는 아는데 해석이 턱턱 막히고 문장 구조가 안 보이시나요?<br>특수 구문부터 필수 문법까지 <b>단 3시간 만에 영어의 문을 여는 가장 명쾌한 로드맵.</b></p>
+            <button onclick="window.open('https://tri3.imweb.me/', '_blank')" class="kakao-btn" style="background:#b537f2; color:#fff; border-radius:12px;">👉 된다니까 3시간 영문법 수강하기 ⚡</button>
+        </div>
+
+        <div id="premium-ai-ask-panel" style="display:none; margin-top: 20px; border: 1px solid rgba(57,255,20,0.45); border-radius: 16px; padding: 16px; background: rgba(57,255,20,0.06);">
+            <div style="font-weight: 900; color: #39ff14; margin-bottom: 10px; font-size: 1.02rem;">트리거 AI 실시간 질문하기 <span style="font-weight:600;font-size:0.72rem;color:#888;">(프리미엄 전용)</span></div>
+            <p style="font-size:0.82rem;color:#aaa;margin:0 0 10px;line-height:1.5;">문장을 고르면 그 문장 맥락 위주로, 안 고르면 일반 문법·영어 질문으로 답해 드려요. (약 200자·3단 구성)</p>
+            <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+                <button type="button" id="btn-sentence-pick-toggle" class="login-btn" style="margin:0;border-color:var(--neon-blue);color:var(--neon-blue);">질문할 문장 선택</button>
+                <button type="button" id="btn-sentence-pick-done" class="login-btn" style="margin:0;display:none;border-color:#9fe870;color:#9fe870;">선택 완료</button>
+                <button type="button" id="btn-chat-history" class="login-btn" style="margin:0;border-color:#888;color:#ccc;">나의 질문 기록 보기</button>
+            </div>
+            <div id="picked-sentence-preview" style="display:none; font-size:0.85rem; color:#9fe870; background:#151515; border:1px solid #333; border-radius:8px; padding:10px; margin-bottom:8px; line-height:1.45;"></div>
+            <textarea id="ai-ask-input" placeholder="궁금한 점을 입력해 주세요."></textarea>
+            <button type="button" id="ai-ask-submit" class="start-btn" style="width:100%; margin-top:10px; border-color:var(--neon-green);">질문 보내기</button>
+            <div id="ai-ask-reply" style="margin-top:12px; font-size:0.9rem; color:#eee; line-height:1.55; white-space:pre-wrap;"></div>
+        </div>
+
+        <button onclick="location.reload()" class="login-btn" style="border-color: #fff; margin-top: 20px; background: transparent; width: 100%;">다른 지문 분석하기</button>
+    </div>
+        </div>
+    </section>
+
+    <section id="analysis-exam-zone" class="analysis-zone-card exam-zone" data-collapsed="0">
+        <button type="button" id="analysis-exam-zone-toggle" class="analysis-zone-head" aria-expanded="true">
+            <span>📋 시험 리포트 분석<span class="analysis-zone-sub">문항·배점·그래프·AI 진단까지 한 번에</span></span>
+            <span class="analysis-zone-chev" aria-hidden="true">▼</span>
+        </button>
+        <div class="analysis-zone-body">
+            <p class="exam-zone-value">시험지 전 페이지를 올리면 <strong>문항·배점 추출 → 오답·서술 입력 → 파이·추이 그래프 → 오답 유형별 AI 진단</strong>으로 이어지는 리포트가 만들어집니다. <span class="exam-sample-pill">리포트 샘플 흐름</span> 저장 후 <strong>인쇄·PDF·카카오톡 공유</strong>까지 한 화면에서 마무리할 수 있어요.</p>
+            <p class="guide-text" style="font-size:0.82rem;color:#999;margin:0 0 12px;line-height:1.5;">이름·학년은 메인 프로필과 동일하게 표시됩니다.</p>
+            <button type="button" id="exam-report-open-btn" class="login-btn" style="width:100%; margin-top:0; margin-bottom:4px; border-color:#9fe870; color:#9fe870; background:rgba(159,232,112,0.1);">시험 분석 열기</button>
 
     <div id="exam-report-workspace" style="display:none; margin-top:10px;">
         <div class="guide-box" style="border-color:#9fe870;">
@@ -406,6 +518,8 @@
             <button type="button" id="exam-rpt-share-kakao" class="kakao-btn" style="margin-top:10px;">🟡 카톡으로 리포트 공유</button>
         </div>
     </div>
+        </div>
+    </section>
 
     <div id="exam-rpt-confirm-overlay" class="exam-rpt-confirm-overlay" aria-hidden="true">
         <div class="exam-rpt-confirm-box" role="dialog" aria-modal="true" aria-labelledby="exam-rpt-confirm-title">
@@ -421,49 +535,6 @@
         <button type="button" id="exam-rpt-lightbox-close" class="login-btn" style="margin-bottom:14px;border-color:#fff;color:#fff;">닫기</button>
         <img id="exam-rpt-lightbox-img" src="" alt="시험지 미리보기">
     </div>
-
-    <div id="edit-section">
-        <div class="guide-box" style="border-color: var(--neon-orange);"><p class="guide-title" style="color: var(--neon-orange);">✍️ 지문 직접 입력</p><p class="guide-text">분석할 지문을 입력해주세요. 텍스트가 정확할수록 분석이 정교해집니다.</p></div>
-        <div id="ocr-edit-area" class="editable-area" contenteditable="true"></div>
-        <button id="run-btn" onclick="runGeminiAnalysis(true)" class="start-btn" style="border-color: var(--neon-orange);">정밀 분석 실행 🚀</button>
-    </div>
-
-    <div id="result-section">
-        <div class="result-card" style="border-color: var(--neon-blue); padding: 15px;">
-            <span class="result-label" style="color:var(--neon-blue); margin-bottom:5px;">📂 지문 출처 설정</span>
-            <div style="display: flex; gap: 8px;">
-                <input type="text" id="passage-title-input" 
-                       style="flex: 1; background: #111; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 8px; font-size: 0.9rem;" 
-                       placeholder="예: 수능특강 12강 3번">
-                <button onclick="updatePassageTitleManually()" 
-                        style="background: var(--neon-blue); color: #000; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">확인</button>
-            </div>
-            <p style="font-size: 0.75rem; color: #888; margin-top: 8px; margin-bottom: 0;">* 미입력 시 카테고리와 AI 요약 제목이 기본 적용됩니다.</p>
-        </div>
-
-        <div style="margin-bottom: 25px;"><h4 style="color: var(--neon-green); margin-top: 0; font-size: 1.1rem;">✅ AI 정밀 분석 보고서 <span id="analysis-source-badge" style="display:none; margin-left:8px; font-size:0.72rem; color:#111; background:#9fe870; border-radius:999px; padding:2px 8px; vertical-align:middle;">기존 분석 결과 불러옴</span></h4><div id="ai-report-area"></div></div>
-        
-        <div class="guide-box" style="border-color: #b537f2; background: rgba(181, 55, 242, 0.05); margin-top: 25px;">
-            <p class="guide-title" style="color: #d789ff; font-size:1.1rem;">🔥 근본적인 독해력을 올리고 싶다면?</p>
-            <p class="guide-text" style="color: #eee; font-size:0.95rem;">단어는 아는데 해석이 턱턱 막히고 문장 구조가 안 보이시나요?<br>특수 구문부터 필수 문법까지 <b>단 3시간 만에 영어의 문을 여는 가장 명쾌한 로드맵.</b></p>
-            <button onclick="window.open('https://tri3.imweb.me/', '_blank')" class="kakao-btn" style="background:#b537f2; color:#fff; border-radius:12px;">👉 된다니까 3시간 영문법 수강하기 ⚡</button>
-        </div>
-
-        <div id="premium-ai-ask-panel" style="display:none; margin-top: 20px; border: 1px solid rgba(57,255,20,0.45); border-radius: 16px; padding: 16px; background: rgba(57,255,20,0.06);">
-            <div style="font-weight: 900; color: #39ff14; margin-bottom: 10px; font-size: 1.02rem;">트리거 AI 실시간 질문하기 <span style="font-weight:600;font-size:0.72rem;color:#888;">(프리미엄 전용)</span></div>
-            <p style="font-size:0.82rem;color:#aaa;margin:0 0 10px;line-height:1.5;">문장을 고르면 그 문장 맥락 위주로, 안 고르면 일반 문법·영어 질문으로 답해 드려요. (약 200자·3단 구성)</p>
-            <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
-                <button type="button" id="btn-sentence-pick-toggle" class="login-btn" style="margin:0;border-color:var(--neon-blue);color:var(--neon-blue);">질문할 문장 선택</button>
-                <button type="button" id="btn-sentence-pick-done" class="login-btn" style="margin:0;display:none;border-color:#9fe870;color:#9fe870;">선택 완료</button>
-                <button type="button" id="btn-chat-history" class="login-btn" style="margin:0;border-color:#888;color:#ccc;">나의 질문 기록 보기</button>
-            </div>
-            <div id="picked-sentence-preview" style="display:none; font-size:0.85rem; color:#9fe870; background:#151515; border:1px solid #333; border-radius:8px; padding:10px; margin-bottom:8px; line-height:1.45;"></div>
-            <textarea id="ai-ask-input" placeholder="궁금한 점을 입력해 주세요."></textarea>
-            <button type="button" id="ai-ask-submit" class="start-btn" style="width:100%; margin-top:10px; border-color:var(--neon-green);">질문 보내기</button>
-            <div id="ai-ask-reply" style="margin-top:12px; font-size:0.9rem; color:#eee; line-height:1.55; white-space:pre-wrap;"></div>
-        </div>
-
-        <button onclick="location.reload()" class="login-btn" style="border-color: #fff; margin-top: 20px; background: transparent; width: 100%;">다른 지문 분석하기</button>
     </div>
 
     <div id="chat-history-modal" aria-hidden="true">
@@ -668,7 +739,7 @@
         }
 
         /**
-         * Golden Key(주제 요약·3종 주제문·핵심 키워드) 일 2회 공개. 유료·관리자·개발 잠금해제는 무제한.
+         * Golden Key(핵심 키워드·지문 발췌 주제문·3종 실전 주제문·주제 요약) 일 2회 공개. 유료·관리자·개발 잠금해제는 무제한.
          * @param {{ skipConsume?: boolean }} [opts] — 로컬 캐시/히스토리 재표시 시 true로 일일 횟수를 소비하지 않음.
          */
         function evaluateTopicSectionReveal(opts) {
@@ -699,6 +770,113 @@
 
         function escapeHtml(s) {
             return String(s || '').replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m]));
+        }
+
+        function setAnalysisZoneCollapsed(zoneEl, collapsed) {
+            if (!zoneEl) return;
+            zoneEl.setAttribute('data-collapsed', collapsed ? '1' : '0');
+            const head = zoneEl.querySelector('.analysis-zone-head');
+            if (head) head.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        }
+
+        function focusPassageAnalysisSection() {
+            const pz = document.getElementById('analysis-passage-zone');
+            const ez = document.getElementById('analysis-exam-zone');
+            setAnalysisZoneCollapsed(pz, false);
+            setAnalysisZoneCollapsed(ez, true);
+            try {
+                if (pz) pz.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch (e) {}
+        }
+
+        function focusExamAnalysisSection() {
+            const pz = document.getElementById('analysis-passage-zone');
+            const ez = document.getElementById('analysis-exam-zone');
+            setAnalysisZoneCollapsed(pz, true);
+            setAnalysisZoneCollapsed(ez, false);
+            try {
+                if (ez) ez.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch (e) {}
+        }
+
+        function initAnalysisPageSplitAccordion() {
+            const pz = document.getElementById('analysis-passage-zone');
+            const ez = document.getElementById('analysis-exam-zone');
+            const pt = document.getElementById('analysis-passage-zone-toggle');
+            const et = document.getElementById('analysis-exam-zone-toggle');
+            if (pt && pz) {
+                pt.addEventListener('click', function () {
+                    const c = pz.getAttribute('data-collapsed') === '1';
+                    setAnalysisZoneCollapsed(pz, !c);
+                });
+            }
+            if (et && ez) {
+                et.addEventListener('click', function () {
+                    const c = ez.getAttribute('data-collapsed') === '1';
+                    setAnalysisZoneCollapsed(ez, !c);
+                });
+            }
+        }
+
+        function collectProblemTypeHaystack(res) {
+            const parts = [];
+            try {
+                ['grade', 'type', 'detail'].forEach(function (k) {
+                    const v = params.get(k);
+                    if (v) parts.push(v);
+                });
+            } catch (e) {}
+            try {
+                const ed = document.getElementById('ocr-edit-area');
+                const t = ed && (ed.innerText || ed.textContent) ? String(ed.innerText || ed.textContent).trim() : '';
+                if (t) parts.push(t.slice(0, 4000));
+            } catch (e) {}
+            if (res && typeof res === 'object') {
+                try {
+                    parts.push(JSON.stringify(res.subject || {}));
+                } catch (e) {}
+            }
+            return parts.join('\n');
+        }
+
+        function inferPassageProblemTypeLabel(res) {
+            const pl = res && res.passage_layout && typeof res.passage_layout === 'object' ? res.passage_layout : null;
+            const layoutType = pl ? String(pl.type || 'normal').trim().toLowerCase() : 'normal';
+            if (layoutType === 'insertion') return '문장삽입';
+            if (layoutType === 'ordering') return '순서배열';
+            if (layoutType === 'grammar') return '어법';
+            if (layoutType === 'summary') return '지문요약';
+            const hay = collectProblemTypeHaystack(res);
+            const rules = [
+                { keys: ['순서', '순서대로', '바르게', '(a)', '(b)', '(c)'], label: '순서배열' },
+                { keys: ['삽입', '들어갈', '문장으로', '적절한 위치'], label: '문장삽입' },
+                { keys: ['어법', '문법', '틀린', '낱말', '어색한'], label: '어법' },
+                { keys: ['문맥', '쓰임', '어휘'], label: '문맥상 낱말의 쓰임' },
+                { keys: ['밑줄'], label: '밑줄친 말의 의미' },
+                { keys: ['내용과 일치', '일치하지 않는', '내용으로'], label: '내용일치' },
+                { keys: ['관계없는', '어색한 문장'], label: '관계없는 문장' },
+                { keys: ['요약', '빈칸에 알맞은'], label: '지문요약' },
+                { keys: ['가리키', '지시', '대명사'], label: '가리키는 대상 구분' },
+                { keys: ['글의 목적', '목적'], label: '글의 목적' },
+                { keys: ['심경', '마음', '느낌의 변화'], label: '심경변화' },
+                { keys: ['제목'], label: '제목' },
+                { keys: ['요지'], label: '요지' },
+                { keys: ['주장'], label: '주장' },
+                { keys: ['주제'], label: '주제' },
+                { keys: ['빈칸'], label: '빈칸 넣기' },
+                { keys: ['낱말의 의미', '밑줄 친'], label: '낱말의 의미' }
+            ];
+            for (let i = 0; i < rules.length; i++) {
+                const r = rules[i];
+                for (let j = 0; j < r.keys.length; j++) {
+                    if (hay.indexOf(r.keys[j]) !== -1) return r.label;
+                }
+            }
+            if (layoutType === 'normal_clean') return '빈칸 넣기';
+            const tk = res && Array.isArray(res.topic_keywords) ? res.topic_keywords.length : 0;
+            const ts = res && res.topic_sentence && String(res.topic_sentence).trim();
+            if (tk >= 2 || ts) return '주제';
+            return '내용일치';
         }
 
         function setAnalysisEnabled(enabled) {
@@ -833,6 +1011,7 @@
             document.getElementById('input-section').style.display = 'none';
             document.getElementById('edit-section').style.display = 'block';
             document.getElementById('ocr-edit-area').focus();
+            focusPassageAnalysisSection();
         }
 
         /** 공통 어형(Stem) 생성 — 클릭 매칭·키워드 동기화에서 동일 규칙 사용 */
@@ -1638,6 +1817,92 @@
             };
         }
 
+        /** 모델이 golden_key.key_terms를 비우거나 적게 줄 때, 지문 full_word_map·키워드로 보강 */
+        function patchGoldenKeyVariants(res) {
+            try {
+                if (!res || !res.golden_key || !Array.isArray(res.golden_key.topic_variants)) return;
+                const fwm = res.full_word_map && typeof res.full_word_map === 'object' ? res.full_word_map : {};
+                const byType = {};
+                res.golden_key.topic_variants.forEach(function (v) {
+                    if (v && v.type) byType[String(v.type).trim()] = v;
+                });
+                function meaningForLemma(lem) {
+                    if (!lem) return '';
+                    const db = findWordInDB(lem);
+                    if (db && db.kor) return String(db.kor).trim();
+                    if (fwm[lem] != null) return String(fwm[lem]).trim();
+                    const cap = lem.charAt(0).toUpperCase() + lem.slice(1);
+                    if (fwm[cap] != null) return String(fwm[cap]).trim();
+                    const rm = robustSearchMap(lem);
+                    return rm ? String(rm).trim() : '';
+                }
+                function inferFromSentence(sentenceEn) {
+                    const s = String(sentenceEn || '');
+                    const rawTok = s.match(/[A-Za-z]{3,}(?:'[a-z]+)?/g) || [];
+                    const out = [];
+                    const seen = new Set();
+                    for (let i = 0; i < rawTok.length && out.length < 6; i++) {
+                        const lem = rawTok[i].toLowerCase();
+                        if (STOP_WORDS.has(lem) || lem.length < 3) continue;
+                        if (seen.has(lem)) continue;
+                        const kor = meaningForLemma(lem);
+                        if (!kor) continue;
+                        seen.add(lem);
+                        out.push({ eng: lem, kor: kor });
+                    }
+                    return out;
+                }
+                function padFromKeywordLines(lines, out, maxTotal, seen) {
+                    const arr = Array.isArray(lines) ? lines : [];
+                    for (let i = 0; i < arr.length && out.length < maxTotal; i++) {
+                        const parts = String(arr[i] || '').split('(');
+                        const rawEng = parts[0].trim();
+                        const eng = rawEng.split(/\s+/)[0].replace(/[^a-zA-Z-]/g, '').toLowerCase();
+                        if (!eng || eng.length < 2 || seen.has(eng)) continue;
+                        if (STOP_WORDS.has(eng)) continue;
+                        seen.add(eng);
+                        const korFromLine = parts.length > 1 ? parts[1].replace(')', '').trim() : '';
+                        const kor = korFromLine || meaningForLemma(eng);
+                        if (!kor) continue;
+                        out.push({ eng: eng, kor: kor });
+                    }
+                }
+                const order = ['original', 'keyword_paraphrase', 'structure_paraphrase'];
+                order.forEach(function (typ) {
+                    const v = byType[typ];
+                    if (!v || typeof v !== 'object') return;
+                    const sen = String(v.sentence_en || '').trim();
+                    if (!sen) return;
+                    const rawKt = Array.isArray(v.key_terms) ? v.key_terms : [];
+                    const out = [];
+                    const seen = new Set();
+                    rawKt.forEach(function (t) {
+                        if (!t) return;
+                        const eng = String(t.eng || t.word || '').trim().toLowerCase();
+                        const kor = String(t.kor || t.mean || '').trim();
+                        if (!eng) return;
+                        seen.add(eng);
+                        out.push({ eng: eng, kor: kor || meaningForLemma(eng) });
+                    });
+                    const merged = inferFromSentence(sen);
+                    merged.forEach(function (t) {
+                        if (out.length >= 6) return;
+                        const lem = String(t.eng || '').toLowerCase();
+                        if (seen.has(lem)) return;
+                        seen.add(lem);
+                        out.push(t);
+                    });
+                    if (out.length < 3) {
+                        padFromKeywordLines(res.keywords, out, 6, seen);
+                    }
+                    if (out.length < 3) {
+                        padFromKeywordLines(res.topic_keywords, out, 6, seen);
+                    }
+                    if (out.length) v.key_terms = out.slice(0, 6);
+                });
+            } catch (e) {}
+        }
+
         function buildGkKeyTermsHtml(terms) {
             if (!Array.isArray(terms) || !terms.length) return '<span style="color:#666;font-size:0.82rem;">(없음)</span>';
             return terms
@@ -1867,20 +2132,52 @@
 
         function buildGoldenKeySectionHtml(res, topicReveal) {
             const gk = normalizeGoldenKey(res);
+            const rawPassTs = res && res.topic_sentence != null ? String(res.topic_sentence).trim() : '';
+            const passTopicLine =
+                rawPassTs && rawPassTs.toLowerCase() !== 'null' ? rawPassTs : '';
+
             const hasSummary = gk.topic_summary.formal || gk.topic_summary.easy;
             const hasKw = gk.topic_keywords && gk.topic_keywords.length > 0;
             const hasVar = (gk.topic_variants || []).some(function (v) {
                 return v && String(v.sentence_en || '').trim();
             });
-            if (!hasSummary && !hasKw && !hasVar) return '';
+            if (!hasSummary && !hasKw && !hasVar && !passTopicLine) return '';
 
             const typeLabel = {
-                original: '① 원문 주제문',
-                keyword_paraphrase: '② 키워드 변형 주제문',
-                structure_paraphrase: '③ 구조 변형 주제문'
+                original: '① 실제 주제문',
+                keyword_paraphrase: '② 키워드 동의어·유의어 변형',
+                structure_paraphrase: '③ 전체 패러프레이징'
             };
 
             let inner = '';
+
+            if (hasKw) {
+                const chips = gk.topic_keywords
+                    .map(function (k) {
+                        return '<span style="display:inline-block;margin:4px 6px 4px 0;padding:6px 10px;background:rgba(255,0,85,0.12);border:1px solid rgba(255,0,85,0.45);border-radius:999px;font-size:0.85rem;color:#ffb3c6;">' +
+                            escapeHtml(String(k)) +
+                            '</span>';
+                    })
+                    .join('');
+                inner +=
+                    '<div style="margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid #2a2a2a;">' +
+                    '<div style="font-size:0.78rem;color:#ff8da1;font-weight:bold;margin-bottom:8px;">핵심 키워드 <span style="font-weight:normal;color:#888;">(먼저 확인)</span></div>' +
+                    '<div style="margin-bottom:10px;">' +
+                    chips +
+                    '</div>' +
+                    '<p style="font-size:0.8rem;color:#9aa;margin:0;line-height:1.5;">아래 <strong style="color:#ddd;">①②③ 주제문</strong>은 이 키워드들을 반영해 만들었어요. (원문과 같은 표기·어형 변화도 가능합니다.)</p>' +
+                    '<p style="font-size:0.78rem;color:#666;margin:8px 0 0;line-height:1.45;">보기 고르기에서는 위 표현들을 <strong style="color:#888;">함께 잘 드러내는</strong> 선택지가 정답에 가깝습니다.</p></div>';
+            }
+
+            if (passTopicLine) {
+                inner +=
+                    '<div style="margin-bottom:18px;padding:10px 12px;background:#151515;border-radius:10px;border:1px solid #333;">' +
+                    '<div style="font-size:0.72rem;color:#777;margin-bottom:6px;">지문 속 주제문 <span style="color:#555;font-weight:normal;">(발췌·참고 표시만)</span></div>' +
+                    '<div style="color:#bbb;font-size:0.9rem;line-height:1.55;">' +
+                    escapeHtml(passTopicLine) +
+                    '</div></div>';
+            }
+
             if (hasSummary) {
                 inner +=
                     '<div style="margin-bottom:16px;">' +
@@ -1918,23 +2215,6 @@
                 inner += '</div>';
             });
 
-            if (hasKw) {
-                const chips = gk.topic_keywords
-                    .map(function (k) {
-                        return '<span style="display:inline-block;margin:4px 6px 4px 0;padding:6px 10px;background:rgba(255,0,85,0.12);border:1px solid rgba(255,0,85,0.45);border-radius:999px;font-size:0.85rem;color:#ffb3c6;">' +
-                            escapeHtml(String(k)) +
-                            '</span>';
-                    })
-                    .join('');
-                inner +=
-                    '<div style="margin-top:12px;">' +
-                    '<div style="font-size:0.78rem;color:#888;font-weight:bold;margin-bottom:6px;">핵심 키워드 <span style="font-weight:normal;color:#666;">(2~5개)</span></div>' +
-                    '<div style="margin-bottom:8px;">' +
-                    chips +
-                    '</div>' +
-                    '<p style="font-size:0.8rem;color:#777;margin:0;line-height:1.45;">보기 중 위 표현들을 <strong style="color:#aaa;">가장 잘 함께 담고 있는</strong> 선택지가 정답에 가깝습니다.</p></div>';
-            }
-
             const topicLocked = !!(topicReveal && topicReveal.locked);
             const lockOverlay = topicLocked
                 ? '<div style="position:absolute;inset:0;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px 16px;text-align:center;z-index:4;box-sizing:border-box;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);background:rgba(5,5,5,0.55);">' +
@@ -1950,7 +2230,7 @@
                 '<div class="result-card topic-focus-card" style="border-color:#ffd700;box-shadow:0 0 18px rgba(255,215,0,0.15);">' +
                 '<span class="result-label" style="color:#ffd700;margin-bottom:4px;">Golden Key · 정답의 열쇠</span>' +
                 '<div style="font-size:0.8rem;color:#bbb;line-height:1.55;margin-bottom:12px;padding:10px 12px;background:rgba(255,215,0,0.06);border-radius:10px;border:1px solid rgba(255,215,0,0.25);">' +
-                '<strong style="color:#ffe082;">주제 요약 + 3종 주제문 + 핵심 키워드</strong>를 한 묶음으로 모았어요. 무료는 하루 2회까지 열람, 유료는 무제한이에요.' +
+                '<strong style="color:#ffe082;">핵심 키워드 → 3종 실전 주제문</strong>(고2·3 모의고사 수준)과 지문 발췌·주제 요약을 한 묶음으로 모았어요. 무료는 하루 2회까지 열람, 유료는 무제한이에요.' +
                 '</div>' +
                 '<div class="result-content" style="position:relative;min-height:72px;overflow:hidden;border-radius:12px;">' +
                 '<div class="topic-focus-inner" style="' +
@@ -2097,9 +2377,12 @@
 
             const inner = (headParts.join('') + tailParts.join('')).trim();
             if (!inner) return '';
+            const typeLabel = inferPassageProblemTypeLabel(res);
             return (
                 '<div class="result-card passage-layout-card" style="border-color:#00f3ff;">' +
-                '<span class="result-label" style="color:#00f3ff;margin-bottom:8px;">📐 지문 유형 · 표준 레이아웃</span>' +
+                '<span class="result-label" style="color:#00f3ff;margin-bottom:8px;">문제 유형: ' +
+                escapeHtml(typeLabel) +
+                '</span>' +
                 '<div class="result-content passage-layout-inner">' +
                 inner +
                 '</div></div>'
@@ -2113,6 +2396,7 @@
                 fullWordMapGlobal = {};
             }
             supplementFullWordMapFromDB(res);
+            patchGoldenKeyVariants(res);
 
             const categoryInfo = `${params.get('grade') || ''} ${params.get('type') || ''} ${params.get('detail') || ''}`.trim();
             const aiSubjectSnippet = res.subject?.formal ? res.subject.formal.substring(0, 12).trim() : "지문 분석";
@@ -2512,6 +2796,9 @@
             } catch (e) {}
             try {
                 if (!options || !options.skipPassageHistory) passageHistoryUpsertFromCurrent();
+            } catch (e) {}
+            try {
+                focusPassageAnalysisSection();
             } catch (e) {}
         }
 
@@ -3049,8 +3336,8 @@
             }
             if (ws) {
                 ws.style.display = 'block';
-                ws.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
+            focusExamAnalysisSection();
             const nm = document.getElementById('exam-rpt-display-name');
             if (nm) nm.textContent = (localStorage.getItem('trigger_name') || '').trim() || '—';
             const gr = document.getElementById('exam-rpt-display-grade');
@@ -3063,6 +3350,10 @@
         function closeExamReportWorkspace() {
             const ws = document.getElementById('exam-report-workspace');
             if (ws) ws.style.display = 'none';
+            const pz = document.getElementById('analysis-passage-zone');
+            const ez = document.getElementById('analysis-exam-zone');
+            setAnalysisZoneCollapsed(pz, false);
+            setAnalysisZoneCollapsed(ez, false);
         }
 
         function examRptUpdatePhotoUi() {
@@ -4045,6 +4336,7 @@
                 const el = document.getElementById('exam-rpt-lightbox');
                 if (el && el.style.display === 'flex') examRptCloseLightbox();
             });
+            initAnalysisPageSplitAccordion();
         })();
 
         async function runGeminiAnalysis(isTextMode = false) {
@@ -4101,16 +4393,17 @@
 10. 우선 검토할 범주 예시(해당 없으면 생략): 관계사·관계대명사/관계부사, 분사·분사구문·줄임표현, 도치·강조, 가정법, 병렬구조·상관접속, 수 일치·대명사 지시, 명사절·부사절·형용사절, 준동사, 관용 전치사구·구동사형 숙어 등.
 11. background는 항상 기본 배경지식(이전처럼 지문 이해를 돕는 일반 맥락)을 2~3문장 포함하세요. 여기에 더해, 지문에 특별한 지명, 인물(유명 위인 포함), 사건, 정치·경제·문화·사회적 상황, 이론이 등장하고 그것이 이해에 실제 도움이 될 때만 추가 정보를 1~2문장 보강하세요. 과도하게 길거나 학술적으로 깊은 설명은 금지합니다.
 12. 지문에 실제로 나온 담화 표현·고정 구문(after all, as well, in fact, on the other hand 등 해석의 뉘앙스에 영향을 주는 표현)은 기초 단어라도 keywords에서 빼지 말고, 반드시 숙어 형태로 공백을 유지해 포함하세요.
-13. topic_sentence: 지문에 **전형적인 주제문**이 한 문장으로 특정되면, 그 **영어 원문 한 문장**을 수정·요약·번역 없이 **그대로 복사**하세요. 첫 문장이 주제문이 아닐 수 있음을 감안하세요. 특정할 수 없으면 JSON **null** 또는 빈 문자열 \`""\` — 앱이 학생에게 보여 줄 친절한 안내 문구로만 처리되며, 화면에 "null" 같은 기계적인 글자는 나오지 않습니다.
-14. topic_keywords: **주제·제목·요지·글의 목적 고르기** 유형에서, **정답 보기에 공통으로 드러나야 하는** 결정적 단서 **2~5개**(원칙 **2~4개**). 각 항목은 keywords와 동일하게 \`영어(한국어 뜻)\` 형식이며 **반드시 지문 원문에 실제로 등장하는 표기**만 사용하세요. 서로 의미가 겹치지 않게 고르고, 이 키워드들이 **함께** 드러나는 보기가 정답에 가깝도록 선정하세요. 고유명사만으로 구성된 항목은 피하세요.
+13. topic_sentence: 지문에서 **주제를 대표하는 문장**이 한 줄로 특정되면, 그 **영어 원문 한 문장**을 수정·요약 없이 **그대로 복사**하세요. 앱은 **표시(발췌)용**으로만 쓰며, 정답 보기 문장으로 쓰지 않습니다. 특정이 애매하면 JSON **null** 또는 빈 문자열 \`""\` — 화면에 "null" 같은 글자는 나오지 않게 처리됩니다.
+14. topic_keywords: **주제·제목·요지·글의 목적 고르기** 유형에서, **정답 보기에 공통으로 드러나야 하는** 결정적 단서 **2~5개**(원칙 **2~4개**). 각 항목은 keywords와 동일하게 \`영어(한국어 뜻)\` 형식이며 **반드시 지문 원문에 실제로 등장하는 표기**만 사용하세요. 서로 의미가 겹치지 않게 고르세요. 이 키워드들은 아래 golden_key.topic_variants의 **① 실제 주제문**에 **반드시 반영**(원형·어형 변화·굴절 포함)되어야 합니다.
 15. golden_key: **Golden Key(정답의 열쇠)** 묶음. 반드시 포함하세요.
     - golden_key.topic_summary: subject.formal / subject.easy와 **완전히 동일한 문장**을 넣으세요(복사).
     - golden_key.topic_keywords: 위의 topic_keywords 배열과 **동일한 내용**을 넣으세요(복사).
-    - golden_key.topic_variants: **정확히 3개** 객체를 **아래 순서대로** 배열합니다.
-        (1) type \`"original"\` — **원문 주제문**: 지문에서 **실제 문장을 한 문장 그대로 발췌**(topic_sentence와 같아도 됨). 없으면 sentence_en은 빈 문자열.
-        (2) type \`"keyword_paraphrase"\` — **키워드 변형 주제문**: 핵심 키워드를 **동의어·유사어로 교체**한 문장(의미는 유지).
-        (3) type \`"structure_paraphrase"\` — **구조 변형 주제문**: **실제 시험 보기 Paraphrasing**처럼 **문장 구조를 바꾼** 버전(의미는 유지, 표현은 달라짐).
-    - 각 variant 객체 필드: \`type\`, \`sentence_en\`(영어 한 문장), \`interpretation_ko\`(한국어 해석 한 줄), \`key_terms\`(배열: { "eng": "단어", "kor": "뜻" } 형태로 **2~6개**, 주제문·지문에서 짚을 만한 핵심 낱말 위주).
+    - golden_key.topic_variants: **정확히 3개** 객체를 **아래 순서·type 문자열 고정**으로 넣으세요. **빈 칸 금지**(sentence_en·interpretation_ko·key_terms 모두 필수). **topic_sentence 원문을 이 배열의 sentence_en에 그대로 넣지 마세요.**
+        (1) type \`"original"\` — **실제 주제문(새로 작성)**: 지문 **원문 문장을 베끼거나 복사하면 안 됩니다.** 지문 전체 논지를 바탕으로, **고등학교 2·3학년 모의고사** 영어 주제문처럼 **한 문장**을 **새로** 영어로 쓰세요. 반드시 **topic_keywords**에 나온 핵심 표현들을 문장 안에 **자연스럽게 포함**하세요(같은 단어·어근의 활용형·복수형 등 **어형 변화 허용**). 의미는 지문 핵심과 일치해야 합니다.
+        (2) type \`"keyword_paraphrase"\` — **키워드 동의어·유의어 변형**: ①의 문장과 **문자열이 달라야 합니다.** ①에서 **topic_keywords에 해당하는 부분만** **동의어·유의어·보기식 표현**으로 바꾼 **완전한 한 문장**을 sentence_en에 쓰세요. ①과 **의미는 동일**해야 합니다(나머지 문장 골격은 유지).
+        (3) type \`"structure_paraphrase"\` — **전체 패러프레이징**: ① **전체 문장**을 **어순·문형·절 연결** 등을 바꿔 **Paraphrasing**한 **한 문장**을 sentence_en에 쓰세요. ①·②와 **문자열이 모두 달라야** 하며 **의미는 동일**해야 합니다.
+    - 각 variant: \`interpretation_ko\`는 반드시 한 줄 한국어 해석. \`key_terms\`는 각 variant마다 **반드시 3개 이상 6개 이하**의 \`{ "eng": "문장에 실제로 나온 단어", "kor": "뜻" }\` 배열(뜻은 full_word_map·keywords와 일치하게, 가능하면 topic_keywords와 겹치는 항목을 우선 포함).
+    - **JSON 출력 직전 자가검증**: ①의 sentence_en이 **지문 어떤 문장과도 문자열이 동일하면 안 됨**(반드시 새로 쓴 문장). ①②③의 sentence_en은 **서로 모두 다른 문자열**인지, 각각 key_terms가 3개 이상인지 확인하세요.
 16. passage_layout: 지문 **텍스트 구조**를 분석해 수능/내신형 UI로 쓸 메타데이터. **반드시 포함**하세요.
     - \`type\` 값 (하나만): \`"insertion"\` | \`"ordering"\` | \`"summary"\` | \`"grammar"\` | \`"normal"\` | \`"normal_clean"\`
       · **insertion**: 본문과 분리된 **삽입 박스 문장**(박스 안 한 문장)이 있으면. \`box_sentence\`에 그 **영어 문장 전체**를 넣고, \`full_translation\`에는 본문 줄만(박스 문장은 중복하지 않거나 한 줄로만).
@@ -4135,9 +4428,9 @@
     "topic_summary": { "formal": "subject.formal과 동일", "easy": "subject.easy와 동일" },
     "topic_keywords": ["topic_keywords와 동일"],
     "topic_variants": [
-      { "type": "original", "sentence_en": "지문 원문 발췌 한 문장", "interpretation_ko": "한 줄 해석", "key_terms": [{ "eng": "word", "kor": "뜻" }] },
-      { "type": "keyword_paraphrase", "sentence_en": "...", "interpretation_ko": "...", "key_terms": [{ "eng": "...", "kor": "..." }] },
-      { "type": "structure_paraphrase", "sentence_en": "...", "interpretation_ko": "...", "key_terms": [{ "eng": "...", "kor": "..." }] }
+      { "type": "original", "sentence_en": "topic_keywords를 반영해 새로 쓴 고2·3급 한 문장(지문 원문 복붙 금지)", "interpretation_ko": "한 줄 해석", "key_terms": [{ "eng": "word1", "kor": "뜻1" }, { "eng": "word2", "kor": "뜻2" }, { "eng": "word3", "kor": "뜻3" }] },
+      { "type": "keyword_paraphrase", "sentence_en": "①과 문자열 다름, 키워드만 동의어·유의어로 교체한 한 문장", "interpretation_ko": "한 줄 해석", "key_terms": [{ "eng": "a", "kor": "가" }, { "eng": "b", "kor": "나" }, { "eng": "c", "kor": "다" }] },
+      { "type": "structure_paraphrase", "sentence_en": "① 전체를 어순·문형 바꿔 패러프레이즈, ①②와 문자열 다름", "interpretation_ko": "한 줄 해석", "key_terms": [{ "eng": "x", "kor": "라" }, { "eng": "y", "kor": "마" }, { "eng": "z", "kor": "바" }] }
     ]
   },
   "passage_layout": {
@@ -4202,12 +4495,12 @@
                 if (!isTextMode && selectedBase64) {
                     payload = {
                         contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: finalImageData } }] }],
-                        generationConfig: { temperature: 0, responseMimeType: "application/json" }
+                        generationConfig: { temperature: 0.14, responseMimeType: "application/json" }
                     };
                 } else {
                     payload = {
                         contents: [{ parts: [{ text: prompt }, { text: editedText }] }],
-                        generationConfig: { temperature: 0, responseMimeType: "application/json" }
+                        generationConfig: { temperature: 0.14, responseMimeType: "application/json" }
                     };
                 }
 
