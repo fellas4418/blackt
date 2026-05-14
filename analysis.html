@@ -29,38 +29,58 @@
         #analysis-passage-zone .editable-area {
             background: #000000;
         }
+        #analysis-passage-zone #ai-report-area .translation-passage-card {
+            border: none;
+        }
         
         .result-label { font-size: 1.1rem; color: var(--neon-blue); font-weight: bold; margin-bottom: 10px; display: block; letter-spacing: 1px; }
         .result-content { font-size: 0.95rem; line-height: 1.7; color: #eee; }
         .translation-row { border-bottom: 1px solid #222; padding: 15px 0; }
         .translation-row:last-child { border-bottom: none; }
         
-        .eng-text { font-size: 1.15rem; color: #fff; margin-bottom: 6px; line-height: 1.5; font-weight: 400; }
+        .eng-text {
+            font-size: 1rem;
+            color: #fff;
+            margin-bottom: 6px;
+            line-height: 1.48;
+            font-weight: 400;
+            text-align: justify;
+            text-justify: inter-word;
+        }
         .kor-text { font-size: 0.95rem; color: #aaa; }
         #translation-rows-root.passage-hide-kor .kor-text {
-            display: none !important;
+            visibility: hidden !important;
+            pointer-events: none;
+            user-select: none;
         }
         .translation-card-toolbar {
             display: flex;
+            flex-direction: row;
             flex-wrap: wrap;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 12px 14px;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 10px 12px;
             margin-bottom: 12px;
             padding-bottom: 10px;
             border-bottom: 1px solid rgba(57, 255, 20, 0.2);
         }
-        .translation-card-toolbar .translation-card-title { flex: 1 1 220px; line-height: 1.45; }
+        .translation-card-toolbar .translation-card-title {
+            flex: 1 1 200px;
+            min-width: 0;
+            line-height: 1.45;
+        }
         .translation-card-toolbar .passage-view-toggle-wrap {
-            margin-left: 18px;
+            margin-left: 0;
+            flex: 0 0 auto;
+            width: auto;
         }
         .passage-view-toggle-wrap {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
             align-items: center;
-            justify-content: flex-end;
-            flex: 0 1 auto;
+            justify-content: flex-start;
+            flex: none;
         }
         .passage-toggle-btn {
             background: rgba(0, 0, 0, 0.4);
@@ -410,6 +430,52 @@
         .exam-zone .analysis-zone-body {
             background-color: #000000;
         }
+        .passage-source-below-header {
+            margin: 0;
+            padding: 8px 16px 14px;
+            background: #000000;
+            border: none;
+        }
+        .passage-source-label {
+            display: block;
+            font-size: 1.1rem;
+            color: var(--neon-blue);
+            font-weight: bold;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+        .passage-source-input-row {
+            display: flex;
+            gap: 8px;
+            align-items: stretch;
+        }
+        .passage-title-input {
+            flex: 1;
+            min-width: 0;
+            background: #111;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+        }
+        .passage-title-confirm-btn {
+            background: var(--neon-blue);
+            color: #000;
+            border: none;
+            padding: 0 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        .passage-source-hint {
+            font-size: 0.75rem;
+            color: #888;
+            margin: 8px 0 0;
+        }
         .passage-zone .analysis-zone-body { padding-top: 10px; }
         .exam-zone-value {
             font-size: 0.86rem;
@@ -501,6 +567,17 @@
                 <div class="analysis-zone-desc-body">선명하게 찍을수록 정확도가 올라갑니다. <span class="passage-zone-desc-highlight">한 문항(한 지문)만 프레임에 맞게 찍어 주세요.</span></div>
             </div>
         </header>
+        <div id="passage-source-below-header" class="passage-source-below-header">
+            <span class="passage-source-label">📂 지문 출처 설정</span>
+            <div class="passage-source-input-row">
+                <input type="text" id="passage-title-input"
+                       class="passage-title-input"
+                       placeholder="예: 수능특강 12강 3번">
+                <button type="button" onclick="updatePassageTitleManually()"
+                        class="passage-title-confirm-btn">확인</button>
+            </div>
+            <p class="passage-source-hint">* 미입력 시 카테고리와 AI 요약 제목이 기본 적용됩니다.</p>
+        </div>
         <div class="analysis-zone-body">
     <div id="input-section">
         <div class="camera-ui"><span id="label" style="color: #444;">지문을 수평으로 찍어주세요</span><img id="preview"></div>
@@ -530,18 +607,6 @@
     </div>
 
     <div id="result-section">
-        <div class="result-card" style="border-color: var(--neon-blue); padding: 15px;">
-            <span class="result-label" style="color:var(--neon-blue); margin-bottom:5px;">📂 지문 출처 설정</span>
-            <div style="display: flex; gap: 8px;">
-                <input type="text" id="passage-title-input" 
-                       style="flex: 1; background: #111; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 8px; font-size: 0.9rem;" 
-                       placeholder="예: 수능특강 12강 3번">
-                <button onclick="updatePassageTitleManually()" 
-                        style="background: var(--neon-blue); color: #000; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">확인</button>
-            </div>
-            <p style="font-size: 0.75rem; color: #888; margin-top: 8px; margin-bottom: 0;">* 미입력 시 카테고리와 AI 요약 제목이 기본 적용됩니다.</p>
-        </div>
-
         <div style="margin-bottom: 25px;"><h4 style="color: var(--neon-green); margin-top: 0; font-size: 1.1rem;">✅ AI 정밀 분석 보고서 <span id="analysis-source-badge" style="display:none; margin-left:8px; font-size:0.72rem; color:#111; background:#9fe870; border-radius:999px; padding:2px 8px; vertical-align:middle;">기존 분석 결과 불러옴</span></h4><div id="ai-report-area"></div></div>
         
         <div class="guide-box" style="border-color: #b537f2; background: rgba(181, 55, 242, 0.05); margin-top: 25px;">
@@ -1417,7 +1482,21 @@
             } catch (e) {}
         }
 
+        let wordPopupAutoCloseTimer = null;
+        window.closeWordPopup = function () {
+            if (wordPopupAutoCloseTimer != null) {
+                clearTimeout(wordPopupAutoCloseTimer);
+                wordPopupAutoCloseTimer = null;
+            }
+            const popup = document.getElementById('word-popup');
+            if (popup) popup.style.display = 'none';
+        };
+
         function showWordPopup(eng, kor, level) {
+            if (wordPopupAutoCloseTimer != null) {
+                clearTimeout(wordPopupAutoCloseTimer);
+                wordPopupAutoCloseTimer = null;
+            }
             const popup = document.getElementById('word-popup');
             const isSaved = savedVocaCache.some(item => String(item.eng || '').toLowerCase() === String(eng || '').toLowerCase());
             const btnText = isSaved ? "✅" : "저장";
@@ -1434,10 +1513,13 @@
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <button class="${btnClass}" onclick="toggleVocaSave('${safeEng}', '${safeKor}', '${level}', this)" style="padding: 8px 14px; border-radius: 8px;">${btnText}</button>
-                    <button onclick="document.getElementById('word-popup').style.display='none'" style="padding: 8px 14px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid #555; color:#bbb; font-weight:bold; cursor:pointer; font-size:0.75rem; line-height:1.2;">닫기</button>
+                    <button type="button" onclick="closeWordPopup()" style="padding: 8px 14px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid #555; color:#bbb; font-weight:bold; cursor:pointer; font-size:0.75rem; line-height:1.2;">닫기</button>
                 </div>
             `;
             popup.style.display = 'flex';
+            wordPopupAutoCloseTimer = setTimeout(function () {
+                window.closeWordPopup();
+            }, 5000);
         }
 
         async function deleteNoteItem(type, index, event) {
@@ -3087,7 +3169,7 @@
                     ? '<button type="button" class="passage-toggle-btn" id="btn-passage-kw-toggle" aria-pressed="false" onclick="togglePassageKeywordHighlight(this)">키워드 보기</button>'
                     : '';
             const translationCardHtml =
-                '<div class="result-card">' +
+                '<div class="result-card translation-passage-card">' +
                 '<div class="translation-card-toolbar">' +
                 '<span class="result-label translation-card-title" style="color:var(--neon-green);margin:0;">📝 해석 (단어를 클릭하면 뜻을 볼 수 있어요)</span>' +
                 '<div class="passage-view-toggle-wrap">' +
