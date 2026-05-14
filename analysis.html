@@ -16,6 +16,19 @@
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .editable-area { width: 100%; min-height: 180px; max-height: 300px; background: #111; color: #fff; border: 1px solid #333; border-radius: 12px; padding: 15px; font-size: 1rem; line-height: 1.8; overflow-y: auto; outline: none; word-break: break-all; margin-bottom: 15px; box-sizing: border-box; }
         .result-card { background: rgba(255, 255, 255, 0.03); border: 1px solid #333; border-radius: 15px; padding: 20px; margin-bottom: 15px; }
+        #analysis-passage-zone .analysis-zone-body .result-card,
+        #analysis-exam-zone .analysis-zone-body .result-card {
+            background: #000000;
+        }
+        #analysis-exam-zone #exam-report-workspace {
+            background: #000000;
+        }
+        #analysis-passage-zone .camera-ui {
+            background: #000000;
+        }
+        #analysis-passage-zone .editable-area {
+            background: #000000;
+        }
         
         .result-label { font-size: 1.1rem; color: var(--neon-blue); font-weight: bold; margin-bottom: 10px; display: block; letter-spacing: 1px; }
         .result-content { font-size: 0.95rem; line-height: 1.7; color: #eee; }
@@ -311,23 +324,23 @@
         }
         .analysis-zone-card.passage-zone {
             border-color: rgba(0, 243, 255, 0.42);
-            background-color: #06090b;
+            background-color: #000000;
             background-image: linear-gradient(
                 168deg,
                 rgba(0, 243, 255, 0.06) 0%,
                 rgba(159, 232, 112, 0.025) 42%,
-                transparent 70%
+                #000000 70%
             );
         }
-        /* 지문 카드와 동일한 그라데이션 형식·강도, 색만 붉은 계열 */
+        /* 지문 카드와 동일: 외곽만 은은한 그라데이션, 안쪽·여백은 검정 */
         .analysis-zone-card.exam-zone {
             border-color: rgba(255, 95, 85, 0.42);
-            background-color: #0b0606;
+            background-color: #000000;
             background-image: linear-gradient(
                 168deg,
                 rgba(255, 70, 60, 0.06) 0%,
                 rgba(255, 130, 100, 0.025) 42%,
-                transparent 70%
+                #000000 70%
             );
         }
         .analysis-zone-label {
@@ -387,6 +400,10 @@
         .exam-zone .analysis-zone-desc-accent { font-size: 0.8rem; font-weight: 700; color: #ffc9a8; line-height: 1.45; }
         .analysis-zone-label .exam-sample-pill { margin-top: 2px; }
         .analysis-zone-body { padding: 14px 16px 18px; }
+        .passage-zone .analysis-zone-body,
+        .exam-zone .analysis-zone-body {
+            background-color: #000000;
+        }
         .passage-zone .analysis-zone-body { padding-top: 10px; }
         .exam-zone-value {
             font-size: 0.86rem;
@@ -395,7 +412,7 @@
             margin: 0 0 12px;
             padding: 12px 14px;
             border-radius: 12px;
-            background: rgba(255, 130, 75, 0.08);
+            background: #000000;
             border: 1px solid rgba(255, 130, 75, 0.26);
         }
         .exam-sample-pill {
