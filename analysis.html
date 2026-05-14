@@ -337,6 +337,14 @@
             background: linear-gradient(90deg, rgba(159, 232, 112, 0.12) 0%, transparent 55%);
         }
         .analysis-zone-sub { display: block; font-size: 0.78rem; font-weight: 600; color: #9aa; margin-top: 5px; line-height: 1.45; }
+        .analysis-zone-title-row { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.02em; margin: 0; }
+        .analysis-zone-desc { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; max-width: 52rem; }
+        .analysis-zone-desc-lead { font-size: 0.84rem; font-weight: 700; color: #b8c4d4; line-height: 1.52; }
+        .analysis-zone-desc-body { font-size: 0.8rem; font-weight: 500; color: #9aa7b5; line-height: 1.55; }
+        .analysis-zone-desc-muted { font-size: 0.76rem; font-weight: 500; color: #7d8794; line-height: 1.5; }
+        .passage-zone .analysis-zone-desc-accent { font-size: 0.8rem; font-weight: 700; color: #9fe870; line-height: 1.45; }
+        .exam-zone .analysis-zone-desc-accent { font-size: 0.8rem; font-weight: 700; color: #c8f5a8; line-height: 1.45; }
+        .analysis-zone-label .exam-sample-pill { margin-top: 2px; }
         .analysis-zone-body { padding: 14px 16px 18px; }
         .passage-zone .analysis-zone-body { padding-top: 10px; }
         .exam-zone-value {
@@ -427,15 +435,15 @@
     <div id="analysis-page-split" class="analysis-page-split">
     <section id="analysis-passage-zone" class="analysis-zone-card passage-zone">
         <header class="analysis-zone-label">
-            <span>📷 지문 분석<span class="analysis-zone-sub">촬영·붙여넣기로 빠르게 해설 받기</span></span>
+            <div class="analysis-zone-title-row">📷 지문 분석</div>
+            <div class="analysis-zone-desc">
+                <div class="analysis-zone-desc-lead">촬영·붙여넣기 또는 아래「복사/붙여넣기로 분석하기」로 빠르게 해설을 받을 수 있어요.</div>
+                <div class="analysis-zone-desc-body">지문을 촬영하면 <strong style="color:#e2eaf2;">트리거 AI의 실시간 정밀 분석</strong>이 시작됩니다. 선명하게 찍을수록 정확도가 올라갑니다.</div>
+                <div class="analysis-zone-desc-accent">한 문항(한 지문)만 프레임에 맞게 찍어 주세요.</div>
+            </div>
         </header>
         <div class="analysis-zone-body">
     <div id="input-section">
-        <div class="guide-box">
-            <p class="guide-title">📷 AI 지문 분석</p>
-            <p class="guide-text">지문을 촬영하면 <strong>트리거 AI의 실시간 정밀 분석</strong>이 시작됩니다. 선명하게 찍을수록 정확도가 올라갑니다.</p>
-            <p class="guide-text" style="margin-top:10px;color:#9fe870;">한 문항(한 지문)만 프레임에 맞게 찍어 주세요.</p>
-        </div>
         <div class="camera-ui"><span id="label" style="color: #444;">지문을 수평으로 찍어주세요</span><img id="preview"></div>
         <input type="file" id="capture" accept="image/*" style="display:none" onchange="loadImg(this)">
         <div style="display: flex; gap: 10px; margin-top: 15px;">
@@ -501,14 +509,16 @@
 
     <section id="analysis-exam-zone" class="analysis-zone-card exam-zone">
         <header class="analysis-zone-label">
-            <span>📋 시험 리포트 분석<span class="analysis-zone-sub">문항·배점·그래프·AI 진단까지 한 번에</span></span>
+            <div class="analysis-zone-title-row">📋 시험 리포트 분석</div>
+            <div class="analysis-zone-desc">
+                <div class="analysis-zone-desc-lead">문항·배점 추출 → 오답·서술 입력 → 파이·추이 그래프 → 오답 유형별 <strong style="color:#d8f5bf;">AI 진단</strong>까지 한 번에 이어지는 리포트를 만듭니다.</div>
+                <div class="analysis-zone-desc-body">시험지 전 페이지를 올리면 위 흐름으로 진행합니다. <span class="exam-sample-pill">리포트 샘플 흐름</span> 저장 후 <strong style="color:#e8f6dc;">인쇄·PDF·카카오톡 공유</strong>까지 이 화면에서 마무리할 수 있어요.</div>
+                <div class="analysis-zone-desc-muted">이름·학년은 메인 프로필과 동일하게 표시됩니다.</div>
+            </div>
         </header>
         <div class="analysis-zone-body">
-            <p class="exam-zone-value">시험지 전 페이지를 올리면 <strong>문항·배점 추출 → 오답·서술 입력 → 파이·추이 그래프 → 오답 유형별 AI 진단</strong>으로 이어지는 리포트가 만들어집니다. <span class="exam-sample-pill">리포트 샘플 흐름</span> 저장 후 <strong>인쇄·PDF·카카오톡 공유</strong>까지 한 화면에서 마무리할 수 있어요.</p>
-            <p class="guide-text" style="font-size:0.82rem;color:#999;margin:0 0 12px;line-height:1.5;">이름·학년은 메인 프로필과 동일하게 표시됩니다.</p>
-            <button type="button" id="exam-report-open-btn" class="login-btn" style="width:100%; margin-top:0; margin-bottom:4px; border-color:#9fe870; color:#9fe870; background:rgba(159,232,112,0.1);">시험 분석 열기</button>
 
-    <div id="exam-report-workspace" style="display:none; margin-top:10px;">
+    <div id="exam-report-workspace" style="display:block; margin-top:0;">
         <div class="guide-box" style="border-color:#9fe870;">
             <p class="guide-title" style="color:#9fe870;">촬영 가이드</p>
             <p class="guide-text" style="color:#ffcc80;font-weight:bold;">1쪽부터 마지막 서술형까지 다 찍어야 정확한 리포트가 나옵니다.</p>
@@ -553,7 +563,6 @@
             <div id="exam-rpt-thumbs" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;"></div>
         </div>
         <button type="button" id="exam-rpt-run-extract" class="start-btn" style="width:100%; margin-top:12px; border-color:var(--neon-orange);">분석 시작</button>
-        <button type="button" class="login-btn" style="width:100%; margin-top:10px; border-color:#666; color:#ccc; background:transparent;" onclick="closeExamReportWorkspace()">닫기</button>
 
         <div id="exam-rpt-after-extract" style="display:none; margin-top:18px;">
             <div class="result-card">
@@ -3164,7 +3173,6 @@
 
         function openPassageHistoryItem(fp) {
             if (!fp) return;
-            closeExamReportWorkspace();
             const hit = getCachedAnalysis(fp);
             if (!hit || !hit.res) {
                 alert('이 기기에 저장된 분석이 없거나 저장 공간 정리로 지워졌어요.\n같은 지문으로 다시 분석하면 다시 저장돼요.');
@@ -3555,11 +3563,7 @@
             lb.setAttribute('aria-hidden', 'true');
         }
 
-        function openExamReportWorkspace() {
-            if (!authUserId || !authPassword) {
-                alert('먼저 메인에서 이름·전화번호를 입력한 뒤, 이 페이지에서 자동 연결이 완료되어야 합니다.');
-                return;
-            }
+        function showExamReportWorkspaceCore() {
             const ws = document.getElementById('exam-report-workspace');
             const hasDraft = examRptQuestions.length > 0 || examRptImages.length > 0;
             if (!hasDraft) {
@@ -3567,10 +3571,7 @@
             } else {
                 examRptRestoreWorkspaceUi();
             }
-            if (ws) {
-                ws.style.display = 'block';
-            }
-            focusExamAnalysisSection();
+            if (ws) ws.style.display = 'block';
             const nm = document.getElementById('exam-rpt-display-name');
             if (nm) nm.textContent = (localStorage.getItem('trigger_name') || '').trim() || '—';
             const gr = document.getElementById('exam-rpt-display-grade');
@@ -3578,6 +3579,15 @@
             const urlG = params.get('grade') || '';
             if (gr) gr.textContent = savedG || urlG || '—';
             examRptSyncAdminSection();
+        }
+
+        function openExamReportWorkspace() {
+            if (!authUserId || !authPassword) {
+                alert('먼저 메인에서 이름·전화번호를 입력한 뒤, 이 페이지에서 자동 연결이 완료되어야 합니다.');
+                return;
+            }
+            showExamReportWorkspaceCore();
+            focusExamAnalysisSection();
         }
 
         function closeExamReportWorkspace() {
@@ -4497,8 +4507,6 @@
                     tq.textContent = hidden ? '문항·배점 접기 ▲' : '문항·배점 펼치기 ▼';
                 });
             }
-            const openBtn = document.getElementById('exam-report-open-btn');
-            if (openBtn) openBtn.addEventListener('click', openExamReportWorkspace);
             const f = document.getElementById('exam-rpt-files');
             const camBtn = document.getElementById('exam-rpt-open-camera');
             const galBtn = document.getElementById('exam-rpt-open-gallery');
@@ -4565,6 +4573,7 @@
                 const el = document.getElementById('exam-rpt-lightbox');
                 if (el && el.style.display === 'flex') examRptCloseLightbox();
             });
+            showExamReportWorkspaceCore();
         })();
 
         async function runGeminiAnalysis(isTextMode = false) {
