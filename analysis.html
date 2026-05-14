@@ -505,7 +505,55 @@
         .passage-corrections-list li { margin: 4px 0; }
         .passage-cor-num { color: #00f3ff; font-weight: bold; margin-right: 4px; }
 
-        .analysis-page-split { display: flex; flex-direction: column; gap: 26px; margin-top: 6px; }
+        .analysis-page-split.analysis-main-tabs-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin-top: 6px;
+        }
+        .analysis-main-tabs {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .analysis-main-tab {
+            flex: 1;
+            margin: 0;
+            padding: 13px 10px;
+            font-size: 0.94rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            cursor: pointer;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(22, 26, 32, 0.92);
+            color: #8b96a6;
+            transition: color 0.18s, background 0.18s, border-color 0.18s, box-shadow 0.18s;
+        }
+        .analysis-main-tab:hover {
+            color: #dce4ee;
+            border-color: rgba(255, 255, 255, 0.22);
+        }
+        .analysis-main-tab.passage-tab.is-active {
+            color: #d4ffd0;
+            border-color: rgba(57, 255, 20, 0.55);
+            background: rgba(57, 255, 20, 0.1);
+            box-shadow: 0 0 0 1px rgba(57, 255, 20, 0.2);
+        }
+        .analysis-main-tab.exam-tab.is-active {
+            color: #ffe8dc;
+            border-color: rgba(255, 154, 92, 0.6);
+            background: rgba(255, 120, 80, 0.1);
+            box-shadow: 0 0 0 1px rgba(255, 154, 92, 0.22);
+        }
+        .analysis-tab-panels { display: block; }
+        .analysis-tab-panel {
+            display: none;
+        }
+        .analysis-tab-panel.is-active {
+            display: block;
+        }
         .analysis-zone-card {
             border-radius: 16px;
             border: 1px solid #2a2a2a;
@@ -762,7 +810,13 @@
         </div>
     </div>
 
-    <div id="analysis-page-split" class="analysis-page-split">
+    <div id="analysis-page-split" class="analysis-page-split analysis-main-tabs-wrap">
+        <div class="analysis-main-tabs" role="tablist" aria-label="분석 유형 선택">
+            <button type="button" id="analysis-tab-btn-passage" class="analysis-main-tab passage-tab is-active" role="tab" aria-selected="true" aria-controls="analysis-tab-panel-passage" onclick="switchAnalysisMainTab('passage')">지문 분석</button>
+            <button type="button" id="analysis-tab-btn-exam" class="analysis-main-tab exam-tab" role="tab" aria-selected="false" aria-controls="analysis-tab-panel-exam" onclick="switchAnalysisMainTab('exam')">시험 분석</button>
+        </div>
+        <div class="analysis-tab-panels">
+            <div id="analysis-tab-panel-passage" class="analysis-tab-panel is-active" role="tabpanel" aria-labelledby="analysis-tab-btn-passage">
     <section id="analysis-passage-zone" class="analysis-zone-card passage-zone">
         <header class="analysis-zone-label">
             <div class="analysis-zone-title-row">📷 지문 분석</div>
@@ -842,7 +896,8 @@
     </div>
         </div>
     </section>
-
+            </div>
+            <div id="analysis-tab-panel-exam" class="analysis-tab-panel" role="tabpanel" aria-labelledby="analysis-tab-btn-exam">
     <section id="analysis-exam-zone" class="analysis-zone-card exam-zone">
         <header class="analysis-zone-label">
             <div class="analysis-zone-title-row">📋 시험 분석 리포트 생성</div>
@@ -951,6 +1006,8 @@
     </div>
         </div>
     </section>
+        </div>
+    </div>
 
     <div id="exam-rpt-confirm-overlay" class="exam-rpt-confirm-overlay" aria-hidden="true">
         <div class="exam-rpt-confirm-box" role="dialog" aria-modal="true" aria-labelledby="exam-rpt-confirm-title">
@@ -1257,7 +1314,30 @@
             return false;
         }
 
+        function switchAnalysisMainTab(which) {
+            const w = which === 'exam' ? 'exam' : 'passage';
+            const btnP = document.getElementById('analysis-tab-btn-passage');
+            const btnE = document.getElementById('analysis-tab-btn-exam');
+            const panP = document.getElementById('analysis-tab-panel-passage');
+            const panE = document.getElementById('analysis-tab-panel-exam');
+            if (btnP) {
+                btnP.classList.toggle('is-active', w === 'passage');
+                btnP.setAttribute('aria-selected', w === 'passage' ? 'true' : 'false');
+            }
+            if (btnE) {
+                btnE.classList.toggle('is-active', w === 'exam');
+                btnE.setAttribute('aria-selected', w === 'exam' ? 'true' : 'false');
+            }
+            if (panP) {
+                panP.classList.toggle('is-active', w === 'passage');
+            }
+            if (panE) {
+                panE.classList.toggle('is-active', w === 'exam');
+            }
+        }
+
         function focusPassageAnalysisSection() {
+            switchAnalysisMainTab('passage');
             const pz = document.getElementById('analysis-passage-zone');
             try {
                 if (pz) pz.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1265,6 +1345,7 @@
         }
 
         function focusExamAnalysisSection() {
+            switchAnalysisMainTab('exam');
             const ez = document.getElementById('analysis-exam-zone');
             try {
                 if (ez) ez.scrollIntoView({ behavior: 'smooth', block: 'start' });
