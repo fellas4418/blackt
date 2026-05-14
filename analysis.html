@@ -184,8 +184,9 @@
             font-size: 0.9rem;
         }
         .passage-grammar-panel { font-size: 0.93rem; color: #eee; margin-bottom: 12px; line-height: 1.7; }
-        .passage-grammar-panel del.passage-del,
-        del.passage-del { color: #ff7b7b; text-decoration: line-through; text-decoration-thickness: 2px; }
+        .passage-grammar-panel del.passage-del + ins.passage-ins,
+        .passage-corrections-list del.passage-del + ins.passage-ins { margin-left: 0.55em; }
+        .passage-grammar-panel del.passage-del { margin-right: 0.15em; }
         .passage-grammar-panel ins.passage-ins,
         ins.passage-ins { color: #39ff14; text-decoration: none; font-weight: 600; }
         .passage-clean-list { margin: 0; padding-left: 1.2em; color: #ddd; }
@@ -2290,7 +2291,7 @@
                         if (a.name !== 'class') el.removeAttribute(a.name);
                     });
                 });
-                return tpl.innerHTML;
+                return String(tpl.innerHTML).replace(/<\/del>\s*<ins\b/gi, '</del> <ins');
             } catch (e) {
                 return escapeHtml(raw);
             }
@@ -2360,7 +2361,7 @@
                         num +
                         '</span> <del class="passage-del">' +
                         w +
-                        '</del> → <ins class="passage-ins">' +
+                        '</del> <span style="display:inline-block;margin:0 0.35em;color:#888;">→</span> <ins class="passage-ins">' +
                         cr +
                         '</ins></li>';
                 });
@@ -4409,13 +4410,14 @@
     - 각 variant: \`interpretation_ko\`는 반드시 한 줄 한국어 해석. \`key_terms\`는 각 variant마다 **반드시 3개 이상 6개 이하**의 \`{ "eng": "해당 variant sentence_en에 실제로 나온 단어", "kor": "뜻" }\` 배열(뜻은 full_word_map·keywords와 일치하게, 가능하면 topic_keywords와 겹치는 항목을 우선 포함).
     - **JSON 출력 직전 자가검증**: ①의 \`sentence_en\`이 지문 **어떤 eng 문장과도 완전히 같지 않은지**, 지문 문장과 **연속 5단어 이상 동일한 구간**이 없는지 확인하세요. ②는 **①만** 변형한 것인지, ③은 **①만** 패러프레이즈한 것인지 확인하세요. ①②③ \`sentence_en\`은 **서로 모두 다른 문자열**이어야 합니다.
 16. passage_layout: 지문 **텍스트 구조**를 분석해 수능/내신형 UI로 쓸 메타데이터. **반드시 포함**하세요.
+    - **시험지·입력 표기 순서(공통 원칙)**: **어법(\`grammar\`)만** 본문의 틀린 낱말·구를 **교정된 표현**으로 바꿀 수 있습니다. **그 외 유형**(순서배열·삽입·요약·일반 등)에서는 사진/텍스트에 보이는 **줄·문단·보기 블록 순서**를 **그대로** 따르고, AI가 읽기 편하다고 **정답 순·논리 순으로 재배열하거나 문단을 합치지 마세요.** 순서배열은 **정답으로 맞춰야 할 문장 순이 아니라, 문제지에 인쇄된 (A)(B)(C) 나열 순**과 동일해야 합니다.
     - \`type\` 값 (하나만): \`"insertion"\` | \`"ordering"\` | \`"summary"\` | \`"grammar"\` | \`"normal"\` | \`"normal_clean"\`
-      · **insertion**: 본문과 분리된 **삽입 박스 문장**(박스 안 한 문장)이 있으면. \`box_sentence\`에 그 **영어 문장 전체**를 넣고, \`full_translation\`에는 본문 줄만(박스 문장은 중복하지 않거나 한 줄로만).
-      · **ordering**: \`(A)\`, \`(B)\`, \`(C)\` 같은 **단락 표지**가 있으면. \`paragraphs\` 배열: \`[{ "marker": "(A)", "eng_text": "해당 단락 영어" }, ...]\` 순서는 지문 순서와 동일. \`full_translation\` 행 순서도 이 단락과 맞출 것.
-      · **summary**: 지문 **하단**에 요약용 빈칸·보기 박스(A/B 등)가 있으면. \`summary_box\`에 그 **영어 블록 전체**(빈칸 표기 포함)를 문자열로.
-      · **grammar**: 본문에 **①~⑤** 등 번호가 있고 **어법·문맥**으로 틀린 낱말을 고르는 유형이면. \`grammar_panel_eng\`에는 **HTML로만** \`<del>...</del>\`(틀린 표현), \`<ins>...</ins>\`(교정)과 \`<br>\`만 사용(다른 태그 금지). \`corrections\`: \`[{ "num": "①", "wrong": "...", "correct": "..." }]\` 형태로 번호별 요약. **full_translation의 각 eng는 교정된 최종 문장(평문, HTML 없음)**으로 두고, **kor은 교정된 문장 기준 해석**.
+      · **insertion**: 본문과 분리된 **삽입 박스 문장**(박스 안 한 문장)이 있으면. \`box_sentence\`에 그 **영어 문장 전체**를 넣고, \`full_translation\`에는 본문 줄만(박스 문장은 중복하지 않거나 한 줄로만). **인쇄·입력에 보이는 순서**를 유지하세요.
+      · **ordering**: \`(A)\`, \`(B)\`, \`(C)\` 같은 **단락 표지**가 있으면. \`paragraphs\` 배열: \`[{ "marker": "(A)", "eng_text": "해당 단락 영어" }, ...]\` — 배열 순서는 **반드시 문제지에 인쇄된 (A)(B)(C) 순서 그대로**이어야 하며, **정답 순·가독 순으로 재정렬하면 안 됩니다.** \`full_translation\`의 eng 행 순서도 **같은 인쇄 순서**와 일치시키세요.
+      · **summary**: 지문 **하단**에 요약용 빈칸·보기 박스(A/B 등)가 있으면. \`summary_box\`에 그 **영어 블록 전체**(빈칸 표기 포함)를 문자열로. **보이는 그대로** 옮기세요.
+      · **grammar**: 본문에 **①~⑤** 등 번호가 있고 **어법·문맥**으로 틀린 낱말을 고르는 유형이면. \`grammar_panel_eng\`에는 **HTML로만** \`<del>...</del>\`(틀린 표현), \`<ins>...</ins>\`(교정)과 \`<br>\`만 사용(다른 태그 금지). **각 \`<del>...</del>\` 닫는 태그 직후와 바로 이어지는 \`<ins>...</ins>\` 사이**에 **공백 한 칸 이상 또는 \`<br>\`**를 넣어, 틀린 부분과 교정 부분이 붙어 보이지 않게 하세요. \`corrections\`: \`[{ "num": "①", "wrong": "...", "correct": "..." }]\` 형태로 번호별 요약. **full_translation의 각 eng는 교정된 최종 문장(평문, HTML 없음)**으로 두고, **kor은 교정된 문장 기준 해석**. **문장 나열 순서는 원본 지문과 동일**하게 유지하세요.
       · **normal_clean**: 안내문·표·실용문 등 위 유형에 딱 맞지 않으면. \`bulleted_lines\`: 줄 단위 문자열 배열(불렛으로 보여줄 각 줄).
-      · **normal**: 위 특이 구조가 없을 때.
+      · **normal**: 위 특이 구조가 없을 때. \`full_translation\`은 **입력에 나온 문장 순서 그대로** 유지하세요.
     - **장문 독해**: 문단이 많고 길면 \`paragraph_subtitles\`에 \`[{ "row_index": 0, "subtitle": "한 줄 소제목" }, ...]\` 형태로 \`full_translation\` **행 인덱스(0부터)**와 맞추거나, 각 \`full_translation\` 객체에 선택 필드 \`"subtitle"\`을 넣어도 됩니다.
     - **복합**(예: 순서 배열 + 어법): **어법 우선** — \`type\`은 반드시 \`"grammar"\`로 하고, \`paragraphs\`와 \`grammar_panel_eng\`·\`corrections\`를 함께 채워 시각 요소를 모두 반영합니다.
 
