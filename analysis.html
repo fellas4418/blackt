@@ -67,8 +67,9 @@
             line-height: 1.48;
             font-weight: 400;
             text-align: left;
+            -webkit-tap-highlight-color: transparent;
         }
-        .kor-text { font-size: 0.95rem; color: #aaa; }
+        .kor-text { font-size: 0.95rem; color: #aaa; -webkit-tap-highlight-color: transparent; }
         #translation-rows-root.passage-hide-kor .kor-text {
             visibility: hidden !important;
             pointer-events: none;
@@ -157,7 +158,15 @@
         }
         .kakao-btn { width: 100%; padding: 18px; background: #fee500; color: #000; border: none; border-radius: 12px; font-weight: 900; font-size: 1.05rem; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         
-        .clickable-word { cursor: pointer; display: inline-block; transition: 0.2s; border-bottom: 1px solid transparent; position: relative; z-index: 5; }
+        .clickable-word {
+            cursor: pointer;
+            display: inline-block;
+            transition: color 0.2s, border-bottom-color 0.2s;
+            border-bottom: 1px solid transparent;
+            position: relative;
+            z-index: 5;
+            -webkit-tap-highlight-color: transparent;
+        }
         .clickable-word:hover { color: var(--neon-green); }
         .hl-voca { color: var(--neon-green); font-weight: 600; }
         
@@ -420,7 +429,11 @@
 
         /* Golden Key · 문장 선택 질문 */
         #result-section.sentence-pick-mode .clickable-word { pointer-events: none !important; cursor: default !important; }
-        .translation-row.pick-selectable { cursor: pointer; border-radius: 8px; transition: box-shadow 0.15s; }
+        .translation-row.pick-selectable { border-radius: 8px; -webkit-tap-highlight-color: transparent; }
+        #result-section.sentence-pick-mode .translation-row.pick-selectable {
+            cursor: pointer;
+            transition: box-shadow 0.15s, background-color 0.15s;
+        }
         .translation-row.sentence-pick-selected { box-shadow: 0 0 0 2px var(--neon-blue); background: rgba(0,243,255,0.08); }
         .gk-term-btn { background: #1a1a1a; border: 1px solid #555; color: #9fe870; padding: 4px 8px; border-radius: 6px; font-size: 0.82rem; cursor: pointer; }
         .gk-term-mean { font-size: 0.82rem; color: #9fd; }
@@ -1808,7 +1821,8 @@
         }
 
         // 🔥 초정밀 어근 추출 및 무적 매칭 로직
-        window.handleWordClick = function(element) {
+        window.handleWordClick = function(element, ev) {
+            if (ev && typeof ev.stopPropagation === 'function') ev.stopPropagation();
             if (window.sentencePickModeActive) return;
             const idiom = element.getAttribute('data-idiom');
             let rawWord = idiom ? idiom : String(element.innerText || '').toLowerCase().replace(/[^a-z-]/g, '').trim();
@@ -2109,7 +2123,7 @@
                             return (
                                 '<span class="clickable-word ' +
                                 (isTarget ? 'hl-voca' : '') +
-                                '" onclick="handleWordClick(this)">' +
+                                '" onclick="handleWordClick(this, event)">' +
                                 w +
                                 '</span>'
                             );
@@ -2706,7 +2720,6 @@
                 }
             } catch (e) {}
             p.style.display = show ? 'block' : 'none';
-            if (!userCanUsePremiumAiAskFeatures()) exitSentencePickModeSilently();
         }
 
         function initPremiumAiAskPanelOnce() {
@@ -2727,13 +2740,6 @@
             const done = document.getElementById('btn-sentence-pick-done');
             if (tgl) {
                 tgl.addEventListener('click', function () {
-                    if (!userCanUsePremiumAiAskFeatures()) {
-                        alert(
-                            '「질문할 문장 선택」은 프리미엄 회원만 쓸 수 있어요.\n\n' +
-                            'UI 테스트: 메인(index)에서 로고나 상단 제목을 1.5초 안에 세 번 연속 누르면 관리자 모드가 켜집니다. 그다음 이 페이지를 새로고침하세요.'
-                        );
-                        return;
-                    }
                     if (window.sentencePickModeActive) {
                         exitSentencePickModeSilently();
                         return;
@@ -2748,7 +2754,6 @@
             }
             if (done) {
                 done.addEventListener('click', function () {
-                    if (!userCanUsePremiumAiAskFeatures()) return;
                     confirmedChatContextSentence = getSelectedSentencePlainFromDom();
                     exitSentencePickModeSilently();
                 });
@@ -5102,7 +5107,7 @@
                 const prompt = `당신은 대한민국 최고의 1타 영어 강사입니다. 입력된 지문을 분석하여 반드시 순수한 JSON 형식으로만 응답하세요. 마크다운 태그(\`\`\`json 등)는 절대 생략하세요.
 
 [필수 제약 조건]
-0. **(이미지 입력일 때만) 문항 번호별 지문이 한 화면에 여러 개일 때:** 본문 앞에 **"15." "16."**처럼 **아라비아 숫자 + 마침표(또는 15 )** 형태로 **문항이 바뀌는 경계**가 보이면, 각 번호 뒤의 영어 블록을 **서로 다른 지문**으로 구분하세요. 그중 **아래쪽에 이어지는 지문이 사진 프레임 밖으로 잘려 문장·문단이 끝나지 않은 불완전 블록**이면, 그 번호의 텍스트는 **절대 포함하지 마세요.** **처음부터 끝까지 읽을 수 있는 완전한 지문 하나**(예: 15번만 완전한 경우 15번만)만 \`full_translation\`, \`passage_layout\`, keywords, grammar, topic_* 등 **전체 분석의 본문**으로 사용하세요. **불완전한 다음 지문의 앞부분을 완전한 지문 뒤에 붙여 한 덩어리로 만들지 마세요.** 반대로, **두 지문이 모두 끝까지** 보이면 각각 완결된 지문으로 두 블록을 순서대로 모두 포함해도 됩니다.
+0. **(이미지 입력일 때) OCR·시각 인식:** 흔들림·기울기·그림자·저조도·스마트폰 압축·작은 글씨여도 **보이는 활자를 글자 단위로 최대한 정확히** 옮기고, 한 글자만 흐려도 **전후 문맥·철자·문법**으로 추론해 \`full_translation\`의 eng·kor·keywords·grammar 등에 **일관되게** 반영하세요. **읽히는 단어·구두점은 빠짐없이** 적고, **완전히 판독 불가한 줄만** 최소한으로 생략하세요. **문항 번호별 지문이 한 화면에 여러 개일 때:** 본문 앞에 **"15." "16."**처럼 **아라비아 숫자 + 마침표(또는 15 )** 형태로 **문항이 바뀌는 경계**가 보이면, 각 번호 뒤의 영어 블록을 **서로 다른 지문**으로 구분하세요. 그중 **아래쪽에 이어지는 지문이 사진 프레임 밖으로 잘려 문장·문단이 끝나지 않은 불완전 블록**이면, 그 번호의 텍스트는 **절대 포함하지 마세요.** **처음부터 끝까지 읽을 수 있는 완전한 지문 하나**(예: 15번만 완전한 경우 15번만)만 \`full_translation\`, \`passage_layout\`, keywords, grammar, topic_* 등 **전체 분석의 본문**으로 사용하세요. **불완전한 다음 지문의 앞부분을 완전한 지문 뒤에 붙여 한 덩어리로 만들지 마세요.** 반대로, **두 지문이 모두 끝까지** 보이면 각각 완결된 지문으로 두 블록을 순서대로 모두 포함해도 됩니다.
 1. 초등학교~중학교 2학년 수준의 기초 단어는 절대 제외. 중3~수능 수준의 핵심 어휘를 무조건 20~30개 추출 (숙어의 공백 유지). 단, 사람 이름(예: Anna), 특정 인명·지명·기관명 등 고유명사는 keywords에서 제외.
 2. '배경지식'과 '쉬운 주제(easy)'는 반드시 '~해요', '~했어요' 체 사용.
 3. '격식 있는 주제(formal)'와 '문법 설명'은 반드시 '~합니다', '~했습니다' 체 사용.
@@ -5184,14 +5189,17 @@
                     const img = document.getElementById('preview');
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
-                    const maxWidth = 800;
-                    const scale = img.naturalWidth > maxWidth ? maxWidth / img.naturalWidth : 1;
-                    canvas.width = img.naturalWidth * scale;
-                    canvas.height = img.naturalHeight * scale;
+                    const nw = img.naturalWidth || 0;
+                    const nh = img.naturalHeight || 0;
+                    const maxLong = 1600;
+                    const long = Math.max(nw, nh);
+                    const scale = long > maxLong ? maxLong / long : 1;
+                    canvas.width = Math.max(1, Math.round(nw * scale));
+                    canvas.height = Math.max(1, Math.round(nh * scale));
                     ctx.imageSmoothingEnabled = true;
                     ctx.imageSmoothingQuality = 'high';
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    finalImageData = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+                    finalImageData = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
                 }
 
                 let passageFingerprint = '';
