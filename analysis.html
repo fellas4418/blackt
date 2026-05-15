@@ -216,14 +216,28 @@
         }
         .kakao-btn.voca-practice-cta-btn .voca-cta-line1 {
             display: flex;
-            flex-wrap: wrap;
             justify-content: center;
             align-items: center;
-            gap: 0.35em;
             width: 100%;
+            padding-left: 1.15em;
+            box-sizing: border-box;
+        }
+        .kakao-btn.voca-practice-cta-btn .voca-cta-text-wrap {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+            text-align: center;
+        }
+        .kakao-btn.voca-practice-cta-btn .voca-cta-text {
+            display: inline-block;
         }
         .kakao-btn.voca-practice-cta-btn .voca-cta-line1 .voca-cta-ico {
-            flex-shrink: 0;
+            position: absolute;
+            right: 100%;
+            margin-right: 0.22em;
+            top: 50%;
+            transform: translateY(-50%);
+            line-height: 1;
         }
         .kakao-btn.voca-practice-cta-btn .voca-cta-line2 {
             display: block;
@@ -1035,7 +1049,7 @@
         <header class="analysis-zone-label">
             <div class="analysis-zone-title-row">📋 시험 분석 리포트 생성</div>
             <div class="analysis-zone-desc">
-                <div class="analysis-zone-desc-body">문항 추출부터 오답 유형별 AI 진단까지 원스톱 리포트를 만들어 드립니다. <span class="exam-zone-desc-highlight">1쪽부터 마지막 서술형까지 모두 찍어주세요.</span></div>
+                <div class="analysis-zone-desc-body">문항 추출부터 오답 유형별 AI 진단까지 <span class="exam-zone-desc-highlight">원스톱 리포트</span>를 만들어 드립니다. <span class="exam-zone-desc-highlight">1쪽부터 마지막 서술형까지 모두 찍어주세요.</span></div>
             </div>
         </header>
         <div class="analysis-zone-body">
@@ -2626,7 +2640,7 @@
             if (currentNoteTab === 'voca') {
                 html += `
                     <div style="margin-bottom:12px;">
-                        <button class="kakao-btn voca-practice-cta-btn" style="background:var(--neon-green); color:#000; margin-top:0;" onclick="startVocaPractice()"><span class="voca-cta-line1"><span class="voca-cta-ico" aria-hidden="true">👉</span><span>사라져 VOCA로</span></span><span class="voca-cta-line2">나만의 단어 연습하기</span></button>
+                        <button class="kakao-btn voca-practice-cta-btn" style="background:var(--neon-green); color:#000; margin-top:0;" onclick="startVocaPractice()"><span class="voca-cta-line1"><span class="voca-cta-text-wrap"><span class="voca-cta-ico" aria-hidden="true">👉</span><span class="voca-cta-text">사라져 VOCA로</span></span></span><span class="voca-cta-line2">나만의 단어 연습하기</span></button>
                     </div>
                 `;
             }
@@ -3701,7 +3715,7 @@
                 keywordHtml += '<div style="color:#888;">추출된 주요 단어가 없습니다.</div>';
             }
             
-            keywordHtml += `<button class="kakao-btn voca-practice-cta-btn" style="background:var(--neon-green); color:#000; margin-top:15px;" onclick="startVocaPractice()"><span class="voca-cta-line1"><span class="voca-cta-ico" aria-hidden="true">👉</span><span>사라져 VOCA로</span></span><span class="voca-cta-line2">나만의 단어 연습하기</span></button>`;
+            keywordHtml += `<button class="kakao-btn voca-practice-cta-btn" style="background:var(--neon-green); color:#000; margin-top:15px;" onclick="startVocaPractice()"><span class="voca-cta-line1"><span class="voca-cta-text-wrap"><span class="voca-cta-ico" aria-hidden="true">👉</span><span class="voca-cta-text">사라져 VOCA로</span></span></span><span class="voca-cta-line2">나만의 단어 연습하기</span></button>`;
 
             if (res.grammar && Array.isArray(res.grammar) && res.full_translation && Array.isArray(res.full_translation)) {
                 res.grammar.forEach(g => {
