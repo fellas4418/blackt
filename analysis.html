@@ -36,19 +36,48 @@
             padding: 18px 5px;
             box-sizing: border-box;
         }
+        #analysis-passage-zone {
+            --passage-ui-size: 0.84rem;
+            --passage-ui-lh: 1.5;
+            --passage-ui-gap: 10px;
+            --passage-ui-pad-x: 16px;
+            --passage-ui-text: #a8b2bc;
+            --passage-ui-text-strong: #c8d0d8;
+            --passage-ui-muted: #7d8794;
+            --passage-ui-line: rgba(255, 255, 255, 0.08);
+        }
         #analysis-passage-zone .passage-ai-report-stack {
-            margin-bottom: 25px;
-            padding: 0 5px;
+            margin: 0 0 20px;
+            padding: 12px var(--passage-ui-pad-x) 0;
             box-sizing: border-box;
             max-width: 100%;
         }
+        #analysis-passage-zone #ai-report-area .passage-top-block {
+            padding-left: 11px;
+            padding-right: 11px;
+        }
         #analysis-passage-zone .passage-report-heading {
-            margin: 0 0 8px 0;
+            margin: 0 0 var(--passage-ui-gap);
             padding: 0;
             text-align: left;
-            color: var(--neon-green);
-            font-size: 1.1rem;
+            color: var(--passage-ui-text-strong);
+            font-size: var(--passage-ui-size);
             font-weight: 700;
+            line-height: var(--passage-ui-lh);
+            letter-spacing: -0.02em;
+        }
+        #analysis-passage-zone .analysis-source-badge {
+            display: none;
+            margin-left: 8px;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            line-height: var(--passage-ui-lh);
+            color: var(--passage-ui-muted);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 999px;
+            vertical-align: middle;
         }
         .passage-zone .passage-zone-desc-lines {
             margin: 0;
@@ -99,7 +128,7 @@
             user-select: none;
         }
         .passage-top-block {
-            margin: 0 0 0 0;
+            margin: 0;
             padding: 0 5px;
             box-sizing: border-box;
         }
@@ -109,30 +138,32 @@
             padding: 0;
         }
         .passage-guide-line {
-            margin: 0 0 8px 0;
+            margin: 0 0 var(--passage-ui-gap, 10px) 0;
             padding: 0;
-            font-size: 0.9rem;
+            font-size: var(--passage-ui-size, 0.84rem);
             font-weight: 500;
-            line-height: 1.55;
+            line-height: var(--passage-ui-lh, 1.5);
             letter-spacing: -0.02em;
-            color: #b4bec8;
+            color: var(--passage-ui-text, #a8b2bc);
             text-align: left;
         }
         .passage-guide-line:last-child {
             margin-bottom: 0;
         }
         .passage-top-block .passage-guide-list {
-            margin-bottom: 12px;
+            margin-bottom: var(--passage-ui-gap, 10px);
         }
         .passage-top-block .grammar-badge-sample {
             cursor: default;
-            margin-left: 2px;
-            margin-right: 2px;
+            margin: 0 3px 0 1px;
             vertical-align: baseline;
             pointer-events: none;
             box-shadow: none;
             font-size: 0.72rem;
-            padding: 2px 5px;
+            font-weight: 700;
+            padding: 1px 5px;
+            background: rgba(188, 19, 254, 0.22);
+            color: #c9b0dc;
         }
         .translation-card-toolbar {
             display: flex;
@@ -619,7 +650,7 @@
             height: auto;
         }
         .passage-top-block .passage-layout-block {
-            margin: 0 0 12px 0;
+            margin: 0 0 var(--passage-ui-gap, 10px);
             padding: 0;
             box-sizing: border-box;
         }
@@ -627,35 +658,36 @@
             display: flex;
             flex-wrap: wrap;
             align-items: center;
-            gap: 0 12px;
+            gap: 0 10px;
             margin: 0;
-            padding: 12px 14px 12px 16px;
-            line-height: 1.55;
-            border-radius: 12px;
-            background: rgba(0, 243, 255, 0.09);
-            border: 1px solid rgba(0, 243, 255, 0.24);
+            padding: 8px 10px;
+            line-height: var(--passage-ui-lh, 1.5);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #2a2a2a;
             box-sizing: border-box;
         }
         .passage-type-chip-vdiv {
             width: 1px;
             align-self: stretch;
-            min-height: 1.15em;
-            margin: 2px 0;
-            background: rgba(0, 243, 255, 0.38);
+            min-height: 1em;
+            margin: 1px 0;
+            background: #3a3a3a;
             flex-shrink: 0;
         }
-        .passage-type-chip-label {
-            font-size: 1.08rem;
-            font-weight: 800;
-            color: #9fe8ff;
+        .passage-type-chip-label,
+        .passage-type-chip-value {
+            font-size: var(--passage-ui-size, 0.84rem);
+            font-weight: 600;
             letter-spacing: -0.02em;
+            line-height: var(--passage-ui-lh, 1.5);
+        }
+        .passage-type-chip-label {
+            color: var(--passage-ui-muted, #7d8794);
             flex-shrink: 0;
         }
         .passage-type-chip-value {
-            font-size: 1.08rem;
-            font-weight: 800;
-            color: #f0fbff;
-            letter-spacing: -0.02em;
+            color: var(--passage-ui-text-strong, #c8d0d8);
             flex: 1 1 auto;
             min-width: 0;
         }
@@ -879,17 +911,23 @@
         }
         .passage-source-below-header {
             margin: 0;
-            padding: 8px 16px 14px;
+            padding: 10px var(--passage-ui-pad-x, 16px) 12px;
             background: #000000;
             border: none;
+            border-bottom: 1px solid var(--passage-ui-line, rgba(255, 255, 255, 0.08));
         }
         .passage-source-label {
             display: block;
-            font-size: 1.1rem;
-            color: var(--neon-blue);
-            font-weight: bold;
-            margin-bottom: 8px;
-            letter-spacing: 1px;
+            font-size: var(--passage-ui-size, 0.84rem);
+            color: var(--passage-ui-text-strong, #c8d0d8);
+            font-weight: 700;
+            margin: 0 0 8px;
+            letter-spacing: -0.02em;
+            line-height: var(--passage-ui-lh, 1.5);
+        }
+        .passage-source-label-optional {
+            font-weight: 500;
+            color: var(--passage-ui-muted, #7d8794);
         }
         .passage-source-input-row {
             display: flex;
@@ -899,30 +937,42 @@
         .passage-title-input {
             flex: 1;
             min-width: 0;
-            background: #111;
-            border: 1px solid #444;
-            color: #fff;
-            padding: 10px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid #333;
+            color: var(--passage-ui-text-strong, #c8d0d8);
+            padding: 8px 10px;
             border-radius: 8px;
-            font-size: 0.9rem;
+            font-size: var(--passage-ui-size, 0.84rem);
+            line-height: var(--passage-ui-lh, 1.5);
             box-sizing: border-box;
         }
+        .passage-title-input::placeholder {
+            color: var(--passage-ui-muted, #7d8794);
+        }
         .passage-title-confirm-btn {
-            background: var(--neon-blue);
-            color: #000;
-            border: none;
-            padding: 0 15px;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--passage-ui-text-strong, #c8d0d8);
+            border: 1px solid #3a3a3a;
+            padding: 0 12px;
             border-radius: 8px;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: var(--passage-ui-size, 0.84rem);
             flex-shrink: 0;
         }
+        .passage-title-confirm-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
         .passage-source-hint {
-            font-size: 0.88rem;
-            color: #c8d8e8;
-            margin: 8px 0 0;
-            line-height: 1.55;
+            font-size: var(--passage-ui-size, 0.84rem);
+            font-weight: 500;
+            color: var(--passage-ui-text, #a8b2bc);
+            margin: var(--passage-ui-gap, 10px) 0 0;
+            line-height: var(--passage-ui-lh, 1.5);
+        }
+        .passage-source-hint strong {
+            font-weight: 600;
+            color: var(--passage-ui-text-strong, #c8d0d8);
         }
         /* 시험 리포트: 시험 정보·시험지 사진은 지문 출처 설정과 같은 가로 폭(박스 없음) */
         #analysis-exam-zone .exam-rpt-plain {
@@ -1080,15 +1130,16 @@
             </div>
         </header>
         <div id="passage-source-below-header" class="passage-source-below-header">
-            <span class="passage-source-label">📂 지문 출처 (번호·제목)</span>
+            <span class="passage-source-label">지문 출처 <span class="passage-source-label-optional">(번호·제목, 선택)</span></span>
             <div class="passage-source-input-row">
                 <input type="text" id="passage-title-input"
                        class="passage-title-input"
+                       autocomplete="off"
                        placeholder="예: 18번 / 수능특강 12강 독해">
                 <button type="button" onclick="updatePassageTitleManually()"
                         class="passage-title-confirm-btn">확인</button>
             </div>
-            <p class="passage-source-hint"><strong>문항 번호·교재(지문) 제목</strong>만 짧게 적어 주세요. 적지 않아도 노트에는 <strong>기본 출처+요약 제목</strong>이 자동으로 저장됩니다.</p>
+            <p class="passage-source-hint">문항 번호·교재 제목만 짧게 적어 주세요. 비워 두면 노트·기록에는 맥락·요약 제목이 자동으로만 붙고, 입력칸에는 넣지 않습니다.</p>
         </div>
         <div class="analysis-zone-body">
     <div id="input-section">
@@ -1120,7 +1171,7 @@
 
     <div id="result-section">
         <div class="passage-ai-report-stack">
-            <h4 class="passage-report-heading">✅ AI 정밀 분석 보고서 <span id="analysis-source-badge" style="display:none; margin-left:8px; font-size:0.72rem; color:#111; background:#9fe870; border-radius:999px; padding:2px 8px; vertical-align:middle;">기존 분석 결과 불러옴</span></h4>
+            <h4 class="passage-report-heading">AI 정밀 분석 보고서 <span id="analysis-source-badge" class="analysis-source-badge">기존 분석 불러옴</span></h4>
             <div id="ai-report-area"></div>
         </div>
 
@@ -1553,13 +1604,19 @@
         let aiKeywordsObj = []; 
         let currentPassageTitle = "";
 
-        /** 출처 입력칸에 적은 값 우선. 비어 있으면 분석 후 채워 둔 자동 제목(맥락+요약) 사용 — 입력칸에는 자동으로 넣지 않음 */
-        function getPassageTitleForSave() {
+        /** 사용자가 출처 칸에 직접 적은 값만 (자동 제목은 포함하지 않음) */
+        function getPassageUserTitleFromInput() {
             try {
                 const el = document.getElementById('passage-title-input');
-                const u = el && el.value ? String(el.value).trim() : '';
-                if (u) return u;
+                if (el && el.value) return String(el.value).trim();
             } catch (e) {}
+            return '';
+        }
+
+        /** 출처 입력칸에 적은 값 우선. 비어 있으면 분석 후 채워 둔 자동 제목(맥락+요약) 사용 — 입력칸에는 자동으로 넣지 않음 */
+        function getPassageTitleForSave() {
+            const u = getPassageUserTitleFromInput();
+            if (u) return u;
             if (typeof currentPassageTitle === 'string' && currentPassageTitle.trim()) return currentPassageTitle.trim();
             return '지문 분석';
         }
@@ -4446,7 +4503,13 @@
             let list = loadPassageHistoryList().filter(function (x) {
                 return x && x.fp !== fp;
             });
-            list.unshift({ fp: fp, title: title, ts: Date.now(), q: q });
+            list.unshift({
+                fp: fp,
+                title: title,
+                userTitle: getPassageUserTitleFromInput(),
+                ts: Date.now(),
+                q: q
+            });
             savePassageHistoryList(list);
             renderPassageHistoryPanel();
         }
@@ -4487,9 +4550,10 @@
             const hist = loadPassageHistoryList().find(function (x) {
                 return x && x.fp === fp;
             });
-            if (hist && hist.title && document.getElementById('passage-title-input')) {
-                document.getElementById('passage-title-input').value = hist.title;
-                currentPassageTitle = hist.title;
+            const titleIn = document.getElementById('passage-title-input');
+            if (titleIn) {
+                titleIn.value =
+                    hist && typeof hist.userTitle === 'string' ? hist.userTitle : '';
             }
             try {
                 passageHistoryUpsertFromCurrent();
