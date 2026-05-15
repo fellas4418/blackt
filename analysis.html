@@ -1187,6 +1187,7 @@
     </div>
     <script src="worddata.js"></script>
     <script src="data/market_headwords_lookup.js"></script>
+    <script src="data/passage_phrases_lookup.js"></script>
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
 
     <script>
@@ -1350,26 +1351,55 @@
             return new RegExp('\\b' + body + '\\b', 'i').test(pl);
         }
 
-        /** 모델이 keywords에서 빠뜨려도 지문에 있으면 필수 표현을 단어 리스트에 넣음 */
+        function normalizePhraseKey(phrase) {
+            return String(phrase || '').trim().toLowerCase().replace(/\s+/g, ' ');
+        }
+
+        function getMergedPassagePhraseMeaning(phraseKey) {
+            const key = normalizePhraseKey(phraseKey);
+            if (!key) return '';
+            const m = window.PASSAGE_PHRASE_MEANINGS;
+            if (m && m[key]) return formatMeaningsDisplay(m[key]);
+            if (IMPORTANT_CONNECTIVE_PHRASE_MEANINGS[key]) {
+                return formatMeaningsDisplay(IMPORTANT_CONNECTIVE_PHRASE_MEANINGS[key]);
+            }
+            return '';
+        }
+
+        function isKnownPassagePhrase(phrase) {
+            const key = normalizePhraseKey(phrase);
+            if (!key) return false;
+            if (window.PASSAGE_PHRASE_MEANINGS && window.PASSAGE_PHRASE_MEANINGS[key]) return true;
+            return IMPORTANT_CONNECTIVE_PHRASE_SET.has(key);
+        }
+
+        /** 지문에 나온 숙어·구문을 통합 숙어 DB(긴 구문 우선)에서 찾아 단어 리스트에 추가 */
         function supplementImportantConnectivePhrasesFromPassage(passageLower, processedKeywords, seenWords) {
+            const list = window.PASSAGE_PHRASE_LIST;
+            const phraseIter = Array.isArray(list) && list.length
+                ? list
+                : IMPORTANT_CONNECTIVE_PHRASES;
             let idx = 0;
-            IMPORTANT_CONNECTIVE_PHRASES.forEach(phrase => {
-                const phraseSeenKey = phrase.replace(/\s+/g, ' ').trim().toLowerCase();
-                if (seenWords.has(phraseSeenKey)) return;
-                if (!phraseAppearsInPassageBoundaries(phrase, passageLower)) return;
-                const dbPhrase = findWordInDB(phrase.replace(/\s+/g, ' '));
-                let kor = dbPhrase && dbPhrase.kor ? dbPhrase.kor : '';
-                if (!kor || kor === 'undefined') kor = IMPORTANT_CONNECTIVE_PHRASE_MEANINGS[phraseSeenKey] || '';
-                if (!kor || kor === 'undefined') {
+            phraseIter.forEach(phrase => {
+                const phraseSeenKey = normalizePhraseKey(phrase);
+                if (!phraseSeenKey || seenWords.has(phraseSeenKey)) return;
+                if (!phraseAppearsInPassageBoundaries(phraseSeenKey, passageLower)) return;
+
+                const dbPhrase = findWordInDB(phraseSeenKey);
+                let kor = dbPhrase && dbPhrase.kor
+                    ? formatMeaningsDisplay(String(dbPhrase.kor).split(/[,;]/))
+                    : getMergedPassagePhraseMeaning(phraseSeenKey);
+                if (!kor) {
                     const resolved = resolveWordMeaningSync(phraseSeenKey);
                     if (resolved && resolved.mean) kor = resolved.mean;
                 }
-                if (!kor || kor === 'undefined') kor = '…';
+                if (!kor) kor = '…';
+
                 processedKeywords.push({
                     eng: phraseSeenKey,
                     kor: String(kor).trim(),
                     level: dbPhrase ? dbPhrase.level : 'other',
-                    _ordA: passageFirstAppearanceOrder({ eng: phraseSeenKey, kor: '' }, passageLower),
+                    _ordA: passageFirstAppearanceOrderBest({ eng: phraseSeenKey, kor: '' }, passageLower),
                     _ordB: 0,
                     _kwLineIdx: idx++
                 });
@@ -1990,6 +2020,7 @@
             if (hasDbPhrase) return true;
             const normalizedPhrase = String(cleanPhrase || '').replace(/\s+/g, ' ').trim().toLowerCase();
             if (IMPORTANT_CONNECTIVE_PHRASE_SET.has(normalizedPhrase)) return true;
+            if (isKnownPassagePhrase(normalizedPhrase)) return true;
             const cleaned = engWords.map(w => String(w || '').replace(/[^a-z-]/g, '').toLowerCase()).filter(Boolean);
             const articleSet = new Set(['a', 'an', 'the']);
             if (cleaned.some(t => articleSet.has(t))) return true;
@@ -2133,8 +2164,17 @@
         }
 
         function resolveWordMeaningSync(lemma) {
-            const forms = String(lemma || '').includes(' ')
-                ? [String(lemma).toLowerCase().trim()]
+            const raw = String(lemma || '').trim();
+            if (raw.includes(' ')) {
+                const phraseMean = getMergedPassagePhraseMeaning(raw);
+                if (phraseMean) return { mean: phraseMean, lvl: 'other' };
+                const dbPhrase = findWordInDB(normalizePhraseKey(raw));
+                if (dbPhrase && dbPhrase.kor) {
+                    return { mean: formatMeaningsDisplay(String(dbPhrase.kor).split(/[,;]/)), lvl: dbPhrase.level };
+                }
+            }
+            const forms = raw.includes(' ')
+                ? [raw.toLowerCase().trim()]
                 : getStems(lemma);
             for (const w of forms) {
                 const db = findWordInDB(w);
