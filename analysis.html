@@ -1325,8 +1325,24 @@
         ]);
 
         const params = new URLSearchParams(window.location.search);
-        const workerOverride = (params.get('worker') || '').trim();
-        const WORKER_URL = (workerOverride ? workerOverride.replace(/\/$/, '') + '/' : 'https://trigger-ocr-api.ohryee.workers.dev/');
+        const DEFAULT_WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev/';
+        function resolveWorkerUrl(rawOverride) {
+            const raw = String(rawOverride || '').trim();
+            if (!raw) return DEFAULT_WORKER_URL;
+            try {
+                const url = new URL(raw);
+                const defaultUrl = new URL(DEFAULT_WORKER_URL);
+                const host = url.hostname.toLowerCase();
+                const isLocalDevHost = host === 'localhost' || host === '127.0.0.1' || host === '[::1]' || host === '::1';
+                const isTrustedWorker = url.origin === defaultUrl.origin;
+                if ((url.protocol === 'http:' || url.protocol === 'https:') && (isLocalDevHost || isTrustedWorker) && !url.search && !url.hash) {
+                    return url.href.replace(/\/$/, '') + '/';
+                }
+            } catch (e) {}
+            console.warn('Ignoring unsafe worker override:', raw);
+            return DEFAULT_WORKER_URL;
+        }
+        const WORKER_URL = resolveWorkerUrl(params.get('worker'));
         function buildAnalysisContextTrim(searchParams) {
             const parts = ['grade', 'type', 'detail'].map(function (k) {
                 return String(searchParams.get(k) || '').trim();
