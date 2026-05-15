@@ -1177,8 +1177,9 @@
             'his', 'this', 'thus', 'bus', 'yes', 'us'
         ]);
 
-        const WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev/'; 
         const params = new URLSearchParams(window.location.search);
+        const workerOverride = (params.get('worker') || '').trim();
+        const WORKER_URL = (workerOverride ? workerOverride.replace(/\/$/, '') + '/' : 'https://trigger-ocr-api.ohryee.workers.dev/');
         const info = `${params.get('grade') || ''} ${params.get('type') || ''} ${params.get('detail') || ''}`;
         document.getElementById('info-header').innerText = info + " 분석";
 
@@ -2779,7 +2780,7 @@
                 box.style.display = 'block';
                 box.textContent = live
                     ? '[미리보기] ' + live
-                    : '[미리보기] 아직 선택된 문장이 없어요. 해석 영역의 문장 줄을 눌러 주세요.';
+                    : '[미리보기] 아직 선택된 문장이 없어요. 해석 영역에서 궁금한 문장을 클릭해 주세요.';
                 return;
             }
             if (confirmedChatContextSentence && confirmedChatContextSentence.trim()) {
@@ -2892,7 +2893,12 @@
                         if (out) out.textContent = data.answer || '';
                     } catch (e) {
                         if (out) {
-                            out.textContent = (e && e.message) || '요청에 실패했어요.';
+                            let msg = (e && e.message) || '요청에 실패했어요.';
+                            if (e && e.httpStatus === 404 && (e.apiError === 'not_found' || String(msg).indexOf('not_found') !== -1)) {
+                                msg =
+                                    '서버가 이 API 경로를 찾지 못했어요(404 not_found). 배포된 Worker에 /api/chat/ask가 포함돼 있는지 확인하거나, 로컬에서 wrangler dev 실행 뒤 analysis.html?worker=http://127.0.0.1:8787 로 열면 같은 코드로 테스트할 수 있어요.';
+                            }
+                            out.textContent = msg;
                         }
                     }
                     if (replyBlock) {
