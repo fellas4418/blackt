@@ -98,16 +98,33 @@
             pointer-events: none;
             user-select: none;
         }
-        #analysis-passage-zone #ai-report-area > .passage-word-click-hint {
+        #analysis-passage-zone #ai-report-area > .passage-interaction-hints {
             margin: 0 0 10px 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        #analysis-passage-zone #ai-report-area .passage-word-click-hint,
+        #analysis-passage-zone #ai-report-area .passage-grammar-click-hint {
+            margin: 0;
             padding: 0;
             text-align: left;
             font-size: calc(1.1rem * 0.9);
             font-weight: 500;
-            color: #7d9a8c;
             line-height: 1.45;
             letter-spacing: -0.02em;
-            box-sizing: border-box;
+        }
+        #analysis-passage-zone #ai-report-area .passage-word-click-hint { color: #7d9a8c; }
+        #analysis-passage-zone #ai-report-area .passage-grammar-click-hint {
+            color: #a67bc8;
+            margin-top: 4px;
+        }
+        #analysis-passage-zone #ai-report-area .grammar-badge-sample {
+            cursor: default;
+            margin-left: 2px;
+            margin-right: 2px;
+            vertical-align: baseline;
+            pointer-events: none;
+            box-shadow: none;
         }
         .translation-card-toolbar {
             display: flex;
@@ -265,9 +282,35 @@
             background-size: 100% 2px;
             padding-bottom: 3px;
         }
+        .hl-grammar.hl-grammar-clickable {
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            transition: color 0.15s ease;
+        }
+        .hl-grammar.hl-grammar-clickable:hover,
+        .hl-grammar.hl-grammar-clickable:focus-visible {
+            color: #d789ff;
+            outline: none;
+        }
 
-        .grammar-badge { background:#bc13fe; color:#fff; border-radius:4px; padding:2px 6px; font-size:0.75rem; font-weight:bold; cursor:pointer; margin-left: 6px; vertical-align: middle; transition: 0.2s; box-shadow: 0 0 5px rgba(181, 55, 242, 0.5); position: relative; z-index: 10; }
-        .grammar-badge:hover { background: #d789ff; }
+        .grammar-badge { background:#bc13fe; color:#fff; border-radius:4px; padding:2px 6px; font-size:0.75rem; font-weight:bold; cursor:pointer; margin-left: 6px; vertical-align: middle; transition: 0.2s; box-shadow: 0 0 5px rgba(181, 55, 242, 0.5); position: relative; z-index: 10; -webkit-tap-highlight-color: transparent; }
+        .grammar-badge:hover,
+        .grammar-badge:focus-visible { background: #d789ff; outline: none; }
+        .grammar-badge.grammar-badge-pulse {
+            animation: grammar-badge-pulse 1.1s ease-in-out 2;
+        }
+        @keyframes grammar-badge-pulse {
+            0%, 100% { box-shadow: 0 0 5px rgba(181, 55, 242, 0.5); transform: scale(1); }
+            50% { box-shadow: 0 0 14px rgba(215, 137, 255, 0.95); transform: scale(1.06); }
+        }
+        .grammar-box.grammar-box-flash {
+            animation: grammar-box-flash 1.4s ease-out 1;
+        }
+        @keyframes grammar-box-flash {
+            0% { box-shadow: 0 0 0 0 rgba(188, 19, 254, 0.55); }
+            40% { box-shadow: 0 0 0 4px rgba(188, 19, 254, 0.35); }
+            100% { box-shadow: none; }
+        }
         
         .grammar-box { background: rgba(181, 55, 242, 0.1); border-left: 3px solid #bc13fe; padding: 12px; margin-bottom: 10px; border-radius: 4px; position: relative; }
         .grammar-list-toggle-btn {
@@ -2651,6 +2694,62 @@
             if (isGrammarListBodyHidden()) setGrammarListExpanded(true);
         }
 
+        function grammarBadgeHtml(index, point) {
+            const i = Number(index);
+            const safePoint = String(point || '').replace(/"/g, '&quot;');
+            const label = '문법 G' + (i + 1) + ', 아래 설명으로 이동';
+            return (
+                '<span class="grammar-badge" role="button" tabindex="0" ' +
+                'onclick="scrollToGrammarPoint(' +
+                i +
+                ')" ' +
+                'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();scrollToGrammarPoint(' +
+                i +
+                ')}" ' +
+                'title="' +
+                safePoint +
+                ' — 아래 문법 설명으로 이동" ' +
+                'aria-label="' +
+                label +
+                '">G' +
+                (i + 1) +
+                ' ↓</span>'
+            );
+        }
+
+        function grammarHighlightHtml(index, innerHtml) {
+            const i = Number(index);
+            const label = '문법 G' + (i + 1) + ', 아래 설명으로 이동';
+            return (
+                '<span class="hl-grammar hl-grammar-clickable" role="button" tabindex="0" ' +
+                'onclick="scrollToGrammarPoint(' +
+                i +
+                ')" ' +
+                'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();scrollToGrammarPoint(' +
+                i +
+                ')}" ' +
+                'title="' +
+                label +
+                '" aria-label="' +
+                label +
+                '">' +
+                innerHtml +
+                '</span>'
+            );
+        }
+
+        function pulseGrammarBadgesOnce() {
+            try {
+                if (localStorage.getItem('trigger_grammar_badge_hint_seen') === '1') return;
+                localStorage.setItem('trigger_grammar_badge_hint_seen', '1');
+            } catch (e) {
+                return;
+            }
+            document.querySelectorAll('#translation-rows-root .grammar-badge').forEach(function (b) {
+                b.classList.add('grammar-badge-pulse');
+            });
+        }
+
         window.scrollToGrammarPoint = function (index) {
             const i = Number(index);
             if (!Number.isFinite(i) || i < 0) return;
@@ -2658,7 +2757,18 @@
             requestAnimationFrame(function () {
                 requestAnimationFrame(function () {
                     const el = document.getElementById('grammar-box-' + i);
-                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    if (!el) return;
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    el.classList.remove('grammar-box-flash');
+                    void el.offsetWidth;
+                    el.classList.add('grammar-box-flash');
+                    el.addEventListener(
+                        'animationend',
+                        function () {
+                            el.classList.remove('grammar-box-flash');
+                        },
+                        { once: true }
+                    );
                 });
             });
         };
@@ -2848,7 +2958,7 @@
                     wrapper.innerHTML = html;
                     node.replaceWith.apply(node, Array.from(wrapper.childNodes));
                 } else if (node.nodeType === 1) {
-                    if (node.classList && node.classList.contains('grammar-badge')) return;
+                    if (node.classList && (node.classList.contains('grammar-badge') || node.classList.contains('hl-grammar-clickable'))) return;
                     if (node.tagName === 'DEL') return;
                     Array.from(node.childNodes).forEach(makeTextNodesClickable);
                 }
@@ -4077,17 +4187,17 @@
                                     const startIdx = lowerFinal.indexOf(lowerGSent);
                                     const actualMatch = finalEng.substring(startIdx, startIdx + gSentNorm.length);
                                     
-                                    grammarMarks += `<span class="grammar-badge" onclick="scrollToGrammarPoint(${i})" title="${String(g.point || '').replace(/"/g, '&quot;')}">G${i+1}</span>`;
+                                    grammarMarks += grammarBadgeHtml(i, g.point);
                                     
                                     finalEng = finalEng.substring(0, startIdx) + 
-                                               `<span class="hl-grammar">${actualMatch}</span>` + 
+                                               grammarHighlightHtml(i, actualMatch) + 
                                                finalEng.substring(startIdx + gSentNorm.length);
                                 } else {
                                     const normFinal = lowerFinal.replace(/[^a-z0-9]/g, '');
                                     const normG = lowerGSent.replace(/[^a-z0-9]/g, '');
                                     if (normFinal.includes(normG)) {
-                                        grammarMarks += `<span class="grammar-badge" onclick="scrollToGrammarPoint(${i})" title="${String(g.point || '').replace(/"/g, '&quot;')}">G${i+1}</span>`;
-                                        finalEng = `<span class="hl-grammar">${finalEng}</span>`;
+                                        grammarMarks += grammarBadgeHtml(i, g.point);
+                                        finalEng = grammarHighlightHtml(i, finalEng);
                                     }
                                 }
                             }
@@ -4124,8 +4234,15 @@
                 topicKwPhrases.length > 0
                     ? '<button type="button" class="passage-toggle-btn" id="btn-passage-kw-toggle" aria-pressed="false" onclick="togglePassageKeywordHighlight(this)">키워드 보기</button>'
                     : '';
-            const passageWordClickHint =
-                '<p class="passage-word-click-hint" role="note">단어를 클릭하면 뜻을 볼 수 있어요</p>';
+            const hasGrammarPoints = res.grammar && res.grammar.length > 0;
+            const passageGrammarHint = hasGrammarPoints
+                ? '<p class="passage-grammar-click-hint" role="note">보라색 <span class="grammar-badge grammar-badge-sample" aria-hidden="true">G1 ↓</span> 또는 밑줄 구문을 누르면 아래 문법 설명으로 이동해요</p>'
+                : '';
+            const passageInteractionHints =
+                '<div class="passage-interaction-hints">' +
+                '<p class="passage-word-click-hint" role="note">단어를 클릭하면 뜻을 볼 수 있어요</p>' +
+                passageGrammarHint +
+                '</div>';
             const translationCardHtml =
                 '<div class="result-card translation-passage-card">' +
                 '<div class="translation-card-toolbar">' +
@@ -4144,14 +4261,19 @@
             const goldenKeyHtml = buildGoldenKeySectionHtml(res, goldenKeyReveal, aiKeywordsObj);
 
             document.getElementById('ai-report-area').innerHTML = `
-                ${passageWordClickHint}
+                ${passageInteractionHints}
                 ${passageLayoutCardHtml}
                 ${translationCardHtml}
-                <div class="result-card" style="border-color: #bc13fe;"><span class="result-label" style="color:#bc13fe;">🛠️ 트리거 팀의 문법 포인트</span><div class="result-content">${grammarListWrap}</div></div>
+                <div class="result-card" style="border-color: #bc13fe;"><span class="result-label" style="color:#bc13fe;">🛠️ 트리거 팀의 문법 포인트 <span style="font-size:0.82em;font-weight:500;color:#b88fd4;">(지문 G1·G2와 연결)</span></span><div class="result-content">${grammarListWrap}</div></div>
                 <div class="result-card"><span class="result-label keyword-list-heading-label" style="color:#ff0055;"><span class="keyword-list-heading-row"><span class="keyword-list-heading-icon" aria-hidden="true">📚</span><span class="keyword-list-heading-main">주요 단어 리스트<br><span class="keyword-list-heading-sub">(내 학습 노트에 저장)</span></span></span></span><div id="passage-keyword-panel" class="result-content">${keywordHtml}</div></div>
                 ${goldenKeyHtml}
                 <div class="result-card" style="border-color: var(--neon-orange);"><span class="result-label" style="color:var(--neon-orange);">🌎 쓸데없이 고퀄인 배경지식</span><div class="result-content passage-background-knowledge">${backgroundHtml}</div></div>
             `;
+            if (hasGrammarPoints) {
+                requestAnimationFrame(function () {
+                    pulseGrammarBadgesOnce();
+                });
+            }
             lastAnalysisResForChat = res;
             confirmedChatContextSentence = '';
             exitSentencePickModeSilently();
