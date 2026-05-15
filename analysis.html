@@ -141,17 +141,17 @@
             margin: -2px 0 4px;
         }
         #translation-rows-root.passage-show-kw .passage-topic-kw {
-            border: 2px solid rgba(255, 75, 75, 0.92);
-            border-radius: 12px;
-            padding: 1px 6px;
+            border: 1px solid rgba(255, 75, 75, 0.92);
+            border-radius: 6px;
+            padding: 0 1px;
             margin: 0;
-            box-shadow: 0 0 0 1px rgba(255, 60, 60, 0.35), 0 0 10px rgba(255, 50, 50, 0.18);
+            box-shadow: 0 0 0 1px rgba(255, 60, 60, 0.28), 0 0 8px rgba(255, 50, 50, 0.14);
             display: inline;
         }
         .passage-topic-kw {
-            border: 2px solid transparent;
-            border-radius: 12px;
-            padding: 1px 6px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            padding: 0 1px;
             margin: 0;
             display: inline;
             transition: border-color 0.15s, box-shadow 0.15s;
@@ -381,6 +381,9 @@
             text-align: left;
             margin-bottom: 18px;
         }
+        .topic-focus-card .gk-topic-summary-combined.gk-topic-summary-combined--tight {
+            margin-bottom: 6px;
+        }
         .topic-focus-card .gk-topic-summary-combined > .gk-topic-summary-title {
             padding-left: 0;
         }
@@ -424,6 +427,12 @@
             border: 0;
             border-top: 1px solid rgba(255, 215, 0, 0.14);
             margin: 6px 0 18px;
+            height: 0;
+        }
+        .gk-summary-variants-divider {
+            border: 0;
+            border-top: 1px solid rgba(255, 215, 0, 0.14);
+            margin: 2px 0 16px;
             height: 0;
         }
 
@@ -3067,10 +3076,15 @@
                 }
                 if (sumRows) {
                     inner +=
-                        '<div class="gk-topic-summary-combined">' +
+                        '<div class="gk-topic-summary-combined' +
+                        (hasVar ? ' gk-topic-summary-combined--tight' : '') +
+                        '">' +
                         '<div class="gk-topic-summary-title" style="text-align:left;">주제 요약</div>' +
                         sumRows +
                         '</div>';
+                    if (hasVar) {
+                        inner += '<hr class="gk-summary-variants-divider" aria-hidden="true">';
+                    }
                 }
             }
 
@@ -5506,7 +5520,7 @@
 11. background는 항상 기본 배경지식(이전처럼 지문 이해를 돕는 일반 맥락)을 2~3문장 포함하세요. 여기에 더해, 지문에 특별한 지명, 인물(유명 위인 포함), 사건, 정치·경제·문화·사회적 상황, 이론이 등장하고 그것이 이해에 실제 도움이 될 때만 추가 정보를 1~2문장 보강하세요. 과도하게 길거나 학술적으로 깊은 설명은 금지합니다.
 12. 지문에 실제로 나온 담화 표현·고정 구문(after all, as well, in fact, on the other hand 등 해석의 뉘앙스에 영향을 주는 표현)은 기초 단어라도 keywords에서 빼지 말고, 반드시 숙어 형태로 공백을 유지해 포함하세요.
 13. topic_sentence: **항상 JSON \`null\` 또는 빈 문자열 \`""\`만** 넣으세요. 지문에서 주제문으로 보이는 문장을 **복사·발췌하지 마세요.** (앱은 이 필드를 쓰지 않습니다.) **추가 필드 \`topic_focus_row\`:** \`null\` 또는 **0 이상의 정수** — 주제·제목·요지·글의 목적 고르기 등 **주제형**이면 \`full_translation\` **행 인덱스(0부터)** 중 **글의 핵심 논지를 한 문장으로 가장 잘 대표하는 한 줄**을 지정하세요. \`topic_keywords\`의 **영어 표기가 그 eng 행에 가장 많이 포함되는 행**을 우선 고르세요. 앱은 **해석 카드**에서 **주제문 보기** 토글 시 해당 행 전체에 배경을 씁니다. 주제형이 아니면 \`null\`.
-14. topic_keywords: **주제·제목·요지·글의 목적 고르기** 유형에서, **정답 보기에 공통으로 드러나야 하는** 결정적 단서 **2~5개**(원칙 **2~4개**). 각 항목은 keywords와 동일하게 \`영어(한국어 뜻)\` 형식이며 **반드시 지문 원문에 실제로 등장하는 표기**만 사용하세요. 서로 의미가 겹치지 않게 고르세요. 이 키워드들은 아래 golden_key.topic_variants의 **① 실제 주제**(\`sentence_en\`)를 **처음부터 새로 쓸 때** 문장 안에 **반드시 녹여 넣으세요**(원형·어형 변화·굴절 포함). **①은 지문 문장을 고르거나 붙여 쓰는 것이 아니라**, 이 키워드들을 재료로 **완전히 새로운 한 문장**을 만드는 것입니다.
+14. topic_keywords: **주제·제목·요지·글의 목적 고르기** 유형에서, **정답 보기에 공통으로 드러나야 하는** 결정적 단서 **2~5개**(원칙 **2~4개**). 각 항목은 keywords와 동일하게 \`영어(한국어 뜻)\` 형식이며 **반드시 지문 원문에 실제로 등장하는 표기**만 사용하세요. 서로 의미가 겹치지 않게 고르세요. 이 키워드들은 아래 golden_key.topic_variants의 **① 실제 주제**(\`sentence_en\`)를 **처음부터 새로 쓸 때** 문장 안에 **반드시 녹여 넣으세요**(원형·어형 변화·굴절 포함). **①은 지문 문장을 고르거나 붙여 쓰는 것이 아니라**, 이 키워드들을 재료로 **완전히 새로운 한 문장**을 만드는 것입니다. **\`full_translation\`의 각 eng**에서는 이 키워드(구) **앞뒤에 불필요한 빈 칸을 추가하지 마세요**; **배경지식·설명에 같은 표현이 있더라도** 지문 eng는 **원문과 동일하게 공백 한 칸만** 유지하세요(연속 공백·들여쓰기용 추가 공백 금지).
 15. golden_key: **Golden Key(정답의 열쇠)** 묶음. 반드시 포함하세요.
     - golden_key.topic_summary: subject.formal / subject.easy와 **완전히 동일한 문장**을 넣으세요(복사). **역할 분담:** \`easy\`는 **이야기·대화체로 먼저 풀어 쓴 설명**(짧게, 중복 최소화), \`formal\`은 **그다음에 붙는 한 줄 요약**(짧은 한두 어절~한 문장, ~합니다체). 앱은 **easy를 먼저, formal을 다음 줄**로 보여 줍니다.
     - golden_key.topic_keywords: 위의 topic_keywords 배열과 **동일한 내용**을 넣으세요(복사).
@@ -5524,7 +5538,7 @@
       · **insertion**: 본문과 분리된 **삽입 박스 문장**(박스 안 한 문장)이 있으면. \`box_sentence\`에 그 **영어 문장 전체**를 넣고, \`full_translation\`에는 본문 줄만(박스 문장은 중복하지 않거나 한 줄로만). **인쇄·입력에 보이는 순서**를 유지하세요.
       · **ordering**: \`(A)\`, \`(B)\`, \`(C)\` 같은 **단락 표지**가 있으면. \`paragraphs\` 배열: \`[{ "marker": "(A)", "eng_text": "해당 단락 영어" }, ...]\` — 배열 순서는 **반드시 문제지에 인쇄된 (A)(B)(C) 순서 그대로**이어야 하며, **정답 순·가독 순으로 재정렬하면 안 됩니다.** \`full_translation\`의 eng 행 순서도 **같은 인쇄 순서**와 일치시키세요.
       · **summary**: 지문 **하단**에 요약용 빈칸·보기 박스(A/B 등)가 있으면. \`summary_box\`에 그 **영어 블록 전체**(빈칸 표기 포함)를 문자열로. **보이는 그대로** 옮기세요.
-      · **grammar**: 본문에 **①~⑤** 등 번호가 있고 **어법·문맥**으로 틀린 낱말을 고르는 유형이면. \`grammar_panel_eng\`에는 **HTML로만** \`<del>...</del>\`(틀린 표현), \`<ins>...</ins>\`(교정)과 \`<br>\`만 사용(다른 태그 금지). **각 \`<del>...</del>\` 닫는 태그 직후와 바로 이어지는 \`<ins>...</ins>\` 사이**에 **공백 한 칸 이상 또는 \`<br>\`**를 넣어, 틀린 부분과 교정 부분이 붙어 보이지 않게 하세요. \`corrections\`: 각 번호마다 \`{ "num": "①", "wrong": "...", "correct": "...", "reason": "..." }\` — **\`reason\`은 필수**: 수능·문맥 관점에서 **왜 틀렸는지**, **왜 \`correct\`가 맞는지**, 필요하면 **앞뒤 절·선행사·병렬·관계사/접속사 구분** 등을 **한국어로 3~6문장** 상세히 서술하세요(단순 번역만 금지). \`wrong\`/\`correct\`는 짧게, 근거는 \`reason\`에만 풀어 쓰세요. **full_translation의 각 eng는 교정된 최종 문장(평문, HTML 없음)**으로 두고, **단어 사이 공백은 반드시 보통 한 칸만**(연속 공백·이상 공백 금지), **kor은 교정된 문장 기준 해석**. **문장 나열 순서는 원본 지문과 동일**하게 유지하세요.
+      · **grammar**: 본문에 **①~⑤** 등 번호가 있고 **어법·문맥**으로 틀린 낱말을 고르는 유형이면. \`grammar_panel_eng\`에는 **HTML로만** \`<del>...</del>\`(틀린 표현), \`<ins>...</ins>\`(교정)과 \`<br>\`만 사용(다른 태그 금지). **각 \`<del>...</del>\` 닫는 태그 직후와 바로 이어지는 \`<ins>...</ins>\` 사이**에 **공백 한 칸 이상 또는 \`<br>\`**를 넣어, 틀린 부분과 교정 부분이 붙어 보이지 않게 하세요. \`corrections\`: 각 번호마다 \`{ "num": "①", "wrong": "...", "correct": "...", "reason": "..." }\` — **\`reason\`은 필수**이며 **중학교 3학년이 처음 봐도 이해될 만큼 쉬운 한국어**로 **~해요/~였어요체** 위주 **3~6문장**으로 쓰세요. **영어 문법 전문 용어(예: comma splice, 콤마 스플라이스, fused sentence 등)만 던지지 말고**, 꼭 필요하면 **바로 아래에 비유나 풀어 쓴 설명**을 붙이세요(예: "쉼표(,)는 '그리고' 정도로만 이어 줄 때 쓰는데, 앞이 이미 **완전한 문장**이면 뒤에 또 **완전한 문장**을 쉼표 하나로 붙이면 두 문장이 안으로 묶이지 않아요"처럼). **왜 틀렸는지**, **왜 \`correct\`가 맞는지**를 **앞 문장·뒤 문장이 서로 어떻게 연결되는지**(무엇을 가리키는지, 뒤 절이 앞의 어떤 말을 꾸며 주는지)까지 짚어 주세요. 단순 번역만 금지. \`wrong\`/\`correct\`는 짧게, 근거는 \`reason\`에만 풀어 쓰세요. **full_translation의 각 eng는 교정된 최종 문장(평문, HTML 없음)**으로 두고, **단어 사이 공백은 반드시 보통 한 칸만**(연속 공백·이상 공백 금지), **kor은 교정된 문장 기준 해석**. **문장 나열 순서는 원본 지문과 동일**하게 유지하세요.
       · **normal_clean**: 안내문·표·실용문 등 위 유형에 딱 맞지 않으면. \`bulleted_lines\`: 줄 단위 문자열 배열(불렛으로 보여줄 각 줄).
       · **normal**: 위 특이 구조가 없을 때. \`full_translation\`은 **입력에 나온 문장 순서 그대로** 유지하세요.
     - **장문 독해**: 문단이 많고 길면 \`paragraph_subtitles\`에 \`[{ "row_index": 0, "subtitle": "한 줄 소제목" }, ...]\` 형태로 \`full_translation\` **행 인덱스(0부터)**와 맞추거나, 각 \`full_translation\` 객체에 선택 필드 \`"subtitle"\`을 넣어도 됩니다.
