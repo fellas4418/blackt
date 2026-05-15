@@ -957,15 +957,15 @@
             </div>
         </header>
         <div id="passage-source-below-header" class="passage-source-below-header">
-            <span class="passage-source-label">📂 지문 출처 설정</span>
+            <span class="passage-source-label">📂 지문 출처 (번호·제목)</span>
             <div class="passage-source-input-row">
                 <input type="text" id="passage-title-input"
                        class="passage-title-input"
-                       placeholder="예: 수능특강 12강 3번">
+                       placeholder="예: 18번 / 수능특강 12강 독해">
                 <button type="button" onclick="updatePassageTitleManually()"
                         class="passage-title-confirm-btn">확인</button>
             </div>
-            <p class="passage-source-hint">* 미입력 시 카테고리와 AI 요약 제목이 기본 적용됩니다.</p>
+            <p class="passage-source-hint">학년·시험 맥락은 위 메인 설정을 따릅니다. 여기에는 <strong>문항 번호·교재·지문 제목</strong>만 짧게 적으면 됩니다. 분석 후에도 이 칸은 <strong>비워 두며</strong>, 적지 않으면 저장·노트에는 맨 위 맥락+요약 제목이 자동으로 붙습니다.</p>
         </div>
         <div class="analysis-zone-body">
     <div id="input-section">
@@ -1331,7 +1331,19 @@
         let selectedBase64 = "";
         let currentNoteTab = 'grammar';
         let aiKeywordsObj = []; 
-        let currentPassageTitle = ""; 
+        let currentPassageTitle = "";
+
+        /** 출처 입력칸에 적은 값 우선. 비어 있으면 분석 후 채워 둔 자동 제목(맥락+요약) 사용 — 입력칸에는 자동으로 넣지 않음 */
+        function getPassageTitleForSave() {
+            try {
+                const el = document.getElementById('passage-title-input');
+                const u = el && el.value ? String(el.value).trim() : '';
+                if (u) return u;
+            } catch (e) {}
+            if (typeof currentPassageTitle === 'string' && currentPassageTitle.trim()) return currentPassageTitle.trim();
+            return '지문 분석';
+        }
+
         let fullWordMapGlobal = {}; 
         let savedVocaCache = [];
         let savedGrammarCache = [];
@@ -2151,8 +2163,9 @@
         function updatePassageTitleManually() {
             const inputVal = document.getElementById('passage-title-input').value.trim();
             if (inputVal) {
-                currentPassageTitle = inputVal;
-                alert("지문 제목이 '" + currentPassageTitle + "'으로 설정되었습니다.");
+                alert("출처 표기가 '" + inputVal + "'(으)로 반영됐어요. (저장·노트에는 이 칸에 적은 내용이 우선 붙습니다.)");
+            } else {
+                alert("칸을 비우면 저장·기록용 제목은 맨 위 맥락과 AI 요약이 자동으로 붙습니다.");
             }
         }
 
@@ -2435,7 +2448,7 @@
             if (idx > -1) {
                 await postJson('/api/sync/delete', {
                     user_id: authUserId, password: authPassword, type: 'grammar',
-                    item: { point, sentence, explanation, passage_title: savedList[idx].passageTitle || currentPassageTitle || '' }
+                    item: { point, sentence, explanation, passage_title: savedList[idx].passageTitle || getPassageTitleForSave() || '' }
                 });
                 savedList.splice(idx, 1);
                 savedGrammarCache = savedList;
@@ -2444,7 +2457,7 @@
             } else {
                 const item = {
                     point: point, sentence: sentence, explanation: explanation,
-                    passageTitle: currentPassageTitle, 
+                    passageTitle: getPassageTitleForSave(),
                     date: new Date().toLocaleDateString()
                 };
                 await postJson('/api/sync/save', { user_id: authUserId, password: authPassword, grammar: [item], voca: [] });
@@ -2462,7 +2475,7 @@
             if (idx > -1) {
                 await postJson('/api/sync/delete', {
                     user_id: authUserId, password: authPassword, type: 'voca',
-                    item: { eng, kor, level: level || 'other', passage_title: savedList[idx].passageTitle || currentPassageTitle || '' }
+                    item: { eng, kor, level: level || 'other', passage_title: savedList[idx].passageTitle || getPassageTitleForSave() || '' }
                 });
                 savedList.splice(idx, 1);
                 savedVocaCache = savedList;
@@ -2475,7 +2488,7 @@
             } else {
                 const item = { 
                     eng: eng, kor: kor, level: level, 
-                    passageTitle: currentPassageTitle, 
+                    passageTitle: getPassageTitleForSave(), 
                     date: new Date().toLocaleDateString() 
                 };
                 await postJson('/api/sync/save', { user_id: authUserId, password: authPassword, voca: [item], grammar: [] });
@@ -2524,7 +2537,7 @@
                     if(!isExist) {
                         const item = { 
                             eng: kw.eng, kor: kw.kor, level: kw.level, 
-                            passageTitle: currentPassageTitle, 
+                            passageTitle: getPassageTitleForSave(), 
                             date: new Date().toLocaleDateString() 
                         };
                         savedList.push(item);
@@ -3504,7 +3517,6 @@
             const categoryInfo = `${params.get('grade') || ''} ${params.get('type') || ''} ${params.get('detail') || ''}`.trim();
             const aiSubjectSnippet = res.subject?.formal ? res.subject.formal.substring(0, 12).trim() : "지문 분석";
             currentPassageTitle = `[${categoryInfo}] ${aiSubjectSnippet}...`;
-            document.getElementById('passage-title-input').value = currentPassageTitle;
 
             let backgroundHtml = res.background || '내용 확인 중';
 
@@ -3988,11 +4000,7 @@
         function passageHistoryUpsertFromCurrent() {
             const fp = lastPassageAnalysisFingerprint;
             if (!fp) return;
-            const titleEl = document.getElementById('passage-title-input');
-            const title =
-                (titleEl && titleEl.value && titleEl.value.trim()) ||
-                (typeof currentPassageTitle === 'string' && currentPassageTitle.trim()) ||
-                '지문 분석';
+            const title = getPassageTitleForSave();
             const q = window.location.search || '';
             let list = loadPassageHistoryList().filter(function (x) {
                 return x && x.fp !== fp;
