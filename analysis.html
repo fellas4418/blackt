@@ -32,8 +32,24 @@
         #analysis-passage-zone #ai-report-area .translation-passage-card {
             border: none;
         }
+        /* 결과 카드: 가로 여백은 report-stack·premium 패널과 동일하게 한 겹(16px)만 */
         #analysis-passage-zone #ai-report-area .result-card {
-            padding: 18px var(--passage-ui-pad-x, 16px);
+            padding: 18px 0;
+            box-sizing: border-box;
+        }
+        #analysis-passage-zone #result-section > #premium-ai-ask-panel {
+            display: none;
+            margin-top: 22px;
+            border: 1px solid rgba(57, 255, 20, 0.45);
+            border-radius: 16px;
+            padding: var(--passage-ui-pad-x);
+            background: rgba(57, 255, 20, 0.06);
+            box-sizing: border-box;
+        }
+        .passage-zone .analysis-zone-body > #input-section,
+        .passage-zone .analysis-zone-body > #edit-section {
+            padding-left: var(--passage-ui-pad-x);
+            padding-right: var(--passage-ui-pad-x);
             box-sizing: border-box;
         }
         #analysis-passage-zone {
@@ -1198,7 +1214,7 @@
             <div id="ai-report-area"></div>
         </div>
 
-        <div id="premium-ai-ask-panel" style="display:none; margin-top: 22px; border: 1px solid rgba(57,255,20,0.45); border-radius: 16px; padding: 16px; background: rgba(57,255,20,0.06);">
+        <div id="premium-ai-ask-panel">
             <div class="premium-ai-ask-head">트리거 AI로 1:1 질문 해결</div>
             <p class="premium-ai-ask-intro">지문·문법·단어 등 막히는 부분을 적어 주세요. 질문이 있는 문장을 선택하면 그 맥락 위주로, 선택하지 않으면 일반 질문에 답해 드려요. (약 200자·3단 구성)</p>
             <div class="premium-ai-ask-actions">
