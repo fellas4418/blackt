@@ -75,6 +75,17 @@
             pointer-events: none;
             user-select: none;
         }
+        #analysis-passage-zone #ai-report-area .translation-passage-card > .passage-word-click-hint {
+            margin: 0 0 8px 0;
+            padding: 0;
+            text-align: left;
+            font-size: calc(1.1rem * 0.9);
+            font-weight: 500;
+            color: #7d9a8c;
+            line-height: 1.45;
+            letter-spacing: -0.02em;
+            box-sizing: border-box;
+        }
         .translation-card-toolbar {
             display: flex;
             flex-direction: row;
@@ -85,17 +96,6 @@
             margin-bottom: 12px;
             padding-bottom: 10px;
             border-bottom: 1px solid rgba(57, 255, 20, 0.2);
-        }
-        .translation-card-toolbar .translation-card-hint {
-            flex: 1 1 200px;
-            min-width: 0;
-            margin: 0;
-            font-size: 0.78rem;
-            font-weight: 500;
-            color: #7d9a8c;
-            line-height: 1.45;
-            letter-spacing: -0.02em;
-            align-self: center;
         }
         .translation-card-toolbar .passage-view-toggle-wrap {
             margin-left: 0;
@@ -157,6 +157,15 @@
             transition: border-color 0.15s, box-shadow 0.15s;
         }
         .kakao-btn { width: 100%; padding: 18px; background: #fee500; color: #000; border: none; border-radius: 12px; font-weight: 900; font-size: 1.05rem; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .kakao-btn.voca-practice-cta-btn {
+            flex-direction: column;
+            gap: 6px;
+            font-size: 1.14rem;
+            line-height: 1.32;
+            padding: 16px 14px;
+            white-space: normal;
+            text-align: center;
+        }
         
         .clickable-word {
             cursor: pointer;
@@ -746,6 +755,24 @@
             text-transform: uppercase;
         }
 
+        #premium-ai-ask-panel .premium-ai-ask-head {
+            font-weight: 900;
+            color: #39ff14;
+            margin: 0 0 0 0;
+            font-size: 1.02rem;
+        }
+        #premium-ai-ask-panel .premium-ai-ask-intro {
+            margin: 12px 0;
+            font-size: 0.94rem;
+            color: #aaa;
+            line-height: 1.55;
+        }
+        #premium-ai-ask-panel .premium-ai-ask-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 0 0 8px 0;
+        }
         #premium-ai-ask-panel textarea { width: 100%; min-height: 72px; box-sizing: border-box; background: #111; border: 1px solid #444; color: #fff; border-radius: 10px; padding: 10px; font-size: 0.92rem; margin-top: 8px; }
         #premium-ai-ask-panel .ai-ask-reply-block {
             margin-top: 14px;
@@ -889,9 +916,9 @@
         </div>
 
         <div id="premium-ai-ask-panel" style="display:none; margin-top: 22px; border: 1px solid rgba(57,255,20,0.45); border-radius: 16px; padding: 16px; background: rgba(57,255,20,0.06);">
-            <div style="font-weight: 900; color: #39ff14; margin-bottom: 10px; font-size: 1.02rem;">트리거 AI로 1:1 질문 해결</div>
-            <p style="font-size:0.82rem;color:#aaa;margin:0 0 10px;line-height:1.5;">지문·문법·단어 등 막히는 부분을 적어 주세요. 질문이 있는 문장을 선택하면 그 맥락 위주로, 선택하지 않으면 일반 질문에 답해 드려요. (약 200자·3단 구성)</p>
-            <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+            <div class="premium-ai-ask-head">트리거 AI로 1:1 질문 해결</div>
+            <p class="premium-ai-ask-intro">지문·문법·단어 등 막히는 부분을 적어 주세요. 질문이 있는 문장을 선택하면 그 맥락 위주로, 선택하지 않으면 일반 질문에 답해 드려요. (약 200자·3단 구성)</p>
+            <div class="premium-ai-ask-actions">
                 <button type="button" id="btn-sentence-pick-toggle" class="login-btn" style="margin:0;border-color:var(--neon-blue);color:var(--neon-blue);">질문할 문장 선택</button>
                 <button type="button" id="btn-sentence-pick-done" class="login-btn" style="margin:0;display:none;border-color:#9fe870;color:#9fe870;">선택 완료</button>
                 <button type="button" id="btn-chat-history" class="login-btn" style="margin:0;border-color:#888;color:#ccc;">나의 질문 기록 보기</button>
@@ -2486,7 +2513,7 @@
             if (currentNoteTab === 'voca') {
                 html += `
                     <div style="margin-bottom:12px;">
-                        <button class="kakao-btn" style="background:var(--neon-green); color:#000; margin-top:0;" onclick="startVocaPractice()">👉 사라져 VOCA로 나만의 단어 연습하기 ⚡</button>
+                        <button class="kakao-btn voca-practice-cta-btn" style="background:var(--neon-green); color:#000; margin-top:0;" onclick="startVocaPractice()"><span>👉 사라져 보카로</span><span>나만의 단어 연습하기</span></button>
                     </div>
                 `;
             }
@@ -3491,7 +3518,7 @@
                 keywordHtml += '<div style="color:#888;">추출된 주요 단어가 없습니다.</div>';
             }
             
-            keywordHtml += `<button class="kakao-btn" style="background:var(--neon-green); color:#000; margin-top:15px;" onclick="startVocaPractice()">👉 사라져 VOCA로 나만의 단어 연습하기 ⚡</button>`;
+            keywordHtml += `<button class="kakao-btn voca-practice-cta-btn" style="background:var(--neon-green); color:#000; margin-top:15px;" onclick="startVocaPractice()"><span>👉 사라져 보카로</span><span>나만의 단어 연습하기</span></button>`;
 
             if (res.grammar && Array.isArray(res.grammar) && res.full_translation && Array.isArray(res.full_translation)) {
                 res.grammar.forEach(g => {
@@ -3649,8 +3676,8 @@
                     : '';
             const translationCardHtml =
                 '<div class="result-card translation-passage-card">' +
+                '<p class="passage-word-click-hint" role="note">단어를 클릭하면 뜻을 볼 수 있어요</p>' +
                 '<div class="translation-card-toolbar">' +
-                '<span class="translation-card-hint" role="note">단어를 클릭하면 뜻을 볼 수 있어요</span>' +
                 '<div class="passage-view-toggle-wrap">' +
                 passageTopicToggleBtn +
                 passageKwToggleBtn +
