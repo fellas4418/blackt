@@ -2616,15 +2616,30 @@
 
         const GRAMMAR_PREVIEW_VISIBLE = 2;
 
+        function isGrammarListBodyHidden() {
+            const body = document.getElementById('grammar-list-body');
+            if (!body) return true;
+            return body.style.display === 'none' || body.style.display === '';
+        }
+
+        function syncGrammarToggleButtons(expanded) {
+            const label = expanded ? '문법 포인트 접기 ▲' : '문법 포인트 펼치기 ▼';
+            ['grammar-list-toggle-btn', 'grammar-list-toggle-btn-bottom'].forEach(function (id) {
+                const btn = document.getElementById(id);
+                if (btn) btn.textContent = label;
+            });
+        }
+
+        function setGrammarListExpanded(expanded) {
+            const body = document.getElementById('grammar-list-body');
+            if (!body) return;
+            body.style.display = expanded ? 'block' : 'none';
+            syncGrammarToggleButtons(expanded);
+        }
+
         function ensureGrammarListExpandedForIndex(index) {
             if (index < GRAMMAR_PREVIEW_VISIBLE) return;
-            const body = document.getElementById('grammar-list-body');
-            const btn = document.getElementById('grammar-list-toggle-btn');
-            if (!body) return;
-            if (body.style.display === 'none' || body.style.display === '') {
-                body.style.display = 'block';
-                if (btn) btn.textContent = '문법 포인트 접기 ▲';
-            }
+            if (isGrammarListBodyHidden()) setGrammarListExpanded(true);
         }
 
         window.scrollToGrammarPoint = function (index) {
@@ -2640,12 +2655,8 @@
         };
 
         function toggleGrammarPointList() {
-            const body = document.getElementById('grammar-list-body');
-            const btn = document.getElementById('grammar-list-toggle-btn');
-            if (!body || !btn) return;
-            const hidden = body.style.display === 'none' || body.style.display === '';
-            body.style.display = hidden ? 'block' : 'none';
-            btn.textContent = hidden ? '문법 포인트 접기 ▲' : '문법 포인트 펼치기 ▼';
+            if (!document.getElementById('grammar-list-body')) return;
+            setGrammarListExpanded(isGrammarListBodyHidden());
         }
 
         function topicKeywordPhrasesFromLines(lines) {
@@ -3997,7 +4008,8 @@
                         '<button type="button" id="grammar-list-toggle-btn" class="grammar-list-toggle-btn" onclick="toggleGrammarPointList()">문법 포인트 펼치기 ▼</button>' +
                         '<div id="grammar-list-body" style="display:none;margin-top:12px;">' +
                         grammarBoxes.slice(GRAMMAR_PREVIEW_VISIBLE).join('') +
-                        '</div>';
+                        '</div>' +
+                        '<button type="button" id="grammar-list-toggle-btn-bottom" class="grammar-list-toggle-btn" style="margin-top:12px;" onclick="toggleGrammarPointList()">문법 포인트 펼치기 ▼</button>';
                 } else {
                     grammarListWrap = grammarHtml;
                 }
