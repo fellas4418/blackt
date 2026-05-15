@@ -389,6 +389,40 @@ async function callGeminiStructured(env, parts, responseMimeType = "application/
   }
 }
 
+async function handleWordMeaning(env, body) {
+  const raw = Array.isArray(body.words)
+    ? body.words
+    : body.word
+      ? [body.word]
+      : [];
+  const words = [];
+  const seen = new Set();
+  for (const w of raw) {
+    const clean = String(w || "")
+      .toLowerCase()
+      .replace(/[^a-z-]/g, "")
+      .trim();
+    if (!clean || clean.length < 2 || seen.has(clean)) continue;
+    seen.add(clean);
+    words.push(clean);
+    if (words.length >= 35) break;
+  }
+  if (words.length === 0) return json({ error: "words 배열이 필요합니다." }, 400);
+
+  const prompt =
+    `You are a Korean high-school English vocabulary assistant. ` +
+    `For each English headword in the JSON array, output ONLY valid JSON: ` +
+    `{"items":[{"word":"...","meanings":["..."]}]}. ` +
+    `Use 1 Korean meaning by default; add a 2nd only if senses are clearly different for test passages (not synonyms). ` +
+    `If two meanings overlap, keep one. Meanings: short Korean, 수능·고2 level, no examples, no English gloss, no markdown.\n\n` +
+    `Headwords:\n${JSON.stringify(words)}`;
+
+  const g = await callGeminiStructured(env, [{ text: prompt }]);
+  if (!g.ok) return json({ error: g.error, detail: g.snippet || g.raw }, 500);
+  const items = Array.isArray(g.json?.items) ? g.json.items : [];
+  return json({ items });
+}
+
 async function handleExamExtract(env, body) {
   const userId = String(body.user_id || "").trim();
   const password = String(body.password || "");
@@ -618,6 +652,9 @@ export default {
       }
       if (request.method === "POST" && path === "/api/analyze") {
         return handleGeminiProxy(env, request);
+      }
+      if (request.method === "POST" && path === "/api/word-meaning") {
+        return handleWordMeaning(env, await request.json());
       }
       if (request.method === "POST" && path === "/api/exam-report/extract") {
         return handleExamExtract(env, await request.json());

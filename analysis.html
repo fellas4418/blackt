@@ -1186,6 +1186,7 @@
         </div>
     </div>
     <script src="worddata.js"></script>
+    <script src="data/market_headwords_lookup.js"></script>
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
 
     <script>
@@ -1983,6 +1984,305 @@
             return null;
         }
 
+        const PASSAGE_MEANING_CACHE_KEY = 'trigger_passage_word_meanings_v1';
+        const MAX_PASSAGE_KEYWORDS = 30;
+
+        function passesVocabListFilter(canon) {
+            if (!canon || canon.length <= 2) return false;
+            if (STOP_WORDS.has(canon) || VOCAB_LIST_SKIP_WORDS.has(canon)) return false;
+            if (VOCAB_TOO_EASY_FOR_LIST.has(canon)) return false;
+            return true;
+        }
+
+        function isInMarketHeadwordSet(lemma) {
+            const set = window.MARKET_HEADWORD_SET;
+            if (!set) return false;
+            const L = String(lemma || '').toLowerCase().replace(/[^a-z-]/g, '');
+            if (!L) return false;
+            if (set[L]) return true;
+            for (const s of getStems(L)) {
+                if (set[s]) return true;
+            }
+            return false;
+        }
+
+        function loadPassageMeaningCacheStore() {
+            try {
+                const o = JSON.parse(localStorage.getItem(PASSAGE_MEANING_CACHE_KEY) || '{}');
+                return o && typeof o === 'object' ? o : {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function savePassageMeaningToCache(word, meanings) {
+            const w = String(word || '').toLowerCase().replace(/[^a-z-]/g, '');
+            if (!w || !Array.isArray(meanings) || !meanings.length) return;
+            try {
+                const store = loadPassageMeaningCacheStore();
+                store[w] = meanings.slice(0, 2);
+                localStorage.setItem(PASSAGE_MEANING_CACHE_KEY, JSON.stringify(store));
+            } catch (e) {}
+        }
+
+        function getPassageMeaningFromCache(word) {
+            const store = loadPassageMeaningCacheStore();
+            const w = String(word || '').toLowerCase().replace(/[^a-z-]/g, '');
+            if (store[w] && store[w].length) return store[w];
+            for (const s of getStems(w)) {
+                if (store[s] && store[s].length) return store[s];
+            }
+            return null;
+        }
+
+        function meaningsAreSimilar(a, b) {
+            const x = String(a || '').replace(/\s+/g, '').toLowerCase();
+            const y = String(b || '').replace(/\s+/g, '').toLowerCase();
+            if (!x || !y) return false;
+            if (x === y) return true;
+            if (x.includes(y) || y.includes(x)) return true;
+            return false;
+        }
+
+        function normalizeMeaningsList(raw) {
+            let list = [];
+            if (Array.isArray(raw)) list = raw.map(String);
+            else if (raw != null && String(raw).trim()) list = [String(raw).trim()];
+            list = list.map(s => s.trim()).filter(s => s && s !== 'undefined' && s !== 'null');
+            const out = [];
+            list.forEach(m => {
+                if (out.some(x => meaningsAreSimilar(x, m))) return;
+                out.push(m);
+                if (out.length >= 2) return;
+            });
+            return out.length > 1 && meaningsAreSimilar(out[0], out[1]) ? [out[0]] : out;
+        }
+
+        function formatMeaningsDisplay(meanings) {
+            const list = normalizeMeaningsList(meanings);
+            return list.length ? list.join('; ') : '';
+        }
+
+        function findWordInDBByStems(lemma) {
+            for (const s of getStems(lemma)) {
+                const db = findWordInDB(s);
+                if (db && db.kor) return db;
+            }
+            return null;
+        }
+
+        function resolveWordMeaningSync(lemma) {
+            const forms = String(lemma || '').includes(' ')
+                ? [String(lemma).toLowerCase().trim()]
+                : getStems(lemma);
+            for (const w of forms) {
+                const db = findWordInDB(w);
+                if (db && db.kor) return { mean: formatMeaningsDisplay(db.kor.split(/[,;]/)), lvl: db.level };
+            }
+            const cached = getPassageMeaningFromCache(lemma);
+            if (cached && cached.length) return { mean: formatMeaningsDisplay(cached), lvl: 'other' };
+            for (const w of forms) {
+                const foundKw = aiKeywordsObj.find(k => aiKeywordMatchesLemma(k.eng, w));
+                if (foundKw && foundKw.kor && foundKw.kor !== '…') {
+                    return { mean: foundKw.kor, lvl: foundKw.level || 'other' };
+                }
+            }
+            for (const w of forms) {
+                const mapMean = robustSearchMap(w);
+                if (mapMean) return { mean: formatMeaningsDisplay(mapMean), lvl: 'other' };
+            }
+            return null;
+        }
+
+        async function fetchWordMeaningsFromApi(words) {
+            const unique = [];
+            const seen = new Set();
+            (words || []).forEach(w => {
+                const c = englishCanonicalLemmaForList(String(w || '').toLowerCase().replace(/[^a-z-]/g, ''));
+                if (!c || seen.has(c)) return;
+                seen.add(c);
+                unique.push(c);
+            });
+            if (!unique.length) return {};
+            const base = WORKER_URL.replace(/\/$/, '');
+            const r = await fetch(base + '/api/word-meaning', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ words: unique.slice(0, 35) })
+            });
+            const d = await r.json().catch(() => ({}));
+            if (!r.ok || d.error) throw new Error(d.error || 'word-meaning failed');
+            const out = {};
+            (d.items || []).forEach(item => {
+                const w = englishCanonicalLemmaForList(String(item.word || '').toLowerCase().replace(/[^a-z-]/g, ''));
+                if (!w) return;
+                const meanings = normalizeMeaningsList(item.meanings);
+                if (meanings.length) {
+                    savePassageMeaningToCache(w, meanings);
+                    out[w] = meanings;
+                }
+            });
+            return out;
+        }
+
+        async function ensureWordMeaningFetched(lemma) {
+            const hit = resolveWordMeaningSync(lemma);
+            if (hit && hit.mean) return hit;
+            const canon = englishCanonicalLemmaForList(String(lemma || '').toLowerCase().replace(/[^a-z-]/g, ''));
+            if (!canon) return null;
+            try {
+                await fetchWordMeaningsFromApi([canon]);
+            } catch (e) {
+                console.warn('word-meaning', e);
+                return null;
+            }
+            return resolveWordMeaningSync(lemma);
+        }
+
+        function extractPassageCanonicalTokensInOrder(passageLower, properNounHints) {
+            const order = [];
+            const seen = new Set();
+            const re = /[a-z][a-z'-]*/gi;
+            let m;
+            while ((m = re.exec(passageLower))) {
+                const canon = englishCanonicalLemmaForList(m[0].toLowerCase());
+                if (!canon || seen.has(canon)) continue;
+                if (properNounHints && properNounHints.has(canon)) continue;
+                seen.add(canon);
+                order.push({ canon, pos: m.index });
+            }
+            return order;
+        }
+
+        function buildDeterministicKeywordList(res) {
+            const passagePlain = (res.full_translation || []).map(x => String(x.eng || '')).join(' ').toLowerCase();
+            const properNounHints = collectProperNounHintsFromPassage(res.full_translation);
+            const tokens = extractPassageCanonicalTokensInOrder(passagePlain, properNounHints);
+            const processedKeywords = [];
+            const seenWords = new Set();
+
+            tokens.forEach(({ canon }) => {
+                if (!passesVocabListFilter(canon) || !wordFormAppearsInPassage(canon, passagePlain)) return;
+                if (seenWords.has(canon)) return;
+
+                const db = findWordInDBByStems(canon);
+                if (db) {
+                    processedKeywords.push({
+                        eng: canon,
+                        kor: formatMeaningsDisplay(db.kor.split(/[,;]/)),
+                        level: db.level,
+                        _ordA: passageFirstAppearanceOrderBest({ eng: canon, kor: '' }, passagePlain)
+                    });
+                    seenWords.add(canon);
+                    return;
+                }
+                if (!isInMarketHeadwordSet(canon)) return;
+
+                const resolved = resolveWordMeaningSync(canon);
+                processedKeywords.push({
+                    eng: canon,
+                    kor: (resolved && resolved.mean) ? resolved.mean : '…',
+                    level: (resolved && resolved.lvl) ? resolved.lvl : 'other',
+                    _ordA: passageFirstAppearanceOrderBest({ eng: canon, kor: '' }, passagePlain)
+                });
+                seenWords.add(canon);
+            });
+
+            supplementImportantConnectivePhrasesFromPassage(passagePlain, processedKeywords, seenWords);
+
+            processedKeywords.sort((a, b) => {
+                const da = a._ordA !== undefined ? a._ordA : 999999;
+                const dbv = b._ordA !== undefined ? b._ordA : 999999;
+                return da - dbv;
+            });
+            const trimmed = processedKeywords.slice(0, MAX_PASSAGE_KEYWORDS);
+            trimmed.forEach(x => { delete x._ordA; });
+            return trimmed;
+        }
+
+        function buildKeywordPanelHtml() {
+            const savedVocaList = savedVocaCache;
+            let keywordHtml = '<motioniv style="display:flex; justify-content:flex-end; align-items:center; margin-bottom:12px;">' +
+                '<button id="save-all-btn" class="kw-save-btn" onclick="saveAllKeywords()">전체 저장</button></motioniv>';
+            keywordHtml = keywordHtml.replace(/motioniv/g, 'div');
+            const vocaItemsArray = [];
+            if (aiKeywordsObj.length > 0) {
+                aiKeywordsObj.forEach(kw => {
+                    if (!kw.eng) return;
+                    const isSaved = savedVocaList.some(item => String(item.eng || '').toLowerCase() === String(kw.eng).toLowerCase());
+                    const btnClass = isSaved ? 'kw-save-btn active' : 'kw-save-btn';
+                    const btnText = isSaved ? '✅' : '저장';
+                    const safeEng = String(kw.eng || '').replace(/'/g, "\\'");
+                    const safeKor = String(kw.kor || '').replace(/'/g, "\\'");
+                    const levelTag = kw.level === 'middle' ? '<span class="kw-tag kw-mid">중등</span>' :
+                        kw.level === 'high' ? '<span class="kw-tag kw-high">고등</span>' :
+                            '<span class="kw-tag kw-other">기타</span>';
+                    vocaItemsArray.push(
+                        '<div class="kw-container"><div class="kw-body">' + levelTag +
+                        '<strong style="color:#fff; font-size:1.05rem; cursor:pointer;" onclick="showWordPopup(\'' + safeEng + '\', \'' + safeKor + '\', \'' + kw.level + '\')">' + kw.eng + '</strong> ' +
+                        '<span style="color:#aaa; font-size:0.9rem; margin-left:6px;">' + kw.kor + '</span></div>' +
+                        '<button id="btn-kw-' + kw.eng + '" class="' + btnClass + '" onclick="toggleVocaSave(\'' + safeEng + '\', \'' + safeKor + '\', \'' + kw.level + '\', this)">' + btnText + '</button></div>'
+                    );
+                });
+                if (vocaItemsArray.length > 3) {
+                    keywordHtml += vocaItemsArray.slice(0, 3).join('');
+                    keywordHtml += '<div id="voca-more-list" style="display:none;">' + vocaItemsArray.slice(3).join('') + '</div>';
+                    keywordHtml += '<button id="voca-toggle-btn" onclick="toggleVocaList()" style="width:100%; background:transparent; border:1px solid #444; color:#aaa; padding:10px; border-radius:8px; margin-top:10px; font-size:0.85rem; cursor:pointer;">전체 단어 보기 ▼</button>';
+                } else {
+                    keywordHtml += vocaItemsArray.join('');
+                }
+            } else {
+                keywordHtml += '<div style="color:#888;">추출된 주요 단어가 없습니다.</div>';
+            }
+            keywordHtml += '<button class="kakao-btn voca-practice-cta-btn" style="background:var(--neon-green); color:#000; margin-top:15px;" onclick="startVocaPractice()"><span class="voca-cta-line1"><span class="voca-cta-text-wrap"><span class="voca-cta-ico" aria-hidden="true">👉</span><span class="voca-cta-text">사라져 VOCA로</span></span></span><span class="voca-cta-line2">나만의 단어 연습하기</span></button>';
+            return keywordHtml;
+        }
+
+        async function hydratePassageTokenMeaningsFromTranslation(res) {
+            if (!res || !Array.isArray(res.full_translation)) return;
+            const passagePlain = res.full_translation.map(x => String(x.eng || '')).join(' ').toLowerCase();
+            const hints = collectProperNounHintsFromPassage(res.full_translation);
+            const tokens = extractPassageCanonicalTokensInOrder(passagePlain, hints);
+            const pending = [];
+            const seen = new Set();
+            tokens.forEach(({ canon }) => {
+                if (!canon || seen.has(canon) || STOP_WORDS.has(canon)) return;
+                seen.add(canon);
+                if (findWordInDBByStems(canon)) return;
+                if (getPassageMeaningFromCache(canon)) return;
+                pending.push(canon);
+            });
+            for (let i = 0; i < pending.length; i += 35) {
+                try {
+                    await fetchWordMeaningsFromApi(pending.slice(i, i + 35));
+                } catch (e) {
+                    break;
+                }
+            }
+        }
+
+        async function hydratePassageKeywordMeanings() {
+            const pending = aiKeywordsObj
+                .filter(k => k && k.eng && (!k.kor || k.kor === '…'))
+                .map(k => k.eng);
+            if (pending.length) {
+                try {
+                    await fetchWordMeaningsFromApi(pending);
+                } catch (e) {}
+            }
+            aiKeywordsObj.forEach(kw => {
+                if (!kw || !kw.eng || (kw.kor && kw.kor !== '…')) return;
+                const hit = resolveWordMeaningSync(kw.eng);
+                if (hit && hit.mean) {
+                    kw.kor = hit.mean;
+                    kw.level = hit.lvl || kw.level;
+                }
+            });
+            const panel = document.getElementById('passage-keyword-panel');
+            if (panel) panel.innerHTML = buildKeywordPanelHtml();
+            checkAllSavedStatus();
+        }
+
         function robustSearchMap(word) {
             if (!fullWordMapGlobal || typeof fullWordMapGlobal !== 'object') return "";
             const w = String(word).toLowerCase().trim().replace(/[^a-z-]/g, '');
@@ -2019,6 +2319,11 @@
                             const db = findWordInDB(s);
                             if (db && db.kor) {
                                 fullWordMapGlobal[tok] = db.kor;
+                                break;
+                            }
+                            const cached = getPassageMeaningFromCache(s);
+                            if (cached && cached.length) {
+                                fullWordMapGlobal[tok] = formatMeaningsDisplay(cached);
                                 break;
                             }
                         }
@@ -2102,14 +2407,14 @@
             } catch (e) {}
         }
 
-        // 🔥 초정밀 어근 추출 및 무적 매칭 로직
-        window.handleWordClick = function(element, ev) {
+        // 지문 단어 클릭: worddata → 저장 뜻 → 단어장 리스트 → full_word_map → API 1회 생성
+        window.handleWordClick = async function(element, ev) {
             if (ev && typeof ev.stopPropagation === 'function') ev.stopPropagation();
             if (window.sentencePickModeActive) return;
             const idiom = element.getAttribute('data-idiom');
             let rawWord = idiom ? idiom : String(element.innerText || '').toLowerCase().replace(/[^a-z-]/g, '').trim();
-            if(!rawWord) return;
-            
+            if (!rawWord) return;
+
             const grammarExceptionMap = {
                 "which": "관계대명사/의문사: 앞 명사를 이어받아 뒤 절이 그 명사를 설명할 때 '~한 …'으로 해석해요.",
                 "that": "관계대명사/접속사: 문장을 연결하거나 명사를 보충 설명해요.",
@@ -2127,51 +2432,30 @@
                 showWordPopup(rawWord, grammarExceptionMap[rawWord], "grammar");
                 return;
             }
-
             if (rawWord === 'these') {
                 showWordPopup('these', '복수 지시대명사: 이것들; 한정사: 이러한 (~명사)', 'grammar');
                 return;
             }
 
-            // 파생 어근으로 DB·키워드·full_word_map 검색 (앞글자만 맞추는 fuzzy 매칭 제거 → seem≠seat 오류 방지)
-            const searchAllStems = (rWord) => {
-                const forms = rWord.includes(' ') ? [rWord.toLowerCase().trim()] : getStems(rWord);
-                
-                for (let w of forms) {
-                    const db = findWordInDB(w);
-                    if (db && db.kor) return { mean: db.kor, lvl: db.level };
-                }
-                
-                for (let w of forms) {
-                    let foundKw = aiKeywordsObj.find(k => aiKeywordMatchesLemma(k.eng, w));
-                    if (foundKw && foundKw.kor) return { mean: foundKw.kor, lvl: foundKw.level };
-                }
-                
-                for (let w of forms) {
-                    let mapMean = robustSearchMap(w);
-                    if (mapMean) return { mean: mapMean, lvl: "other" };
-                }
-                return null;
-            };
-
             if (STOP_WORDS.has(rawWord)) {
-                let result = searchAllStems(rawWord);
+                let result = resolveWordMeaningSync(rawWord);
                 let korMean = result && result.mean ? result.mean : '';
                 if (!korMean || korMean === 'undefined' || korMean === 'null') korMean = '';
                 if (!korMean || korMean === '사전에서 찾을 수 없습니다.') {
                     korMean = STOP_WORD_CLICK_MEANINGS[rawWord] || '문맥에 따라 기능어(관사·전치사·접속사 등)로 쓰입니다.';
                 }
-                const level = result && result.lvl ? result.lvl : 'other';
-                showWordPopup(rawWord, korMean, level);
+                showWordPopup(rawWord, korMean, (result && result.lvl) ? result.lvl : 'other');
                 return;
             }
 
-            let result = searchAllStems(rawWord);
-            
-            let korMean = result && result.mean ? result.mean : "사전에서 찾을 수 없습니다.";
-            if (korMean === "undefined" || korMean === "null") korMean = "사전에서 찾을 수 없습니다.";
-            const level = result ? result.lvl : "other";
-            
+            let result = resolveWordMeaningSync(rawWord);
+            if (!result || !result.mean) {
+                showWordPopup(rawWord, '뜻 불러오는 중…', 'other');
+                result = await ensureWordMeaningFetched(rawWord);
+            }
+            let korMean = result && result.mean ? result.mean : '사전에서 찾을 수 없습니다.';
+            if (korMean === 'undefined' || korMean === 'null') korMean = '사전에서 찾을 수 없습니다.';
+            const level = result && result.lvl ? result.lvl : 'other';
             showWordPopup(rawWord, korMean, level);
         };
 
@@ -3535,187 +3819,9 @@
 
             let backgroundHtml = res.background || '내용 확인 중';
 
-            // 🔥 7대 원칙: 완벽한 단어 분할 & 중복 제거 로직
-            aiKeywordsObj = [];
-            let savedVocaList = savedVocaCache;
-            let processedKeywords = [];
-            let seenWords = new Set();
-
-            const keywordArray = Array.isArray(res.keywords) ? res.keywords : [];
-            const passagePlainForSupplement = (res.full_translation || []).map(x => String(x.eng || '')).join(' ').toLowerCase();
-            const properNounHints = collectProperNounHintsFromPassage(res.full_translation);
-
-            keywordArray.forEach((kw, kwLineIdx) => {
-                if (!kw) return;
-                const parts = String(kw).split('(');
-                const fullEngTextRaw = parts[0].trim();
-                const fullEngText = fullEngTextRaw.toLowerCase().trim();
-                const korMean = parts.length > 1 ? parts[1].replace(')', '').trim() : '';
-                if (isLikelyProperNounKeyword(fullEngTextRaw)) return;
-                
-                const engWords = fullEngText.split(/\s+/);
-                
-                if (engWords.length > 1) {
-                    const cleanPhrase = fullEngText.replace(/[^a-z\s-]/g, '').trim();
-                    let idiomMean = "";
-                    const dbPhrase = findWordInDB(cleanPhrase);
-                    idiomMean = dbPhrase ? dbPhrase.kor : korMean;
-                    if (!idiomMean || idiomMean === "undefined") idiomMean = robustSearchMap(cleanPhrase);
-
-                    const firstTok = engWords[0].replace(/[^a-z-]/g, '').toLowerCase();
-                    const lastTok = engWords[engWords.length - 1].replace(/[^a-z-]/g, '').toLowerCase();
-                    const phraseSeenKey = cleanPhrase.replace(/\s+/g, ' ').trim().toLowerCase();
-
-                    const keepPhraseRow = isIdiomPhraseKeepRow(engWords, !!dbPhrase, cleanPhrase);
-                    const skipComponentsForTwoWordPhrasal = keepPhraseRow && engWords.length === 2 &&
-                        PREPOSITION_TAIL_TWO_WORD.has(lastTok) && !STOP_WORDS.has(firstTok);
-                    const skipPhraseRowBecauseBaseAlreadySeen = keepPhraseRow && engWords.length === 2 &&
-                        PREPOSITION_TAIL_TWO_WORD.has(lastTok) && seenWords.has(englishCanonicalLemmaForList(firstTok));
-                    const clusterAnchor = idiomClusterAnchor(cleanPhrase, engWords, passagePlainForSupplement);
-                    let clusterRank = 0;
-
-                    // 1. 숙어 본체: 진짜 숙어일 때만 리스트에 합친 줄로 저장 (복합어는 개별 단어만)
-                    if (keepPhraseRow && !skipPhraseRowBecauseBaseAlreadySeen && cleanPhrase && !seenWords.has(phraseSeenKey)) {
-                        if (idiomMean && idiomMean !== "undefined") {
-                            processedKeywords.push({
-                                eng: cleanPhrase, kor: idiomMean, level: dbPhrase ? dbPhrase.level : 'other',
-                                _ordA: clusterAnchor, _ordB: clusterRank++, _kwLineIdx: kwLineIdx
-                            });
-                            seenWords.add(phraseSeenKey);
-                        }
-                    }
-
-                    // 2. 구성 단어 (2어절 구동사 숙어는 합친 줄만; 긴 숙어는 맨 앞 경동사 제외)
-                    if (!skipComponentsForTwoWordPhrasal) {
-                        engWords.forEach((w, wi) => {
-                            const cleanW = w.replace(/[^a-z-]/g, '').trim();
-                            const canonW = englishCanonicalLemmaForList(cleanW);
-                            if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !VOCAB_LIST_SKIP_WORDS.has(cleanW) &&
-                                !VOCAB_TOO_EASY_FOR_LIST.has(cleanW) && !VOCAB_TOO_EASY_FOR_LIST.has(canonW) &&
-                                !seenWords.has(canonW)) {
-                                if (properNounHints.has(canonW)) return;
-                                if (engWords.length >= 4 && wi === 0 && IDIOM_FIRST_VERB_SKIP_DECOMP.has(cleanW)) return;
-
-                                const dbWord = findWordInDB(cleanW);
-                                let indMean = dbWord ? dbWord.kor : robustSearchMap(cleanW);
-                                
-                                let isDuplicateMeaning = false;
-                                if (!keepPhraseRow && indMean && idiomMean) {
-                                    isDuplicateMeaning = indMean.replace(/\s+/g,'') === idiomMean.replace(/\s+/g,'');
-                                }
-                                
-                                if (indMean && indMean !== "undefined" && !isDuplicateMeaning) {
-                                    const wordAnchor = passageFirstAppearanceOrderBest({ eng: canonW, kor: '' }, passagePlainForSupplement);
-                                    processedKeywords.push({
-                                        eng: canonW, kor: indMean, level: dbWord ? dbWord.level : 'other',
-                                        _ordA: keepPhraseRow ? clusterAnchor : wordAnchor,
-                                        _ordB: keepPhraseRow ? clusterRank++ : 0,
-                                        _kwLineIdx: kwLineIdx
-                                    });
-                                    seenWords.add(canonW);
-                                }
-                            }
-                        });
-                    }
-                } else {
-                    const cleanW = fullEngText.replace(/[^a-z-]/g, '').trim();
-                    const canonW = englishCanonicalLemmaForList(cleanW);
-                    if (cleanW.length > 2 && !STOP_WORDS.has(cleanW) && !VOCAB_LIST_SKIP_WORDS.has(cleanW) &&
-                        !VOCAB_TOO_EASY_FOR_LIST.has(cleanW) && !VOCAB_TOO_EASY_FOR_LIST.has(canonW) &&
-                        !seenWords.has(canonW)) {
-                        if (properNounHints.has(canonW)) return;
-                        const dbWord = findWordInDB(cleanW);
-                        let finalMean = dbWord ? dbWord.kor : korMean;
-                        if (!finalMean || finalMean === "undefined") finalMean = robustSearchMap(cleanW);
-                        
-                        if (finalMean && finalMean !== "undefined") {
-                            processedKeywords.push({
-                                eng: canonW, kor: finalMean, level: dbWord ? dbWord.level : 'other',
-                                _ordA: passageFirstAppearanceOrderBest({ eng: canonW, kor: '' }, passagePlainForSupplement),
-                                _ordB: 0,
-                                _kwLineIdx: kwLineIdx
-                            });
-                            seenWords.add(canonW);
-                        }
-                    }
-                }
-            });
-
-            supplementImportantConnectivePhrasesFromPassage(passagePlainForSupplement, processedKeywords, seenWords);
-
-            let supOrder = 0;
-            Object.keys(fullWordMapGlobal || {}).forEach(mapKey => {
-                const rawKey = String(mapKey).trim();
-                if (/\s/.test(rawKey)) return;
-                const keyClean = rawKey.toLowerCase().replace(/[^a-z-]/g, '').trim();
-                const canonKey = englishCanonicalLemmaForList(keyClean);
-                if (!keyClean || keyClean.length <= 2 || STOP_WORDS.has(keyClean) || VOCAB_LIST_SKIP_WORDS.has(keyClean)) return;
-                if (VOCAB_TOO_EASY_FOR_LIST.has(keyClean) || VOCAB_TOO_EASY_FOR_LIST.has(canonKey)) return;
-                if (seenWords.has(canonKey)) return;
-                const mean = fullWordMapGlobal[mapKey];
-                if (mean == null || String(mean).trim() === '' || String(mean) === 'undefined') return;
-                if (!wordFormAppearsInPassage(keyClean, passagePlainForSupplement)) return;
-                processedKeywords.push({
-                    eng: canonKey, kor: String(mean).trim(), level: 'other',
-                    _ordA: passageFirstAppearanceOrderBest({ eng: canonKey, kor: '' }, passagePlainForSupplement),
-                    _ordB: 0,
-                    _kwLineIdx: 100000 + supOrder++
-                });
-                seenWords.add(canonKey);
-            });
-
-            processedKeywords.sort((a, b) => {
-                const da = a._ordA !== undefined ? a._ordA : 999999;
-                const dbv = b._ordA !== undefined ? b._ordA : 999999;
-                if (da !== dbv) return da - dbv;
-                const ra = a._ordB !== undefined ? a._ordB : 0;
-                const rb = b._ordB !== undefined ? b._ordB : 0;
-                if (ra !== rb) return ra - rb;
-                return (a._kwLineIdx !== undefined ? a._kwLineIdx : 0) - (b._kwLineIdx !== undefined ? b._kwLineIdx : 0);
-            });
-            processedKeywords.forEach(x => { delete x._ordA; delete x._ordB; delete x._kwLineIdx; });
-
-            aiKeywordsObj = processedKeywords;
-
-            let keywordHtml = `<div style="display:flex; justify-content:flex-end; align-items:center; margin-bottom:12px;">
-                <button id="save-all-btn" class="kw-save-btn" onclick="saveAllKeywords()">전체 저장</button>
-            </div>`;
-            
-            let vocaItemsArray = [];
-            if(aiKeywordsObj.length > 0) {
-                aiKeywordsObj.forEach(kw => {
-                    if (!kw.eng) return;
-                    const isSaved = savedVocaList.some(item => String(item.eng || '').toLowerCase() === String(kw.eng).toLowerCase());
-                    const btnClass = isSaved ? "kw-save-btn active" : "kw-save-btn";
-                    const btnText = isSaved ? "✅" : "저장";
-                    
-                    const safeEng = String(kw.eng || '').replace(/'/g, "\\'");
-                    const safeKor = String(kw.kor || '').replace(/'/g, "\\'");
-                    
-                    let levelTag = kw.level === 'middle' ? '<span class="kw-tag kw-mid">중등</span>' : 
-                                   kw.level === 'high' ? '<span class="kw-tag kw-high">고등</span>' : 
-                                   '<span class="kw-tag kw-other">기타</span>';
-
-                    vocaItemsArray.push(`
-                        <div class="kw-container">
-                            <div class="kw-body">${levelTag}<strong style="color:#fff; font-size:1.05rem; cursor:pointer;" onclick="showWordPopup('${safeEng}', '${safeKor}', '${kw.level}')">${kw.eng}</strong> <span style="color:#aaa; font-size:0.9rem; margin-left:6px;">${kw.kor}</span></div>
-                            <button id="btn-kw-${kw.eng}" class="${btnClass}" onclick="toggleVocaSave('${safeEng}', '${safeKor}', '${kw.level}', this)">${btnText}</button>
-                        </div>
-                    `);
-                });
-
-                if(vocaItemsArray.length > 3) {
-                    keywordHtml += vocaItemsArray.slice(0, 3).join('');
-                    keywordHtml += `<div id="voca-more-list" style="display:none;">${vocaItemsArray.slice(3).join('')}</div>`;
-                    keywordHtml += `<button id="voca-toggle-btn" onclick="toggleVocaList()" style="width:100%; background:transparent; border:1px solid #444; color:#aaa; padding:10px; border-radius:8px; margin-top:10px; font-size:0.85rem; cursor:pointer;">전체 단어 보기 ▼</button>`;
-                } else {
-                    keywordHtml += vocaItemsArray.join('');
-                }
-            } else {
-                keywordHtml += '<div style="color:#888;">추출된 주요 단어가 없습니다.</div>';
-            }
-            
-            keywordHtml += `<button class="kakao-btn voca-practice-cta-btn" style="background:var(--neon-green); color:#000; margin-top:15px;" onclick="startVocaPractice()"><span class="voca-cta-line1"><span class="voca-cta-text-wrap"><span class="voca-cta-ico" aria-hidden="true">👉</span><span class="voca-cta-text">사라져 VOCA로</span></span></span><span class="voca-cta-line2">나만의 단어 연습하기</span></button>`;
+            // 단어 리스트: worddata(마스터) + 시중 단어장 표제어(merged) — AI keywords 미사용
+            aiKeywordsObj = buildDeterministicKeywordList(res);
+            const keywordHtml = buildKeywordPanelHtml();
 
             if (res.grammar && Array.isArray(res.grammar) && res.full_translation && Array.isArray(res.full_translation)) {
                 res.grammar.forEach(g => {
@@ -3895,7 +4001,7 @@
                 ${passageLayoutCardHtml}
                 ${translationCardHtml}
                 <div class="result-card" style="border-color: #bc13fe;"><span class="result-label" style="color:#bc13fe;">🛠️ 트리거 팀의 문법 포인트</span><div class="result-content">${grammarListWrap}</div></div>
-                <div class="result-card"><span class="result-label keyword-list-heading-label" style="color:#ff0055;"><span class="keyword-list-heading-row"><span class="keyword-list-heading-icon" aria-hidden="true">📚</span><span class="keyword-list-heading-main">주요 단어 리스트<br><span class="keyword-list-heading-sub">(내 학습 노트에 저장)</span></span></span></span><div class="result-content">${keywordHtml}</div></div>
+                <div class="result-card"><span class="result-label keyword-list-heading-label" style="color:#ff0055;"><span class="keyword-list-heading-row"><span class="keyword-list-heading-icon" aria-hidden="true">📚</span><span class="keyword-list-heading-main">주요 단어 리스트<br><span class="keyword-list-heading-sub">(내 학습 노트에 저장)</span></span></span></span><div id="passage-keyword-panel" class="result-content">${keywordHtml}</div></div>
                 ${goldenKeyHtml}
                 <div class="result-card" style="border-color: var(--neon-orange);"><span class="result-label" style="color:var(--neon-orange);">🌎 쓸데없이 고퀄인 배경지식</span><div class="result-content passage-background-knowledge">${backgroundHtml}</div></div>
             `;
@@ -3917,6 +4023,12 @@
             try {
                 notifyPassageResultShownInHistory();
             } catch (e) {}
+            void (async function () {
+                try {
+                    await hydratePassageTokenMeaningsFromTranslation(res);
+                } catch (e) {}
+                await hydratePassageKeywordMeanings();
+            })();
         }
 
         const ANALYSIS_PASSAGE_CACHE_KEY = 'trigger_analysis_passage_cache_v1';
@@ -5850,12 +5962,12 @@
                 if (!isTextMode && selectedBase64) {
                     payload = {
                         contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: finalImageData } }] }],
-                        generationConfig: { temperature: 0.14, responseMimeType: "application/json" }
+                        generationConfig: { temperature: 0.1, responseMimeType: "application/json" }
                     };
                 } else {
                     payload = {
                         contents: [{ parts: [{ text: prompt }, { text: editedText }] }],
-                        generationConfig: { temperature: 0.14, responseMimeType: "application/json" }
+                        generationConfig: { temperature: 0.1, responseMimeType: "application/json" }
                     };
                 }
 
