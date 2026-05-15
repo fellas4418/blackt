@@ -151,9 +151,9 @@
             flex: none;
         }
         .passage-toggle-btn {
-            background: rgba(40, 52, 48, 0.75);
-            border: 1px solid rgba(130, 210, 160, 0.55);
-            color: #e4f0ea;
+            background: rgba(12, 14, 16, 0.92);
+            border: 1px solid rgba(215, 222, 230, 0.62);
+            color: #f2f6fa;
             padding: 8px 14px;
             border-radius: 999px;
             font-size: 0.82rem;
@@ -161,19 +161,25 @@
             cursor: pointer;
             white-space: nowrap;
             transition: border-color 0.15s, color 0.15s, background 0.15s, box-shadow 0.15s;
-            box-shadow: 0 0 0 1px rgba(57, 255, 20, 0.08);
+            box-shadow: none;
         }
-        .passage-toggle-btn:hover {
-            border-color: rgba(159, 232, 112, 0.8);
+        .passage-toggle-btn:hover:not(.is-on) {
+            border-color: rgba(240, 245, 250, 0.88);
             color: #fff;
-            background: rgba(57, 255, 20, 0.12);
-            box-shadow: 0 0 10px rgba(57, 255, 20, 0.12);
+            background: rgba(38, 44, 48, 0.95);
         }
         .passage-toggle-btn.is-on {
-            border-color: rgba(159, 232, 112, 0.85);
-            color: #e8ffd0;
-            background: rgba(159, 232, 112, 0.12);
-            box-shadow: 0 0 12px rgba(159, 232, 112, 0.15);
+            border-color: rgba(57, 255, 20, 0.95);
+            color: #061008;
+            background: rgba(57, 255, 20, 0.92);
+            box-shadow: 0 0 16px rgba(57, 255, 20, 0.42);
+            font-weight: 800;
+        }
+        .passage-toggle-btn.is-on:hover {
+            border-color: #7dff5c;
+            color: #061008;
+            background: rgba(125, 255, 92, 0.96);
+            box-shadow: 0 0 18px rgba(57, 255, 20, 0.5);
         }
         .passage-toggle-btn:disabled {
             opacity: 0.45;
@@ -280,25 +286,6 @@
         .clickable-word:hover { color: var(--neon-green); }
         .hl-voca { color: var(--neon-green); font-weight: 600; }
         
-        .hl-grammar { 
-            display: inline;
-            background-image: linear-gradient(rgba(181, 55, 242, 0.8), rgba(181, 55, 242, 0.8));
-            background-position: 0 100%;
-            background-repeat: no-repeat;
-            background-size: 100% 2px;
-            padding-bottom: 3px;
-        }
-        .hl-grammar.hl-grammar-clickable {
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-            transition: color 0.15s ease;
-        }
-        .hl-grammar.hl-grammar-clickable:hover,
-        .hl-grammar.hl-grammar-clickable:focus-visible {
-            color: #d789ff;
-            outline: none;
-        }
-
         .grammar-badge { background:#bc13fe; color:#fff; border-radius:4px; padding:2px 6px; font-size:0.75rem; font-weight:bold; cursor:pointer; margin-left: 6px; vertical-align: middle; transition: 0.2s; box-shadow: 0 0 5px rgba(181, 55, 242, 0.5); position: relative; z-index: 10; -webkit-tap-highlight-color: transparent; white-space: nowrap; display: inline-block; }
         .grammar-badge:hover,
         .grammar-badge:focus-visible { background: #d789ff; outline: none; }
@@ -2723,27 +2710,6 @@
             );
         }
 
-        function grammarHighlightHtml(index, innerHtml) {
-            const i = Number(index);
-            const label = '문법 G' + (i + 1) + ', 아래 설명으로 이동';
-            return (
-                '<span class="hl-grammar hl-grammar-clickable" role="button" tabindex="0" ' +
-                'onclick="scrollToGrammarPoint(' +
-                i +
-                ')" ' +
-                'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();scrollToGrammarPoint(' +
-                i +
-                ')}" ' +
-                'title="' +
-                label +
-                '" aria-label="' +
-                label +
-                '">' +
-                innerHtml +
-                '</span>'
-            );
-        }
-
         function pulseGrammarBadgesOnce() {
             try {
                 if (localStorage.getItem('trigger_grammar_badge_hint_seen') === '1') return;
@@ -2964,7 +2930,7 @@
                     wrapper.innerHTML = html;
                     node.replaceWith.apply(node, Array.from(wrapper.childNodes));
                 } else if (node.nodeType === 1) {
-                    if (node.classList && (node.classList.contains('grammar-badge') || node.classList.contains('hl-grammar-clickable'))) return;
+                    if (node.classList && node.classList.contains('grammar-badge')) return;
                     if (node.tagName === 'DEL') return;
                     Array.from(node.childNodes).forEach(makeTextNodesClickable);
                 }
@@ -4190,20 +4156,12 @@
                                 const lowerGSent = gSentNorm.toLowerCase();
                                 
                                 if (lowerFinal.includes(lowerGSent)) {
-                                    const startIdx = lowerFinal.indexOf(lowerGSent);
-                                    const actualMatch = finalEng.substring(startIdx, startIdx + gSentNorm.length);
-                                    
                                     grammarMarks += grammarBadgeHtml(i, g.point);
-                                    
-                                    finalEng = finalEng.substring(0, startIdx) + 
-                                               grammarHighlightHtml(i, actualMatch) + 
-                                               finalEng.substring(startIdx + gSentNorm.length);
                                 } else {
                                     const normFinal = lowerFinal.replace(/[^a-z0-9]/g, '');
                                     const normG = lowerGSent.replace(/[^a-z0-9]/g, '');
                                     if (normFinal.includes(normG)) {
                                         grammarMarks += grammarBadgeHtml(i, g.point);
-                                        finalEng = grammarHighlightHtml(i, finalEng);
                                     }
                                 }
                             }
@@ -4242,7 +4200,7 @@
                     : '';
             const hasGrammarPoints = res.grammar && res.grammar.length > 0;
             const passageGrammarHint = hasGrammarPoints
-                ? '<p class="passage-grammar-click-hint" role="note"><span class="grammar-badge grammar-badge-sample" aria-hidden="true">G1 ↓</span> 또는 밑줄 문장을 누르면 아래 문법 설명으로 이동해요</p>'
+                ? '<p class="passage-grammar-click-hint" role="note"><span class="grammar-badge grammar-badge-sample" aria-hidden="true">G1 ↓</span>를 누르면 아래 문법 설명으로 이동해요</p>'
                 : '';
             const passageInteractionHints =
                 '<div class="passage-interaction-hints">' +
