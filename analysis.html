@@ -133,9 +133,12 @@
             align-items: center;
             justify-content: flex-start;
             gap: 10px 12px;
-            margin-bottom: 18px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid rgba(255, 154, 92, 0.28);
+            margin-bottom: 0;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #222;
+        }
+        #translation-rows-root > .translation-row:first-child {
+            padding-top: 15px;
         }
         .translation-card-toolbar .passage-view-toggle-wrap {
             margin-left: 0;
@@ -607,28 +610,45 @@
             min-width: 0;
             height: auto;
         }
-        .passage-layout-card .passage-layout-type-label {
-            display: block;
-            margin: 0 0 8px 0;
-            padding: 6px 12px 6px 16px;
+        .passage-layout-block {
+            margin: 0 0 10px 0;
+            padding: 0;
             box-sizing: border-box;
-            color: #00f3ff;
         }
-        .passage-layout-card.passage-layout-card--type-only .passage-layout-type-label {
-            margin-bottom: 0;
+        .passage-type-chip {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px 10px;
+            margin: 0 0 4px 0;
+            line-height: 1.4;
         }
-        .passage-layout-card .passage-layout-inner {
+        .passage-type-chip-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #888;
+            letter-spacing: 0.04em;
+        }
+        .passage-type-chip-value {
+            display: inline-block;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #9fe8ff;
+            padding: 5px 12px 5px 10px;
+            border-left: 3px solid rgba(0, 243, 255, 0.5);
+            background: rgba(0, 243, 255, 0.07);
+            border-radius: 0 8px 8px 0;
+        }
+        .passage-layout-extra {
+            margin-top: 12px;
             line-height: 1.65;
-            padding-left: 16px;
-            padding-right: 12px;
-            box-sizing: border-box;
         }
         .passage-insert-box {
             border: 2px dashed rgba(159, 232, 112, 0.75);
             background: rgba(159, 232, 112, 0.07);
             border-radius: 12px;
-            padding: 14px 16px;
-            margin-bottom: 14px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
             color: #e8ffe8;
             font-size: 0.95rem;
         }
@@ -3953,17 +3973,15 @@
 
         function buildPassageLayoutCardHtml(res) {
             const typeLabel = inferPassageProblemTypeLabel(res);
-            const typeHeaderHtml =
-                '<span class="result-label passage-layout-type-label">문제 유형: ' +
+            const typeChipHtml =
+                '<div class="passage-type-chip">' +
+                '<span class="passage-type-chip-label">문제 유형</span>' +
+                '<span class="passage-type-chip-value">' +
                 escapeHtml(typeLabel) +
-                '</span>';
+                '</span></div>';
             const pl = res && res.passage_layout && typeof res.passage_layout === 'object' ? res.passage_layout : null;
             if (!pl) {
-                return (
-                    '<div class="result-card passage-layout-card passage-layout-card--type-only" style="border-color:#00f3ff;">' +
-                    typeHeaderHtml +
-                    '</div>'
-                );
+                return '<div class="passage-layout-block">' + typeChipHtml + '</div>';
             }
             const t = String(pl.type || 'normal').trim().toLowerCase();
             const headParts = [];
@@ -4053,16 +4071,12 @@
 
             const inner = (headParts.join('') + tailParts.join('')).trim();
             if (!inner) {
-                return (
-                    '<div class="result-card passage-layout-card passage-layout-card--type-only" style="border-color:#00f3ff;">' +
-                    typeHeaderHtml +
-                    '</div>'
-                );
+                return '<div class="passage-layout-block">' + typeChipHtml + '</div>';
             }
             return (
-                '<div class="result-card passage-layout-card" style="border-color:#00f3ff;">' +
-                typeHeaderHtml +
-                '<div class="result-content passage-layout-inner">' +
+                '<div class="passage-layout-block">' +
+                typeChipHtml +
+                '<div class="passage-layout-extra">' +
                 inner +
                 '</div></div>'
             );
