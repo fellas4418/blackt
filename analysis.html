@@ -33,51 +33,65 @@
             border: none;
         }
         #analysis-passage-zone #ai-report-area .result-card {
-            padding: 18px 5px;
+            padding: 18px var(--passage-ui-pad-x, 16px);
             box-sizing: border-box;
         }
         #analysis-passage-zone {
             --passage-ui-size: 0.84rem;
             --passage-ui-lh: 1.5;
-            --passage-ui-gap: 10px;
+            --passage-ui-stack-gap: 10px;
             --passage-ui-pad-x: 16px;
             --passage-ui-text: #a8b2bc;
             --passage-ui-text-strong: #c8d0d8;
             --passage-ui-muted: #7d8794;
             --passage-ui-line: rgba(255, 255, 255, 0.08);
+            --passage-ui-title-size: 0.98rem;
+            --passage-chip-bg: rgba(0, 243, 255, 0.1);
+            --passage-chip-border: rgba(0, 243, 255, 0.34);
+            --passage-chip-label: #9fe8ff;
+            --passage-chip-value: #f0fbff;
         }
         #analysis-passage-zone .passage-ai-report-stack {
             margin: 0 0 20px;
-            padding: 12px var(--passage-ui-pad-x) 0;
+            padding: var(--passage-ui-stack-gap) var(--passage-ui-pad-x) 0;
             box-sizing: border-box;
             max-width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: var(--passage-ui-stack-gap);
         }
-        #analysis-passage-zone #ai-report-area .passage-top-block {
-            padding-left: 11px;
-            padding-right: 11px;
+        #analysis-passage-zone .passage-ai-report-stack #ai-report-area {
+            display: flex;
+            flex-direction: column;
+            gap: var(--passage-ui-stack-gap);
+        }
+        #analysis-passage-zone #ai-report-area > .passage-top-block {
+            margin: 0;
+            padding: 0;
         }
         #analysis-passage-zone .passage-report-heading {
-            margin: 0 0 var(--passage-ui-gap);
+            margin: 0;
             padding: 0;
             text-align: left;
-            color: var(--passage-ui-text-strong);
-            font-size: var(--passage-ui-size);
-            font-weight: 700;
+            color: var(--neon-green);
+            font-size: var(--passage-ui-title-size);
+            font-weight: 800;
             line-height: var(--passage-ui-lh);
             letter-spacing: -0.02em;
         }
         #analysis-passage-zone .analysis-source-badge {
             display: none;
             margin-left: 8px;
-            padding: 2px 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            line-height: var(--passage-ui-lh);
-            color: var(--passage-ui-muted);
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid #333;
+            padding: 3px 10px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            line-height: 1.35;
+            color: #0d1808;
+            background: #9fe870;
+            border: 1px solid rgba(159, 232, 112, 0.95);
             border-radius: 999px;
             vertical-align: middle;
+            box-shadow: 0 0 10px rgba(159, 232, 112, 0.28);
         }
         .passage-zone .passage-zone-desc-lines {
             margin: 0;
@@ -129,16 +143,23 @@
         }
         .passage-top-block {
             margin: 0;
-            padding: 0 5px;
+            padding: 0;
             box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: var(--passage-ui-stack-gap, 10px);
+            align-items: stretch;
         }
         .passage-guide-list {
             list-style: none;
             margin: 0;
             padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: var(--passage-ui-stack-gap, 10px);
         }
         .passage-guide-line {
-            margin: 0 0 var(--passage-ui-gap, 10px) 0;
+            margin: 0;
             padding: 0;
             font-size: var(--passage-ui-size, 0.84rem);
             font-weight: 500;
@@ -147,11 +168,8 @@
             color: var(--passage-ui-text, #a8b2bc);
             text-align: left;
         }
-        .passage-guide-line:last-child {
-            margin-bottom: 0;
-        }
-        .passage-top-block .passage-guide-list {
-            margin-bottom: var(--passage-ui-gap, 10px);
+        .passage-top-block .passage-layout-block {
+            margin: 0;
         }
         .passage-top-block .grammar-badge-sample {
             cursor: default;
@@ -161,9 +179,11 @@
             box-shadow: none;
             font-size: 0.72rem;
             font-weight: 700;
-            padding: 1px 5px;
-            background: rgba(188, 19, 254, 0.22);
-            color: #c9b0dc;
+            padding: 1px 6px;
+            border-radius: 4px;
+            background: var(--passage-chip-bg, rgba(0, 243, 255, 0.1));
+            color: var(--passage-chip-label, #9fe8ff);
+            border: 1px solid var(--passage-chip-border, rgba(0, 243, 255, 0.34));
         }
         .translation-card-toolbar {
             display: flex;
@@ -649,11 +669,6 @@
             min-width: 0;
             height: auto;
         }
-        .passage-top-block .passage-layout-block {
-            margin: 0 0 var(--passage-ui-gap, 10px);
-            padding: 0;
-            box-sizing: border-box;
-        }
         .passage-type-chip {
             display: flex;
             flex-wrap: wrap;
@@ -663,8 +678,8 @@
             padding: 8px 10px;
             line-height: var(--passage-ui-lh, 1.5);
             border-radius: 8px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid #2a2a2a;
+            background: var(--passage-chip-bg, rgba(0, 243, 255, 0.1));
+            border: 1px solid var(--passage-chip-border, rgba(0, 243, 255, 0.34));
             box-sizing: border-box;
         }
         .passage-type-chip-vdiv {
@@ -672,7 +687,7 @@
             align-self: stretch;
             min-height: 1em;
             margin: 1px 0;
-            background: #3a3a3a;
+            background: rgba(0, 243, 255, 0.42);
             flex-shrink: 0;
         }
         .passage-type-chip-label,
@@ -683,11 +698,12 @@
             line-height: var(--passage-ui-lh, 1.5);
         }
         .passage-type-chip-label {
-            color: var(--passage-ui-muted, #7d8794);
+            color: var(--passage-chip-label, #9fe8ff);
             flex-shrink: 0;
         }
         .passage-type-chip-value {
-            color: var(--passage-ui-text-strong, #c8d0d8);
+            color: var(--passage-chip-value, #f0fbff);
+            font-weight: 700;
             flex: 1 1 auto;
             min-width: 0;
         }
@@ -911,17 +927,22 @@
         }
         .passage-source-below-header {
             margin: 0;
-            padding: 10px var(--passage-ui-pad-x, 16px) 12px;
+            padding: var(--passage-ui-stack-gap, 10px) var(--passage-ui-pad-x, 16px);
             background: #000000;
             border: none;
             border-bottom: 1px solid var(--passage-ui-line, rgba(255, 255, 255, 0.08));
+            display: flex;
+            flex-direction: column;
+            gap: var(--passage-ui-stack-gap, 10px);
+            align-items: stretch;
+            box-sizing: border-box;
         }
         .passage-source-label {
             display: block;
-            font-size: var(--passage-ui-size, 0.84rem);
-            color: var(--passage-ui-text-strong, #c8d0d8);
-            font-weight: 700;
-            margin: 0 0 8px;
+            font-size: var(--passage-ui-title-size, 0.98rem);
+            color: var(--neon-blue);
+            font-weight: 800;
+            margin: 0;
             letter-spacing: -0.02em;
             line-height: var(--passage-ui-lh, 1.5);
         }
@@ -967,7 +988,7 @@
             font-size: var(--passage-ui-size, 0.84rem);
             font-weight: 500;
             color: var(--passage-ui-text, #a8b2bc);
-            margin: var(--passage-ui-gap, 10px) 0 0;
+            margin: 0;
             line-height: var(--passage-ui-lh, 1.5);
         }
         .passage-source-hint strong {
@@ -990,7 +1011,9 @@
         #analysis-exam-zone .exam-rpt-plain--photo {
             margin-bottom: 16px;
         }
-        .passage-zone .analysis-zone-body { padding-top: 10px; }
+        .passage-zone .analysis-zone-body {
+            padding: var(--passage-ui-stack-gap, 10px) 0 18px;
+        }
         .exam-zone-value {
             font-size: 0.86rem;
             color: #bbb;
