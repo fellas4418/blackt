@@ -144,23 +144,23 @@
             border: 2px solid rgba(255, 75, 75, 0.92);
             border-radius: 12px;
             padding: 1px 6px;
-            margin: 0 2px;
+            margin: 0;
             box-shadow: 0 0 0 1px rgba(255, 60, 60, 0.35), 0 0 10px rgba(255, 50, 50, 0.18);
-            display: inline-block;
+            display: inline;
         }
         .passage-topic-kw {
             border: 2px solid transparent;
             border-radius: 12px;
             padding: 1px 6px;
-            margin: 0 2px;
-            display: inline-block;
+            margin: 0;
+            display: inline;
             transition: border-color 0.15s, box-shadow 0.15s;
         }
         .kakao-btn { width: 100%; padding: 18px; background: #fee500; color: #000; border: none; border-radius: 12px; font-weight: 900; font-size: 1.05rem; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         
         .clickable-word {
             cursor: pointer;
-            display: inline-block;
+            display: inline;
             transition: color 0.2s, border-bottom-color 0.2s;
             border-bottom: 1px solid transparent;
             position: relative;
@@ -502,8 +502,18 @@
         .passage-corrections-list { margin-top: 12px; font-size: 0.86rem; color: #ccc; }
         .passage-corrections-h { font-weight: bold; color: #aaa; margin-bottom: 6px; }
         .passage-corrections-list ul { margin: 0; padding-left: 1.1em; }
-        .passage-corrections-list li { margin: 4px 0; }
+        .passage-corrections-list li { margin: 8px 0; }
         .passage-cor-num { color: #00f3ff; font-weight: bold; margin-right: 4px; }
+        .passage-cor-reason {
+            margin: 6px 0 0 0;
+            padding: 8px 10px 8px 11px;
+            font-size: 0.82rem;
+            color: #b8c8d8;
+            line-height: 1.58;
+            background: rgba(0, 243, 255, 0.06);
+            border-left: 3px solid rgba(0, 243, 255, 0.42);
+            border-radius: 0 8px 8px 0;
+        }
 
         .analysis-page-split.analysis-main-tabs-wrap {
             display: flex;
@@ -1266,6 +1276,14 @@
 
         function escapeHtml(s) {
             return String(s || '').replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m]));
+        }
+
+        /** 지문 eng 표시: OCR·모델이 넣은 연속 공백·특수 공백을 한 칸으로 줄여 가독성 확보 */
+        function normalizePassageEngForDisplay(s) {
+            let t = String(s || '');
+            t = t.replace(/[\u00a0\u1680\u2000-\u200a\u202f\u205f\u3000\ufeff]/g, ' ');
+            t = t.replace(/[ \t]+/g, ' ');
+            return t;
         }
 
         function stripLeadingCircledNumbersFromKorLine(line) {
@@ -2758,6 +2776,16 @@
             sp.style.display = sp.style.display === 'none' ? 'inline' : 'none';
         };
 
+        /** 질문 맥락·미리보기용: eng 줄에서 G1 등 문법 배지 문구 제거 */
+        function getEngPlainTextForChatContext(engEl) {
+            if (!engEl) return '';
+            const clone = engEl.cloneNode(true);
+            clone.querySelectorAll('.grammar-badge').forEach(function (b) {
+                b.remove();
+            });
+            return (clone.innerText || clone.textContent || '').trim().replace(/\s+/g, ' ');
+        }
+
         function getSelectedSentencePlainFromDom() {
             const area = document.getElementById('ai-report-area');
             if (!area) return '';
@@ -2766,7 +2794,7 @@
             rows.forEach(function (row) {
                 const eng = row.querySelector('.eng-text');
                 if (!eng) return;
-                const t = (eng.innerText || eng.textContent || '').trim().replace(/\s+/g, ' ');
+                const t = getEngPlainTextForChatContext(eng);
                 if (t) parts.push(t);
             });
             return parts.join('\n\n');
@@ -2895,8 +2923,12 @@
                         if (out) {
                             let msg = (e && e.message) || '요청에 실패했어요.';
                             if (e && e.httpStatus === 404 && (e.apiError === 'not_found' || String(msg).indexOf('not_found') !== -1)) {
-                                msg =
-                                    '서버가 이 API 경로를 찾지 못했어요(404 not_found). 배포된 Worker에 /api/chat/ask가 포함돼 있는지 확인하거나, 로컬에서 wrangler dev 실행 뒤 analysis.html?worker=http://127.0.0.1:8787 로 열면 같은 코드로 테스트할 수 있어요.';
+                                msg = '답변 기능에 연결되지 않았어요. 잠시 후 다시 시도해 주세요.';
+                                try {
+                                    console.warn(
+                                        '[chat/ask] 404 not_found — Worker에 /api/chat/ask 라우트·배포 여부를 확인하세요. 로컬: wrangler dev 후 analysis.html?worker=http://127.0.0.1:8787'
+                                    );
+                                } catch (_) {}
                             }
                             out.textContent = msg;
                         }
@@ -3197,14 +3229,22 @@
                     const num = escapeHtml(String(x.num || x.number || x.label || ''));
                     const w = escapeHtml(String(x.wrong || x.incorrect || ''));
                     const cr = escapeHtml(String(x.correct || x.right || ''));
+                    const reason = escapeHtml(
+                        String(x.reason || x.rationale || x.explanation || x.detail || '').trim()
+                    );
+                    c += '<li>';
                     c +=
-                        '<li><span class="passage-cor-num">' +
+                        '<span class="passage-cor-num">' +
                         num +
                         '</span> <del class="passage-del">' +
                         w +
                         '</del> <span style="display:inline-block;margin:0 0.35em;color:#888;">→</span> <ins class="passage-ins">' +
                         cr +
-                        '</ins></li>';
+                        '</ins>';
+                    if (reason) {
+                        c += '<div class="passage-cor-reason">' + reason + '</div>';
+                    }
+                    c += '</li>';
                 });
                 c += '</ul></div>';
                 tailParts.push(c);
@@ -3530,26 +3570,27 @@
                             '</div>';
                     }
 
-                    let finalEng = escapeHtml(String(s.eng || ''));
+                    let finalEng = escapeHtml(normalizePassageEngForDisplay(String(s.eng || '')));
                     finalEng = decorateCircledNumberMarks(finalEng);
                     let grammarMarks = "";
 
                     if (res.grammar) {
                         res.grammar.forEach((g, i) => {
                             const gSent = String(g.sentence || '').trim();
-                            if (gSent.length > 5) {
+                            const gSentNorm = normalizePassageEngForDisplay(gSent);
+                            if (gSentNorm.length > 5) {
                                 const lowerFinal = finalEng.toLowerCase();
-                                const lowerGSent = gSent.toLowerCase();
+                                const lowerGSent = gSentNorm.toLowerCase();
                                 
                                 if (lowerFinal.includes(lowerGSent)) {
                                     const startIdx = lowerFinal.indexOf(lowerGSent);
-                                    const actualMatch = finalEng.substring(startIdx, startIdx + gSent.length);
+                                    const actualMatch = finalEng.substring(startIdx, startIdx + gSentNorm.length);
                                     
                                     grammarMarks += `<span class="grammar-badge" onclick="document.getElementById('grammar-box-${i}').scrollIntoView({behavior:'smooth', block:'center'})" title="${String(g.point || '').replace(/"/g, '&quot;')}">G${i+1}</span>`;
                                     
                                     finalEng = finalEng.substring(0, startIdx) + 
                                                `<span class="hl-grammar">${actualMatch}</span>` + 
-                                               finalEng.substring(startIdx + gSent.length);
+                                               finalEng.substring(startIdx + gSentNorm.length);
                                 } else {
                                     const normFinal = lowerFinal.replace(/[^a-z0-9]/g, '');
                                     const normG = lowerGSent.replace(/[^a-z0-9]/g, '');
@@ -3598,8 +3639,8 @@
                 '<span class="translation-card-hint" role="note">단어를 클릭하면 뜻을 볼 수 있어요</span>' +
                 '<div class="passage-view-toggle-wrap">' +
                 passageTopicToggleBtn +
-                passageKorHideBtn +
                 passageKwToggleBtn +
+                passageKorHideBtn +
                 '</div></div>' +
                 '<div class="result-content" id="translation-rows-root">' +
                 transRowsHtml +
@@ -5483,7 +5524,7 @@
       · **insertion**: 본문과 분리된 **삽입 박스 문장**(박스 안 한 문장)이 있으면. \`box_sentence\`에 그 **영어 문장 전체**를 넣고, \`full_translation\`에는 본문 줄만(박스 문장은 중복하지 않거나 한 줄로만). **인쇄·입력에 보이는 순서**를 유지하세요.
       · **ordering**: \`(A)\`, \`(B)\`, \`(C)\` 같은 **단락 표지**가 있으면. \`paragraphs\` 배열: \`[{ "marker": "(A)", "eng_text": "해당 단락 영어" }, ...]\` — 배열 순서는 **반드시 문제지에 인쇄된 (A)(B)(C) 순서 그대로**이어야 하며, **정답 순·가독 순으로 재정렬하면 안 됩니다.** \`full_translation\`의 eng 행 순서도 **같은 인쇄 순서**와 일치시키세요.
       · **summary**: 지문 **하단**에 요약용 빈칸·보기 박스(A/B 등)가 있으면. \`summary_box\`에 그 **영어 블록 전체**(빈칸 표기 포함)를 문자열로. **보이는 그대로** 옮기세요.
-      · **grammar**: 본문에 **①~⑤** 등 번호가 있고 **어법·문맥**으로 틀린 낱말을 고르는 유형이면. \`grammar_panel_eng\`에는 **HTML로만** \`<del>...</del>\`(틀린 표현), \`<ins>...</ins>\`(교정)과 \`<br>\`만 사용(다른 태그 금지). **각 \`<del>...</del>\` 닫는 태그 직후와 바로 이어지는 \`<ins>...</ins>\` 사이**에 **공백 한 칸 이상 또는 \`<br>\`**를 넣어, 틀린 부분과 교정 부분이 붙어 보이지 않게 하세요. \`corrections\`: \`[{ "num": "①", "wrong": "...", "correct": "..." }]\` 형태로 번호별 요약. **full_translation의 각 eng는 교정된 최종 문장(평문, HTML 없음)**으로 두고, **kor은 교정된 문장 기준 해석**. **문장 나열 순서는 원본 지문과 동일**하게 유지하세요.
+      · **grammar**: 본문에 **①~⑤** 등 번호가 있고 **어법·문맥**으로 틀린 낱말을 고르는 유형이면. \`grammar_panel_eng\`에는 **HTML로만** \`<del>...</del>\`(틀린 표현), \`<ins>...</ins>\`(교정)과 \`<br>\`만 사용(다른 태그 금지). **각 \`<del>...</del>\` 닫는 태그 직후와 바로 이어지는 \`<ins>...</ins>\` 사이**에 **공백 한 칸 이상 또는 \`<br>\`**를 넣어, 틀린 부분과 교정 부분이 붙어 보이지 않게 하세요. \`corrections\`: 각 번호마다 \`{ "num": "①", "wrong": "...", "correct": "...", "reason": "..." }\` — **\`reason\`은 필수**: 수능·문맥 관점에서 **왜 틀렸는지**, **왜 \`correct\`가 맞는지**, 필요하면 **앞뒤 절·선행사·병렬·관계사/접속사 구분** 등을 **한국어로 3~6문장** 상세히 서술하세요(단순 번역만 금지). \`wrong\`/\`correct\`는 짧게, 근거는 \`reason\`에만 풀어 쓰세요. **full_translation의 각 eng는 교정된 최종 문장(평문, HTML 없음)**으로 두고, **단어 사이 공백은 반드시 보통 한 칸만**(연속 공백·이상 공백 금지), **kor은 교정된 문장 기준 해석**. **문장 나열 순서는 원본 지문과 동일**하게 유지하세요.
       · **normal_clean**: 안내문·표·실용문 등 위 유형에 딱 맞지 않으면. \`bulleted_lines\`: 줄 단위 문자열 배열(불렛으로 보여줄 각 줄).
       · **normal**: 위 특이 구조가 없을 때. \`full_translation\`은 **입력에 나온 문장 순서 그대로** 유지하세요.
     - **장문 독해**: 문단이 많고 길면 \`paragraph_subtitles\`에 \`[{ "row_index": 0, "subtitle": "한 줄 소제목" }, ...]\` 형태로 \`full_translation\` **행 인덱스(0부터)**와 맞추거나, 각 \`full_translation\` 객체에 선택 필드 \`"subtitle"\`을 넣어도 됩니다.
@@ -5514,7 +5555,7 @@
     "paragraphs": null,
     "summary_box": null,
     "grammar_panel_eng": null,
-    "corrections": [],
+    "corrections": [{ "num": "①", "wrong": "…", "correct": "…", "reason": "(필수) 왜 틀렸는지·왜 correct인지 수능·문맥 관점 3~6문장 한국어" }],
     "bulleted_lines": null,
     "paragraph_subtitles": null
   },
