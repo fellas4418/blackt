@@ -1401,9 +1401,14 @@
                     level: dbPhrase ? dbPhrase.level : 'other',
                     _ordA: passageFirstAppearanceOrderBest({ eng: phraseSeenKey, kor: '' }, passageLower),
                     _ordB: 0,
-                    _kwLineIdx: idx++
+                    _kwLineIdx: idx++,
+                    _isPhrase: true
                 });
                 seenWords.add(phraseSeenKey);
+                phraseSeenKey.split(/\s+/).forEach(function (part) {
+                    const c = englishCanonicalLemmaForList(part.replace(/[^a-z-]/g, ''));
+                    if (c && c.length > 1) seenWords.add(c);
+                });
             });
         }
 
@@ -2077,7 +2082,6 @@
         }
 
         const PASSAGE_MEANING_CACHE_KEY = 'trigger_passage_word_meanings_v1';
-        const MAX_PASSAGE_KEYWORDS = 30;
 
         function passesVocabListFilter(canon) {
             if (!canon || canon.length <= 2) return false;
@@ -2262,6 +2266,10 @@
             const processedKeywords = [];
             const seenWords = new Set();
 
+            /* 1) 숙어·구문: DB에 있고 지문에 나오면 개수 제한 없이 전부 */
+            supplementImportantConnectivePhrasesFromPassage(passagePlain, processedKeywords, seenWords);
+
+            /* 2) 낱말: worddata · 시중 단어장 */
             tokens.forEach(({ canon }) => {
                 if (!passesVocabListFilter(canon) || !wordFormAppearsInPassage(canon, passagePlain)) return;
                 if (seenWords.has(canon)) return;
@@ -2289,17 +2297,18 @@
                 seenWords.add(canon);
             });
 
-            supplementImportantConnectivePhrasesFromPassage(passagePlain, processedKeywords, seenWords);
-            /* 숙어는 단어 슬롯을 먼저 채우지 않도록, 구문 보충 후 정렬·상한 적용 */
-
             processedKeywords.sort((a, b) => {
                 const da = a._ordA !== undefined ? a._ordA : 999999;
                 const dbv = b._ordA !== undefined ? b._ordA : 999999;
                 return da - dbv;
             });
-            const trimmed = processedKeywords.slice(0, MAX_PASSAGE_KEYWORDS);
-            trimmed.forEach(x => { delete x._ordA; });
-            return trimmed;
+            processedKeywords.forEach(x => {
+                delete x._ordA;
+                delete x._ordB;
+                delete x._kwLineIdx;
+                delete x._isPhrase;
+            });
+            return processedKeywords;
         }
 
         function buildKeywordPanelHtml() {
