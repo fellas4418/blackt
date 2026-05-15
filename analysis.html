@@ -43,7 +43,7 @@
             max-width: 100%;
         }
         #analysis-passage-zone .passage-report-heading {
-            margin: 0 0 12px 0;
+            margin: 0 0 4px 0;
             padding: 0;
             text-align: left;
             color: var(--neon-green);
@@ -56,6 +56,13 @@
         }
         
         .result-label { font-size: 1.1rem; color: var(--neon-blue); font-weight: bold; margin-bottom: 10px; display: block; letter-spacing: 1px; }
+        #analysis-passage-zone .keyword-list-heading-label .keyword-list-heading-sub {
+            display: inline-block;
+            margin-top: 2px;
+            font-size: 0.92em;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
         .result-content { font-size: 0.95rem; line-height: 1.7; color: #eee; }
         .translation-row { border-bottom: 1px solid #222; padding: 15px 0; }
         .translation-row:last-child { border-bottom: none; }
@@ -75,8 +82,8 @@
             pointer-events: none;
             user-select: none;
         }
-        #analysis-passage-zone #ai-report-area .translation-passage-card > .passage-word-click-hint {
-            margin: 0 0 8px 0;
+        #analysis-passage-zone #ai-report-area > .passage-word-click-hint {
+            margin: 2px 0 10px 0;
             padding: 0;
             text-align: left;
             font-size: calc(1.1rem * 0.9);
@@ -3674,9 +3681,10 @@
                 topicKwPhrases.length > 0
                     ? '<button type="button" class="passage-toggle-btn" id="btn-passage-kw-toggle" aria-pressed="false" onclick="togglePassageKeywordHighlight(this)">키워드 보기</button>'
                     : '';
+            const passageWordClickHint =
+                '<p class="passage-word-click-hint" role="note">단어를 클릭하면 뜻을 볼 수 있어요</p>';
             const translationCardHtml =
                 '<div class="result-card translation-passage-card">' +
-                '<p class="passage-word-click-hint" role="note">단어를 클릭하면 뜻을 볼 수 있어요</p>' +
                 '<div class="translation-card-toolbar">' +
                 '<div class="passage-view-toggle-wrap">' +
                 passageTopicToggleBtn +
@@ -3693,10 +3701,11 @@
             const goldenKeyHtml = buildGoldenKeySectionHtml(res, goldenKeyReveal, aiKeywordsObj);
 
             document.getElementById('ai-report-area').innerHTML = `
+                ${passageWordClickHint}
                 ${passageLayoutCardHtml}
                 ${translationCardHtml}
                 <div class="result-card" style="border-color: #bc13fe;"><span class="result-label" style="color:#bc13fe;">🛠️ 트리거 팀의 문법 포인트</span><div class="result-content">${grammarListWrap}</div></div>
-                <div class="result-card"><span class="result-label" style="color:#ff0055;">📚 주요 단어 리스트 (내 학습 노트에 저장)</span><div class="result-content">${keywordHtml}</div></div>
+                <div class="result-card"><span class="result-label keyword-list-heading-label" style="color:#ff0055;">📚 주요 단어 리스트<br><span class="keyword-list-heading-sub">(내 학습 노트에 저장)</span></span><div class="result-content">${keywordHtml}</div></div>
                 ${goldenKeyHtml}
                 <div class="result-card" style="border-color: var(--neon-orange);"><span class="result-label" style="color:var(--neon-orange);">🌎 쓸데없이 고퀄인 배경지식</span><div class="result-content passage-background-knowledge">${backgroundHtml}</div></div>
             `;
