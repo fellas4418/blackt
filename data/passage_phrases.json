@@ -1,6 +1,6 @@
 {
   "meta": {
-    "count": 1490,
+    "count": 1861,
     "match_order": "longest_first"
   },
   "phrases": {
@@ -604,6 +604,13 @@
         "수능숙어 총정리"
       ]
     },
+    "at the end of the day": {
+      "mean": "결국",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "might as well a as b": {
       "mean": "차라리 A 하는 편이 낫다",
       "sources": [
@@ -742,6 +749,13 @@
         "수능숙어 총정리"
       ]
     },
+    "as far as  be concerned": {
+      "mean": "~의 입장에서는",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "have nothing to do with": {
       "mean": "~와 아무런 관계가 없다",
       "sources": [
@@ -790,6 +804,18 @@
         "수능기출"
       ]
     },
+    "every once in a while": {
+      "mean": "이따금, 가끔",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "the only game in town": {
+      "mean": "\u0007유일하게 이용할 수 있는 것, (특정 유",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "what do you say toing": {
       "mean": "~은 어떤가",
       "sources": [
@@ -833,6 +859,12 @@
         "중학숙어1000"
       ]
     },
+    "a means to an end": {
+      "mean": "목적을 위한 수단",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "it is no use ing": {
       "mean": "~해도 소용없다",
       "sources": [
@@ -869,10 +901,22 @@
         "수능기출"
       ]
     },
+    "at one's earliest convenience": {
+      "mean": "가급적 빨리, 되도록 일찍",
+      "sources": [
+        "EBS2027수능특강HWP"
+      ]
+    },
     "157. for certain (certainly)": {
       "mean": "틀림없이",
       "sources": [
         "수능숙어 총정리"
+      ]
+    },
+    "at ones earliest convenience": {
+      "mean": "가급적 빨리, 되도록 일찍",
+      "sources": [
+        "EBS2027수능특강XLSX"
       ]
     },
     "feel likeing(be inclined to)": {
@@ -899,10 +943,29 @@
         "중학숙어1000"
       ]
     },
+    "knock someone's socks off": {
+      "mean": "누군가를 깜짝 놀라게 하다",
+      "sources": [
+        "EBS2027수능특강HWP"
+      ]
+    },
+    "knock someones socks off": {
+      "mean": "누군가를 깜짝 놀라게 하다",
+      "sources": [
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "make an appointment with": {
       "mean": "~와 만날 약속을 하다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "level the playing field": {
+      "mean": "모두에게 고른 기회를 주다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "major in, specialize in": {
@@ -1111,6 +1174,12 @@
         "수능기출"
       ]
     },
+    "do the bare minimum": {
+      "mean": "최소한의 일을 하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "fall in love (with)": {
       "mean": "(~와) 사랑에 빠지다",
       "sources": [
@@ -1121,6 +1190,12 @@
       "mean": "이곳저곳, 이리저리",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "get around to doing": {
+      "mean": "마침내 ~하게 되다, ~할 시간을 내다",
+      "sources": [
+        "EBS2027수능특강XLSX"
       ]
     },
     "have a problem with": {
@@ -1145,6 +1220,13 @@
       "mean": "전화하다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "on the grounds that": {
+      "mean": "~이라는 이유로",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "out of the question": {
@@ -1213,6 +1295,19 @@
         "중학숙어1000"
       ]
     },
+    "be projected to do": {
+      "mean": "~할 것으로 예상되다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "come to the rescue": {
+      "mean": "구하러 오다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "consist in, lie in": {
       "mean": "~에 있다",
       "sources": [
@@ -1231,6 +1326,12 @@
         "중학숙어1000"
       ]
     },
+    "drift off to sleep": {
+      "mean": "잠에 빠져들다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "for lack (want) of": {
       "mean": "~의 부족 때문에",
       "sources": [
@@ -1242,6 +1343,13 @@
       "sources": [
         "중학숙어1000",
         "수능기출"
+      ]
+    },
+    "from that point on": {
+      "mean": "그 시점부터 나아가",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "have a tendency to": {
@@ -1262,10 +1370,22 @@
         "수능기출"
       ]
     },
+    "in the first place": {
+      "mean": "우선",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "its too bad (that)": {
       "mean": "~이라니 참 안타깝다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "lace up ones shoes": {
+      "mean": "신발 끈을 매다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "lose no time ining": {
@@ -1280,10 +1400,22 @@
         "수능기출"
       ]
     },
+    "on a regular basis": {
+      "mean": "정기적으로",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "on the ground that": {
       "mean": "~라는 이유로",
       "sources": [
         "수능기출"
+      ]
+    },
+    "place a premium on": {
+      "mean": "~을 장려하다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "rain cats and dogs": {
@@ -1310,10 +1442,28 @@
         "수능기출"
       ]
     },
+    "the next big thing": {
+      "mean": "\u0007사람들이 곧 성공할 것이라고 생각하는",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "tie ones hair back": {
+      "mean": "머리를 뒤로 묶다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "wait on, attend on": {
       "mean": "시중들다 (=serve)",
       "sources": [
         "수능기출"
+      ]
+    },
+    "walk in ones shoes": {
+      "mean": "~의 입장이 되어 보다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "198. give forth (": {
@@ -1349,7 +1499,9 @@
     "at the expense of": {
       "mean": "~을 희생하여",
       "sources": [
-        "수능기출"
+        "수능기출",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "be about to  동사원형": {
@@ -1358,16 +1510,35 @@
         "중학숙어1000"
       ]
     },
+    "be inclined to do": {
+      "mean": "~하는 경향이 있다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "be lucky to  동사원형": {
       "mean": "~하다니 운이 좋다",
       "sources": [
         "중학숙어1000"
       ]
     },
+    "be not above -ing": {
+      "mean": "~하는 것을 마다하지 않다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "be ready to  동사원형": {
       "mean": "~할 준비가 되다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "be supposed to do": {
+      "mean": "~해야 하다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "come to ones mind": {
@@ -1380,6 +1551,12 @@
       "mean": "A가 ~하기를 기대하다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "fall on deaf ears": {
+      "mean": "무시되다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "for all, with all": {
@@ -1405,6 +1582,12 @@
       "mean": "~와 접촉을 유지하다",
       "sources": [
         "수능기출"
+      ]
+    },
+    "get ones hands on": {
+      "mean": "~을 손에 넣다",
+      "sources": [
+        "EBS2027수능특강XLSX"
       ]
     },
     "get the better of": {
@@ -1454,6 +1637,12 @@
       "mean": "지난 며칠간",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "there is no doing": {
+      "mean": "~할 수 없다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "to tell the truth": {
@@ -1566,6 +1755,13 @@
         "수능기출"
       ]
     },
+    "on the same page": {
+      "mean": "의견이 일치하는, 같은 생각을 하는",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "once upon a time": {
       "mean": "옛날에",
       "sources": [
@@ -1591,6 +1787,13 @@
         "수능기출"
       ]
     },
+    "refer to  as ...": {
+      "mean": "~을 …이라고 언급하다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "rob a(人) of b(物)": {
       "mean": "A로 부터 B를 빼앗다",
       "sources": [
@@ -1607,6 +1810,18 @@
       "mean": "즉, 다시 말하면(=namely)",
       "sources": [
         "수능기출"
+      ]
+    },
+    "try ones hand at": {
+      "mean": "~을 시도하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "when it comes to": {
+      "mean": "~에 관한 한",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "with the help of": {
@@ -1709,7 +1924,9 @@
     "for the sake of": {
       "mean": "~을 위해서",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "forgive a for b": {
@@ -1733,7 +1950,8 @@
     "have to do with": {
       "mean": "~과 관계가 있다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2026수능특강PDF"
       ]
     },
     "in the event of": {
@@ -1751,7 +1969,8 @@
     "in the long run": {
       "mean": "결국(=in the end)",
       "sources": [
-        "수능기출"
+        "수능기출",
+        "EBS2026수능특강PDF"
       ]
     },
     "in the same way": {
@@ -1791,6 +2010,20 @@
         "수능기출"
       ]
     },
+    "out of the blue": {
+      "mean": "갑자기",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "out of thin air": {
+      "mean": "난데없이",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "supply a with b": {
       "mean": "A에게 B를 공급[제공]하다",
       "sources": [
@@ -1801,6 +2034,13 @@
       "mean": "~를 여행에 데려가다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "take a bite off": {
+      "mean": "~을 한 입 베어 물다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "take a fancy to": {
@@ -1882,6 +2122,12 @@
         "중학숙어1000"
       ]
     },
+    "get in the way": {
+      "mean": "방해되다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "go on a picnic": {
       "mean": "소풍을 가다",
       "sources": [
@@ -1892,6 +2138,12 @@
       "mean": "식이요법을[다이어트를] 하다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "in the face of": {
+      "mean": "~에 직면할 때",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "keep an eye on": {
@@ -1916,6 +2168,12 @@
       "mean": "~를 방문하다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "see to it that": {
+      "mean": "확실히 ~하도록 (조처)하다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "share a with b": {
@@ -1969,7 +2227,9 @@
     "be made up of": {
       "mean": "~으로 이루어지다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "blame a for b": {
@@ -2000,6 +2260,13 @@
       "mean": "시도하다, 한번 해 보다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "go a long way": {
+      "mean": "크게 도움이 되다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "go for a walk": {
@@ -2245,6 +2512,13 @@
         "중학숙어1000"
       ]
     },
+    "silver wedding anniversary": {
+      "mean": "은혼 기념일",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "win the race/game/contest": {
       "mean": "경주/경기/대회에서 이기다",
       "sources": [
@@ -2281,6 +2555,24 @@
         "중학숙어1000"
       ]
     },
+    "have difficulty doing": {
+      "mean": "~하는 데 어려움을 겪다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "put  into perspective": {
+      "mean": "~을 넓은 관점에서 보다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "school dismissal time": {
+      "mean": "하교 시간",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "be characteristic of": {
       "mean": "~의 특성을 나타내다",
       "sources": [
@@ -2297,6 +2589,12 @@
       "mean": "기회를 잡다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "come up withtest1-26": {
+      "mean": "~을 떠올리다",
+      "sources": [
+        "EBS2027수능특강HWP"
       ]
     },
     "during ones lifetime": {
@@ -2323,10 +2621,28 @@
         "수능기출"
       ]
     },
+    "across ones breadth": {
+      "mean": "폭넓게",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "associate  with ...": {
+      "mean": "~과 ⋯을 연관 짓다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "be content(ed) with": {
       "mean": "~에 만족하다",
       "sources": [
         "수능기출"
+      ]
+    },
+    "bear resemblance to": {
+      "mean": "~과 유사성이 있다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "catch the train/bus": {
@@ -2335,10 +2651,29 @@
         "중학숙어1000"
       ]
     },
+    "dedicate oneself to": {
+      "mean": "~에 헌신하다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "echo chamber effect": {
+      "mean": "반향실 효과",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "have an appointment": {
       "mean": "약속이 있다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "in combination with": {
+      "mean": "~과 결합하여",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "jump to conclusions": {
@@ -2347,10 +2682,29 @@
         "수능기출"
       ]
     },
+    "rest assured (that)": {
+      "mean": "~이라고 확신해도[믿어도] 된다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "be accountable for": {
+      "mean": "~에 대해 책임이 있다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "be acquainted with": {
       "mean": "~을 알고있다, 정통하다",
       "sources": [
         "수능기출"
+      ]
+    },
+    "be associated with": {
+      "mean": "~과 관련되다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "be concerned about": {
@@ -2359,11 +2713,19 @@
         "중학숙어1000"
       ]
     },
+    "be confronted with": {
+      "mean": "~에 직면하다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "be responsible for": {
       "mean": "~에 책임이 있다",
       "sources": [
         "중학숙어1000",
-        "수능기출"
+        "수능기출",
+        "EBS2026수능특강PDF"
       ]
     },
     "fall back on(upon)": {
@@ -2408,6 +2770,12 @@
         "수능기출"
       ]
     },
+    "restrain  from ...": {
+      "mean": "~이 ⋯하는 것을 자제시키다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "set up (establish)": {
       "mean": "설립하다, 세우다",
       "sources": [
@@ -2420,6 +2788,18 @@
         "수능기출"
       ]
     },
+    "take  into account": {
+      "mean": "~을 고려하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "tune in totest3-22": {
+      "mean": "~에 주의를 집중하다",
+      "sources": [
+        "EBS2027수능특강HWP"
+      ]
+    },
     "around the corner": {
       "mean": "가까운, 모퉁이를 돈 곳에",
       "sources": [
@@ -2430,6 +2810,12 @@
       "mean": "~의 마음대로",
       "sources": [
         "수능기출"
+      ]
+    },
+    "attribute  to ...": {
+      "mean": "~을 ⋯의 결과로[덕분으로] 보다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "be different from": {
@@ -2466,6 +2852,12 @@
       "mean": "(갑자기) 일어나다",
       "sources": [
         "수능기출"
+      ]
+    },
+    "call attention to": {
+      "mean": "~에 주의를 환기하다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "call off (cancel)": {
@@ -2505,6 +2897,12 @@
         "중학숙어1000"
       ]
     },
+    "in all likelihood": {
+      "mean": "거의 틀림없이",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "in harmony (with)": {
       "mean": "(…와) 조화[협조]하여",
       "sources": [
@@ -2533,7 +2931,9 @@
       "mean": "변화를 가져오다, 차이가 있다",
       "sources": [
         "중학숙어1000",
-        "수능기출"
+        "수능기출",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "make friends with": {
@@ -2548,6 +2948,12 @@
         "중학숙어1000"
       ]
     },
+    "nothing more than": {
+      "mean": "~에 불과한, ~에 지나지 않는",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "on the left/right": {
       "mean": "왼쪽에/오른쪽에",
       "sources": [
@@ -2558,6 +2964,13 @@
       "mean": "하나씩 차례로, 잇따라서",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "place emphasis on": {
+      "mean": "~에 중점을 두다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "prevail on (upon)": {
@@ -2572,6 +2985,12 @@
         "중학숙어1000"
       ]
     },
+    "stretch the truth": {
+      "mean": "진실을 왜곡하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "surf the internet": {
       "mean": "인터넷 검색을 하다",
       "sources": [
@@ -2581,7 +3000,9 @@
     "take  for granted": {
       "mean": "~을 당연하게 여기다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "take advantage of": {
@@ -2595,6 +3016,12 @@
       "mean": "주문을 받다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "the royal academy": {
+      "mean": "영국 왕립 미술원",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "without (a) doubt": {
@@ -2669,6 +3096,12 @@
         "중학숙어1000"
       ]
     },
+    "be separate from": {
+      "mean": "~과 별개이다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "be worried about": {
       "mean": "~에 대해 걱정하다",
       "sources": [
@@ -2717,10 +3150,22 @@
         "중학숙어1000"
       ]
     },
+    "fine motor skill": {
+      "mean": "소근육 운동 기능",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "get along (with)": {
       "mean": "지내다, 사이좋게 지내다",
       "sources": [
         "수능기출"
+      ]
+    },
+    "get carried away": {
+      "mean": "(~에 몹시) 흥분하다, 자제력을 잃다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "good for nothing": {
@@ -2751,6 +3196,12 @@
       "mean": "~에 더하다, 그밖에 또",
       "sources": [
         "수능기출"
+      ]
+    },
+    "in one's absence": {
+      "mean": "~이 없는 사이에",
+      "sources": [
+        "EBS2027수능특강HWP"
       ]
     },
     "in the beginning": {
@@ -2808,6 +3259,12 @@
         "중학숙어1000"
       ]
     },
+    "take pleasure in": {
+      "mean": "~을 즐기다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "the onethe other": {
       "mean": "전자~후자(=that ~this)",
       "sources": [
@@ -2850,10 +3307,28 @@
         "중학숙어1000"
       ]
     },
+    "at your leisure": {
+      "mean": "한가할 때",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "be angry atwith": {
       "mean": "~에게 화나다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "be committed to": {
+      "mean": "~에 매진[헌신]하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "be conscious of": {
+      "mean": "~을 알고 있다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "be convinced of": {
@@ -2910,6 +3385,12 @@
         "중학숙어1000"
       ]
     },
+    "be subjected to": {
+      "mean": "~을 겪다, ~을 당하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "be thankful for": {
       "mean": "~에 대해 감사히 여기다",
       "sources": [
@@ -2952,16 +3433,35 @@
         "수능기출"
       ]
     },
+    "fold one's arms": {
+      "mean": "팔짱을 끼다",
+      "sources": [
+        "EBS2027수능특강HWP"
+      ]
+    },
     "forget to  동사원형": {
       "mean": "~할 것을 잊다",
       "sources": [
         "중학숙어1000"
       ]
     },
+    "freeze to death": {
+      "mean": "얼어 죽다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "from a distance": {
       "mean": "멀리서",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "get sucked into": {
+      "mean": "~에 휘말리다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "have  in common": {
@@ -3004,13 +3504,21 @@
     "in exchange for": {
       "mean": "~ 대신의, 교환으로",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "in follows that": {
       "mean": "(당연한) 결과로서~이 되다",
       "sources": [
         "수능기출"
+      ]
+    },
+    "in ones absence": {
+      "mean": "~이 없는 사이에",
+      "sources": [
+        "EBS2027수능특강XLSX"
       ]
     },
     "in ones opinion": {
@@ -3026,6 +3534,12 @@
         "수능기출"
       ]
     },
+    "in the meantime": {
+      "mean": "그사이에, 그동안에",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "leave a message": {
       "mean": "메시지를 남기다",
       "sources": [
@@ -3036,13 +3550,20 @@
       "mean": "~을 고대하다",
       "sources": [
         "중학숙어1000",
-        "수능기출"
+        "수능기출",
+        "EBS2026수능특강PDF"
       ]
     },
     "make a decision": {
       "mean": "결정하다, 결심하다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "make peace with": {
+      "mean": "~과 화해하다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "manage to  동사원형": {
@@ -3057,6 +3578,12 @@
         "중학숙어1000"
       ]
     },
+    "name  after ...": {
+      "mean": "⋯의 이름을 따서 ~을 명명하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "no sooner  than": {
       "mean": "~하자마자",
       "sources": [
@@ -3069,6 +3596,13 @@
         "수능기출"
       ]
     },
+    "on the contrary": {
+      "mean": "반대로, 오히려",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "on the internet": {
       "mean": "인터넷에서",
       "sources": [
@@ -3079,6 +3613,12 @@
       "mean": "~하는 것을 더 좋아하다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "put another way": {
+      "mean": "달리 말하면",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "reach (out) for": {
@@ -3118,6 +3658,18 @@
         "중학숙어1000"
       ]
     },
+    "stock  with ...": {
+      "mean": "~에 ⋯을 갖추다[들여놓다]",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "subject  to ...": {
+      "mean": "~을 ⋯의 지배하에 두다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "take a bus/taxi": {
       "mean": "버스/택시를 타다",
       "sources": [
@@ -3148,10 +3700,22 @@
         "중학숙어1000"
       ]
     },
+    "the bottom line": {
+      "mean": "요점, 핵심",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "the majority of": {
       "mean": "~의 대부분",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "track and field": {
+      "mean": "육상 (경기)",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "watch out (for)": {
@@ -3172,10 +3736,22 @@
         "중학숙어1000"
       ]
     },
+    "with respect to": {
+      "mean": "~과 관련하여",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "385. of course": {
       "mean": ": 물론",
       "sources": [
         "수능숙어 총정리"
+      ]
+    },
+    "after the fact": {
+      "mean": "사후에",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "agree to  동사원형": {
@@ -3202,6 +3778,12 @@
         "중학숙어1000"
       ]
     },
+    "back away from": {
+      "mean": "~에서 물러나다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "be absent from": {
       "mean": "~에 결석하다",
       "sources": [
@@ -3225,6 +3807,13 @@
       "sources": [
         "중학숙어1000",
         "수능기출"
+      ]
+    },
+    "be composed of": {
+      "mean": "~으로 구성되다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "be crazy about": {
@@ -3311,6 +3900,19 @@
         "중학숙어1000"
       ]
     },
+    "devote  to ...": {
+      "mean": "~을 …에 바치다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "do double duty": {
+      "mean": "두 가지 역할을 하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "feel like -ing": {
       "mean": "~하고 싶다",
       "sources": [
@@ -3323,10 +3925,28 @@
         "중학숙어1000"
       ]
     },
+    "fold ones arms": {
+      "mean": "팔짱을 끼다",
+      "sources": [
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "get along with": {
       "mean": "~와 사이좋게 지내다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "hang ones head": {
+      "mean": "고개를 숙이다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "have access to": {
+      "mean": "~을 이용할 수 있다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "have done with": {
@@ -3339,6 +3959,13 @@
       "mean": "여기저기에",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "in addition to": {
+      "mean": "~에 더하여",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "in an accident": {
@@ -3363,6 +3990,13 @@
       "mean": "다시 말해서",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "inclined to do": {
+      "mean": "~하는 경향이 있는",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "keep away from": {
@@ -3432,6 +4066,13 @@
         "수능기출"
       ]
     },
+    "make the point": {
+      "mean": "~을 분명히 보여주다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "out of nothing": {
       "mean": "쓸데없이",
       "sources": [
@@ -3448,6 +4089,18 @@
       "mean": "~에게 작별 인사를 하다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "sense of humor": {
+      "mean": "유머 감각",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "set  in motion": {
+      "mean": "~의 시동을 걸다, ~을 움직이게 하다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "start to  동사원형": {
@@ -3492,10 +4145,23 @@
         "수능기출"
       ]
     },
+    "under cover of": {
+      "mean": "~을 틈타, ~으로 몸을 가리고",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "what is called": {
       "mean": "이른바, 소위",
       "sources": [
         "수능기출"
+      ]
+    },
+    "with regard to": {
+      "mean": "~에 관해서는",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "488. see into": {
@@ -3537,7 +4203,9 @@
     "as opposed to": {
       "mean": "~과 대조적으로, ~이 아니라",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "at (the) best": {
@@ -3564,6 +4232,13 @@
         "중학숙어1000"
       ]
     },
+    "be better off": {
+      "mean": "~하는 편이 더 낫다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "be bored with": {
       "mean": "~에 싫증나다",
       "sources": [
@@ -3574,7 +4249,8 @@
       "mean": "~할 수 있다, ~할 능력이 있다",
       "sources": [
         "중학숙어1000",
-        "수능기출"
+        "수능기출",
+        "EBS2026수능특강PDF"
       ]
     },
     "be exposed to": {
@@ -3610,7 +4286,8 @@
     "be related to": {
       "mean": "~과 관련이 있다, ~와 친척간이다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2026수능특강PDF"
       ]
     },
     "be similar to": {
@@ -3629,7 +4306,8 @@
     "be subject to": {
       "mean": "지배를 받다, ~되기 쉽다",
       "sources": [
-        "수능기출"
+        "수능기출",
+        "EBS2026수능특강PDF"
       ]
     },
     "be used toing": {
@@ -3692,6 +4370,13 @@
         "수능기출"
       ]
     },
+    "enable  to do": {
+      "mean": "~이 …하게 하다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "fail to  동사원형": {
       "mean": "~하지 못하다",
       "sources": [
@@ -3702,6 +4387,12 @@
       "mean": "~에 이르지 못하다",
       "sources": [
         "수능기출"
+      ]
+    },
+    "file a report": {
+      "mean": "신고하다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "for one thing": {
@@ -3727,6 +4418,12 @@
       "mean": "~에서 벗어나다, ~에서 도망치다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "get away with": {
+      "mean": "\u0007(나쁜 짓을 하고도) 처벌을 모면하다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "give birth to": {
@@ -3788,6 +4485,12 @@
       "mean": "~을 추구하여",
       "sources": [
         "수능기출"
+      ]
+    },
+    "in respect of": {
+      "mean": "~에 관해",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "in the future": {
@@ -3924,16 +4627,41 @@
         "중학숙어1000"
       ]
     },
+    "pose a threat": {
+      "mean": "위협이 되다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "promise to do": {
+      "mean": "~할 것 같다, ~일 것 같다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "quit ones job": {
       "mean": "직장을 그만두다",
       "sources": [
         "중학숙어1000"
       ]
     },
+    "rule of thumb": {
+      "mean": "경험 법칙",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "seem to  동사원형": {
       "mean": "~인 것 같다, ~하게 보이다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "sense of self": {
+      "mean": "자아감",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "set the table": {
@@ -3990,6 +4718,12 @@
         "중학숙어1000"
       ]
     },
+    "ups and downs": {
+      "mean": "기복, 고저",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "used to  동사원형": {
       "mean": "(과거에) ~하곤 했다, ~이었다",
       "sources": [
@@ -4002,6 +4736,12 @@
         "중학숙어1000"
       ]
     },
+    "what have you": {
+      "mean": "~ 등의 그런 종류",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "what is  like": {
       "mean": "어떠한 것인가",
       "sources": [
@@ -4012,6 +4752,12 @@
       "mean": "더욱 나쁜 것은",
       "sources": [
         "수능기출"
+      ]
+    },
+    "word of mouth": {
+      "mean": "입소문",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "13. agree to": {
@@ -4038,6 +4784,12 @@
         "수능숙어 총정리"
       ]
     },
+    "a breadth of": {
+      "mean": "폭넓은",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "a rain check": {
       "mean": "(초대 등의) 연기, 후일의 약속",
       "sources": [
@@ -4047,7 +4799,8 @@
     "a variety of": {
       "mean": "다양한 ~",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2026수능특강PDF"
       ]
     },
     "all the time": {
@@ -4135,16 +4888,33 @@
         "중학숙어1000"
       ]
     },
+    "coat of arms": {
+      "mean": "(가문, 국가, 도시 등의 상징인) 문장",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "come to rest": {
+      "mean": "정지하다, 멈추다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "come up with": {
       "mean": "~을 생각해 내다, ~을 제안하다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "do away with": {
       "mean": "~을 없애다(= get rid of)",
       "sources": [
-        "수능기출"
+        "수능기출",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "do ones best": {
@@ -4153,11 +4923,25 @@
         "중학숙어1000"
       ]
     },
+    "do the trick": {
+      "mean": "효험[효과]이 있다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "face to face": {
       "mean": "얼굴을 맞대고, 마주 보고",
       "sources": [
         "중학숙어1000",
         "수능기출"
+      ]
+    },
+    "fall back on": {
+      "mean": "~에 의존하다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "fall in with": {
@@ -4190,6 +4974,12 @@
         "중학숙어1000"
       ]
     },
+    "force  to do": {
+      "mean": "~이 ⋯하도록 강요하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "give  a call": {
       "mean": "~에게 전화하다",
       "sources": [
@@ -4211,7 +5001,8 @@
     "give rise to": {
       "mean": "~을 일으키다, 발생~",
       "sources": [
-        "수능기출"
+        "수능기출",
+        "EBS2026수능특강PDF"
       ]
     },
     "go for lunch": {
@@ -4308,7 +5099,8 @@
     "keep up with": {
       "mean": "~에 뒤떨어지지 않다",
       "sources": [
-        "수능기출"
+        "수능기출",
+        "EBS2026수능특강PDF"
       ]
     },
     "let me  동사원형": {
@@ -4327,6 +5119,13 @@
       "mean": "~에게 잘 어울리다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "look out for": {
+      "mean": "~을 챙기다, 보살피다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "make a  동사원형": {
@@ -4362,7 +5161,9 @@
     "no more than": {
       "mean": "다만 ~뿐 (=only)",
       "sources": [
-        "수능기출"
+        "수능기출",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "not , either": {
@@ -4451,6 +5252,12 @@
       "mean": "한 걸음씩, 조금씩, 단계적으로",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "strive to do": {
+      "mean": "~하려고 노력하다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "take a break": {
@@ -4603,7 +5410,9 @@
       "mean": "~을 알다, ~을 알아차리다",
       "sources": [
         "중학숙어1000",
-        "수능기출"
+        "수능기출",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "be based on": {
@@ -4660,6 +5469,13 @@
         "중학숙어1000"
       ]
     },
+    "be party to": {
+      "mean": "~에 관여하다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "be proud of": {
       "mean": "~을 자랑스럽게 여기다",
       "sources": [
@@ -4693,13 +5509,15 @@
     "by means of": {
       "mean": "~에 의하여",
       "sources": [
-        "수능기출"
+        "수능기출",
+        "EBS2026수능특강PDF"
       ]
     },
     "by no means": {
       "mean": "결코 ~이 아닌",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2026수능특강PDF"
       ]
     },
     "by the time": {
@@ -4723,7 +5541,9 @@
     "cut down on": {
       "mean": "~을 줄이다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "cut in line": {
@@ -4766,6 +5586,18 @@
       "mean": "점수를 받다, 성적을 받다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "get back at": {
+      "mean": "~에게 앙갚음[보복]하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "give way to": {
+      "mean": "~으로 바뀌다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "grow out of": {
@@ -4839,7 +5671,9 @@
     "in terms of": {
       "mean": "~에 의하여(=by means of)",
       "sources": [
-        "수능기출"
+        "수능기출",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "in the past": {
@@ -4875,13 +5709,15 @@
     "make fun of": {
       "mean": "~를 비웃다, ~를 놀리다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2026수능특강PDF"
       ]
     },
     "make up for": {
       "mean": "~을 보상하다, 보충하다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2026수능특강PDF"
       ]
     },
     "make use of": {
@@ -4895,6 +5731,13 @@
       "sources": [
         "중학숙어1000",
         "수능기출"
+      ]
+    },
+    "miss out on": {
+      "mean": "~을 놓치다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "most of all": {
@@ -4958,6 +5801,12 @@
         "중학숙어1000"
       ]
     },
+    "rid  of ...": {
+      "mean": "~에게서 …을 없애다[제거하다]",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "ride a bike": {
       "mean": "자전거를 타다",
       "sources": [
@@ -5012,6 +5861,13 @@
         "중학숙어1000"
       ]
     },
+    "to the core": {
+      "mean": "송두리째, 완전히",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "win a medal": {
       "mean": "메달을 따다",
       "sources": [
@@ -5036,10 +5892,23 @@
         "중학숙어1000"
       ]
     },
+    "all in all": {
+      "mean": "대체로",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "as  as ...": {
       "mean": "…만큼 ~한",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "as a group": {
+      "mean": "전체적으로",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "as a whole": {
@@ -5052,7 +5921,9 @@
     "as good as": {
       "mean": "~한 것이나 마찬가지",
       "sources": [
-        "수능기출"
+        "수능기출",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "as long as": {
@@ -5077,6 +5948,13 @@
       "mean": "그런 것으로서",
       "sources": [
         "수능기출"
+      ]
+    },
+    "at no cost": {
+      "mean": "무료로",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "be bad for": {
@@ -5127,6 +6005,13 @@
         "중학숙어1000"
       ]
     },
+    "bear to do": {
+      "mean": "~하는 것을 견디다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "by the way": {
       "mean": "(대화에서 화제를 바꿀 때) 그런데",
       "sources": [
@@ -5137,6 +6022,12 @@
       "mean": "~에 달하다",
       "sources": [
         "수능기출"
+      ]
+    },
+    "dare to do": {
+      "mean": "감히 ~하다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "do well to": {
@@ -5172,7 +6063,8 @@
     "get rid of": {
       "mean": "~을 없애다, ~을 제거하다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2026수능특강PDF"
       ]
     },
     "go back to": {
@@ -5196,7 +6088,9 @@
     "hold on to": {
       "mean": "~을 꼭 붙잡다",
       "sources": [
-        "수능기출"
+        "수능기출",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "in a hurry": {
@@ -5234,6 +6128,13 @@
       "mean": "~을 고려하여, ~이 보이는 곳에",
       "sources": [
         "수능기출"
+      ]
+    },
+    "land a job": {
+      "mean": "직장을 구하다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "live up to": {
@@ -5301,6 +6202,12 @@
       "mean": "확실히",
       "sources": [
         "수능기출"
+      ]
+    },
+    "tune in to": {
+      "mean": "~에 주의를 집중하다, 채널을 맞추다",
+      "sources": [
+        "EBS2027수능특강XLSX"
       ]
     },
     "up to date": {
@@ -5422,7 +6329,8 @@
       "mean": "연이어, 잇달아",
       "sources": [
         "중학숙어1000",
-        "수능기출"
+        "수능기출",
+        "EBS2026수능특강PDF"
       ]
     },
     "in a way": {
@@ -5431,10 +6339,95 @@
         "중학숙어1000"
       ]
     },
+    "environmentally conscious": {
+      "mean": "환경에 특별한 관심이 있는",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "accustomed totest1-17": {
+      "mean": "~에 익숙한",
+      "sources": [
+        "EBS2027수능특강HWP"
+      ]
+    },
     "by bus/bicycle/subway": {
       "mean": "버스/자전거/지하철을 타고",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "classroom instruction": {
+      "mean": "교실 수업",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "cultural anthropology": {
+      "mean": "문화 인류학",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "fight-or-flight state": {
+      "mean": "투쟁/도피 상태",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "greenhouse gastest1-8": {
+      "mean": "온실가스",
+      "sources": [
+        "EBS2027수능특강HWP"
+      ]
+    },
+    "in triplicatetest3-15": {
+      "mean": "세 부로 만들어",
+      "sources": [
+        "EBS2027수능특강HWP"
+      ]
+    },
+    "intelligence division": {
+      "mean": "정보과",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "prime ministertest1-9": {
+      "mean": "총리",
+      "sources": [
+        "EBS2027수능특강HWP"
+      ]
+    },
+    "caloric availability": {
+      "mean": "열량 가용성",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "cognitive psychology": {
+      "mean": "인지 심리학",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "confucian philosophy": {
+      "mean": "유교 철학",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "genetically modified": {
+      "mean": "유전자 변형[조작]의",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "last month/week/year": {
@@ -5461,10 +6454,30 @@
         "수능기출"
       ]
     },
+    "wedding anniversary": {
+      "mean": "결혼기념일",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "after lunch/dinner": {
       "mean": "점심/저녁 식사 후에",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "dietary supplement": {
+      "mean": "식이 보충제",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "facial recognition": {
+      "mean": "안면 인식",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "generally speaking": {
@@ -5473,10 +6486,55 @@
         "중학숙어1000"
       ]
     },
+    "musical instrument": {
+      "mean": "악기",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "negatively charged": {
+      "mean": "음전하를 띠는",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "reference material": {
+      "mean": "참고 자료",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "regional variation": {
+      "mean": "지역적 변이",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "round triptest3-10": {
+      "mean": "왕복 여행",
+      "sources": [
+        "EBS2027수능특강HWP"
+      ]
+    },
     "under construction": {
       "mean": "건설 중인, 공사 중인",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "bachelor's degree": {
+      "mean": "학사 학위",
+      "sources": [
+        "EBS2027수능특강HWP"
+      ]
+    },
+    "before everything": {
+      "mean": "무엇보다도",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "between ourselves": {
@@ -5485,10 +6543,62 @@
         "수능기출"
       ]
     },
+    "carrying capacity": {
+      "mean": "수용력",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "cultural heritage": {
+      "mean": "문화유산",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "elementary school": {
+      "mean": "초등학교",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "flavor supplement": {
+      "mean": "향료 첨가물",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "go throughtest2-6": {
+      "mean": "~을 겪다",
+      "sources": [
+        "EBS2027수능특강HWP"
+      ]
+    },
     "introduce oneself": {
       "mean": "자신을 소개하다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "national identity": {
+      "mean": "국가[민족] 정체성",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "natural selection": {
+      "mean": "자연 선택",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "navy intelligence": {
+      "mean": "해군 정보부",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "strictly speaking": {
@@ -5509,6 +6619,18 @@
         "수능기출"
       ]
     },
+    "aircraft carrier": {
+      "mean": "항공 모함",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "bachelors degree": {
+      "mean": "학사 학위",
+      "sources": [
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "complain aboutof": {
       "mean": "~에 대해 불평하다",
       "sources": [
@@ -5521,16 +6643,82 @@
         "수능기출"
       ]
     },
+    "gift certificate": {
+      "mean": "상품권",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "independently of": {
+      "mean": "~과 관계없이",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "insurance policy": {
+      "mean": "보험 증서[증권]",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "keystone species": {
+      "mean": "핵심종",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "medical facility": {
+      "mean": "의료 시설",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "more importantly": {
       "mean": "무엇보다 중요한 것은, 더욱 중요한 것은",
       "sources": [
         "중학숙어1000"
       ]
     },
+    "natural resource": {
+      "mean": "천연자원",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "one thinganother": {
       "mean": "~과 ...은 별개이다",
       "sources": [
         "수능기출"
+      ]
+    },
+    "operating profit": {
+      "mean": "margin 영업이익률",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "overwhelmed with": {
+      "mean": "~이 너무 많은",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "refer totest3-12": {
+      "mean": "~을 의미하다",
+      "sources": [
+        "EBS2027수능특강HWP"
+      ]
+    },
+    "security measure": {
+      "mean": "보안 조치",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "takeinto account": {
@@ -5551,6 +6739,12 @@
         "중학숙어1000"
       ]
     },
+    "associated with": {
+      "mean": "~과 관련이 있는",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "beyond question": {
       "mean": "의심할 여지없이",
       "sources": [
@@ -5561,6 +6755,77 @@
       "mean": "일치하다, 편지 왕래하다",
       "sources": [
         "수능기출"
+      ]
+    },
+    "digital readout": {
+      "mean": "디지털 판독",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "doctoral degree": {
+      "mean": "박사 학위",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "irrespective of": {
+      "mean": "~과 상관없이[관계없이]",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "milking machine": {
+      "mean": "착유기",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "muscle soreness": {
+      "mean": "근육통",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "negative number": {
+      "mean": "음수",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "nutrition label": {
+      "mean": "영양 성분 표시",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "prior knowledge": {
+      "mean": "배경 지식",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "reference group": {
+      "mean": "준거 집단",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "repeat business": {
+      "mean": "재방문 고객, 재구매 고객",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "school district": {
+      "mean": "학군",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "takeby surprise": {
@@ -5587,6 +6852,18 @@
         "중학숙어1000"
       ]
     },
+    "back catalogue": {
+      "mean": "\u0007백 카탈로그(기업이 오랜 시간에 걸쳐",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "building block": {
+      "mean": "구성 요소",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "cannot  enough": {
       "mean": "아무리 ~해도 지나침이 없다",
       "sources": [
@@ -5599,10 +6876,18 @@
         "수능기출"
       ]
     },
+    "compensate for": {
+      "mean": "~을 보상하다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "concentrate on": {
       "mean": "~에 집중하다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2026수능특강PDF"
       ]
     },
     "cooperate with": {
@@ -5611,10 +6896,42 @@
         "중학숙어1000"
       ]
     },
+    "cultural asset": {
+      "mean": "문화 자산, 문화재",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "different than": {
+      "mean": "~과 다른",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "doget exercise": {
       "mean": "운동하다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "filing cabinet": {
+      "mean": "서류 정리장",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "flavor profile": {
+      "mean": "맛의 구성",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "greenhouse gas": {
+      "mean": "온실가스",
+      "sources": [
+        "EBS2027수능특강XLSX"
       ]
     },
     "in consequence": {
@@ -5623,16 +6940,119 @@
         "수능기출"
       ]
     },
+    "interfere with": {
+      "mean": "~을 방해하다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "migrating bird": {
+      "mean": "철새",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "participate in": {
       "mean": "~에 참가[참여]하다",
       "sources": [
         "중학숙어1000"
       ]
     },
+    "piece together": {
+      "mean": "~을 조합하다, ~을 종합하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "primary forest": {
+      "mean": "원시림",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "prime minister": {
+      "mean": "총리",
+      "sources": [
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "property right": {
+      "mean": "재산권",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "servant leader": {
+      "mean": "섬기는 리더",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "stalk-eyed fly": {
+      "mean": "자루눈파리",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "steering wheel": {
+      "mean": "운전대",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "straighten out": {
+      "mean": "똑바로 가다, 바르게 하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "stuffed animal": {
+      "mean": "봉제 인형",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "surface runoff": {
+      "mean": "\u0007지표류(흡수되지 않고 지표면 위를 흐르",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "symbolic logic": {
+      "mean": "기호 논리학",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "time consuming": {
+      "mean": "시간이 걸리는",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "translate into": {
+      "mean": "~을 초래하다, 결과로 ~을 낳다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "under pressure": {
       "mean": "압박을 받는, 스트레스를 받는",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "accustomed to": {
+      "mean": "~에 익숙한",
+      "sources": [
+        "EBS2027수능특강XLSX"
       ]
     },
     "after college": {
@@ -5647,10 +7067,25 @@
         "중학숙어1000"
       ]
     },
+    "civil servant": {
+      "mean": "공무원",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "contribute to": {
       "mean": "~에 기여하다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "control group": {
+      "mean": "대조군",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "correspond to": {
@@ -5663,6 +7098,13 @@
       "mean": "~에 의지하다, ~에 달려 있다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "distinct from": {
+      "mean": "~과 구분되는, ~과 명백히 다른",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "doubt aboutof": {
@@ -5695,16 +7137,43 @@
         "중학숙어1000"
       ]
     },
+    "grocery store": {
+      "mean": "식료품점",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "heritage site": {
+      "mean": "유적지",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "hold together": {
       "mean": "맞잡다, 뭉치다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2026수능특강PDF"
       ]
     },
     "how much/many": {
       "mean": "얼마나 많은",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "human affairs": {
+      "mean": "인간사",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "identify with": {
+      "mean": "~과 동질감을 느끼다, ~과 공감하다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "in conclusion": {
@@ -5719,16 +7188,40 @@
         "중학숙어1000"
       ]
     },
+    "in triplicate": {
+      "mean": "세 부로 만들어, 세 부 작성하여",
+      "sources": [
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "inquire after": {
       "mean": "~의 안부를 묻다",
       "sources": [
         "수능기출"
       ]
     },
+    "kin selection": {
+      "mean": "혈연 선택",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "learnby heart": {
       "mean": "외우다(=memorize)",
       "sources": [
         "수능기출"
+      ]
+    },
+    "new criticism": {
+      "mean": "\u0007신(新)비평(작품 자체의 연구에 중점을",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "plains indian": {
+      "mean": "\u0007평원 인디언(대초원 지대에 살면서 유",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "practice -ing": {
@@ -5740,7 +7233,34 @@
     "regardless of": {
       "mean": "~에 관계없이",
       "sources": [
-        "수능기출"
+        "수능기출",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "restricted to": {
+      "mean": "~으로 제한된",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "scale economy": {
+      "mean": "규모의 경제",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "struggle with": {
+      "mean": "~으로 고심하다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "sympathy card": {
+      "mean": "조문 카드",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "take medicine": {
@@ -5789,13 +7309,20 @@
       "mean": "~이 결코 아닌",
       "sources": [
         "중학숙어1000",
-        "수능기출"
+        "수능기출",
+        "EBS2026수능특강PDF"
       ]
     },
     "call uponfor": {
       "mean": "~에게 ~을 요구하다",
       "sources": [
         "수능기출"
+      ]
+    },
+    "color scheme": {
+      "mean": "색채의 배합",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "come forward": {
@@ -5810,16 +7337,88 @@
         "수능기출"
       ]
     },
+    "common sense": {
+      "mean": "상식",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "compete with": {
       "mean": "~와 경쟁하다",
       "sources": [
         "수능기출"
       ]
     },
+    "connect with": {
+      "mean": "~과 관계를 형성하다, ~과 가까워지다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "contract law": {
+      "mean": "계약법",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "dependent on": {
+      "mean": "~에 좌우되는[달려 있는]",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "depending on": {
+      "mean": "~에 따라",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "derived from": {
+      "mean": "~에서 나온, 유래한",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "destined for": {
+      "mean": "~을 향한, ~ 행인",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "dna sequence": {
+      "mean": "DNA 서열",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "fall illsick": {
       "mean": "병이 들다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "feature film": {
+      "mean": "장편 영화",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "fiction book": {
+      "mean": "소설책",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "fitting room": {
+      "mean": "피팅 룸, 탈의실",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "for instance": {
@@ -5834,6 +7433,12 @@
         "중학숙어1000"
       ]
     },
+    "from scratch": {
+      "mean": "맨 처음부터",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "get together": {
       "mean": "함께 모이다",
       "sources": [
@@ -5844,6 +7449,20 @@
       "mean": "~에 대해서 듣다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "in principle": {
+      "mean": "이론적으로",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "index finger": {
+      "mean": "검지 손가락",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "inquire into": {
@@ -5862,6 +7481,12 @@
       "mean": "~을 두고 오다[가다]",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "legal system": {
+      "mean": "법률 체계",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "live through": {
@@ -5883,6 +7508,12 @@
         "수능기출"
       ]
     },
+    "market entry": {
+      "mean": "시장 진입",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "not  anymore": {
       "mean": "더 이상 ~ 않다",
       "sources": [
@@ -5895,10 +7526,43 @@
         "수능기출"
       ]
     },
+    "orbit around": {
+      "mean": "~의 주위를 돌다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "pass through": {
       "mean": "~을 (거쳐) 지나가다, 겪다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "payment plan": {
+      "mean": "결제 방식",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "plastic wrap": {
+      "mean": "비닐 랩",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "portion size": {
+      "mean": "1인분(의 양)",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "public goods": {
+      "mean": "공공재",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "refrain from": {
@@ -5907,17 +7571,62 @@
         "수능기출"
       ]
     },
+    "salary scale": {
+      "mean": "임금 등급표",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "secret agent": {
+      "mean": "비밀 요원",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "soil heating": {
+      "mean": "지중가온(식물의 뿌리 주변의 토양 온도를 높이는 것)",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "text message": {
+      "mean": "(휴대 전화로) 문자 메시지를 보내다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "thousands of": {
       "mean": "수천의 ~",
       "sources": [
         "중학숙어1000"
       ]
     },
+    "venture into": {
+      "mean": "~으로 과감히 들어가다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "water supply": {
+      "mean": "급수, 상수도",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "account for": {
       "mean": "~에 대해 설명하다",
       "sources": [
         "중학숙어1000",
-        "수능기출"
+        "수능기출",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "age bracket": {
+      "mean": "연령대",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "arrive atin": {
@@ -5938,10 +7647,25 @@
         "중학숙어1000"
       ]
     },
+    "booking fee": {
+      "mean": "예약 수수료",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "bottom line": {
+      "mean": "핵심",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "bring about": {
       "mean": "야기하다, 초래하다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2026수능특강PDF"
       ]
     },
     "bring forth": {
@@ -5962,6 +7686,13 @@
         "수능기출"
       ]
     },
+    "civil right": {
+      "mean": "시민권",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "come across": {
       "mean": "우연히 마주치다, 발견하다",
       "sources": [
@@ -5975,10 +7706,35 @@
         "중학숙어1000"
       ]
     },
+    "comic strip": {
+      "mean": "만화",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "contrary to": {
+      "mean": "~과 반대로",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "cover dance": {
+      "mean": "\u0007커버 댄스(가수의 춤을 그대로 따라 하",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "depart from": {
       "mean": "~에서 출발하다[떠나다]",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "derive from": {
+      "mean": "~에서 유래하다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "do anything": {
@@ -6008,13 +7764,21 @@
     "fall behind": {
       "mean": "~에 뒤지다[뒤떨어지다]",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2026수능특강PDF"
       ]
     },
     "far froming": {
       "mean": "조금도 ~않다",
       "sources": [
         "수능기출"
+      ]
+    },
+    "focal point": {
+      "mean": "(관심·활동의) 초점",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "for example": {
@@ -6052,13 +7816,21 @@
       "mean": "(~을) 통과하다, 합격하다",
       "sources": [
         "중학숙어1000",
-        "수능기출"
+        "수능기출",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "go straight": {
       "mean": "곧장 가다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "grand prize": {
+      "mean": "대상",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "hang around": {
@@ -6079,10 +7851,29 @@
         "중학숙어1000"
       ]
     },
+    "in parallel": {
+      "mean": "나란히",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "in question": {
+      "mean": "해당의, 문제가 되는",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "keep  clean": {
       "mean": "~을 깨끗하게 유지하다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "last resort": {
+      "mean": "최후의 수단",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "learn about": {
@@ -6125,7 +7916,15 @@
       "mean": "단지 ~뿐",
       "sources": [
         "중학숙어1000",
-        "수능기출"
+        "수능기출",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "obsess over": {
+      "mean": "~에 집착하다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "on business": {
@@ -6144,7 +7943,8 @@
     "one another": {
       "mean": "서로",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2026수능특강PDF"
       ]
     },
     "prepare for": {
@@ -6163,6 +7963,26 @@
       "mean": "~에 대비하다, 부양하다",
       "sources": [
         "수능기출"
+      ]
+    },
+    "qualify for": {
+      "mean": "~의 자격을 얻다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "rain forest": {
+      "mean": "열대 우림",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "relative to": {
+      "mean": "~과 비교해서",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "rely onupon": {
@@ -6195,6 +8015,39 @@
         "수능기출"
       ]
     },
+    "settle into": {
+      "mean": "~에 자리 잡다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "shop around": {
+      "mean": "\u0007(가격이나 품질 등을 비교하며) 가게를",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "side effect": {
+      "mean": "부작용",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "source rock": {
+      "mean": "근원암",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "spring from": {
+      "mean": "~에서 비롯되다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "suffer from": {
       "mean": "~으로 고생하다, ~으로 고통 받다",
       "sources": [
@@ -6214,6 +8067,12 @@
         "중학숙어1000"
       ]
     },
+    "third party": {
+      "mean": "제삼자",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "turn around": {
       "mean": "돌다, 뒤돌아보다",
       "sources": [
@@ -6225,6 +8084,18 @@
       "sources": [
         "중학숙어1000",
         "수능기출"
+      ]
+    },
+    "vacuum tube": {
+      "mean": "진공관",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "viral video": {
+      "mean": "바이럴 비디오(온라인 유명 동영상)",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "what little": {
@@ -6282,6 +8153,12 @@
         "수능기출"
       ]
     },
+    "aside from": {
+      "mean": "~을 제외하고",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "ask around": {
       "mean": "이리저리 알아보다",
       "sources": [
@@ -6337,10 +8214,18 @@
         "수능기출"
       ]
     },
+    "brain wave": {
+      "mean": "뇌파",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "break down": {
       "mean": "망가지다, 고장 나다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "break into": {
@@ -6403,11 +8288,19 @@
         "중학숙어1000"
       ]
     },
+    "conform to": {
+      "mean": "~과 일치하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "consist of": {
       "mean": "~으로 이루어지다, ~으로 구성되다",
       "sources": [
         "중학숙어1000",
-        "수능기출"
+        "수능기출",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "dance with": {
@@ -6422,10 +8315,17 @@
         "중학숙어1000"
       ]
     },
+    "devoted to": {
+      "mean": "~에 전념하는",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "dispose of": {
       "mean": "처분하다, 처리하다",
       "sources": [
-        "수능기출"
+        "수능기출",
+        "EBS2026수능특강PDF"
       ]
     },
     "do without": {
@@ -6472,6 +8372,12 @@
         "중학숙어1000"
       ]
     },
+    "fairy tale": {
+      "mean": "동화",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "fall apart": {
       "mean": "부서지다[흩어지다]",
       "sources": [
@@ -6502,11 +8408,26 @@
         "중학숙어1000"
       ]
     },
+    "given that": {
+      "mean": "~을 고려하면",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "go through": {
       "mean": "~을 겪다, ~을 살펴보다",
       "sources": [
         "중학숙어1000",
-        "수능기출"
+        "수능기출",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "heart rate": {
+      "mean": "심박수",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "in advance": {
@@ -6516,10 +8437,18 @@
         "수능기출"
       ]
     },
+    "in comfort": {
+      "mean": "편안하게, 안락하게",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "in general": {
       "mean": "일반적으로",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2026수능특강PDF"
       ]
     },
     "in oneself": {
@@ -6558,10 +8487,22 @@
         "중학숙어1000"
       ]
     },
+    "just about": {
+      "mean": "거의",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "keep oning": {
       "mean": "계속하다(=continue)",
       "sources": [
         "수능기출"
+      ]
+    },
+    "knock over": {
+      "mean": "~을 때려눕히다, ~을 쓰러뜨리다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "leave home": {
@@ -6638,6 +8579,18 @@
         "수능기출"
       ]
     },
+    "other than": {
+      "mean": "~ 외에, ~을 제외하고",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "pass along": {
+      "mean": "~을 전수하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "persist in": {
       "mean": "고집하다, 주장하다",
       "sources": [
@@ -6648,6 +8601,12 @@
       "mean": "~을 (쏟아) 붓다, ~을 따르다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "proceed to": {
+      "mean": "~에 이르다, ~이 되다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "read about": {
@@ -6662,10 +8621,23 @@
         "수능기출"
       ]
     },
+    "related to": {
+      "mean": "~과 관련된",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "right away": {
       "mean": "지금 당장",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "round trip": {
+      "mean": "왕복의",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "run across": {
@@ -6692,10 +8664,35 @@
         "중학숙어1000"
       ]
     },
+    "star chart": {
+      "mean": "별자리표",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "start with": {
       "mean": "~으로 시작하다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "strike out": {
+      "mean": "독립하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "strip away": {
+      "mean": "~을 제거하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "strive for": {
+      "mean": "~을 위해 노력하다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "succeed in": {
@@ -6744,7 +8741,9 @@
     "take place": {
       "mean": "(사건 등이) 일어나다, (행사 등이) 열리다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "take turns": {
@@ -6771,6 +8770,13 @@
         "중학숙어1000"
       ]
     },
+    "the beyond": {
+      "mean": "저승, 내세",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "these days": {
       "mean": "요즈음",
       "sources": [
@@ -6790,16 +8796,37 @@
         "수능기출"
       ]
     },
+    "thirst for": {
+      "mean": "~을 갈망하다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "throw away": {
       "mean": "~을 버리다, 없애다",
       "sources": [
         "중학숙어1000"
       ]
     },
+    "turn  away": {
+      "mean": "~을 거절하다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "until late": {
       "mean": "늦게까지",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "vice versa": {
+      "mean": "반대의 경우도 마찬가지이다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "walk along": {
@@ -6837,6 +8864,12 @@
       "mean": "괜찮은",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "allow for": {
+      "mean": "~을 가능하게 하다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "amount to": {
@@ -6888,6 +8921,12 @@
         "중학숙어1000"
       ]
     },
+    "bottle up": {
+      "mean": "~을 억누르다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "break out": {
       "mean": "(전쟁, 화재, 질병 등이) 일어나다",
       "sources": [
@@ -6918,6 +8957,18 @@
       "sources": [
         "중학숙어1000",
         "수능기출"
+      ]
+    },
+    "carve out": {
+      "mean": "~을 개척하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "cater for": {
+      "mean": "~의 요구를 만족시키다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "charge up": {
@@ -6992,6 +9043,19 @@
         "중학숙어1000"
       ]
     },
+    "drown out": {
+      "mean": "~을 들리지 않게 하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "engage in": {
+      "mean": "~에 참여하다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "every day": {
       "mean": "매일, 날마다",
       "sources": [
@@ -7014,6 +9078,20 @@
       "mean": "~을 위해 싸우다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "flow from": {
+      "mean": "~에서 나오다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "get along": {
+      "mean": "잘 지내다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "get angry": {
@@ -7083,10 +9161,23 @@
         "수능기출"
       ]
     },
+    "hold true": {
+      "mean": "진실이다, 딱 들어맞다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "how often": {
       "mean": "얼마나 자주 (빈도를 물을 때)",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "immune to": {
+      "mean": "~의 영향을 받지 않는",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "in effect": {
@@ -7120,6 +9211,18 @@
         "중학숙어1000"
       ]
     },
+    "invest in": {
+      "mean": "~에 투자하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "iron rule": {
+      "mean": "철칙",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "jump into": {
       "mean": "~로 뛰어들다",
       "sources": [
@@ -7130,6 +9233,12 @@
       "mean": "~과 똑같은, 꼭 ~처럼",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "keep  out": {
+      "mean": "~을 막다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "keep -ing": {
@@ -7223,6 +9332,12 @@
         "수능기출"
       ]
     },
+    "marvel at": {
+      "mean": "~에 감탄하다, ~에 놀라다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "matter to": {
       "mean": "~에게 중요하다, ~에게 문제가 되다",
       "sources": [
@@ -7239,6 +9354,13 @@
       "mean": "~보다 많은, ~ 이상",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "much less": {
+      "mean": "~은 고사하고, ~하기는커녕",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "much more": {
@@ -7292,7 +9414,15 @@
     "pass away": {
       "mean": "사망하다[돌아가시다]",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "pitch out": {
+      "mean": "~을 치우다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "play with": {
@@ -7315,16 +9445,51 @@
         "수능기출"
       ]
     },
+    "pull into": {
+      "mean": "~에 차를 대다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "pulp mill": {
+      "mean": "펄프 공장",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "put aside": {
       "mean": "저축하다 (lay aside)",
       "sources": [
         "수능기출"
       ]
     },
+    "reach out": {
+      "mean": "연락하다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "relate to": {
+      "mean": "~과 관련이 있다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "rely upon": {
+      "mean": "~에 의존하다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "resort to": {
       "mean": "호소하다, 의지하다",
       "sources": [
-        "수능기출"
+        "수능기출",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "result in": {
@@ -7352,10 +9517,22 @@
         "수능기출"
       ]
     },
+    "set aside": {
+      "mean": "~을 제쳐 두다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "settle in": {
       "mean": "(새 집, 직장 등에) 적응하다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "shut down": {
+      "mean": "문을 닫다, 멈추다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "sink into": {
@@ -7370,10 +9547,30 @@
         "중학숙어1000"
       ]
     },
+    "sneak out": {
+      "mean": "살짝 나가다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "spell out": {
+      "mean": "~을 자세히[상세히] 설명하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "stand for": {
       "mean": "~을 나타내다, 의미하다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "stand out": {
+      "mean": "눈에 띄다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "stop -ing": {
@@ -7382,10 +9579,24 @@
         "중학숙어1000"
       ]
     },
+    "strike up": {
+      "mean": "(대화·관계 등을) 시작하다[트다]",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "take back": {
       "mean": "(자기가 한 말을) 취소하다, 철회하다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "take hold": {
+      "mean": "자리 잡다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "take over": {
@@ -7407,11 +9618,30 @@
         "중학숙어1000"
       ]
     },
+    "test case": {
+      "mean": "시험 사례, 판례(가 되는 소송 사건)",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "thanks to": {
       "mean": "~ 덕분에",
       "sources": [
         "중학숙어1000",
         "수능기출"
+      ]
+    },
+    "time away": {
+      "mean": "~으로부터 떨어져 있는 시간",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "trail off": {
+      "mean": "점점 감소하다, 차츰 잦아들다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "travel to": {
@@ -7430,7 +9660,9 @@
       "mean": "(소리를) 줄이다[낮추다], 거절하다",
       "sources": [
         "중학숙어1000",
-        "수능기출"
+        "수능기출",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "turn over": {
@@ -7456,6 +9688,12 @@
       "mean": "휩쓸어 가다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "wash over": {
+      "mean": "~으로 밀려오다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "what  for": {
@@ -7500,6 +9738,13 @@
         "중학숙어1000"
       ]
     },
+    "air drag": {
+      "mean": "공기 저항",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "apply to": {
       "mean": "~에게 적용되다",
       "sources": [
@@ -7527,7 +9772,8 @@
     "at least": {
       "mean": "적어도",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2026수능특강PDF"
       ]
     },
     "at night": {
@@ -7540,7 +9786,14 @@
       "mean": "때때로",
       "sources": [
         "중학숙어1000",
-        "수능기출"
+        "수능기출",
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "at worst": {
+      "mean": "최악의 경우(에)",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "be quiet": {
@@ -7553,6 +9806,12 @@
       "mean": "자랑하다",
       "sources": [
         "수능기출"
+      ]
+    },
+    "bring on": {
+      "mean": "~을 야기하다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "bring up": {
@@ -7591,7 +9850,9 @@
     "care for": {
       "mean": "~을 돌보다, (부,의) 좋아하다",
       "sources": [
-        "수능기출"
+        "수능기출",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "carry on": {
@@ -7661,6 +9922,12 @@
         "중학숙어1000"
       ]
     },
+    "dig into": {
+      "mean": "~을 파헤치다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "do  harm": {
       "mean": "~에게 해를 끼치다",
       "sources": [
@@ -7671,6 +9938,13 @@
       "mean": "(특수 복장으로) 차려 입다, 정장을 하다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "excel in": {
+      "mean": "~에 탁월하다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "fall off": {
@@ -7695,6 +9969,13 @@
       "mean": "알아내다, 찾아내다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "flu shot": {
+      "mean": "독감 예방 주사",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "fly away": {
@@ -7741,6 +10022,13 @@
         "수능기출"
       ]
     },
+    "force up": {
+      "mean": "올리다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "get away": {
       "mean": "달아나다, 떠나다",
       "sources": [
@@ -7769,6 +10057,13 @@
       "mean": "~ 뒤를 쫓다, ~을 목표로 하다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "go viral": {
+      "mean": "(인터넷 등을 통해) 인기를 얻다, 입소 문이 나다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "go wrong": {
@@ -7850,6 +10145,12 @@
         "수능기출"
       ]
     },
+    "long run": {
+      "mean": "장기간",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "look for": {
       "mean": "~을 찾다",
       "sources": [
@@ -7860,6 +10161,12 @@
       "mean": "밖을 내다보다, 조심하다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "low life": {
+      "mean": "(특히 범죄자들의) 밑바닥 인생",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "major in": {
@@ -7923,6 +10230,18 @@
         "중학숙어1000"
       ]
     },
+    "pen name": {
+      "mean": "필명",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "pick out": {
+      "mean": "~을 고르다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "point to": {
       "mean": "~을 가리키다",
       "sources": [
@@ -7939,13 +10258,16 @@
       "mean": "~에 앞서, 먼저",
       "sources": [
         "중학숙어1000",
-        "수능기출"
+        "수능기출",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "pull out": {
       "mean": "~을 꺼내다, 뽑다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2026수능특강PDF"
       ]
     },
     "put away": {
@@ -7963,7 +10285,15 @@
     "refer to": {
       "mean": "언급하다, 참조하다, 관련~",
       "sources": [
-        "수능기출"
+        "수능기출",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "roll out": {
+      "mean": "~을 출시하다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "run away": {
@@ -7991,6 +10321,12 @@
         "수능기출"
       ]
     },
+    "screw up": {
+      "mean": "~을 망가뜨리다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "see  off": {
       "mean": "~를 배웅하다",
       "sources": [
@@ -8010,6 +10346,12 @@
         "중학숙어1000"
       ]
     },
+    "serve as": {
+      "mean": "~의 역할을 하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "set free": {
       "mean": "~을 풀어주다, 석방하다",
       "sources": [
@@ -8026,7 +10368,9 @@
       "mean": "~을 과시하다, ~을 자랑해 보이다",
       "sources": [
         "중학숙어1000",
-        "수능기출"
+        "수능기출",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "sit down": {
@@ -8053,6 +10397,13 @@
         "중학숙어1000"
       ]
     },
+    "speak up": {
+      "mean": "(의견을) 말하다[밝히다]",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
     "stand up": {
       "mean": "일어서다",
       "sources": [
@@ -8062,7 +10413,9 @@
     "stare at": {
       "mean": "~을 응시하다, ~을 빤히 보다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "stay out": {
@@ -8109,6 +10462,12 @@
         "중학숙어1000"
       ]
     },
+    "tune out": {
+      "mean": "주변 상황에 신경 쓰지 않다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "turn off": {
       "mean": "(전기, 가스, 수도 등을) 끄다, 잠그다",
       "sources": [
@@ -8120,7 +10479,15 @@
       "mean": "(결과) ~이 되다, ~으로 판명되다",
       "sources": [
         "중학숙어1000",
-        "수능기출"
+        "수능기출",
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "up front": {
+      "mean": "솔직하게",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "wait for": {
@@ -8132,7 +10499,15 @@
     "wear out": {
       "mean": "(낡아서) 떨어지다, 닳다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "weigh on": {
+      "mean": "~을 압박하다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "with joy": {
@@ -8157,13 +10532,17 @@
     "yield to": {
       "mean": "~에 굴복하다, ~에 따르다",
       "sources": [
-        "수능기출"
+        "수능기출",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "all but": {
       "mean": "거의, ~을 제외하고는 모두",
       "sources": [
-        "수능기출"
+        "수능기출",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "as well": {
@@ -8178,6 +10557,12 @@
         "중학숙어1000"
       ]
     },
+    "at best": {
+      "mean": "기껏해야",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "at ease": {
       "mean": "마음이 편안한",
       "sources": [
@@ -8187,7 +10572,8 @@
     "at hand": {
       "mean": "(시간·거리상으로) 가까운",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2026수능특강PDF"
       ]
     },
     "at last": {
@@ -8241,7 +10627,15 @@
     "be over": {
       "mean": "끝나다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
+      ]
+    },
+    "bind to": {
+      "mean": "~과 결합하다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "boot up": {
@@ -8306,6 +10700,18 @@
         "수능기출"
       ]
     },
+    "draw in": {
+      "mean": "~을 사로잡다, ~을 끌어당기다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "draw on": {
+      "mean": "~을 이용하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "drop in": {
       "mean": "~에 잠깐 들르다",
       "sources": [
@@ -8335,7 +10741,9 @@
     "fill in": {
       "mean": "(빈칸 등에) 써 넣다, 기입하다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "for fun": {
@@ -8429,10 +10837,23 @@
         "중학숙어1000"
       ]
     },
+    "hint at": {
+      "mean": "~을 암시하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "hold on": {
       "mean": "(주로 전화 통화에서) 기다리다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "hold to": {
+      "mean": "~을 고수하다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "if only": {
@@ -8468,7 +10889,9 @@
     "in need": {
       "mean": "어려움에 처한, 궁핍한",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "in that": {
@@ -8481,6 +10904,13 @@
       "mean": "제시간에, 늦지 않게",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "in turn": {
+      "mean": "결국",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "in vain": {
@@ -8517,6 +10947,13 @@
       "mean": "~에 살다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "lock in": {
+      "mean": "고정되다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "look at": {
@@ -8632,7 +11069,8 @@
     "pay for": {
       "mean": "지불하다, ~의 값을 치르다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2026수능특강PDF"
       ]
     },
     "pay off": {
@@ -8667,6 +11105,12 @@
         "수능기출"
       ]
     },
+    "rely on": {
+      "mean": "~에 의존하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "run for": {
       "mean": "~에 출마하다",
       "sources": [
@@ -8682,13 +11126,27 @@
     "set out": {
       "mean": "(일에) 착수하다, 출발하다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "show up": {
       "mean": "나타나다",
       "sources": [
         "중학숙어1000"
+      ]
+    },
+    "sign up": {
+      "mean": "등록하다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
+    "size up": {
+      "mean": "~을 평가[판단]하다",
+      "sources": [
+        "EBS2026수능특강PDF"
       ]
     },
     "stay at": {
@@ -8724,13 +11182,17 @@
     "take in": {
       "mean": "속이다, 이해하다",
       "sources": [
-        "수능기출"
+        "수능기출",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "take up": {
       "mean": "(시간, 장소 등을) 차지하다",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "talk to": {
@@ -8921,6 +11383,12 @@
         "중학숙어1000"
       ]
     },
+    "mix up": {
+      "mean": "~을 뒤섞다",
+      "sources": [
+        "EBS2026수능특강PDF"
+      ]
+    },
     "on  요일": {
       "mean": "~요일에",
       "sources": [
@@ -8961,6 +11429,13 @@
       "mean": "~을 돌보다, 주의하다",
       "sources": [
         "수능기출"
+      ]
+    },
+    "set in": {
+      "mean": "시작되다",
+      "sources": [
+        "EBS2027수능특강HWP",
+        "EBS2027수능특강XLSX"
       ]
     },
     "set up": {
@@ -9058,7 +11533,8 @@
     "up to": {
       "mean": "~에 달려 있는, ~까지",
       "sources": [
-        "중학숙어1000"
+        "중학숙어1000",
+        "EBS2026수능특강PDF"
       ]
     }
   }
