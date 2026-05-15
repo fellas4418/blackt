@@ -187,19 +187,17 @@
         .passage-top-block .passage-layout-block {
             margin: 0;
         }
-        .passage-top-block .grammar-badge-sample {
+        /* 안내 문구용 G1: 지문 grammar-badge 와 동일 외형, 클릭만 비활성 */
+        .passage-top-block .grammar-badge.grammar-badge-sample {
             cursor: default;
-            margin: 0 3px 0 1px;
-            vertical-align: baseline;
             pointer-events: none;
-            box-shadow: none;
-            font-size: 0.72rem;
-            font-weight: 700;
-            padding: 1px 6px;
-            border-radius: 4px;
-            background: var(--passage-chip-bg, rgba(0, 243, 255, 0.1));
-            color: var(--passage-chip-label, #9fe8ff);
-            border: 1px solid var(--passage-chip-border, rgba(0, 243, 255, 0.34));
+            margin-left: 0;
+            margin-right: 4px;
+        }
+        .passage-top-block .grammar-badge.grammar-badge-sample:hover,
+        .passage-top-block .grammar-badge.grammar-badge-sample:focus-visible {
+            background: #bc13fe;
+            outline: none;
         }
         .translation-card-toolbar {
             display: flex;
