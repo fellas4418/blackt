@@ -43,7 +43,7 @@
             max-width: 100%;
         }
         #analysis-passage-zone .passage-report-heading {
-            margin: 0 0 4px 0;
+            margin: 0 0 8px 0;
             padding: 0;
             text-align: left;
             color: var(--neon-green);
@@ -56,9 +56,25 @@
         }
         
         .result-label { font-size: 1.1rem; color: var(--neon-blue); font-weight: bold; margin-bottom: 10px; display: block; letter-spacing: 1px; }
-        #analysis-passage-zone .keyword-list-heading-label .keyword-list-heading-sub {
-            display: inline-block;
-            margin-top: 2px;
+        .keyword-list-heading-label .keyword-list-heading-row {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            column-gap: 0.35em;
+            align-items: start;
+            text-align: left;
+        }
+        .keyword-list-heading-label .keyword-list-heading-icon {
+            line-height: 1.35;
+            font-size: 1em;
+        }
+        .keyword-list-heading-label .keyword-list-heading-main {
+            min-width: 0;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .keyword-list-heading-label .keyword-list-heading-sub {
+            display: block;
+            margin-top: 3px;
             font-size: 0.92em;
             font-weight: 700;
             letter-spacing: 0.03em;
@@ -83,7 +99,7 @@
             user-select: none;
         }
         #analysis-passage-zone #ai-report-area > .passage-word-click-hint {
-            margin: 2px 0 10px 0;
+            margin: 0 0 10px 0;
             padding: 0;
             text-align: left;
             font-size: calc(1.1rem * 0.9);
@@ -166,11 +182,19 @@
         .kakao-btn { width: 100%; padding: 18px; background: #fee500; color: #000; border: none; border-radius: 12px; font-weight: 900; font-size: 1.05rem; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .kakao-btn.voca-practice-cta-btn {
             flex-direction: column;
+            justify-content: center;
+            align-items: center;
             gap: 6px;
             font-size: 1.14rem;
             line-height: 1.32;
             padding: 16px 14px;
             white-space: normal;
+            text-align: center;
+        }
+        .kakao-btn.voca-practice-cta-btn .voca-cta-line1,
+        .kakao-btn.voca-practice-cta-btn .voca-cta-line2 {
+            display: block;
+            width: 100%;
             text-align: center;
         }
         
@@ -387,6 +411,8 @@
         .topic-focus-card .gk-keywords-intro-block {
             padding-left: 1ch;
             box-sizing: border-box;
+            margin-top: 0;
+            margin-bottom: 0;
         }
         .topic-focus-card .gk-keywords-intro-block > .gk-topic-summary-title {
             padding-left: 0;
@@ -395,10 +421,11 @@
             padding-left: 1ch;
             box-sizing: border-box;
             text-align: left;
+            margin-top: 0;
             margin-bottom: 18px;
         }
         .topic-focus-card .gk-topic-summary-combined.gk-topic-summary-combined--tight {
-            margin-bottom: 6px;
+            margin-bottom: 0;
         }
         .topic-focus-card .gk-topic-summary-combined > .gk-topic-summary-title {
             padding-left: 0;
@@ -439,16 +466,16 @@
             text-align: left;
             line-height: 1.65;
         }
-        .gk-kw-summary-divider {
-            border: 0;
-            border-top: 1px solid rgba(255, 215, 0, 0.14);
-            margin: 6px 0 18px;
-            height: 0;
+        .gk-golden-intro-after-spacer {
+            height: 12px;
         }
-        .gk-summary-variants-divider {
+        .gk-section-faint-divider,
+        .gk-kw-summary-divider,
+        .gk-summary-variants-divider,
+        .gk-after-golden-intro {
             border: 0;
             border-top: 1px solid rgba(255, 215, 0, 0.14);
-            margin: 2px 0 16px;
+            margin: 18px 0;
             height: 0;
         }
 
@@ -2520,7 +2547,7 @@
             if (currentNoteTab === 'voca') {
                 html += `
                     <div style="margin-bottom:12px;">
-                        <button class="kakao-btn voca-practice-cta-btn" style="background:var(--neon-green); color:#000; margin-top:0;" onclick="startVocaPractice()"><span>👉 사라져 보카로</span><span>나만의 단어 연습하기</span></button>
+                        <button class="kakao-btn voca-practice-cta-btn" style="background:var(--neon-green); color:#000; margin-top:0;" onclick="startVocaPractice()"><span class="voca-cta-line1">사라져 VOCA로</span><span class="voca-cta-line2">나만의 단어 연습하기</span></button>
                     </div>
                 `;
             }
@@ -3063,8 +3090,8 @@
 
             const typeLabel = {
                 original: '① 실제 주제',
-                keyword_paraphrase: '② 키워드 동의어·유의어 변형',
-                structure_paraphrase: '③ 전체 패러프레이징'
+                keyword_paraphrase: '② 키워드 동의어·유의어 변형 주제',
+                structure_paraphrase: '③ 문장만 다르게 말한 주제'
             };
 
             let inner = '';
@@ -3076,7 +3103,7 @@
                     })
                     .join('');
                 inner +=
-                    '<div class="gk-keywords-intro-block" style="margin-bottom:18px;text-align:left;">' +
+                    '<div class="gk-keywords-intro-block" style="text-align:left;">' +
                     '<div class="gk-topic-summary-title" style="margin-bottom:8px;color:#ff8da1;text-align:left;">핵심 키워드</div>' +
                     '<div style="margin-bottom:10px;line-height:1.75;text-align:left;">' +
                     chips +
@@ -3085,7 +3112,7 @@
             }
 
             if (hasKw && hasSummary) {
-                inner += '<hr class="gk-kw-summary-divider" aria-hidden="true">';
+                inner += '<hr class="gk-section-faint-divider gk-kw-summary-divider" aria-hidden="true">';
             }
 
             if (hasSummary) {
@@ -3117,7 +3144,7 @@
                         sumRows +
                         '</div>';
                     if (hasVar) {
-                        inner += '<hr class="gk-summary-variants-divider" aria-hidden="true">';
+                        inner += '<hr class="gk-section-faint-divider gk-summary-variants-divider" aria-hidden="true">';
                     }
                 }
             }
@@ -3170,10 +3197,11 @@
 
             return (
                 '<div class="result-card topic-focus-card" style="border-color:#ffd700;box-shadow:0 0 18px rgba(255,215,0,0.15);">' +
-                '<div class="gk-golden-intro-row" style="display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 14px;margin-bottom:12px;text-align:left;">' +
+                '<div class="gk-golden-intro-row" style="display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 14px;margin-bottom:0;text-align:left;">' +
                 '<span class="result-label gk-golden-head" style="color:#ffd700;margin:0;">Golden Key</span>' +
                 '<span style="font-size:0.88rem;color:#c9d0dc;line-height:1.55;font-weight:500;flex:1 1 220px;">지문의 주요 키워드와 3종 실전 주제문을 한 묶음으로 모았어요. 무료는 하루 2회까지 열람, 유료는 무제한이에요</span>' +
                 '</div>' +
+                (hasKw ? '<hr class="gk-section-faint-divider gk-after-golden-intro" aria-hidden="true" />' : '<div class="gk-golden-intro-after-spacer" aria-hidden="true"></div>') +
                 '<div class="result-content" style="position:relative;min-height:72px;overflow:hidden;border-radius:12px;">' +
                 '<div class="topic-focus-inner" style="' +
                 innerBlur +
@@ -3525,7 +3553,7 @@
                 keywordHtml += '<div style="color:#888;">추출된 주요 단어가 없습니다.</div>';
             }
             
-            keywordHtml += `<button class="kakao-btn voca-practice-cta-btn" style="background:var(--neon-green); color:#000; margin-top:15px;" onclick="startVocaPractice()"><span>👉 사라져 보카로</span><span>나만의 단어 연습하기</span></button>`;
+            keywordHtml += `<button class="kakao-btn voca-practice-cta-btn" style="background:var(--neon-green); color:#000; margin-top:15px;" onclick="startVocaPractice()"><span class="voca-cta-line1">사라져 VOCA로</span><span class="voca-cta-line2">나만의 단어 연습하기</span></button>`;
 
             if (res.grammar && Array.isArray(res.grammar) && res.full_translation && Array.isArray(res.full_translation)) {
                 res.grammar.forEach(g => {
@@ -3705,7 +3733,7 @@
                 ${passageLayoutCardHtml}
                 ${translationCardHtml}
                 <div class="result-card" style="border-color: #bc13fe;"><span class="result-label" style="color:#bc13fe;">🛠️ 트리거 팀의 문법 포인트</span><div class="result-content">${grammarListWrap}</div></div>
-                <div class="result-card"><span class="result-label keyword-list-heading-label" style="color:#ff0055;">📚 주요 단어 리스트<br><span class="keyword-list-heading-sub">(내 학습 노트에 저장)</span></span><div class="result-content">${keywordHtml}</div></div>
+                <div class="result-card"><span class="result-label keyword-list-heading-label" style="color:#ff0055;"><span class="keyword-list-heading-row"><span class="keyword-list-heading-icon" aria-hidden="true">📚</span><span class="keyword-list-heading-main">주요 단어 리스트<br><span class="keyword-list-heading-sub">(내 학습 노트에 저장)</span></span></span></span><div class="result-content">${keywordHtml}</div></div>
                 ${goldenKeyHtml}
                 <div class="result-card" style="border-color: var(--neon-orange);"><span class="result-label" style="color:var(--neon-orange);">🌎 쓸데없이 고퀄인 배경지식</span><div class="result-content passage-background-knowledge">${backgroundHtml}</div></div>
             `;
@@ -5564,8 +5592,8 @@
         (1) type \`"original"\` — **실제 주제(①, 완전 신규 작성)**: \`full_translation\`의 **어느 eng 문장과도 동일하지 않아야** 하고, 지문에 나온 문장을 **한 글자도 그대로 가져와 이어붙이면 안 됩니다.** **topic_keywords**에 있는 표현들을 **문장 속에 자연스럽게 포함**한 채, **고등학교 2·3학년 모의고사** 수준의 **새 영어 한 문장**을 **처음부터** 쓰세요(의미는 지문 전체 논지와 일치). **길이(매우 중요):** \`sentence_en\`은 **영어 기준 약 10~22어절**, **모의고사 보기 한 줄~한 줄 반**(짧은 단문·한 절 위주). **긴 복문·절을 잇따라 늘리지 마세요.** ②③도 **①과 비슷한 길이**로 맞추세요. (이하 예시는 **복사 금지·길이 감각만** 참고 — \`sentence_en\`은 항상 한 문장 하나만.)
         · 예시(짧은 한 줄): \`He received recognition for his contributions to physics in 1991.\` / \`Participants must record the development of their crops in a journal.\` / \`The mentoring sessions are held once every week.\` / \`A final report must be turned in when the program ends.\` / \`Outstanding participants will have a chance to tour agricultural research centers.\` / \`There is a participation fee for joining the program.\`
         · 예시(정보·매체 톤, 한 줄): \`Printing contributed to wider distribution of written information across regions.\` / \`Printing reduced variation while improving the accuracy of transmitted knowledge.\` / \`Printing enabled consistent reproduction, thereby increasing reliability of information.\` / \`Printing replaced manuscript variation with standardized and widely shared information.\` / \`Printing enabled more stable reproduction of information compared to manuscript copying.\`
-        (2) type \`"keyword_paraphrase"\` — **동의어·유의어 변형(②)**: **오직 ①에서 만든 문장**을 원본으로 하세요. ①의 \`sentence_en\`과 **문자열이 달라야** 합니다. ① 문장 안에서 **topic_keywords에 해당하는 부분만** **동의어·유사어·보기식 표현**으로 바꾼 **완전한 한 문장**을 쓰세요. **의미는 ①과 동일**하게 유지합니다. **①과 비슷한 짧은 길이**를 유지합니다. 지문 원문을 다시 가져오면 안 됩니다.
-        (3) type \`"structure_paraphrase"\` — **패러프레이징(③)**: **오직 ①에서 만든 문장**을 원본으로 하세요. ① **전체**를 **어순·문형·절 연결** 등을 바꿔 **Paraphrasing**한 **한 문장**을 쓰세요. ①·②의 \`sentence_en\`과 **문자열이 모두 달라야** 하며 **의미는 ①과 동일**해야 합니다. **①과 비슷한 짧은 길이**를 유지합니다. 지문 원문을 다시 가져오면 안 됩니다.
+        (2) type \`"keyword_paraphrase"\` — **동의어·유의어 변형(②) 주제 문장**: **오직 ①에서 만든 문장**을 원본으로 하세요. ①의 \`sentence_en\`과 **문자열이 달라야** 합니다. ① 문장 안에서 **topic_keywords에 해당하는 부분만** **동의어·유사어·보기식 표현**으로 바꾼 **완전한 한 문장**을 쓰세요. **의미는 ①과 동일**하게 유지합니다. **①과 비슷한 짧은 길이**를 유지합니다. 지문 원문을 다시 가져오면 안 됩니다.
+        (3) type \`"structure_paraphrase"\` — **문장만 다르게 말한 주제(③)**: **오직 ①에서 만든 문장**을 원본으로 하세요. ① **전체**를 **어순·문형·절 연결** 등을 바꿔 **같은 뜻으로 다시 쓴(말을 바꾼)** **한 문장**을 쓰세요. ①·②의 \`sentence_en\`과 **문자열이 모두 달라야** 하며 **의미는 ①과 동일**해야 합니다. **①과 비슷한 짧은 길이**를 유지합니다. 지문 원문을 다시 가져오면 안 됩니다.
     - 각 variant: \`interpretation_ko\`는 반드시 한 줄 한국어 해석. \`key_terms\`는 각 variant마다 **반드시 3개 이상 6개 이하**의 \`{ "eng": "해당 variant sentence_en에 실제로 나온 단어", "kor": "뜻" }\` 배열(뜻은 full_word_map·keywords와 일치하게, 가능하면 topic_keywords와 겹치는 항목을 우선 포함).
     - **JSON 출력 직전 자가검증**: ①의 \`sentence_en\`이 지문 **어떤 eng 문장과도 완전히 같지 않은지**, 지문 문장과 **연속 5단어 이상 동일한 구간**이 없는지 확인하세요. ②는 **①만** 변형한 것인지, ③은 **①만** 패러프레이즈한 것인지 확인하세요. ①②③ \`sentence_en\`은 **서로 모두 다른 문자열**이어야 합니다.
 16. passage_layout: 지문 **텍스트 구조**를 분석해 수능/내신형 UI로 쓸 메타데이터. **반드시 포함**하세요.
