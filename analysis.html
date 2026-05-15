@@ -288,7 +288,7 @@
 
         .hl-grammar {
             display: inline;
-            background-image: linear-gradient(rgba(168, 120, 200, 0.38), rgba(168, 120, 200, 0.38));
+            background-image: linear-gradient(rgba(168, 120, 200, 0.55), rgba(168, 120, 200, 0.55));
             background-position: 0 100%;
             background-repeat: no-repeat;
             background-size: 100% 1.5px;
@@ -606,7 +606,22 @@
             min-width: 0;
             height: auto;
         }
-        .passage-layout-card .passage-layout-inner { line-height: 1.65; }
+        .passage-layout-card .passage-layout-type-label {
+            display: block;
+            margin: 0 0 8px 0;
+            padding: 6px 12px 6px 16px;
+            box-sizing: border-box;
+            color: #00f3ff;
+        }
+        .passage-layout-card.passage-layout-card--type-only .passage-layout-type-label {
+            margin-bottom: 0;
+        }
+        .passage-layout-card .passage-layout-inner {
+            line-height: 1.65;
+            padding-left: 16px;
+            padding-right: 12px;
+            box-sizing: border-box;
+        }
         .passage-insert-box {
             border: 2px dashed rgba(159, 232, 112, 0.75);
             background: rgba(159, 232, 112, 0.07);
@@ -3936,8 +3951,19 @@
         }
 
         function buildPassageLayoutCardHtml(res) {
+            const typeLabel = inferPassageProblemTypeLabel(res);
+            const typeHeaderHtml =
+                '<span class="result-label passage-layout-type-label">문제 유형: ' +
+                escapeHtml(typeLabel) +
+                '</span>';
             const pl = res && res.passage_layout && typeof res.passage_layout === 'object' ? res.passage_layout : null;
-            if (!pl) return '';
+            if (!pl) {
+                return (
+                    '<div class="result-card passage-layout-card passage-layout-card--type-only" style="border-color:#00f3ff;">' +
+                    typeHeaderHtml +
+                    '</div>'
+                );
+            }
             const t = String(pl.type || 'normal').trim().toLowerCase();
             const headParts = [];
             const tailParts = [];
@@ -4025,22 +4051,16 @@
             }
 
             const inner = (headParts.join('') + tailParts.join('')).trim();
-            const typeLabel = inferPassageProblemTypeLabel(res);
-            const layoutTypeRaw = String(pl.type || 'normal').trim().toLowerCase();
             if (!inner) {
-                if (layoutTypeRaw === 'normal' || layoutTypeRaw === 'normal_clean') return '';
                 return (
-                    '<div class="result-card passage-layout-card" style="border-color:#00f3ff;">' +
-                    '<span class="result-label" style="color:#00f3ff;margin-bottom:0;">문제 유형: ' +
-                    escapeHtml(typeLabel) +
-                    '</span></div>'
+                    '<div class="result-card passage-layout-card passage-layout-card--type-only" style="border-color:#00f3ff;">' +
+                    typeHeaderHtml +
+                    '</div>'
                 );
             }
             return (
                 '<div class="result-card passage-layout-card" style="border-color:#00f3ff;">' +
-                '<span class="result-label" style="color:#00f3ff;margin-bottom:8px;">문제 유형: ' +
-                escapeHtml(typeLabel) +
-                '</span>' +
+                typeHeaderHtml +
                 '<div class="result-content passage-layout-inner">' +
                 inner +
                 '</div></div>'
