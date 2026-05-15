@@ -589,6 +589,11 @@
         .passage-corrections-list ul { margin: 0; padding-left: 1.1em; }
         .passage-corrections-list li { margin: 8px 0; }
         .passage-cor-num { color: #00f3ff; font-weight: bold; margin-right: 4px; }
+        .passage-cor-option-plain {
+            color: #eaeaea;
+            font-weight: 500;
+            text-decoration: none;
+        }
         .passage-cor-reason {
             margin: 6px 0 0 0;
             padding: 8px 10px 8px 11px;
@@ -598,6 +603,75 @@
             background: rgba(0, 243, 255, 0.06);
             border-left: 3px solid rgba(0, 243, 255, 0.42);
             border-radius: 0 8px 8px 0;
+        }
+
+        .analysis-main-settings-hint {
+            font-size: 0.86rem;
+            color: #9aa;
+            margin: 0 0 12px;
+            line-height: 1.55;
+            max-width: 720px;
+        }
+        .analysis-context-strip {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px 12px;
+            margin: 0 0 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 243, 255, 0.28);
+            background: rgba(0, 243, 255, 0.07);
+            box-sizing: border-box;
+        }
+        .analysis-context-strip-label {
+            font-size: 0.9rem;
+            color: #e8f4ff;
+            font-weight: 700;
+            flex: 1;
+            min-width: 0;
+            line-height: 1.45;
+        }
+        .analysis-context-strip-link {
+            flex-shrink: 0;
+            font-size: 0.82rem;
+            color: var(--neon-blue);
+            text-decoration: underline;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .passage-tab-context-hint {
+            margin-top: 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(159, 232, 112, 0.28);
+            background: rgba(159, 232, 112, 0.07);
+            font-size: 0.82rem;
+            color: #b9d4bf;
+            line-height: 1.55;
+        }
+        .passage-tab-context-hint-title {
+            font-weight: 800;
+            color: #9fe870;
+            margin-bottom: 6px;
+            font-size: 0.88rem;
+        }
+        .exam-tab-context-hint {
+            margin-bottom: 14px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 154, 92, 0.35);
+            background: rgba(255, 120, 80, 0.08);
+            font-size: 0.82rem;
+            color: #e8d8cf;
+            line-height: 1.55;
+        }
+        .exam-tab-context-hint-title {
+            font-weight: 800;
+            color: #ff9a5c;
+            margin-bottom: 6px;
+            font-size: 0.88rem;
         }
 
         .analysis-page-split.analysis-main-tabs-wrap {
@@ -907,6 +981,7 @@
             <button onclick="showNoteModal('grammar')" style="background: rgba(255,255,255,0.05); border: 1px solid #666; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight:bold;">⭐ 내 학습 노트</button>
         </div>
         <h3 id="info-header" style="color: #fff; margin-bottom: 15px;">AI 지문 정밀 분석</h3>
+        <p class="analysis-main-settings-hint">아래 분석은 <strong>학년</strong>과 <strong>이번에 주로 쓸 시험 맥락</strong>을 <strong>분석 설정(메인)</strong>에서 고른 값을 기본으로 써요.</p>
     </div>
 
     <div id="word-popup"></div>
@@ -924,6 +999,10 @@
     </div>
 
     <div id="analysis-page-split" class="analysis-page-split analysis-main-tabs-wrap">
+        <div id="analysis-context-strip" class="analysis-context-strip" role="status">
+            <span id="analysis-context-strip-label" class="analysis-context-strip-label"></span>
+            <a class="analysis-context-strip-link" href="index.html?tab=analysis">설정 바꾸기</a>
+        </div>
         <div class="analysis-main-tabs" role="tablist" aria-label="분석 유형 선택">
             <button type="button" id="analysis-tab-btn-passage" class="analysis-main-tab passage-tab is-active" role="tab" aria-selected="true" aria-controls="analysis-tab-panel-passage" onclick="switchAnalysisMainTab('passage')">지문 분석</button>
             <button type="button" id="analysis-tab-btn-exam" class="analysis-main-tab exam-tab" role="tab" aria-selected="false" aria-controls="analysis-tab-panel-exam" onclick="switchAnalysisMainTab('exam')">시험 분석</button>
@@ -947,6 +1026,10 @@
                         class="passage-title-confirm-btn">확인</button>
             </div>
             <p class="passage-source-hint">* 미입력 시 카테고리와 AI 요약 제목이 기본 적용됩니다.</p>
+            <div class="passage-tab-context-hint">
+                <div class="passage-tab-context-hint-title">지문용 시험·유형</div>
+                <p style="margin:0;">위 <strong>맥락 띠</strong>에 보이는 메인 설정값이 그대로 적용돼요. 여기서는 <strong>지문 출처(교재·단원 등)</strong>만 적어 주세요. 학년·시험 맥락을 바꾸려면 <a class="analysis-context-strip-link" style="display:inline;white-space:normal;" href="index.html?tab=analysis">설정 바꾸기</a>로 돌아가 주세요.</p>
+            </div>
         </div>
         <div class="analysis-zone-body">
     <div id="input-section">
@@ -1021,13 +1104,27 @@
         <div class="analysis-zone-body">
 
     <div id="exam-report-workspace" style="display:block; margin-top:0;">
+        <div class="exam-tab-context-hint">
+            <div class="exam-tab-context-hint-title">시험 분석용 시험 설정</div>
+            <p style="margin:0;">먼저 <strong>시험지 사진</strong>을 올리고, 아래 <strong>시험 분석용 시험 종류</strong>는 메인 맥락을 기본으로 두고 필요할 때만 다시 고르면 돼요. 맥락을 바꾸려면 <a class="analysis-context-strip-link" style="display:inline;white-space:normal;" href="index.html?tab=analysis">설정 바꾸기</a>를 눌러 주세요.</p>
+        </div>
+        <div class="exam-rpt-plain exam-rpt-plain--photo">
+            <span class="result-label">시험지 사진</span>
+            <input type="file" id="exam-rpt-files" accept="image/*" multiple style="display:none;">
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button type="button" id="exam-rpt-open-camera" class="login-btn" style="flex: 1; border-color: var(--neon-green); margin-top: 0;">실시간 촬영 📸</button>
+                <button type="button" id="exam-rpt-open-gallery" class="login-btn" style="flex: 1; border-color: var(--neon-blue); margin-top: 0;">사진 선택 🖼️</button>
+            </div>
+            <p id="exam-rpt-photo-count" style="margin:10px 0 0; font-size:0.95rem; color:var(--neon-blue); font-weight:bold;">현재 0장 촬영 완료</p>
+            <div id="exam-rpt-thumbs" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;"></div>
+        </div>
         <div class="exam-rpt-plain exam-rpt-plain--info">
             <span class="result-label" style="color:#ff9a5c;">시험 정보</span>
             <div style="display:grid; gap:10px;">
                 <label style="font-size:0.85rem;color:#ccc;">학교 이름
                     <input type="text" id="exam-rpt-school" class="auth-input" style="width:100%; margin-top:4px; box-sizing:border-box;" placeholder="예: ○○중학교" maxlength="80">
                 </label>
-                <label style="font-size:0.85rem;color:#ccc;">시험 종류
+                <label style="font-size:0.85rem;color:#ccc;">시험 분석용 시험 종류
                     <select id="exam-rpt-exam-type" class="auth-input" style="width:100%; margin-top:4px;">
                         <option value="">선택</option>
                         <optgroup label="1학기">
@@ -1047,16 +1144,6 @@
                     </select>
                 </label>
             </div>
-        </div>
-        <div class="exam-rpt-plain exam-rpt-plain--photo">
-            <span class="result-label">시험지 사진</span>
-            <input type="file" id="exam-rpt-files" accept="image/*" multiple style="display:none;">
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button type="button" id="exam-rpt-open-camera" class="login-btn" style="flex: 1; border-color: var(--neon-green); margin-top: 0;">실시간 촬영 📸</button>
-                <button type="button" id="exam-rpt-open-gallery" class="login-btn" style="flex: 1; border-color: var(--neon-blue); margin-top: 0;">사진 선택 🖼️</button>
-            </div>
-            <p id="exam-rpt-photo-count" style="margin:10px 0 0; font-size:0.95rem; color:var(--neon-blue); font-weight:bold;">현재 0장 촬영 완료</p>
-            <div id="exam-rpt-thumbs" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;"></div>
         </div>
         <button type="button" id="exam-rpt-run-extract" class="start-btn" style="width:100%; margin-top:12px; border-color:var(--neon-orange);">리포트 생성하기</button>
 
@@ -1294,7 +1381,10 @@
         const workerOverride = (params.get('worker') || '').trim();
         const WORKER_URL = (workerOverride ? workerOverride.replace(/\/$/, '') + '/' : 'https://trigger-ocr-api.ohryee.workers.dev/');
         const info = `${params.get('grade') || ''} ${params.get('type') || ''} ${params.get('detail') || ''}`;
-        document.getElementById('info-header').innerText = info + " 분석";
+        const infoTrim = info.replace(/\s+/g, ' ').trim();
+        document.getElementById('info-header').innerText = infoTrim ? infoTrim + ' 분석' : 'AI 지문 정밀 분석';
+        const stripLab = document.getElementById('analysis-context-strip-label');
+        if (stripLab) stripLab.textContent = infoTrim ? infoTrim + ' · 기본 시험 맥락' : '맥락 미설정 — 분석 설정에서 학년·시험을 선택해 주세요';
 
         let selectedBase64 = "";
         let currentNoteTab = 'grammar';
@@ -3252,6 +3342,55 @@
             });
         }
 
+        function normalizeGrammarCompareText(s) {
+            return String(s || '').replace(/\s+/g, ' ').trim();
+        }
+
+        /** wrong·correct가 같거나 정답만 있는 경우: 취소선·교정 표시 없이 한 줄로 취급 */
+        function isGrammarCorrectionDisplayPlain(wrongRaw, correctRaw) {
+            const w = normalizeGrammarCompareText(wrongRaw);
+            const c = normalizeGrammarCompareText(correctRaw);
+            if (!w && !c) return { plain: true, skip: true, text: '' };
+            if (!w && c) return { plain: true, skip: false, text: String(correctRaw || '').trim() || c };
+            if (w && !c) return { plain: false, skip: false, text: '' };
+            if (w === c) return { plain: true, skip: false, text: String(correctRaw || wrongRaw || '').trim() || w };
+            return { plain: false, skip: false, text: '' };
+        }
+
+        /** AI가 맞는 보기까지 <del><ins>로 감싼 경우: 내용이 같으면 태그 제거 */
+        function unwrapTrivialGrammarDelInsPairs(root) {
+            if (!root || !root.querySelectorAll) return;
+            const dels = Array.from(root.querySelectorAll('del'));
+            dels.forEach(function (del) {
+                if (!del.parentNode) return;
+                let n = del.nextSibling;
+                while (n) {
+                    if (n.nodeType === 3 && !/\S/.test(n.textContent || '')) {
+                        const rm = n;
+                        n = n.nextSibling;
+                        rm.parentNode.removeChild(rm);
+                        continue;
+                    }
+                    if (n.nodeType === 1 && String(n.tagName || '').toLowerCase() === 'br') {
+                        const br = n;
+                        n = n.nextSibling;
+                        br.parentNode.removeChild(br);
+                        continue;
+                    }
+                    break;
+                }
+                if (!n || n.nodeType !== 1 || String(n.tagName || '').toLowerCase() !== 'ins') return;
+                const ins = n;
+                const dw = normalizeGrammarCompareText(del.textContent);
+                const iw = normalizeGrammarCompareText(ins.textContent);
+                if (dw !== iw) return;
+                const parent = del.parentNode;
+                const tn = document.createTextNode(del.textContent);
+                parent.replaceChild(tn, del);
+                parent.removeChild(ins);
+            });
+        }
+
         function sanitizeGrammarPanelHtml(html) {
             const raw = String(html || '').trim();
             if (!raw) return '';
@@ -3292,6 +3431,7 @@
                         if (a.name !== 'class') el.removeAttribute(a.name);
                     });
                 });
+                unwrapTrivialGrammarDelInsPairs(tpl.content);
                 return String(tpl.innerHTML).replace(/<\/del>\s*<ins\b/gi, '</del> <ins');
             } catch (e) {
                 return escapeHtml(raw);
@@ -3333,30 +3473,50 @@
             }
 
             if (t === 'grammar' && Array.isArray(pl.corrections) && pl.corrections.length) {
-                let c = '<div class="passage-corrections-list"><div class="passage-corrections-h">교정 요약</div><ul>';
+                const lis = [];
                 pl.corrections.forEach(function (x) {
                     const num = escapeHtml(String(x.num || x.number || x.label || ''));
-                    const w = escapeHtml(String(x.wrong || x.incorrect || ''));
-                    const cr = escapeHtml(String(x.correct || x.right || ''));
+                    const wRaw = String(x.wrong || x.incorrect || '');
+                    const crRaw = String(x.correct || x.right || '');
+                    const disp = isGrammarCorrectionDisplayPlain(wRaw, crRaw);
+                    if (disp.skip) return;
                     const reason = escapeHtml(
                         String(x.reason || x.rationale || x.explanation || x.detail || '').trim()
                     );
-                    c += '<li>';
-                    c +=
-                        '<span class="passage-cor-num">' +
-                        num +
-                        '</span> <del class="passage-del">' +
-                        w +
-                        '</del> <span style="display:inline-block;margin:0 0.35em;color:#888;">→</span> <ins class="passage-ins">' +
-                        cr +
-                        '</ins>';
-                    if (reason) {
-                        c += '<div class="passage-cor-reason">' + reason + '</div>';
+                    let li = '<li>';
+                    if (disp.plain) {
+                        const plainEsc = escapeHtml(disp.text);
+                        li +=
+                            '<span class="passage-cor-num">' +
+                            num +
+                            '</span> <span class="passage-cor-option-plain">' +
+                            plainEsc +
+                            '</span>';
+                    } else {
+                        const w = escapeHtml(wRaw);
+                        const cr = escapeHtml(crRaw);
+                        li +=
+                            '<span class="passage-cor-num">' +
+                            num +
+                            '</span> <del class="passage-del">' +
+                            w +
+                            '</del> <span style="display:inline-block;margin:0 0.35em;color:#888;">→</span> <ins class="passage-ins">' +
+                            cr +
+                            '</ins>';
                     }
-                    c += '</li>';
+                    if (reason) {
+                        li += '<div class="passage-cor-reason">' + reason + '</div>';
+                    }
+                    li += '</li>';
+                    lis.push(li);
                 });
-                c += '</ul></div>';
-                tailParts.push(c);
+                if (lis.length) {
+                    tailParts.push(
+                        '<div class="passage-corrections-list"><div class="passage-corrections-h">교정 요약</div><ul>' +
+                        lis.join('') +
+                        '</ul></div>'
+                    );
+                }
             }
 
             if (t === 'summary' && pl.summary_box) {
@@ -5635,7 +5795,7 @@
       · **insertion**: 본문과 분리된 **삽입 박스 문장**(박스 안 한 문장)이 있으면. \`box_sentence\`에 그 **영어 문장 전체**를 넣고, \`full_translation\`에는 본문 줄만(박스 문장은 중복하지 않거나 한 줄로만). **인쇄·입력에 보이는 순서**를 유지하세요.
       · **ordering**: \`(A)\`, \`(B)\`, \`(C)\` 같은 **단락 표지**가 있으면. \`paragraphs\` 배열: \`[{ "marker": "(A)", "eng_text": "해당 단락 영어" }, ...]\` — 배열 순서는 **반드시 문제지에 인쇄된 (A)(B)(C) 순서 그대로**이어야 하며, **정답 순·가독 순으로 재정렬하면 안 됩니다.** \`full_translation\`의 eng 행 순서도 **같은 인쇄 순서**와 일치시키세요.
       · **summary**: 지문 **하단**에 요약용 빈칸·보기 박스(A/B 등)가 있으면. \`summary_box\`에 그 **영어 블록 전체**(빈칸 표기 포함)를 문자열로. **보이는 그대로** 옮기세요.
-      · **grammar**: 본문에 **①~⑤** 등 번호가 있고 **어법·문맥**으로 틀린 낱말을 고르는 유형이면. \`grammar_panel_eng\`에는 **HTML로만** \`<del>...</del>\`(틀린 표현), \`<ins>...</ins>\`(교정)과 \`<br>\`만 사용(다른 태그 금지). **각 \`<del>...</del>\` 닫는 태그 직후와 바로 이어지는 \`<ins>...</ins>\` 사이**에 **공백 한 칸 이상 또는 \`<br>\`**를 넣어, 틀린 부분과 교정 부분이 붙어 보이지 않게 하세요. \`corrections\`: 각 번호마다 \`{ "num": "①", "wrong": "...", "correct": "...", "reason": "..." }\` — **\`reason\`은 필수**이며 **중학교 3학년이 처음 봐도 이해될 만큼 쉬운 한국어**로 **~해요/~였어요체** 위주 **3~6문장**으로 쓰세요. **영어 문법 전문 용어(예: comma splice, 콤마 스플라이스, fused sentence 등)만 던지지 말고**, 꼭 필요하면 **바로 아래에 비유나 풀어 쓴 설명**을 붙이세요(예: "쉼표(,)는 '그리고' 정도로만 이어 줄 때 쓰는데, 앞이 이미 **완전한 문장**이면 뒤에 또 **완전한 문장**을 쉼표 하나로 붙이면 두 문장이 안으로 묶이지 않아요"처럼). **왜 틀렸는지**, **왜 \`correct\`가 맞는지**를 **앞 문장·뒤 문장이 서로 어떻게 연결되는지**(무엇을 가리키는지, 뒤 절이 앞의 어떤 말을 꾸며 주는지)까지 짚어 주세요. 단순 번역만 금지. \`wrong\`/\`correct\`는 짧게, 근거는 \`reason\`에만 풀어 쓰세요. **full_translation의 각 eng는 교정된 최종 문장(평문, HTML 없음)**으로 두고, **단어 사이 공백은 반드시 보통 한 칸만**(연속 공백·이상 공백 금지), **kor은 교정된 문장 기준 해석**. **문장 나열 순서는 원본 지문과 동일**하게 유지하세요.
+      · **grammar**: 본문에 **①~⑤** 등 번호가 있고 **어법·문맥**으로 틀린 낱말을 고르는 유형이면. \`grammar_panel_eng\`에는 **HTML로만** \`<del>...</del>\`(틀린 표현), \`<ins>...</ins>\`(교정)과 \`<br>\`만 사용(다른 태그 금지). **정답(맞는) 보기 줄에는 \`<del>\`/\`<ins>\`를 쓰지 말고** 보기 영어를 **그대로** 두세요. **틀린 보기에만** \`<del>틀린 낱말·구</del>\` + \`<ins>고친 표현</ins>\`를 쓰세요. **\`<del>\` 안과 \`<ins>\` 안의 문자열이 같으면**(교정이 없는 것처럼 보이면) 맞는 보기로 간주하므로 **금지**입니다. **각 \`<del>...</del>\` 닫는 태그 직후와 바로 이어지는 \`<ins>...</ins>\` 사이**에 **공백 한 칸 이상 또는 \`<br>\`**를 넣어, 틀린 부분과 교정 부분이 붙어 보이지 않게 하세요. \`corrections\`: 각 번호마다 — **맞는 보기**는 \`wrong\`과 \`correct\`에 **보기에 나온 맞는 부분을 동일하게** 넣거나 \`wrong\`은 비우고 \`correct\`만 보기 그대로 넣고, \`reason\`에는 **왜 맞는지만**; **틀린 보기만** \`wrong\`≠\`correct\`로 두고 \`reason\`에 **왜 틀렸는지·왜 교정이 맞는지**까지 쓰세요. JSON 예: \`{ "num": "①", "wrong": "...", "correct": "...", "reason": "..." }\` — **\`reason\`은 필수**이며 **중학교 3학년이 처음 봐도 이해될 만큼 쉬운 한국어**로 **~해요/~였어요체** 위주 **3~6문장**으로 쓰세요. **영어 문법 전문 용어(예: comma splice, 콤마 스플라이스, fused sentence 등)만 던지지 말고**, 꼭 필요하면 **바로 아래에 비유나 풀어 쓴 설명**을 붙이세요(예: "쉼표(,)는 '그리고' 정도로만 이어 줄 때 쓰는데, 앞이 이미 **완전한 문장**이면 뒤에 또 **완전한 문장**을 쉼표 하나로 붙이면 두 문장이 안으로 묶이지 않아요"처럼). **왜 틀렸는지**, **왜 \`correct\`가 맞는지**를 **앞 문장·뒤 문장이 서로 어떻게 연결되는지**(무엇을 가리키는지, 뒤 절이 앞의 어떤 말을 꾸며 주는지)까지 짚어 주세요. 단순 번역만 금지. \`wrong\`/\`correct\`는 짧게, 근거는 \`reason\`에만 풀어 쓰세요. **full_translation의 각 eng는 교정된 최종 문장(평문, HTML 없음)**으로 두고, **단어 사이 공백은 반드시 보통 한 칸만**(연속 공백·이상 공백 금지), **kor은 교정된 문장 기준 해석**. **문장 나열 순서는 원본 지문과 동일**하게 유지하세요.
       · **normal_clean**: 안내문·표·실용문 등 위 유형에 딱 맞지 않으면. \`bulleted_lines\`: 줄 단위 문자열 배열(불렛으로 보여줄 각 줄).
       · **normal**: 위 특이 구조가 없을 때. \`full_translation\`은 **입력에 나온 문장 순서 그대로** 유지하세요.
     - **장문 독해**: 문단이 많고 길면 \`paragraph_subtitles\`에 \`[{ "row_index": 0, "subtitle": "한 줄 소제목" }, ...]\` 형태로 \`full_translation\` **행 인덱스(0부터)**와 맞추거나, 각 \`full_translation\` 객체에 선택 필드 \`"subtitle"\`을 넣어도 됩니다.
