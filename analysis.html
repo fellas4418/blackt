@@ -151,18 +151,24 @@
             flex: none;
         }
         .passage-toggle-btn {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(200, 210, 220, 0.45);
-            color: #c8cdd4;
+            background: rgba(40, 52, 48, 0.75);
+            border: 1px solid rgba(130, 210, 160, 0.55);
+            color: #e4f0ea;
             padding: 8px 14px;
             border-radius: 999px;
             font-size: 0.82rem;
             font-weight: 700;
             cursor: pointer;
             white-space: nowrap;
-            transition: border-color 0.15s, color 0.15s, background 0.15s;
+            transition: border-color 0.15s, color 0.15s, background 0.15s, box-shadow 0.15s;
+            box-shadow: 0 0 0 1px rgba(57, 255, 20, 0.08);
         }
-        .passage-toggle-btn:hover { border-color: rgba(220, 228, 236, 0.65); color: #fff; }
+        .passage-toggle-btn:hover {
+            border-color: rgba(159, 232, 112, 0.8);
+            color: #fff;
+            background: rgba(57, 255, 20, 0.12);
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.12);
+        }
         .passage-toggle-btn.is-on {
             border-color: rgba(159, 232, 112, 0.85);
             color: #e8ffd0;
@@ -4236,7 +4242,7 @@
                     : '';
             const hasGrammarPoints = res.grammar && res.grammar.length > 0;
             const passageGrammarHint = hasGrammarPoints
-                ? '<p class="passage-grammar-click-hint" role="note">보라색 <span class="grammar-badge grammar-badge-sample" aria-hidden="true">G1 ↓</span> 또는 밑줄 구문을 누르면 아래 문법 설명으로 이동해요</p>'
+                ? '<p class="passage-grammar-click-hint" role="note"><span class="grammar-badge grammar-badge-sample" aria-hidden="true">G1 ↓</span> 또는 밑줄 문장을 누르면 아래 문법 설명으로 이동해요</p>'
                 : '';
             const passageInteractionHints =
                 '<div class="passage-interaction-hints">' +
