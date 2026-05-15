@@ -605,73 +605,15 @@
             border-radius: 0 8px 8px 0;
         }
 
-        .analysis-main-settings-hint {
-            font-size: 0.86rem;
-            color: #9aa;
-            margin: 0 0 12px;
-            line-height: 1.55;
-            max-width: 720px;
-        }
-        .analysis-context-strip {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px 12px;
-            margin: 0 0 12px;
-            padding: 10px 12px;
-            border-radius: 10px;
-            border: 1px solid rgba(0, 243, 255, 0.28);
-            background: rgba(0, 243, 255, 0.07);
-            box-sizing: border-box;
-        }
-        .analysis-context-strip-label {
-            font-size: 0.9rem;
-            color: #e8f4ff;
-            font-weight: 700;
-            flex: 1;
-            min-width: 0;
-            line-height: 1.45;
+        .analysis-nav-settings-row {
+            margin: 0 0 14px;
         }
         .analysis-context-strip-link {
-            flex-shrink: 0;
             font-size: 0.82rem;
             color: var(--neon-blue);
             text-decoration: underline;
             font-weight: 800;
             white-space: nowrap;
-        }
-        .passage-tab-context-hint {
-            margin-top: 12px;
-            padding: 10px 12px;
-            border-radius: 10px;
-            border: 1px solid rgba(159, 232, 112, 0.28);
-            background: rgba(159, 232, 112, 0.07);
-            font-size: 0.82rem;
-            color: #b9d4bf;
-            line-height: 1.55;
-        }
-        .passage-tab-context-hint-title {
-            font-weight: 800;
-            color: #9fe870;
-            margin-bottom: 6px;
-            font-size: 0.88rem;
-        }
-        .exam-tab-context-hint {
-            margin-bottom: 14px;
-            padding: 10px 12px;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 154, 92, 0.35);
-            background: rgba(255, 120, 80, 0.08);
-            font-size: 0.82rem;
-            color: #e8d8cf;
-            line-height: 1.55;
-        }
-        .exam-tab-context-hint-title {
-            font-weight: 800;
-            color: #ff9a5c;
-            margin-bottom: 6px;
-            font-size: 0.88rem;
         }
 
         .analysis-page-split.analysis-main-tabs-wrap {
@@ -980,8 +922,10 @@
             <div onclick="location.href='index.html?tab=analysis'" style="color: var(--neon-blue); cursor: pointer;">← 분석 설정으로 돌아가기</div>
             <button onclick="showNoteModal('grammar')" style="background: rgba(255,255,255,0.05); border: 1px solid #666; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight:bold;">⭐ 내 학습 노트</button>
         </div>
-        <h3 id="info-header" style="color: #fff; margin-bottom: 15px;">AI 지문 정밀 분석</h3>
-        <p class="analysis-main-settings-hint">아래 분석은 <strong>학년</strong>과 <strong>이번에 주로 쓸 시험 맥락</strong>을 <strong>분석 설정(메인)</strong>에서 고른 값을 기본으로 써요.</p>
+        <h3 id="info-header" style="color: #fff; margin-bottom: 6px;">AI 지문 정밀 분석</h3>
+        <div class="analysis-nav-settings-row">
+            <a class="analysis-context-strip-link" href="index.html?tab=analysis">설정 바꾸기</a>
+        </div>
     </div>
 
     <div id="word-popup"></div>
@@ -999,10 +943,6 @@
     </div>
 
     <div id="analysis-page-split" class="analysis-page-split analysis-main-tabs-wrap">
-        <div id="analysis-context-strip" class="analysis-context-strip" role="status">
-            <span id="analysis-context-strip-label" class="analysis-context-strip-label"></span>
-            <a class="analysis-context-strip-link" href="index.html?tab=analysis">설정 바꾸기</a>
-        </div>
         <div class="analysis-main-tabs" role="tablist" aria-label="분석 유형 선택">
             <button type="button" id="analysis-tab-btn-passage" class="analysis-main-tab passage-tab is-active" role="tab" aria-selected="true" aria-controls="analysis-tab-panel-passage" onclick="switchAnalysisMainTab('passage')">지문 분석</button>
             <button type="button" id="analysis-tab-btn-exam" class="analysis-main-tab exam-tab" role="tab" aria-selected="false" aria-controls="analysis-tab-panel-exam" onclick="switchAnalysisMainTab('exam')">시험 분석</button>
@@ -1026,10 +966,6 @@
                         class="passage-title-confirm-btn">확인</button>
             </div>
             <p class="passage-source-hint">* 미입력 시 카테고리와 AI 요약 제목이 기본 적용됩니다.</p>
-            <div class="passage-tab-context-hint">
-                <div class="passage-tab-context-hint-title">지문용 시험·유형</div>
-                <p style="margin:0;">위 <strong>맥락 띠</strong>에 보이는 메인 설정값이 그대로 적용돼요. 여기서는 <strong>지문 출처(교재·단원 등)</strong>만 적어 주세요. 학년·시험 맥락을 바꾸려면 <a class="analysis-context-strip-link" style="display:inline;white-space:normal;" href="index.html?tab=analysis">설정 바꾸기</a>로 돌아가 주세요.</p>
-            </div>
         </div>
         <div class="analysis-zone-body">
     <div id="input-section">
@@ -1104,10 +1040,6 @@
         <div class="analysis-zone-body">
 
     <div id="exam-report-workspace" style="display:block; margin-top:0;">
-        <div class="exam-tab-context-hint">
-            <div class="exam-tab-context-hint-title">시험 분석용 시험 설정</div>
-            <p style="margin:0;">먼저 <strong>시험지 사진</strong>을 올리고, 아래 <strong>시험 분석용 시험 종류</strong>는 메인 맥락을 기본으로 두고 필요할 때만 다시 고르면 돼요. 맥락을 바꾸려면 <a class="analysis-context-strip-link" style="display:inline;white-space:normal;" href="index.html?tab=analysis">설정 바꾸기</a>를 눌러 주세요.</p>
-        </div>
         <div class="exam-rpt-plain exam-rpt-plain--photo">
             <span class="result-label">시험지 사진</span>
             <input type="file" id="exam-rpt-files" accept="image/*" multiple style="display:none;">
@@ -1380,11 +1312,21 @@
         const params = new URLSearchParams(window.location.search);
         const workerOverride = (params.get('worker') || '').trim();
         const WORKER_URL = (workerOverride ? workerOverride.replace(/\/$/, '') + '/' : 'https://trigger-ocr-api.ohryee.workers.dev/');
-        const info = `${params.get('grade') || ''} ${params.get('type') || ''} ${params.get('detail') || ''}`;
-        const infoTrim = info.replace(/\s+/g, ' ').trim();
+        function buildAnalysisContextTrim(searchParams) {
+            const parts = ['grade', 'type', 'detail'].map(function (k) {
+                return String(searchParams.get(k) || '').trim();
+            }).filter(function (p) {
+                if (!p) return false;
+                if (p === '--' || p === '—' || p === '-') return false;
+                if (/^[\s\-–—·.]+$/.test(p)) return false;
+                return true;
+            });
+            let s = parts.join(' ').replace(/\s+/g, ' ').trim();
+            s = s.replace(/\s*[-–—]{2,}\s*/g, ' ').replace(/\s+/g, ' ').trim();
+            return s;
+        }
+        const infoTrim = buildAnalysisContextTrim(params);
         document.getElementById('info-header').innerText = infoTrim ? infoTrim + ' 분석' : 'AI 지문 정밀 분석';
-        const stripLab = document.getElementById('analysis-context-strip-label');
-        if (stripLab) stripLab.textContent = infoTrim ? infoTrim + ' · 기본 시험 맥락' : '맥락 미설정 — 분석 설정에서 학년·시험을 선택해 주세요';
 
         let selectedBase64 = "";
         let currentNoteTab = 'grammar';

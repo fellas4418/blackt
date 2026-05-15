@@ -321,7 +321,9 @@
                         <option value="고1">고등학교 1학년</option>
                         <option value="고2">고등학교 2학년</option>
                         <option value="고3">고등학교 3학년</option>
-                        <option value="중등">중학교 (전학년)</option>
+                        <option value="중1">중학교 1학년</option>
+                        <option value="중2">중학교 2학년</option>
+                        <option value="중3">중학교 3학년</option>
                     </select>
                 </div>
         
@@ -1278,13 +1280,16 @@
     tryRestoreLoginState();
     handleKakaoAndInstall();
 
-    // 🔥 저장된 학년 불러와서 자동 세팅
-    const savedGrade = localStorage.getItem('trigger_saved_exam_grade');
-    if (savedGrade) {
-        const gradeSelect = document.getElementById('exam-grade');
-        if (gradeSelect) {
-            gradeSelect.value = savedGrade;
+    // 🔥 저장된 학년 불러와서 자동 세팅 (예전 "중등" → 중2로 이전)
+    const gradeSelect = document.getElementById('exam-grade');
+    if (gradeSelect) {
+        let g = (localStorage.getItem('trigger_saved_exam_grade') || '').trim();
+        if (g === '중등') {
+            g = '중2';
+            localStorage.setItem('trigger_saved_exam_grade', '중2');
         }
+        const valid = Array.from(gradeSelect.options).some(function (o) { return o.value === g; });
+        if (g && valid) gradeSelect.value = g;
     }
 });
 
