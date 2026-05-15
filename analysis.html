@@ -1272,16 +1272,73 @@
             'well', 'then', 'again', 'first', 'last', 'next', 'please', 'thanks', 'thank', 'sorry'
         ]);
 
-        /** 의미상 중요한 접속부사/전개 표현은 단어장에 숙어 한 줄로 유지 */
-        const IMPORTANT_CONNECTIVE_PHRASES = new Set([
+        /** 지문에 나오면 단어 리스트에 숙어 한 줄로 넣을 표현 (긴 것부터 매칭용 정렬은 supplement에서 처리) */
+        const IMPORTANT_CONNECTIVE_PHRASES = [
+            'on the other hand',
+            'as a result',
+            'for example',
+            'for instance',
+            'in other words',
+            'at any rate',
+            'by contrast',
+            'in contrast',
+            'in addition',
+            'in particular',
+            'in general',
+            'in short',
+            'in fact',
+            'in case',
+            'in turn',
+            'in spite',
+            'in order',
+            'on the whole',
+            'on average',
+            'at least',
+            'at best',
+            'at most',
+            'at all',
+            'at once',
+            'at first',
+            'at last',
+            'after all',
             'as well',
-            'after all'
-        ]);
+            'of course',
+            'as usual'
+        ];
+        const IMPORTANT_CONNECTIVE_PHRASE_SET = new Set(IMPORTANT_CONNECTIVE_PHRASES);
 
-        /** AI/DB에 없을 때 단어 리스트에 넣을 기본 뜻 (지문에 실제 등장할 때만 보충) */
+        /** AI/DB에 없을 때 단어 리스트 기본 뜻 (지문에 실제 등장할 때만) */
         const IMPORTANT_CONNECTIVE_PHRASE_MEANINGS = {
+            'on the other hand': '반면에, 한편으로는',
+            'as a result': '그 결과, 결과적으로',
+            'for example': '예를 들어',
+            'for instance': '예를 들어',
+            'in other words': '다시 말해, 즉',
+            'at any rate': '어쨌든, 아무튼',
+            'by contrast': '대조적으로',
+            'in contrast': '대조적으로, 반면에',
+            'in addition': '게다가, 더하여',
+            'in particular': '특히',
+            'in general': '일반적으로',
+            'in short': '요약하면, 간단히 말해',
+            'in fact': '사실은, 실제로',
+            'in case': '~할 경우에 대비해',
+            'in turn': '차례로, 결국',
+            'in spite': '~에도 불구하고 (of 생략 시 문맥)',
+            'in order': '~하기 위해 (to 생략 시 문맥)',
+            'on the whole': '전반적으로',
+            'on average': '평균적으로',
+            'at least': '적어도, 최소한',
+            'at best': '기껏해야, 좋아야',
+            'at most': '기껏해야, 많아야',
+            'at all': '전혀, 조금도 (부정과 함께)',
+            'at once': '즉시, 동시에',
+            'at first': '처음에',
+            'at last': '마침내, 드디어',
             'after all': '결국, 역시',
-            'as well': '또한, 역시, ~도 마찬가지로'
+            'as well': '또한, ~도 마찬가지로',
+            'of course': '물론',
+            'as usual': '늘 그렇듯, 평소처럼'
         };
 
         /** 지문(소문자)에서 어절 경계 기준으로 구문이 있는지 */
@@ -1303,7 +1360,11 @@
                 const dbPhrase = findWordInDB(phrase.replace(/\s+/g, ' '));
                 let kor = dbPhrase && dbPhrase.kor ? dbPhrase.kor : '';
                 if (!kor || kor === 'undefined') kor = IMPORTANT_CONNECTIVE_PHRASE_MEANINGS[phraseSeenKey] || '';
-                if (!kor || kor === 'undefined') return;
+                if (!kor || kor === 'undefined') {
+                    const resolved = resolveWordMeaningSync(phraseSeenKey);
+                    if (resolved && resolved.mean) kor = resolved.mean;
+                }
+                if (!kor || kor === 'undefined') kor = '…';
                 processedKeywords.push({
                     eng: phraseSeenKey,
                     kor: String(kor).trim(),
@@ -1928,7 +1989,7 @@
             if (!engWords || engWords.length < 2) return false;
             if (hasDbPhrase) return true;
             const normalizedPhrase = String(cleanPhrase || '').replace(/\s+/g, ' ').trim().toLowerCase();
-            if (IMPORTANT_CONNECTIVE_PHRASES.has(normalizedPhrase)) return true;
+            if (IMPORTANT_CONNECTIVE_PHRASE_SET.has(normalizedPhrase)) return true;
             const cleaned = engWords.map(w => String(w || '').replace(/[^a-z-]/g, '').toLowerCase()).filter(Boolean);
             const articleSet = new Set(['a', 'an', 'the']);
             if (cleaned.some(t => articleSet.has(t))) return true;
@@ -2060,7 +2121,7 @@
 
         function formatMeaningsDisplay(meanings) {
             const list = normalizeMeaningsList(meanings);
-            return list.length ? list.join('; ') : '';
+            return list.length ? list.join(', ') : '';
         }
 
         function findWordInDBByStems(lemma) {
@@ -2189,6 +2250,7 @@
             });
 
             supplementImportantConnectivePhrasesFromPassage(passagePlain, processedKeywords, seenWords);
+            /* 숙어는 단어 슬롯을 먼저 채우지 않도록, 구문 보충 후 정렬·상한 적용 */
 
             processedKeywords.sort((a, b) => {
                 const da = a._ordA !== undefined ? a._ordA : 999999;
@@ -2511,6 +2573,31 @@
                 btn.innerText = "전체 단어 보기 ▼";
             }
         }
+
+        const GRAMMAR_PREVIEW_VISIBLE = 2;
+
+        function ensureGrammarListExpandedForIndex(index) {
+            if (index < GRAMMAR_PREVIEW_VISIBLE) return;
+            const body = document.getElementById('grammar-list-body');
+            const btn = document.getElementById('grammar-list-toggle-btn');
+            if (!body) return;
+            if (body.style.display === 'none' || body.style.display === '') {
+                body.style.display = 'block';
+                if (btn) btn.textContent = '문법 포인트 접기 ▲';
+            }
+        }
+
+        window.scrollToGrammarPoint = function (index) {
+            const i = Number(index);
+            if (!Number.isFinite(i) || i < 0) return;
+            ensureGrammarListExpandedForIndex(i);
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                    const el = document.getElementById('grammar-box-' + i);
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                });
+            });
+        };
 
         function toggleGrammarPointList() {
             const body = document.getElementById('grammar-list-body');
@@ -3844,7 +3931,6 @@
 
             let grammarHtml = '';
             let grammarListWrap = '';
-            const GRAMMAR_PREVIEW_VISIBLE = 2;
             let savedGrammarList = savedGrammarCache;
             if (res.grammar && res.grammar.length > 0) {
                 const grammarBoxes = res.grammar.map((g, i) => {
@@ -3930,7 +4016,7 @@
                                     const startIdx = lowerFinal.indexOf(lowerGSent);
                                     const actualMatch = finalEng.substring(startIdx, startIdx + gSentNorm.length);
                                     
-                                    grammarMarks += `<span class="grammar-badge" onclick="document.getElementById('grammar-box-${i}').scrollIntoView({behavior:'smooth', block:'center'})" title="${String(g.point || '').replace(/"/g, '&quot;')}">G${i+1}</span>`;
+                                    grammarMarks += `<span class="grammar-badge" onclick="scrollToGrammarPoint(${i})" title="${String(g.point || '').replace(/"/g, '&quot;')}">G${i+1}</span>`;
                                     
                                     finalEng = finalEng.substring(0, startIdx) + 
                                                `<span class="hl-grammar">${actualMatch}</span>` + 
@@ -3939,7 +4025,7 @@
                                     const normFinal = lowerFinal.replace(/[^a-z0-9]/g, '');
                                     const normG = lowerGSent.replace(/[^a-z0-9]/g, '');
                                     if (normFinal.includes(normG)) {
-                                        grammarMarks += `<span class="grammar-badge" onclick="document.getElementById('grammar-box-${i}').scrollIntoView({behavior:'smooth', block:'center'})" title="${String(g.point || '').replace(/"/g, '&quot;')}">G${i+1}</span>`;
+                                        grammarMarks += `<span class="grammar-badge" onclick="scrollToGrammarPoint(${i})" title="${String(g.point || '').replace(/"/g, '&quot;')}">G${i+1}</span>`;
                                         finalEng = `<span class="hl-grammar">${finalEng}</span>`;
                                     }
                                 }
