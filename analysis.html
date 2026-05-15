@@ -285,6 +285,17 @@
         }
         .clickable-word:hover { color: var(--neon-green); }
         .hl-voca { color: var(--neon-green); font-weight: 600; }
+
+        .hl-grammar {
+            display: inline;
+            background-image: linear-gradient(rgba(181, 55, 242, 0.85), rgba(181, 55, 242, 0.85));
+            background-position: 0 100%;
+            background-repeat: no-repeat;
+            background-size: 100% 2px;
+            padding-bottom: 3px;
+            pointer-events: none;
+            cursor: default;
+        }
         
         .grammar-badge { background:#bc13fe; color:#fff; border-radius:4px; padding:2px 6px; font-size:0.75rem; font-weight:bold; cursor:pointer; margin-left: 6px; vertical-align: middle; transition: 0.2s; box-shadow: 0 0 5px rgba(181, 55, 242, 0.5); position: relative; z-index: 10; -webkit-tap-highlight-color: transparent; white-space: nowrap; display: inline-block; }
         .grammar-badge:hover,
@@ -319,6 +330,9 @@
             cursor: pointer;
         }
         .grammar-list-toggle-btn:hover { background: rgba(188, 19, 254, 0.1); }
+        #grammar-list-body.grammar-list-body--collapsed {
+            display: none !important;
+        }
         .gk-topic-hint { font-size: 0.88rem; color: #c8cdd4; margin: 0 0 0.55em; line-height: 1.55; }
         .gk-topic-hint:last-of-type { margin-bottom: 0; }
         .gk-topic-summary-title { font-size: 1.08rem; color: #ffe082; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.02em; }
@@ -2664,22 +2678,20 @@
         function isGrammarListBodyHidden() {
             const body = document.getElementById('grammar-list-body');
             if (!body) return true;
-            return body.style.display === 'none' || body.style.display === '';
+            return body.classList.contains('grammar-list-body--collapsed');
         }
 
-        function syncGrammarToggleButtons(expanded) {
+        function syncGrammarToggleButton(expanded) {
             const label = expanded ? '문법 포인트 접기 ▲' : '문법 포인트 펼치기 ▼';
-            ['grammar-list-toggle-btn', 'grammar-list-toggle-btn-bottom'].forEach(function (id) {
-                const btn = document.getElementById(id);
-                if (btn) btn.textContent = label;
-            });
+            const btn = document.getElementById('grammar-list-toggle-btn');
+            if (btn) btn.textContent = label;
         }
 
         function setGrammarListExpanded(expanded) {
             const body = document.getElementById('grammar-list-body');
             if (!body) return;
-            body.style.display = expanded ? 'block' : 'none';
-            syncGrammarToggleButtons(expanded);
+            body.classList.toggle('grammar-list-body--collapsed', !expanded);
+            syncGrammarToggleButton(expanded);
         }
 
         function ensureGrammarListExpandedForIndex(index) {
@@ -2930,7 +2942,7 @@
                     wrapper.innerHTML = html;
                     node.replaceWith.apply(node, Array.from(wrapper.childNodes));
                 } else if (node.nodeType === 1) {
-                    if (node.classList && node.classList.contains('grammar-badge')) return;
+                    if (node.classList && (node.classList.contains('grammar-badge') || node.classList.contains('hl-grammar'))) return;
                     if (node.tagName === 'DEL') return;
                     Array.from(node.childNodes).forEach(makeTextNodesClickable);
                 }
@@ -4097,10 +4109,9 @@
                     grammarListWrap =
                         grammarBoxes.slice(0, GRAMMAR_PREVIEW_VISIBLE).join('') +
                         '<button type="button" id="grammar-list-toggle-btn" class="grammar-list-toggle-btn" onclick="toggleGrammarPointList()">문법 포인트 펼치기 ▼</button>' +
-                        '<div id="grammar-list-body" style="display:none;margin-top:12px;">' +
+                        '<div id="grammar-list-body" class="grammar-list-body--collapsed" style="margin-top:12px;">' +
                         grammarBoxes.slice(GRAMMAR_PREVIEW_VISIBLE).join('') +
-                        '</div>' +
-                        '<button type="button" id="grammar-list-toggle-btn-bottom" class="grammar-list-toggle-btn" style="margin-top:12px;" onclick="toggleGrammarPointList()">문법 포인트 펼치기 ▼</button>';
+                        '</div>';
                 } else {
                     grammarListWrap = grammarHtml;
                 }
@@ -4156,7 +4167,15 @@
                                 const lowerGSent = gSentNorm.toLowerCase();
                                 
                                 if (lowerFinal.includes(lowerGSent)) {
+                                    const startIdx = lowerFinal.indexOf(lowerGSent);
+                                    const actualMatch = finalEng.substring(startIdx, startIdx + gSentNorm.length);
                                     grammarMarks += grammarBadgeHtml(i, g.point);
+                                    finalEng =
+                                        finalEng.substring(0, startIdx) +
+                                        '<span class="hl-grammar">' +
+                                        actualMatch +
+                                        '</span>' +
+                                        finalEng.substring(startIdx + gSentNorm.length);
                                 } else {
                                     const normFinal = lowerFinal.replace(/[^a-z0-9]/g, '');
                                     const normG = lowerGSent.replace(/[^a-z0-9]/g, '');
