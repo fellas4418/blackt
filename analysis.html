@@ -98,33 +98,41 @@
             pointer-events: none;
             user-select: none;
         }
-        #analysis-passage-zone #ai-report-area > .passage-interaction-hints {
-            margin: 0 0 10px 0;
-            padding: 0;
+        .passage-top-block {
+            margin: 0 0 0 0;
+            padding: 0 5px;
             box-sizing: border-box;
         }
-        #analysis-passage-zone #ai-report-area .passage-word-click-hint,
-        #analysis-passage-zone #ai-report-area .passage-grammar-click-hint {
+        .passage-guide-list {
+            list-style: none;
             margin: 0;
             padding: 0;
-            text-align: left;
-            font-size: calc(1.1rem * 0.9);
+        }
+        .passage-guide-line {
+            margin: 0 0 8px 0;
+            padding: 0;
+            font-size: 0.9rem;
             font-weight: 500;
-            line-height: 1.45;
+            line-height: 1.55;
             letter-spacing: -0.02em;
+            color: #b4bec8;
+            text-align: left;
         }
-        #analysis-passage-zone #ai-report-area .passage-word-click-hint { color: #7d9a8c; }
-        #analysis-passage-zone #ai-report-area .passage-grammar-click-hint {
-            color: #a67bc8;
-            margin-top: 4px;
+        .passage-guide-line:last-child {
+            margin-bottom: 0;
         }
-        #analysis-passage-zone #ai-report-area .grammar-badge-sample {
+        .passage-top-block .passage-guide-list {
+            margin-bottom: 12px;
+        }
+        .passage-top-block .grammar-badge-sample {
             cursor: default;
             margin-left: 2px;
             margin-right: 2px;
             vertical-align: baseline;
             pointer-events: none;
             box-shadow: none;
+            font-size: 0.72rem;
+            padding: 2px 5px;
         }
         .translation-card-toolbar {
             display: flex;
@@ -292,7 +300,7 @@
 
         .hl-grammar {
             display: inline;
-            background-image: linear-gradient(rgba(168, 120, 200, 0.78), rgba(168, 120, 200, 0.78));
+            background-image: linear-gradient(rgba(168, 120, 200, 0.82), rgba(168, 120, 200, 0.82));
             background-position: 0 100%;
             background-repeat: no-repeat;
             background-size: 100% 1.5px;
@@ -610,7 +618,7 @@
             min-width: 0;
             height: auto;
         }
-        .passage-layout-block {
+        .passage-top-block .passage-layout-block {
             margin: 0 0 12px 0;
             padding: 0;
             box-sizing: border-box;
@@ -618,8 +626,8 @@
         .passage-type-chip {
             display: flex;
             flex-wrap: wrap;
-            align-items: baseline;
-            gap: 10px 12px;
+            align-items: center;
+            gap: 0 12px;
             margin: 0;
             padding: 12px 14px 12px 16px;
             line-height: 1.55;
@@ -627,6 +635,14 @@
             background: rgba(0, 243, 255, 0.09);
             border: 1px solid rgba(0, 243, 255, 0.24);
             box-sizing: border-box;
+        }
+        .passage-type-chip-vdiv {
+            width: 1px;
+            align-self: stretch;
+            min-height: 1.15em;
+            margin: 2px 0;
+            background: rgba(0, 243, 255, 0.38);
+            flex-shrink: 0;
         }
         .passage-type-chip-label {
             font-size: 1.08rem;
@@ -640,6 +656,8 @@
             font-weight: 800;
             color: #f0fbff;
             letter-spacing: -0.02em;
+            flex: 1 1 auto;
+            min-width: 0;
         }
         .passage-layout-extra {
             margin-top: 12px;
@@ -3978,6 +3996,7 @@
             const typeChipHtml =
                 '<div class="passage-type-chip">' +
                 '<span class="passage-type-chip-label">문제 유형</span>' +
+                '<span class="passage-type-chip-vdiv" aria-hidden="true"></span>' +
                 '<span class="passage-type-chip-value">' +
                 escapeHtml(typeLabel) +
                 '</span></div>';
@@ -4257,13 +4276,18 @@
                     ? '<button type="button" class="passage-toggle-btn" id="btn-passage-kw-toggle" aria-pressed="false" onclick="togglePassageKeywordHighlight(this)">키워드 보기</button>'
                     : '';
             const hasGrammarPoints = res.grammar && res.grammar.length > 0;
-            const passageGrammarHint = hasGrammarPoints
-                ? '<p class="passage-grammar-click-hint" role="note"><span class="grammar-badge grammar-badge-sample" aria-hidden="true">G1 ↓</span>를 누르면 아래 문법 설명으로 이동해요</p>'
-                : '';
-            const passageInteractionHints =
-                '<div class="passage-interaction-hints">' +
-                '<p class="passage-word-click-hint" role="note">단어를 클릭하면 뜻을 볼 수 있어요</p>' +
-                passageGrammarHint +
+            let passageGuideItems =
+                '<li class="passage-guide-line">단어를 클릭하면 뜻을 볼 수 있어요</li>';
+            if (hasGrammarPoints) {
+                passageGuideItems +=
+                    '<li class="passage-guide-line"><span class="grammar-badge grammar-badge-sample" aria-hidden="true">G1 ↓</span>를 누르면 아래 문법 설명으로 이동해요</li>';
+            }
+            const passageTopBlock =
+                '<div class="passage-top-block">' +
+                '<ul class="passage-guide-list" role="note">' +
+                passageGuideItems +
+                '</ul>' +
+                passageLayoutCardHtml +
                 '</div>';
             const translationCardHtml =
                 '<div class="result-card translation-passage-card">' +
@@ -4283,8 +4307,7 @@
             const goldenKeyHtml = buildGoldenKeySectionHtml(res, goldenKeyReveal, aiKeywordsObj);
 
             document.getElementById('ai-report-area').innerHTML = `
-                ${passageInteractionHints}
-                ${passageLayoutCardHtml}
+                ${passageTopBlock}
                 ${translationCardHtml}
                 <div class="result-card" style="border-color: #bc13fe;"><span class="result-label" style="color:#bc13fe;">🛠️ 트리거 팀의 문법 포인트 <span style="font-size:0.82em;font-weight:500;color:#b88fd4;">(지문 G1·G2와 연결)</span></span><div class="result-content">${grammarListWrap}</div></div>
                 <div class="result-card"><span class="result-label keyword-list-heading-label" style="color:#ff0055;"><span class="keyword-list-heading-row"><span class="keyword-list-heading-icon" aria-hidden="true">📚</span><span class="keyword-list-heading-main">주요 단어 리스트<br><span class="keyword-list-heading-sub">(내 학습 노트에 저장)</span></span></span></span><div id="passage-keyword-panel" class="result-content">${keywordHtml}</div></div>
