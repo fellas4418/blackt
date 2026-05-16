@@ -4180,27 +4180,8 @@
                             listEl.innerHTML = '<div style="color:#888;padding:12px;">아직 저장된 질문이 없어요.</div>';
                             return;
                         }
-                        listEl.innerHTML = items
-                            .map(function (row) {
-                                const qq = escapeHtml(String(row.question || ''));
-                                const aa = escapeHtml(String(row.answer || ''));
-                                const when = escapeHtml(String(row.created_at || ''));
-                                return (
-                                    '<div style="border-bottom:1px solid #2a2a2a;padding:12px 0;">' +
-                                    '<div style="font-size:0.72rem;color:#888;margin-bottom:4px;">' +
-                                    when +
-                                    '</div>' +
-                                    '<div style="color:#9fe870;margin-bottom:6px;font-weight:bold;">Q</div>' +
-                                    '<div style="white-space:pre-wrap;margin-bottom:8px;">' +
-                                    qq +
-                                    '</div>' +
-                                    '<div style="color:#39ff14;margin-bottom:6px;font-weight:bold;">A</div>' +
-                                    '<div style="white-space:pre-wrap;color:#ccc;">' +
-                                    aa +
-                                    '</div></div>'
-                                );
-                            })
-                            .join('');
+                        listEl.innerHTML = renderChatHistoryListHtml(items);
+
                     } catch (e) {
                         listEl.innerHTML =
                             '<div style="color:#f88;padding:12px;">' +
