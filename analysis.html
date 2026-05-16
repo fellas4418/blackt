@@ -673,6 +673,43 @@
             transition: box-shadow 0.15s, background-color 0.15s;
         }
         .translation-row.sentence-pick-selected { box-shadow: 0 0 0 2px var(--neon-blue); background: rgba(0,243,255,0.08); }
+        #btn-sentence-pick-done { display: none !important; }
+        .sentence-pick-confirm-bar {
+            display: none;
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 24000;
+            padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+            box-sizing: border-box;
+            background: rgba(8, 10, 12, 0.96);
+            border-top: 1px solid rgba(159, 232, 112, 0.45);
+            box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.55);
+            flex-direction: column;
+            align-items: stretch;
+            gap: 8px;
+        }
+        .sentence-pick-confirm-bar.is-visible {
+            display: flex;
+        }
+        .sentence-pick-confirm-bar .sentence-pick-confirm-preview {
+            margin: 0;
+            font-size: 0.8rem;
+            line-height: 1.45;
+            color: #9fe870;
+            text-align: left;
+            max-height: 2.9em;
+            overflow: hidden;
+        }
+        .sentence-pick-confirm-bar .sentence-pick-confirm-btn {
+            width: 100%;
+            margin: 0;
+            border-color: #9fe870;
+        }
+        #result-section.sentence-pick-mode.sentence-pick-has-selection .translation-passage-card {
+            padding-bottom: 96px;
+        }
         .gk-term-btn { background: #1a1a1a; border: 1px solid #555; color: #9fe870; padding: 4px 8px; border-radius: 6px; font-size: 0.82rem; cursor: pointer; }
         .gk-term-mean { font-size: 0.82rem; color: #9fd; }
 
@@ -1311,6 +1348,11 @@
     </div>
 
     <div id="word-popup"></div>
+
+    <div id="sentence-pick-confirm-bar" class="sentence-pick-confirm-bar" hidden aria-hidden="true">
+        <p id="sentence-pick-confirm-preview" class="sentence-pick-confirm-preview"></p>
+        <button type="button" id="btn-sentence-pick-confirm" class="start-btn sentence-pick-confirm-btn">확인</button>
+    </div>
 
     <div id="note-modal">
         <div class="modal-card">
@@ -4220,11 +4262,9 @@
             const box = document.getElementById('picked-sentence-preview');
             if (!box) return;
             if (window.sentencePickModeActive) {
-                const live = getSelectedSentencePlainFromDom();
-                box.style.display = 'block';
-                box.textContent = live
-                    ? '[선택 문장] ' + live
-                    : '[선택 문장] 아직 선택된 문장이 없어요. 해석 영역에서 궁금한 문장을 클릭해 주세요.';
+                box.style.display = 'none';
+                box.textContent = '';
+                updateSentencePickConfirmBar();
                 return;
             }
             if (confirmedChatContextSentence && confirmedChatContextSentence.trim()) {
@@ -4255,10 +4295,43 @@
             }, 60);
         }
 
+        function updateSentencePickConfirmBar() {
+            const bar = document.getElementById('sentence-pick-confirm-bar');
+            const preview = document.getElementById('sentence-pick-confirm-preview');
+            const rs = document.getElementById('result-section');
+            const picked = getSelectedSentencePlainFromDom();
+            const show = !!(window.sentencePickModeActive && picked);
+            if (rs) rs.classList.toggle('sentence-pick-has-selection', show);
+            if (!bar) return;
+            if (show) {
+                bar.hidden = false;
+                bar.classList.add('is-visible');
+                bar.setAttribute('aria-hidden', 'false');
+                if (preview) {
+                    const short = picked.length > 96 ? picked.slice(0, 96) + '…' : picked;
+                    preview.textContent = short;
+                }
+            } else {
+                bar.hidden = true;
+                bar.classList.remove('is-visible');
+                bar.setAttribute('aria-hidden', 'true');
+                if (preview) preview.textContent = '';
+            }
+        }
+
+        function confirmSentencePickAndFocusQuestion() {
+            confirmedChatContextSentence = getSelectedSentencePlainFromDom();
+            if (!confirmedChatContextSentence || !confirmedChatContextSentence.trim()) return;
+            exitSentencePickModeSilently();
+            focusAiAskQuestionInput();
+        }
+
         function exitSentencePickModeSilently() {
             window.sentencePickModeActive = false;
             const rs = document.getElementById('result-section');
-            if (rs) rs.classList.remove('sentence-pick-mode');
+            if (rs) {
+                rs.classList.remove('sentence-pick-mode', 'sentence-pick-has-selection');
+            }
             document.querySelectorAll('.translation-row.sentence-pick-selected').forEach(function (el) {
                 el.classList.remove('sentence-pick-selected');
             });
@@ -4269,6 +4342,7 @@
                 tb.textContent = '질문할 문장 선택';
             }
             if (dn) dn.style.display = 'none';
+            updateSentencePickConfirmBar();
             updateChatContextPreview();
         }
 
@@ -4302,7 +4376,10 @@
                     rs.querySelectorAll('.translation-row.sentence-pick-selected').forEach(function (el) {
                         el.classList.remove('sentence-pick-selected');
                     });
-                    if (!wasSelected) row.classList.add('sentence-pick-selected');
+                    if (!wasSelected) {
+                        row.classList.add('sentence-pick-selected');
+                    }
+                    updateSentencePickConfirmBar();
                     updateChatContextPreview();
                 });
             }
@@ -4318,18 +4395,20 @@
                     const sec = document.getElementById('result-section');
                     if (sec) sec.classList.add('sentence-pick-mode');
                     tgl.textContent = '선택 모드 취소';
-                    if (done) done.style.display = '';
+                    updateSentencePickConfirmBar();
                     updateChatContextPreview();
                     setTimeout(scrollToPassageForSentencePick, 80);
                 });
             }
+            const pickConfirm = document.getElementById('btn-sentence-pick-confirm');
+            if (pickConfirm) {
+                pickConfirm.addEventListener('click', function () {
+                    confirmSentencePickAndFocusQuestion();
+                });
+            }
             if (done) {
                 done.addEventListener('click', function () {
-                    confirmedChatContextSentence = getSelectedSentencePlainFromDom();
-                    exitSentencePickModeSilently();
-                    if (confirmedChatContextSentence && confirmedChatContextSentence.trim()) {
-                        focusAiAskQuestionInput();
-                    }
+                    confirmSentencePickAndFocusQuestion();
                 });
             }
             const sub = document.getElementById('ai-ask-submit');
