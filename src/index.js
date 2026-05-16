@@ -219,12 +219,12 @@ async function handlePaymentConfirm(env, request) {
   return json({ ok: true, user_id: userId, is_premium: 1 });
 }
 
-async function callGeminiChatSimple(env, fullPrompt) {
+async function callGeminiChatSimple(env, fullPrompt, maxOutputTokens = 2048) {
   const model = env.GEMINI_MODEL || "gemini-2.5-flash";
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`;
   const payload = {
     contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
-    generationConfig: { temperature: 0.35, maxOutputTokens: 512 },
+    generationConfig: { temperature: 0.35, maxOutputTokens },
   };
   const response = await fetch(endpoint, {
     method: "POST",
@@ -238,6 +238,48 @@ async function callGeminiChatSimple(env, fullPrompt) {
   const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!text) return { error: "empty_response" };
   return { text: String(text).trim() };
+}
+
+/** AI 질문 답변: 모델이 옛 형식(해석 라벨)을 쓴 경우만 보정 */
+function normalizeChatAnswer(raw) {
+  let t = String(raw || "").trim();
+  if (!t) return t;
+  t = t.replace(/1\)\s*해석\s*:/gi, "1) 답변:");
+  t = t.replace(/2\)\s*핵심문법\s*:/gi, "2) 핵심:");
+  t = t.replace(/2\)\s*출제포인트\s*:/gi, "2) 핵심:");
+  return t;
+}
+
+function buildChatAskPrompt(question, contextSentence) {
+  const base =
+    "역할: 대한민국 고등 영어 강사. 고3 수험생에게 ~요체로, 친절하고 명확하게 답합니다.\n" +
+    "금지: 지문·문장 통역만 하지 마세요. 라벨·본문에 「해석:」이라는 단어를 쓰지 마세요.\n" +
+    "반드시 아래 3줄 형식만 사용하고, 각 줄을 문장 중간에서 끊지 말고 끝까지 완성하세요.\n" +
+    "마크다운·코드블록 없이 일반 텍스트만 출력합니다.\n";
+
+  if (contextSentence) {
+    return (
+      base +
+      "상황: 학생이 지문에서 문장을 골라 질문했습니다. 그 문장 전체를 번역하는 것이 아니라, 질문한 표현·구조·뜻·용법에 답하세요.\n" +
+      "분량: 400~650자(공백 포함).\n" +
+      "형식:\n" +
+      "1) 답변: (질문에 대한 설명 2~4문장. 선택 문장에서 해당 표현이 어떤 역할인지)\n" +
+      "2) 이 문장에서: (선택 문장과 연결해 한 줄로 짚기)\n" +
+      "3) 예시: (영어 예문 1~2개 + 각 괄호 안 짧은 한국어 뜻)\n" +
+      `\n[선택된 지문 문장]\n${contextSentence}\n\n[학생 질문]\n${question}`
+    );
+  }
+
+  return (
+    base +
+    "상황: 지문 문장을 선택하지 않은 일반 문법·용법·개념 질문입니다. 문장 해석·번역 형식으로 답하지 마세요.\n" +
+    "분량: 400~650자(공백 포함).\n" +
+    "형식:\n" +
+    "1) 답변: (질문에 직접 답하는 개념·원리 설명 2~4문장)\n" +
+    "2) 핵심: (한 줄 요약)\n" +
+    "3) 예시: (영어 예문 1~2개 + 각 괄호 안 짧은 한국어 뜻)\n" +
+    `\n[학생 질문]\n${question}`
+  );
 }
 
 async function handleChatAsk(env, body) {
@@ -256,24 +298,11 @@ async function handleChatAsk(env, body) {
   if (!question) return json({ error: "question이 필요합니다." }, 400);
   if (question.length > 800) return json({ error: "question_too_long" }, 400);
 
-  const systemBlock =
-    "역할: 대한민국 고등 영어 강사. 고3 수능 3등급 이하 학생에게 말하듯 짧고 친절한 구어체(~요체)로 답합니다.\n" +
-    "분량: 전체 200자 내외(공백 포함 가깝게).\n" +
-    "반드시 아래 3단 구성으로만 답하세요. 각 줄 앞에 라벨을 붙입니다.\n" +
-    "1) 해석: (질문·문맥에 맞는 핵심 한두 문장)\n" +
-    "2) 핵심문법: (관련 규칙 한 줄)\n" +
-    "3) 출제포인트: (시험에서 어떻게 묻는지 한 줄)\n" +
-    "문장 맥락이 주어지면 그 문장을 우선 반영하고, 없으면 일반 영어·문법 질문으로 개념 설명 + 쉬운 예문을 1~2개 괄호 안에 짧게 넣어도 됩니다.\n" +
-    "마크다운·코드블록 없이 일반 텍스트만 출력합니다.";
-
-  const ctxBlock = contextSentence
-    ? `\n[선택된 지문 문장]\n${contextSentence}\n`
-    : "\n(지문 문장 미선택: 일반 질문으로 처리)\n";
-
-  const fullPrompt = `${systemBlock}${ctxBlock}\n[학생 질문]\n${question}`;
-
+  const fullPrompt = buildChatAskPrompt(question, contextSentence);
   const g = await callGeminiChatSimple(env, fullPrompt);
   if (g.error) return json({ error: g.error }, 500);
+
+  const answerText = normalizeChatAnswer(g.text);
 
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
@@ -284,13 +313,13 @@ async function handleChatAsk(env, body) {
     await env.DB.prepare(
       "INSERT INTO chat_history (id, user_id, question, answer, created_at) VALUES (?1, ?2, ?3, ?4, ?5)"
     )
-      .bind(id, userId, questionForDb, g.text, now)
+      .bind(id, userId, questionForDb, answerText, now)
       .run();
   } catch (dbErr) {
     console.error("chat_history insert failed:", dbErr?.message || dbErr);
   }
 
-  return json({ ok: true, answer: g.text, id });
+  return json({ ok: true, answer: answerText, id });
 }
 
 async function handleChatHistory(env, body) {

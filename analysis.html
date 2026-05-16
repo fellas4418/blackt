@@ -1222,7 +1222,7 @@
 
         <div id="premium-ai-ask-panel">
             <div class="premium-ai-ask-head">트리거 AI로 1:1 질문 해결</div>
-            <p class="premium-ai-ask-intro">지문·문법·단어 등 막히는 부분을 적어 주세요. 질문이 있는 문장을 선택하면 그 맥락 위주로, 선택하지 않으면 일반 질문에 답해 드려요. (약 200자·3단 구성)</p>
+            <p class="premium-ai-ask-intro">지문·문법·단어 등 막히는 부분을 적어 주세요. 문장을 선택하면 그 문장 맥락으로, 선택하지 않으면 일반 개념·예문으로 답해 드려요. (답변·핵심·예시)</p>
             <div class="premium-ai-ask-actions">
                 <button type="button" id="btn-sentence-pick-toggle" class="login-btn" style="margin:0;border-color:var(--neon-blue);color:var(--neon-blue);">질문할 문장 선택</button>
                 <button type="button" id="btn-sentence-pick-done" class="login-btn" style="margin:0;display:none;border-color:#9fe870;color:#9fe870;">선택 완료</button>
@@ -1995,11 +1995,20 @@
                 await new Promise(function (r) {
                     setTimeout(r, 450);
                 });
+                const ctx = String((body && body.context_sentence) || '').trim();
+                if (ctx) {
+                    return {
+                        answer:
+                            '1) 답변: (데모) 선택하신 문장 맥락에서 질문한 표현·용법을 설명하는 답이에요.\n' +
+                            '2) 이 문장에서: 데모 문장과 연결해 한 줄로 짚는 부분이에요.\n' +
+                            '3) 예시: (예) On the other hand, many students prefer math. (반면에 많은 학생은 수학을 선호해요.)'
+                    };
+                }
                 return {
                     answer:
-                        '1) 해석: (데모) 질문에 대한 예시 답변이에요. 실제 답은 워커 API가 연결된 뒤에 와요.\n' +
-                        '2) 핵심문법: 관계대명사·분사구문 등 지문에 맞는 요지만 여기 적혀요.\n' +
-                        '3) 출제포인트: 빈칸·순서·삽입에서 자주 묻는 유형을 한 줄로 짚어요.'
+                        '1) 답변: (데모) 문법·개념 질문에 대한 설명이에요. 문장 통역이 아닙니다.\n' +
+                        '2) 핵심: 한 줄로 요약하는 부분이에요.\n' +
+                        '3) 예시: (예) The book was read by Tom. (그 책은 톰에게 읽혔어요.)'
                 };
             }
             const res = await fetch(WORKER_URL.replace(/\/$/, '') + path, {
