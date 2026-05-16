@@ -15,6 +15,56 @@ function showSystemMessage(text) {
     if (meaningsEl) meaningsEl.innerHTML = "";
 }
 
+function stopStudyTimersAndSpeech() {
+    if (window.currentTimer) {
+        clearInterval(window.currentTimer);
+        window.currentTimer = null;
+    }
+    try {
+        window.speechSynthesis.cancel();
+    } catch (e) {}
+    isPaused = false;
+}
+
+function showStudyDayCompleteScreen(accuracy) {
+    stopStudyTimersAndSpeech();
+    const sessionTag = document.getElementById('session-tag');
+    if (sessionTag) {
+        sessionTag.innerText = '오늘 목표 완료 👑';
+        sessionTag.style.color = 'var(--neon-green)';
+    }
+    const bar = document.getElementById('bar');
+    if (bar) {
+        bar.style.width = '100%';
+        bar.style.backgroundColor = 'var(--neon-green)';
+    }
+    showSystemMessage(`
+        <div style="text-align:center; max-width:100%;">
+            <div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold;">학습 완료! ${accuracy}%</div>
+            <button type="button" id="btn-study-kakao-share" style="width:100%; padding:16px; background:#fee500; color:#000; border-radius:12px; margin-top:20px; border:none; font-weight:bold; cursor:pointer;">🟡 카톡 공유</button>
+            <button type="button" id="btn-study-exit-home" style="display:block; width:100%; margin-top:20px; padding:12px; background:none; border:none; color:#888; text-decoration:underline; cursor:pointer; font-size:1rem;">종료하기</button>
+        </div>
+    `);
+    setTimeout(function () {
+        const shareBtn = document.getElementById('btn-study-kakao-share');
+        const exitBtn = document.getElementById('btn-study-exit-home');
+        if (shareBtn) {
+            shareBtn.onclick = function (ev) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                shareKakao();
+            };
+        }
+        if (exitBtn) {
+            exitBtn.onclick = function (ev) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                location.href = 'index.html?tab=voca';
+            };
+        }
+    }, 0);
+}
+
 function initKakao() {
     try {
         if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
@@ -1068,13 +1118,7 @@ function finishSession(didTest = true) {
             }
         }
 
-        showSystemMessage(`
-            <div style="text-align:center;">
-                <div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold;">학습 완료! ${accuracy}%</div>
-                <button onclick="shareKakao()" style="width:100%; padding:16px; background:#fee500; color:#000; border-radius:12px; margin-top:20px; border:none; font-weight:bold;">🟡 카톡 공유</button>
-                <button onclick="location.href='index.html?tab=voca'" style="margin-top:20px; background:none; border:none; color:#888; text-decoration:underline;">종료하기</button>
-            </div>
-        `);
+        showStudyDayCompleteScreen(accuracy);
     } else {
         localStorage.setItem(`trigger_session_${currentLevel}`, (finishedNum + 1).toString());
         localStorage.setItem('blackt_cooldown', Date.now() + COOL_DOWN_TIME);
@@ -1252,6 +1296,7 @@ function copyTextForShareFallback(text) {
 }
 
 function shareKakao() {
+    stopStudyTimersAndSpeech();
     const userName = localStorage.getItem('trigger_name') || '학습자';
     let displayDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
     if (localStorage.getItem(`trigger_session_${currentLevel}`) === '1' && displayDay > 1) displayDay--;
@@ -1308,24 +1353,43 @@ function shareKakao() {
     };
 
     const tryKakaoSend = () => {
+        let settled = false;
+        const fallbackOnce = () => {
+            if (settled) return;
+            settled = true;
+            runClipboardFallback();
+        };
+        const slowTimer = setTimeout(fallbackOnce, 3500);
         try {
             if (typeof Kakao === 'undefined' || !Kakao) {
-                runClipboardFallback();
+                clearTimeout(slowTimer);
+                fallbackOnce();
                 return;
             }
             if (!Kakao.isInitialized()) {
                 Kakao.init('fbb1520306ffaad0a882e993109a801c');
             }
             if (!Kakao.isInitialized()) {
-                runClipboardFallback();
+                clearTimeout(slowTimer);
+                fallbackOnce();
                 return;
             }
             const ret = Kakao.Share.sendDefault(payload);
             if (ret && typeof ret.then === 'function') {
-                ret.catch(() => runClipboardFallback());
+                ret.then(() => {
+                    settled = true;
+                    clearTimeout(slowTimer);
+                }).catch(() => {
+                    clearTimeout(slowTimer);
+                    fallbackOnce();
+                });
+            } else {
+                settled = true;
+                clearTimeout(slowTimer);
             }
         } catch (e) {
-            runClipboardFallback();
+            clearTimeout(slowTimer);
+            fallbackOnce();
         }
     };
 
