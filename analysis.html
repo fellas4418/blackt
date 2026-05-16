@@ -1061,7 +1061,7 @@
         #premium-ai-ask-panel { position: relative; }
         #passage-premium-invite-gate {
             display: none;
-            margin: 16px 0 0;
+            margin: 0 0 14px;
             padding: 18px 16px;
             border-radius: 12px;
             border: 1px solid rgba(255, 215, 0, 0.35);
@@ -1384,7 +1384,8 @@
             <div id="ai-report-area"></div>
         </div>
 
-        <div id="passage-premium-invite-gate" style="display:none;" aria-hidden="true">
+        <div id="premium-ai-ask-panel">
+<div id="passage-premium-invite-gate" style="display:none;" aria-hidden="true">
             <p class="passage-invite-gate-title">Golden Key · AI 질문 이용</p>
             <p style="margin:0 0 12px;font-size:0.86rem;line-height:1.5;color:#bbb;">유료 또는 초대 코드를 입력하면 Golden Key와 AI 질문이 함께 열려요.</p>
             <input type="text" id="passage-premium-invite-input" data-gk-invite-input="1" placeholder="초대 코드" autocomplete="off" autocapitalize="off" spellcheck="false" style="width:100%;max-width:320px;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #555;background:#111;color:#fff;margin:0 0 10px;font-size:0.95rem;" />
@@ -1393,7 +1394,6 @@
             <button type="button" style="padding:12px 20px;border-radius:12px;border:none;font-weight:bold;font-size:0.92rem;cursor:pointer;background:linear-gradient(135deg,#9fe870,#39ff14);color:#000;" onclick="window.location.href='https://tri3.imweb.me/'">결제하고 이용하기</button>
         </div>
 
-        <div id="premium-ai-ask-panel">
             <div class="premium-ai-ask-head">트리거 AI로 1:1 질문 해결</div>
             <div id="ai-ask-form-stack" class="ai-ask-form-stack">
             <p class="premium-ai-ask-intro">지문, 문법, 단어 등 막히는 부분을 질문해 주세요. 지문의 특정 문장 혹은 일반적인 영어 관련 질문 모두 가능합니다.</p>
@@ -1932,17 +1932,6 @@
             return { ok: true, label: label };
         }
 
-        function userHasGoldenKeyUnlimitedAccess() {
-            if (GOLDEN_KEY_OPEN_FOR_ALL) return true;
-            if (isPremiumUser) return true;
-            if (userHasGoldenKeyInviteAccess()) return true;
-            if (localStorage.getItem('trigger_admin_mode') === 'true') return true;
-            try {
-                if (localStorage.getItem(TOPIC_ANALYSIS_UNLOCK_LS) === '1') return true;
-            } catch (e) {}
-            return false;
-        }
-
         /**
          * Golden Key 열람 — AI 질문과 동일: 유료·초대코드(tri3)·관리자만 (GOLDEN_KEY_OPEN_FOR_ALL 시 전원).
          * @param {{ skipConsume?: boolean }} [opts] — 예전 일일 2회 카운트용(호환). 잠금 여부만 통일 판단.
@@ -1966,7 +1955,18 @@
         /** Golden Key · AI 질문 공통: 유료·초대코드(tri3)·관리자 등 */
         function userCanUsePassagePremiumExtras() {
             if (isAiChatDemoMode()) return true;
-            return userHasGoldenKeyUnlimitedAccess();
+            if (GOLDEN_KEY_OPEN_FOR_ALL) return true;
+            if (isPremiumUser) return true;
+            if (localStorage.getItem('trigger_admin_mode') === 'true') return true;
+            try {
+                if (localStorage.getItem(TOPIC_ANALYSIS_UNLOCK_LS) === '1') return true;
+            } catch (e) {}
+            if (userHasGoldenKeyInviteAccess() && getStoredGoldenKeyInviteCode()) return true;
+            return false;
+        }
+
+        function userHasGoldenKeyUnlimitedAccess() {
+            return userCanUsePassagePremiumExtras();
         }
 
         function getStoredGoldenKeyInviteCode() {
@@ -1998,6 +1998,9 @@
                 gate.setAttribute('aria-hidden', allowed ? 'true' : 'false');
             }
             if (panel) panel.classList.toggle('ai-ask-locked', !allowed);
+            if (!allowed && gate && panel && panel.style.display !== 'none') {
+                setTimeout(scrollToPassagePremiumInviteGate, 80);
+            }
         }
 
         function sortChatHistoryNewestFirst(items) {
@@ -4338,6 +4341,7 @@
                     }
                     if (!userCanUsePassagePremiumExtras()) {
                         updateAiAskPremiumGate();
+                        scrollToPassagePremiumInviteGate();
                         alert('AI 질문은 유료 또는 초대 코드 이용자만 사용할 수 있어요. Golden Key 잠금 화면·아래에서 코드를 입력해 주세요.');
                         return;
                     }
@@ -4396,6 +4400,7 @@
                         } else if (e && (e.apiError === 'premium_required' || e.httpStatus === 403)) {
                             msg = 'AI 질문은 유료 또는 초대 코드 이용자만 사용할 수 있어요.';
                             updateAiAskPremiumGate();
+                            scrollToPassagePremiumInviteGate();
                         }
                         setAiAskReplyError(out, msg);
                     } finally {
