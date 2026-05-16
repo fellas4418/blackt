@@ -1056,6 +1056,23 @@
             text-transform: uppercase;
         }
 
+        #premium-ai-ask-panel { position: relative; }
+        #premium-ai-ask-panel .ai-ask-premium-gate {
+            display: none;
+            margin: 12px 0 0;
+            padding: 18px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 215, 0, 0.35);
+            background: rgba(0, 0, 0, 0.55);
+            text-align: center;
+            box-sizing: border-box;
+        }
+        #premium-ai-ask-panel.ai-ask-locked .ai-ask-form-stack {
+            filter: blur(8px);
+            pointer-events: none;
+            user-select: none;
+            opacity: 0.45;
+        }
         #premium-ai-ask-panel .premium-ai-ask-head {
             font-weight: 900;
             color: #39ff14;
@@ -1222,9 +1239,18 @@
 
         <div id="premium-ai-ask-panel">
             <div class="premium-ai-ask-head">트리거 AI로 1:1 질문 해결</div>
+            <div id="ai-ask-premium-gate" class="ai-ask-premium-gate" style="display:none;" aria-hidden="true">
+                <p style="margin:0 0 10px;font-size:0.92rem;line-height:1.55;color:#eee;">AI 질문은 유료·초대 코드 이용자만 사용할 수 있어요.<br>Golden Key와 동일한 혜택입니다.</p>
+                <p style="margin:0 0 12px;font-size:0.84rem;line-height:1.5;color:#bbb;">초대 코드가 있으면 입력해 주세요.</p>
+                <input type="text" data-gk-invite-input="1" placeholder="초대 코드" autocomplete="off" autocapitalize="off" spellcheck="false" style="width:100%;max-width:280px;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #555;background:#111;color:#fff;margin:0 0 10px;font-size:0.95rem;" />
+                <button type="button" data-gk-invite-redeem="1" style="width:100%;max-width:280px;padding:12px 18px;border-radius:12px;border:1px solid #9fe870;font-weight:bold;font-size:0.92rem;cursor:pointer;background:rgba(159,232,112,0.12);color:#9fe870;margin-bottom:12px;">초대 코드 확인</button>
+                <p style="margin:0 0 10px;font-size:0.78rem;color:#777;">또는</p>
+                <button type="button" style="padding:12px 20px;border-radius:12px;border:none;font-weight:bold;font-size:0.92rem;cursor:pointer;background:linear-gradient(135deg,#9fe870,#39ff14);color:#000;" onclick="window.location.href='https://tri3.imweb.me/'">결제하고 이용하기</button>
+            </div>
+            <div id="ai-ask-form-stack" class="ai-ask-form-stack">
             <p class="premium-ai-ask-intro">지문·문법·단어 등 막히는 부분을 적어 주세요. 문장 선택 시 💬답변 · 📌지문 연결 · 📝예시, 미선택 시 💬답변 · ⭐핵심 · 📝예시 (약 450~750자)</p>
             <div class="premium-ai-ask-actions">
-                <button type="button" id="btn-sentence-pick-toggle" class="login-btn" style="margin:0;border-color:var(--neon-blue);color:var(--neon-blue);">질문할 문장 선택</button>
+                <button type="button" id="btn-sentence-pick-toggle" class="login-btn" style="margin:0;border-color:var(--neon-blue);color:var(--neon-blue);">질문한 문장 선택</button>
                 <button type="button" id="btn-sentence-pick-done" class="login-btn" style="margin:0;display:none;border-color:#9fe870;color:#9fe870;">선택 완료</button>
                 <button type="button" id="btn-chat-history" class="login-btn" style="margin:0;border-color:#888;color:#ccc;">나의 질문 기록 보기</button>
             </div>
@@ -1234,6 +1260,7 @@
             <div id="ai-ask-reply-block" class="ai-ask-reply-block">
                 <div class="ai-ask-reply-label">AI 답변</div>
                 <div id="ai-ask-reply" aria-live="polite">여기에 답변이 나옵니다.</div>
+            </div>
             </div>
         </div>
         
@@ -1685,9 +1712,14 @@
 
         const TOPIC_REVEAL_STORAGE_KEY = 'trigger_topic_reveal_daily_v1';
         const FREE_TOPIC_REVEALS_PER_DAY = 2;
-        /** 모객·런칭 기간 true: Golden Key 무제한. 유료 전환 시 false → is_premium 등으로 일일 제한 재활성화 */
-        const GOLDEN_KEY_OPEN_FOR_ALL = true;
+        /** true면 전원 Golden Key 무제한(모객용). false면 일 2회 + 초대코드·유료 */
+        const GOLDEN_KEY_OPEN_FOR_ALL = false;
         const PREMIUM_PAYMENT_URL = 'https://tri3.imweb.me/';
+        const GOLDEN_KEY_INVITE_LS = 'trigger_golden_key_invite_v1';
+        /** 소문자 키 = 코드. 지인·VIP용 — 코드 추가·변경은 여기만 수정 */
+        const GOLDEN_KEY_INVITE_CODES = {
+            tri3: '지인 VIP',
+        };
         /** Golden Key 잠금 시: 잠금 오버레이 왼쪽 아래 투명 영역을 2.2초 안에 3번 연속 탭하면 이 브라우저에서 무제한 해제. */
         const TOPIC_ANALYSIS_UNLOCK_LS = 'trigger_analysis_topic_unlock_v1';
         const EXAM_RPT_TREND_STORAGE_KEY = 'exam_rpt_total_trend_v1';
@@ -1707,9 +1739,38 @@
          * golden_key / video_package / prepass 등을 분리 검사할 수 있음.
          * 현재는 is_premium(1) + 로컬 관리자/개발 잠금 해제 플래그만 사용.
          */
+        function normalizeGoldenKeyInviteCode(raw) {
+            return String(raw || '')
+                .trim()
+                .toLowerCase();
+        }
+
+        function userHasGoldenKeyInviteAccess() {
+            try {
+                return localStorage.getItem(GOLDEN_KEY_INVITE_LS) === '1';
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function redeemGoldenKeyInviteCode(raw) {
+            const code = normalizeGoldenKeyInviteCode(raw);
+            if (!code) return { ok: false, message: '초대 코드를 입력해 주세요.' };
+            const label = GOLDEN_KEY_INVITE_CODES[code];
+            if (!label) return { ok: false, message: '코드를 확인해 주세요.' };
+            try {
+                localStorage.setItem(GOLDEN_KEY_INVITE_LS, '1');
+                localStorage.setItem('trigger_golden_key_invite_code_used', code);
+            } catch (e) {
+                return { ok: false, message: '저장에 실패했어요. 다시 시도해 주세요.' };
+            }
+            return { ok: true, label: label };
+        }
+
         function userHasGoldenKeyUnlimitedAccess() {
             if (GOLDEN_KEY_OPEN_FOR_ALL) return true;
             if (isPremiumUser) return true;
+            if (userHasGoldenKeyInviteAccess()) return true;
             if (localStorage.getItem('trigger_admin_mode') === 'true') return true;
             try {
                 if (localStorage.getItem(TOPIC_ANALYSIS_UNLOCK_LS) === '1') return true;
@@ -1739,6 +1800,55 @@
                 } catch (e) {}
             }
             return { locked: false };
+        }
+
+        /** GOLDEN_KEY_OPEN_FOR_ALL=false 시 「무료는 하루 2회까지…」 안내가 다시 붙음 */
+        function goldenKeyIntroSubtext() {
+            if (GOLDEN_KEY_OPEN_FOR_ALL) {
+                return '지문의 주요 키워드와 3종 실전 주제문을 한 묶음으로 모았어요.';
+            }
+            if (userHasGoldenKeyInviteAccess()) {
+                return '지문의 주요 키워드와 3종 실전 주제문을 한 묶음으로 모았어요. 초대 코드가 적용되어 무제한으로 볼 수 있어요.';
+            }
+            return '지문의 주요 키워드와 3종 실전 주제문을 한 묶음으로 모았어요. 무료는 하루 2회까지 열람, 유료·초대 코드는 무제한이에요';
+        }
+
+        /** Golden Key · AI 질문 공통: 유료·초대코드(tri3)·관리자 등 */
+        function userCanUsePassagePremiumExtras() {
+            if (isAiChatDemoMode()) return true;
+            return userHasGoldenKeyUnlimitedAccess();
+        }
+
+        function getStoredGoldenKeyInviteCode() {
+            try {
+                return String(localStorage.getItem('trigger_golden_key_invite_code_used') || '').trim();
+            } catch (e) {
+                return '';
+            }
+        }
+
+        function buildChatAskRequestBody(question, contextSentence) {
+            const body = {
+                user_id: authUserId,
+                password: authPassword,
+                question: question,
+                context_sentence: contextSentence || ''
+            };
+            const code = getStoredGoldenKeyInviteCode();
+            if (code) body.invite_code = code;
+            return body;
+        }
+
+        function updateAiAskPremiumGate() {
+            const panel = document.getElementById('premium-ai-ask-panel');
+            const gate = document.getElementById('ai-ask-premium-gate');
+            if (!panel) return;
+            const allowed = userCanUsePassagePremiumExtras();
+            panel.classList.toggle('ai-ask-locked', !allowed);
+            if (gate) {
+                gate.style.display = allowed ? 'none' : 'block';
+                gate.setAttribute('aria-hidden', allowed ? 'true' : 'false');
+            }
         }
 
         function setAuthStatus(msg, isError = false) {
@@ -2039,6 +2149,7 @@
             noteSyncResolved = true;
             checkAllSavedStatus();
             refreshPremiumAiPanelVisibility();
+            updateAiAskPremiumGate();
             const noteModal = document.getElementById('note-modal');
             if (noteModal && noteModal.style.display === 'flex') {
                 renderNoteList();
@@ -3718,6 +3829,21 @@
             return parts.join('\n\n');
         }
 
+        function scrollToPassageForSentencePick() {
+            const el =
+                document.getElementById('translation-rows-root') ||
+                document.getElementById('passage-ai-report-stack') ||
+                document.getElementById('analysis-passage-zone');
+            if (!el) return;
+            try {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch (e) {
+                try {
+                    el.scrollIntoView(true);
+                } catch (e2) {}
+            }
+        }
+
         function updateChatContextPreview() {
             const box = document.getElementById('picked-sentence-preview');
             if (!box) return;
@@ -3731,7 +3857,7 @@
             }
             if (confirmedChatContextSentence && confirmedChatContextSentence.trim()) {
                 box.style.display = 'block';
-                box.textContent = '[맥락 문장] ' + confirmedChatContextSentence.trim();
+                box.textContent = '[선택 문장] ' + confirmedChatContextSentence.trim();
             } else {
                 box.style.display = 'none';
                 box.textContent = '';
@@ -3749,7 +3875,7 @@
             const dn = document.getElementById('btn-sentence-pick-done');
             if (tb) {
                 tb.style.display = '';
-                tb.textContent = '질문할 문장 선택';
+                tb.textContent = '질문한 문장 선택';
             }
             if (dn) dn.style.display = 'none';
             updateChatContextPreview();
@@ -3768,6 +3894,7 @@
                 }
             } catch (e) {}
             p.style.display = show ? 'block' : 'none';
+            updateAiAskPremiumGate();
         }
 
         function initPremiumAiAskPanelOnce() {
@@ -3798,6 +3925,7 @@
                     tgl.textContent = '선택 모드 취소';
                     if (done) done.style.display = '';
                     updateChatContextPreview();
+                    setTimeout(scrollToPassageForSentencePick, 80);
                 });
             }
             if (done) {
@@ -3811,6 +3939,11 @@
                 sub.addEventListener('click', async function () {
                     if (!authUserId || !authPassword) {
                         alert('이름·전화번호로 자동 연결이 완료된 뒤에 질문을 보낼 수 있어요.');
+                        return;
+                    }
+                    if (!userCanUsePassagePremiumExtras()) {
+                        updateAiAskPremiumGate();
+                        alert('AI 질문은 유료 또는 초대 코드 이용자만 사용할 수 있어요. Golden Key 잠금 화면·아래에서 코드를 입력해 주세요.');
                         return;
                     }
                     const qEl = document.getElementById('ai-ask-input');
@@ -3830,12 +3963,10 @@
                         } catch (e) {}
                     }
                     try {
-                        const data = await postJson('/api/chat/ask', {
-                            user_id: authUserId,
-                            password: authPassword,
-                            question: q,
-                            context_sentence: confirmedChatContextSentence.trim() || ''
-                        });
+                        const data = await postJson(
+                            '/api/chat/ask',
+                            buildChatAskRequestBody(q, confirmedChatContextSentence.trim())
+                        );
                         if (out) out.textContent = data.answer || '';
                     } catch (e) {
                         if (out) {
@@ -3858,6 +3989,9 @@
                                         '[chat/ask] 404 not_found — Worker에 /api/chat/ask 라우트·배포 여부를 확인하세요.'
                                     );
                                 } catch (_) {}
+                            } else if (e && (e.apiError === 'premium_required' || e.httpStatus === 403)) {
+                                msg = 'AI 질문은 유료 또는 초대 코드 이용자만 사용할 수 있어요.';
+                                updateAiAskPremiumGate();
                             }
                             out.textContent = msg;
                         }
@@ -3890,15 +4024,23 @@
                         alert('이름·전화번호로 자동 연결이 완료된 뒤에 이용할 수 있어요.');
                         return;
                     }
+                    if (!userCanUsePassagePremiumExtras()) {
+                        updateAiAskPremiumGate();
+                        alert('질문 기록은 유료 또는 초대 코드 이용자만 볼 수 있어요.');
+                        return;
+                    }
                     if (!modal || !listEl) return;
                     modal.style.display = 'flex';
                     modal.setAttribute('aria-hidden', 'false');
                     listEl.innerHTML = '불러오는 중…';
                     try {
-                        const data = await postJson('/api/chat/history', {
+                        const histBody = {
                             user_id: authUserId,
                             password: authPassword
-                        });
+                        };
+                        const histCode = getStoredGoldenKeyInviteCode();
+                        if (histCode) histBody.invite_code = histCode;
+                        const data = await postJson('/api/chat/history', histBody);
                         const items = Array.isArray(data.items) ? data.items : [];
                         if (!items.length) {
                             listEl.innerHTML = '<div style="color:#888;padding:12px;">아직 저장된 질문이 없어요.</div>';
@@ -3933,6 +4075,7 @@
                     }
                 });
             }
+            updateAiAskPremiumGate();
         }
 
         initPremiumAiAskPanelOnce();
@@ -4045,8 +4188,12 @@
 
             const topicLocked = !!(topicReveal && topicReveal.locked);
             const lockOverlay = topicLocked
-                ? '<div style="position:absolute;inset:0;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px 16px;text-align:center;z-index:4;box-sizing:border-box;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);background:rgba(5,5,5,0.55);">' +
-                  '<p style="margin:0 0 16px;font-size:0.92rem;line-height:1.55;color:#eee;max-width:320px;">오늘 Golden Key 확인 횟수(2회)를 썼어요.</p>' +
+                ? '<div data-gk-invite-lock-overlay="1" style="position:absolute;inset:0;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px 16px;text-align:center;z-index:4;box-sizing:border-box;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);background:rgba(5,5,5,0.55);">' +
+                  '<p style="margin:0 0 10px;font-size:0.92rem;line-height:1.55;color:#eee;max-width:320px;">오늘 Golden Key 확인 횟수(2회)를 썼어요.</p>' +
+                  '<p style="margin:0 0 12px;font-size:0.84rem;line-height:1.5;color:#bbb;max-width:300px;">초대 코드가 있으면 입력해 주세요.</p>' +
+                  '<input type="text" data-gk-invite-input="1" placeholder="초대 코드" autocomplete="off" autocapitalize="off" spellcheck="false" style="width:100%;max-width:280px;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #555;background:#111;color:#fff;margin:0 0 10px;font-size:0.95rem;" />' +
+                  '<button type="button" data-gk-invite-redeem="1" style="width:100%;max-width:280px;padding:12px 18px;border-radius:12px;border:1px solid #9fe870;font-weight:bold;font-size:0.92rem;cursor:pointer;background:rgba(159,232,112,0.12);color:#9fe870;margin-bottom:14px;">초대 코드 확인</button>' +
+                  '<p style="margin:0 0 10px;font-size:0.78rem;color:#777;">또는</p>' +
                   '<button type="button" style="padding:14px 22px;border-radius:12px;border:none;font-weight:bold;font-size:0.95rem;cursor:pointer;background:linear-gradient(135deg,#9fe870,#39ff14);color:#000;box-shadow:0 0 20px rgba(57,255,20,0.35);" onclick="window.location.href=\'' +
                   PREMIUM_PAYMENT_URL +
                   '\'">결제하고 정답의 열쇠를 확인하세요</button>' +
@@ -4058,7 +4205,9 @@
                 '<div class="result-card topic-focus-card" style="border-color:#ffd700;box-shadow:0 0 18px rgba(255,215,0,0.15);">' +
                 '<div class="gk-golden-intro-row" style="display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 14px;margin-bottom:0;text-align:left;">' +
                 '<span class="result-label gk-golden-head" style="color:#ffd700;margin:0;">Golden Key</span>' +
-                '<span style="font-size:0.88rem;color:#c9d0dc;line-height:1.55;font-weight:500;flex:1 1 220px;">지문의 주요 키워드와 3종 실전 주제문을 한 묶음으로 모았어요.</span>' +
+                '<span style="font-size:0.88rem;color:#c9d0dc;line-height:1.55;font-weight:500;flex:1 1 220px;">' +
+                escapeHtml(goldenKeyIntroSubtext()) +
+                '</span>' +
                 '</div>' +
                 (hasKw ? '<hr class="gk-section-faint-divider gk-after-golden-intro" aria-hidden="true" />' : '<div class="gk-golden-intro-after-spacer" aria-hidden="true"></div>') +
                 '<div class="result-content" style="position:relative;min-height:72px;overflow:hidden;border-radius:12px;">' +
@@ -4748,6 +4897,38 @@
                 });
             }
             renderPassageHistoryPanel();
+        })();
+
+        (function initGoldenKeyInviteRedeem() {
+            document.addEventListener('click', function (ev) {
+                const btn = ev.target.closest('[data-gk-invite-redeem]');
+                if (!btn) return;
+                ev.preventDefault();
+                const wrap = btn.closest('[data-gk-invite-lock-overlay]');
+                const inp = wrap ? wrap.querySelector('[data-gk-invite-input]') : null;
+                const r = redeemGoldenKeyInviteCode(inp && inp.value);
+                if (r.ok) {
+                    alert('초대 코드가 적용되었어요. Golden Key·AI 질문을 무제한으로 이용할 수 있어요.');
+                    location.reload();
+                    return;
+                }
+                alert(r.message || '코드를 확인해 주세요.');
+            });
+            document.addEventListener('keydown', function (ev) {
+                if (ev.key !== 'Enter') return;
+                const inp = ev.target.closest('[data-gk-invite-input]');
+                if (!inp) return;
+                const wrap = inp.closest('[data-gk-invite-lock-overlay], #ai-ask-premium-gate');
+                if (!wrap) return;
+                ev.preventDefault();
+                const r = redeemGoldenKeyInviteCode(inp.value);
+                if (r.ok) {
+                    alert('초대 코드가 적용되었어요. Golden Key·AI 질문을 무제한으로 이용할 수 있어요.');
+                    location.reload();
+                } else {
+                    alert(r.message || '코드를 확인해 주세요.');
+                }
+            });
         })();
 
         (function initAnalysisTopicAdminCornerUnlock() {

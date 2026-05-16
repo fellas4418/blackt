@@ -307,16 +307,34 @@ function buildChatAskPrompt(question, contextSentence) {
   );
 }
 
+function getAllowedGoldenKeyInviteCodes(env) {
+  const raw = String(env.GOLDEN_KEY_INVITE_CODES || "tri3");
+  return raw
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+/** Golden Key · AI 질문: 유료 또는 유효 초대코드(tri3 등) */
+async function userHasPassagePremiumExtras(env, userId, body) {
+  const open = String(env.ANALYSIS_EXTRAS_OPEN || "").toLowerCase();
+  if (open === "true" || open === "1") return true;
+  const row = await env.DB.prepare("SELECT is_premium FROM users WHERE id = ?1").bind(userId).first();
+  if (row && Number(row.is_premium) === 1) return true;
+  const code = String(body.invite_code || "")
+    .trim()
+    .toLowerCase();
+  if (code && getAllowedGoldenKeyInviteCodes(env).includes(code)) return true;
+  return false;
+}
+
 async function handleChatAsk(env, body) {
-  /**
-   * 권한 확장 포인트(주석):
-   * 향후 users.is_premium 외에 video_package / prepass / golden_key_entitlement 등
-   * 별도 컬럼·JSON entitlement로 분기해 이 엔드포인트 접근을 세분화할 수 있음.
-   * 현재: 로그인(verifyUser)만 통과하면 질문·답변 허용.
-   */
   const userId = String(body.user_id || "").trim();
   const password = String(body.password || "");
   if (!(await verifyUser(env, userId, password))) return json({ error: "인증 실패" }, 401);
+  if (!(await userHasPassagePremiumExtras(env, userId, body))) {
+    return json({ error: "premium_required", message: "유료 또는 초대 코드 이용자만 AI 질문을 사용할 수 있습니다." }, 403);
+  }
 
   const question = String(body.question || "").trim();
   const contextSentence = String(body.context_sentence || "").trim();
@@ -351,6 +369,9 @@ async function handleChatHistory(env, body) {
   const userId = String(body.user_id || "").trim();
   const password = String(body.password || "");
   if (!(await verifyUser(env, userId, password))) return json({ error: "인증 실패" }, 401);
+  if (!(await userHasPassagePremiumExtras(env, userId, body))) {
+    return json({ error: "premium_required", message: "유료 또는 초대 코드 이용자만 질문 기록을 볼 수 있습니다." }, 403);
+  }
 
   const rows = await env.DB
     .prepare(
