@@ -143,6 +143,23 @@
     <div id="splash-screen" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease;">
         <img src="icon-512.png" alt="Trigger Logo" style="width: 180px; height: 180px; border-radius: 20px;">
     </div>
+    <script>
+        (function () {
+            function dismissTriggerSplash() {
+                var el = document.getElementById('splash-screen');
+                if (!el || el.getAttribute('data-dismissed') === '1') return;
+                el.setAttribute('data-dismissed', '1');
+                el.style.transition = 'opacity 0.35s ease';
+                el.style.opacity = '0';
+                el.style.pointerEvents = 'none';
+                setTimeout(function () { el.style.display = 'none'; }, 400);
+            }
+            window.dismissTriggerSplash = dismissTriggerSplash;
+            setTimeout(dismissTriggerSplash, 700);
+            document.addEventListener('DOMContentLoaded', dismissTriggerSplash);
+            window.addEventListener('load', dismissTriggerSplash);
+        })();
+    </script>
 
     <div id="praise-popup" style="display:none; z-index: 40000;">
         <div id="praise-popup-inner">
@@ -606,7 +623,9 @@
 
         function switchTab(tabId, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.getElementById('tab-' + tabId).classList.add('active');
+            var tabEl = document.getElementById('tab-' + tabId);
+            if (!tabEl) return;
+            tabEl.classList.add('active');
             
             document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
             
@@ -1265,14 +1284,15 @@
         const installBtn = document.getElementById('install-app-btn');
 
         function handleKakaoAndInstall() {
+            if (typeof window.dismissTriggerSplash === 'function') {
+                window.dismissTriggerSplash();
+            }
             const savedName = localStorage.getItem('trigger_name');
             const isKakao = /KAKAO/i.test(navigator.userAgent);
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-            const splash = document.getElementById('splash-screen');
             const modal = document.getElementById('login-modal');
 
             if (!savedName || savedName === "null" || savedName === "") {
-                if (splash) splash.style.display = 'none';
                 if (modal) {
                     modal.style.setProperty('display', 'flex', 'important');
                     modal.style.setProperty('z-index', '30000', 'important');
@@ -1364,20 +1384,9 @@
 });
 
         window.addEventListener('load', () => {
-            const savedName = localStorage.getItem('trigger_name');
-            const splash = document.getElementById('splash-screen');
-
-            if (splash && savedName && savedName !== "null") {
-                if (sessionStorage.getItem('splash_shown')) {
-                    splash.style.display = 'none';
-                } else {
-                    setTimeout(() => {
-                        splash.style.opacity = '0';
-                        setTimeout(() => { splash.style.display = 'none'; }, 500);
-                    }, 1200);
-                    sessionStorage.setItem('splash_shown', 'true');
-                }
-            } 
+            if (typeof window.dismissTriggerSplash === 'function') {
+                window.dismissTriggerSplash();
+            }
 
             if (localStorage.getItem('trigger_admin_mode') === 'true') {
                 const menu = document.getElementById('admin-menu');
