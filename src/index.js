@@ -280,11 +280,15 @@ async function handleChatAsk(env, body) {
   const questionForDb = contextSentence
     ? `[선택 지문 문장]\n${contextSentence}\n\n[질문]\n${question}`
     : question;
-  await env.DB.prepare(
-    "INSERT INTO chat_history (id, user_id, question, answer, created_at) VALUES (?1, ?2, ?3, ?4, ?5)"
-  )
-    .bind(id, userId, questionForDb, g.text, now)
-    .run();
+  try {
+    await env.DB.prepare(
+      "INSERT INTO chat_history (id, user_id, question, answer, created_at) VALUES (?1, ?2, ?3, ?4, ?5)"
+    )
+      .bind(id, userId, questionForDb, g.text, now)
+      .run();
+  } catch (dbErr) {
+    console.error("chat_history insert failed:", dbErr?.message || dbErr);
+  }
 
   return json({ ok: true, answer: g.text, id });
 }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'trigger-voca-v6'; // 버전업 (강제 갱신용)
+const CACHE_NAME = 'trigger-voca-v7'; // 버전업 (강제 갱신용)
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -35,10 +35,19 @@ self.addEventListener('activate', (e) => {
     self.clients.claim();
 });
 
-// 핵심 수정: 네트워크 우선 (Network-First) 전략
+// 핵심 수정: 네트워크 우선 (Network-First) 전략 — 같은 출처 GET(정적 파일)만 처리
 self.addEventListener('fetch', (e) => {
-    // 크롬 확장프로그램 등 외부 요청으로 인한 에러 방지
-    if (!e.request.url.startsWith('http')) return;
+    if (e.request.method !== 'GET') return;
+
+    let url;
+    try {
+        url = new URL(e.request.url);
+    } catch (err) {
+        return;
+    }
+
+    if (!url.protocol.startsWith('http')) return;
+    if (url.origin !== self.location.origin) return;
 
     e.respondWith(
         fetch(e.request)
