@@ -4209,6 +4209,25 @@
             }
         }
 
+        function focusAiAskQuestionInput() {
+            const el = document.getElementById('ai-ask-input');
+            if (!el) return;
+            setTimeout(function () {
+                try {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } catch (e) {
+                    try {
+                        el.scrollIntoView(true);
+                    } catch (e2) {}
+                }
+                setTimeout(function () {
+                    try {
+                        el.focus();
+                    } catch (e3) {}
+                }, 300);
+            }, 60);
+        }
+
         function exitSentencePickModeSilently() {
             window.sentencePickModeActive = false;
             const rs = document.getElementById('result-section');
@@ -4281,6 +4300,9 @@
                 done.addEventListener('click', function () {
                     confirmedChatContextSentence = getSelectedSentencePlainFromDom();
                     exitSentencePickModeSilently();
+                    if (confirmedChatContextSentence && confirmedChatContextSentence.trim()) {
+                        focusAiAskQuestionInput();
+                    }
                 });
             }
             const sub = document.getElementById('ai-ask-submit');
