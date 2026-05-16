@@ -1448,7 +1448,6 @@
             <textarea id="ai-ask-input" placeholder="궁금한 점을 입력해 주세요."></textarea>
             <button type="button" id="ai-ask-submit" class="start-btn" style="width:100%; margin-top:10px; border-color:var(--neon-green);">질문 보내기</button>
             <div id="ai-ask-reply-block" class="ai-ask-reply-block">
-                <div class="ai-ask-reply-label">AI 답변</div>
                 <div id="ai-ask-reply" aria-live="polite">여기에 답변이 나옵니다.</div>
             </div>
             </div>
@@ -2182,9 +2181,30 @@
         const AI_ASK_SUBMIT_LABEL_NEW = '다른 질문하기';
         let aiAskAwaitingNewQuestion = false;
 
+        function normalizeAiAskHighlightMarkers(raw) {
+            let t = String(raw || '');
+            t = t.replace(/【([^】]*)】/g, '⟦$1⟧');
+            t = t.replace(/\[\[([^\]]*)\]\]/g, '⟦$1⟧');
+            t = t.replace(/《([^》]*)》/g, '⟦$1⟧');
+            t = t.replace(/「([^」]*)」/g, function (m, inner) {
+                return /[A-Za-z]/.test(inner) ? '⟦' + inner + '⟧' : m;
+            });
+            const lines = t.split('\n');
+            let inExample = false;
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                if (/^(💬|📌|⭐)\s/.test(line)) inExample = false;
+                if (/^📝\s*예시/.test(line) || /^예시\s*[:：]/.test(line)) inExample = true;
+                if (inExample) lines[i] = line.replace(/\*\*([^*\n]+)\*\*/g, '⟦$1⟧');
+            }
+            return lines.join('\n');
+        }
+
         function formatAiAskAnswerForDisplay(raw) {
-            const parts = String(raw || '').split(/(⟦[^⟧]*⟧)/g);
-            return parts
+            const t = normalizeAiAskHighlightMarkers(raw);
+            const re = /(⟦[^⟧]*⟧)/g;
+            return String(t)
+                .split(re)
                 .map(function (p) {
                     const m = p.match(/^⟦([^⟧]*)⟧$/);
                     if (m) return '<span class="ai-ask-ex-hl">' + escapeHtml(m[1]) + '</span>';
@@ -2208,11 +2228,7 @@
                 out.textContent = '';
                 return;
             }
-            if (t.indexOf('⟦') !== -1) {
-                out.innerHTML = formatAiAskAnswerForDisplay(t);
-            } else {
-                out.textContent = t;
-            }
+            out.innerHTML = formatAiAskAnswerForDisplay(t);
         }
 
         function setAiAskReplyError(out, msg) {
