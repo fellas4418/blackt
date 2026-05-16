@@ -1173,6 +1173,9 @@
             border-radius: 4px;
             box-shadow: 0 0 0 1px rgba(255, 202, 40, 0.5);
         }
+        #premium-ai-ask-panel #ai-ask-reply .ai-ask-ex-kor {
+            color: #7ec8e8;
+        }
         #premium-ai-ask-panel #ai-ask-submit:disabled {
             opacity: 0.65;
             cursor: wait;
@@ -2198,9 +2201,8 @@
             return lines.join('\n');
         }
 
-        function formatAiAskAnswerForDisplay(raw) {
-            const t = normalizeAiAskHighlightMarkers(raw);
-            return String(t)
+        function formatAiAskHighlightSpans(text) {
+            return String(text || '')
                 .split(/(⟦[^⟧]*⟧)/g)
                 .map(function (p) {
                     const m = p.match(/^⟦([^⟧]*)⟧$/);
@@ -2208,6 +2210,36 @@
                     return escapeHtml(p);
                 })
                 .join('');
+        }
+
+        function formatAiAskExampleLine(line) {
+            const s = String(line || '').trim();
+            if (!s) return '';
+            const paren = s.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
+            if (paren && /[A-Za-z]/.test(paren[1])) {
+                return formatAiAskHighlightSpans(paren[1].trim()) + '\n<span class="ai-ask-ex-kor">' + escapeHtml(paren[2].trim()) + '</span>';
+            }
+            return formatAiAskHighlightSpans(s);
+        }
+
+        function formatAiAskAnswerForDisplay(raw) {
+            const t = normalizeAiAskHighlightMarkers(raw);
+            const lines = t.split(/\r?\n/);
+            let inExample = false;
+            return lines
+                .map(function (line) {
+                    if (/^📝\s*예시/.test(line) || /^예시\s*[:：]/.test(line)) {
+                        inExample = true;
+                        const rest = line.replace(/^📝\s*예시\s*[:：]?\s*|^예시\s*[:：]?\s*/, '').trim();
+                        const head = line.slice(0, line.length - rest.length);
+                        if (rest) return formatAiAskHighlightSpans(head) + formatAiAskExampleLine(rest);
+                        return formatAiAskHighlightSpans(line);
+                    }
+                    if (/^(💬|📌|⭐)\s/.test(line)) inExample = false;
+                    if (inExample && line.trim()) return formatAiAskExampleLine(line);
+                    return formatAiAskHighlightSpans(line);
+                })
+                .join('\n');
         }
 
         function setAiAskReplyLoading(out) {
@@ -2240,6 +2272,8 @@
                 out.classList.remove('ai-ask-reply--loading');
                 out.textContent = '여기에 답변이 나옵니다.';
             }
+            const qEl = document.getElementById('ai-ask-input');
+            if (qEl) qEl.value = '';
             setAiAskSubmitNewQuestionMode(document.getElementById('ai-ask-submit'), false);
             lastAiAskQuestionForHighlight = '';
         }
