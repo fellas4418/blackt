@@ -1167,10 +1167,33 @@
             gap: 8px;
         }
         #premium-ai-ask-panel #ai-ask-reply .ai-ask-ex-hl {
-            color: #ffe082;
-            background: rgba(255, 224, 130, 0.18);
+            color: #ffca28;
+            font-weight: 700;
+            background: rgba(255, 202, 40, 0.32);
             border-radius: 4px;
-            box-shadow: 0 0 0 1px rgba(255, 224, 130, 0.35);
+            box-shadow: 0 0 0 1px rgba(255, 202, 40, 0.5);
+        }
+        #premium-ai-ask-panel #ai-ask-reply .ai-ask-ex-block {
+            display: block;
+            margin: 10px 0 6px;
+        }
+        #premium-ai-ask-panel #ai-ask-reply .ai-ask-ex-en {
+            display: block;
+            color: #f0f4f8;
+            line-height: 1.55;
+            margin-bottom: 4px;
+        }
+        #premium-ai-ask-panel #ai-ask-reply .ai-ask-ex-kor {
+            display: block;
+            color: #7ec8e8;
+            font-size: 0.9em;
+            line-height: 1.5;
+            margin-bottom: 4px;
+        }
+        #premium-ai-ask-panel #ai-ask-reply .ai-ask-sec-label {
+            display: block;
+            font-weight: 800;
+            margin-top: 10px;
         }
         #premium-ai-ask-panel #ai-ask-submit:disabled {
             opacity: 0.65;
@@ -2180,12 +2203,14 @@
         const AI_ASK_SUBMIT_LABEL_SEND = '질문 보내기';
         const AI_ASK_SUBMIT_LABEL_NEW = '다른 질문하기';
         let aiAskAwaitingNewQuestion = false;
+        let lastAiAskQuestionForHighlight = '';
 
         function normalizeAiAskHighlightMarkers(raw) {
             let t = String(raw || '');
             t = t.replace(/【([^】]*)】/g, '⟦$1⟧');
             t = t.replace(/\[\[([^\]]*)\]\]/g, '⟦$1⟧');
             t = t.replace(/《([^》]*)》/g, '⟦$1⟧');
+            t = t.replace(/〚([^〛]*)〛/g, '⟦$1⟧');
             t = t.replace(/「([^」]*)」/g, function (m, inner) {
                 return /[A-Za-z]/.test(inner) ? '⟦' + inner + '⟧' : m;
             });
@@ -2195,22 +2220,93 @@
                 const line = lines[i];
                 if (/^(💬|📌|⭐)\s/.test(line)) inExample = false;
                 if (/^📝\s*예시/.test(line) || /^예시\s*[:：]/.test(line)) inExample = true;
-                if (inExample) lines[i] = line.replace(/\*\*([^*\n]+)\*\*/g, '⟦$1⟧');
+                if (inExample) {
+                    lines[i] = line.replace(/\*\*([^*\n]+)\*\*/g, '⟦$1⟧');
+                    lines[i] = lines[i].replace(/`([^`\n]+)`/g, function (m, inner) {
+                        return /[A-Za-z]/.test(inner) ? '⟦' + inner + '⟧' : m;
+                    });
+                }
             }
             return lines.join('\n');
         }
 
-        function formatAiAskAnswerForDisplay(raw) {
-            const t = normalizeAiAskHighlightMarkers(raw);
-            const re = /(⟦[^⟧]*⟧)/g;
-            return String(t)
-                .split(re)
+        function formatAiAskHighlightSpans(text) {
+            return String(text || '')
+                .split(/(⟦[^⟧]*⟧)/g)
                 .map(function (p) {
                     const m = p.match(/^⟦([^⟧]*)⟧$/);
                     if (m) return '<span class="ai-ask-ex-hl">' + escapeHtml(m[1]) + '</span>';
                     return escapeHtml(p);
                 })
                 .join('');
+        }
+
+        function autoWrapGrammarHighlightInEnglish(eng) {
+            if (!eng || /⟦/.test(eng)) return eng;
+            let s = String(eng).trim();
+            let m = s.match(/^((?:Having|Being)\s+[^,()]{4,120}),\s*(.+)$/i);
+            if (m) return '⟦' + m[1].trim() + '⟧, ' + m[2];
+            m = s.match(/^([A-Z][a-z]+(?:ed|en)\s+[^,()]{2,100}),\s*(.+)$/);
+            if (m && m[1].split(/\s+/).length >= 2) return '⟦' + m[1].trim() + '⟧, ' + m[2];
+            m = s.match(/^(.+?)(,\s+([A-Za-z]+(?:ing|ed|en)\b(?:\s+[A-Za-z']+){0,10}))\s*([.?!]|$)/);
+            if (m && m[3].length >= 4) return m[1] + ', ⟦' + m[3].trim() + '⟧' + (m[4] || '');
+            m = s.match(/\b((?:am|is|are|was|were|been|being)\s+(?:\w+ed|\w+en)\b(?:\s+by\s+[\w\s']+)?)/i);
+            if (m) return s.replace(m[1], '⟦' + m[1] + '⟧');
+            return s;
+        }
+
+        function formatAiAskExampleLineContent(line) {
+            let s = String(line || '').trim();
+            if (!s) return '';
+            s = s.replace(/^\d+[\.\)]\s*/, '');
+            const paren = s.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
+            if (paren && /[A-Za-z]/.test(paren[1])) {
+                let eng = autoWrapGrammarHighlightInEnglish(paren[1].trim());
+                eng = normalizeAiAskHighlightMarkers(eng);
+                return (
+                    '<span class="ai-ask-ex-block">' +
+                    '<span class="ai-ask-ex-en">' +
+                    formatAiAskHighlightSpans(eng) +
+                    '</span>' +
+                    '<span class="ai-ask-ex-kor">' +
+                    escapeHtml(paren[2].trim()) +
+                    '</span></span>'
+                );
+            }
+            if (/[A-Za-z]/.test(s)) {
+                let eng = autoWrapGrammarHighlightInEnglish(s);
+                eng = normalizeAiAskHighlightMarkers(eng);
+                return '<span class="ai-ask-ex-block"><span class="ai-ask-ex-en">' + formatAiAskHighlightSpans(eng) + '</span></span>';
+            }
+            return formatAiAskHighlightSpans(normalizeAiAskHighlightMarkers(s));
+        }
+
+        function formatAiAskAnswerForDisplay(raw) {
+            const t = normalizeAiAskHighlightMarkers(raw);
+            const lines = t.split(/\r?\n/);
+            const sectionHeadRe = /^(💬 답변|📌 지문 연결|⭐ 핵심|📝 예시)\s*[:：]?\s*/;
+            let inExample = false;
+            const out = [];
+            lines.forEach(function (line) {
+                const headM = line.match(sectionHeadRe);
+                if (headM) {
+                    inExample = headM[1] === '📝 예시';
+                    out.push('<span class="ai-ask-sec-label">' + escapeHtml(headM[0]) + '</span>\n');
+                    const rest = line.replace(sectionHeadRe, '').trim();
+                    if (rest) {
+                        out.push(inExample ? formatAiAskExampleLineContent(rest) : formatAiAskHighlightSpans(rest));
+                    }
+                    out.push('\n');
+                    return;
+                }
+                if (/^(💬|📌|⭐)\s/.test(line)) inExample = false;
+                if (inExample && line.trim()) {
+                    out.push(formatAiAskExampleLineContent(line) + '\n');
+                    return;
+                }
+                out.push(formatAiAskHighlightSpans(line) + '\n');
+            });
+            return out.join('').replace(/\n+$/, '');
         }
 
         function setAiAskReplyLoading(out) {
@@ -3552,9 +3648,29 @@
             });
         };
 
+        function scrollToPassageKeywordList() {
+            const panel = document.getElementById('passage-keyword-panel');
+            const card = panel ? panel.closest('.result-card') : null;
+            const el = card || panel;
+            if (!el) return;
+            try {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch (e) {
+                try {
+                    el.scrollIntoView(true);
+                } catch (e2) {}
+            }
+        }
+
         function toggleGrammarPointList() {
             if (!document.getElementById('grammar-list-body')) return;
-            setGrammarListExpanded(isGrammarListBodyHidden());
+            const wasExpanded = !isGrammarListBodyHidden();
+            setGrammarListExpanded(!wasExpanded);
+            if (wasExpanded) {
+                requestAnimationFrame(function () {
+                    requestAnimationFrame(scrollToPassageKeywordList);
+                });
+            }
         }
 
         function topicKeywordPhrasesFromLines(lines) {
@@ -3985,9 +4101,9 @@
                     html += `
                         <div onclick="togglePassageFolder(${folderIndex})" style="color:var(--neon-blue); font-size:0.9rem; font-weight:bold; margin: 18px 0 8px 0; border-bottom:1px solid #333; padding-bottom:6px; display:flex; align-items:center; justify-content:space-between; cursor:pointer;">
                             <span>📌 ${title} <span style="color:#888; font-size:0.75rem; font-weight:normal;">(${groupedData[title].length}개)</span></span>
-                            <span id="passage-icon-${folderIndex}" style="color:#888; font-size:0.8rem;">▼</span>
+                            <span id="passage-icon-${folderIndex}" style="color:#888; font-size:0.8rem;">▶</span>
                         </div>
-                        <div id="passage-folder-${folderIndex}" style="display:block;">
+                        <div id="passage-folder-${folderIndex}" style="display:none;">
                     `;
                     
                     groupedData[title].forEach(dataObj => {
@@ -4493,6 +4609,7 @@
                         alert('질문을 입력해 주세요.');
                         return;
                     }
+                    lastAiAskQuestionForHighlight = q;
                     sub.disabled = true;
                     setAiAskReplyLoading(out);
                     if (replyBlock) {
@@ -5186,7 +5303,7 @@
             document.getElementById('ai-report-area').innerHTML = `
                 ${passageTopBlock}
                 ${translationCardHtml}
-                <div class="result-card" style="border-color: #bc13fe;"><span class="result-label" style="color:#bc13fe;">🛠️ 트리거 팀의 문법 포인트 <span style="font-size:0.82em;font-weight:500;color:#b88fd4;">(지문 G1·G2와 연결)</span></span><div class="result-content">${grammarListWrap}</div></div>
+                <div class="result-card" style="border-color: #bc13fe;"><span class="result-label" style="color:#bc13fe;">🛠️ 트리거 팀의 문법 포인트</span><div class="result-content">${grammarListWrap}</div></div>
                 <div class="result-card"><span class="result-label keyword-list-heading-label" style="color:#ff0055;"><span class="keyword-list-heading-row"><span class="keyword-list-heading-icon" aria-hidden="true">📚</span><span class="keyword-list-heading-main">주요 단어 리스트<br><span class="keyword-list-heading-sub">(내 학습 노트에 저장가능)</span></span></span></span><div id="passage-keyword-panel" class="result-content">${keywordHtml}</div></div>
                 ${goldenKeyHtml}
                 <div class="result-card" style="border-color: var(--neon-orange);"><span class="result-label" style="color:var(--neon-orange);">🌎 쓸데없이 고퀄인 배경지식</span><div class="result-content passage-background-knowledge">${backgroundHtml}</div></div>
