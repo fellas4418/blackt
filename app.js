@@ -470,20 +470,22 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
         const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
 
         if (isReviewDay) {
-            let allReviewWords = [];
-            if (dayData && Array.isArray(dayData.test)) {
-                allReviewWords = dayData.test;
-            } else if (Array.isArray(dayData)) {
-                allReviewWords = dayData;
-            } else if (dayData && Array.isArray(dayData.review_parts)) {
-                allReviewWords = dayData.review_parts.flat();
-            }
-
-            const halfIndex = Math.ceil(allReviewWords.length / 2);
-            if (currentDay % 7 === 6) {
-                todayWords = allReviewWords.slice(0, halfIndex);
-            } else if (currentDay % 7 === 0) {
-                todayWords = allReviewWords.slice(halfIndex);
+            todayWords = getReviewWordsForDay(currentLevel, currentDay);
+            if (!todayWords.length) {
+                let allReviewWords = [];
+                if (dayData && Array.isArray(dayData.test)) {
+                    allReviewWords = dayData.test;
+                } else if (Array.isArray(dayData)) {
+                    allReviewWords = dayData;
+                } else if (dayData && Array.isArray(dayData.review_parts)) {
+                    allReviewWords = dayData.review_parts.flat();
+                }
+                const halfIndex = Math.ceil(allReviewWords.length / 2);
+                if (currentDay % 7 === 6) {
+                    todayWords = allReviewWords.slice(0, halfIndex);
+                } else if (currentDay % 7 === 0) {
+                    todayWords = allReviewWords.slice(halfIndex);
+                }
             }
         } else {
             todayWords = dayData || []; 
@@ -1172,16 +1174,54 @@ function retryOnlyWrongs() {
 }
 
 // [수정 완료] 학습 종료 후 나타나는 카카오톡 공유 기능
+/** 주차별 Day 1~5 신규 단어 전체 (달력·하루 진도량과 무관, 6·7일 복습 풀) */
+function getWeekNewWordsPool(level, weekNum) {
+    if (typeof wordsData === 'undefined' || !wordsData[level]) return [];
+    const weekData = wordsData[level]['week' + weekNum];
+    if (!weekData) return [];
+    const pool = [];
+    const seen = new Set();
+    for (let localD = 1; localD <= 5; localD++) {
+        const dayData = weekData[String(localD)];
+        if (!Array.isArray(dayData)) continue;
+        for (const w of dayData) {
+            const key = String((w && w.word) || '').trim().toLowerCase();
+            if (!key || seen.has(key)) continue;
+            seen.add(key);
+            pool.push(w);
+        }
+    }
+    return pool;
+}
+
+/** 6·7일차: 해당 주 1~5일치 전량을 이틀에 나눠 복습 */
+function getReviewWordsForDay(level, absoluteDay) {
+    const localDay = absoluteDay % 7 === 0 ? 7 : absoluteDay % 7;
+    if (localDay !== 6 && localDay !== 7) return [];
+    const weekNum = Math.ceil(absoluteDay / 7);
+    const pool = getWeekNewWordsPool(level, weekNum);
+    if (!pool.length) return [];
+    const halfIndex = Math.ceil(pool.length / 2);
+    if (localDay === 6) return pool.slice(0, halfIndex);
+    return pool.slice(halfIndex);
+}
+
 function getWordsForDay(level, absoluteDay) {
     if (typeof wordsData === 'undefined' || !wordsData[level]) return [];
     const week = Math.ceil(absoluteDay / 7);
     const localDay = absoluteDay % 7 === 0 ? 7 : absoluteDay % 7;
+    if (localDay === 6 || localDay === 7) {
+        const fromPool = getReviewWordsForDay(level, absoluteDay);
+        if (fromPool.length) return fromPool;
+    }
     const weekData = wordsData[level]['week' + week];
     if (!weekData) return [];
     const dayData = weekData[String(localDay)];
     if (!dayData) return [];
     if ((localDay === 6 || localDay === 7) && !Array.isArray(dayData)) {
-        return dayData.test || [];
+        const legacy = dayData.test || [];
+        const halfIndex = Math.ceil(legacy.length / 2);
+        return localDay === 6 ? legacy.slice(0, halfIndex) : legacy.slice(halfIndex);
     }
     return Array.isArray(dayData) ? dayData : [];
 }
@@ -1217,14 +1257,31 @@ function shareKakao() {
     if (localStorage.getItem(`trigger_session_${currentLevel}`) === '1' && displayDay > 1) displayDay--;
 
     const shareUrl = window.location.origin + '/share-entry.html?path=index.html';
-    const praiseShareUrl = window.location.origin + '/share-entry.html?path=index.html&praise=1';
-
-    let learnedTotal = 0;
-    let unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
-    for (let i = 1; i < unlockedDay; i++) {
-        if (i % 7 === 6 || i % 7 === 0) continue;
-        learnedTotal += getWordsForDay(currentLevel, i).length;
+    const st =
+        typeof TriggerPraise !== 'undefined' && TriggerPraise.statsFromStorage
+            ? TriggerPraise.statsFromStorage('voca')
+            : { n: userName, d: displayDay, t: 0, k: 'voca' };
+    if (typeof TriggerPraise === 'undefined' || !TriggerPraise.statsFromStorage) {
+        let learnedTotal = 0;
+        let unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
+        for (let i = 1; i < unlockedDay; i++) {
+            if (i % 7 === 6 || i % 7 === 0) continue;
+            learnedTotal += getWordsForDay(currentLevel, i).length;
+        }
+        st.t = learnedTotal;
+        st.d = displayDay;
+        st.n = userName;
     }
+    const pc =
+        typeof TriggerPraise !== 'undefined' && TriggerPraise.encodePc ? TriggerPraise.encodePc(st) : '';
+    const praiseBase = window.location.origin + '/share-entry.html?path=index.html&praise=1';
+    const praiseShareUrl = pc ? `${praiseBase}&pc=${encodeURIComponent(pc)}` : praiseBase;
+
+    let learnedTotal = st.t;
+    const badgeLine =
+        typeof TriggerPraise !== 'undefined' && TriggerPraise.kakaoSubtitleLine
+            ? TriggerPraise.kakaoSubtitleLine(st)
+            : '';
 
     const alertCopied = () => {
         alert('✅ 공유 링크를 복사했어요.\n카톡 채팅창에 길게 눌러 붙여넣기로 보내 주세요.');
@@ -1239,8 +1296,8 @@ function shareKakao() {
     const payload = {
         objectType: 'feed',
         content: {
-            title: `🔥 [${userName}]님, 단어 학습 완료!`,
-            description: `누적 클리어: ${learnedTotal} 단어\n오늘의 진도: Day ${displayDay}\n\n오늘도 목표를 달성했습니다! 칭찬 배지를 보내주세요.`,
+            title: `🔥 [${st.n}]님, 단어 학습 완료!`,
+            description: `누적 클리어: ${st.t} 단어\n오늘의 진도: Day ${st.d}\n\n오늘도 목표를 달성했습니다! 칭찬 배지를 보내주세요.${badgeLine ? '\n\n' + badgeLine : ''}`,
             imageUrl: 'https://blackt.pages.dev/share-v2.png',
             link: { mobileWebUrl: shareUrl, webUrl: shareUrl }
         },

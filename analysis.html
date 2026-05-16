@@ -1392,6 +1392,7 @@
     <script src="worddata.js"></script>
     <script src="data/market_headwords_lookup.js"></script>
     <script src="data/passage_phrases_lookup.js"></script>
+    <script src="praise-share.js?v=20260516"></script>
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
 
     <script>
@@ -5951,7 +5952,18 @@
         function examRptShareKakao() {
             const userName = (localStorage.getItem('trigger_name') || '').trim() || '학생';
             const shareUrl = window.location.origin + '/share-entry.html?path=analysis.html';
-            const praiseShareUrl = window.location.origin + '/share-entry.html?path=index.html&praise=1';
+            const st =
+                typeof TriggerPraise !== 'undefined' && TriggerPraise.statsFromStorage
+                    ? TriggerPraise.statsFromStorage('exam')
+                    : { n: userName, d: 1, t: 0, k: 'exam' };
+            const pc =
+                typeof TriggerPraise !== 'undefined' && TriggerPraise.encodePc ? TriggerPraise.encodePc(st) : '';
+            const praiseBase = window.location.origin + '/share-entry.html?path=index.html&praise=1';
+            const praiseShareUrl = pc ? praiseBase + '&pc=' + encodeURIComponent(pc) : praiseBase;
+            const badgeLine =
+                typeof TriggerPraise !== 'undefined' && TriggerPraise.kakaoSubtitleLine
+                    ? TriggerPraise.kakaoSubtitleLine(st)
+                    : '';
             const school = (document.getElementById('exam-rpt-school') && document.getElementById('exam-rpt-school').value || '').trim() || '—';
             const examSel = document.getElementById('exam-rpt-exam-type');
             const examLabel = examSel && examSel.options[examSel.selectedIndex] ? examSel.options[examSel.selectedIndex].text : '시험';
@@ -5982,7 +5994,8 @@
                 fmt(t.esPts) +
                 '\n전체 배점 대비 ' +
                 fmt(t.totalAcc) +
-                '%\n\n앱에서 상세 리포트를 확인해 주세요.';
+                '%\n\n앱에서 상세 리포트를 확인해 주세요.' +
+                (badgeLine ? '\n\n' + badgeLine : '');
 
             const alertCopied = function () {
                 alert('✅ 공유 링크를 복사했어요.\n카톡 채팅창에 붙여넣어 부모님께 보내 주세요.');

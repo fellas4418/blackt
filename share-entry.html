@@ -111,6 +111,8 @@
             const targetPath = path.startsWith('/') ? path : '/' + path;
             const finalUrl = new URL(targetPath, location.origin);
             if (praise) finalUrl.searchParams.set('praise', 'true');
+            const praiseCtx = params.get('pc');
+            if (praiseCtx) finalUrl.searchParams.set('pc', praiseCtx);
 
             // 같은 기기에서 카톡 인앱 -> 외부 브라우저로 이동할 때 가입 상태를 1회 전달합니다.
             try {

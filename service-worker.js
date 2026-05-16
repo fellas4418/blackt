@@ -1,10 +1,11 @@
-const CACHE_NAME = 'trigger-voca-v5'; // 버전업 (강제 갱신용)
+const CACHE_NAME = 'trigger-voca-v6'; // 버전업 (강제 갱신용)
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
     '/study.html',
     '/style.css',
     '/app.js',
+    '/praise-share.js',
     '/wordData.js',
     '/manifest.json',
     '/share-entry.html'

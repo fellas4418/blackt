@@ -38,6 +38,34 @@
         .energy-slot { flex: 1; height: 8px; background: #222; border: 1px solid #333; border-radius: 4px; transition: all 0.3s ease; }
         .energy-slot.active { background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); border-color: #fff; }
 
+        #praise-popup-inner {
+            width: 92%;
+            max-width: 400px;
+            background: var(--card-bg-color);
+            border: 1px solid rgba(0, 243, 255, 0.38);
+            border-radius: 16px;
+            padding: 22px;
+            text-align: center;
+            box-shadow: 0 0 22px rgba(0, 243, 255, 0.14);
+            max-height: 88vh;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+        .praise-copy-btn {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(188, 19, 254, 0.45);
+            background: rgba(188, 19, 254, 0.12);
+            color: #e8c8ff;
+            font-weight: 700;
+            font-size: 0.92rem;
+            cursor: pointer;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        .praise-copy-btn:hover { background: rgba(188, 19, 254, 0.22); }
+
         .input-group { margin-bottom: 18px; text-align: left; }
         .input-label { font-size: 0.85rem; color: #777; margin-bottom: 6px; display: block; }
         .neon-input { width: 100%; box-sizing: border-box; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; font-size: 1rem; transition: 0.3s; }
@@ -117,13 +145,21 @@
     </div>
 
     <div id="praise-popup" style="display:none; z-index: 40000;">
-        <div style="font-size: 5rem; margin-bottom: 20px; animation: bounceGlow 0.8s infinite alternate;">🎉</div>
-        <h1 style="color:var(--neon-green); text-shadow: 0 0 10px var(--neon-green); margin-bottom: 15px; font-size: 2.2rem;">칭찬 도착!</h1>
-        <p style="color:#ddd; font-size:1.1rem; line-height:1.6; margin-bottom: 30px; text-align: center;">
-            트리거 팀(부모님)이 칭찬 배지를 보내셨습니다!<br>
-            <strong style="color:var(--neon-blue); font-size: 1.4rem; display:inline-block; margin-top:10px; text-shadow: 0 0 10px var(--neon-blue);">에너지 +1 회복! ⚡</strong>
-        </p>
-        <button class="login-btn" style="border-color: var(--neon-green); width: 80%; max-width: 300px; font-size: 1.2rem;" onclick="document.getElementById('praise-popup').style.display='none'">감사합니다!</button>
+        <div id="praise-popup-inner">
+            <div id="praise-emoji" style="font-size: 4rem; margin-bottom: 12px; line-height: 1; animation: bounceGlow 0.8s infinite alternate;">🏆</div>
+            <div id="praise-badge-title" style="font-size: 1.05rem; color: var(--neon-orange); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px;">오늘의 배지</div>
+            <h1 id="praise-main-title" style="color:var(--neon-green); text-shadow: 0 0 10px var(--neon-green); margin: 0 0 12px; font-size: 2rem;">축하 배지 도착!</h1>
+            <p id="praise-headline" style="color:#e0e4ea; font-size:1.02rem; line-height:1.55; margin: 0 0 10px; text-align:center;"></p>
+            <p id="praise-blurb" style="color:#777; font-size:0.88rem; line-height:1.45; margin: 0 0 16px; text-align:center;"></p>
+            <p style="color:#666; font-size:0.82rem; line-height:1.45; margin: 0 0 10px;">버튼을 누르면 축하 문장이 복사돼요. 카톡에 붙여넣어 보내 보세요.</p>
+            <div id="praise-copy-wrap" style="display:flex; flex-direction:column; gap:8px; width:100%; margin-bottom:12px;">
+                <button type="button" class="praise-copy-btn" id="praise-copy-0">🤗 따뜻하게 복사</button>
+                <button type="button" class="praise-copy-btn" id="praise-copy-1">⚡ 신나게 복사</button>
+                <button type="button" class="praise-copy-btn" id="praise-copy-2">✨ 짧게 복사</button>
+            </div>
+            <p id="praise-copy-feedback" style="display:none; font-size:0.88rem; color:var(--neon-green); margin:0 0 12px;"></p>
+            <button type="button" class="login-btn" style="border-color: var(--neon-green); width: 80%; max-width: 300px; font-size: 1.05rem;" onclick="window.closePraisePopup && window.closePraisePopup()">닫기</button>
+        </div>
     </div>
 
     <div id="guide-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 30000; align-items: center; justify-content: center;">
@@ -421,16 +457,52 @@
             return array;
         }
 
+        function getWeekNewWordsPool(level, weekNum) {
+            if (typeof wordsData === 'undefined' || !wordsData[level]) return [];
+            var weekData = wordsData[level]['week' + weekNum];
+            if (!weekData) return [];
+            var pool = [];
+            var seen = new Set();
+            for (var localD = 1; localD <= 5; localD++) {
+                var dayData = weekData[String(localD)];
+                if (!Array.isArray(dayData)) continue;
+                dayData.forEach(function (w) {
+                    var key = String((w && w.word) || '').trim().toLowerCase();
+                    if (!key || seen.has(key)) return;
+                    seen.add(key);
+                    pool.push(w);
+                });
+            }
+            return pool;
+        }
+
+        function getReviewWordsForDay(level, absoluteDay) {
+            var localDay = absoluteDay % 7 === 0 ? 7 : absoluteDay % 7;
+            if (localDay !== 6 && localDay !== 7) return [];
+            var weekNum = Math.ceil(absoluteDay / 7);
+            var pool = getWeekNewWordsPool(level, weekNum);
+            if (!pool.length) return [];
+            var halfIndex = Math.ceil(pool.length / 2);
+            if (localDay === 6) return pool.slice(0, halfIndex);
+            return pool.slice(halfIndex);
+        }
+
         function getWordsForDay(level, absoluteDay) {
             if (typeof wordsData === 'undefined' || !wordsData[level]) return [];
-            let week = Math.ceil(absoluteDay / 7);
-            let localDay = absoluteDay % 7 === 0 ? 7 : absoluteDay % 7;
-            let weekData = wordsData[level]["week" + week];
+            var week = Math.ceil(absoluteDay / 7);
+            var localDay = absoluteDay % 7 === 0 ? 7 : absoluteDay % 7;
+            if (localDay === 6 || localDay === 7) {
+                var fromPool = getReviewWordsForDay(level, absoluteDay);
+                if (fromPool.length) return fromPool;
+            }
+            var weekData = wordsData[level]['week' + week];
             if (!weekData) return [];
-            let dayData = weekData[String(localDay)];
+            var dayData = weekData[String(localDay)];
             if (!dayData) return [];
             if ((localDay === 6 || localDay === 7) && !Array.isArray(dayData)) {
-                return dayData.test || [];
+                var legacy = dayData.test || [];
+                var half = Math.ceil(legacy.length / 2);
+                return localDay === 6 ? legacy.slice(0, half) : legacy.slice(half);
             }
             return Array.isArray(dayData) ? dayData : [];
         }
@@ -691,10 +763,8 @@
                 }
                 document.getElementById('total-word-count').innerText = `${learnedTotal} 단어`;
 
-                var todayWordsData = getWordsForDay(lvl, displayDay); // ✅ displayDay 사용
-                var actualCount = (todayWordsData && todayWordsData.length) ? todayWordsData.length : 0;
-                var isReviewDay = (displayDay % 7 === 6 || displayDay % 7 === 0);
-                var displayCount = isReviewDay ? Math.ceil(actualCount / 2) : actualCount;
+                var todayWordsData = getWordsForDay(lvl, displayDay);
+                var displayCount = (todayWordsData && todayWordsData.length) ? todayWordsData.length : 0;
                 
                 document.getElementById('target-count-display').innerText = displayCount + "개";
             }
@@ -1331,23 +1401,150 @@
             }
 
             if (urlParams.get('praise') === 'true') {
-                const praisePopup = document.getElementById('praise-popup');
+                var praisePopup = document.getElementById('praise-popup');
                 if (praisePopup) {
+                    var savedName = localStorage.getItem('trigger_name');
+                    var ctx = null;
+                    if (typeof TriggerPraise !== 'undefined' && TriggerPraise.decodePc) {
+                        ctx = TriggerPraise.decodePc(urlParams.get('pc') || '') || null;
+                    }
+                    if (!ctx) {
+                        ctx = {
+                            n: savedName && savedName !== 'null' ? String(savedName) : '학습자',
+                            d: 1,
+                            t: 0,
+                            b: 3,
+                            m: 2,
+                            k: 'voca'
+                        };
+                    }
+                    var pack =
+                        typeof TriggerPraise !== 'undefined' && TriggerPraise.uiPack
+                            ? TriggerPraise.uiPack(ctx)
+                            : {
+                                  emoji: '🎉',
+                                  badgeTitle: '오늘의 도전',
+                                  blurb: '',
+                                  headline: ctx.n + '님, 학습을 마친 걸 응원해요!',
+                                  copies: [
+                                      ctx.n + '님 오늘도 고생 많았어요.',
+                                      ctx.n + '님 멋져요! 계속 가요.',
+                                      ctx.n + '님 최고 👏'
+                                  ],
+                                  labels: ['🤗 따뜻하게 복사', '⚡ 신나게 복사', '✨ 짧게 복사']
+                              };
+                    var em = document.getElementById('praise-emoji');
+                    var bt = document.getElementById('praise-badge-title');
+                    var mt = document.getElementById('praise-main-title');
+                    var hl = document.getElementById('praise-headline');
+                    var bl = document.getElementById('praise-blurb');
+                    if (em) em.textContent = pack.emoji || '🎉';
+                    if (bt) bt.textContent = '「' + (pack.badgeTitle || '') + '」';
+                    if (mt) mt.textContent = ctx.k === 'exam' ? '분석까지, 수고했어요!' : '축하 배지 도착!';
+                    if (hl) hl.textContent = pack.headline || '';
+                    if (bl) bl.textContent = pack.blurb || '';
+
+                    function copyPraiseTxt(text, label) {
+                        var hint = document.getElementById('praise-copy-feedback');
+                        function showOk() {
+                            if (hint) {
+                                hint.style.display = 'block';
+                                hint.textContent =
+                                    label + ' 복사됨! 카톡에서 길게 눌러 붙여넣기 해 보세요.';
+                            }
+                        }
+                        function showFail() {
+                            if (hint) {
+                                hint.style.display = 'block';
+                                hint.style.color = 'var(--neon-orange)';
+                                hint.textContent = '복사가 막혔어요. 문장을 직접 길게 눌러 복사해 주세요.';
+                            }
+                        }
+                        if (navigator.clipboard && window.isSecureContext) {
+                            navigator.clipboard.writeText(text).then(showOk).catch(function () {
+                                try {
+                                    var ta = document.createElement('textarea');
+                                    ta.value = text;
+                                    ta.setAttribute('readonly', '');
+                                    ta.style.position = 'fixed';
+                                    ta.style.left = '-9999px';
+                                    document.body.appendChild(ta);
+                                    ta.select();
+                                    ta.setSelectionRange(0, text.length);
+                                    var ok = document.execCommand('copy');
+                                    document.body.removeChild(ta);
+                                    if (ok) showOk();
+                                    else showFail();
+                                } catch (e2) {
+                                    showFail();
+                                }
+                            });
+                        } else {
+                            try {
+                                var ta2 = document.createElement('textarea');
+                                ta2.value = text;
+                                ta2.setAttribute('readonly', '');
+                                ta2.style.position = 'fixed';
+                                ta2.style.left = '-9999px';
+                                document.body.appendChild(ta2);
+                                ta2.select();
+                                var ok2 = document.execCommand('copy');
+                                document.body.removeChild(ta2);
+                                if (ok2) showOk();
+                                else showFail();
+                            } catch (e3) {
+                                showFail();
+                            }
+                        }
+                    }
+
+                    window.closePraisePopup = function () {
+                        praisePopup.style.display = 'none';
+                        var f = document.getElementById('praise-copy-feedback');
+                        if (f) {
+                            f.style.display = 'none';
+                            f.textContent = '';
+                            f.style.color = 'var(--neon-green)';
+                        }
+                    };
+
+                    ;[0, 1, 2].forEach(function (idx) {
+                        var btn = document.getElementById('praise-copy-' + idx);
+                        if (btn && pack.labels && pack.copies && pack.copies[idx] != null) {
+                            btn.textContent = pack.labels[idx] || '복사';
+                            btn.onclick = function () {
+                                copyPraiseTxt(pack.copies[idx], pack.labels[idx] || '문장');
+                            };
+                        }
+                    });
+
                     praisePopup.style.display = 'flex';
-                    
+
                     if (typeof confetti === 'function') {
                         var duration = 3 * 1000;
                         var animationEnd = Date.now() + duration;
                         var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 50000 };
 
-                        function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+                        function randomInRange(min, max) {
+                            return Math.random() * (max - min) + min;
+                        }
 
-                        var interval = setInterval(function() {
+                        var interval = setInterval(function () {
                             var timeLeft = animationEnd - Date.now();
                             if (timeLeft <= 0) return clearInterval(interval);
                             var particleCount = 50 * (timeLeft / duration);
-                            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
-                            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+                            confetti(
+                                Object.assign({}, defaults, {
+                                    particleCount: particleCount,
+                                    origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+                                })
+                            );
+                            confetti(
+                                Object.assign({}, defaults, {
+                                    particleCount: particleCount,
+                                    origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+                                })
+                            );
                         }, 250);
                     }
                 }
@@ -1364,6 +1561,7 @@
     </script>
     <script src="worddata.js"></script>
     <script src="words.js"></script>
+    <script src="praise-share.js?v=20260516"></script>
     <script src="app.js?v=victory"></script>
     <script>
         if ('serviceWorker' in navigator) {
