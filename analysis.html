@@ -1742,7 +1742,17 @@
         function normalizeGoldenKeyInviteCode(raw) {
             return String(raw || '')
                 .trim()
+                .replace(/\s+/g, '')
                 .toLowerCase();
+        }
+
+        function getInviteCodeInputNear(el) {
+            const wrap = el && el.closest('[data-gk-invite-lock-overlay], #ai-ask-premium-gate');
+            if (wrap) {
+                const inp = wrap.querySelector('[data-gk-invite-input]');
+                if (inp) return inp;
+            }
+            return null;
         }
 
         function userHasGoldenKeyInviteAccess() {
@@ -1779,27 +1789,12 @@
         }
 
         /**
-         * Golden Key(핵심 키워드·3종 실전 주제·주제 요약) 열람 권한.
-         * GOLDEN_KEY_OPEN_FOR_ALL=false 시 무료 일 2회(FREE_TOPIC_REVEALS_PER_DAY), 유료·관리자 무제한.
-         * @param {{ skipConsume?: boolean }} [opts] — 로컬 캐시/히스토리 재표시 시 true로 일일 횟수를 소비하지 않음.
+         * Golden Key 열람 — AI 질문과 동일: 유료·초대코드(tri3)·관리자만 (GOLDEN_KEY_OPEN_FOR_ALL 시 전원).
+         * @param {{ skipConsume?: boolean }} [opts] — 예전 일일 2회 카운트용(호환). 잠금 여부만 통일 판단.
          */
         function evaluateTopicSectionReveal(opts) {
-            if (GOLDEN_KEY_OPEN_FOR_ALL || userHasGoldenKeyUnlimitedAccess()) return { locked: false };
-            const today = topicRevealTodayKey();
-            let o = {};
-            try {
-                o = JSON.parse(localStorage.getItem(TOPIC_REVEAL_STORAGE_KEY) || '{}');
-            } catch (e) {}
-            if (o.date !== today) o = { date: today, count: 0 };
-            const n = Number(o.count) || 0;
-            if (n >= FREE_TOPIC_REVEALS_PER_DAY) return { locked: true };
-            if (!opts || !opts.skipConsume) {
-                o.count = n + 1;
-                try {
-                    localStorage.setItem(TOPIC_REVEAL_STORAGE_KEY, JSON.stringify({ date: today, count: o.count }));
-                } catch (e) {}
-            }
-            return { locked: false };
+            if (userCanUsePassagePremiumExtras()) return { locked: false };
+            return { locked: true };
         }
 
         /** GOLDEN_KEY_OPEN_FOR_ALL=false 시 「무료는 하루 2회까지…」 안내가 다시 붙음 */
@@ -1810,7 +1805,7 @@
             if (userHasGoldenKeyInviteAccess()) {
                 return '지문의 주요 키워드와 3종 실전 주제문을 한 묶음으로 모았어요. 초대 코드가 적용되어 무제한으로 볼 수 있어요.';
             }
-            return '지문의 주요 키워드와 3종 실전 주제문을 한 묶음으로 모았어요. 무료는 하루 2회까지 열람, 유료·초대 코드는 무제한이에요';
+            return '지문의 주요 키워드와 3종 실전 주제문을 한 묶음으로 모았어요. 유료·초대 코드(tri3) 이용자만 열람할 수 있어요';
         }
 
         /** Golden Key · AI 질문 공통: 유료·초대코드(tri3)·관리자 등 */
@@ -4189,8 +4184,8 @@
             const topicLocked = !!(topicReveal && topicReveal.locked);
             const lockOverlay = topicLocked
                 ? '<div data-gk-invite-lock-overlay="1" style="position:absolute;inset:0;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px 16px;text-align:center;z-index:4;box-sizing:border-box;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);background:rgba(5,5,5,0.55);">' +
-                  '<p style="margin:0 0 10px;font-size:0.92rem;line-height:1.55;color:#eee;max-width:320px;">오늘 Golden Key 확인 횟수(2회)를 썼어요.</p>' +
-                  '<p style="margin:0 0 12px;font-size:0.84rem;line-height:1.5;color:#bbb;max-width:300px;">초대 코드가 있으면 입력해 주세요.</p>' +
+                  '<p style="margin:0 0 10px;font-size:0.92rem;line-height:1.55;color:#eee;max-width:320px;">Golden Key는 유료·초대 코드 이용자만 볼 수 있어요.</p>' +
+                  '<p style="margin:0 0 12px;font-size:0.84rem;line-height:1.5;color:#bbb;max-width:300px;">초대 코드가 있으면 입력해 주세요. (AI 질문과 동일)</p>' +
                   '<input type="text" data-gk-invite-input="1" placeholder="초대 코드" autocomplete="off" autocapitalize="off" spellcheck="false" style="width:100%;max-width:280px;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #555;background:#111;color:#fff;margin:0 0 10px;font-size:0.95rem;" />' +
                   '<button type="button" data-gk-invite-redeem="1" style="width:100%;max-width:280px;padding:12px 18px;border-radius:12px;border:1px solid #9fe870;font-weight:bold;font-size:0.92rem;cursor:pointer;background:rgba(159,232,112,0.12);color:#9fe870;margin-bottom:14px;">초대 코드 확인</button>' +
                   '<p style="margin:0 0 10px;font-size:0.78rem;color:#777;">또는</p>' +
@@ -4904,12 +4899,24 @@
                 const btn = ev.target.closest('[data-gk-invite-redeem]');
                 if (!btn) return;
                 ev.preventDefault();
-                const wrap = btn.closest('[data-gk-invite-lock-overlay]');
-                const inp = wrap ? wrap.querySelector('[data-gk-invite-input]') : null;
+                ev.stopPropagation();
+                const inp = getInviteCodeInputNear(btn);
                 const r = redeemGoldenKeyInviteCode(inp && inp.value);
                 if (r.ok) {
                     alert('초대 코드가 적용되었어요. Golden Key·AI 질문을 무제한으로 이용할 수 있어요.');
-                    location.reload();
+                    updateAiAskPremiumGate();
+                    if (typeof applyParsedAnalysisResult === 'function' && lastAnalysisResForChat) {
+                        try {
+                            applyParsedAnalysisResult(lastAnalysisResForChat, {
+                                skipPassageHistory: true,
+                                skipTopicRevealConsume: true
+                            });
+                        } catch (e) {
+                            location.reload();
+                        }
+                    } else {
+                        location.reload();
+                    }
                     return;
                 }
                 alert(r.message || '코드를 확인해 주세요.');
@@ -4924,7 +4931,19 @@
                 const r = redeemGoldenKeyInviteCode(inp.value);
                 if (r.ok) {
                     alert('초대 코드가 적용되었어요. Golden Key·AI 질문을 무제한으로 이용할 수 있어요.');
-                    location.reload();
+                    updateAiAskPremiumGate();
+                    if (typeof applyParsedAnalysisResult === 'function' && lastAnalysisResForChat) {
+                        try {
+                            applyParsedAnalysisResult(lastAnalysisResForChat, {
+                                skipPassageHistory: true,
+                                skipTopicRevealConsume: true
+                            });
+                        } catch (e) {
+                            location.reload();
+                        }
+                    } else {
+                        location.reload();
+                    }
                 } else {
                     alert(r.message || '코드를 확인해 주세요.');
                 }
