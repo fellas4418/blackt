@@ -1326,7 +1326,7 @@
             <div id="ai-ask-form-stack" class="ai-ask-form-stack">
             <p class="premium-ai-ask-intro">지문·문법·단어 등 막히는 부분을 적어 주세요. 문장 선택 시 💬답변 · 📌지문 연결 · 📝예시, 미선택 시 💬답변 · ⭐핵심 · 📝예시 (약 450~750자)</p>
             <div class="premium-ai-ask-actions">
-                <button type="button" id="btn-sentence-pick-toggle" class="login-btn" style="margin:0;border-color:var(--neon-blue);color:var(--neon-blue);">질문한 문장 선택</button>
+                <button type="button" id="btn-sentence-pick-toggle" class="login-btn" style="margin:0;border-color:var(--neon-blue);color:var(--neon-blue);">질문할 문장 선택</button>
                 <button type="button" id="btn-sentence-pick-done" class="login-btn" style="margin:0;display:none;border-color:#9fe870;color:#9fe870;">선택 완료</button>
                 <button type="button" id="btn-chat-history" class="login-btn" style="margin:0;border-color:#888;color:#ccc;">나의 질문 기록 보기</button>
             </div>
@@ -4005,7 +4005,7 @@
             const dn = document.getElementById('btn-sentence-pick-done');
             if (tb) {
                 tb.style.display = '';
-                tb.textContent = '질문한 문장 선택';
+                tb.textContent = '질문할 문장 선택';
             }
             if (dn) dn.style.display = 'none';
             updateChatContextPreview();
