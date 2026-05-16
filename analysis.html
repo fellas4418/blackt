@@ -9,6 +9,7 @@
         body { background: #000000; color: #fff; padding: 20px; font-family: 'Pretendard', sans-serif; }
         .camera-ui { width: 100%; min-height: 200px; max-height: 40vh; background: #111; border: 2px dashed var(--neon-blue); border-radius: 15px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; margin-bottom: 10px; }
         #preview { width: 100%; height: 100%; object-fit: contain; display: none; }
+        #preview.upload-preview-tappable { cursor: pointer; }
         .guide-box { background: rgba(0, 243, 255, 0.05); border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid rgba(0, 243, 255, 0.2); }
         .guide-title { color: var(--neon-blue); font-weight: bold; margin-bottom: 8px; font-size: 1rem; }
         .guide-text { color: #ccc; font-size: 0.85rem; line-height: 1.6; margin: 0; }
@@ -2560,15 +2561,38 @@
             input.click();
         }
     
+        function openUploadImageLightbox(src) {
+            if (!src) return;
+            const lb = document.getElementById('exam-rpt-lightbox');
+            const big = document.getElementById('exam-rpt-lightbox-img');
+            if (!lb || !big) return;
+            big.src = src;
+            lb.style.display = 'flex';
+            lb.setAttribute('aria-hidden', 'false');
+        }
+
+        function bindPassagePreviewLightboxOnce() {
+            const prev = document.getElementById('preview');
+            if (!prev || prev.dataset.lightboxBound === '1') return;
+            prev.dataset.lightboxBound = '1';
+            prev.addEventListener('click', function () {
+                if (prev.style.display === 'none' || !prev.src) return;
+                openUploadImageLightbox(prev.src);
+            });
+        }
+
         function loadImg(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     selectedBase64 = e.target.result.split(',')[1];
-                    document.getElementById('preview').src = e.target.result;
-                    document.getElementById('preview').style.display = 'block';
+                    const prev = document.getElementById('preview');
+                    prev.src = e.target.result;
+                    prev.style.display = 'block';
+                    prev.classList.add('upload-preview-tappable');
                     document.getElementById('label').style.display = 'none';
                     document.getElementById('ai-btn-area').style.display = 'block';
+                    bindPassagePreviewLightboxOnce();
                 };
                 reader.readAsDataURL(input.files[0]);
             }
@@ -5839,12 +5863,7 @@
         function examRptOpenThumbLightbox(ix) {
             const item = examRptImages[ix];
             if (!item) return;
-            const lb = document.getElementById('exam-rpt-lightbox');
-            const big = document.getElementById('exam-rpt-lightbox-img');
-            if (!lb || !big) return;
-            big.src = 'data:' + item.mimeType + ';base64,' + item.data;
-            lb.style.display = 'flex';
-            lb.setAttribute('aria-hidden', 'false');
+            openUploadImageLightbox('data:' + item.mimeType + ';base64,' + item.data);
         }
 
         function examRptCloseLightbox() {
