@@ -1858,6 +1858,27 @@
             } catch (e) {}
         }
 
+        function isPassageResultViewActive() {
+            const rs = document.getElementById('result-section');
+            if (!rs) return false;
+            try {
+                if (rs.style.display === 'block') return true;
+                return window.getComputedStyle(rs).display === 'block';
+            } catch (e) {
+                return rs.style.display === 'block';
+            }
+        }
+
+        function showPassageAnalysisResultView() {
+            const inp = document.getElementById('input-section');
+            const ed = document.getElementById('edit-section');
+            const rs = document.getElementById('result-section');
+            if (inp) inp.style.display = 'none';
+            if (ed) ed.style.display = 'none';
+            if (rs) rs.style.display = 'block';
+            refreshPremiumAiPanelVisibility();
+        }
+
         function revertPassageAnalysisToInputShell() {
             try {
                 const inp = document.getElementById('input-section');
@@ -1944,6 +1965,9 @@
         }
 
         function setAnalysisEnabled(enabled) {
+            if (enabled && isPassageResultViewActive()) {
+                return;
+            }
             const ids = ['input-section', 'edit-section'];
             ids.forEach(id => {
                 const el = document.getElementById(id);
@@ -4629,14 +4653,10 @@
                 return;
             }
             lastPassageAnalysisFingerprint = fp;
-            const inp = document.getElementById('input-section');
-            const ed = document.getElementById('edit-section');
-            const rs = document.getElementById('result-section');
-            if (inp) inp.style.display = 'none';
-            if (ed) ed.style.display = 'none';
-            if (rs) rs.style.display = 'block';
+            showPassageAnalysisResultView();
             setAnalysisSourceBadge(true);
             applyParsedAnalysisResult(hit.res, { skipPassageHistory: true, skipTopicRevealConsume: true });
+            showPassageAnalysisResultView();
             const hist = loadPassageHistoryList().find(function (x) {
                 return x && x.fp === fp;
             });
@@ -4649,7 +4669,9 @@
                 passageHistoryUpsertFromCurrent();
             } catch (e) {}
             try {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                const rs = document.getElementById('result-section');
+                if (rs) rs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                else window.scrollTo({ top: 0, behavior: 'smooth' });
             } catch (e) {}
         }
 
