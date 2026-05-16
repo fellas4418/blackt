@@ -412,6 +412,14 @@
         #grammar-list-body.grammar-list-body--collapsed {
             display: none !important;
         }
+        /* 접힘: 상단 '펼치기'만 / 펼침: 상단+하단 '접기' 두 개 */
+        #grammar-list-toggle-btn-bottom {
+            display: none !important;
+        }
+        #grammar-list-body:not(.grammar-list-body--collapsed) + #grammar-list-toggle-btn-bottom {
+            display: block !important;
+            width: 100%;
+        }
         .gk-topic-hint { font-size: 0.88rem; color: #c8cdd4; margin: 0 0 0.55em; line-height: 1.55; }
         .gk-topic-hint:last-of-type { margin-bottom: 0; }
         .gk-topic-summary-title { font-size: 1.08rem; color: #ffe082; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.02em; }
