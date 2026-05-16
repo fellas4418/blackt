@@ -1122,6 +1122,22 @@
             line-height: 1.55;
             white-space: pre-wrap;
         }
+        #premium-ai-ask-panel #ai-ask-reply.ai-ask-reply--loading {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        #premium-ai-ask-panel #ai-ask-reply .ai-ask-ex-hl {
+            color: #ffe082;
+            background: rgba(255, 224, 130, 0.18);
+            border-radius: 4px;
+            box-shadow: 0 0 0 1px rgba(255, 224, 130, 0.35);
+        }
+        #premium-ai-ask-panel #ai-ask-submit:disabled {
+            opacity: 0.65;
+            cursor: wait;
+        }
         #chat-history-modal { position: fixed; inset: 0; z-index: 35000; background: rgba(0,0,0,0.92); display: none; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; }
         #chat-history-modal .chat-history-inner { background: #111; border: 1px solid #444; border-radius: 16px; max-width: 480px; width: 100%; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; }
         #chat-history-list { overflow-y: auto; padding: 12px; flex: 1; font-size: 0.88rem; color: #ddd; line-height: 1.5; }
@@ -2083,6 +2099,54 @@
             );
         }
 
+        const AI_ASK_SUBMIT_LABEL_SEND = '질문 보내기';
+        const AI_ASK_SUBMIT_LABEL_NEW = '다른 질문하기';
+        let aiAskAwaitingNewQuestion = false;
+
+        function formatAiAskAnswerForDisplay(raw) {
+            const parts = String(raw || '').split(/(⟦[^⟧]*⟧)/g);
+            return parts
+                .map(function (p) {
+                    const m = p.match(/^⟦([^⟧]*)⟧$/);
+                    if (m) return '<span class="ai-ask-ex-hl">' + escapeHtml(m[1]) + '</span>';
+                    return escapeHtml(p);
+                })
+                .join('');
+        }
+
+        function setAiAskReplyLoading(out) {
+            if (!out) return;
+            out.classList.add('ai-ask-reply--loading');
+            out.innerHTML =
+                '<span>답변을 불러오는 중…</span><span class="inline-spinner" aria-hidden="true"></span>';
+        }
+
+        function setAiAskReplyContent(out, answerText) {
+            if (!out) return;
+            out.classList.remove('ai-ask-reply--loading');
+            const t = String(answerText || '').trim();
+            if (!t) {
+                out.textContent = '';
+                return;
+            }
+            if (t.indexOf('⟦') !== -1) {
+                out.innerHTML = formatAiAskAnswerForDisplay(t);
+            } else {
+                out.textContent = t;
+            }
+        }
+
+        function setAiAskReplyError(out, msg) {
+            if (!out) return;
+            out.classList.remove('ai-ask-reply--loading');
+            out.textContent = msg;
+        }
+
+        function setAiAskSubmitNewQuestionMode(sub, on) {
+            aiAskAwaitingNewQuestion = !!on;
+            if (sub) sub.textContent = on ? AI_ASK_SUBMIT_LABEL_NEW : AI_ASK_SUBMIT_LABEL_SEND;
+        }
+
         function renderChatHistoryListHtml(items) {
             const sorted = sortChatHistoryNewestFirst(items);
             return sorted
@@ -2387,14 +2451,14 @@
                         answer:
                             '💬 답변: (데모) 선택하신 문장 맥락에서 질문한 표현·용법을 설명하는 답이에요.\n\n' +
                             '📌 지문 연결: 데모 문장과 연결해 문맥에서 어떤 역할인지 짚는 부분이에요.\n\n' +
-                            '📝 예시: On the other hand, many students prefer math. (반면에 많은 학생은 수학을 선호해요.)'
+                            '📝 예시: On the other hand, ⟦many students prefer math⟧. (반면에 많은 학생은 수학을 선호해요.)'
                     };
                 }
                 return {
                     answer:
                         '💬 답변: (데모) 문법·개념 질문에 대한 설명이에요. 문장 통역이 아닙니다.\n\n' +
                         '⭐ 핵심: 한 줄로 요약하는 부분이에요.\n\n' +
-                        '📝 예시: The book was read by Tom. (그 책은 톰에게 읽혔어요.)'
+                        '📝 예시: The book was ⟦read by Tom⟧. (그 책은 톰에게 읽혔어요.)'
                 };
             }
             const res = await fetch(WORKER_URL.replace(/\/$/, '') + path, {
@@ -4234,14 +4298,23 @@
                     const qEl = document.getElementById('ai-ask-input');
                     const out = document.getElementById('ai-ask-reply');
                     const replyBlock = document.getElementById('ai-ask-reply-block');
+                    if (aiAskAwaitingNewQuestion) {
+                        if (qEl) {
+                            qEl.value = '';
+                            try {
+                                qEl.focus();
+                            } catch (e) {}
+                        }
+                        setAiAskSubmitNewQuestionMode(sub, false);
+                        return;
+                    }
                     const q = (qEl && qEl.value ? String(qEl.value) : '').trim();
                     if (!q) {
                         alert('질문을 입력해 주세요.');
                         return;
                     }
-                    if (out) {
-                        out.textContent = '답변을 불러오는 중…';
-                    }
+                    sub.disabled = true;
+                    setAiAskReplyLoading(out);
                     if (replyBlock) {
                         try {
                             replyBlock.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -4252,34 +4325,35 @@
                             '/api/chat/ask',
                             buildChatAskRequestBody(q, confirmedChatContextSentence.trim())
                         );
-                        if (out) out.textContent = data.answer || '';
+                        setAiAskReplyContent(out, data.answer || '');
+                        setAiAskSubmitNewQuestionMode(sub, true);
                     } catch (e) {
-                        if (out) {
-                            let msg = (e && e.message) || '요청에 실패했어요.';
-                            const netFail =
-                                (e && e.name === 'TypeError') ||
-                                /failed to fetch|networkerror|load failed/i.test(String(msg));
-                            if (netFail) {
-                                msg =
-                                    '서버에 연결하지 못했어요(Failed to fetch). 배포된 Worker 주소(WORKER_URL)를 쓰는지, 오프라인·차단 여부를 확인해 주세요. UI만 보려면 주소 끝에 ?aiDemo=1 을 붙여 보세요.';
-                                try {
-                                    console.warn(
-                                        '[chat/ask] 네트워크 실패 — 로컬 워커: 프로젝트 폴더에서 npx wrangler dev 후 analysis.html?worker=http://127.0.0.1:8787&aiDemo=1'
-                                    );
-                                } catch (_) {}
-                            } else if (e && e.httpStatus === 404 && (e.apiError === 'not_found' || String(msg).indexOf('not_found') !== -1)) {
-                                msg = '답변 기능에 연결되지 않았어요. 잠시 후 다시 시도해 주세요.';
-                                try {
-                                    console.warn(
-                                        '[chat/ask] 404 not_found — Worker에 /api/chat/ask 라우트·배포 여부를 확인하세요.'
-                                    );
-                                } catch (_) {}
-                            } else if (e && (e.apiError === 'premium_required' || e.httpStatus === 403)) {
-                                msg = 'AI 질문은 유료 또는 초대 코드 이용자만 사용할 수 있어요.';
-                                updateAiAskPremiumGate();
-                            }
-                            out.textContent = msg;
+                        let msg = (e && e.message) || '요청에 실패했어요.';
+                        const netFail =
+                            (e && e.name === 'TypeError') ||
+                            /failed to fetch|networkerror|load failed/i.test(String(msg));
+                        if (netFail) {
+                            msg =
+                                '서버에 연결하지 못했어요(Failed to fetch). 배포된 Worker 주소(WORKER_URL)를 쓰는지, 오프라인·차단 여부를 확인해 주세요. UI만 보려면 주소 끝에 ?aiDemo=1 을 붙여 보세요.';
+                            try {
+                                console.warn(
+                                    '[chat/ask] 네트워크 실패 — 로컬 워커: 프로젝트 폴더에서 npx wrangler dev 후 analysis.html?worker=http://127.0.0.1:8787&aiDemo=1'
+                                );
+                            } catch (_) {}
+                        } else if (e && e.httpStatus === 404 && (e.apiError === 'not_found' || String(msg).indexOf('not_found') !== -1)) {
+                            msg = '답변 기능에 연결되지 않았어요. 잠시 후 다시 시도해 주세요.';
+                            try {
+                                console.warn(
+                                    '[chat/ask] 404 not_found — Worker에 /api/chat/ask 라우트·배포 여부를 확인하세요.'
+                                );
+                            } catch (_) {}
+                        } else if (e && (e.apiError === 'premium_required' || e.httpStatus === 403)) {
+                            msg = 'AI 질문은 유료 또는 초대 코드 이용자만 사용할 수 있어요.';
+                            updateAiAskPremiumGate();
                         }
+                        setAiAskReplyError(out, msg);
+                    } finally {
+                        sub.disabled = false;
                     }
                     if (replyBlock) {
                         try {
