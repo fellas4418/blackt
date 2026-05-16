@@ -3952,15 +3952,11 @@
         function getSelectedSentencePlainFromDom() {
             const area = document.getElementById('ai-report-area');
             if (!area) return '';
-            const rows = area.querySelectorAll('.translation-row.sentence-pick-selected');
-            const parts = [];
-            rows.forEach(function (row) {
-                const eng = row.querySelector('.eng-text');
-                if (!eng) return;
-                const t = getEngPlainTextForChatContext(eng);
-                if (t) parts.push(t);
-            });
-            return parts.join('\n\n');
+            const row = area.querySelector('.translation-row.sentence-pick-selected');
+            if (!row) return '';
+            const eng = row.querySelector('.eng-text');
+            if (!eng) return '';
+            return getEngPlainTextForChatContext(eng) || '';
         }
 
         function scrollToPassageForSentencePick() {
@@ -4041,7 +4037,11 @@
                     const row = ev.target.closest('.translation-row.pick-selectable');
                     if (!row || !rs.contains(row)) return;
                     ev.preventDefault();
-                    row.classList.toggle('sentence-pick-selected');
+                    const wasSelected = row.classList.contains('sentence-pick-selected');
+                    rs.querySelectorAll('.translation-row.sentence-pick-selected').forEach(function (el) {
+                        el.classList.remove('sentence-pick-selected');
+                    });
+                    if (!wasSelected) row.classList.add('sentence-pick-selected');
                     updateChatContextPreview();
                 });
             }
