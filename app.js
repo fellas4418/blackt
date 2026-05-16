@@ -1535,8 +1535,10 @@ window.printMyWrongTest = function() {
 if (!window.isInitActive) {
     window.isInitActive = true;
     const runner = () => {
-        initApp();
-        applyAdminPersistence(); 
+        if (document.getElementById('target')) {
+            initApp();
+        }
+        applyAdminPersistence();
     };
 
     if (document.readyState === 'loading') { 
