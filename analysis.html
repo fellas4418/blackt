@@ -1176,23 +1176,69 @@
             content: '▾';
         }
         #chat-history-list .chat-history-item-body {
-            padding: 0 12px 12px;
+            padding: 10px 12px 12px;
             border-top: 1px solid #2a2a2a;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
-        #chat-history-list .chat-history-q-label,
-        #chat-history-list .chat-history-a-label {
-            font-size: 0.78rem;
+        #chat-history-list .chat-history-q-block,
+        #chat-history-list .chat-history-a-block {
+            border-radius: 10px;
+            padding: 10px 12px;
+            box-sizing: border-box;
+        }
+        #chat-history-list .chat-history-q-block {
+            background: rgba(0, 243, 255, 0.07);
+            border: 1px solid rgba(0, 243, 255, 0.22);
+            border-left: 3px solid var(--neon-blue);
+        }
+        #chat-history-list .chat-history-a-block {
+            background: rgba(57, 255, 20, 0.05);
+            border: 1px solid rgba(57, 255, 20, 0.18);
+            border-left: 3px solid #39ff14;
+        }
+        #chat-history-list .chat-history-section-badge {
+            display: inline-block;
+            font-size: 0.7rem;
             font-weight: 800;
-            margin: 10px 0 6px;
+            letter-spacing: 0.06em;
+            padding: 3px 9px;
+            border-radius: 6px;
+            margin-bottom: 8px;
         }
-        #chat-history-list .chat-history-q-label { color: #9fe870; }
-        #chat-history-list .chat-history-a-label { color: #39ff14; }
+        #chat-history-list .chat-history-q-block .chat-history-section-badge {
+            color: #7ee8ff;
+            background: rgba(0, 243, 255, 0.14);
+            border: 1px solid rgba(0, 243, 255, 0.35);
+        }
+        #chat-history-list .chat-history-a-block .chat-history-section-badge {
+            color: #9fe870;
+            background: rgba(57, 255, 20, 0.12);
+            border: 1px solid rgba(57, 255, 20, 0.32);
+        }
         #chat-history-list .chat-history-q-text,
         #chat-history-list .chat-history-a-text {
             white-space: pre-wrap;
-            line-height: 1.5;
+            line-height: 1.55;
+            font-size: 0.86rem;
         }
-        #chat-history-list .chat-history-a-text { color: #ccc; }
+        #chat-history-list .chat-history-q-text { color: #e8eaed; }
+        #chat-history-list .chat-history-a-text { color: #d0d4da; }
+        #chat-history-list .chat-history-a-text .chat-history-a-part {
+            display: block;
+            margin-top: 10px;
+        }
+        #chat-history-list .chat-history-a-text .chat-history-a-part:first-child {
+            margin-top: 0;
+        }
+        #chat-history-list .chat-history-a-text .chat-history-a-part-label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: #b8c4d0;
+            margin-bottom: 4px;
+        }
 
         #note-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 30000; padding: 20px; box-sizing: border-box; }
         .modal-card { background: #111; border: 1px solid #666; box-shadow: 0 0 15px rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px; width: 90%; max-width: 450px; text-align: center; max-height: 85vh; overflow-y: hidden; display: flex; flex-direction: column; box-sizing: border-box; }
@@ -1948,12 +1994,83 @@
             return t.length > 64 ? t.slice(0, 64) + '…' : t;
         }
 
+        function chatHistoryQuestionBodyHtml(question) {
+            const raw = String(question || '').trim();
+            if (!raw) return escapeHtml('(질문 없음)');
+            const ctxTag = '[선택 지문 문장]';
+            const qTag = '[질문]';
+            const ctxIdx = raw.indexOf(ctxTag);
+            const qIdx = raw.indexOf(qTag);
+            if (ctxIdx !== -1 && qIdx !== -1 && qIdx > ctxIdx) {
+                const ctx = raw.slice(ctxIdx + ctxTag.length, qIdx).trim();
+                const q = raw.slice(qIdx + qTag.length).trim();
+                let html = '';
+                if (ctx) {
+                    html +=
+                        '<div class="chat-history-q-ctx" style="font-size:0.8rem;color:#9aa;margin-bottom:8px;line-height:1.5;white-space:pre-wrap;">' +
+                        escapeHtml(ctx) +
+                        '</div>';
+                }
+                html += '<div class="chat-history-q-text">' + escapeHtml(q || raw) + '</div>';
+                return html;
+            }
+            if (qIdx !== -1) {
+                return (
+                    '<div class="chat-history-q-text">' +
+                    escapeHtml(raw.slice(qIdx + qTag.length).trim() || raw) +
+                    '</div>'
+                );
+            }
+            return '<div class="chat-history-q-text">' + escapeHtml(raw) + '</div>';
+        }
+
+        function chatHistoryAnswerBodyHtml(answer) {
+            const raw = String(answer || '').trim();
+            if (!raw) return escapeHtml('(답변 없음)');
+            const partRe = /^(💬 답변|📌 지문 연결|⭐ 핵심|📝 예시)\s*[:：]?\s*/;
+            const lines = raw.split(/\r?\n/);
+            const parts = [];
+            let cur = null;
+            lines.forEach(function (line) {
+                const m = String(line).match(partRe);
+                if (m) {
+                    if (cur) parts.push(cur);
+                    cur = { label: m[1], lines: [String(line).replace(partRe, '').trim()] };
+                    return;
+                }
+                if (!cur) cur = { label: '', lines: [] };
+                cur.lines.push(line);
+            });
+            if (cur) parts.push(cur);
+            if (parts.length <= 1 && (!parts[0] || !parts[0].label)) {
+                return '<div class="chat-history-a-text">' + escapeHtml(raw) + '</div>';
+            }
+            return (
+                '<div class="chat-history-a-text">' +
+                parts
+                    .map(function (p) {
+                        const body = escapeHtml(p.lines.filter(Boolean).join('\n').trim());
+                        if (!p.label) return body ? '<div>' + body + '</div>' : '';
+                        return (
+                            '<span class="chat-history-a-part">' +
+                            '<span class="chat-history-a-part-label">' +
+                            escapeHtml(p.label) +
+                            '</span>' +
+                            body +
+                            '</span>'
+                        );
+                    })
+                    .join('') +
+                '</div>'
+            );
+        }
+
         function renderChatHistoryListHtml(items) {
             const sorted = sortChatHistoryNewestFirst(items);
             return sorted
                 .map(function (row, idx) {
-                    const qq = escapeHtml(String(row.question || ''));
-                    const aa = escapeHtml(String(row.answer || ''));
+                    const qq = chatHistoryQuestionBodyHtml(row.question);
+                    const aa = chatHistoryAnswerBodyHtml(row.answer);
                     const whenRaw = row.created_at || '';
                     const when = escapeHtml(fmtPassageHistoryDate(whenRaw) || String(whenRaw));
                     const preview = escapeHtml(chatHistoryQuestionPreview(row.question));
@@ -1973,12 +2090,12 @@
                         '</span>' +
                         '</summary>' +
                         '<div class="chat-history-item-body">' +
-                        '<div class="chat-history-q-label">Q</div>' +
-                        '<div class="chat-history-q-text">' +
+                        '<div class="chat-history-q-block">' +
+                        '<span class="chat-history-section-badge">질문</span>' +
                         qq +
                         '</div>' +
-                        '<div class="chat-history-a-label">A</div>' +
-                        '<div class="chat-history-a-text">' +
+                        '<div class="chat-history-a-block">' +
+                        '<span class="chat-history-section-badge">답변</span>' +
                         aa +
                         '</div></div></details>'
                     );
