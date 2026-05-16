@@ -1949,7 +1949,26 @@
             }
         }
 
+        function isAiChatDemoMode() {
+            try {
+                if (params.get('aiDemo') === '1') return true;
+                if (localStorage.getItem('trigger_ai_chat_demo') === '1') return true;
+            } catch (e) {}
+            return false;
+        }
+
         async function postJson(path, body) {
+            if (isAiChatDemoMode() && path === '/api/chat/ask') {
+                await new Promise(function (r) {
+                    setTimeout(r, 450);
+                });
+                return {
+                    answer:
+                        '1) 해석: (데모) 질문에 대한 예시 답변이에요. 실제 답은 워커 API가 연결된 뒤에 와요.\n' +
+                        '2) 핵심문법: 관계대명사·분사구문 등 지문에 맞는 요지만 여기 적혀요.\n' +
+                        '3) 출제포인트: 빈칸·순서·삽입에서 자주 묻는 유형을 한 줄로 짚어요.'
+                };
+            }
             const res = await fetch(WORKER_URL.replace(/\/$/, '') + path, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2268,15 +2287,26 @@
         function findWordInDB(rawWord) {
             if (!rawWord) return null;
             const word = String(rawWord).toLowerCase().replace(/[^a-z]/g, '').trim();
-            if(!word || typeof wordsData === 'undefined') return null;
+            if (!word || typeof wordsData === 'undefined') return null;
             const groups = ['middle', 'high'];
-            for(let g of groups) {
-                if(!wordsData[g]) continue;
-                for(let w in wordsData[g]) {
-                    for(let d in wordsData[g][w]) {
+            for (const g of groups) {
+                if (!wordsData[g]) continue;
+                for (const w in wordsData[g]) {
+                    for (const d in wordsData[g][w]) {
                         const data = Array.isArray(wordsData[g][w][d]) ? wordsData[g][w][d] : (wordsData[g][w][d].test || []);
-                        const f = data.find(item => item && item.word && String(item.word).toLowerCase() === word);
-                        if(f) return { eng: f.word, kor: f.mean, level: g };
+                        const f = data.find(function (item) {
+                            if (!item || !item.word) return false;
+                            const iw = String(item.word).toLowerCase().replace(/[^a-z]/g, '');
+                            return iw === word;
+                        });
+                        if (!f) continue;
+                        let korText = '';
+                        if (f.mean != null && String(f.mean).trim() !== '') {
+                            korText = String(f.mean);
+                        } else if (Array.isArray(f.meanings) && f.meanings.length) {
+                            korText = f.meanings.map(String).join(', ');
+                        }
+                        return { eng: f.word, kor: korText, level: g };
                     }
                 }
             }
@@ -2837,6 +2867,8 @@
             const label = expanded ? '문법 포인트 접기 ▲' : '문법 포인트 펼치기 ▼';
             const btn = document.getElementById('grammar-list-toggle-btn');
             if (btn) btn.textContent = label;
+            const btnBottom = document.getElementById('grammar-list-toggle-btn-bottom');
+            if (btnBottom) btnBottom.textContent = label;
         }
 
         function setGrammarListExpanded(expanded) {
@@ -3762,11 +3794,22 @@
                     } catch (e) {
                         if (out) {
                             let msg = (e && e.message) || '요청에 실패했어요.';
-                            if (e && e.httpStatus === 404 && (e.apiError === 'not_found' || String(msg).indexOf('not_found') !== -1)) {
+                            const netFail =
+                                (e && e.name === 'TypeError') ||
+                                /failed to fetch|networkerror|load failed/i.test(String(msg));
+                            if (netFail) {
+                                msg =
+                                    '서버에 연결하지 못했어요(Failed to fetch). 배포된 Worker 주소(WORKER_URL)를 쓰는지, 오프라인·차단 여부를 확인해 주세요. UI만 보려면 주소 끝에 ?aiDemo=1 을 붙여 보세요.';
+                                try {
+                                    console.warn(
+                                        '[chat/ask] 네트워크 실패 — 로컬 워커: 프로젝트 폴더에서 npx wrangler dev 후 analysis.html?worker=http://127.0.0.1:8787&aiDemo=1'
+                                    );
+                                } catch (_) {}
+                            } else if (e && e.httpStatus === 404 && (e.apiError === 'not_found' || String(msg).indexOf('not_found') !== -1)) {
                                 msg = '답변 기능에 연결되지 않았어요. 잠시 후 다시 시도해 주세요.';
                                 try {
                                     console.warn(
-                                        '[chat/ask] 404 not_found — Worker에 /api/chat/ask 라우트·배포 여부를 확인하세요. 로컬: wrangler dev 후 analysis.html?worker=http://127.0.0.1:8787'
+                                        '[chat/ask] 404 not_found — Worker에 /api/chat/ask 라우트·배포 여부를 확인하세요.'
                                     );
                                 } catch (_) {}
                             }
@@ -4263,7 +4306,8 @@
                         '<button type="button" id="grammar-list-toggle-btn" class="grammar-list-toggle-btn" onclick="toggleGrammarPointList()">문법 포인트 펼치기 ▼</button>' +
                         '<div id="grammar-list-body" class="grammar-list-body--collapsed" style="margin-top:12px;">' +
                         grammarBoxes.slice(GRAMMAR_PREVIEW_VISIBLE).join('') +
-                        '</div>';
+                        '</div>' +
+                        '<button type="button" id="grammar-list-toggle-btn-bottom" class="grammar-list-toggle-btn" onclick="toggleGrammarPointList()" style="margin-top:12px;">문법 포인트 펼치기 ▼</button>';
                 } else {
                     grammarListWrap = grammarHtml;
                 }
