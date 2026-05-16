@@ -1222,7 +1222,7 @@
 
         <div id="premium-ai-ask-panel">
             <div class="premium-ai-ask-head">트리거 AI로 1:1 질문 해결</div>
-            <p class="premium-ai-ask-intro">지문·문법·단어 등 막히는 부분을 적어 주세요. 문장을 선택하면 그 문장 맥락으로, 선택하지 않으면 일반 개념·예문으로 답해 드려요. (답변·핵심·예시)</p>
+            <p class="premium-ai-ask-intro">지문·문법·단어 등 막히는 부분을 적어 주세요. 문장 선택 시 💬답변 · 📌지문 연결 · 📝예시, 미선택 시 💬답변 · ⭐핵심 · 📝예시 (약 450~750자)</p>
             <div class="premium-ai-ask-actions">
                 <button type="button" id="btn-sentence-pick-toggle" class="login-btn" style="margin:0;border-color:var(--neon-blue);color:var(--neon-blue);">질문할 문장 선택</button>
                 <button type="button" id="btn-sentence-pick-done" class="login-btn" style="margin:0;display:none;border-color:#9fe870;color:#9fe870;">선택 완료</button>
@@ -1685,6 +1685,8 @@
 
         const TOPIC_REVEAL_STORAGE_KEY = 'trigger_topic_reveal_daily_v1';
         const FREE_TOPIC_REVEALS_PER_DAY = 2;
+        /** 모객·런칭 기간 true: Golden Key 무제한. 유료 전환 시 false → is_premium 등으로 일일 제한 재활성화 */
+        const GOLDEN_KEY_OPEN_FOR_ALL = true;
         const PREMIUM_PAYMENT_URL = 'https://tri3.imweb.me/';
         /** Golden Key 잠금 시: 잠금 오버레이 왼쪽 아래 투명 영역을 2.2초 안에 3번 연속 탭하면 이 브라우저에서 무제한 해제. */
         const TOPIC_ANALYSIS_UNLOCK_LS = 'trigger_analysis_topic_unlock_v1';
@@ -1706,6 +1708,7 @@
          * 현재는 is_premium(1) + 로컬 관리자/개발 잠금 해제 플래그만 사용.
          */
         function userHasGoldenKeyUnlimitedAccess() {
+            if (GOLDEN_KEY_OPEN_FOR_ALL) return true;
             if (isPremiumUser) return true;
             if (localStorage.getItem('trigger_admin_mode') === 'true') return true;
             try {
@@ -1715,11 +1718,12 @@
         }
 
         /**
-         * Golden Key(핵심 키워드·3종 실전 주제·주제 요약) 일 2회 공개. 유료·관리자·개발 잠금해제는 무제한.
+         * Golden Key(핵심 키워드·3종 실전 주제·주제 요약) 열람 권한.
+         * GOLDEN_KEY_OPEN_FOR_ALL=false 시 무료 일 2회(FREE_TOPIC_REVEALS_PER_DAY), 유료·관리자 무제한.
          * @param {{ skipConsume?: boolean }} [opts] — 로컬 캐시/히스토리 재표시 시 true로 일일 횟수를 소비하지 않음.
          */
         function evaluateTopicSectionReveal(opts) {
-            if (userHasGoldenKeyUnlimitedAccess()) return { locked: false };
+            if (GOLDEN_KEY_OPEN_FOR_ALL || userHasGoldenKeyUnlimitedAccess()) return { locked: false };
             const today = topicRevealTodayKey();
             let o = {};
             try {
@@ -1999,16 +2003,16 @@
                 if (ctx) {
                     return {
                         answer:
-                            '1) 답변: (데모) 선택하신 문장 맥락에서 질문한 표현·용법을 설명하는 답이에요.\n' +
-                            '2) 이 문장에서: 데모 문장과 연결해 한 줄로 짚는 부분이에요.\n' +
-                            '3) 예시: (예) On the other hand, many students prefer math. (반면에 많은 학생은 수학을 선호해요.)'
+                            '💬 답변: (데모) 선택하신 문장 맥락에서 질문한 표현·용법을 설명하는 답이에요.\n\n' +
+                            '📌 지문 연결: 데모 문장과 연결해 문맥에서 어떤 역할인지 짚는 부분이에요.\n\n' +
+                            '📝 예시: On the other hand, many students prefer math. (반면에 많은 학생은 수학을 선호해요.)'
                     };
                 }
                 return {
                     answer:
-                        '1) 답변: (데모) 문법·개념 질문에 대한 설명이에요. 문장 통역이 아닙니다.\n' +
-                        '2) 핵심: 한 줄로 요약하는 부분이에요.\n' +
-                        '3) 예시: (예) The book was read by Tom. (그 책은 톰에게 읽혔어요.)'
+                        '💬 답변: (데모) 문법·개념 질문에 대한 설명이에요. 문장 통역이 아닙니다.\n\n' +
+                        '⭐ 핵심: 한 줄로 요약하는 부분이에요.\n\n' +
+                        '📝 예시: The book was read by Tom. (그 책은 톰에게 읽혔어요.)'
                 };
             }
             const res = await fetch(WORKER_URL.replace(/\/$/, '') + path, {
@@ -4054,7 +4058,7 @@
                 '<div class="result-card topic-focus-card" style="border-color:#ffd700;box-shadow:0 0 18px rgba(255,215,0,0.15);">' +
                 '<div class="gk-golden-intro-row" style="display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 14px;margin-bottom:0;text-align:left;">' +
                 '<span class="result-label gk-golden-head" style="color:#ffd700;margin:0;">Golden Key</span>' +
-                '<span style="font-size:0.88rem;color:#c9d0dc;line-height:1.55;font-weight:500;flex:1 1 220px;">지문의 주요 키워드와 3종 실전 주제문을 한 묶음으로 모았어요. 무료는 하루 2회까지 열람, 유료는 무제한이에요</span>' +
+                '<span style="font-size:0.88rem;color:#c9d0dc;line-height:1.55;font-weight:500;flex:1 1 220px;">지문의 주요 키워드와 3종 실전 주제문을 한 묶음으로 모았어요.</span>' +
                 '</div>' +
                 (hasKw ? '<hr class="gk-section-faint-divider gk-after-golden-intro" aria-hidden="true" />' : '<div class="gk-golden-intro-after-spacer" aria-hidden="true"></div>') +
                 '<div class="result-content" style="position:relative;min-height:72px;overflow:hidden;border-radius:12px;">' +

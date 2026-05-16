@@ -240,44 +240,69 @@ async function callGeminiChatSimple(env, fullPrompt, maxOutputTokens = 2048) {
   return { text: String(text).trim() };
 }
 
-/** AI 질문 답변: 모델이 옛 형식(해석 라벨)을 쓴 경우만 보정 */
+/** AI 질문 답변: 옛 라벨·번호 형식을 이모지 3단 형식으로 통일 */
 function normalizeChatAnswer(raw) {
   let t = String(raw || "").trim();
   if (!t) return t;
-  t = t.replace(/1\)\s*해석\s*:/gi, "1) 답변:");
-  t = t.replace(/2\)\s*핵심문법\s*:/gi, "2) 핵심:");
-  t = t.replace(/2\)\s*출제포인트\s*:/gi, "2) 핵심:");
-  return t;
+  t = t.replace(/^\s*\d+\)\s*/gm, "");
+  const lineLabel = (re, label) => {
+    t = t.replace(re, label);
+  };
+  lineLabel(/^해석\s*:/gim, "💬 답변:");
+  lineLabel(/^답변\s*:/gim, "💬 답변:");
+  lineLabel(/^이\s*문장에서\s*:/gim, "📌 지문 연결:");
+  lineLabel(/^2\)\s*핵심문법\s*:/gim, "⭐ 핵심:");
+  lineLabel(/^2\)\s*출제포인트\s*:/gim, "⭐ 핵심:");
+  lineLabel(/^핵심\s*:/gim, "⭐ 핵심:");
+  lineLabel(/^예시\s*:/gim, "📝 예시:");
+  if (!/^💬/.test(t) && /^답변\s*:/i.test(t)) t = "💬 " + t;
+  return t.replace(/\n{3,}/g, "\n\n").trim();
 }
+
+const CHAT_ANSWER_LABELS = {
+  withContext: {
+    answer: "💬 답변",
+    context: "📌 지문 연결",
+    example: "📝 예시",
+  },
+  general: {
+    answer: "💬 답변",
+    summary: "⭐ 핵심",
+    example: "📝 예시",
+  },
+};
 
 function buildChatAskPrompt(question, contextSentence) {
   const base =
     "역할: 대한민국 고등 영어 강사. 고3 수험생에게 ~요체로, 친절하고 명확하게 답합니다.\n" +
     "금지: 지문·문장 통역만 하지 마세요. 라벨·본문에 「해석:」이라는 단어를 쓰지 마세요.\n" +
-    "반드시 아래 3줄 형식만 사용하고, 각 줄을 문장 중간에서 끊지 말고 끝까지 완성하세요.\n" +
+    "반드시 아래 3단만 출력합니다. 각 단은 빈 줄로 구분하고, 단 제목은 지정한 이모지+라벨을 그대로 쓰세요(번호 1)2)3) 붙이지 마세요).\n" +
+    "각 단 본문은 문장 중간에서 끊지 말고 끝까지 완성하세요.\n" +
     "마크다운·코드블록 없이 일반 텍스트만 출력합니다.\n";
 
   if (contextSentence) {
+    const L = CHAT_ANSWER_LABELS.withContext;
     return (
       base +
       "상황: 학생이 지문에서 문장을 골라 질문했습니다. 그 문장 전체를 번역하는 것이 아니라, 질문한 표현·구조·뜻·용법에 답하세요.\n" +
-      "분량: 400~650자(공백 포함).\n" +
-      "형식:\n" +
-      "1) 답변: (질문에 대한 설명 2~4문장. 선택 문장에서 해당 표현이 어떤 역할인지)\n" +
-      "2) 이 문장에서: (선택 문장과 연결해 한 줄로 짚기)\n" +
-      "3) 예시: (영어 예문 1~2개 + 각 괄호 안 짧은 한국어 뜻)\n" +
+      "분량: 전체 450~750자(공백·줄바꿈 포함).\n" +
+      "형식(정확히 이 제목만 사용):\n" +
+      `${L.answer}: (질문에 대한 설명 2~4문장)\n\n` +
+      `${L.context}: (선택 지문 문장과 연결해, 해당 표현이 문맥에서 어떤 역할인지 1~2문장)\n\n` +
+      `${L.example}: (영어 예문 1~2개 + 각 괄호 안 짧은 한국어 뜻)\n` +
       `\n[선택된 지문 문장]\n${contextSentence}\n\n[학생 질문]\n${question}`
     );
   }
 
+  const L = CHAT_ANSWER_LABELS.general;
   return (
     base +
     "상황: 지문 문장을 선택하지 않은 일반 문법·용법·개념 질문입니다. 문장 해석·번역 형식으로 답하지 마세요.\n" +
-    "분량: 400~650자(공백 포함).\n" +
-    "형식:\n" +
-    "1) 답변: (질문에 직접 답하는 개념·원리 설명 2~4문장)\n" +
-    "2) 핵심: (한 줄 요약)\n" +
-    "3) 예시: (영어 예문 1~2개 + 각 괄호 안 짧은 한국어 뜻)\n" +
+    "분량: 전체 450~750자(공백·줄바꿈 포함).\n" +
+    "형식(정확히 이 제목만 사용):\n" +
+    `${L.answer}: (질문에 직접 답하는 개념·원리 설명 2~4문장)\n\n` +
+    `${L.summary}: (한 줄 요약)\n\n` +
+    `${L.example}: (영어 예문 1~2개 + 각 괄호 안 짧은 한국어 뜻)\n` +
     `\n[학생 질문]\n${question}`
   );
 }
