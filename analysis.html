@@ -1057,15 +1057,22 @@
         }
 
         #premium-ai-ask-panel { position: relative; }
-        #premium-ai-ask-panel .ai-ask-premium-gate {
+        #passage-premium-invite-gate {
             display: none;
-            margin: 12px 0 0;
+            margin: 16px 0 0;
             padding: 18px 16px;
             border-radius: 12px;
             border: 1px solid rgba(255, 215, 0, 0.35);
             background: rgba(0, 0, 0, 0.55);
             text-align: center;
             box-sizing: border-box;
+        }
+        #passage-premium-invite-gate .passage-invite-gate-title {
+            margin: 0 0 10px;
+            font-size: 0.94rem;
+            line-height: 1.55;
+            color: #eee;
+            font-weight: 700;
         }
         #premium-ai-ask-panel.ai-ask-locked .ai-ask-form-stack {
             filter: blur(8px);
@@ -1117,6 +1124,74 @@
         #chat-history-modal { position: fixed; inset: 0; z-index: 35000; background: rgba(0,0,0,0.92); display: none; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; }
         #chat-history-modal .chat-history-inner { background: #111; border: 1px solid #444; border-radius: 16px; max-width: 480px; width: 100%; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; }
         #chat-history-list { overflow-y: auto; padding: 12px; flex: 1; font-size: 0.88rem; color: #ddd; line-height: 1.5; }
+        #chat-history-list .chat-history-item {
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            overflow: hidden;
+        }
+        #chat-history-list .chat-history-item-summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            user-select: none;
+        }
+        #chat-history-list .chat-history-item-summary::-webkit-details-marker,
+        #chat-history-list .chat-history-item-summary::marker {
+            display: none;
+        }
+        #chat-history-list .chat-history-item-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.72rem;
+            color: #888;
+        }
+        #chat-history-list .chat-history-item-num {
+            color: var(--neon-green);
+            font-weight: 800;
+            min-width: 1.2em;
+        }
+        #chat-history-list .chat-history-item-preview {
+            font-size: 0.86rem;
+            color: #e8eaed;
+            line-height: 1.45;
+            padding-right: 18px;
+            position: relative;
+        }
+        #chat-history-list .chat-history-item-preview::after {
+            content: '▸';
+            position: absolute;
+            right: 0;
+            top: 0;
+            color: #9fe870;
+            font-size: 0.9rem;
+        }
+        #chat-history-list .chat-history-item[open] .chat-history-item-preview::after {
+            content: '▾';
+        }
+        #chat-history-list .chat-history-item-body {
+            padding: 0 12px 12px;
+            border-top: 1px solid #2a2a2a;
+        }
+        #chat-history-list .chat-history-q-label,
+        #chat-history-list .chat-history-a-label {
+            font-size: 0.78rem;
+            font-weight: 800;
+            margin: 10px 0 6px;
+        }
+        #chat-history-list .chat-history-q-label { color: #9fe870; }
+        #chat-history-list .chat-history-a-label { color: #39ff14; }
+        #chat-history-list .chat-history-q-text,
+        #chat-history-list .chat-history-a-text {
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+        #chat-history-list .chat-history-a-text { color: #ccc; }
 
         #note-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 30000; padding: 20px; box-sizing: border-box; }
         .modal-card { background: #111; border: 1px solid #666; box-shadow: 0 0 15px rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px; width: 90%; max-width: 450px; text-align: center; max-height: 85vh; overflow-y: hidden; display: flex; flex-direction: column; box-sizing: border-box; }
@@ -1237,16 +1312,17 @@
             <div id="ai-report-area"></div>
         </div>
 
+        <div id="passage-premium-invite-gate" style="display:none;" aria-hidden="true">
+            <p class="passage-invite-gate-title">Golden Key · AI 질문 이용</p>
+            <p style="margin:0 0 12px;font-size:0.86rem;line-height:1.5;color:#bbb;">유료 또는 초대 코드를 입력하면 Golden Key와 AI 질문이 함께 열려요.</p>
+            <input type="text" id="passage-premium-invite-input" data-gk-invite-input="1" placeholder="초대 코드" autocomplete="off" autocapitalize="off" spellcheck="false" style="width:100%;max-width:320px;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #555;background:#111;color:#fff;margin:0 0 10px;font-size:0.95rem;" />
+            <button type="button" data-gk-invite-redeem="1" style="width:100%;max-width:320px;padding:12px 18px;border-radius:12px;border:1px solid #9fe870;font-weight:bold;font-size:0.92rem;cursor:pointer;background:rgba(159,232,112,0.12);color:#9fe870;margin-bottom:12px;">초대 코드 확인</button>
+            <p style="margin:0 0 10px;font-size:0.78rem;color:#777;">또는</p>
+            <button type="button" style="padding:12px 20px;border-radius:12px;border:none;font-weight:bold;font-size:0.92rem;cursor:pointer;background:linear-gradient(135deg,#9fe870,#39ff14);color:#000;" onclick="window.location.href='https://tri3.imweb.me/'">결제하고 이용하기</button>
+        </div>
+
         <div id="premium-ai-ask-panel">
             <div class="premium-ai-ask-head">트리거 AI로 1:1 질문 해결</div>
-            <div id="ai-ask-premium-gate" class="ai-ask-premium-gate" style="display:none;" aria-hidden="true">
-                <p style="margin:0 0 10px;font-size:0.92rem;line-height:1.55;color:#eee;">AI 질문은 유료·초대 코드 이용자만 사용할 수 있어요.<br>Golden Key와 동일한 혜택입니다.</p>
-                <p style="margin:0 0 12px;font-size:0.84rem;line-height:1.5;color:#bbb;">초대 코드가 있으면 입력해 주세요.</p>
-                <input type="text" data-gk-invite-input="1" placeholder="초대 코드" autocomplete="off" autocapitalize="off" spellcheck="false" style="width:100%;max-width:280px;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #555;background:#111;color:#fff;margin:0 0 10px;font-size:0.95rem;" />
-                <button type="button" data-gk-invite-redeem="1" style="width:100%;max-width:280px;padding:12px 18px;border-radius:12px;border:1px solid #9fe870;font-weight:bold;font-size:0.92rem;cursor:pointer;background:rgba(159,232,112,0.12);color:#9fe870;margin-bottom:12px;">초대 코드 확인</button>
-                <p style="margin:0 0 10px;font-size:0.78rem;color:#777;">또는</p>
-                <button type="button" style="padding:12px 20px;border-radius:12px;border:none;font-weight:bold;font-size:0.92rem;cursor:pointer;background:linear-gradient(135deg,#9fe870,#39ff14);color:#000;" onclick="window.location.href='https://tri3.imweb.me/'">결제하고 이용하기</button>
-            </div>
             <div id="ai-ask-form-stack" class="ai-ask-form-stack">
             <p class="premium-ai-ask-intro">지문·문법·단어 등 막히는 부분을 적어 주세요. 문장 선택 시 💬답변 · 📌지문 연결 · 📝예시, 미선택 시 💬답변 · ⭐핵심 · 📝예시 (약 450~750자)</p>
             <div class="premium-ai-ask-actions">
@@ -1747,12 +1823,19 @@
         }
 
         function getInviteCodeInputNear(el) {
-            const wrap = el && el.closest('[data-gk-invite-lock-overlay], #ai-ask-premium-gate');
-            if (wrap) {
-                const inp = wrap.querySelector('[data-gk-invite-input]');
-                if (inp) return inp;
+            return document.getElementById('passage-premium-invite-input');
+        }
+
+        function scrollToPassagePremiumInviteGate() {
+            const el = document.getElementById('passage-premium-invite-gate');
+            if (!el) return;
+            try {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } catch (e) {
+                try {
+                    el.scrollIntoView(true);
+                } catch (e2) {}
             }
-            return null;
         }
 
         function userHasGoldenKeyInviteAccess() {
@@ -1836,14 +1919,70 @@
 
         function updateAiAskPremiumGate() {
             const panel = document.getElementById('premium-ai-ask-panel');
-            const gate = document.getElementById('ai-ask-premium-gate');
-            if (!panel) return;
+            const gate = document.getElementById('passage-premium-invite-gate');
             const allowed = userCanUsePassagePremiumExtras();
-            panel.classList.toggle('ai-ask-locked', !allowed);
             if (gate) {
                 gate.style.display = allowed ? 'none' : 'block';
                 gate.setAttribute('aria-hidden', allowed ? 'true' : 'false');
             }
+            if (panel) panel.classList.toggle('ai-ask-locked', !allowed);
+        }
+
+        function sortChatHistoryNewestFirst(items) {
+            return items.slice().sort(function (a, b) {
+                const ta = new Date(a && a.created_at ? a.created_at : 0).getTime() || 0;
+                const tb = new Date(b && b.created_at ? b.created_at : 0).getTime() || 0;
+                return tb - ta;
+            });
+        }
+
+        function chatHistoryQuestionPreview(question) {
+            let t = String(question || '').trim();
+            if (t.indexOf('[질문]') !== -1) {
+                const parts = t.split('[질문]');
+                t = (parts.length > 1 ? parts[parts.length - 1] : t).trim();
+            }
+            t = t.replace(/\s+/g, ' ');
+            if (!t) return '(질문 없음)';
+            return t.length > 64 ? t.slice(0, 64) + '…' : t;
+        }
+
+        function renderChatHistoryListHtml(items) {
+            const sorted = sortChatHistoryNewestFirst(items);
+            return sorted
+                .map(function (row, idx) {
+                    const qq = escapeHtml(String(row.question || ''));
+                    const aa = escapeHtml(String(row.answer || ''));
+                    const whenRaw = row.created_at || '';
+                    const when = escapeHtml(fmtPassageHistoryDate(whenRaw) || String(whenRaw));
+                    const preview = escapeHtml(chatHistoryQuestionPreview(row.question));
+                    return (
+                        '<details class="chat-history-item">' +
+                        '<summary class="chat-history-item-summary">' +
+                        '<span class="chat-history-item-meta">' +
+                        '<span class="chat-history-item-num">' +
+                        (idx + 1) +
+                        '</span>' +
+                        '<span class="chat-history-item-when">' +
+                        when +
+                        '</span>' +
+                        '</span>' +
+                        '<span class="chat-history-item-preview">' +
+                        preview +
+                        '</span>' +
+                        '</summary>' +
+                        '<div class="chat-history-item-body">' +
+                        '<div class="chat-history-q-label">Q</div>' +
+                        '<div class="chat-history-q-text">' +
+                        qq +
+                        '</div>' +
+                        '<div class="chat-history-a-label">A</div>' +
+                        '<div class="chat-history-a-text">' +
+                        aa +
+                        '</div></div></details>'
+                    );
+                })
+                .join('');
         }
 
         function setAuthStatus(msg, isError = false) {
@@ -3846,8 +3985,8 @@
                 const live = getSelectedSentencePlainFromDom();
                 box.style.display = 'block';
                 box.textContent = live
-                    ? '[미리보기] ' + live
-                    : '[미리보기] 아직 선택된 문장이 없어요. 해석 영역에서 궁금한 문장을 클릭해 주세요.';
+                    ? '[선택 문장] ' + live
+                    : '[선택 문장] 아직 선택된 문장이 없어요. 해석 영역에서 궁금한 문장을 클릭해 주세요.';
                 return;
             }
             if (confirmedChatContextSentence && confirmedChatContextSentence.trim()) {
@@ -4185,9 +4324,8 @@
             const lockOverlay = topicLocked
                 ? '<div data-gk-invite-lock-overlay="1" style="position:absolute;inset:0;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px 16px;text-align:center;z-index:4;box-sizing:border-box;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);background:rgba(5,5,5,0.55);">' +
                   '<p style="margin:0 0 10px;font-size:0.92rem;line-height:1.55;color:#eee;max-width:320px;">Golden Key는 유료·초대 코드 이용자만 볼 수 있어요.</p>' +
-                  '<p style="margin:0 0 12px;font-size:0.84rem;line-height:1.5;color:#bbb;max-width:300px;">초대 코드가 있으면 입력해 주세요. (AI 질문과 동일)</p>' +
-                  '<input type="text" data-gk-invite-input="1" placeholder="초대 코드" autocomplete="off" autocapitalize="off" spellcheck="false" style="width:100%;max-width:280px;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #555;background:#111;color:#fff;margin:0 0 10px;font-size:0.95rem;" />' +
-                  '<button type="button" data-gk-invite-redeem="1" style="width:100%;max-width:280px;padding:12px 18px;border-radius:12px;border:1px solid #9fe870;font-weight:bold;font-size:0.92rem;cursor:pointer;background:rgba(159,232,112,0.12);color:#9fe870;margin-bottom:14px;">초대 코드 확인</button>' +
+                  '<p style="margin:0 0 14px;font-size:0.84rem;line-height:1.5;color:#bbb;max-width:300px;">아래에서 초대 코드를 입력하면 AI 질문과 함께 열려요.</p>' +
+                  '<button type="button" data-gk-invite-scroll="1" style="padding:12px 18px;border-radius:12px;border:1px solid #9fe870;font-weight:bold;font-size:0.92rem;cursor:pointer;background:rgba(159,232,112,0.12);color:#9fe870;margin-bottom:12px;">아래 초대 코드 입력으로 이동</button>' +
                   '<p style="margin:0 0 10px;font-size:0.78rem;color:#777;">또는</p>' +
                   '<button type="button" style="padding:14px 22px;border-radius:12px;border:none;font-weight:bold;font-size:0.95rem;cursor:pointer;background:linear-gradient(135deg,#9fe870,#39ff14);color:#000;box-shadow:0 0 20px rgba(57,255,20,0.35);" onclick="window.location.href=\'' +
                   PREMIUM_PAYMENT_URL +
@@ -4896,6 +5034,12 @@
 
         (function initGoldenKeyInviteRedeem() {
             document.addEventListener('click', function (ev) {
+                const scrollBtn = ev.target.closest('[data-gk-invite-scroll]');
+                if (scrollBtn) {
+                    ev.preventDefault();
+                    scrollToPassagePremiumInviteGate();
+                    return;
+                }
                 const btn = ev.target.closest('[data-gk-invite-redeem]');
                 if (!btn) return;
                 ev.preventDefault();
@@ -4925,7 +5069,7 @@
                 if (ev.key !== 'Enter') return;
                 const inp = ev.target.closest('[data-gk-invite-input]');
                 if (!inp) return;
-                const wrap = inp.closest('[data-gk-invite-lock-overlay], #ai-ask-premium-gate');
+                const wrap = inp.closest('#passage-premium-invite-gate');
                 if (!wrap) return;
                 ev.preventDefault();
                 const r = redeemGoldenKeyInviteCode(inp.value);
