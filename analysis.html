@@ -1158,7 +1158,7 @@
             font-size: 0.92rem;
             color: #f0f2f5;
             line-height: 1.55;
-            white-space: normal;
+            white-space: pre-wrap;
         }
         #premium-ai-ask-panel #ai-ask-reply.ai-ask-reply--loading {
             display: flex;
@@ -1172,20 +1172,6 @@
             background: rgba(255, 202, 40, 0.32);
             border-radius: 4px;
             box-shadow: 0 0 0 1px rgba(255, 202, 40, 0.5);
-        }
-        #premium-ai-ask-panel #ai-ask-reply .ai-ask-ex-en {
-            color: #f0f2f5;
-            font-size: inherit;
-            line-height: inherit;
-        }
-        #premium-ai-ask-panel #ai-ask-reply .ai-ask-ex-kor {
-            color: #7ec8e8;
-            font-size: inherit;
-            line-height: inherit;
-        }
-        #premium-ai-ask-panel #ai-ask-reply .ai-ask-sec-label {
-            display: inline;
-            font-weight: 800;
         }
         #premium-ai-ask-panel #ai-ask-submit:disabled {
             opacity: 0.65;
@@ -2201,162 +2187,25 @@
             let t = String(raw || '');
             t = t.replace(/【([^】]*)】/g, '⟦$1⟧');
             t = t.replace(/\[\[([^\]]*)\]\]/g, '⟦$1⟧');
-            t = t.replace(/《([^》]*)》/g, '⟦$1⟧');
-            t = t.replace(/〚([^〛]*)〛/g, '⟦$1⟧');
-            t = t.replace(/「([^」]*)」/g, function (m, inner) {
-                return /[A-Za-z]/.test(inner) ? '⟦' + inner + '⟧' : m;
-            });
             const lines = t.split('\n');
             let inExample = false;
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i];
                 if (/^(💬|📌|⭐)\s/.test(line)) inExample = false;
                 if (/^📝\s*예시/.test(line) || /^예시\s*[:：]/.test(line)) inExample = true;
-                if (inExample) {
-                    lines[i] = line.replace(/\*\*([^*\n]+)\*\*/g, '⟦$1⟧');
-                    lines[i] = lines[i].replace(/`([^`\n]+)`/g, function (m, inner) {
-                        return /[A-Za-z]/.test(inner) ? '⟦' + inner + '⟧' : m;
-                    });
-                }
+                if (inExample) lines[i] = line.replace(/\*\*([^*\n]+)\*\*/g, '⟦$1⟧');
             }
             return lines.join('\n');
         }
 
-        function formatAiAskHighlightSpans(text) {
-            return String(text || '')
+        function formatAiAskAnswerForDisplay(raw) {
+            const t = normalizeAiAskHighlightMarkers(raw);
+            return String(t)
                 .split(/(⟦[^⟧]*⟧)/g)
                 .map(function (p) {
                     const m = p.match(/^⟦([^⟧]*)⟧$/);
                     if (m) return '<span class="ai-ask-ex-hl">' + escapeHtml(m[1]) + '</span>';
                     return escapeHtml(p);
-                })
-                .join('');
-        }
-
-        function autoWrapGrammarHighlightInEnglish(eng) {
-            if (!eng || /⟦/.test(eng)) return eng;
-            let s = String(eng).trim();
-            let m = s.match(/^((?:Having|Being|Not|Known|Compared|Given|Judging|Considering|Assuming|Provided|Supposing)\s+[^,()]{4,120}),\s*(.+)$/i);
-            if (m) return '⟦' + m[1].trim() + '⟧, ' + m[2];
-            m = s.match(/^([A-Z][a-z]+(?:ed|en)\s+[^,()]{2,100}),\s*(.+)$/);
-            if (m && m[1].split(/\s+/).length >= 2) return '⟦' + m[1].trim() + '⟧, ' + m[2];
-            m = s.match(/^(.+?)(,\s+([A-Za-z]+(?:ing|ed|en)\b(?:\s+[A-Za-z']+){0,12}))\s*([.?!]|$)/);
-            if (m && m[3].length >= 4) return m[1] + ', ⟦' + m[3].trim() + '⟧' + (m[4] || '');
-            m = s.match(/\b((?:am|is|are|was|were|been|being)\s+(?:\w+ed|\w+en)\b(?:\s+by\s+[\w\s']+)?)/i);
-            if (m) return s.replace(m[1], '⟦' + m[1] + '⟧');
-            return s;
-        }
-
-        function autoWrapHighlightFromQuestion(eng, question) {
-            let s = autoWrapGrammarHighlightInEnglish(eng);
-            if (/⟦/.test(s)) return s;
-            const q = String(question || '');
-            if (/분사|participle/i.test(q)) {
-                s = autoWrapGrammarHighlightInEnglish(s);
-                if (/⟦/.test(s)) return s;
-            }
-            const terms = [];
-            (q.match(/[A-Za-z][A-Za-z'-]{2,}/g) || []).forEach(function (w) {
-                const low = w.toLowerCase();
-                if (terms.indexOf(low) === -1) terms.push(low);
-            });
-            terms.sort(function (a, b) {
-                return b.length - a.length;
-            });
-            for (let i = 0; i < terms.length; i++) {
-                const t = terms[i];
-                const re = new RegExp('\\b(' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')\\b', 'i');
-                if (re.test(s)) return s.replace(re, '⟦$1⟧');
-            }
-            return s;
-        }
-
-        function applyExampleEnglishHighlight(eng, question) {
-            let s = normalizeAiAskHighlightMarkers(String(eng || '').trim());
-            s = s.replace(/\[([A-Za-z][^\]]{2,100})\]/g, '⟦$1⟧');
-            s = s.replace(/_([^_\n]{3,80})_/g, function (m, inner) {
-                return /[A-Za-z]/.test(inner) ? '⟦' + inner + '⟧' : m;
-            });
-            return autoWrapHighlightFromQuestion(s, question);
-        }
-
-        function formatAiAskPlainLines(lines) {
-            return lines
-                .map(function (line) {
-                    return formatAiAskHighlightSpans(normalizeAiAskHighlightMarkers(line));
-                })
-                .filter(Boolean)
-                .join('<br>');
-        }
-
-        function formatAiAskExampleBody(lines, question) {
-            const html = [];
-            const arr = lines.map(function (l) {
-                return String(l || '').trim();
-            }).filter(Boolean);
-            for (let i = 0; i < arr.length; i++) {
-                let s = arr[i].replace(/^\d+[\.\)]\s*/, '');
-                const paren = s.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
-                if (paren && /[A-Za-z]/.test(paren[1])) {
-                    html.push(
-                        '<span class="ai-ask-ex-en">' +
-                            formatAiAskHighlightSpans(applyExampleEnglishHighlight(paren[1].trim(), question)) +
-                            '</span><br><span class="ai-ask-ex-kor">' +
-                            escapeHtml(paren[2].trim()) +
-                            '</span>'
-                    );
-                    continue;
-                }
-                if (/[A-Za-z]/.test(s) && !/[가-힣]/.test(s)) {
-                    html.push(
-                        '<span class="ai-ask-ex-en">' +
-                            formatAiAskHighlightSpans(applyExampleEnglishHighlight(s, question)) +
-                            '</span>'
-                    );
-                    if (i + 1 < arr.length && /[가-힣]/.test(arr[i + 1]) && !/[A-Za-z]{4,}/.test(arr[i + 1])) {
-                        html.push('<br><span class="ai-ask-ex-kor">' + escapeHtml(arr[i + 1]) + '</span>');
-                        i++;
-                    }
-                    continue;
-                }
-                html.push(formatAiAskHighlightSpans(applyExampleEnglishHighlight(s, question)));
-            }
-            return html.join('<br>');
-        }
-
-        function parseAiAskAnswerSections(raw) {
-            const t = normalizeAiAskHighlightMarkers(raw);
-            const lines = t.split(/\r?\n/);
-            const sectionHeadRe = /^(💬 답변|📌 지문 연결|⭐ 핵심|📝 예시)\s*[:：]?\s*(.*)$/;
-            const sections = [];
-            let cur = null;
-            lines.forEach(function (line) {
-                const m = String(line).match(sectionHeadRe);
-                if (m) {
-                    if (cur) sections.push(cur);
-                    cur = { key: m[1], lines: [] };
-                    if (m[2] && m[2].trim()) cur.lines.push(m[2].trim());
-                    return;
-                }
-                if (!line.trim()) return;
-                if (!cur) cur = { key: '', lines: [] };
-                cur.lines.push(line);
-            });
-            if (cur) sections.push(cur);
-            return sections;
-        }
-
-        function formatAiAskAnswerForDisplay(raw, question) {
-            const sections = parseAiAskAnswerSections(raw);
-            if (!sections.length) return formatAiAskHighlightSpans(normalizeAiAskHighlightMarkers(raw));
-            return sections
-                .map(function (sec, idx) {
-                    const isExample = sec.key === '📝 예시';
-                    const label = sec.key ? '<span class="ai-ask-sec-label">' + escapeHtml(sec.key + ':') + '</span> ' : '';
-                    const bodyHtml = isExample
-                        ? formatAiAskExampleBody(sec.lines, question)
-                        : formatAiAskPlainLines(sec.lines);
-                    return (idx ? '<br>' : '') + label + bodyHtml;
                 })
                 .join('');
         }
@@ -2376,7 +2225,7 @@
                 out.textContent = '';
                 return;
             }
-            out.innerHTML = formatAiAskAnswerForDisplay(t, lastAiAskQuestionForHighlight);
+            out.innerHTML = formatAiAskAnswerForDisplay(t);
         }
 
         function setAiAskReplyError(out, msg) {
