@@ -235,9 +235,16 @@ async function callGeminiChatSimple(env, fullPrompt, maxOutputTokens = 2048) {
   if (!response.ok) {
     return { error: data?.error?.message || data?.error || `gemini_http_${response.status}` };
   }
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  const parts = data?.candidates?.[0]?.content?.parts;
+  let text = "";
+  if (Array.isArray(parts) && parts.length) {
+    text = parts.map((p) => (p && p.text ? String(p.text) : "")).join("");
+  } else {
+    text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  }
+  text = String(text).trim();
   if (!text) return { error: "empty_response" };
-  return { text: String(text).trim() };
+  return { text };
 }
 
 /** AI 질문 답변: 옛 라벨·번호 형식을 이모지 3단 형식으로 통일 */
