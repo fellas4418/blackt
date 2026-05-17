@@ -2420,6 +2420,10 @@
             return String(s || '').replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m]));
         }
 
+        function escapeJsArgAttr(value) {
+            return escapeHtml(JSON.stringify(String(value == null ? '' : value)));
+        }
+
         /** 지문 eng 표시: OCR·모델이 넣은 연속 공백·특수 공백을 한 칸으로 줄여 가독성 확보 */
         function normalizePassageEngForDisplay(s) {
             let t = String(s || '');
@@ -3381,16 +3385,20 @@
                     const isSaved = savedVocaList.some(item => String(item.eng || '').toLowerCase() === String(kw.eng).toLowerCase());
                     const btnClass = isSaved ? 'kw-save-btn active' : 'kw-save-btn';
                     const btnText = isSaved ? '✅' : '저장';
-                    const safeEng = String(kw.eng || '').replace(/'/g, "\\'");
-                    const safeKor = String(kw.kor || '').replace(/'/g, "\\'");
+                    const safeEng = escapeJsArgAttr(kw.eng || '');
+                    const safeKor = escapeJsArgAttr(kw.kor || '');
+                    const safeLevel = escapeJsArgAttr(kw.level || 'other');
+                    const safeEngHtml = escapeHtml(kw.eng || '');
+                    const safeKorHtml = escapeHtml(kw.kor || '');
+                    const safeBtnId = escapeHtml(kw.eng || '');
                     const levelTag = kw.level === 'middle' ? '<span class="kw-tag kw-mid">중등</span>' :
                         kw.level === 'high' ? '<span class="kw-tag kw-high">고등</span>' :
                             '<span class="kw-tag kw-other">기타</span>';
                     vocaItemsArray.push(
                         '<div class="kw-container"><div class="kw-body">' + levelTag +
-                        '<strong style="color:#fff; font-size:1.05rem; cursor:pointer;" onclick="showWordPopup(\'' + safeEng + '\', \'' + safeKor + '\', \'' + kw.level + '\')">' + kw.eng + '</strong> ' +
-                        '<span style="color:#aaa; font-size:0.9rem; margin-left:6px;">' + kw.kor + '</span></div>' +
-                        '<button id="btn-kw-' + kw.eng + '" class="' + btnClass + '" onclick="toggleVocaSave(\'' + safeEng + '\', \'' + safeKor + '\', \'' + kw.level + '\', this)">' + btnText + '</button></div>'
+                        '<strong style="color:#fff; font-size:1.05rem; cursor:pointer;" onclick="showWordPopup(' + safeEng + ', ' + safeKor + ', ' + safeLevel + ')">' + safeEngHtml + '</strong> ' +
+                        '<span style="color:#aaa; font-size:0.9rem; margin-left:6px;">' + safeKorHtml + '</span></div>' +
+                        '<button id="btn-kw-' + safeBtnId + '" class="' + btnClass + '" onclick="toggleVocaSave(' + safeEng + ', ' + safeKor + ', ' + safeLevel + ', this)">' + btnText + '</button></div>'
                     );
                 });
                 if (vocaItemsArray.length > 3) {
@@ -3711,7 +3719,7 @@
 
         function grammarBadgeHtml(index, point) {
             const i = Number(index);
-            const safePoint = String(point || '').replace(/"/g, '&quot;');
+            const safePoint = escapeHtml(point || '');
             const label = '문법 G' + (i + 1) + ', 아래 설명으로 이동';
             return (
                 '<span class="grammar-badge" role="button" tabindex="0" ' +
@@ -5236,7 +5244,7 @@
             const aiSubjectSnippet = res.subject?.formal ? res.subject.formal.substring(0, 12).trim() : "지문 분석";
             currentPassageTitle = `[${categoryInfo}] ${aiSubjectSnippet}...`;
 
-            let backgroundHtml = res.background || '내용 확인 중';
+            let backgroundHtml = escapeHtml(res.background || '내용 확인 중');
 
             // 단어 리스트: worddata(마스터) + 시중 단어장 표제어(merged) — AI keywords 미사용
             aiKeywordsObj = buildDeterministicKeywordList(res);
@@ -5266,19 +5274,23 @@
             let savedGrammarList = savedGrammarCache;
             if (res.grammar && res.grammar.length > 0) {
                 const grammarBoxes = res.grammar.map((g, i) => {
-                    const safePoint = String(g.point || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                    const safeSentence = String(g.sentence || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                    const safeExplanation = String(g.explanation || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    const safePoint = escapeJsArgAttr(g.point || '');
+                    const safeSentence = escapeJsArgAttr(g.sentence || '');
+                    const safeExplanation = escapeJsArgAttr(g.explanation || '');
+                    const safeSentenceAttr = escapeHtml(g.sentence || '');
+                    const pointHtml = escapeHtml(g.point || '');
+                    const sentenceHtml = escapeHtml(g.sentence || '');
+                    const explanationHtml = escapeHtml(g.explanation || '');
                     const isSaved = savedGrammarList.some(item => item.sentence === g.sentence);
                     const btnClass = isSaved ? "save-btn-small active" : "save-btn-small";
                     const btnText = isSaved ? "✅ 저장됨" : "⭐ 저장";
 
                     return `
                     <div class="grammar-box" id="grammar-box-${i}">
-                        <button class="${btnClass}" data-grammar-sentence="${String(g.sentence || '').replace(/"/g, '&quot;')}" onclick="toggleGrammarSave('${safePoint}', '${safeSentence}', '${safeExplanation}', this)">${btnText}</button>
-                        <strong style="color:#bc13fe; display:block; margin-bottom:4px; padding-right:60px;">⚡ [G${i+1}] ${g.point}</strong>
-                        <div style="color:#ddd; font-size:0.85rem; font-style:italic; margin-bottom:6px;">"${g.sentence}"</div>
-                        <div style="color:#eee; font-size:0.9rem;">${g.explanation}</div>
+                        <button class="${btnClass}" data-grammar-sentence="${safeSentenceAttr}" onclick="toggleGrammarSave(${safePoint}, ${safeSentence}, ${safeExplanation}, this)">${btnText}</button>
+                        <strong style="color:#bc13fe; display:block; margin-bottom:4px; padding-right:60px;">⚡ [G${i+1}] ${pointHtml}</strong>
+                        <div style="color:#ddd; font-size:0.85rem; font-style:italic; margin-bottom:6px;">"${sentenceHtml}"</div>
+                        <div style="color:#eee; font-size:0.9rem;">${explanationHtml}</div>
                     </div>
                 `;
                 });
