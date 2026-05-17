@@ -600,6 +600,21 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
             isPreReviewMode = false;
         }
 
+        if (isAdminDayCompleteSharePreview()) {
+            clearStudyCheckpoint();
+            if (sessionTag) {
+                sessionTag.innerText = '오늘 목표 완료 👑 (관리자 미리보기)';
+                sessionTag.style.color = 'var(--neon-green)';
+            }
+            const bar = document.getElementById('bar');
+            if (bar) {
+                bar.style.width = '100%';
+                bar.style.backgroundColor = 'var(--neon-green)';
+            }
+            showStudyDayCompleteScreen(100);
+            return;
+        }
+
         const restoreMain = tryRestoreStudyCheckpoint({ isPreReviewMode: false, customSavedVoca: false });
         runStudyHtmlEntryTail(sessionTag, currentSession, isReviewDay, restoreMain);
     } catch (err) {
@@ -1493,6 +1508,46 @@ function shareKakao() {
 }
 
 window.shareKakao = shareKakao;
+
+function isAdminDayCompleteSharePreview() {
+    try {
+        if (localStorage.getItem('trigger_admin_mode') !== 'true') return false;
+        return new URLSearchParams(window.location.search).get('admin_complete_share') === '1';
+    } catch (e) {
+        return false;
+    }
+}
+
+/** 관리자: 메인에서 카톡 공유 파이프라인만 즉시 테스트 */
+window.adminTestKakaoShareOnly = function () {
+    if (localStorage.getItem('trigger_admin_mode') !== 'true') {
+        alert('관리자 모드를 먼저 켜 주세요. (제목 3번 탭)');
+        return;
+    }
+    if (typeof shareKakao !== 'function') {
+        alert('공유 기능을 불러오지 못했어요. study.html에서 시도하거나 새로고침 해 주세요.');
+        return;
+    }
+    shareKakao();
+};
+
+/** 관리자: 당일 테스트 완료 화면(카톡 공유 버튼)으로 바로 이동 */
+window.adminGoDayCompleteKakaoScreen = function () {
+    if (localStorage.getItem('trigger_admin_mode') !== 'true') {
+        alert('관리자 모드를 먼저 켜 주세요. (제목 3번 탭)');
+        return;
+    }
+    const lvl = localStorage.getItem('trigger_level') || 'middle';
+    const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
+    const localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
+    const isReviewDay = localDay === 6 || localDay === 7;
+    const finalSession = isReviewDay ? '2' : String(DAILY_CYCLE_COUNT);
+    localStorage.setItem(`trigger_session_${lvl}`, finalSession);
+    if (typeof clearBlacktCooldownNotifySchedule === 'function') clearBlacktCooldownNotifySchedule();
+    localStorage.removeItem('blackt_cooldown');
+    clearStudyCheckpoint();
+    location.href = 'study.html?admin_complete_share=1';
+};
 
 (function bindStudyCompleteActionsOnce() {
     if (window.__studyCompleteActionsBound) return;
