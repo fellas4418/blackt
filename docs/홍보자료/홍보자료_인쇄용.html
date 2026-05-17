@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>트리거 블랙 · 홍보 소개서</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            line-height: 1.65;
+            color: #1a1a1a;
+            margin: 0;
+            background: #f0f0f0;
+        }
+        .no-print {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #111;
+            color: #fff;
+            padding: 12px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            border-bottom: 3px solid #39ff14;
+        }
+        .no-print h1 { font-size: 1rem; margin: 0; flex: 1 1 200px; }
+        .no-print button {
+            padding: 8px 14px;
+            border: 1px solid #39ff14;
+            background: transparent;
+            color: #39ff14;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+        .no-print button.active { background: #39ff14; color: #000; }
+        .no-print .print-btn {
+            background: #39ff14;
+            color: #000;
+            border: none;
+            margin-left: auto;
+        }
+        .doc {
+            display: none;
+            max-width: 210mm;
+            margin: 24px auto;
+            padding: 18mm 16mm;
+            background: #fff;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+        }
+        .doc.active { display: block; }
+        .doc-cover {
+            border-bottom: 4px solid #111;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+        .doc-cover .tag {
+            display: inline-block;
+            background: #111;
+            color: #39ff14;
+            font-size: 0.75rem;
+            font-weight: 900;
+            padding: 4px 10px;
+            border-radius: 4px;
+            letter-spacing: 0.05em;
+        }
+        .doc-cover h1 { font-size: 1.75rem; margin: 12px 0 8px; font-weight: 900; }
+        .doc-cover .lead { font-size: 1.05rem; color: #444; margin: 0; }
+        h2 {
+            font-size: 1.15rem;
+            margin: 28px 0 12px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #eee;
+            color: #111;
+        }
+        h3 { font-size: 0.98rem; margin: 18px 0 8px; color: #333; }
+        p, li { font-size: 0.92rem; }
+        ul { padding-left: 1.2em; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            margin: 12px 0;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px 10px;
+            text-align: left;
+        }
+        th { background: #f5f5f5; font-weight: 700; }
+        .highlight {
+            background: #f8fff0;
+            border-left: 4px solid #39ff14;
+            padding: 12px 14px;
+            margin: 16px 0;
+            font-size: 0.95rem;
+        }
+        .copy-box {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0;
+        }
+        .copy-box span {
+            background: #111;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .footer {
+            margin-top: 32px;
+            padding-top: 12px;
+            border-top: 1px solid #ddd;
+            font-size: 0.78rem;
+            color: #888;
+        }
+        @media print {
+            body { background: #fff; }
+            .no-print { display: none !important; }
+            .doc {
+                display: block !important;
+                box-shadow: none;
+                margin: 0;
+                max-width: none;
+                page-break-after: always;
+            }
+            .doc:last-child { page-break-after: auto; }
+            #doc-all .doc-section { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <h1>트리거 블랙 · 홍보 소개서 (인쇄/PDF용)</h1>
+        <button type="button" class="active" data-show="doc-student">학생용</button>
+        <button type="button" data-show="doc-parent">학부모용</button>
+        <button type="button" data-show="doc-academy">학원용</button>
+        <button type="button" data-show="doc-internal">내부 전체</button>
+        <button type="button" data-show="doc-all">4종 한번에</button>
+        <button type="button" class="print-btn" onclick="window.print()">PDF로 저장 (인쇄)</button>
+    </div>
+
+    <section id="doc-student" class="doc active">
+        <div class="doc-cover">
+            <span class="tag">STUDENT</span>
+            <h1>트리거 블랙 · 학생용</h1>
+            <p class="lead">수능·내신, 막힐 때 여는 앱</p>
+        </div>
+        <div class="highlight"><strong>한 줄:</strong> 단어는 사라져 VOCA, 지문은 AI, 문장 구조는 3시간 영문법.</div>
+        <h2>왜 이 앱인가요?</h2>
+        <table>
+            <tr><th>불편함</th><th>트리거</th></tr>
+            <tr><td>단어만 하면 지문에서 막힘</td><td>지문 AI + 노트 연동</td></tr>
+            <tr><td>ChatGPT는 수능 형식 X</td><td>유형·해석·문법·어휘 DB</td></tr>
+            <tr><td>해설지만 길다</td><td>오답·시험 리포트·Golden Key</td></tr>
+        </table>
+        <h2>① 사라져 VOCA</h2>
+        <ul>
+            <li>중등 1,200 / 고등 2,000 · 10주 70일 루틴</li>
+            <li>블링크 + 3분 쿨타임 · 망각 차단 · 7일마다 PDF</li>
+            <li>10주 완주 누적 오답지 · 카톡·칭찬 배지</li>
+        </ul>
+        <h2>② AI 지문 분석</h2>
+        <ul>
+            <li>사진/붙여넣기 → 해석·문법·단어·배경</li>
+            <li>순서·삽입·어법·주제 유형 자동</li>
+            <li>노트 → VOCA 연습 · AI 질문 · Golden Key(유료)</li>
+        </ul>
+        <h2>③ 시험 리포트 · ④ 3시간 영문법</h2>
+        <p>시험지 촬영 → AI 진단 · PDF. 구조 약하면 영문법 강좌 연계.</p>
+        <h2>홍보 카피</h2>
+        <div class="copy-box">
+            <span>외울 땐 사라져, 막힐 땐 트리거</span>
+            <span>지문 찍으면 해석·문법·단어까지</span>
+        </div>
+        <p class="footer">© 트리거 블랙 · tri3.imweb.me</p>
+    </section>
+
+    <section id="doc-parent" class="doc">
+        <div class="doc-cover">
+            <span class="tag">PARENT</span>
+            <h1>트리거 블랙 · 학부모용</h1>
+            <p class="lead">매일 하는 공부 + 성적 근거를 한곳에서</p>
+        </div>
+        <div class="highlight"><strong>한 줄:</strong> 10주 단어 루틴 + 지문·시험 AI 리포트로 부족한 점을 보여 줍니다.</div>
+        <h2>걱정 → 해결</h2>
+        <table>
+            <tr><th>걱정</th><th>앱</th></tr>
+            <tr><td>계획 없음</td><td>70일·주 5+2 루틴</td></tr>
+            <tr><td>단어만</td><td>지문 분석 + 노트</td></tr>
+            <tr><td>약점 모름</td><td>시험 리포트·AI 진단</td></tr>
+            <tr><td>폰만 함</td><td>카톡 인증·주차 PDF</td></tr>
+        </table>
+        <h2>주요 기능</h2>
+        <h3>사라져 VOCA</h3>
+        <p>망각 차단, 7일 PDF, 10주 오답 시험지</p>
+        <h3>지문 분석</h3>
+        <p>맞춤 해설, Golden Key(유료)=주제·요지 논리</p>
+        <h3>시험 리포트</h3>
+        <p>PDF·상담용 · 3시간 영문법 연계 권장</p>
+        <p class="footer">© 트리거 블랙</p>
+    </section>
+
+    <section id="doc-academy" class="doc">
+        <div class="doc-cover">
+            <span class="tag">ACADEMY</span>
+            <h1>트리거 블랙 · 학원용</h1>
+            <p class="lead">숙제·상담을 돕는 영어 학습 OS</p>
+        </div>
+        <h2>활용</h2>
+        <ul>
+            <li>지문 숙제 = 촬영 리포트 과제</li>
+            <li>단어 = 10주 VOCA Day·사이클 확인</li>
+            <li>상담 = 시험 PDF·주차 단어장·오답지</li>
+        </ul>
+        <h2>비교</h2>
+        <table>
+            <tr><th></th><th>단어앱</th><th>ChatGPT</th><th>트리거</th></tr>
+            <tr><td>단어</td><td>○</td><td>△</td><td>10주·PDF</td></tr>
+            <tr><td>지문</td><td>✕</td><td>△</td><td>OCR·유형</td></tr>
+            <tr><td>시험</td><td>✕</td><td>✕</td><td>리포트·AI</td></tr>
+        </table>
+        <h2>시나리오</h2>
+        <p>입학 체험 → 주간 리포트 수업 → 방학 캠프 → 졸업반 프리미엄</p>
+        <p class="footer">© 트리거 블랙 · 제휴 tri3.imweb.me</p>
+    </section>
+
+    <section id="doc-internal" class="doc">
+        <div class="doc-cover">
+            <span class="tag">INTERNAL</span>
+            <h1>전체 기능·특징 정리</h1>
+            <p class="lead">기획·디자인·개발용 (내부)</p>
+        </div>
+        <h2>모듈</h2>
+        <p>VOCA · analysis · Worker/D1 · 3시간 영문법 · PWA · 카카오 공유</p>
+        <h2>VOCA 핵심</h2>
+        <p>70일, 5사이클, 블링크, 쿨타임, 망각차단, PDF, 오답지, 배지, 지문연동 연습</p>
+        <h2>지문·시험</h2>
+        <p>OCR, 유형20+, Golden Key 3종, AI질문, 노트 sync, 시험리포트·AI진단·관리자</p>
+        <h2>유료</h2>
+        <p>Golden Key, AI, is_premium, tri3</p>
+        <h2>퍼널</h2>
+        <p>유입(VOCA·지문) → 체류 → 전환(프리미엄) → 강좌 → 재방문(시험·PDF)</p>
+        <p class="footer">내부용 · 01~03 소개서로 대외 배포</p>
+    </section>
+
+    <script>
+        const buttons = document.querySelectorAll('.no-print button[data-show]');
+        const docs = document.querySelectorAll('.doc');
+        function show(id) {
+            const all = id === 'doc-all';
+            docs.forEach(d => {
+                d.classList.toggle('active', all || d.id === id);
+            });
+            buttons.forEach(b => b.classList.toggle('active', b.dataset.show === id));
+        }
+        buttons.forEach(b => b.addEventListener('click', () => show(b.dataset.show)));
+    </script>
+</body>
+</html>

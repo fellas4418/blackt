@@ -1323,10 +1323,14 @@ function shareKakao() {
     const praiseShareUrl = pc ? `${praiseBase}&pc=${encodeURIComponent(pc)}` : praiseBase;
 
     let learnedTotal = st.t;
-    const badgeLine =
-        typeof TriggerPraise !== 'undefined' && TriggerPraise.kakaoSubtitleLine
-            ? TriggerPraise.kakaoSubtitleLine(st)
-            : '';
+    let badgeLine = '';
+    try {
+        if (typeof TriggerPraise !== 'undefined' && TriggerPraise.kakaoSubtitleLine) {
+            badgeLine = TriggerPraise.kakaoSubtitleLine(st) || '';
+        }
+    } catch (e) {
+        badgeLine = '';
+    }
 
     const alertCopied = () => {
         alert('✅ 공유 링크를 복사했어요.\n카톡 채팅창에 길게 눌러 붙여넣기로 보내 주세요.');
@@ -1384,14 +1388,18 @@ function shareKakao() {
                     fallbackOnce();
                 });
             } else {
-                settled = true;
-                clearTimeout(slowTimer);
+                /* sendDefault가 Promise를 안 주면(카톡 인앱 등) 무응답으로 멈춘 것처럼 보임 → 타이머로 복사 폴백 */
             }
         } catch (e) {
             clearTimeout(slowTimer);
             fallbackOnce();
         }
     };
+
+    if (/KAKAO/i.test(navigator.userAgent)) {
+        runClipboardFallback();
+        return;
+    }
 
     if (typeof Kakao !== 'undefined' && Kakao) {
         tryKakaoSend();
@@ -1419,6 +1427,21 @@ function shareKakao() {
 }
 
 window.shareKakao = shareKakao;
+
+(function bindStudyCompleteActionsOnce() {
+    if (window.__studyCompleteActionsBound) return;
+    window.__studyCompleteActionsBound = true;
+    function onStudyCompleteTap(ev) {
+        const shareBtn = ev.target && ev.target.closest ? ev.target.closest('#btn-study-kakao-share') : null;
+        const exitBtn = ev.target && ev.target.closest ? ev.target.closest('#btn-study-exit-home') : null;
+        if (!shareBtn && !exitBtn) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        if (shareBtn && typeof shareKakao === 'function') shareKakao();
+        else if (exitBtn) location.href = 'index.html?tab=voca';
+    }
+    document.addEventListener('click', onStudyCompleteTap, true);
+})();
 
 window.jumpToSession = function(n) {
     const lvl = localStorage.getItem('trigger_level') || 'middle';

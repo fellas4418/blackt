@@ -101,11 +101,32 @@
             if (i % 7 === 6 || i % 7 === 0) continue;
             learnedTotal += getWordsForDay(level, i).length;
         }
-        return {
+        var base = {
             n: userName.slice(0, 48),
             d: Math.min(999, Math.max(1, displayDay)),
             t: Math.min(999999, Math.max(0, learnedTotal)),
             k: kind === 'exam' ? 'exam' : 'voca'
+        };
+        var meta = praiseMetaFromCtx(base);
+        base.b = meta.b;
+        base.m = meta.m;
+        return base;
+    }
+
+    function praiseMetaFromCtx(ctx) {
+        var c = ctx || {};
+        var seed =
+            String(c.n || '') +
+            '|' +
+            Number(c.d) +
+            '|' +
+            Number(c.t) +
+            '|' +
+            String(c.k || 'voca');
+        var h = fnv1a32(seed);
+        return {
+            b: (h >>> 0) % BADGES.length,
+            m: ((h >>> 13) >>> 0) % 8
         };
     }
 
@@ -162,7 +183,13 @@
     }
 
     function badgeFor(ctx) {
-        return BADGES[ctx.b % BADGES.length];
+        var c = ctx || {};
+        var idx = c.b;
+        if (idx == null || isNaN(idx)) {
+            idx = praiseMetaFromCtx(c).b;
+        }
+        idx = ((idx % BADGES.length) + BADGES.length) % BADGES.length;
+        return BADGES[idx] || BADGES[0];
     }
 
     var HEADLINES = [
