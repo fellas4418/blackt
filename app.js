@@ -52,7 +52,14 @@ function showStudyDayCompleteScreen(accuracy) {
             shareBtn.onclick = function (ev) {
                 ev.preventDefault();
                 ev.stopPropagation();
-                shareKakao();
+                if (shareBtn.disabled) return;
+                const label = shareBtn.textContent;
+                shareBtn.disabled = true;
+                shareBtn.textContent = '공유 준비 중…';
+                Promise.resolve(shareKakao()).finally(function () {
+                    shareBtn.disabled = false;
+                    shareBtn.textContent = label;
+                });
             };
         }
         if (exitBtn) {
@@ -810,19 +817,24 @@ if (wrongWordCountEl) {
 function updateUI(data, isTest = false) {
     const targetEl = document.getElementById('target');
     const mBox = document.getElementById('meanings');
-    const headerEl = document.querySelector('.header'); 
-    
+    const headerEl = document.querySelector('.header');
+    const displayEl = document.getElementById('display');
+
     if (!targetEl || !mBox || !data) return;
+
+    if (headerEl) headerEl.classList.toggle('test-phase-header', isTest);
+    if (displayEl) displayEl.classList.toggle('test-phase', isTest);
 
     const oldCounter = document.getElementById('session-counter');
     if (oldCounter) oldCounter.remove();
 
     const currentNum = currentIdx + 1;
     const totalNum = targetWords.length;
+    const counterGap = isTest ? 'margin-top: 10px; margin-bottom: 22px;' : 'margin-top: 5px; margin-bottom: 2px;';
 
     const counterHtml = `
-        <div id="session-counter" style="text-align: center; margin-top: 5px; font-family: 'Pretendard', sans-serif; width: 100%;">
-            <div style="font-size: 0.9rem; color: #666; font-weight: 800; margin-bottom: 2px;">오늘의 단어 순서</div>
+        <div id="session-counter" style="text-align: center; ${counterGap} font-family: 'Pretendard', sans-serif; width: 100%;">
+            <div style="font-size: 0.9rem; color: #666; font-weight: 800; margin-bottom: 4px;">오늘의 단어 순서</div>
             <div style="font-size: 1rem; color: #aaa; font-weight: bold;">
                 <span style="color: var(--neon-blue); font-size: 1.1rem;">${currentNum}</span> 
                 <span style="color: #444; margin: 0 2px;">/</span> 
@@ -841,7 +853,9 @@ function updateUI(data, isTest = false) {
     targetEl.style.setProperty('font-size', '3.3rem', 'important'); 
     targetEl.style.setProperty('text-shadow', '0 0 15px #fff', 'important');
     targetEl.style.setProperty('color', '#fff', 'important');
-    targetEl.style.setProperty('margin-top', isTest ? '-58px' : '-40px', 'important'); 
+    const testGap = '22px';
+    targetEl.style.setProperty('margin-top', isTest ? testGap : '-40px', 'important');
+    mBox.style.marginTop = isTest ? testGap : '';
 
     if (!isTest) {
         targetEl.innerHTML = `
@@ -1295,8 +1309,40 @@ function copyTextForShareFallback(text) {
     });
 }
 
-function shareKakao() {
-    stopStudyTimersAndSpeech();
+const KAKAO_APP_KEY = 'fbb1520306ffaad0a882e993109a801c';
+const KAKAO_SDK_URL = 'https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js';
+
+function ensureKakaoSdkReady() {
+    return new Promise((resolve) => {
+        const ready = () => {
+            try {
+                if (typeof Kakao !== 'undefined' && Kakao && !Kakao.isInitialized()) {
+                    Kakao.init(KAKAO_APP_KEY);
+                }
+            } catch (e) {}
+            resolve(typeof Kakao !== 'undefined' && Kakao && Kakao.isInitialized());
+        };
+        if (typeof Kakao !== 'undefined' && Kakao) {
+            ready();
+            return;
+        }
+        let inject = document.querySelector('script[data-trigger-kakao-sdk="1"]');
+        if (inject) {
+            inject.addEventListener('load', ready, { once: true });
+            inject.addEventListener('error', () => resolve(false), { once: true });
+            return;
+        }
+        inject = document.createElement('script');
+        inject.src = KAKAO_SDK_URL;
+        inject.async = true;
+        inject.setAttribute('data-trigger-kakao-sdk', '1');
+        inject.onload = ready;
+        inject.onerror = () => resolve(false);
+        document.head.appendChild(inject);
+    });
+}
+
+function buildVocaShareBundle() {
     const userName = localStorage.getItem('trigger_name') || '학습자';
     let displayDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
     if (localStorage.getItem(`trigger_session_${currentLevel}`) === '1' && displayDay > 1) displayDay--;
@@ -1308,7 +1354,7 @@ function shareKakao() {
             : { n: userName, d: displayDay, t: 0, k: 'voca' };
     if (typeof TriggerPraise === 'undefined' || !TriggerPraise.statsFromStorage) {
         let learnedTotal = 0;
-        let unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
+        const unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
         for (let i = 1; i < unlockedDay; i++) {
             if (i % 7 === 6 || i % 7 === 0) continue;
             learnedTotal += getWordsForDay(currentLevel, i).length;
@@ -1322,7 +1368,6 @@ function shareKakao() {
     const praiseBase = window.location.origin + '/share-entry.html?path=index.html&praise=1';
     const praiseShareUrl = pc ? `${praiseBase}&pc=${encodeURIComponent(pc)}` : praiseBase;
 
-    let learnedTotal = st.t;
     let badgeLine = '';
     try {
         if (typeof TriggerPraise !== 'undefined' && TriggerPraise.kakaoSubtitleLine) {
@@ -1332,98 +1377,115 @@ function shareKakao() {
         badgeLine = '';
     }
 
+    const title = `🔥 [${st.n}]님, 단어 학습 완료!`;
+    const description = `누적 클리어: ${st.t} 단어\n오늘의 진도: Day ${st.d}\n\n오늘도 목표를 달성했습니다! 칭찬 배지를 보내주세요.${badgeLine ? '\n\n' + badgeLine : ''}`;
+    const clipboardText = `${title}\n${description}\n\n${shareUrl}\n\n칭찬 배지: ${praiseShareUrl}`;
+
+    return {
+        shareUrl,
+        praiseShareUrl,
+        title,
+        description,
+        clipboardText,
+        payload: {
+            objectType: 'feed',
+            content: {
+                title,
+                description,
+                imageUrl: 'https://blackt.pages.dev/share-v2.png',
+                link: { mobileWebUrl: shareUrl, webUrl: shareUrl }
+            },
+            buttons: [
+                { title: '결과 자세히 보기', link: { mobileWebUrl: shareUrl, webUrl: shareUrl } },
+                { title: '👍 칭찬 응원 배지 보내기', link: { mobileWebUrl: praiseShareUrl, webUrl: praiseShareUrl } }
+            ]
+        }
+    };
+}
+
+function tryKakaoSdkShare(payload, timeoutMs) {
+    return new Promise((resolve) => {
+        let done = false;
+        const finish = (ok) => {
+            if (done) return;
+            done = true;
+            resolve(!!ok);
+        };
+        const timer = setTimeout(() => finish(false), timeoutMs);
+        ensureKakaoSdkReady().then((ok) => {
+            if (!ok) {
+                clearTimeout(timer);
+                finish(false);
+                return;
+            }
+            try {
+                const ret = Kakao.Share.sendDefault(payload);
+                if (ret && typeof ret.then === 'function') {
+                    ret
+                        .then(() => {
+                            clearTimeout(timer);
+                            finish(true);
+                        })
+                        .catch(() => {
+                            clearTimeout(timer);
+                            finish(false);
+                        });
+                }
+            } catch (e) {
+                clearTimeout(timer);
+                finish(false);
+            }
+        });
+    });
+}
+
+function tryNativeWebShare(bundle) {
+    if (!navigator.share) return Promise.resolve(false);
+    return navigator
+        .share({
+            title: bundle.title,
+            text: bundle.description,
+            url: bundle.shareUrl
+        })
+        .then(() => true)
+        .catch((e) => {
+            if (e && e.name === 'AbortError') return true;
+            return false;
+        });
+}
+
+function shareKakao() {
+    stopStudyTimersAndSpeech();
+    let bundle;
+    try {
+        bundle = buildVocaShareBundle();
+    } catch (e) {
+        alert('공유 정보를 만들지 못했어요. 잠시 후 다시 시도해 주세요.');
+        return Promise.resolve();
+    }
+
     const alertCopied = () => {
-        alert('✅ 공유 링크를 복사했어요.\n카톡 채팅창에 길게 눌러 붙여넣기로 보내 주세요.');
+        alert(
+            '✅ 공유 문구를 복사했어요.\n\n카톡 채팅창을 연 뒤 입력창을 길게 눌러 「붙여넣기」로 보내 주세요.\n(공유 창이 안 뜨는 환경에서는 이 방법이 가장 확실해요.)'
+        );
     };
     const alertCopyFailed = () => {
-        alert('링크를 자동으로 복사하지 못했어요. 아래 주소를 직접 복사해 주세요.\n\n' + shareUrl);
-    };
-    const runClipboardFallback = () => {
-        copyTextForShareFallback(shareUrl).then((ok) => (ok ? alertCopied() : alertCopyFailed()));
+        alert('자동 복사에 실패했어요. 아래 주소를 직접 복사해 카톡에 보내 주세요.\n\n' + bundle.shareUrl);
     };
 
-    const payload = {
-        objectType: 'feed',
-        content: {
-            title: `🔥 [${st.n}]님, 단어 학습 완료!`,
-            description: `누적 클리어: ${st.t} 단어\n오늘의 진도: Day ${st.d}\n\n오늘도 목표를 달성했습니다! 칭찬 배지를 보내주세요.${badgeLine ? '\n\n' + badgeLine : ''}`,
-            imageUrl: 'https://blackt.pages.dev/share-v2.png',
-            link: { mobileWebUrl: shareUrl, webUrl: shareUrl }
-        },
-        buttons: [
-            { title: '결과 자세히 보기', link: { mobileWebUrl: shareUrl, webUrl: shareUrl } },
-            { title: '👍 칭찬 응원 배지 보내기', link: { mobileWebUrl: praiseShareUrl, webUrl: praiseShareUrl } }
-        ]
-    };
+    return (async function deliverKakaoShare() {
+        const copiedInBg = copyTextForShareFallback(bundle.clipboardText);
 
-    const tryKakaoSend = () => {
-        let settled = false;
-        const fallbackOnce = () => {
-            if (settled) return;
-            settled = true;
-            runClipboardFallback();
-        };
-        const slowTimer = setTimeout(fallbackOnce, 3500);
-        try {
-            if (typeof Kakao === 'undefined' || !Kakao) {
-                clearTimeout(slowTimer);
-                fallbackOnce();
-                return;
-            }
-            if (!Kakao.isInitialized()) {
-                Kakao.init('fbb1520306ffaad0a882e993109a801c');
-            }
-            if (!Kakao.isInitialized()) {
-                clearTimeout(slowTimer);
-                fallbackOnce();
-                return;
-            }
-            const ret = Kakao.Share.sendDefault(payload);
-            if (ret && typeof ret.then === 'function') {
-                ret.then(() => {
-                    settled = true;
-                    clearTimeout(slowTimer);
-                }).catch(() => {
-                    clearTimeout(slowTimer);
-                    fallbackOnce();
-                });
-            } else {
-                /* sendDefault가 Promise를 안 주면(카톡 인앱 등) 무응답으로 멈춘 것처럼 보임 → 타이머로 복사 폴백 */
-            }
-        } catch (e) {
-            clearTimeout(slowTimer);
-            fallbackOnce();
-        }
-    };
+        if (await tryKakaoSdkShare(bundle.payload, 2200)) return;
 
-    if (/KAKAO/i.test(navigator.userAgent)) {
-        runClipboardFallback();
-        return;
-    }
+        if (await tryNativeWebShare(bundle)) return;
 
-    if (typeof Kakao !== 'undefined' && Kakao) {
-        tryKakaoSend();
-        return;
-    }
-
-    const KAKAO_SDK_URL = 'https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js';
-    let inject = document.querySelector('script[data-trigger-kakao-sdk="1"]');
-    if (inject) {
-        if (typeof Kakao !== 'undefined' && Kakao) {
-            tryKakaoSend();
-        } else {
-            inject.addEventListener('load', tryKakaoSend, { once: true });
-            inject.addEventListener('error', () => runClipboardFallback(), { once: true });
-        }
-        return;
-    }
-    inject = document.createElement('script');
-    inject.src = KAKAO_SDK_URL;
-    inject.async = true;
-    inject.setAttribute('data-trigger-kakao-sdk', '1');
-    inject.onload = () => tryKakaoSend();
-    inject.onerror = () => runClipboardFallback();
-    document.head.appendChild(inject);
+        const copied = await copiedInBg;
+        if (copied) alertCopied();
+        else alertCopyFailed();
+    })().catch(() => {
+        copyTextForShareFallback(bundle.clipboardText).then((ok) => (ok ? alertCopied() : alertCopyFailed()));
+    });
 }
 
 window.shareKakao = shareKakao;

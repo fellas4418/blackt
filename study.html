@@ -23,6 +23,24 @@
             box-shadow: 0 0 10px var(--neon-purple); 
             border-color: #fff; 
         }
+        /* 테스트(4지선다) — 순서 숫자↔단어↔보기 간격 동일 */
+        .header.test-phase-header {
+            padding-bottom: 8px;
+        }
+        #display.test-phase {
+            justify-content: flex-start;
+            padding-top: 4px;
+        }
+        #display.test-phase #target {
+            margin-bottom: 0 !important;
+        }
+        #display.test-phase #meanings {
+            width: 90%;
+            margin-top: 22px !important;
+        }
+        #display.test-phase #meanings .choice-btn:first-child {
+            margin-top: 0 !important;
+        }
     </style>
 </head>
 <body class="study-bg">
@@ -59,8 +77,8 @@
         window.wordsData = typeof wordsData !== 'undefined' ? wordsData : { middle: {}, high: {} };
     </script>
     
-    <script src="praise-share.js?v=20260517_kakao"></script>
-    <script src="app.js?v=20260517_kakao"></script> 
+    <script src="praise-share.js?v=20260517_kakao2"></script>
+    <script src="app.js?v=20260517_kakao2"></script> 
     
     <script>
         if ('serviceWorker' in navigator) {
