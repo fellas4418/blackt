@@ -54,6 +54,33 @@
             margin-right: var(--passage-ui-pad-x);
             box-sizing: border-box;
         }
+        #analysis-passage-zone #result-section > .guide-box.grammar-promo-guide {
+            margin-top: 15px;
+            margin-bottom: 15px;
+            padding: 15px;
+        }
+        #analysis-passage-zone #result-section > .guide-box.grammar-promo-guide .guide-title {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+        #analysis-passage-zone #result-section > .guide-box.grammar-promo-guide .guide-text {
+            margin-bottom: 10px;
+        }
+        #analysis-passage-zone #result-section > .guide-box.grammar-promo-guide .grammar-promo-cta-btn {
+            margin-top: 0;
+        }
+        #analysis-passage-zone .result-card .keyword-list-heading-label {
+            padding-left: 8px;
+            padding-right: 8px;
+            box-sizing: border-box;
+        }
+        #analysis-passage-zone #passage-keyword-panel .keyword-save-all-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin: 0 8px 12px;
+            box-sizing: border-box;
+        }
         .passage-zone .analysis-zone-body > #input-section,
         .passage-zone .analysis-zone-body > #edit-section {
             padding-left: var(--passage-ui-pad-x);
@@ -790,14 +817,21 @@
             margin-top: 12px;
             line-height: 1.65;
         }
-        .passage-insert-box {
-            border: 2px dashed rgba(159, 232, 112, 0.75);
-            background: rgba(159, 232, 112, 0.07);
-            border-radius: 12px;
-            padding: 12px 14px;
-            margin-bottom: 10px;
-            color: #e8ffe8;
-            font-size: 0.95rem;
+        .passage-layout-toolbar {
+            margin-top: 10px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #222;
+            box-sizing: border-box;
+        }
+        .passage-layout-toolbar .passage-view-toggle-wrap {
+            margin-left: 0;
+            width: auto;
+        }
+        #translation-rows-root > .translation-row.passage-insert-row:first-child {
+            padding-top: 15px;
+        }
+        .translation-row.passage-insert-row {
+            border-bottom: 1px solid #222;
         }
         .passage-order-card {
             border: 1px solid #444;
@@ -1508,7 +1542,7 @@
             </div>
         </div>
         
-        <div class="guide-box" style="border-color: #b537f2; background: rgba(181, 55, 242, 0.05); margin-top: 25px;">
+        <div class="guide-box grammar-promo-guide" style="border-color: #b537f2; background: rgba(181, 55, 242, 0.05); ">
             <p class="guide-title" style="color: #d789ff; font-size:1.1rem;">🔥 근본적인 독해력을 올리고 싶다면?</p>
             <p class="guide-text" style="color: #eee; font-size:0.95rem;">단어는 아는데 해석이 턱턱 막히고 문장 구조가 안 보이시나요?<br>특수 구문부터 필수 문법까지 <b>단 3시간 만에 영어의 문을 여는 가장 명쾌한 로드맵.</b></p>
             <button onclick="window.open('https://tri3.imweb.me/', '_blank')" class="kakao-btn grammar-promo-cta-btn" style="background:#b537f2; color:#fff; border-radius:12px;">👉 된다니까 3시간 영문법 수강하기</button>
@@ -2443,19 +2477,57 @@
             });
         }
 
-        function buildPassageInsertionBoxHtml(pl, keywordsObj) {
+        function applyGrammarMarksToEngDisplay(finalEng, grammarList) {
+            let eng = finalEng;
+            let grammarMarks = '';
+            if (!grammarList || !grammarList.length) {
+                return { eng: eng, grammarMarks: grammarMarks };
+            }
+            grammarList.forEach(function (g, i) {
+                const gSent = String(g.sentence || '').trim();
+                const gSentNorm = normalizePassageEngForDisplay(gSent);
+                if (gSentNorm.length <= 5) return;
+                const lowerFinal = eng.toLowerCase();
+                const lowerGSent = gSentNorm.toLowerCase();
+                if (lowerFinal.includes(lowerGSent)) {
+                    const startIdx = lowerFinal.indexOf(lowerGSent);
+                    const actualMatch = eng.substring(startIdx, startIdx + gSentNorm.length);
+                    grammarMarks += grammarBadgeHtml(i, g.point);
+                    eng =
+                        eng.substring(0, startIdx) +
+                        '<span class="hl-grammar">' +
+                        actualMatch +
+                        '</span>' +
+                        eng.substring(startIdx + gSentNorm.length);
+                } else {
+                    const normFinal = lowerFinal.replace(/[^a-z0-9]/g, '');
+                    const normG = lowerGSent.replace(/[^a-z0-9]/g, '');
+                    if (normFinal.includes(normG)) {
+                        grammarMarks += grammarBadgeHtml(i, g.point);
+                    }
+                }
+            });
+            return { eng: eng, grammarMarks: grammarMarks };
+        }
+
+        function buildInsertionTranslationRowHtml(pl, res, opts) {
             const engRaw = String(pl.box_sentence || '');
             let finalEng = escapeHtml(normalizePassageEngForDisplay(engRaw));
             finalEng = decorateCircledNumberMarks(finalEng);
-            finalEng = applyEngFragmentClickableKeywords(finalEng, keywordsObj);
-            const korHtml = formatKorTextForTranslationRow(pl.box_sentence_kor || pl.box_kor || '');
+            const marked = applyGrammarMarksToEngDisplay(finalEng, res && res.grammar);
+            finalEng = marked.eng;
+            const grammarMarks = marked.grammarMarks;
+            finalEng = wrapTopicKeywordPhrasesInEngHtml(finalEng, (opts && opts.topicKwPhrases) || [], (opts && opts.topicKwOnce) || new Set());
+            finalEng = applyEngFragmentClickableKeywords(finalEng, (opts && opts.keywordsObj) || []);
             return (
-                '<div class="passage-insert-box">' +
+                '<div class="translation-row passage-insert-row pick-selectable" data-topic-focus="0">' +
                 '<div class="eng-text">' +
                 finalEng +
+                grammarMarks +
                 '</div>' +
-                (korHtml ? '<div class="kor-text">' + korHtml + '</div>' : '') +
-                '</div>'
+                '<div class="kor-text">' +
+                formatKorTextForTranslationRow(pl.box_sentence_kor || pl.box_kor || '') +
+                '</div></div>'
             );
         }
 
@@ -3299,9 +3371,9 @@
 
         function buildKeywordPanelHtml() {
             const savedVocaList = savedVocaCache;
-            let keywordHtml = '<motioniv style="display:flex; justify-content:flex-end; align-items:center; margin-bottom:12px;">' +
-                '<button id="save-all-btn" class="kw-save-btn" onclick="saveAllKeywords()">전체 저장</button></motioniv>';
-            keywordHtml = keywordHtml.replace(/motioniv/g, 'div');
+            let keywordHtml =
+                '<div class="keyword-save-all-row">' +
+                '<button id="save-all-btn" class="kw-save-btn" onclick="saveAllKeywords()">전체 저장</button></div>';
             const vocaItemsArray = [];
             if (aiKeywordsObj.length > 0) {
                 aiKeywordsObj.forEach(kw => {
@@ -5039,7 +5111,7 @@
             }
         }
 
-        function buildPassageLayoutCardHtml(res, keywordsObj) {
+        function buildPassageLayoutCardHtml(res, keywordsObj, layoutToolbarHtml) {
             const typeLabel = inferPassageProblemTypeLabel(res);
             const typeChipHtml =
                 '<div class="passage-type-chip">' +
@@ -5049,16 +5121,17 @@
                 escapeHtml(typeLabel) +
                 '</span></div>';
             const pl = res && res.passage_layout && typeof res.passage_layout === 'object' ? res.passage_layout : null;
+            const toolbarBlock = layoutToolbarHtml
+                ? '<div class="passage-layout-toolbar"><div class="passage-view-toggle-wrap">' +
+                  layoutToolbarHtml +
+                  '</div></div>'
+                : '';
             if (!pl) {
-                return '<div class="passage-layout-block">' + typeChipHtml + '</div>';
+                return '<div class="passage-layout-block">' + typeChipHtml + toolbarBlock + '</div>';
             }
             const t = String(pl.type || 'normal').trim().toLowerCase();
             const headParts = [];
             const tailParts = [];
-
-            if (t === 'insertion' && pl.box_sentence) {
-                headParts.push(buildPassageInsertionBoxHtml(pl, keywordsObj));
-            }
 
             if (t === 'grammar' && pl.grammar_panel_eng) {
                 headParts.push(
@@ -5136,11 +5209,12 @@
 
             const inner = (headParts.join('') + tailParts.join('')).trim();
             if (!inner) {
-                return '<div class="passage-layout-block">' + typeChipHtml + '</div>';
+                return '<div class="passage-layout-block">' + typeChipHtml + toolbarBlock + '</div>';
             }
             return (
                 '<div class="passage-layout-block">' +
                 typeChipHtml +
+                toolbarBlock +
                 '<div class="passage-layout-extra">' +
                 inner +
                 '</div></div>'
@@ -5230,7 +5304,6 @@
             const topicFocusRow = computeTopicFocusRowIndex(res, gkForPassage);
 
             let transRowsHtml = '';
-            const passageLayoutCardHtml = buildPassageLayoutCardHtml(res, aiKeywordsObj);
             const passageTopicKwOnce = new Set();
             if (res.full_translation && Array.isArray(res.full_translation)) {
                 transRowsHtml = res.full_translation.map((s, rowIdx) => {
@@ -5312,6 +5385,22 @@
                 }).join('');
             }
 
+            const plLayout = res.passage_layout && typeof res.passage_layout === 'object' ? res.passage_layout : null;
+            const isInsertionType =
+                plLayout &&
+                String(plLayout.type || '')
+                    .trim()
+                    .toLowerCase() === 'insertion' &&
+                plLayout.box_sentence;
+            if (isInsertionType) {
+                transRowsHtml =
+                    buildInsertionTranslationRowHtml(plLayout, res, {
+                        keywordsObj: aiKeywordsObj,
+                        topicKwPhrases: topicKwPhrases,
+                        topicKwOnce: passageTopicKwOnce
+                    }) + transRowsHtml;
+            }
+
             const passageKorHideBtn =
                 '<button type="button" class="passage-toggle-btn" id="btn-passage-kor-toggle" aria-pressed="false" onclick="togglePassageKorHide(this)">해석 가리기</button>';
             const passageTopicToggleBtn =
@@ -5329,6 +5418,12 @@
                 passageGuideItems +=
                     '<li class="passage-guide-line"><span class="grammar-badge grammar-badge-sample" aria-hidden="true">G1 ↓</span>를 누르면 아래 문법 설명으로 이동해요</li>';
             }
+            const passageLayoutToolbarInner = passageTopicToggleBtn + passageKwToggleBtn + passageKorHideBtn;
+            const passageLayoutCardHtml = buildPassageLayoutCardHtml(
+                res,
+                aiKeywordsObj,
+                passageLayoutToolbarInner
+            );
             const passageTopBlock =
                 '<div class="passage-top-block">' +
                 '<ul class="passage-guide-list" role="note">' +
@@ -5338,12 +5433,6 @@
                 '</div>';
             const translationCardHtml =
                 '<div class="result-card translation-passage-card">' +
-                '<div class="translation-card-toolbar">' +
-                '<div class="passage-view-toggle-wrap">' +
-                passageTopicToggleBtn +
-                passageKwToggleBtn +
-                passageKorHideBtn +
-                '</div></div>' +
                 '<div class="result-content" id="translation-rows-root">' +
                 transRowsHtml +
                 '</div></div>';
