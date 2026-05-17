@@ -275,6 +275,34 @@
         };
     }
 
+    function isKakaoInAppBrowser() {
+        return /KAKAO/i.test(String((global.navigator && global.navigator.userAgent) || ''));
+    }
+
+    /** 칭찬 복사 후 카톡 채팅으로 복귀 (인앱 브라우저 닫기 시도) */
+    function returnToKakaoInApp() {
+        var ua = String((global.navigator && global.navigator.userAgent) || '');
+        if (isKakaoInAppBrowser()) {
+            if (/iPhone|iPad|iPod/i.test(ua)) {
+                global.location.href = 'kakaoweb://closeBrowser';
+            } else {
+                global.location.href = 'kakaotalk://inappbrowser/close';
+            }
+            global.setTimeout(function () {
+                try {
+                    if (global.document && global.document.visibilityState === 'visible' && global.history.length > 1) {
+                        global.history.back();
+                    }
+                } catch (e2) {}
+            }, 700);
+            return true;
+        }
+        try {
+            global.close();
+        } catch (e3) {}
+        return false;
+    }
+
     global.TriggerPraise = {
         BADGES: BADGES,
         statsFromStorage: statsFromStorage,
@@ -283,6 +311,8 @@
         badgeFor: badgeFor,
         headlineFor: headlineFor,
         uiPack: uiPack,
+        isKakaoInAppBrowser: isKakaoInAppBrowser,
+        returnToKakaoInApp: returnToKakaoInApp,
         /** shareKakao 전용 카톡 설명 한 줄 추가 */
         kakaoSubtitleLine: function (ctx) {
             var b = badgeFor(ctx);

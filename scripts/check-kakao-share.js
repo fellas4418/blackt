@@ -110,6 +110,9 @@ function checkPraiseShare(TriggerPraise) {
     if (!line || !line.includes('배지')) fail('kakaoSubtitleLine empty or invalid');
     else pass('kakaoSubtitleLine: ' + line.slice(0, 40) + '…');
 
+    if (typeof TriggerPraise.returnToKakaoInApp !== 'function') fail('returnToKakaoInApp missing');
+    else pass('returnToKakaoInApp exported');
+
     const pc = TriggerPraise.encodePc(st);
     if (!pc) fail('encodePc returned empty');
     else pass('encodePc length ' + pc.length);

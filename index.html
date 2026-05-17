@@ -65,6 +65,23 @@
             box-sizing: border-box;
         }
         .praise-copy-btn:hover { background: rgba(188, 19, 254, 0.22); }
+        body.praise-receiver-flow .dashboard-container,
+        body.praise-receiver-flow .bottom-nav,
+        body.praise-receiver-flow #nav-area,
+        body.praise-receiver-flow hr { visibility: hidden; pointer-events: none; }
+        #praise-kakao-return {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 39990;
+            background: rgba(0, 0, 0, 0.97);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            box-sizing: border-box;
+            text-align: center;
+        }
 
         .input-group { margin-bottom: 18px; text-align: left; }
         .input-label { font-size: 0.85rem; color: #777; margin-bottom: 6px; display: block; }
@@ -168,14 +185,24 @@
             <h1 id="praise-main-title" style="color:var(--neon-green); text-shadow: 0 0 10px var(--neon-green); margin: 0 0 12px; font-size: 2rem;">축하 배지 도착!</h1>
             <p id="praise-headline" style="color:#e0e4ea; font-size:1.02rem; line-height:1.55; margin: 0 0 10px; text-align:center;"></p>
             <p id="praise-blurb" style="color:#777; font-size:0.88rem; line-height:1.45; margin: 0 0 16px; text-align:center;"></p>
-            <p style="color:#666; font-size:0.82rem; line-height:1.45; margin: 0 0 10px;">버튼을 누르면 축하 문장이 복사돼요. 카톡에 붙여넣어 보내 보세요.</p>
+            <p id="praise-intro" style="color:#666; font-size:0.82rem; line-height:1.45; margin: 0 0 10px;">축하 문장을 복사한 뒤, 아래 버튼으로 카톡 채팅으로 돌아가 붙여넣어 보내 주세요.</p>
             <div id="praise-copy-wrap" style="display:flex; flex-direction:column; gap:8px; width:100%; margin-bottom:12px;">
                 <button type="button" class="praise-copy-btn" id="praise-copy-0">🤗 따뜻하게 복사</button>
                 <button type="button" class="praise-copy-btn" id="praise-copy-1">⚡ 신나게 복사</button>
                 <button type="button" class="praise-copy-btn" id="praise-copy-2">✨ 짧게 복사</button>
             </div>
             <p id="praise-copy-feedback" style="display:none; font-size:0.88rem; color:var(--neon-green); margin:0 0 12px;"></p>
-            <button type="button" class="login-btn" style="border-color: var(--neon-green); width: 80%; max-width: 300px; font-size: 1.05rem;" onclick="window.closePraisePopup && window.closePraisePopup()">닫기</button>
+            <button type="button" id="praise-close-btn" class="login-btn" style="border-color: var(--neon-green); width: 80%; max-width: 300px; font-size: 1.05rem;" onclick="window.closePraisePopup && window.closePraisePopup()">💬 카톡으로 돌아가 보내기</button>
+        </div>
+    </div>
+
+    <div id="praise-kakao-return">
+        <div style="max-width:360px;">
+            <p style="font-size:2.5rem; margin:0 0 12px;">💬</p>
+            <h2 style="color:var(--neon-green); margin:0 0 12px; font-size:1.35rem;">복사 완료!</h2>
+            <p style="color:#bbb; line-height:1.6; margin:0 0 20px; font-size:0.95rem;">카톡 채팅방으로 돌아가 입력창을 길게 눌러<br>붙여넣기로 보내 주세요.</p>
+            <button type="button" class="login-btn" style="border-color:#fee500; color:#fee500; width:100%; max-width:300px; font-size:1rem;" onclick="window.retryReturnToKakao && window.retryReturnToKakao()">카톡으로 돌아가기</button>
+            <button type="button" style="margin-top:14px; background:none; border:none; color:#666; text-decoration:underline; cursor:pointer; font-size:0.85rem;" onclick="document.getElementById('praise-kakao-return').style.display='none'; document.body.classList.remove('praise-receiver-flow');">앱 화면 보기</button>
         </div>
     </div>
 
@@ -1431,6 +1458,7 @@
             }
 
             if (urlParams.get('praise') === 'true') {
+                document.body.classList.add('praise-receiver-flow');
                 var praisePopup = document.getElementById('praise-popup');
                 if (praisePopup) {
                     var savedName = localStorage.getItem('trigger_name');
@@ -1480,7 +1508,7 @@
                             if (hint) {
                                 hint.style.display = 'block';
                                 hint.textContent =
-                                    label + ' 복사됨! 카톡에서 길게 눌러 붙여넣기 해 보세요.';
+                                    label + ' 복사됨! 아래 [카톡으로 돌아가 보내기]를 눌러 채팅에 붙여넣어 주세요.';
                             }
                         }
                         function showFail() {
@@ -1528,6 +1556,18 @@
                         }
                     }
 
+                    window.retryReturnToKakao = function () {
+                        var panel = document.getElementById('praise-kakao-return');
+                        if (
+                            typeof TriggerPraise !== 'undefined' &&
+                            TriggerPraise.returnToKakaoInApp &&
+                            TriggerPraise.returnToKakaoInApp()
+                        ) {
+                            return;
+                        }
+                        if (panel) panel.style.display = 'flex';
+                    };
+
                     window.closePraisePopup = function () {
                         praisePopup.style.display = 'none';
                         var f = document.getElementById('praise-copy-feedback');
@@ -1536,6 +1576,15 @@
                             f.textContent = '';
                             f.style.color = 'var(--neon-green)';
                         }
+                        var panel = document.getElementById('praise-kakao-return');
+                        if (
+                            typeof TriggerPraise !== 'undefined' &&
+                            TriggerPraise.returnToKakaoInApp &&
+                            TriggerPraise.returnToKakaoInApp()
+                        ) {
+                            return;
+                        }
+                        if (panel) panel.style.display = 'flex';
                     };
 
                     ;[0, 1, 2].forEach(function (idx) {
@@ -1591,7 +1640,7 @@
     </script>
     <script src="worddata.js"></script>
     <script src="words.js"></script>
-    <script src="praise-share.js?v=20260516"></script>
+    <script src="praise-share.js?v=20260517_kakao_return"></script>
     <script src="app.js?v=20260517_admin_kakao"></script>
     <script>
         if ('serviceWorker' in navigator) {
