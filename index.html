@@ -260,7 +260,7 @@
     <div class="dashboard-container">
         
         <div style="position: relative; display: flex; flex-direction: column; align-items: center; width: 100%; padding: 30px 10px 15px 10px; box-sizing: border-box;">
-            <div class="logo" id="main-header-title" onclick="activateAdmin()" style="margin: 0; text-align: center; line-height: 1.2; font-size: 3rem; letter-spacing: -1px; cursor: pointer; user-select: none;">
+            <div class="logo" id="main-header-title" onclick="activateAdmin(event)" style="margin: 0; text-align: center; line-height: 1.2; font-size: 3rem; letter-spacing: -1px; cursor: pointer; user-select: none;">
                 사라져 Voca
             </div>
             
@@ -644,8 +644,15 @@
                 else if (tabId === 'analysis') { headerTitle.innerHTML = 'Trigger<br>AI 지문 분석'; } 
                 else if (tabId === 'grammar') { headerTitle.innerHTML = 'Trigger<br>3시간 영문법'; }
             }
-            window.scrollTo(0,0); 
+            window.scrollTo(0,0);
+            if (tabId === 'voca') showAdminMenuIfEnabled();
             if(tabId === 'analysis' && typeof toggleAnalysisSubMenu === 'function') toggleAnalysisSubMenu(); 
+        }
+
+        function showAdminMenuIfEnabled() {
+            if (localStorage.getItem('trigger_admin_mode') !== 'true') return;
+            const menu = document.getElementById('admin-menu');
+            if (menu) menu.style.setProperty('display', 'flex', 'important');
         }
 
         function jumpToSession(sessionNum) {
@@ -845,6 +852,7 @@
                 startBtn.onclick = () => startDayStudy(unlockedDay);
             }
             renderRoutine();
+            showAdminMenuIfEnabled();
         }
 
         function renderRoutine() {
@@ -1249,18 +1257,27 @@
 
         let adminClicks = 0;
         let adminTimer = null;
-        function activateAdmin() {
+        function activateAdmin(e) {
+            if (e) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
             adminClicks++;
             clearTimeout(adminTimer);
-            adminTimer = setTimeout(() => { adminClicks = 0; }, 1500); 
+            adminTimer = setTimeout(() => { adminClicks = 0; }, 1500);
             if (adminClicks >= 3) {
-                const menu = document.getElementById('admin-menu');
-                if (menu) {
-                    menu.style.setProperty('display', 'flex', 'important');
-                    alert("🛠️ 관리자 모드 활성화!");
-                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-                }
                 adminClicks = 0;
+                if (typeof window.enableAdminMode === 'function') {
+                    window.enableAdminMode(true);
+                } else {
+                    localStorage.setItem('trigger_admin_mode', 'true');
+                    showAdminMenuIfEnabled();
+                    alert('🛠️ 관리자 모드 활성화!\n(이 기기에서 계속 유지됩니다)');
+                    const menu = document.getElementById('admin-menu');
+                    if (menu) {
+                        window.scrollTo({ top: menu.offsetTop - 40, behavior: 'smooth' });
+                    }
+                }
             }
         }
 
@@ -1388,11 +1405,8 @@
                 window.dismissTriggerSplash();
             }
 
-            if (localStorage.getItem('trigger_admin_mode') === 'true') {
-                const menu = document.getElementById('admin-menu');
-                if (menu) menu.style.setProperty('display', 'flex', 'important');
-            }
-            
+            showAdminMenuIfEnabled();
+
             if (typeof checkLoginStatus === 'function') checkLoginStatus();
             if (typeof selectLevel === 'function') {
                 selectLevel(localStorage.getItem('trigger_level') || 'middle');
@@ -1571,7 +1585,7 @@
     <script src="worddata.js"></script>
     <script src="words.js"></script>
     <script src="praise-share.js?v=20260516"></script>
-    <script src="app.js?v=victory"></script>
+    <script src="app.js?v=20260517_admin_persist"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function () {

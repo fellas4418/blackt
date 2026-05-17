@@ -1556,28 +1556,38 @@ function activateAdminMode(e) {
         adminTimer = setTimeout(() => { adminClickCount = 0; }, 1500);
 
         if (adminClickCount === 3) {
-            const menu = document.getElementById('admin-menu');
-            if (menu) {
-                localStorage.setItem('trigger_admin_mode', 'true');
-                menu.style.setProperty('display', 'flex', 'important');
-                alert("🛠️ 관리자 모드 활성화!");
-                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-            }
+            enableAdminMode(true);
             adminClickCount = 0;
         }
     }
 }
 
-function applyAdminPersistence() {
-    if (localStorage.getItem('trigger_admin_mode') === 'true') {
+function enableAdminMode(showAlert) {
+    localStorage.setItem('trigger_admin_mode', 'true');
+    applyAdminPersistence();
+    if (showAlert) {
+        alert('🛠️ 관리자 모드 활성화!\n(이 기기에서 계속 유지됩니다)');
         const menu = document.getElementById('admin-menu');
         if (menu) {
-            menu.style.setProperty('display', 'flex', 'important');
+            window.scrollTo({ top: menu.offsetTop - 40, behavior: 'smooth' });
         }
     }
 }
 
+function applyAdminPersistence() {
+    if (localStorage.getItem('trigger_admin_mode') !== 'true') return;
+    const menu = document.getElementById('admin-menu');
+    if (menu) {
+        menu.style.setProperty('display', 'flex', 'important');
+    }
+}
+
+window.enableAdminMode = enableAdminMode;
+window.applyAdminPersistence = applyAdminPersistence;
+
 document.addEventListener('click', activateAdminMode);
+window.addEventListener('pageshow', applyAdminPersistence);
+window.addEventListener('focus', applyAdminPersistence);
 
 window.forceComplete70 = function() {
     console.log("강제 완주 로직 실행: 데이터 주입 + 모든 리스트 해금"); 
