@@ -12,6 +12,7 @@
     --glow-green: 0 0 8px rgba(57, 255, 20, 0.4);
     --glow-orange: 0 0 10px rgba(255,153,0,0.5);
     --glow-text: 0 0 4px var(--neon-blue);
+    --glow-word: 0 0 8px rgba(255, 255, 255, 0.45);
 }
 
 body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: 'Pretendard', sans-serif; -webkit-font-smoothing: antialiased; }
@@ -131,7 +132,7 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 .progress-box { width: 100%; height: 6px; background: #222; border-radius: 10px; overflow: hidden; margin-top: 10px; }
 #bar { height: 100%; width: 100%; background: var(--neon-orange); box-shadow: var(--glow-orange); transition: width 0.1s linear; }
 #display { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; }
-#target { font-size: 4rem; margin: 0; text-shadow: 0 0 15px #fff; }
+#target { font-size: 4rem; margin: 0; text-shadow: var(--glow-word); }
 .ipa-text { font-size: 1.2rem; color: #888; margin-top: 5px; font-weight: normal; }
 #meanings { width: 90%; margin-top: 30px; }
 #meanings div { font-size: 1.3rem; word-break: keep-all; line-height: 1.4; opacity: 0.1; margin: 12px 0; transition: 0.3s; text-align: center; }

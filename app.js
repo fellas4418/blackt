@@ -830,7 +830,7 @@ function updateUI(data, isTest = false) {
 
     const currentNum = currentIdx + 1;
     const totalNum = targetWords.length;
-    const counterGap = isTest ? 'margin-top: 10px; margin-bottom: 22px;' : 'margin-top: 5px; margin-bottom: 2px;';
+    const counterGap = isTest ? 'margin-top: 10px; margin-bottom: 0;' : 'margin-top: 5px; margin-bottom: 2px;';
 
     const counterHtml = `
         <div id="session-counter" style="text-align: center; ${counterGap} font-family: 'Pretendard', sans-serif; width: 100%;">
@@ -851,11 +851,15 @@ function updateUI(data, isTest = false) {
     const fullMeaning = safeMeanings.join(', ');
 
     targetEl.style.setProperty('font-size', '3.3rem', 'important'); 
-    targetEl.style.setProperty('text-shadow', '0 0 15px #fff', 'important');
+    targetEl.style.setProperty('text-shadow', '0 0 8px rgba(255, 255, 255, 0.45)', 'important');
     targetEl.style.setProperty('color', '#fff', 'important');
-    const testGap = '22px';
-    targetEl.style.setProperty('margin-top', isTest ? testGap : '-40px', 'important');
-    mBox.style.marginTop = isTest ? testGap : '';
+    if (isTest) {
+        targetEl.style.removeProperty('margin-top');
+        mBox.style.marginTop = '';
+    } else {
+        targetEl.style.setProperty('margin-top', '-40px', 'important');
+        mBox.style.marginTop = '';
+    }
 
     if (!isTest) {
         targetEl.innerHTML = `

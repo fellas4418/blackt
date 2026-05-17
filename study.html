@@ -23,20 +23,33 @@
             box-shadow: 0 0 10px var(--neon-purple); 
             border-color: #fff; 
         }
-        /* 테스트(4지선다) — 순서 숫자↔단어↔보기 간격 동일 */
+        /* 학습 화면: 단어·뜻을 위로 당김 (테스트는 겹침 방지로 미적용) */
+        #display {
+            margin-top: -90px;
+        }
+        /* 테스트(4지선다): 숫자 — 영단어 — 보기, 위·아래 여백 동일 */
         .header.test-phase-header {
-            padding-bottom: 8px;
+            padding-bottom: 0;
+        }
+        .header.test-phase-header #session-counter {
+            margin-top: 10px !important;
+            margin-bottom: 0 !important;
         }
         #display.test-phase {
+            margin-top: 0 !important;
             justify-content: flex-start;
-            padding-top: 4px;
+            padding-top: 24px;
+            box-sizing: border-box;
         }
         #display.test-phase #target {
-            margin-bottom: 0 !important;
+            margin-top: 0 !important;
+            margin-bottom: 24px !important;
+            flex-shrink: 0;
         }
         #display.test-phase #meanings {
             width: 90%;
-            margin-top: 22px !important;
+            margin-top: 0 !important;
+            flex-shrink: 0;
         }
         #display.test-phase #meanings .choice-btn:first-child {
             margin-top: 0 !important;
@@ -64,7 +77,7 @@
             <div class="progress-box"><div id="bar"></div></div>
         </div>
         
-        <div id="display" style="margin-top: -90px;">
+        <div id="display">
             <div id="target"></div>
             <div id="meanings"></div>
         </div>
@@ -78,7 +91,7 @@
     </script>
     
     <script src="praise-share.js?v=20260517_kakao2"></script>
-    <script src="app.js?v=20260517_kakao2"></script> 
+    <script src="app.js?v=20260517_test_layout"></script> 
     
     <script>
         if ('serviceWorker' in navigator) {
