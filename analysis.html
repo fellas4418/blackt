@@ -1932,8 +1932,26 @@
         ]);
 
         const params = new URLSearchParams(window.location.search);
+        const DEFAULT_WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev/';
         const workerOverride = (params.get('worker') || '').trim();
-        const WORKER_URL = (workerOverride ? workerOverride.replace(/\/$/, '') + '/' : 'https://trigger-ocr-api.ohryee.workers.dev/');
+        function normalizeWorkerUrlOverride(raw) {
+            if (!raw) return '';
+            try {
+                const url = new URL(raw);
+                const host = String(url.hostname || '').toLowerCase();
+                const defaultOrigin = new URL(DEFAULT_WORKER_URL).origin;
+                const isLoopback =
+                    host === 'localhost' ||
+                    host === '127.0.0.1' ||
+                    host === '[::1]' ||
+                    host === '::1';
+                if ((url.protocol === 'http:' || url.protocol === 'https:') && (url.origin === defaultOrigin || isLoopback)) {
+                    return url.origin.replace(/\/$/, '') + '/';
+                }
+            } catch (e) {}
+            return '';
+        }
+        const WORKER_URL = normalizeWorkerUrlOverride(workerOverride) || DEFAULT_WORKER_URL;
         function buildAnalysisContextTrim(searchParams) {
             const parts = ['grade', 'type', 'detail'].map(function (k) {
                 return String(searchParams.get(k) || '').trim();
