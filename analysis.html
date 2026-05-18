@@ -2225,10 +2225,14 @@
             return html;
         }
 
+        function normalizeAiAskAnswerSectionLabels(raw) {
+            return String(raw || '').replace(/^💬\s*답변(?!요약)/gm, '💬 답변요약');
+        }
+
         function chatHistoryAnswerBodyHtml(answer) {
-            const raw = String(answer || '').trim();
+            const raw = normalizeAiAskAnswerSectionLabels(String(answer || '').trim());
             if (!raw) return escapeHtml('(답변 없음)');
-            const partRe = /^(💬 답변|📌 지문 연결|⭐ 핵심|📝 예시)\s*[:：]?\s*/;
+            const partRe = /^(💬 답변요약|💬 답변|📌 지문 연결|⭐ 핵심|📝 예시)\s*[:：]?\s*/;
             const lines = raw.split(/\r?\n/);
             const parts = [];
             let cur = null;
@@ -2272,17 +2276,93 @@
         let lastAiAskQuestionForHighlight = '';
         let aiAskRequestSeq = 0;
 
+        function getAiAskHighlightTermsFromQuestion(q) {
+            const terms = [];
+            const seen = {};
+            function add(raw) {
+                const t = String(raw || '')
+                    .trim()
+                    .replace(/\s+/g, ' ');
+                if (t.length < 2 || seen[t.toLowerCase()]) return;
+                seen[t.toLowerCase()] = true;
+                terms.push(t);
+            }
+            const s = String(q || '');
+            let m;
+            const contrastRe =
+                /([A-Za-z][A-Za-z0-9'’\-]*(?:\s+[A-Za-z][A-Za-z0-9'’\-]*)*)\s*(?:와|과|랑|이랑|하고|,|\/|vs\.?)\s*([A-Za-z][A-Za-z0-9'’\-]*(?:\s+[A-Za-z][A-Za-z0-9'’\-]*)*)(?=\s*(?:차이|비교|구별|의미|뜻|다른|difference)?|[?.!,]|$)/gi;
+            while ((m = contrastRe.exec(s)) !== null) {
+                add(m[1]);
+                add(m[2]);
+            }
+            const prepPhraseRe =
+                /\b([A-Za-z]+\s+(?:for|to|of|with|from|into|on|at|by|as|about|through|against|upon|over|under|between|during|before|after|since|until|within|without|off|out|up|down)\s+[A-Za-z]+)\b/gi;
+            while ((m = prepPhraseRe.exec(s)) !== null) add(m[1]);
+            return terms.sort(function (a, b) {
+                return b.length - a.length;
+            });
+        }
+
+        function termToExampleHighlightRe(term) {
+            const w = String(term || '')
+                .trim()
+                .split(/\s+/);
+            const esc = w.map(function (x) {
+                return x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            });
+            if (w.length === 1) {
+                return new RegExp('\\b(' + esc[0] + '\\w*)\\b', 'gi');
+            }
+            if (w.length === 2 && w[1].toLowerCase() === 'to') {
+                return new RegExp('\\b((' + esc[0] + ')\\w*(?:\\s+\\w+){0,2}\\s+to)\\b', 'gi');
+            }
+            return new RegExp('\\b((' + esc[0] + ')\\w*\\s+' + esc.slice(1).join('\\s+') + ')\\b', 'gi');
+        }
+
+        function wrapAiAskTermsInMarkers(text, terms) {
+            if (!terms || !terms.length) return String(text || '');
+            return String(text)
+                .split(/(⟦[^⟧]*⟧)/)
+                .map(function (part) {
+                    if (/^⟦[^⟧]*⟧$/.test(part)) return part;
+                    let seg = part;
+                    terms.forEach(function (term) {
+                        const re = termToExampleHighlightRe(term);
+                        seg = seg.replace(re, function (full) {
+                            return '⟦' + full + '⟧';
+                        });
+                    });
+                    return seg;
+                })
+                .join('');
+        }
+
+        function applyAiAskQuestionHighlightsToExampleLine(line, terms) {
+            if (!terms.length) return line;
+            const paren = String(line).match(/^(.+?)\s*(\([^)]+\))\s*$/);
+            if (paren && /[A-Za-z]/.test(paren[1])) {
+                return wrapAiAskTermsInMarkers(paren[1], terms).replace(/\s+$/, '') + ' ' + paren[2];
+            }
+            return wrapAiAskTermsInMarkers(line, terms);
+        }
+
         function normalizeAiAskHighlightMarkers(raw) {
             let t = String(raw || '');
             t = t.replace(/【([^】]*)】/g, '⟦$1⟧');
             t = t.replace(/\[\[([^\]]*)\]\]/g, '⟦$1⟧');
+            const hlTerms = getAiAskHighlightTermsFromQuestion(lastAiAskQuestionForHighlight);
             const lines = t.split('\n');
             let inExample = false;
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i];
                 if (/^(💬|📌|⭐)\s/.test(line)) inExample = false;
                 if (/^📝\s*예시/.test(line) || /^예시\s*[:：]/.test(line)) inExample = true;
-                if (inExample) lines[i] = line.replace(/\*\*([^*\n]+)\*\*/g, '⟦$1⟧');
+                if (inExample) {
+                    lines[i] = line.replace(/\*\*([^*\n]+)\*\*/g, '⟦$1⟧');
+                    if (hlTerms.length && /[A-Za-z]/.test(lines[i])) {
+                        lines[i] = applyAiAskQuestionHighlightsToExampleLine(lines[i], hlTerms);
+                    }
+                }
             }
             return lines.join('\n');
         }
@@ -2309,7 +2389,7 @@
         }
 
         function formatAiAskAnswerForDisplay(raw) {
-            const t = normalizeAiAskHighlightMarkers(raw);
+            const t = normalizeAiAskHighlightMarkers(normalizeAiAskAnswerSectionLabels(raw));
             const lines = t.split(/\r?\n/);
             let inExample = false;
             return lines
@@ -2597,6 +2677,28 @@
             } catch (e) {}
         }
 
+        /** 이전 지문 기록·분석 복귀(#analysis-restore) 전용: 보고서 맨 위(지문)로 스크롤 고정 */
+        function scrollPassageAnalysisReportToTop() {
+            try {
+                switchAnalysisMainTab('passage');
+            } catch (e) {}
+            try {
+                window.scrollTo(0, 0);
+            } catch (e) {}
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                    try {
+                        const stack = document.querySelector(
+                            '#analysis-passage-zone .passage-ai-report-stack'
+                        );
+                        const rs = document.getElementById('result-section');
+                        const el = stack || rs;
+                        if (el) el.scrollIntoView({ block: 'start' });
+                    } catch (e) {}
+                });
+            });
+        }
+
         function focusExamAnalysisSection() {
             switchAnalysisMainTab('exam');
             const ez = document.getElementById('analysis-exam-zone');
@@ -2759,14 +2861,14 @@
                 if (ctx) {
                     return {
                         answer:
-                            '💬 답변: (데모) 선택하신 문장 맥락에서 질문한 표현·용법을 설명하는 답이에요.\n\n' +
+                            '💬 답변요약: (데모) 선택하신 문장 맥락에서 질문한 표현·용법을 설명하는 답이에요.\n\n' +
                             '📌 지문 연결: 데모 문장과 연결해 문맥에서 어떤 역할인지 짚는 부분이에요.\n\n' +
                             '📝 예시: On the other hand, ⟦many students prefer math⟧. (반면에 많은 학생은 수학을 선호해요.)'
                     };
                 }
                 return {
                     answer:
-                        '💬 답변: (데모) 문법·개념 질문에 대한 설명이에요. 문장 통역이 아닙니다.\n\n' +
+                        '💬 답변요약: (데모) 문법·개념 질문에 대한 설명이에요. 문장 통역이 아닙니다.\n\n' +
                         '⭐ 핵심: 한 줄로 요약하는 부분이에요.\n\n' +
                         '📝 예시: The book was ⟦read by Tom⟧. (그 책은 톰에게 읽혔어요.)'
                 };
@@ -5634,11 +5736,7 @@
             try {
                 passageHistoryUpsertFromCurrent();
             } catch (e) {}
-            try {
-                const rs = document.getElementById('result-section');
-                if (rs) rs.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                else window.scrollTo({ top: 0, behavior: 'smooth' });
-            } catch (e) {}
+            scrollPassageAnalysisReportToTop();
         }
 
         function renderPassageHistoryPanel() {
@@ -7571,6 +7669,7 @@
                 document.getElementById('result-section').style.display = 'block';
                 setAnalysisSourceBadge(true);
                 applyParsedAnalysisResult(o.res, { skipTopicRevealConsume: true });
+                scrollPassageAnalysisReportToTop();
             } catch (e) {}
         })();
 

@@ -255,25 +255,26 @@ function normalizeChatAnswer(raw) {
   const lineLabel = (re, label) => {
     t = t.replace(re, label);
   };
-  lineLabel(/^해석\s*:/gim, "💬 답변:");
-  lineLabel(/^답변\s*:/gim, "💬 답변:");
+  lineLabel(/^해석\s*:/gim, "💬 답변요약:");
+  lineLabel(/^답변\s*:/gim, "💬 답변요약:");
   lineLabel(/^이\s*문장에서\s*:/gim, "📌 지문 연결:");
   lineLabel(/^2\)\s*핵심문법\s*:/gim, "⭐ 핵심:");
   lineLabel(/^2\)\s*출제포인트\s*:/gim, "⭐ 핵심:");
   lineLabel(/^핵심\s*:/gim, "⭐ 핵심:");
   lineLabel(/^예시\s*:/gim, "📝 예시:");
   if (!/^💬/.test(t) && /^답변\s*:/i.test(t)) t = "💬 " + t;
+  t = t.replace(/^💬\s*답변(?!요약)/gm, "💬 답변요약");
   return t.replace(/\n{3,}/g, "\n\n").trim();
 }
 
 const CHAT_ANSWER_LABELS = {
   withContext: {
-    answer: "💬 답변",
+    answer: "💬 답변요약",
     context: "📌 지문 연결",
     example: "📝 예시",
   },
   general: {
-    answer: "💬 답변",
+    answer: "💬 답변요약",
     summary: "⭐ 핵심",
     example: "📝 예시",
   },
@@ -282,11 +283,11 @@ const CHAT_ANSWER_LABELS = {
 function buildChatAskPrompt(question, contextSentence) {
   const base =
     "역할: 대한민국 고등 영어 강사. 고3 수험생에게 친근하고 쉽게, 명확하게 답합니다.\n" +
-    "말투: 💬 답변·📌 지문 연결·⭐ 핵심·📝 예시 본문 모두 끝까지 같은 해요체(~해요, ~이에요, ~돼요, ~한답니다, ~거예요)만 쓰세요. 합니다·하십시오·반말·문어체는 쓰지 마세요.\n" +
+    "말투: 💬 답변요약·📌 지문 연결·⭐ 핵심·📝 예시 본문 모두 끝까지 같은 해요체(~해요, ~이에요, ~돼요, ~한답니다, ~거예요)만 쓰세요. 합니다·하십시오·반말·문어체는 쓰지 마세요.\n" +
     "호칭·인사 금지: 「학생 여러분」, 「여러분」, 「질문하신」, 「질문하셨네요」 등 대면 호칭·인사 없이 바로 설명부터 시작하세요.\n" +
     "금지: 지문·문장 통역만 하지 마세요. 라벨·본문에 「해석:」이라는 단어를 쓰지 마세요.\n" +
     "반드시 아래 3단만 출력합니다. 각 단은 빈 줄로 구분하고, 단 제목은 지정한 이모지+라벨을 그대로 쓰세요(번호 1)2)3) 붙이지 마세요).\n" +
-    "💬 답변은 질문 핵심만 2~4문장으로 짧게. 한 단어의 모든 쓰임을 나열하지 마세요.\n" +
+    "💬 답변요약은 질문 핵심만 2~4문장으로 짧게. 한 단어의 모든 쓰임을 나열하지 마세요.\n" +
     "각 단 본문은 문장 중간에서 끊지 말고 끝까지 완성하세요. ⭐ 핵심·📝 예시는 반드시 끝까지 쓰세요.\n" +
     "📝 예시의 영어 문장에서 질문 주제와 직접 관련된 단어·구·절만 ⟦ ⟧ 로 감싸세요(한글 뜻 괄호 안은 감싸지 마세요). 예: ⟦Having finished his homework,⟧ he went out.\n" +
     "마크다운·코드블록 없이 일반 텍스트만 출력합니다.\n";
