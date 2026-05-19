@@ -88,17 +88,18 @@ async function handleSimpleAuth(env, body) {
   const ids = Array.isArray(byPhone.results) ? byPhone.results.map((r) => String(r.id || "")) : [];
 
   // 2-1) 레거시(전화번호만 id) 계정만 있으면 최초 1회 이름 결합 계정으로 승격
-  //      이후에는 해당 이름+전화번호 조합으로만 접속 가능
+  //      FK가 걸린 저장 데이터가 있으므로 새 부모 행을 만든 뒤 자식 행을 이동한다.
   if (ids.length === 1 && ids[0] === phone) {
-    await env.DB.prepare("UPDATE users SET id = ?1, password_hash = ?2 WHERE id = ?3")
-      .bind(userId, passwordHash, phone)
-      .run();
-    await env.DB.prepare("UPDATE saved_voca SET user_id = ?1 WHERE user_id = ?2")
-      .bind(userId, phone)
-      .run();
-    await env.DB.prepare("UPDATE saved_grammar SET user_id = ?1 WHERE user_id = ?2")
-      .bind(userId, phone)
-      .run();
+    await env.DB.batch([
+      env.DB.prepare("INSERT INTO users (id, password_hash) VALUES (?1, ?2)")
+        .bind(userId, passwordHash),
+      env.DB.prepare("UPDATE saved_voca SET user_id = ?1 WHERE user_id = ?2")
+        .bind(userId, phone),
+      env.DB.prepare("UPDATE saved_grammar SET user_id = ?1 WHERE user_id = ?2")
+        .bind(userId, phone),
+      env.DB.prepare("DELETE FROM users WHERE id = ?1")
+        .bind(phone),
+    ]);
     return json({
       ok: true,
       message: "simple_auth_success",
