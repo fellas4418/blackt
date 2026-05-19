@@ -1932,8 +1932,24 @@
         ]);
 
         const params = new URLSearchParams(window.location.search);
-        const workerOverride = (params.get('worker') || '').trim();
-        const WORKER_URL = (workerOverride ? workerOverride.replace(/\/$/, '') + '/' : 'https://trigger-ocr-api.ohryee.workers.dev/');
+        const DEFAULT_WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev/';
+        function resolveAnalysisWorkerUrl(raw) {
+            const workerOverride = String(raw || '').trim();
+            if (!workerOverride) return DEFAULT_WORKER_URL;
+            try {
+                const u = new URL(workerOverride, window.location.href);
+                const isProductionWorker = u.origin === 'https://trigger-ocr-api.ohryee.workers.dev';
+                const isLoopback = (
+                    (u.protocol === 'http:' || u.protocol === 'https:') &&
+                    (u.hostname === 'localhost' || u.hostname === '127.0.0.1' || u.hostname === '[::1]')
+                );
+                if (!isProductionWorker && !isLoopback) return DEFAULT_WORKER_URL;
+                return u.origin.replace(/\/$/, '') + '/';
+            } catch (e) {
+                return DEFAULT_WORKER_URL;
+            }
+        }
+        const WORKER_URL = resolveAnalysisWorkerUrl(params.get('worker'));
         function buildAnalysisContextTrim(searchParams) {
             const parts = ['grade', 'type', 'detail'].map(function (k) {
                 return String(searchParams.get(k) || '').trim();
