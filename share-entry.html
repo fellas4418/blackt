@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>사라져 VOCA - 공유 진입</title>
     <meta name="theme-color" content="#000000">
+    <link rel="manifest" href="/manifest.json">
     <style>
         :root {
             --bg: #050505;
@@ -77,16 +78,16 @@
 </head>
 <body>
     <div class="card">
-        <h1>📍 이용 방법 안내</h1>
+        <h1>📍 앱으로 이동 중</h1>
         <p id="desc"></p>
-        <p id="status" class="status"></p>
+        <p id="status" class="status">잠시만 기다려 주세요…</p>
 
-        <button id="open-external-btn" class="btn btn-warn hide">브라우저에서 열기</button>
-        <button id="continue-btn" class="btn btn-main hide">계속 진행하기</button>
+        <button id="open-external-btn" class="btn btn-warn hide">브라우저(앱)에서 열기</button>
+        <button id="continue-btn" class="btn btn-main hide">웹에서 계속 보기</button>
 
         <div id="ios-alert" class="ios-alert hide">
-            <p class="ios-alert-title">아이폰/아이패드는 사파리에서 진행해 주세요</p>
-            <p class="ios-alert-desc">1) 위의 '브라우저에서 열기' 버튼을 누르세요.<br>2) 크롬이 열리면 주소를 복사해 사파리에서 열어주세요.<br>3) 사파리에서 더보기(공유) -> 홈 화면에 추가를 눌러주세요.</p>
+            <p class="ios-alert-title">아이폰은 홈 화면 앱 아이콘으로 열어 주세요</p>
+            <p class="ios-alert-desc">1) 아래 버튼으로 사파리를 연 뒤<br>2) 홈 화면에 추가한 「Trigger」 앱 아이콘을 눌러 주세요.</p>
         </div>
 
         <div id="guide" class="guide hide">
@@ -115,8 +116,8 @@
             const praiseCtx = params.get('pc');
             if (praiseCtx) finalUrl.searchParams.set('pc', praiseCtx);
             if (zone) finalUrl.searchParams.set('zone', zone);
+            finalUrl.searchParams.set('from', 'kakao_share');
 
-            // 같은 기기에서 카톡 인앱 -> 외부 브라우저로 이동할 때 가입 상태를 1회 전달합니다.
             try {
                 const name = String(localStorage.getItem('trigger_name') || '').trim();
                 const phone = String(localStorage.getItem('trigger_phone') || '').replace(/[^0-9]/g, '');
@@ -131,6 +132,8 @@
             const isIOS = /iPhone|iPad|iPod/i.test(ua);
             const isAndroid = /Android/i.test(ua);
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            const finalUrlStr = finalUrl.toString();
+            const externalUrl = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(finalUrlStr);
 
             const descEl = document.getElementById('desc');
             const statusEl = document.getElementById('status');
@@ -140,43 +143,60 @@
             const guideText = document.getElementById('guide-text');
             const iosAlert = document.getElementById('ios-alert');
 
-            const goFinal = () => { location.replace(finalUrl.toString()); };
+            const goFinal = () => { location.replace(finalUrlStr); };
 
-            if (!isKakao || isStandalone) {
-                descEl.textContent = '';
-                statusEl.textContent = '곧 메인 화면으로 이동합니다.';
-                setTimeout(goFinal, 350);
+            const openInSystemBrowser = () => {
+                location.href = externalUrl;
+            };
+
+            const showManualFallback = () => {
+                statusEl.textContent = '자동 이동이 안 되면 아래 버튼을 눌러 주세요.';
+                openExternalBtn.classList.remove('hide');
+                continueBtn.classList.remove('hide');
+                guide.classList.remove('hide');
+                openExternalBtn.onclick = openInSystemBrowser;
+                continueBtn.onclick = goFinal;
+                if (isAndroid) {
+                    openExternalBtn.textContent = '설치한 앱(크롬)에서 열기';
+                    guide.classList.add('hide');
+                } else if (isIOS) {
+                    openExternalBtn.textContent = '사파리에서 열기';
+                    if (iosAlert) iosAlert.classList.remove('hide');
+                    guide.classList.add('hide');
+                } else {
+                    openExternalBtn.textContent = '브라우저에서 열기';
+                    guideText.textContent = '홈 화면에 추가한 앱이 있으면, 브라우저 대신 앱 아이콘으로 열면 더 편합니다.';
+                }
+            };
+
+            if (isStandalone) {
+                goFinal();
+                return;
+            }
+
+            if (isKakao) {
+                descEl.textContent = '카톡 안에서는 앱이 바로 안 열려요. 설치한 앱으로 연결합니다.';
+                statusEl.textContent = '브라우저로 이동 중…';
+                openInSystemBrowser();
+                setTimeout(showManualFallback, 1400);
                 return;
             }
 
             descEl.textContent = '';
-            statusEl.textContent = '브라우저(크롬/사파리)로 열면 앱처럼 설치해서 편리하게 사용할 수 있습니다.';
+            statusEl.textContent = '앱으로 이동합니다…';
 
-            const externalUrl = `kakaotalk://web/openExternal?url=${encodeURIComponent(finalUrl.toString())}`;
-            openExternalBtn.classList.remove('hide');
-            continueBtn.classList.remove('hide');
-            guide.classList.remove('hide');
-
-            openExternalBtn.onclick = function () {
-                location.href = externalUrl;
-                setTimeout(function () {
-                    if (document.visibilityState === 'visible') {
-                        continueBtn.focus();
-                    }
-                }, 1200);
-            };
-            continueBtn.onclick = goFinal;
-
-            if (isAndroid) {
-                openExternalBtn.textContent = '크롬 브라우저로 열기';
-                guide.classList.add('hide');
-            } else if (isIOS) {
-                openExternalBtn.textContent = '브라우저에서 열기 (사파리 권장)';
-                if (iosAlert) iosAlert.classList.remove('hide');
-                guide.classList.add('hide');
-            } else {
-                guideText.textContent = '브라우저로 열면 설치와 로그인 흐름이 더 안정적으로 동작합니다.';
-            }
+            (async function routeToApp() {
+                if (navigator.getInstalledRelatedApps) {
+                    try {
+                        const related = await navigator.getInstalledRelatedApps();
+                        if (related && related.length > 0) {
+                            goFinal();
+                            return;
+                        }
+                    } catch (e) {}
+                }
+                setTimeout(goFinal, 280);
+            })();
         })();
     </script>
 </body>

@@ -1420,7 +1420,7 @@ function buildVocaShareBundle() {
             content: {
                 title,
                 description,
-                imageUrl: triggerPagesImgUrl('share-v2.png') + '?v=2',
+                imageUrl: triggerPagesImgUrl('share-v2.png') + '?v=3',
                 link: { mobileWebUrl: shareUrl, webUrl: shareUrl }
             },
             buttons: [
