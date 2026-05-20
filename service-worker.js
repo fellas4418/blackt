@@ -6,7 +6,7 @@ const ASSETS_TO_CACHE = [
     '/style.css',
     '/app.js',
     '/praise-share.js',
-    '/wordData.js',
+    '/worddata.js',
     '/manifest.json',
     '/share-entry.html',
     '/praise-receiver.html'
