@@ -1657,7 +1657,10 @@
             <div class="result-card" id="exam-rpt-admin-section" style="display:none;">
                 <span class="result-label">선생님 메모</span>
                 <p class="guide-text" style="font-size:0.8rem; color:#888; margin:0 0 10px 0;">학생이 「리포트 저장」을 하면 접수 목록에 쌓입니다. 원장·관리자만 아래에서 확인·코멘트할 수 있습니다.</p>
-                <input type="password" id="exam-rpt-admin-api-key" style="display:none;" autocomplete="off">
+                <div id="exam-rpt-admin-key-wrap" style="margin:0 0 10px 0;">
+                    <label for="exam-rpt-admin-api-key" style="font-size:0.78rem;color:#888;display:block;margin:0 0 4px 0;">관리자 연동 키 (최초 1회)</label>
+                    <input type="password" id="exam-rpt-admin-api-key" class="auth-input" style="width:100%;box-sizing:border-box;" placeholder="Worker API_SECRET_KEY" autocomplete="off">
+                </div>
                 <button type="button" id="exam-rpt-admin-load-list" class="login-btn" style="width:100%;margin:0 0 10px 0;border-color:#ffcc80;color:#ffcc80;">의뢰 목록 새로고침</button>
                 <div id="exam-rpt-admin-list" style="font-size:0.82rem;color:#ccc;margin:0 0 12px 0;line-height:1.55;"></div>
                 <textarea id="exam-rpt-admin-comment" rows="4" style="width:100%; box-sizing:border-box; background:#111; border:1px solid #444; color:#fff; border-radius:8px; padding:10px; font-size:0.9rem;" placeholder="선택한 의뢰에 남길 코멘트"></textarea>
@@ -6285,23 +6288,52 @@
             return localStorage.getItem('trigger_admin_mode') === 'true';
         }
 
+        let examRptAdminListAutoLoaded = false;
+
+        function examRptPersistAdminApiKey() {
+            const keyEl = document.getElementById('exam-rpt-admin-api-key');
+            const key = (keyEl && keyEl.value || '').trim();
+            if (key) {
+                try {
+                    localStorage.setItem('trigger_exam_admin_api_key', key);
+                } catch (e) {}
+            }
+            return key;
+        }
+
         function examRptSyncAdminSection() {
             const sec = document.getElementById('exam-rpt-admin-section');
             if (!sec) return;
-            sec.style.display = examRptIsAdminMode() ? 'block' : 'none';
+            const isAdmin = examRptIsAdminMode();
+            sec.style.display = isAdmin ? 'block' : 'none';
+            const keyWrap = document.getElementById('exam-rpt-admin-key-wrap');
+            if (keyWrap) keyWrap.style.display = isAdmin ? 'block' : 'none';
             const keyEl = document.getElementById('exam-rpt-admin-api-key');
             if (keyEl && !keyEl.value) {
                 keyEl.value = localStorage.getItem('trigger_exam_admin_api_key') || '';
+            }
+            if (!isAdmin) return;
+            const key = examRptPersistAdminApiKey() || (localStorage.getItem('trigger_exam_admin_api_key') || '').trim();
+            const listEl = document.getElementById('exam-rpt-admin-list');
+            if (!key) {
+                if (listEl && !String(listEl.textContent || '').trim()) {
+                    listEl.textContent = '관리자 연동 키를 입력한 뒤 「의뢰 목록 새로고침」을 눌러 주세요.';
+                }
+                return;
+            }
+            if (!examRptAdminListAutoLoaded) {
+                examRptAdminListAutoLoaded = true;
+                examRptAdminLoadList();
             }
         }
 
         let examRptAdminSelectedId = '';
 
         async function examRptAdminPost(path, body) {
-            const keyEl = document.getElementById('exam-rpt-admin-api-key');
-            const apiKey = (keyEl && keyEl.value || localStorage.getItem('trigger_exam_admin_api_key') || '').trim();
-            if (!apiKey) throw new Error('원장·관리자 전용입니다. API 연동이 이 기기에 설정되어 있지 않습니다.');
-            localStorage.setItem('trigger_exam_admin_api_key', apiKey);
+            const apiKey = examRptPersistAdminApiKey() || (localStorage.getItem('trigger_exam_admin_api_key') || '').trim();
+            if (!apiKey) {
+                throw new Error('관리자 연동 키를 입력해 주세요. (Worker API_SECRET_KEY · 최초 1회)');
+            }
             const res = await fetch(WORKER_URL.replace(/\/$/, '') + path, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-API-Secret': apiKey },
@@ -6323,7 +6355,8 @@
                 const data = await examRptAdminPost('/api/exam-report/admin/list', {});
                 const items = Array.isArray(data.items) ? data.items : [];
                 if (!items.length) {
-                    listEl.textContent = '접수된 리포트가 없습니다.';
+                    listEl.textContent =
+                        '접수된 리포트가 없습니다.\n(학생이 「리포트 저장」을 눌러 서버 저장이 완료된 건만 표시됩니다. 기기만 저장·API 미배포 시 목록에 없어요.)';
                     return;
                 }
                 listEl.innerHTML = items
@@ -6358,7 +6391,13 @@
                     });
                 });
             } catch (e) {
-                listEl.textContent = e.message || String(e);
+                const msg = e.message || String(e);
+                if (/unauthorized/i.test(msg)) {
+                    listEl.textContent =
+                        '연동 키가 맞지 않습니다. Worker의 API_SECRET_KEY와 동일한 값인지 확인해 주세요.\n(' + msg + ')';
+                } else {
+                    listEl.textContent = msg;
+                }
             }
         }
 
@@ -7256,19 +7295,9 @@
 
         function examRptShareKakao() {
             const userName = (localStorage.getItem('trigger_name') || '').trim() || '학생';
-            const shareUrl = window.location.origin + '/share-entry.html?path=analysis.html';
-            const st =
-                typeof TriggerPraise !== 'undefined' && TriggerPraise.statsFromStorage
-                    ? TriggerPraise.statsFromStorage('exam')
-                    : { n: userName, d: 1, t: 0, k: 'exam' };
-            const pc =
-                typeof TriggerPraise !== 'undefined' && TriggerPraise.encodePc ? TriggerPraise.encodePc(st) : '';
-            const praiseBase = window.location.origin + '/share-entry.html?path=index.html&praise=1';
-            const praiseShareUrl = pc ? praiseBase + '&pc=' + encodeURIComponent(pc) : praiseBase;
-            const badgeLine =
-                typeof TriggerPraise !== 'undefined' && TriggerPraise.kakaoSubtitleLine
-                    ? TriggerPraise.kakaoSubtitleLine(st)
-                    : '';
+            const shareUrl =
+                window.location.origin +
+                '/share-entry.html?path=analysis.html&zone=exam';
             const school = (document.getElementById('exam-rpt-school') && document.getElementById('exam-rpt-school').value || '').trim() || '—';
             const examSel = document.getElementById('exam-rpt-exam-type');
             const examLabel = examSel && examSel.options[examSel.selectedIndex] ? examSel.options[examSel.selectedIndex].text : '시험';
@@ -7299,8 +7328,7 @@
                 fmt(t.esPts) +
                 '\n전체 배점 대비 ' +
                 fmt(t.totalAcc) +
-                '%\n\n앱에서 상세 리포트를 확인해 주세요.' +
-                (badgeLine ? '\n\n' + badgeLine : '');
+                '%\n\n앱에서 시험 분석 탭으로 이동합니다.';
 
             const alertCopied = function () {
                 alert('✅ 공유 링크를 복사했어요.\n카톡 채팅창에 붙여넣어 부모님께 보내 주세요.');
@@ -7319,13 +7347,10 @@
                 content: {
                     title: '📊 [' + userName + ']님 시험 분석 리포트',
                     description: desc,
-                    imageUrl: 'https://blackt.pages.dev/share-v2.png',
+                    imageUrl: 'https://blackt.pages.dev/share-exam-report.png',
                     link: { mobileWebUrl: shareUrl, webUrl: shareUrl }
                 },
-                buttons: [
-                    { title: '리포트 앱에서 보기', link: { mobileWebUrl: shareUrl, webUrl: shareUrl } },
-                    { title: '👍 칭찬 응원 보내기', link: { mobileWebUrl: praiseShareUrl, webUrl: praiseShareUrl } }
-                ]
+                buttons: [{ title: '시험 분석 앱에서 보기', link: { mobileWebUrl: shareUrl, webUrl: shareUrl } }]
             };
 
             const tryKakaoSend = function () {
@@ -7568,6 +7593,10 @@
                 examHistoryUpsertFromCurrent();
             } catch (e) {}
             examRptOnReportReady('');
+            if (examRptIsAdminMode()) {
+                examRptAdminListAutoLoaded = false;
+                examRptAdminLoadList();
+            }
         }
 
         function examRptOnLocalSaveOk() {
@@ -7753,9 +7782,42 @@
             const kShare = document.getElementById('exam-rpt-share-kakao');
             if (kShare) kShare.addEventListener('click', examRptShareKakao);
             const adminListBtn = document.getElementById('exam-rpt-admin-load-list');
-            if (adminListBtn) adminListBtn.addEventListener('click', examRptAdminLoadList);
+            if (adminListBtn) {
+                adminListBtn.addEventListener('click', function () {
+                    examRptAdminListAutoLoaded = true;
+                    examRptAdminLoadList();
+                });
+            }
             const adminSaveBtn = document.getElementById('exam-rpt-admin-save-comment');
             if (adminSaveBtn) adminSaveBtn.addEventListener('click', examRptAdminSaveComment);
+            const adminKeyEl = document.getElementById('exam-rpt-admin-api-key');
+            if (adminKeyEl) {
+                adminKeyEl.addEventListener('change', examRptPersistAdminApiKey);
+                adminKeyEl.addEventListener('blur', examRptPersistAdminApiKey);
+            }
+            (function bindExamRptAdminModeTap() {
+                let tap = 0;
+                let timer = null;
+                const hdr = document.getElementById('info-header');
+                if (!hdr) return;
+                hdr.addEventListener('click', function () {
+                    tap++;
+                    clearTimeout(timer);
+                    timer = setTimeout(function () {
+                        tap = 0;
+                    }, 1500);
+                    if (tap >= 3) {
+                        tap = 0;
+                        localStorage.setItem('trigger_admin_mode', 'true');
+                        examRptAdminListAutoLoaded = false;
+                        examRptSyncAdminSection();
+                        alert('🛠️ 관리자 모드 활성화!\n선생님 메모·의뢰 목록을 사용할 수 있습니다.');
+                    }
+                });
+            })();
+            window.addEventListener('focus', function () {
+                if (examRptIsAdminMode()) examRptSyncAdminSection();
+            });
             examRptSyncAdminSection();
             const pdfReadyView = document.getElementById('exam-rpt-pdf-ready-view');
             const pdfReadyClose = document.getElementById('exam-rpt-pdf-ready-close');
@@ -8063,6 +8125,19 @@
                 if (openNote !== 'grammar' && openNote !== 'voca') return;
                 quickReviewEntry = true;
                 setTimeout(() => showNoteModal(openNote), 120);
+            } catch (e) {}
+        })();
+
+        (function openExamZoneFromShareLink() {
+            try {
+                const q = new URLSearchParams(location.search);
+                if ((q.get('zone') || '').trim().toLowerCase() !== 'exam') return;
+                setTimeout(function () {
+                    try {
+                        focusExamAnalysisSection();
+                        openExamReportWorkspace();
+                    } catch (e) {}
+                }, 280);
             } catch (e) {}
         })();
 
