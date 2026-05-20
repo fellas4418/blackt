@@ -428,6 +428,26 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
         const footer = document.querySelector('.footer');
         if (footer) footer.style.display = 'none';
 
+        if (isAdminDayCompleteSharePreview()) {
+            clearStudyCheckpoint();
+            try {
+                localStorage.removeItem('voca_practice_list');
+                localStorage.removeItem('trigger_custom_voca_mode');
+                localStorage.removeItem('trigger_custom_voca_return_url');
+            } catch (e) {}
+            if (sessionTag) {
+                sessionTag.innerText = '오늘 목표 완료 👑 (관리자 미리보기)';
+                sessionTag.style.color = 'var(--neon-green)';
+            }
+            const bar = document.getElementById('bar');
+            if (bar) {
+                bar.style.width = '100%';
+                bar.style.backgroundColor = 'var(--neon-green)';
+            }
+            showStudyDayCompleteScreen(100);
+            return;
+        }
+
         // ✅ 분석 결과 페이지 → "사라져 VOCA로 나만의 단어 연습하기" 전용 모드
         // - 저장된 단어장으로만 학습
         // - 5초(뜻 보임) + 3초(뜻 숨김) + 2초(뜻 보임) 타이머는 기존 startStudy 그대로 사용
@@ -602,21 +622,6 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
         } else {
             targetWords = todayWords;
             isPreReviewMode = false;
-        }
-
-        if (isAdminDayCompleteSharePreview()) {
-            clearStudyCheckpoint();
-            if (sessionTag) {
-                sessionTag.innerText = '오늘 목표 완료 👑 (관리자 미리보기)';
-                sessionTag.style.color = 'var(--neon-green)';
-            }
-            const bar = document.getElementById('bar');
-            if (bar) {
-                bar.style.width = '100%';
-                bar.style.backgroundColor = 'var(--neon-green)';
-            }
-            showStudyDayCompleteScreen(100);
-            return;
         }
 
         const restoreMain = tryRestoreStudyCheckpoint({ isPreReviewMode: false, customSavedVoca: false });
@@ -1415,7 +1420,7 @@ function buildVocaShareBundle() {
             content: {
                 title,
                 description,
-                imageUrl: triggerPagesImgUrl('share-v2.png'),
+                imageUrl: triggerPagesImgUrl('share-v2.png') + '?v=2',
                 link: { mobileWebUrl: shareUrl, webUrl: shareUrl }
             },
             buttons: [
@@ -1529,10 +1534,15 @@ window.adminTestKakaoShareOnly = function () {
         return;
     }
     if (typeof shareKakao !== 'function') {
-        alert('공유 기능을 불러오지 못했어요. study.html에서 시도하거나 새로고침 해 주세요.');
+        alert('공유 기능을 불러오지 못했어요. 페이지를 새로고침한 뒤 다시 시도해 주세요.');
         return;
     }
-    shareKakao();
+    try {
+        initKakao();
+    } catch (e) {}
+    Promise.resolve(shareKakao()).catch(function () {
+        alert('카톡 공유를 실행하지 못했어요. 잠시 후 다시 시도해 주세요.');
+    });
 };
 
 /** 관리자: 당일 테스트 완료 화면(카톡 공유 버튼)으로 바로 이동 */
@@ -1547,6 +1557,12 @@ window.adminGoDayCompleteKakaoScreen = function () {
     const isReviewDay = localDay === 6 || localDay === 7;
     const finalSession = isReviewDay ? '2' : String(DAILY_CYCLE_COUNT);
     localStorage.setItem(`trigger_session_${lvl}`, finalSession);
+    try {
+        localStorage.removeItem('voca_practice_list');
+        localStorage.removeItem('trigger_custom_voca_mode');
+        localStorage.removeItem('trigger_custom_voca_return_url');
+        localStorage.removeItem('trigger_jump_test');
+    } catch (e) {}
     if (typeof clearBlacktCooldownNotifySchedule === 'function') clearBlacktCooldownNotifySchedule();
     localStorage.removeItem('blackt_cooldown');
     clearStudyCheckpoint();
