@@ -9,7 +9,8 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = Path(r"C:\Users\noto0\.cursor\projects\c-Users-noto0-Desktop\assets")
 SIDE = 1024
-MARGIN = 72  # px safe area on each side
+# Kakao feed preview often center-crops/zooms ~15–20%; keep content in inner ~58%
+KAKAO_SAFE_RATIO = 0.21  # margin each side (~42% total inset)
 
 
 def sample_bg(im: Image.Image) -> tuple[int, int, int, int]:
@@ -34,8 +35,9 @@ def erase_bottom_right_logo(im: Image.Image) -> Image.Image:
     return banner
 
 
-def fit_square(im: Image.Image, side: int = SIDE, margin: int = MARGIN) -> Image.Image:
+def fit_square(im: Image.Image, side: int = SIDE, margin_ratio: float = KAKAO_SAFE_RATIO) -> Image.Image:
     im = im.convert("RGBA")
+    margin = int(side * margin_ratio)
     max_w = side - margin * 2
     max_h = side - margin * 2
     w, h = im.size
