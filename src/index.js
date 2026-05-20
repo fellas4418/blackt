@@ -527,12 +527,13 @@ async function handleExamExtract(env, body) {
 Return ONLY valid JSON (no markdown) with this exact shape:
 {"questions":[{"number":1,"type":"multiple","points":2.5},{"number":2,"type":"essay","points":10}]}
 Rules:
-- "number": visible problem index (integer). Each numbered item appears once only.
-- "type": "multiple" for 객관식·선택·빈칸 고르기 등, "essay" for 서술·논술·장문·단답 서술.
-- "points": read the score printed at the end of each question line (e.g. 2.5점, [3점], (4.5)). Use decimals when shown; do not round to integers.
-- Do not count sub-parts twice; use the score shown for the whole numbered item.
-- Merge pages: include every numbered item you can read across all images.
-- If unreadable, omit that item (do not guess numbers).`;
+- "number": the main question number printed on the paper (1, 2, 3 …). Each number exactly once.
+- Include EVERY consecutive number from 1 through the highest number visible (e.g. 30 questions → numbers 1–30, count=30). Do not skip because a page break splits items.
+- "type": "multiple" for 객관식·선택·빈칸 고르기·일치불일치 등, "essay" ONLY for 서술·논술·장문·단답 서술 blocks.
+- "points": 배점 at the end of each question line (2.5점, [3], (4)). Decimals allowed. Sum of all points should match the exam total (often 100).
+- Do not count (1)(2) sub-items as separate questions; one row per main number.
+- Merge all uploaded images; scan headers/footers for missed numbers.
+- If one number is unreadable, omit only that number (do not guess).`;
 
   const parts = [{ text: prompt }];
   let added = 0;
@@ -555,21 +556,46 @@ Rules:
   }
   const parsePoints = (value) => {
     if (value == null) return 0;
-    const s = String(value).replace(/점/g, "").replace(/[^\d.]/g, " ").trim().split(/\s+/)[0];
-    const n = parseFloat(s);
+    const raw = String(value).replace(/,/g, ".").replace(/점/g, "");
+    const matches = raw.match(/\d+(?:\.\d+)?/g);
+    const n = matches && matches.length ? parseFloat(matches[matches.length - 1]) : parseFloat(raw);
     if (!Number.isFinite(n) || n < 0) return 0;
     return Math.round(n * 10) / 10;
+  };
+  const medianPoints = (list, typeFilter) => {
+    const pts = list
+      .filter((q) => !typeFilter || q.type === typeFilter)
+      .map((q) => Number(q.points) || 0)
+      .filter((p) => p > 0)
+      .sort((a, b) => a - b);
+    if (!pts.length) return 2.5;
+    const mid = Math.floor(pts.length / 2);
+    return pts.length % 2 ? pts[mid] : Math.round(((pts[mid - 1] + pts[mid]) / 2) * 10) / 10;
   };
   const byNumber = new Map();
   for (const q of questions) {
     const number = Number(q.number);
     const type = String(q.type || "").toLowerCase() === "essay" ? "essay" : "multiple";
-    const points = parsePoints(q.points);
-    if (!Number.isFinite(number) || number <= 0 || points < 0) continue;
+    let points = parsePoints(q.points);
+    if (!Number.isFinite(number) || number <= 0) continue;
     const prev = byNumber.get(number);
     if (!prev || points > prev.points) byNumber.set(number, { number, type, points });
   }
-  const normalized = Array.from(byNumber.values()).sort((a, b) => a.number - b.number);
+  let normalized = Array.from(byNumber.values()).sort((a, b) => a.number - b.number);
+  normalized.forEach((q) => {
+    if ((Number(q.points) || 0) <= 0) q.points = medianPoints(normalized, q.type === "essay" ? "essay" : "multiple");
+  });
+  if (normalized.length) {
+    const nums = normalized.map((q) => q.number);
+    const min = Math.min(...nums);
+    const max = Math.max(...nums);
+    const have = new Set(nums);
+    const guess = medianPoints(normalized, "multiple");
+    for (let n = min; n <= max; n++) {
+      if (!have.has(n)) normalized.push({ number: n, type: "multiple", points: guess, _inferred: true });
+    }
+    normalized.sort((a, b) => a.number - b.number);
+  }
   if (!normalized.length) return json({ error: "정규화된 문항이 없습니다." }, 422);
   return json({ ok: true, questions: normalized });
 }
