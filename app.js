@@ -1375,7 +1375,6 @@ function buildVocaShareBundle() {
     let displayDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
     if (localStorage.getItem(`trigger_session_${currentLevel}`) === '1' && displayDay > 1) displayDay--;
 
-    const shareUrl = window.location.origin + '/share-entry.html?path=index.html';
     const st =
         typeof TriggerPraise !== 'undefined' && TriggerPraise.statsFromStorage
             ? TriggerPraise.statsFromStorage('voca')
@@ -1393,8 +1392,10 @@ function buildVocaShareBundle() {
     }
     const pc =
         typeof TriggerPraise !== 'undefined' && TriggerPraise.encodePc ? TriggerPraise.encodePc(st) : '';
-    const praiseBase = window.location.origin + '/share-entry.html?path=index.html&praise=1';
-    const praiseShareUrl = pc ? `${praiseBase}&pc=${encodeURIComponent(pc)}` : praiseBase;
+    const baseIndex = window.location.origin + '/index.html';
+    const pcQ = pc ? `&pc=${encodeURIComponent(pc)}` : '';
+    const shareUrl = `${baseIndex}?share_result=1${pcQ}`;
+    const praiseShareUrl = `${baseIndex}?praise=true${pcQ}`;
 
     let badgeLine = '';
     try {

@@ -69,6 +69,12 @@
         body.praise-receiver-flow .bottom-nav,
         body.praise-receiver-flow #nav-area,
         body.praise-receiver-flow hr { visibility: hidden; pointer-events: none; }
+        #share-result-popup { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 40000; transition: opacity 0.5s; padding: 20px; box-sizing: border-box; }
+        #share-result-popup-inner {
+            width: 100%; max-width: 420px; background: #111; border: 1px solid var(--neon-blue);
+            border-radius: 16px; padding: 24px 20px; text-align: center;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.15);
+        }
         #praise-kakao-return {
             display: none;
             position: fixed;
@@ -193,6 +199,17 @@
             </div>
             <p id="praise-copy-feedback" style="display:none; font-size:0.88rem; color:var(--neon-green); margin:0 0 12px;"></p>
             <button type="button" id="praise-close-btn" class="login-btn" style="border-color: var(--neon-green); width: 80%; max-width: 300px; font-size: 1.05rem;" onclick="window.closePraisePopup && window.closePraisePopup()">💬 카톡으로 돌아가 보내기</button>
+        </div>
+    </div>
+
+    <div id="share-result-popup" style="display:none;">
+        <div id="share-result-popup-inner">
+            <div id="share-result-emoji" style="font-size: 3.5rem; margin-bottom: 10px; line-height: 1;">🔥</div>
+            <h1 id="share-result-title" style="color:var(--neon-blue); margin: 0 0 14px; font-size: 1.45rem;">학습 결과</h1>
+            <p id="share-result-body" style="color:#e0e4ea; font-size:1.02rem; line-height:1.65; margin: 0 0 10px; white-space: pre-line;"></p>
+            <p id="share-result-badge" style="color:#888; font-size:0.88rem; line-height:1.45; margin: 0 0 18px;"></p>
+            <button type="button" id="share-result-praise-btn" class="login-btn" style="border-color: var(--neon-orange); color: var(--neon-orange); width: 100%; max-width: 300px; font-size: 1rem; margin-bottom: 10px;">👍 응원 문구 복사하기</button>
+            <button type="button" id="share-result-kakao-btn" class="login-btn" style="border-color: #fee500; color: #fee500; width: 100%; max-width: 300px; font-size: 0.95rem;">💬 카톡으로 돌아가기</button>
         </div>
     </div>
 
@@ -848,6 +865,12 @@
         }
 
         function checkLoginStatus() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('praise') === 'true' || urlParams.get('share_result') === '1') {
+                const modal = document.getElementById('login-modal');
+                if (modal) modal.style.display = 'none';
+                return;
+            }
             const savedName = localStorage.getItem('trigger_name');
             const currentLevel = localStorage.getItem('trigger_level') || 'middle';
             const currentSession = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`)) || 1;
@@ -1399,6 +1422,10 @@
         const installBtn = document.getElementById('install-app-btn');
 
         function handleKakaoAndInstall() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('praise') === 'true' || urlParams.get('share_result') === '1') {
+                return;
+            }
             if (typeof window.dismissTriggerSplash === 'function') {
                 window.dismissTriggerSplash();
             }
@@ -1519,6 +1546,63 @@
                 if (typeof switchTab === 'function') switchTab('grammar');
             } else {
                 if (typeof switchTab === 'function') switchTab('voca');
+            }
+
+            if (urlParams.get('share_result') === '1') {
+                document.body.classList.add('praise-receiver-flow');
+                var shareResultPopup = document.getElementById('share-result-popup');
+                if (shareResultPopup) {
+                    var shareCtx = null;
+                    if (typeof TriggerPraise !== 'undefined' && TriggerPraise.decodePc) {
+                        shareCtx = TriggerPraise.decodePc(urlParams.get('pc') || '') || null;
+                    }
+                    if (!shareCtx) {
+                        shareCtx = { n: '학습자', d: 1, t: 0, k: 'voca', b: 0, m: 0 };
+                    }
+                    var shareBadge =
+                        typeof TriggerPraise !== 'undefined' && TriggerPraise.badgeFor
+                            ? TriggerPraise.badgeFor(shareCtx)
+                            : { emoji: '🎉', title: '오늘의 도전', blurb: '' };
+                    var sEm = document.getElementById('share-result-emoji');
+                    var sTitle = document.getElementById('share-result-title');
+                    var sBody = document.getElementById('share-result-body');
+                    var sBadge = document.getElementById('share-result-badge');
+                    if (sEm) sEm.textContent = shareBadge.emoji || '🔥';
+                    if (sTitle) sTitle.textContent = '[' + shareCtx.n + ']님 학습 결과';
+                    if (sBody) {
+                        sBody.textContent =
+                            '오늘의 진도: Day ' + shareCtx.d + '\n누적 클리어: ' + shareCtx.t + ' 단어';
+                    }
+                    if (sBadge) {
+                        sBadge.textContent =
+                            '오늘의 배지 후보: ' + (shareBadge.emoji || '') + ' ' + (shareBadge.title || '');
+                    }
+                    var sharePc = urlParams.get('pc') || '';
+                    var praiseGoBtn = document.getElementById('share-result-praise-btn');
+                    if (praiseGoBtn) {
+                        praiseGoBtn.onclick = function () {
+                            var nextUrl =
+                                location.pathname +
+                                '?praise=true' +
+                                (sharePc ? '&pc=' + encodeURIComponent(sharePc) : '');
+                            location.replace(nextUrl);
+                        };
+                    }
+                    var shareKakaoBtn = document.getElementById('share-result-kakao-btn');
+                    if (shareKakaoBtn) {
+                        shareKakaoBtn.onclick = function () {
+                            if (
+                                typeof TriggerPraise !== 'undefined' &&
+                                TriggerPraise.returnToKakaoInApp &&
+                                TriggerPraise.returnToKakaoInApp()
+                            ) {
+                                return;
+                            }
+                        };
+                    }
+                    shareResultPopup.style.display = 'flex';
+                }
+                return;
             }
 
             if (urlParams.get('praise') === 'true') {

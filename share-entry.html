@@ -110,13 +110,18 @@
             const path = (params.get('path') || '/index.html').trim();
             const praise = params.get('praise') === '1';
             const zone = (params.get('zone') || '').trim();
+            const pcParam = params.get('pc');
             const targetPath = path.startsWith('/') ? path : '/' + path;
             const finalUrl = new URL(targetPath, location.origin);
-            if (praise) finalUrl.searchParams.set('praise', 'true');
-            const praiseCtx = params.get('pc');
-            if (praiseCtx) finalUrl.searchParams.set('pc', praiseCtx);
+            if (praise) {
+                finalUrl.searchParams.set('praise', 'true');
+            } else if (/index\.html/i.test(targetPath)) {
+                finalUrl.searchParams.set('share_result', '1');
+            }
+            if (pcParam) finalUrl.searchParams.set('pc', pcParam);
             if (zone) finalUrl.searchParams.set('zone', zone);
-            finalUrl.searchParams.set('from', 'kakao_share');
+
+            const isVocaReceiver = praise || (/index\.html/i.test(targetPath) && !!pcParam);
 
             try {
                 const name = String(localStorage.getItem('trigger_name') || '').trim();
@@ -171,6 +176,19 @@
 
             if (isStandalone) {
                 goFinal();
+                return;
+            }
+
+            if (isKakao && isVocaReceiver) {
+                goFinal();
+                return;
+            }
+
+            if (isKakao && zone === 'exam') {
+                descEl.textContent = '카톡 안에서는 앱이 바로 안 열려요. 설치한 앱으로 연결합니다.';
+                statusEl.textContent = '브라우저로 이동 중…';
+                openInSystemBrowser();
+                setTimeout(showManualFallback, 1400);
                 return;
             }
 
