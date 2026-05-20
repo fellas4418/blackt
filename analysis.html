@@ -1649,6 +1649,11 @@
                 <div id="exam-rpt-ai-diagnosis" style="font-size:0.92rem; color:#ddd; line-height:1.65; text-align:justify;"></div>
                 <button type="button" id="exam-rpt-gen-diagnosis" class="login-btn" style="margin-top:10px; width:100%; border-color:var(--neon-blue);">AI 진단 생성</button>
             </div>
+            <div class="result-card" id="exam-rpt-teacher-comment-card" style="display:none;">
+                <span class="result-label">선생님 코멘트 <span style="font-size:0.72rem;color:#ffcc80;font-weight:normal;">(프리미엄)</span></span>
+                <p id="exam-rpt-teacher-comment-wait" class="guide-text" style="font-size:0.85rem;color:#aaa;margin:0;line-height:1.55;">리포트 저장 후 선생님 검토 코멘트가 도착하면 여기에 표시됩니다.</p>
+                <div id="exam-rpt-teacher-comment-body" style="display:none;font-size:0.92rem;color:#eee;line-height:1.65;white-space:pre-wrap;text-align:justify;margin-top:8px;padding:12px;border-radius:10px;background:rgba(255,204,128,0.08);border:1px solid rgba(255,204,128,0.35);"></div>
+            </div>
             <div class="result-card" id="exam-rpt-admin-section" style="display:none;">
                 <span class="result-label">선생님 메모</span>
                 <p class="guide-text" style="font-size:0.8rem; color:#888; margin:0 0 10px 0;">학생이 「리포트 저장」을 하면 접수 목록에 쌓입니다. 원장·관리자만 아래에서 확인·코멘트할 수 있습니다.</p>
@@ -1658,9 +1663,10 @@
                 <textarea id="exam-rpt-admin-comment" rows="4" style="width:100%; box-sizing:border-box; background:#111; border:1px solid #444; color:#fff; border-radius:8px; padding:10px; font-size:0.9rem;" placeholder="선택한 의뢰에 남길 코멘트"></textarea>
                 <button type="button" id="exam-rpt-admin-save-comment" class="login-btn" style="width:100%;margin-top:8px;border-color:#ff9a5c;color:#ff9a5c;">선택 의뢰에 코멘트 저장</button>
             </div>
-            <p id="exam-rpt-save-hint" class="guide-text" style="font-size:0.82rem;color:#aaa;margin:8px 0 0 0;line-height:1.55;">「리포트 저장」을 누르면 서버 저장을 시도한 뒤, 아래 <strong>인쇄·PDF 저장</strong> 버튼이 나타납니다. (처음에는 PDF 버튼이 숨겨져 있습니다.)</p>
-            <button type="button" id="exam-rpt-submit-save" class="kakao-btn" style="margin-top:8px;">리포트 저장 · PDF 안내</button>
-            <button type="button" id="exam-rpt-download-pdf" class="login-btn" style="width:100%; margin-top:10px; border-color:#fff; display:none;">분석 결과 인쇄·PDF 저장</button>
+            <p id="exam-rpt-save-hint" class="guide-text" style="font-size:0.82rem;color:#aaa;margin:8px 0 0 0;line-height:1.55;">「리포트 저장」을 누르면 서버에 저장되고 PDF 리포트를 바로 볼 수 있습니다.</p>
+            <button type="button" id="exam-rpt-submit-save" class="kakao-btn" style="margin-top:8px;">리포트 저장</button>
+            <button type="button" id="exam-rpt-view-report-link" class="login-btn" style="display:none;width:100%;margin-top:10px;border-color:#fff;color:#fff;">리포트 다시 보기</button>
+            <button type="button" id="exam-rpt-download-pdf" style="display:none !important;" aria-hidden="true" tabindex="-1"></button>
             <button type="button" id="exam-rpt-share-kakao" class="kakao-btn" style="margin-top:10px;">🟡 카톡으로 리포트 공유</button>
         </div>
     </div>
@@ -1676,6 +1682,16 @@
             <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
                 <button type="button" id="exam-rpt-confirm-yes" class="start-btn" style="margin:0;min-width:130px;border-color:var(--neon-green);">네, 없어요 ✅</button>
                 <button type="button" id="exam-rpt-confirm-no" class="login-btn" style="margin:0;min-width:110px;border-color:#666;color:#ccc;">취소</button>
+            </div>
+        </div>
+    </div>
+    <div id="exam-rpt-pdf-ready-overlay" class="exam-rpt-confirm-overlay" aria-hidden="true">
+        <div class="exam-rpt-confirm-box" role="dialog" aria-modal="true" aria-labelledby="exam-rpt-pdf-ready-title" style="border-color:var(--neon-blue);">
+            <div id="exam-rpt-pdf-ready-title" class="exam-rpt-confirm-title" style="color:var(--neon-blue);">PDF 리포트 준비 완료 📄</div>
+            <p id="exam-rpt-pdf-ready-text" class="exam-rpt-confirm-text">리포트가 준비되었습니다.<br>「리포트 보기」를 누르면 인쇄·PDF 저장 화면이 열립니다.</p>
+            <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+                <button type="button" id="exam-rpt-pdf-ready-view" class="start-btn" style="margin:0;min-width:150px;border-color:var(--neon-blue);">리포트 보기</button>
+                <button type="button" id="exam-rpt-pdf-ready-close" class="login-btn" style="margin:0;min-width:110px;border-color:#666;color:#ccc;">닫기</button>
             </div>
         </div>
     </div>
@@ -2138,6 +2154,7 @@
             } catch (e) {}
             persistInviteCodeFromInputIfNeeded();
             updateAiAskPremiumGate();
+            examRptSyncTeacherCommentCard();
         }
 
         function buildChatAskRequestBody(question, contextSentence) {
@@ -5908,6 +5925,13 @@
         let examRptReasons = {};
         let examRptEssayEarned = {};
         let examRptAiDiagnosis = null;
+        let examRptServerSaved = false;
+        let examRptLocalSaved = false;
+        let examRptTeacherComment = '';
+        let examRptTeacherCommentPollTimer = null;
+
+        const EXAM_RPT_TEACHER_COMMENT_PENDING_KEY = 'exam_rpt_teacher_comment_pending_v1';
+        const EXAM_RPT_TEACHER_COMMENT_SEEN_PREFIX = 'exam_rpt_teacher_comment_seen_v1::';
 
         const EXAM_RPT_EXTRACT_PROMPT =
             'You extract structure from Korean school English exam paper photos.\n' +
@@ -5930,14 +5954,20 @@
             examRptReasons = {};
             examRptEssayEarned = {};
             examRptAiDiagnosis = null;
+            examRptServerSaved = false;
+            examRptLocalSaved = false;
+            examRptTeacherComment = '';
+            examRptStopTeacherCommentPoll();
+            examRptSyncTeacherCommentCard();
+            examRptSyncViewReportLink();
+            examRptHidePdfReadyOverlay();
             const th = document.getElementById('exam-rpt-thumbs');
             if (th) th.innerHTML = '';
             const c = document.getElementById('exam-rpt-photo-count');
             if (c) c.innerText = '현재 0장 촬영 완료';
             const aft = document.getElementById('exam-rpt-after-extract');
             if (aft) aft.style.display = 'none';
-            const pdfB = document.getElementById('exam-rpt-download-pdf');
-            if (pdfB) pdfB.style.display = 'none';
+            examRptSyncViewReportLink();
             const sc = document.getElementById('exam-rpt-school');
             if (sc) sc.value = '';
             const ex = document.getElementById('exam-rpt-exam-type');
@@ -5994,6 +6024,9 @@
                 examRptReasons: JSON.parse(JSON.stringify(examRptReasons || {})),
                 examRptEssayEarned: JSON.parse(JSON.stringify(examRptEssayEarned || {})),
                 examRptAiDiagnosis: examRptAiDiagnosis ? JSON.parse(JSON.stringify(examRptAiDiagnosis)) : null,
+                examRptServerSaved: !!examRptServerSaved,
+                examRptLocalSaved: !!examRptLocalSaved,
+                examRptTeacherComment: String(examRptTeacherComment || ''),
                 school: school,
                 examType: examType
             };
@@ -6011,6 +6044,9 @@
             examRptEssayEarned = snap.examRptEssayEarned && typeof snap.examRptEssayEarned === 'object' ? snap.examRptEssayEarned : {};
             examRptAiDiagnosis =
                 snap.examRptAiDiagnosis && typeof snap.examRptAiDiagnosis === 'object' ? snap.examRptAiDiagnosis : null;
+            examRptServerSaved = !!snap.examRptServerSaved;
+            examRptLocalSaved = !!snap.examRptLocalSaved;
+            examRptTeacherComment = String(snap.examRptTeacherComment || '');
             const sc = document.getElementById('exam-rpt-school');
             if (sc) sc.value = String(snap.school || '');
             const ex = document.getElementById('exam-rpt-exam-type');
@@ -6029,6 +6065,17 @@
                 diagOut.innerHTML = '';
             }
             examRptSyncDiagnosisButton();
+            examRptSyncViewReportLink();
+            if (examRptServerSaved) {
+                examRptSyncTeacherCommentCard();
+                if (examRptCanUseTeacherComment()) {
+                    examRptFetchTeacherComment(false);
+                    examRptStartTeacherCommentPoll();
+                }
+            } else {
+                examRptStopTeacherCommentPoll();
+                examRptSyncTeacherCommentCard();
+            }
             const runBtn = document.getElementById('exam-rpt-run-extract');
             if (runBtn) {
                 runBtn.disabled = false;
@@ -7334,28 +7381,201 @@
             document.head.appendChild(inject);
         }
 
-        function examRptSchedulePdfNotify() {
-            const DAY = 24 * 60 * 60 * 1000;
+        function examRptCanUseTeacherComment() {
+            return isPremiumUser && !examRptIsAdminMode();
+        }
+
+        function examRptTeacherCommentSeenKey(id) {
+            return EXAM_RPT_TEACHER_COMMENT_SEEN_PREFIX + String(id || '').trim();
+        }
+
+        function examRptLoadPendingCommentIds() {
+            try {
+                const arr = JSON.parse(localStorage.getItem(EXAM_RPT_TEACHER_COMMENT_PENDING_KEY) || '[]');
+                return Array.isArray(arr) ? arr.filter(function (x) { return x && String(x).trim(); }) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function examRptSavePendingCommentIds(ids) {
+            try {
+                localStorage.setItem(EXAM_RPT_TEACHER_COMMENT_PENDING_KEY, JSON.stringify(ids || []));
+            } catch (e) {}
+        }
+
+        function examRptAddPendingCommentId(id) {
+            const sid = String(id || '').trim();
+            if (!sid) return;
+            const ids = examRptLoadPendingCommentIds().filter(function (x) { return x !== sid; });
+            ids.unshift(sid);
+            examRptSavePendingCommentIds(ids.slice(0, 30));
+        }
+
+        function examRptRemovePendingCommentId(id) {
+            const sid = String(id || '').trim();
+            examRptSavePendingCommentIds(examRptLoadPendingCommentIds().filter(function (x) { return x !== sid; }));
+        }
+
+        function examRptRequestNotifyPermission() {
             try {
                 if ('Notification' in window && Notification.permission === 'default') {
                     Notification.requestPermission();
                 }
             } catch (e) {}
-            setTimeout(function () {
-                try {
-                    if (!('Notification' in window) || Notification.permission !== 'granted') return;
-                    const title = '📄 사라져 Voca · 내 시험 분석';
-                    const options = { body: '저장한 「내가 본 시험 한 눈에 분석」 리포트를 확인해 보세요.', tag: 'exam-report-pdf', icon: 'icon-192.png' };
-                    if ('serviceWorker' in navigator) {
-                        navigator.serviceWorker.getRegistration().then(function (reg) {
-                            if (reg && reg.showNotification) reg.showNotification(title, options);
-                            else new Notification(title, options);
-                        }).catch(function () { new Notification(title, options); });
-                    } else {
-                        new Notification(title, options);
+        }
+
+        function examRptPushTeacherCommentNotify(reportId) {
+            try {
+                if (!('Notification' in window) || Notification.permission !== 'granted') return;
+                const title = '📝 선생님 코멘트 도착';
+                const options = {
+                    body: '시험 분석 리포트에 선생님 코멘트가 추가되었어요.',
+                    tag: 'exam-teacher-comment-' + String(reportId || ''),
+                    icon: 'icon-192.png'
+                };
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistration().then(function (reg) {
+                        if (reg && reg.showNotification) reg.showNotification(title, options);
+                        else new Notification(title, options);
+                    }).catch(function () { new Notification(title, options); });
+                } else {
+                    new Notification(title, options);
+                }
+            } catch (e) {}
+        }
+
+        function examRptSyncTeacherCommentCard() {
+            const card = document.getElementById('exam-rpt-teacher-comment-card');
+            const wait = document.getElementById('exam-rpt-teacher-comment-wait');
+            const body = document.getElementById('exam-rpt-teacher-comment-body');
+            if (!card) return;
+            if (!examRptCanUseTeacherComment() || !examRptServerSaved) {
+                card.style.display = 'none';
+                return;
+            }
+            card.style.display = 'block';
+            const txt = String(examRptTeacherComment || '').trim();
+            if (txt) {
+                if (wait) wait.style.display = 'none';
+                if (body) {
+                    body.style.display = 'block';
+                    body.textContent = txt;
+                }
+            } else {
+                if (wait) wait.style.display = 'block';
+                if (body) body.style.display = 'none';
+            }
+        }
+
+        function examRptStopTeacherCommentPoll() {
+            if (examRptTeacherCommentPollTimer) {
+                clearInterval(examRptTeacherCommentPollTimer);
+                examRptTeacherCommentPollTimer = null;
+            }
+        }
+
+        function examRptStartTeacherCommentPoll() {
+            examRptStopTeacherCommentPoll();
+            if (!examRptCanUseTeacherComment() || !examRptServerSaved || !authUserId) return;
+            examRptFetchTeacherComment(false);
+            examRptTeacherCommentPollTimer = setInterval(function () {
+                if (document.hidden) return;
+                examRptFetchTeacherComment(false);
+            }, 90000);
+        }
+
+        async function examRptFetchTeacherComment(forceNotify) {
+            if (!examRptCanUseTeacherComment() || !examRptServerSaved || !authUserId || !authPassword) return;
+            const rid = String(examRptReportId || '').trim();
+            if (!rid) return;
+            try {
+                const data = await postJson('/api/exam-report/get', {
+                    user_id: authUserId,
+                    password: authPassword,
+                    id: rid
+                });
+                const report = data && data.report;
+                const comment = report && String(report.admin_comment || '').trim();
+                const prev = String(examRptTeacherComment || '').trim();
+                examRptTeacherComment = comment || '';
+                examRptSyncTeacherCommentCard();
+                if (comment) {
+                    examRptRemovePendingCommentId(rid);
+                    const seenKey = examRptTeacherCommentSeenKey(rid);
+                    const seen = localStorage.getItem(seenKey) === comment;
+                    if (!seen) {
+                        localStorage.setItem(seenKey, comment);
+                        if (forceNotify || prev !== comment) {
+                            examRptPushTeacherCommentNotify(rid);
+                        }
                     }
-                } catch (e) {}
-            }, DAY);
+                    if (prev !== comment) {
+                        try { examHistoryUpsertFromCurrent(); } catch (e) {}
+                        if (examRptServerSaved || examRptLocalSaved) {
+                            examRptShowPdfReadyOverlay('선생님 코멘트가 추가되었어요.\n리포트를 다시 열어 확인해 보세요.');
+                        }
+                    }
+                }
+            } catch (e) {}
+        }
+
+        function examRptHidePdfReadyOverlay() {
+            const ov = document.getElementById('exam-rpt-pdf-ready-overlay');
+            if (ov) {
+                ov.style.display = 'none';
+                ov.setAttribute('aria-hidden', 'true');
+            }
+        }
+
+        function examRptShowPdfReadyOverlay(message) {
+            const ov = document.getElementById('exam-rpt-pdf-ready-overlay');
+            const txt = document.getElementById('exam-rpt-pdf-ready-text');
+            if (txt) {
+                const msg = String(message || '').trim();
+                txt.innerHTML = msg
+                    ? escapeHtml(msg).replace(/\n/g, '<br>')
+                    : '리포트가 준비되었습니다.<br>「리포트 보기」를 누르면 인쇄·PDF 저장 화면이 열립니다.';
+            }
+            if (ov) {
+                ov.style.display = 'flex';
+                ov.setAttribute('aria-hidden', 'false');
+            }
+        }
+
+        function examRptSyncViewReportLink() {
+            const link = document.getElementById('exam-rpt-view-report-link');
+            if (!link) return;
+            link.style.display = examRptServerSaved || examRptLocalSaved ? 'block' : 'none';
+        }
+
+        function examRptOnReportReady(showOverlayMessage) {
+            examRptSyncViewReportLink();
+            if (showOverlayMessage !== false) {
+                examRptShowPdfReadyOverlay(showOverlayMessage || '');
+            }
+        }
+
+        function examRptOnServerSaveOk() {
+            examRptServerSaved = true;
+            if (examRptCanUseTeacherComment()) {
+                examRptAddPendingCommentId(examRptReportId);
+                examRptRequestNotifyPermission();
+                examRptSyncTeacherCommentCard();
+                examRptStartTeacherCommentPoll();
+            }
+            try {
+                examHistoryUpsertFromCurrent();
+            } catch (e) {}
+            examRptOnReportReady('');
+        }
+
+        function examRptOnLocalSaveOk() {
+            examRptLocalSaved = true;
+            try {
+                examHistoryUpsertFromCurrent();
+            } catch (e) {}
+            examRptOnReportReady('');
         }
 
         function examRptOpenPdfWindow() {
@@ -7384,6 +7604,9 @@
                 '<p>객관식 문항 ' + t.mcRightCnt + '/' + t.mcCnt + ' 정답(' + fmt(t.mcAccByCount) + '%) · 획득점수 ' + fmt(t.mcEarn) + '/' + fmt(t.mcPts) + ' (배점 대비 ' + fmt(t.mcAcc) + '%) · 서술 획득점수 ' + fmt(t.esEarn) + '/' + fmt(t.esPts) + '</p>' +
                 '<h2>문항</h2><table><thead><tr><th>번호</th><th>유형</th><th>배점</th><th>결과</th><th>오답 원인</th></tr></thead><tbody>' + rows + '</tbody></table>' +
                 '<h2>AI 진단</h2><pre style="white-space:pre-wrap;font-size:12px;">' + escapeHtml(aiTxt) + '</pre>' +
+                (examRptCanUseTeacherComment() && String(examRptTeacherComment || '').trim()
+                    ? '<h2>선생님 코멘트</h2><pre style="white-space:pre-wrap;font-size:12px;">' + escapeHtml(examRptTeacherComment) + '</pre>'
+                    : '') +
                 '<p style="margin-top:24px;font-size:11px;color:#666;">브라우저 메뉴에서 인쇄 → PDF로 저장하세요.</p></body></html>';
             const w = window.open('', '_blank');
             if (w) {
@@ -7422,19 +7645,10 @@
                 ai_diagnosis_json: examRptAiDiagnosis ? JSON.stringify(examRptAiDiagnosis) : null
             };
             const afterSaveOk = function () {
-                examRptSchedulePdfNotify();
-                const pdfB = document.getElementById('exam-rpt-download-pdf');
-                if (pdfB) {
-                    pdfB.style.display = 'block';
-                    pdfB.onclick = examRptOpenPdfWindow;
-                }
-                try {
-                    examHistoryUpsertFromCurrent();
-                } catch (e) {}
+                examRptOnServerSaveOk();
             };
             try {
                 await postJson('/api/exam-report/save', saveBody);
-                alert('저장되었습니다.\n\n24시간 이내에 아래 버튼으로 분석 결과를 인쇄·PDF 저장할 수 있습니다.\n(알림을 켜 두면 24시간 후에도 안내를 받을 수 있어요.)');
                 afterSaveOk();
             } catch (e) {
                 if (examRptIsApiNotFoundError(e)) {
@@ -7445,16 +7659,39 @@
                         );
                     } catch (ignore) {}
                     alert(
-                        '서버에 시험 리포트 저장 API가 아직 없습니다(not_found).\n\n' +
-                            '개발 PC에서 Cloudflare Worker를 다시 배포하고 D1에 exam_analysis 테이블을 적용해야 합니다.\n' +
-                            '(wrangler deploy, wrangler d1 execute … d1-schema.sql)\n\n' +
-                            '지금은 이 기기에 임시 복사해 두었고, 아래「인쇄·PDF 저장」으로 학생용 리포트는 만들 수 있습니다.'
+                        '서버 저장 API가 없어 이 기기에만 임시 저장했습니다.\n\n' +
+                            '(Worker 배포·exam_analysis 테이블 적용 후 서버 저장 가능)\n\n' +
+                            'PDF 리포트는 아래 안내에서 바로 열 수 있습니다.'
                     );
-                    afterSaveOk();
+                    examRptOnLocalSaveOk();
                 } else {
                     alert(e.message || String(e));
                 }
             }
+        }
+
+        function examRptPollPendingTeacherCommentsOnFocus() {
+            if (!examRptCanUseTeacherComment() || !authUserId) return;
+            const pending = examRptLoadPendingCommentIds();
+            if (!pending.length) return;
+            const rid = String(examRptReportId || '').trim();
+            if (pending.indexOf(rid) >= 0 && examRptServerSaved) {
+                examRptFetchTeacherComment(true);
+            }
+            pending.slice(0, 5).forEach(function (pid) {
+                if (pid === rid) return;
+                postJson('/api/exam-report/get', { user_id: authUserId, password: authPassword, id: pid })
+                    .then(function (data) {
+                        const c = data && data.report && String(data.report.admin_comment || '').trim();
+                        if (!c) return;
+                        examRptRemovePendingCommentId(pid);
+                        const seenKey = examRptTeacherCommentSeenKey(pid);
+                        if (localStorage.getItem(seenKey) === c) return;
+                        localStorage.setItem(seenKey, c);
+                        examRptPushTeacherCommentNotify(pid);
+                    })
+                    .catch(function () {});
+            });
         }
 
         (function initExamReportUi() {
@@ -7520,6 +7757,27 @@
             const adminSaveBtn = document.getElementById('exam-rpt-admin-save-comment');
             if (adminSaveBtn) adminSaveBtn.addEventListener('click', examRptAdminSaveComment);
             examRptSyncAdminSection();
+            const pdfReadyView = document.getElementById('exam-rpt-pdf-ready-view');
+            const pdfReadyClose = document.getElementById('exam-rpt-pdf-ready-close');
+            const pdfReadyOv = document.getElementById('exam-rpt-pdf-ready-overlay');
+            if (pdfReadyView) {
+                pdfReadyView.addEventListener('click', function () {
+                    examRptHidePdfReadyOverlay();
+                    examRptOpenPdfWindow();
+                });
+            }
+            if (pdfReadyClose) pdfReadyClose.addEventListener('click', examRptHidePdfReadyOverlay);
+            if (pdfReadyOv) {
+                pdfReadyOv.addEventListener('click', function (e) {
+                    if (e.target === pdfReadyOv) examRptHidePdfReadyOverlay();
+                });
+            }
+            const viewLink = document.getElementById('exam-rpt-view-report-link');
+            if (viewLink) viewLink.addEventListener('click', examRptOpenPdfWindow);
+            document.addEventListener('visibilitychange', function () {
+                if (!document.hidden) examRptPollPendingTeacherCommentsOnFocus();
+            });
+            window.addEventListener('focus', examRptPollPendingTeacherCommentsOnFocus);
             const lb = document.getElementById('exam-rpt-lightbox');
             const lbClose = document.getElementById('exam-rpt-lightbox-close');
             if (lb) {

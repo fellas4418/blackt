@@ -728,7 +728,11 @@ async function handleExamReportGet(env, body) {
     .bind(id, userId)
     .first();
   if (!row) return json({ error: "not_found" }, 404);
-  return json({ ok: true, report: row });
+  const premRow = await env.DB.prepare("SELECT is_premium FROM users WHERE id = ?1").bind(userId).first();
+  const isPremium = premRow && Number(premRow.is_premium) === 1;
+  const report = { ...row };
+  if (!isPremium) report.admin_comment = null;
+  return json({ ok: true, report, is_premium: isPremium ? 1 : 0 });
 }
 
 export default {
