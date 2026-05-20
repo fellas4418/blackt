@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학습 응원 · 사라져 VOCA</title>
+    <meta name="theme-color" content="#000000">
+    <meta name="robots" content="noindex">
+    <style>
+        :root {
+            --neon-green: #39ff14;
+            --neon-orange: #ff9900;
+            --neon-blue: #00f3ff;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #050505;
+            color: #fff;
+            font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        .overlay {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.96);
+            z-index: 10;
+        }
+        .overlay.show { display: flex; }
+        .card {
+            width: 100%;
+            max-width: 420px;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 16px;
+            padding: 24px 20px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.12);
+        }
+        .card.result { border-color: var(--neon-blue); }
+        .card.praise { border-color: #bc13fe; }
+        .emoji { font-size: 3.5rem; margin-bottom: 10px; line-height: 1; }
+        h1 { margin: 0 0 12px; font-size: 1.45rem; }
+        .result h1 { color: var(--neon-blue); }
+        .praise h1 { color: var(--neon-green); text-shadow: 0 0 10px var(--neon-green); }
+        .body-text { color: #e0e4ea; font-size: 1.02rem; line-height: 1.65; margin: 0 0 10px; white-space: pre-line; }
+        .sub-text { color: #888; font-size: 0.88rem; line-height: 1.45; margin: 0 0 16px; }
+        .intro { color: #666; font-size: 0.82rem; line-height: 1.45; margin: 0 0 12px; }
+        .btn {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 8px auto 0;
+            padding: 14px 12px;
+            border-radius: 12px;
+            border: 2px solid;
+            background: transparent;
+            font-weight: 800;
+            font-size: 0.98rem;
+            cursor: pointer;
+        }
+        .btn-orange { border-color: var(--neon-orange); color: var(--neon-orange); }
+        .btn-yellow { border-color: #fee500; color: #fee500; }
+        .btn-green { border-color: var(--neon-green); color: var(--neon-green); }
+        .copy-btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #bc13fe;
+            background: rgba(188, 19, 254, 0.1);
+            color: #e8c8ff;
+            font-weight: 700;
+            font-size: 0.92rem;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+        .feedback { display: none; font-size: 0.88rem; color: var(--neon-green); margin: 8px 0 12px; }
+        #kakao-return {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 20;
+            background: rgba(0, 0, 0, 0.97);
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            text-align: center;
+        }
+        #kakao-return.show { display: flex; }
+    </style>
+</head>
+<body>
+    <div id="view-result" class="overlay">
+        <div class="card result">
+            <div class="emoji" id="result-emoji">🔥</div>
+            <h1 id="result-title">학습 결과</h1>
+            <p class="body-text" id="result-body"></p>
+            <p class="sub-text" id="result-badge"></p>
+            <button type="button" class="btn btn-orange" id="result-praise-btn">👍 응원 문구 복사하기</button>
+            <button type="button" class="btn btn-yellow" id="result-kakao-btn">💬 카톡으로 돌아가기</button>
+        </div>
+    </div>
+
+    <div id="view-praise" class="overlay">
+        <div class="card praise">
+            <div class="emoji" id="praise-emoji">🏆</div>
+            <p class="sub-text" id="praise-badge-title" style="color: var(--neon-orange); font-weight: 800;"></p>
+            <h1 id="praise-main-title">축하 배지 도착!</h1>
+            <p class="body-text" id="praise-headline"></p>
+            <p class="sub-text" id="praise-blurb"></p>
+            <p class="intro">축하 문장을 복사한 뒤, 아래 버튼으로 카톡 채팅으로 돌아가 붙여넣어 보내 주세요.</p>
+            <div id="praise-copy-wrap"></div>
+            <p class="feedback" id="praise-copy-feedback"></p>
+            <button type="button" class="btn btn-green" id="praise-kakao-btn">💬 카톡으로 돌아가 보내기</button>
+        </div>
+    </div>
+
+    <div id="kakao-return">
+        <div style="max-width:360px;">
+            <p style="font-size:2.5rem; margin:0 0 12px;">💬</p>
+            <h2 style="color:var(--neon-green); margin:0 0 12px; font-size:1.35rem;">복사 완료!</h2>
+            <p style="color:#bbb; line-height:1.6; margin:0 0 20px; font-size:0.95rem;">카톡 채팅방으로 돌아가 입력창을 길게 눌러<br>붙여넣기로 보내 주세요.</p>
+            <button type="button" class="btn btn-yellow" id="kakao-return-btn">카톡으로 돌아가기</button>
+        </div>
+    </div>
+
+    <script src="praise-share.js?v=20260520_receiver"></script>
+    <script>
+        (function () {
+            const params = new URLSearchParams(location.search);
+            const pcRaw = params.get('pc') || '';
+            let ctx = null;
+            if (typeof TriggerPraise !== 'undefined' && TriggerPraise.decodePc) {
+                ctx = TriggerPraise.decodePc(pcRaw) || null;
+            }
+            if (!ctx) ctx = { n: '학습자', d: 1, t: 0, k: 'voca', b: 0, m: 0 };
+
+            function returnKakao() {
+                if (
+                    typeof TriggerPraise !== 'undefined' &&
+                    TriggerPraise.returnToKakaoInApp &&
+                    TriggerPraise.returnToKakaoInApp()
+                ) {
+                    return;
+                }
+                document.getElementById('kakao-return').classList.add('show');
+            }
+
+            document.getElementById('kakao-return-btn').onclick = function () {
+                if (
+                    typeof TriggerPraise !== 'undefined' &&
+                    TriggerPraise.returnToKakaoInApp &&
+                    TriggerPraise.returnToKakaoInApp()
+                ) {
+                    return;
+                }
+            };
+
+            function copyText(text, label) {
+                const hint = document.getElementById('praise-copy-feedback');
+                function showOk() {
+                    if (hint) {
+                        hint.style.display = 'block';
+                        hint.style.color = 'var(--neon-green)';
+                        hint.textContent =
+                            label + ' 복사됨! [카톡으로 돌아가 보내기]를 눌러 채팅에 붙여넣어 주세요.';
+                    }
+                }
+                function showFail() {
+                    if (hint) {
+                        hint.style.display = 'block';
+                        hint.style.color = 'var(--neon-orange)';
+                        hint.textContent = '복사가 막혔어요. 문장을 직접 길게 눌러 복사해 주세요.';
+                    }
+                }
+                function execCopy() {
+                    try {
+                        const ta = document.createElement('textarea');
+                        ta.value = text;
+                        ta.setAttribute('readonly', '');
+                        ta.style.position = 'fixed';
+                        ta.style.left = '-9999px';
+                        document.body.appendChild(ta);
+                        ta.select();
+                        ta.setSelectionRange(0, text.length);
+                        const ok = document.execCommand('copy');
+                        document.body.removeChild(ta);
+                        return ok;
+                    } catch (e) {
+                        return false;
+                    }
+                }
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(text).then(showOk).catch(function () {
+                        execCopy() ? showOk() : showFail();
+                    });
+                } else {
+                    execCopy() ? showOk() : showFail();
+                }
+            }
+
+            function showResult() {
+                const badge =
+                    typeof TriggerPraise !== 'undefined' && TriggerPraise.badgeFor
+                        ? TriggerPraise.badgeFor(ctx)
+                        : { emoji: '🎉', title: '오늘의 도전' };
+                document.getElementById('result-emoji').textContent = badge.emoji || '🔥';
+                document.getElementById('result-title').textContent = '[' + ctx.n + ']님 학습 결과';
+                document.getElementById('result-body').textContent =
+                    '오늘의 진도: Day ' + ctx.d + '\n누적 클리어: ' + ctx.t + ' 단어';
+                document.getElementById('result-badge').textContent =
+                    '오늘의 배지 후보: ' + (badge.emoji || '') + ' ' + (badge.title || '');
+                document.getElementById('result-praise-btn').onclick = function () {
+                    const q = 'praise=true' + (pcRaw ? '&pc=' + encodeURIComponent(pcRaw) : '');
+                    location.replace('/praise-receiver.html?' + q);
+                };
+                document.getElementById('result-kakao-btn').onclick = returnKakao;
+                document.getElementById('view-result').classList.add('show');
+            }
+
+            function showPraise() {
+                const pack =
+                    typeof TriggerPraise !== 'undefined' && TriggerPraise.uiPack
+                        ? TriggerPraise.uiPack(ctx)
+                        : {
+                              emoji: '🎉',
+                              badgeTitle: '오늘의 도전',
+                              blurb: '',
+                              headline: ctx.n + '님, 학습을 마친 걸 응원해요!',
+                              copies: [ctx.n + '님 오늘도 고생 많았어요.', ctx.n + '님 멋져요!', ctx.n + '님 최고 👏'],
+                              labels: ['🤗 따뜻하게 복사', '⚡ 신나게 복사', '✨ 짧게 복사']
+                          };
+                document.getElementById('praise-emoji').textContent = pack.emoji || '🏆';
+                document.getElementById('praise-badge-title').textContent = '「' + (pack.badgeTitle || '') + '」';
+                document.getElementById('praise-main-title').textContent =
+                    ctx.k === 'exam' ? '분석까지, 수고했어요!' : '축하 배지 도착!';
+                document.getElementById('praise-headline').textContent = pack.headline || '';
+                document.getElementById('praise-blurb').textContent = pack.blurb || '';
+                const wrap = document.getElementById('praise-copy-wrap');
+                wrap.innerHTML = '';
+                (pack.labels || []).forEach(function (label, idx) {
+                    if (!pack.copies || pack.copies[idx] == null) return;
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'copy-btn';
+                    btn.textContent = label;
+                    btn.onclick = function () {
+                        copyText(pack.copies[idx], label);
+                    };
+                    wrap.appendChild(btn);
+                });
+                document.getElementById('praise-kakao-btn').onclick = returnKakao;
+                document.getElementById('view-praise').classList.add('show');
+            }
+
+            if (params.get('praise') === 'true') {
+                showPraise();
+            } else {
+                showResult();
+            }
+        })();
+    </script>
+</body>
+</html>

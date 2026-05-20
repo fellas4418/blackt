@@ -67,15 +67,22 @@ function checkAppJsSurface() {
         'bindStudyCompleteActionsOnce',
         'adminGoDayCompleteKakaoScreen',
         'adminTestKakaoShareOnly',
-        'isAdminDayCompleteSharePreview'
+        'isAdminDayCompleteSharePreview',
+        'KAKAO_SHARE_ORIGIN',
+        'kakaoShareReceiverUrl',
+        '/praise-receiver.html'
     ];
     for (const token of required) {
         if (!app.includes(token)) fail('app.js missing: ' + token);
         else pass('app.js has ' + token);
     }
-    if (app.includes('KAKAO/i.test') && app.includes('runClipboardFallback();\n        return;')) {
-        fail('app.js still has Kakao-in-app early return that skips SDK share');
-    }
+    if (!fs.existsSync(path.join(root, 'praise-receiver.html'))) fail('praise-receiver.html missing');
+    else pass('praise-receiver.html exists');
+    if (app.includes("window.location.origin + '/index.html'") && app.includes('share_result=1')) {
+        fail('buildVocaShareBundle still uses window.location.origin for share links');
+    } else pass('share links not tied to window.location.origin');
+    if (app.includes('tri3.imweb.me')) fail('app.js must not reference tri3.imweb.me in share path');
+    else pass('app.js has no tri3.imweb.me share reference');
 }
 
 function checkStudyHtml() {

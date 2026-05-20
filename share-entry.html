@@ -106,22 +106,27 @@
                 }
             };
 
+            const KAKAO_SHARE_ORIGIN = 'https://blackt.pages.dev';
             const params = new URLSearchParams(location.search);
             const path = (params.get('path') || '/index.html').trim();
             const praise = params.get('praise') === '1';
             const zone = (params.get('zone') || '').trim();
             const pcParam = params.get('pc');
             const targetPath = path.startsWith('/') ? path : '/' + path;
-            const finalUrl = new URL(targetPath, location.origin);
+            const isVocaPath = /index\.html/i.test(targetPath);
+            const finalUrl = new URL(
+                isVocaPath || praise ? '/praise-receiver.html' : targetPath,
+                isVocaPath || praise ? KAKAO_SHARE_ORIGIN : location.origin
+            );
             if (praise) {
                 finalUrl.searchParams.set('praise', 'true');
-            } else if (/index\.html/i.test(targetPath)) {
+            } else if (isVocaPath) {
                 finalUrl.searchParams.set('share_result', '1');
             }
             if (pcParam) finalUrl.searchParams.set('pc', pcParam);
             if (zone) finalUrl.searchParams.set('zone', zone);
 
-            const isVocaReceiver = praise || (/index\.html/i.test(targetPath) && !!pcParam);
+            const isVocaReceiver = praise || (isVocaPath && !!pcParam);
 
             try {
                 const name = String(localStorage.getItem('trigger_name') || '').trim();

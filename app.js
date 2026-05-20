@@ -91,8 +91,14 @@ let studyLoopCount = 1;
 const COOL_DOWN_TIME = 3 * 60 * 1000; 
 const DAILY_CYCLE_COUNT = 5;
 const TRIGGER_IMG_DIR = '로고, 이미지/';
+/** 카톡 공유 링크 고정 도메인 (다른 origin 사용 금지) */
+const KAKAO_SHARE_ORIGIN = 'https://blackt.pages.dev';
 function triggerPagesImgUrl(fileName) {
-    return 'https://blackt.pages.dev/' + encodeURI(TRIGGER_IMG_DIR + fileName);
+    return KAKAO_SHARE_ORIGIN + '/' + encodeURI(TRIGGER_IMG_DIR + fileName);
+}
+function kakaoShareReceiverUrl(query) {
+    const q = String(query || '').replace(/^\?/, '');
+    return KAKAO_SHARE_ORIGIN + '/praise-receiver.html' + (q ? '?' + q : '');
 }
 
 let __studyCkptPhase = 'study';
@@ -1392,10 +1398,9 @@ function buildVocaShareBundle() {
     }
     const pc =
         typeof TriggerPraise !== 'undefined' && TriggerPraise.encodePc ? TriggerPraise.encodePc(st) : '';
-    const baseIndex = window.location.origin + '/index.html';
-    const pcQ = pc ? `&pc=${encodeURIComponent(pc)}` : '';
-    const shareUrl = `${baseIndex}?share_result=1${pcQ}`;
-    const praiseShareUrl = `${baseIndex}?praise=true${pcQ}`;
+    const pcQ = pc ? 'pc=' + encodeURIComponent(pc) : '';
+    const shareUrl = kakaoShareReceiverUrl('share_result=1' + (pcQ ? '&' + pcQ : ''));
+    const praiseShareUrl = kakaoShareReceiverUrl('praise=true' + (pcQ ? '&' + pcQ : ''));
 
     let badgeLine = '';
     try {
