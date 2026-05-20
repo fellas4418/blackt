@@ -90,6 +90,10 @@ let targetWords = [];
 let studyLoopCount = 1; 
 const COOL_DOWN_TIME = 3 * 60 * 1000; 
 const DAILY_CYCLE_COUNT = 5;
+const TRIGGER_IMG_DIR = '로고, 이미지/';
+function triggerPagesImgUrl(fileName) {
+    return 'https://blackt.pages.dev/' + encodeURI(TRIGGER_IMG_DIR + fileName);
+}
 
 let __studyCkptPhase = 'study';
 const STUDY_CHECKPOINT_KEY = 'trigger_study_ckpt_v1';
@@ -109,7 +113,7 @@ function triggerShowCooldownDoneNotification() {
     const title = '🧠 사라져 Voca';
     const options = {
         body: '3분 쉼이 끝났어요. 다음 사이클을 시작해 보세요! 🔥',
-        icon: 'icon-192.png',
+        icon: TRIGGER_IMG_DIR + 'icon-192.png',
         tag: 'blackt-cooldown-done',
         vibrate: [200, 100, 200]
     };
@@ -1411,7 +1415,7 @@ function buildVocaShareBundle() {
             content: {
                 title,
                 description,
-                imageUrl: 'https://blackt.pages.dev/share-v2.png',
+                imageUrl: triggerPagesImgUrl('share-v2.png'),
                 link: { mobileWebUrl: shareUrl, webUrl: shareUrl }
             },
             buttons: [

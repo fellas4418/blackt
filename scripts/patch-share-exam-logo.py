@@ -7,8 +7,9 @@ from pathlib import Path
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
+IMG_DIR = ROOT / "로고, 이미지"
 ASSETS = Path(r"C:\Users\noto0\.cursor\projects\c-Users-noto0-Desktop\assets")
-OUT = ROOT / "share-exam-report.png"
+OUT = IMG_DIR / "share-exam-report.png"
 
 
 def find_asset(substr: str) -> Path | None:

@@ -1,0 +1,12 @@
+---
+description: 로고·공유 PNG는 로고, 이미지/ 폴더에 저장
+alwaysApply: true
+---
+
+# 로고·공유 이미지 경로
+
+앱에서 쓰는 PNG(아이콘, 카톡 OG, share-v2, share-exam-report 등)는 **프로젝트 루트가 아니라 `로고, 이미지/`** 에 둡니다.
+
+- 로컬·manifest: `로고, 이미지/icon-192.png` 형식
+- Pages 절대 URL: `https://blackt.pages.dev/` + `encodeURI('로고, 이미지/파일명')`
+- 이미지 생성·패치 스크립트 출력도 `로고, 이미지/` 로 저장

@@ -1953,6 +1953,10 @@
         const params = new URLSearchParams(window.location.search);
         const workerOverride = (params.get('worker') || '').trim();
         const WORKER_URL = (workerOverride ? workerOverride.replace(/\/$/, '') + '/' : 'https://trigger-ocr-api.ohryee.workers.dev/');
+        const TRIGGER_IMG_DIR = '로고, 이미지/';
+        function triggerPagesImgUrl(fileName) {
+            return 'https://blackt.pages.dev/' + encodeURI(TRIGGER_IMG_DIR + fileName);
+        }
         function buildAnalysisContextTrim(searchParams) {
             const parts = ['grade', 'type', 'detail'].map(function (k) {
                 return String(searchParams.get(k) || '').trim();
@@ -7347,7 +7351,7 @@
                 content: {
                     title: '📊 [' + userName + ']님 시험 분석 리포트',
                     description: desc,
-                    imageUrl: 'https://blackt.pages.dev/share-exam-report.png?v=3',
+                    imageUrl: triggerPagesImgUrl('share-exam-report.png') + '?v=3',
                     link: { mobileWebUrl: shareUrl, webUrl: shareUrl }
                 },
                 buttons: [{ title: '시험 분석 앱에서 보기', link: { mobileWebUrl: shareUrl, webUrl: shareUrl } }]
@@ -7457,7 +7461,7 @@
                 const options = {
                     body: '시험 분석 리포트에 선생님 코멘트가 추가되었어요.',
                     tag: 'exam-teacher-comment-' + String(reportId || ''),
-                    icon: 'icon-192.png'
+                    icon: TRIGGER_IMG_DIR + 'icon-192.png'
                 };
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.getRegistration().then(function (reg) {

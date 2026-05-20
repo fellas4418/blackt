@@ -145,7 +145,7 @@ function simulateBundle(TriggerPraise) {
         content: {
             title,
             description: description + badgeLine,
-            imageUrl: 'https://blackt.pages.dev/share-v2.png',
+            imageUrl: 'https://blackt.pages.dev/' + encodeURI('로고, 이미지/share-v2.png'),
             link: { mobileWebUrl: 'https://example.com/share-entry.html', webUrl: 'https://example.com/share-entry.html' }
         }
     };

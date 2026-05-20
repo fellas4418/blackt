@@ -6,7 +6,8 @@ from pathlib import Path
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
-FILES = ["share-exam-report.png", "share-exam-report-alt.png"]
+IMG_DIR = ROOT / "로고, 이미지"
+FILES = [IMG_DIR / "share-exam-report.png", IMG_DIR / "share-exam-report-alt.png"]
 
 
 def to_square(path: Path) -> None:
@@ -24,8 +25,7 @@ def to_square(path: Path) -> None:
 
 
 def main() -> None:
-    for name in FILES:
-        p = ROOT / name
+    for p in FILES:
         if p.is_file():
             to_square(p)
 
