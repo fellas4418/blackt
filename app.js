@@ -1582,6 +1582,7 @@ window.adminGoDayCompleteKakaoScreen = function () {
         const shareBtn = ev.target && ev.target.closest ? ev.target.closest('#btn-study-kakao-share') : null;
         const exitBtn = ev.target && ev.target.closest ? ev.target.closest('#btn-study-exit-home') : null;
         if (!shareBtn && !exitBtn) return;
+        if ((shareBtn && typeof shareBtn.onclick === 'function') || (exitBtn && typeof exitBtn.onclick === 'function')) return;
         ev.preventDefault();
         ev.stopPropagation();
         if (shareBtn && typeof shareKakao === 'function') shareKakao();
