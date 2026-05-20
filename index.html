@@ -380,10 +380,10 @@
                     ⚡ 쿨타임(3분 휴식) 즉시 삭제
                 </button>
 
-                <button type="button" onclick="adminGoDayCompleteKakaoScreen()" style="width:100%; padding:14px; background:#fee500; color:#000; border:none; border-radius:8px; font-weight:bold; cursor:pointer; font-size:0.92rem;">
+                <button type="button" id="btn-admin-kakao-complete" style="width:100%; padding:14px; background:#fee500; color:#000; border:none; border-radius:8px; font-weight:bold; cursor:pointer; font-size:0.92rem;">
                     ✅ 당일 테스트 완료 → 카톡 공유 화면
                 </button>
-                <button type="button" onclick="adminTestKakaoShareOnly()" style="width:100%; padding:12px; background:#222; border:1px solid #fee500; color:#fee500; border-radius:8px; font-weight:bold; cursor:pointer; font-size:0.88rem;">
+                <button type="button" id="btn-admin-kakao-share-only" style="width:100%; padding:12px; background:#222; border:1px solid #fee500; color:#fee500; border-radius:8px; font-weight:bold; cursor:pointer; font-size:0.88rem;">
                     🟡 카톡 공유만 바로 테스트
                 </button>
             
@@ -688,6 +688,70 @@
             const menu = document.getElementById('admin-menu');
             if (menu) menu.style.setProperty('display', 'flex', 'important');
         }
+
+        function adminGoDayCompleteKakaoScreenIndex() {
+            if (localStorage.getItem('trigger_admin_mode') !== 'true') {
+                alert('관리자 모드를 먼저 켜 주세요. (제목 3번 탭)');
+                return;
+            }
+            const lvl = localStorage.getItem('trigger_level') || 'middle';
+            const currentDay = parseInt(localStorage.getItem('trigger_current_day_' + lvl), 10) || 1;
+            const localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
+            const isReviewDay = localDay === 6 || localDay === 7;
+            const finalSession = isReviewDay ? '2' : '5';
+            localStorage.setItem('trigger_session_' + lvl, finalSession);
+            try {
+                localStorage.removeItem('voca_practice_list');
+                localStorage.removeItem('trigger_custom_voca_mode');
+                localStorage.removeItem('trigger_custom_voca_return_url');
+                localStorage.removeItem('trigger_jump_test');
+                localStorage.removeItem('blackt_cooldown');
+                sessionStorage.removeItem('trigger_study_ckpt_v1');
+            } catch (e) {}
+            if (typeof window.clearBlacktCooldownNotifySchedule === 'function') {
+                window.clearBlacktCooldownNotifySchedule();
+            }
+            location.href = 'study.html?admin_complete_share=1';
+        }
+
+        function adminTestKakaoShareOnlyIndex() {
+            if (localStorage.getItem('trigger_admin_mode') !== 'true') {
+                alert('관리자 모드를 먼저 켜 주세요. (제목 3번 탭)');
+                return;
+            }
+            if (typeof window.shareKakao === 'function') {
+                try {
+                    if (typeof window.initKakao === 'function') window.initKakao();
+                } catch (e) {}
+                Promise.resolve(window.shareKakao()).catch(function () {
+                    alert('카톡 공유를 실행하지 못했어요. 잠시 후 다시 시도해 주세요.');
+                });
+                return;
+            }
+            alert('공유 기능을 불러오는 중입니다. 2~3초 후 다시 눌러 주세요.');
+        }
+
+        function bindAdminKakaoTestButtons() {
+            const goBtn = document.getElementById('btn-admin-kakao-complete');
+            const testBtn = document.getElementById('btn-admin-kakao-share-only');
+            if (goBtn) {
+                goBtn.onclick = function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    adminGoDayCompleteKakaoScreenIndex();
+                };
+            }
+            if (testBtn) {
+                testBtn.onclick = function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    adminTestKakaoShareOnlyIndex();
+                };
+            }
+        }
+        window.adminGoDayCompleteKakaoScreen = adminGoDayCompleteKakaoScreenIndex;
+        window.adminTestKakaoShareOnly = adminTestKakaoShareOnlyIndex;
+        bindAdminKakaoTestButtons();
 
         function jumpToSession(sessionNum) {
             const lvl = localStorage.getItem('trigger_level') || 'middle';
@@ -1638,11 +1702,12 @@
         document.getElementById('login-submit-btn').onclick = secureHandleLogin;
 
     </script>
-    <script src="worddata.js"></script>
-    <script src="words.js"></script>
     <script src="praise-share.js?v=20260517_kakao_return"></script>
     <script src="app.js?v=20260520_admin_kakao_fix"></script>
+    <script src="worddata.js"></script>
+    <script src="words.js"></script>
     <script>
+        bindAdminKakaoTestButtons();
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function () {
                 navigator.serviceWorker.register('./service-worker.js').then(function (reg) {
