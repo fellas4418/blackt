@@ -97,6 +97,121 @@ function checkStudyHtml() {
     else pass('study.html has no <motion> tag');
 }
 
+function simulateShareEntry(search, storageData) {
+    const html = fs.readFileSync(path.join(root, 'share-entry.html'), 'utf8');
+    const match = html.match(/<script>([\s\S]*?)<\/script>/);
+    if (!match) throw new Error('share-entry.html inline script not found');
+
+    const location = {
+        origin: 'https://blackt.pages.dev',
+        search,
+        replaced: '',
+        _href: '',
+        replace(url) {
+            this.replaced = String(url);
+        }
+    };
+    Object.defineProperty(location, 'href', {
+        get() {
+            return this._href;
+        },
+        set(url) {
+            this._href = String(url);
+        }
+    });
+
+    const elements = {};
+    const document = {
+        getElementById(id) {
+            if (!elements[id]) {
+                elements[id] = {
+                    textContent: '',
+                    onclick: null,
+                    classList: {
+                        add() {},
+                        remove() {}
+                    }
+                };
+            }
+            return elements[id];
+        }
+    };
+    const navigator = { userAgent: '' };
+    const sandbox = {
+        URL,
+        URLSearchParams,
+        location,
+        document,
+        navigator,
+        window: {
+            navigator: { standalone: false },
+            matchMedia() {
+                return { matches: false };
+            }
+        },
+        localStorage: {
+            _d: storageData || {},
+            getItem(key) {
+                return this._d[key] ?? null;
+            }
+        },
+        btoa: (s) => Buffer.from(s, 'binary').toString('base64'),
+        encodeURIComponent,
+        unescape,
+        setTimeout(fn) {
+            if (typeof fn === 'function') fn();
+        }
+    };
+    vm.runInNewContext(match[1], sandbox, { filename: 'share-entry.html' });
+    const routed = location.replaced || location.href;
+    if (!routed) throw new Error('share-entry.html did not route');
+    return new URL(routed, location.origin);
+}
+
+function checkShareEntryRouting() {
+    let appUrl = null;
+    try {
+        appUrl = simulateShareEntry('?path=index.html');
+    } catch (e) {
+        fail('share-entry app invite simulation threw: ' + e.message);
+        return;
+    }
+    if (appUrl.origin !== 'https://blackt.pages.dev' || appUrl.pathname !== '/index.html') {
+        fail('plain app invite must route to index.html, got ' + appUrl.toString());
+    } else if (appUrl.searchParams.has('share_result')) {
+        fail('plain app invite must not open result receiver mode');
+    } else {
+        pass('share-entry routes plain app invite to index.html');
+    }
+
+    const resultUrl = simulateShareEntry('?path=index.html&pc=abc123');
+    if (resultUrl.origin !== 'https://blackt.pages.dev' || resultUrl.pathname !== '/praise-receiver.html' || resultUrl.searchParams.get('pc') !== 'abc123') {
+        fail('voca result share must route to praise-receiver.html with pc');
+    } else {
+        pass('share-entry routes voca result share to receiver');
+    }
+
+    const escapedUrl = simulateShareEntry('?path=%2F%2Fevil.example%2Fsteal', {
+        trigger_name: '테스트',
+        trigger_phone: '01012345678'
+    });
+    if (escapedUrl.hostname !== 'blackt.pages.dev') {
+        fail('share-entry allowed protocol-relative external host: ' + escapedUrl.toString());
+    } else {
+        pass('share-entry blocks protocol-relative external host');
+    }
+
+    const backslashUrl = simulateShareEntry('?path=%2F%5Cevil.example%2Fsteal', {
+        trigger_name: '테스트',
+        trigger_phone: '01012345678'
+    });
+    if (backslashUrl.hostname !== 'blackt.pages.dev') {
+        fail('share-entry allowed backslash external host: ' + backslashUrl.toString());
+    } else {
+        pass('share-entry blocks backslash external host');
+    }
+}
+
 function checkPraiseShare(TriggerPraise) {
     if (!TriggerPraise) {
         fail('TriggerPraise not exported');
@@ -164,6 +279,8 @@ console.log('--- 카톡 공유 회귀 검사 ---\n');
 checkAppJsSurface();
 console.log('');
 checkStudyHtml();
+console.log('');
+checkShareEntryRouting();
 console.log('');
 const TP = loadPraiseShare();
 checkPraiseShare(TP);
