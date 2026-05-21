@@ -1659,7 +1659,7 @@
                 <p class="guide-text" style="font-size:0.8rem; color:#888; margin:0 0 10px 0;">학생이 「리포트 저장」을 하면 접수 목록에 쌓입니다. 원장·관리자만 아래에서 확인·코멘트할 수 있습니다.</p>
                 <div id="exam-rpt-admin-key-wrap" style="margin:0 0 10px 0;">
                     <label for="exam-rpt-admin-api-key" style="font-size:0.78rem;color:#888;display:block;margin:0 0 4px 0;">관리자 연동 키 (최초 1회)</label>
-                    <input type="password" id="exam-rpt-admin-api-key" class="auth-input" style="width:100%;box-sizing:border-box;" placeholder="Worker API_SECRET_KEY" autocomplete="off">
+                    <input type="password" id="exam-rpt-admin-api-key" class="auth-input" style="width:100%;box-sizing:border-box;" autocomplete="off">
                 </div>
                 <button type="button" id="exam-rpt-admin-load-list" class="login-btn" style="width:100%;margin:0 0 10px 0;border-color:#ffcc80;color:#ffcc80;">의뢰 목록 새로고침</button>
                 <div id="exam-rpt-admin-list" style="font-size:0.82rem;color:#ccc;margin:0 0 12px 0;line-height:1.55;"></div>
@@ -2729,6 +2729,20 @@
             try {
                 if (ez) ez.scrollIntoView({ behavior: 'smooth', block: 'start' });
             } catch (e) {}
+        }
+
+        /** 시험 리포트 추출 직후: 문항·배점표가 보이도록 스크롤 (모바일에서 아래 리포트 미인지 방지) */
+        function scrollToExamReportQuestions() {
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                    try {
+                        const el =
+                            document.getElementById('exam-rpt-toggle-questions') ||
+                            document.getElementById('exam-rpt-after-extract');
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    } catch (e) {}
+                });
+            });
         }
 
         function notifyPassageResultShownInHistory() {
@@ -7190,6 +7204,7 @@
                 examRptEnsureQuestionState();
                 document.getElementById('exam-rpt-after-extract').style.display = 'block';
                 examRptRenderQuestions();
+                scrollToExamReportQuestions();
                 try {
                     examHistoryUpsertFromCurrent();
                 } catch (e) {}
