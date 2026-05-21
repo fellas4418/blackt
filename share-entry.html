@@ -112,21 +112,23 @@
             const praise = params.get('praise') === '1';
             const zone = (params.get('zone') || '').trim();
             const pcParam = params.get('pc');
-            const targetPath = path.startsWith('/') ? path : '/' + path;
+            const normalizeTargetPath = (value) => {
+                const cleaned = String(value || '/index.html').trim().replace(/\\/g, '/');
+                const withSlash = cleaned.startsWith('/') ? cleaned : '/' + cleaned;
+                return withSlash.startsWith('//') ? '/index.html' : withSlash;
+            };
+            const targetPath = normalizeTargetPath(path);
             const isVocaPath = /index\.html/i.test(targetPath);
+            const isVocaReceiver = praise || (isVocaPath && !!pcParam);
             const finalUrl = new URL(
-                isVocaPath || praise ? '/praise-receiver.html' : targetPath,
-                isVocaPath || praise ? KAKAO_SHARE_ORIGIN : location.origin
+                isVocaReceiver ? '/praise-receiver.html' : targetPath,
+                isVocaReceiver ? KAKAO_SHARE_ORIGIN : location.origin
             );
             if (praise) {
                 finalUrl.searchParams.set('praise', 'true');
-            } else if (isVocaPath) {
-                finalUrl.searchParams.set('share_result', '1');
             }
             if (pcParam) finalUrl.searchParams.set('pc', pcParam);
             if (zone) finalUrl.searchParams.set('zone', zone);
-
-            const isVocaReceiver = praise || (isVocaPath && !!pcParam);
 
             try {
                 const name = String(localStorage.getItem('trigger_name') || '').trim();
