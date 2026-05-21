@@ -1661,7 +1661,7 @@
                     <label for="exam-rpt-admin-api-key" style="font-size:0.78rem;color:#888;display:block;margin:0 0 4px 0;">관리자 연동 키 (최초 1회)</label>
                     <input type="password" id="exam-rpt-admin-api-key" class="auth-input" style="width:100%;box-sizing:border-box;" autocomplete="off">
                 </div>
-                <button type="button" id="exam-rpt-admin-load-list" class="login-btn" style="width:100%;margin:0 0 10px 0;border-color:#ffcc80;color:#ffcc80;">의뢰 목록 새로고침</button>
+                <button type="button" id="exam-rpt-admin-load-list" class="login-btn" style="width:100%;margin:0 0 10px 0;border-color:#ffcc80;color:#ffcc80;">학생 의뢰 목록 새로고침</button>
                 <div id="exam-rpt-admin-list" style="font-size:0.82rem;color:#ccc;margin:0 0 12px 0;line-height:1.55;"></div>
                 <textarea id="exam-rpt-admin-comment" rows="4" style="width:100%; box-sizing:border-box; background:#111; border:1px solid #444; color:#fff; border-radius:8px; padding:10px; font-size:0.9rem;" placeholder="선택한 의뢰에 남길 코멘트"></textarea>
                 <button type="button" id="exam-rpt-admin-save-comment" class="login-btn" style="width:100%;margin-top:8px;border-color:#ff9a5c;color:#ff9a5c;">선택 의뢰에 코멘트 저장</button>
@@ -6306,6 +6306,22 @@
             return localStorage.getItem('trigger_admin_mode') === 'true';
         }
 
+        function examRptExamTypeLabel(code) {
+            const c = String(code || '').trim();
+            if (!c) return '—';
+            const sel = document.getElementById('exam-rpt-exam-type');
+            if (sel && sel.options) {
+                for (let i = 0; i < sel.options.length; i++) {
+                    const opt = sel.options[i];
+                    if (opt && opt.value === c) {
+                        const t = String(opt.text || '').trim();
+                        if (t && t !== '선택') return t;
+                    }
+                }
+            }
+            return c;
+        }
+
         let examRptAdminListAutoLoaded = false;
 
         function examRptPersistAdminApiKey() {
@@ -6335,7 +6351,7 @@
             const listEl = document.getElementById('exam-rpt-admin-list');
             if (!key) {
                 if (listEl && !String(listEl.textContent || '').trim()) {
-                    listEl.textContent = '관리자 연동 키를 입력한 뒤 「의뢰 목록 새로고침」을 눌러 주세요.';
+                    listEl.textContent = '관리자 연동 키를 입력한 뒤 「학생 의뢰 목록 새로고침」을 눌러 주세요.';
                 }
                 return;
             }
@@ -6410,7 +6426,7 @@
                             ' · ' +
                             escapeHtml(String(item.school_name || '')) +
                             ' · ' +
-                            escapeHtml(String(item.exam_type || ''));
+                            escapeHtml(examRptExamTypeLabel(item.exam_type));
                         return (
                             '<button type="button" class="exam-rpt-admin-pick login-btn" data-id="' +
                             escapeHtml(String(item.id || '')) +
@@ -6444,7 +6460,7 @@
 
         async function examRptAdminSaveComment() {
             if (!examRptAdminSelectedId) {
-                alert('의뢰 목록에서 리포트를 먼저 선택해 주세요.');
+                alert('학생 의뢰 목록에서 리포트를 먼저 선택해 주세요.');
                 return;
             }
             const comment = (document.getElementById('exam-rpt-admin-comment') && document.getElementById('exam-rpt-admin-comment').value) || '';
@@ -7853,7 +7869,7 @@
                         localStorage.setItem('trigger_admin_mode', 'true');
                         examRptAdminListAutoLoaded = false;
                         examRptSyncAdminSection();
-                        alert('🛠️ 관리자 모드 활성화!\n선생님 메모·의뢰 목록을 사용할 수 있습니다.');
+                        alert('🛠️ 관리자 모드 활성화!\n선생님 메모·학생 의뢰 목록을 사용할 수 있습니다.');
                     }
                 });
             })();
