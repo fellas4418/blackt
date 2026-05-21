@@ -664,10 +664,9 @@
             } catch (e) {}
         }
         
+        // [수정] 자정에 세션·진도 초기화 금지 (app.js와 동일). 날짜 기록·추가 Day 잠금해제 횟수만 갱신.
         if (localStorage.getItem('trigger_date') !== todayStr) {
             localStorage.setItem('trigger_date', todayStr);
-            localStorage.setItem('trigger_session_middle', '1');
-            localStorage.setItem('trigger_session_high', '1');
             localStorage.setItem('trigger_unlocked_extra_today_middle', '0');
             localStorage.setItem('trigger_unlocked_extra_today_high', '0');
         }
