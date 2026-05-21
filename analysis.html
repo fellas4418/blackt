@@ -3030,21 +3030,54 @@
             });
         }
 
+        const PASSAGE_IMAGE_MAX_LONG = 1600;
+        const PASSAGE_IMAGE_JPEG_QUALITY = 0.9;
+
+        function compressPassageImageSource(src, done) {
+            const img = new Image();
+            img.onload = function () {
+                try {
+                    const nw = img.naturalWidth || img.width || 0;
+                    const nh = img.naturalHeight || img.height || 0;
+                    if (!nw || !nh) { done(null); return; }
+                    const long = Math.max(nw, nh);
+                    const scale = long > PASSAGE_IMAGE_MAX_LONG ? PASSAGE_IMAGE_MAX_LONG / long : 1;
+                    const canvas = document.createElement('canvas');
+                    canvas.width = Math.max(1, Math.round(nw * scale));
+                    canvas.height = Math.max(1, Math.round(nh * scale));
+                    const ctx = canvas.getContext('2d');
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    const dataUrl = canvas.toDataURL('image/jpeg', PASSAGE_IMAGE_JPEG_QUALITY);
+                    done({ dataUrl: dataUrl, base64: dataUrl.split(',')[1] });
+                } catch (e) {
+                    done(null);
+                }
+            };
+            img.onerror = function () { done(null); };
+            img.src = src;
+        }
+
         function loadImg(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    selectedBase64 = e.target.result.split(',')[1];
-                    const prev = document.getElementById('preview');
-                    prev.src = e.target.result;
-                    prev.style.display = 'block';
-                    prev.classList.add('upload-preview-tappable');
-                    document.getElementById('label').style.display = 'none';
-                    document.getElementById('ai-btn-area').style.display = 'block';
-                    bindPassagePreviewLightboxOnce();
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
+            if (!input.files || !input.files[0]) return;
+            const blobUrl = URL.createObjectURL(input.files[0]);
+            compressPassageImageSource(blobUrl, function (out) {
+                URL.revokeObjectURL(blobUrl);
+                if (!out || !out.base64) {
+                    selectedBase64 = '';
+                    alert('사진을 불러오지 못했어요. 다른 사진으로 다시 시도해 주세요.');
+                    return;
+                }
+                selectedBase64 = out.base64;
+                const prev = document.getElementById('preview');
+                prev.src = out.dataUrl;
+                prev.style.display = 'block';
+                prev.classList.add('upload-preview-tappable');
+                document.getElementById('label').style.display = 'none';
+                document.getElementById('ai-btn-area').style.display = 'block';
+                bindPassagePreviewLightboxOnce();
+            });
         }
 
         function showDirectInput() {
@@ -8036,20 +8069,7 @@
 
                 let finalImageData = null;
                 if (!isTextMode && selectedBase64) {
-                    const img = document.getElementById('preview');
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const nw = img.naturalWidth || 0;
-                    const nh = img.naturalHeight || 0;
-                    const maxLong = 1600;
-                    const long = Math.max(nw, nh);
-                    const scale = long > maxLong ? maxLong / long : 1;
-                    canvas.width = Math.max(1, Math.round(nw * scale));
-                    canvas.height = Math.max(1, Math.round(nh * scale));
-                    ctx.imageSmoothingEnabled = true;
-                    ctx.imageSmoothingQuality = 'high';
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    finalImageData = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
+                    finalImageData = selectedBase64;
                 }
 
                 let passageFingerprint = '';
