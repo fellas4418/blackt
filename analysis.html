@@ -6346,6 +6346,25 @@
         }
 
         let examRptAdminSelectedId = '';
+        let examRptAdminListCache = [];
+
+        function examRptAdminApplyPick(id) {
+            examRptAdminSelectedId = String(id || '').trim();
+            const listEl = document.getElementById('exam-rpt-admin-list');
+            const commentEl = document.getElementById('exam-rpt-admin-comment');
+            const picked = examRptAdminListCache.find(function (x) {
+                return x && String(x.id || '') === examRptAdminSelectedId;
+            });
+            if (commentEl) {
+                commentEl.value = picked ? String(picked.admin_comment || '') : '';
+            }
+            if (listEl) {
+                listEl.querySelectorAll('.exam-rpt-admin-pick').forEach(function (b) {
+                    const bid = b.getAttribute('data-id') || '';
+                    b.style.outline = bid === examRptAdminSelectedId ? '1px solid #ff9a5c' : '';
+                });
+            }
+        }
 
         async function examRptAdminPost(path, body) {
             const apiKey = examRptPersistAdminApiKey() || (localStorage.getItem('trigger_exam_admin_api_key') || '').trim();
@@ -6372,7 +6391,11 @@
             try {
                 const data = await examRptAdminPost('/api/exam-report/admin/list', {});
                 const items = Array.isArray(data.items) ? data.items : [];
+                examRptAdminListCache = items;
                 if (!items.length) {
+                    examRptAdminSelectedId = '';
+                    const commentEl = document.getElementById('exam-rpt-admin-comment');
+                    if (commentEl) commentEl.value = '';
                     listEl.textContent =
                         '접수된 리포트가 없습니다.\n(학생이 「리포트 저장」을 눌러 서버 저장이 완료된 건만 표시됩니다. 기기만 저장·API 미배포 시 목록에 없어요.)';
                     return;
@@ -6402,12 +6425,12 @@
                     .join('');
                 listEl.querySelectorAll('.exam-rpt-admin-pick').forEach(function (btn) {
                     btn.addEventListener('click', function () {
-                        examRptAdminSelectedId = btn.getAttribute('data-id') || '';
-                        listEl.querySelectorAll('.exam-rpt-admin-pick').forEach(function (b) {
-                            b.style.outline = b === btn ? '1px solid #ff9a5c' : '';
-                        });
+                        examRptAdminApplyPick(btn.getAttribute('data-id') || '');
                     });
                 });
+                if (examRptAdminSelectedId) {
+                    examRptAdminApplyPick(examRptAdminSelectedId);
+                }
             } catch (e) {
                 const msg = e.message || String(e);
                 if (/unauthorized/i.test(msg)) {
