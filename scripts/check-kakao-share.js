@@ -97,6 +97,111 @@ function checkStudyHtml() {
     else pass('study.html has no <motion> tag');
 }
 
+function runShareEntry(search) {
+    const html = fs.readFileSync(path.join(root, 'share-entry.html'), 'utf8');
+    const match = html.match(/<script>\s*([\s\S]*?)<\/script>/);
+    if (!match) {
+        fail('share-entry.html inline script missing');
+        return null;
+    }
+
+    let redirected = '';
+    const fakeEl = () => ({
+        textContent: '',
+        classList: { add() {}, remove() {} },
+        onclick: null
+    });
+    const navigatorStub = { userAgent: '', standalone: false };
+    const sandbox = {
+        window: {
+            matchMedia: () => ({ matches: true }),
+            navigator: navigatorStub
+        },
+        navigator: navigatorStub,
+        document: {
+            getElementById: () => fakeEl()
+        },
+        localStorage: {
+            getItem(k) {
+                if (k === 'trigger_name') return '테스트';
+                if (k === 'trigger_phone') return '01012345678';
+                return null;
+            }
+        },
+        location: {
+            origin: 'https://example.test',
+            search,
+            replace(url) {
+                redirected = url;
+            }
+        },
+        URL,
+        URLSearchParams,
+        btoa: (s) => Buffer.from(s, 'binary').toString('base64'),
+        encodeURIComponent,
+        unescape: (s) => decodeURIComponent(s.replace(/%([0-9A-F]{2})/gi, '%$1')),
+        setTimeout: (fn) => {
+            fn();
+            return 1;
+        }
+    };
+
+    vm.runInNewContext(match[1], sandbox, { filename: 'share-entry.html' });
+    return redirected ? new URL(redirected) : null;
+}
+
+function checkShareEntryRouting() {
+    const invite = runShareEntry('?path=index.html');
+    if (!invite || invite.origin !== 'https://example.test' || invite.pathname !== '/index.html') {
+        fail('share-entry app invite must stay on index.html');
+    } else if (invite.searchParams.get('share_result') === '1') {
+        fail('share-entry app invite must not become share_result');
+    } else if (!invite.searchParams.get('au')) {
+        fail('share-entry app invite should keep index.html auth handoff');
+    } else {
+        pass('share-entry app invite routes to index.html');
+    }
+
+    const result = runShareEntry('?path=index.html&pc=abc123');
+    if (
+        !result ||
+        result.origin !== 'https://blackt.pages.dev' ||
+        result.pathname !== '/praise-receiver.html' ||
+        result.searchParams.get('share_result') !== '1' ||
+        result.searchParams.get('pc') !== 'abc123'
+    ) {
+        fail('share-entry result share must route to praise-receiver with pc');
+    } else if (result.searchParams.get('au')) {
+        fail('share-entry must not append auth bundle to praise receiver');
+    } else {
+        pass('share-entry result share routes without auth bundle');
+    }
+
+    const analysis = runShareEntry('?path=analysis.html&zone=exam');
+    if (!analysis || analysis.origin !== 'https://example.test' || analysis.pathname !== '/analysis.html') {
+        fail('share-entry analysis path must stay same-origin');
+    } else if (analysis.searchParams.get('au')) {
+        fail('share-entry must not append auth bundle to analysis path');
+    } else {
+        pass('share-entry analysis path routes without auth bundle');
+    }
+
+    const escaped = runShareEntry('?path=//evil.example/index.html');
+    const backslash = runShareEntry('?path=%5C%5Cevil.example%5Cindex.html');
+    if (
+        !escaped ||
+        !backslash ||
+        escaped.origin !== 'https://example.test' ||
+        backslash.origin !== 'https://example.test' ||
+        escaped.pathname !== '/index.html' ||
+        backslash.pathname !== '/index.html'
+    ) {
+        fail('share-entry must normalize protocol-relative/backslash paths');
+    } else {
+        pass('share-entry blocks external path escapes');
+    }
+}
+
 function checkPraiseShare(TriggerPraise) {
     if (!TriggerPraise) {
         fail('TriggerPraise not exported');
@@ -164,6 +269,8 @@ console.log('--- 카톡 공유 회귀 검사 ---\n');
 checkAppJsSurface();
 console.log('');
 checkStudyHtml();
+console.log('');
+checkShareEntryRouting();
 console.log('');
 const TP = loadPraiseShare();
 checkPraiseShare(TP);
