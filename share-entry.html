@@ -108,32 +108,44 @@
 
             const KAKAO_SHARE_ORIGIN = 'https://blackt.pages.dev';
             const params = new URLSearchParams(location.search);
-            const path = (params.get('path') || '/index.html').trim();
+            const normalizeTargetPath = (value) => {
+                const raw = String(value || '/index.html').trim() || '/index.html';
+                const slashPath = raw.startsWith('/') ? raw : '/' + raw;
+                try {
+                    const parsed = new URL(slashPath, location.origin);
+                    if (parsed.origin !== location.origin) return '/index.html';
+                    return parsed.pathname + parsed.search + parsed.hash;
+                } catch (e) {
+                    return '/index.html';
+                }
+            };
+            const path = params.get('path') || '/index.html';
             const praise = params.get('praise') === '1';
             const zone = (params.get('zone') || '').trim();
             const pcParam = params.get('pc');
-            const targetPath = path.startsWith('/') ? path : '/' + path;
+            const targetPath = normalizeTargetPath(path);
             const isVocaPath = /index\.html/i.test(targetPath);
+            const isVocaReceiver = praise || (isVocaPath && !!pcParam);
             const finalUrl = new URL(
-                isVocaPath || praise ? '/praise-receiver.html' : targetPath,
-                isVocaPath || praise ? KAKAO_SHARE_ORIGIN : location.origin
+                isVocaReceiver ? '/praise-receiver.html' : targetPath,
+                isVocaReceiver ? KAKAO_SHARE_ORIGIN : location.origin
             );
             if (praise) {
                 finalUrl.searchParams.set('praise', 'true');
-            } else if (isVocaPath) {
+            } else if (isVocaReceiver) {
                 finalUrl.searchParams.set('share_result', '1');
             }
             if (pcParam) finalUrl.searchParams.set('pc', pcParam);
             if (zone) finalUrl.searchParams.set('zone', zone);
-
-            const isVocaReceiver = praise || (isVocaPath && !!pcParam);
 
             try {
                 const name = String(localStorage.getItem('trigger_name') || '').trim();
                 const phone = String(localStorage.getItem('trigger_phone') || '').replace(/[^0-9]/g, '');
                 if (name && /^010\d{8}$/.test(phone)) {
                     const au = encodeAuthBundle(name, phone);
-                    if (au) finalUrl.searchParams.set('au', au);
+                    if (au && finalUrl.origin === location.origin && finalUrl.pathname === '/index.html') {
+                        finalUrl.searchParams.set('au', au);
+                    }
                 }
             } catch (e) {}
 
