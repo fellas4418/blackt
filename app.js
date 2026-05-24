@@ -96,9 +96,19 @@ const KAKAO_SHARE_ORIGIN = 'https://blackt.pages.dev';
 function triggerPagesImgUrl(fileName) {
     return KAKAO_SHARE_ORIGIN + '/' + encodeURI(TRIGGER_IMG_DIR + fileName);
 }
+/** 카톡 feed·버튼 링크 — share-entry 경유 (카톡 인앱 → praise-receiver) */
 function kakaoShareReceiverUrl(query) {
     const q = String(query || '').replace(/^\?/, '');
-    return KAKAO_SHARE_ORIGIN + '/praise-receiver.html' + (q ? '?' + q : '');
+    const params = new URLSearchParams(q);
+    const out = new URLSearchParams();
+    if (params.get('praise') === 'true') {
+        out.set('praise', '1');
+    } else {
+        out.set('path', 'index.html');
+    }
+    const pc = params.get('pc');
+    if (pc) out.set('pc', pc);
+    return KAKAO_SHARE_ORIGIN + '/share-entry.html?' + out.toString();
 }
 
 let __studyCkptPhase = 'study';

@@ -70,7 +70,7 @@ function checkAppJsSurface() {
         'isAdminDayCompleteSharePreview',
         'KAKAO_SHARE_ORIGIN',
         'kakaoShareReceiverUrl',
-        '/praise-receiver.html'
+        '/share-entry.html'
     ];
     for (const token of required) {
         if (!app.includes(token)) fail('app.js missing: ' + token);
@@ -83,6 +83,9 @@ function checkAppJsSurface() {
     } else pass('share links not tied to window.location.origin');
     if (app.includes('tri3.imweb.me')) fail('app.js must not reference tri3.imweb.me in share path');
     else pass('app.js has no tri3.imweb.me share reference');
+    if (app.includes("'/praise-receiver.html' + (q")) {
+        fail('kakaoShareReceiverUrl must not link directly to praise-receiver.html');
+    } else pass('kakaoShareReceiverUrl uses share-entry bridge');
 }
 
 function checkStudyHtml() {
