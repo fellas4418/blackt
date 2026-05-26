@@ -30,7 +30,7 @@ function showStudyDayCompleteScreen(accuracy) {
     stopStudyTimersAndSpeech();
     const sessionTag = document.getElementById('session-tag');
     if (sessionTag) {
-        sessionTag.innerText = '오늘 목표 완료 👑';
+        sessionTag.innerText = 'SYNC COMPLETE ◆';
         sessionTag.style.color = 'var(--neon-green)';
     }
     const bar = document.getElementById('bar');
@@ -40,8 +40,8 @@ function showStudyDayCompleteScreen(accuracy) {
     }
     showSystemMessage(`
         <div style="text-align:center; max-width:100%;">
-            <div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold;">학습 완료! ${accuracy}%</div>
-            <button type="button" id="btn-study-kakao-share" style="width:100%; padding:16px; background:#fee500; color:#000; border-radius:12px; margin-top:20px; border:none; font-weight:bold; cursor:pointer;">🟡 카톡 공유</button>
+            <div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold; font-family:Orbitron,Pretendard,sans-serif; letter-spacing:0.05em;">PROTOCOL COMPLETE · ${accuracy}%</div>
+            <button type="button" id="btn-study-kakao-share" style="width:100%; padding:16px; background:#fee500; color:#000; border-radius:6px; margin-top:20px; border:none; font-weight:bold; cursor:pointer;">◆ 카톡 공유</button>
             <button type="button" id="btn-study-exit-home" style="display:block; width:100%; margin-top:20px; padding:12px; background:none; border:none; color:#888; text-decoration:underline; cursor:pointer; font-size:1rem;">종료하기</button>
         </div>
     `);
@@ -660,7 +660,7 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
                 localStorage.removeItem('trigger_custom_voca_return_url');
             } catch (e) {}
             if (sessionTag) {
-                sessionTag.innerText = '오늘 목표 완료 👑 (관리자 미리보기)';
+                sessionTag.innerText = 'SYNC COMPLETE ◆ (관리자 미리보기)';
                 sessionTag.style.color = 'var(--neon-green)';
             }
             const bar = document.getElementById('bar');

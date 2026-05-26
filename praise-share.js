@@ -3,14 +3,14 @@
  */
 (function (global) {
     var BADGES = [
-        { emoji: '🏆', title: '오늘의 집중왕', blurb: '한 번 시작하면 끝까지 밀어붙이는 힘이에요.' },
-        { emoji: '⭐', title: '별빛 복습왕', blurb: '꾸준함이 가장 큰 무기예요.' },
-        { emoji: '🔥', title: '목표 불태우기', blurb: '오늘도 할 일을 끝까지 해냈어요.' },
-        { emoji: '🚀', title: '성장 로켓', blurb: '한 걸음 한 걸음, 확실히 올라가고 있어요.' },
-        { emoji: '💎', title: '단단한 루틴', blurb: '매일의 작은 습관이 쌓였어요.' },
-        { emoji: '🌈', title: '멀티 성취러', blurb: '여러 일을 정리하면서도 학습을 지켰어요.' },
-        { emoji: '🎯', title: '타깃 헌터', blurb: '오늘의 목표를 정확히 찍었어요.' },
-        { emoji: '🦁', title: '용기 있는 도전자', blurb: '부담 속에서도 앞으로 나아갔어요.' }
+        { emoji: '◆', title: 'FOCUS CORE', blurb: '한 번 시작하면 끝까지 밀어붙이는 출력이에요.' },
+        { emoji: '◇', title: 'SYNC MASTER', blurb: '꾸준한 동기화가 가장 큰 무기예요.' },
+        { emoji: '▣', title: 'TARGET LOCK', blurb: '오늘의 목표를 정확히 적중했어요.' },
+        { emoji: '▲', title: 'BOOST UP', blurb: '한 걸음 한 걸음, 확실히 올라가고 있어요.' },
+        { emoji: '◉', title: 'ROUTINE CORE', blurb: '매일의 작은 루틴이 누적됐어요.' },
+        { emoji: '◎', title: 'MULTI SYNC', blurb: '여러 일을 정리하면서도 학습을 유지했어요.' },
+        { emoji: '⬡', title: 'PRECISION HIT', blurb: '오늘의 타깃을 정확히 찍었어요.' },
+        { emoji: '◈', title: 'BRAVE NODE', blurb: '부담 속에서도 앞으로 전진했어요.' }
     ];
 
     function fnv1a32(str) {

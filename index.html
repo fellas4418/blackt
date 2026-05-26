@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRIGGER BLACK</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="cyber-theme.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#000000">
     
@@ -163,8 +164,12 @@
 </head>
 <body class="dashboard-bg">
 
-    <div id="splash-screen" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease;">
-        <img src="로고, 이미지/icon-512.png" alt="TRIGGER BLACK" style="width: 180px; height: 180px; border-radius: 20px;">
+    <div id="splash-screen" class="cyber-splash" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease;">
+        <img src="로고, 이미지/icon-512.png" alt="TRIGGER BLACK" class="cyber-splash-logo" style="width: 180px; height: 180px; border-radius: 20px;">
+        <div class="cyber-splash-boot">
+            <span>SYSTEM BOOT</span>
+            <span class="cyber-splash-line">TRIGGER BLACK</span>
+        </div>
     </div>
     <script>
         (function () {
@@ -492,13 +497,13 @@
     
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('voca', this)">
-            <span class="nav-icon">📚</span><span>VOCA</span>
+            <span class="nav-icon nav-icon-glyph nav-icon--voca" aria-hidden="true"></span><span>VOCA</span>
         </div>
         <div class="nav-item" onclick="switchTab('analysis', this)">
-            <span class="nav-icon">🔍</span><span>SCAN</span>
+            <span class="nav-icon nav-icon-glyph nav-icon--scan" aria-hidden="true"></span><span>SCAN</span>
         </div>
         <div class="nav-item" onclick="switchTab('grammar', this)">
-            <span class="nav-icon">⚡</span><span>GRAMMAR</span>
+            <span class="nav-icon nav-icon-glyph nav-icon--grammar" aria-hidden="true"></span><span>GRAMMAR</span>
         </div>
     </nav>
 
@@ -1750,7 +1755,7 @@
                     if (typeof confetti === 'function') {
                         var duration = 3 * 1000;
                         var animationEnd = Date.now() + duration;
-                        var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 50000 };
+                        var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 50000, colors: ['#00f3ff', '#39ff14', '#bc13fe', '#ff9900'] };
 
                         function randomInRange(min, max) {
                             return Math.random() * (max - min) + min;
