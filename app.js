@@ -26,7 +26,7 @@ function stopStudyTimersAndSpeech() {
     isPaused = false;
 }
 
-function showStudyDayCompleteScreen(accuracy) {
+function showStudyDayCompleteScreen(accuracy, completedDay, creditEarnedHtml) {
     stopStudyTimersAndSpeech();
     const sessionTag = document.getElementById('session-tag');
     if (sessionTag) {
@@ -38,16 +38,39 @@ function showStudyDayCompleteScreen(accuracy) {
         bar.style.width = '100%';
         bar.style.backgroundColor = 'var(--neon-green)';
     }
+    const dayNum = Number(completedDay) || parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`), 10) - 1 || 1;
+    const creditHtml = creditEarnedHtml || '';
+    const creditBal =
+        typeof TriggerCredit !== 'undefined'
+            ? '<div style="margin-top:12px;font-size:0.85rem;color:#888;">보유 크레딧 <strong style="color:var(--neon-orange);">' +
+              TriggerCredit.getBalance() +
+              '</strong></div>'
+            : '';
     showSystemMessage(`
         <div style="text-align:center; max-width:100%;">
             <div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold; font-family:Orbitron,Pretendard,sans-serif; letter-spacing:0.05em;">PROTOCOL COMPLETE · ${accuracy}%</div>
-            <button type="button" id="btn-study-kakao-share" style="width:100%; padding:16px; background:#fee500; color:#000; border-radius:6px; margin-top:20px; border:none; font-weight:bold; cursor:pointer;">◆ 카톡 공유</button>
+            ${creditHtml}
+            ${creditBal}
+            <button type="button" id="btn-study-voca-pdf" style="width:100%; padding:14px; background:rgba(57,255,20,0.12); color:var(--neon-green); border:1px solid var(--neon-green); border-radius:6px; margin-top:16px; font-weight:bold; cursor:pointer;">📄 Day ${dayNum} 단어장 (3종)</button>
+            <button type="button" id="btn-study-kakao-share" style="width:100%; padding:16px; background:#fee500; color:#000; border-radius:6px; margin-top:12px; border:none; font-weight:bold; cursor:pointer;">◆ 카톡 공유</button>
             <button type="button" id="btn-study-exit-home" style="display:block; width:100%; margin-top:20px; padding:12px; background:none; border:none; color:#888; text-decoration:underline; cursor:pointer; font-size:1rem;">종료하기</button>
         </div>
     `);
     setTimeout(function () {
+        const pdfBtn = document.getElementById('btn-study-voca-pdf');
         const shareBtn = document.getElementById('btn-study-kakao-share');
         const exitBtn = document.getElementById('btn-study-exit-home');
+        if (pdfBtn) {
+            pdfBtn.onclick = function (ev) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                if (typeof TriggerVocaPdf !== 'undefined') {
+                    TriggerVocaPdf.printToday(currentLevel, dayNum, 'all');
+                } else {
+                    alert('단어장 기능을 불러오지 못했습니다. 메인 보카 탭에서 시도해 주세요.');
+                }
+            };
+        }
         if (shareBtn) {
             shareBtn.onclick = function (ev) {
                 ev.preventDefault();
@@ -69,6 +92,7 @@ function showStudyDayCompleteScreen(accuracy) {
                 location.href = 'index.html?tab=voca';
             };
         }
+        if (typeof TriggerCredit !== 'undefined') TriggerCredit.updateDisplay();
     }, 0);
 }
 
@@ -1411,17 +1435,21 @@ function finishSession(didTest = true) {
             if (currentDay === 70) {
                 const giftSection = document.getElementById('final-gift-section');
                 if (giftSection) {
-                    giftSection.style.display = 'block'; 
-                    // 안내 문구도 완주 축하용으로 변경
+                    giftSection.style.display = 'block';
                     const guideText = document.getElementById('pdf-guide-text');
-                    if (guideText) guideText.innerHTML = "🏆 10주 과정을 모두 완수했습니다!<br>아래에서 최종 오답 시험지를 받으세요.";
-                    
-                    window.scrollTo({ top: giftSection.offsetTop, behavior: 'smooth' }); 
+                    if (guideText) guideText.innerHTML = '🏆 10주 완주! 단어장·주차 보너스는 아래에서, 최종 오답 시험지는 하단에서 받으세요.';
+                    window.scrollTo({ top: giftSection.offsetTop, behavior: 'smooth' });
                 }
             }
         }
 
-        showStudyDayCompleteScreen(accuracy);
+        let creditEarnedHtml = '';
+        if (accuracy >= 80 && typeof TriggerCredit !== 'undefined') {
+            const dailyResult = TriggerCredit.earnDailyComplete(currentLevel, currentDay, accuracy);
+            const weekResult = TriggerCredit.tryWeekBonus(currentLevel, currentDay);
+            creditEarnedHtml = TriggerCredit.formatEarnedHtml(dailyResult, weekResult);
+        }
+        showStudyDayCompleteScreen(accuracy, currentDay, creditEarnedHtml);
     } else {
         localStorage.setItem(`trigger_session_${currentLevel}`, (finishedNum + 1).toString());
         localStorage.setItem('blackt_cooldown', Date.now() + COOL_DOWN_TIME);
@@ -1762,18 +1790,37 @@ function shareKakao() {
         alert('자동 복사에 실패했어요. 아래 주소를 직접 복사해 카톡에 보내 주세요.\n\n' + bundle.shareUrl);
     };
 
+    const onShareSuccess = function () {
+        if (typeof TriggerCredit === 'undefined') return;
+        var added = TriggerCredit.earnKakaoShare();
+        if (added > 0) {
+            TriggerCredit.updateDisplay();
+        }
+    };
+
     return (async function deliverKakaoShare() {
         const copiedInBg = copyTextForShareFallback(bundle.clipboardText);
 
-        if (await tryKakaoSdkShare(bundle.payload, 2200)) return;
+        if (await tryKakaoSdkShare(bundle.payload, 2200)) {
+            onShareSuccess();
+            return;
+        }
 
-        if (await tryNativeWebShare(bundle)) return;
+        if (await tryNativeWebShare(bundle)) {
+            onShareSuccess();
+            return;
+        }
 
         const copied = await copiedInBg;
-        if (copied) alertCopied();
-        else alertCopyFailed();
+        if (copied) {
+            onShareSuccess();
+            alertCopied();
+        } else alertCopyFailed();
     })().catch(() => {
-        copyTextForShareFallback(bundle.clipboardText).then((ok) => (ok ? alertCopied() : alertCopyFailed()));
+        copyTextForShareFallback(bundle.clipboardText).then((ok) => {
+            if (ok) onShareSuccess();
+            ok ? alertCopied() : alertCopyFailed();
+        });
     });
 }
 

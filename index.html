@@ -168,6 +168,17 @@
         @keyframes bounceGlow { 0% { transform: translateY(0); text-shadow: 0 0 10px var(--neon-green); } 100% { transform: translateY(-15px); text-shadow: 0 0 25px var(--neon-green), 0 0 40px #fff; } }
 
         /* 👇 [수정됨] 프린트 시 백지 나오는 현상 해결 CSS 👇 */
+        .trigger-credit-badge {
+            display: flex; flex-direction: column; align-items: flex-end;
+            padding: 8px 14px; border-radius: 12px; cursor: pointer;
+            background: rgba(255, 153, 0, 0.08); border: 1px solid var(--neon-orange);
+            box-shadow: 0 0 14px rgba(255, 153, 0, 0.2); min-width: 108px;
+        }
+        .trigger-credit-badge .trigger-credit-label { font-size: 0.72rem; color: var(--neon-orange); font-weight: bold; letter-spacing: 0.04em; }
+        .trigger-credit-badge #trigger-credit-value { font-size: 1.45rem; font-weight: 800; color: #fff; font-family: Orbitron, Pretendard, sans-serif; line-height: 1.1; text-shadow: 0 0 12px rgba(255, 153, 0, 0.45); }
+        .trigger-credit-stat { border-left: 1px solid #444 !important; cursor: pointer; }
+        .trigger-credit-stat .stat-value { color: var(--neon-orange) !important; font-size: 1.15rem !important; font-weight: 800; text-decoration: none !important; }
+
         @media print {
             body { background: #ffffff !important; color: #000000 !important; font-size: 12pt; margin: 0; padding: 0; }
             /* body를 숨기는 대신, 인쇄 화면에 안 보여야 할 UI 컨테이너들만 정확히 가립니다 */
@@ -354,7 +365,12 @@
                 트리거 <span class="brand-tab-module brand-tab-module--voca">보카</span>
             </div>
             
-            <div style="width: 100%; display: flex; justify-content: flex-end; margin-top: 25px;"> <button onclick="shareTriggerApp()" 
+            <div style="width: 100%; display: flex; justify-content: space-between; align-items: flex-start; margin-top: 25px; gap: 10px; flex-wrap: wrap;">
+                <div class="trigger-credit-badge" onclick="typeof TriggerCredit!=='undefined'&&TriggerCredit.showCreditInfo()" title="크레딧 적립 안내">
+                    <span class="trigger-credit-label">트리거 크레딧</span>
+                    <span id="trigger-credit-value">0</span>
+                </div>
+                <button onclick="shareTriggerApp()" 
                 style="background: rgba(0, 243, 255, 0.06); border: 1px solid var(--neon-blue); color: #ffffff; padding: 7px 16px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 0 12px rgba(0,243,255,0.22); font-weight: bold; transition: 0.2s; letter-spacing: 0.04em;">
                 <span style="color: var(--neon-blue); text-shadow: 0 0 8px rgba(0,243,255,0.55);">◆</span>
                 <span>공유하기</span>
@@ -377,7 +393,8 @@
             <div class="stats-row">
                 <div class="stat-item"><div class="stat-label">진행 중인 Day</div><div class="stat-value" id="stat-current-day" style="color: #fff;">Day 1</div></div>
                 <div class="stat-item" style="border-left: 1px solid #444; border-right: 1px solid #444;"><div class="stat-label">오늘의 사이클</div><div class="stat-value" id="stat-session" style="color: #fff;">1 / 5</div></div>
-                <div class="stat-item clickable-card" onclick="showWeeklyReport()"><div class="stat-label">누적 리포트</div><div class="stat-value" style="color:#ddd; text-decoration:underline; font-size: 1rem; margin-top: 3px;">보기 📊</div></div>
+                <div class="stat-item trigger-credit-stat" onclick="typeof TriggerCredit!=='undefined'&&TriggerCredit.showCreditInfo()"><div class="stat-label">트리거 크레딧</div><div class="stat-value" id="trigger-credit-value-row">0</div></div>
+                <div class="stat-item clickable-card" style="border-left: 1px solid #444;" onclick="showWeeklyReport()"><div class="stat-label">누적 리포트</div><div class="stat-value" style="color:#ddd; text-decoration:underline; font-size: 1rem; margin-top: 3px;">보기 📊</div></div>
             </div>
 
             <div class="card level-section">
@@ -419,9 +436,30 @@
                 <div class="routine-scroll-box">
                     <ul class="routine-list" id="routine-list-container"></ul>
                 </div>
-                <div id="pdf-download-section" style="margin-top: 15px; text-align: center; border-top: 1px dashed #555; padding-top: 15px;">
-                    <p id="pdf-guide-text" style="color: #aaa; font-size: 0.9rem; margin-bottom: 10px; line-height: 1.5;">🔒 매 7일 루틴 완료 시<br>해당 주차 마스터 단어장(PDF) 보상이 열립니다.</p>
-                    <button id="pdf-btn" disabled style="background: #333; color: #666; border: 1px solid #555; padding: 10px 20px; border-radius: 8px; cursor: not-allowed; font-weight: bold; width: 100%; margin-bottom: 10px;">다운로드 잠김</button>
+                <div id="pdf-download-section" style="margin-top: 15px; text-align: left; border-top: 1px dashed #555; padding-top: 15px;">
+                    <p style="color: #fff; font-size: 0.95rem; font-weight: bold; margin-bottom: 8px;">📄 단어장 (인쇄 → PDF 저장)</p>
+                    <p id="pdf-guide-text" style="color: #aaa; font-size: 0.85rem; margin-bottom: 12px; line-height: 1.5;">완료한 Day만 생성됩니다. ①영+뜻 4칸 · ②영만 · ③한만</p>
+                    <label style="color:#888;font-size:0.8rem;display:block;margin-bottom:4px;">범위</label>
+                    <select id="pdf-range-select" onchange="onPdfRangeChange()" style="width:100%;padding:10px;margin-bottom:10px;background:#111;border:1px solid #444;color:#fff;border-radius:8px;">
+                        <option value="today">오늘(마지막 완료 Day)</option>
+                        <option value="week">이번 주 누적</option>
+                        <option value="all">클리어 전체</option>
+                        <option value="custom">Day 직접 선택</option>
+                    </select>
+                    <div id="pdf-custom-range" style="display:none;gap:8px;margin-bottom:10px;align-items:center;">
+                        <input type="number" id="pdf-day-from" min="1" max="70" value="1" style="flex:1;padding:8px;background:#111;border:1px solid #444;color:#fff;border-radius:8px;">
+                        <span style="color:#666;">~</span>
+                        <input type="number" id="pdf-day-to" min="1" max="70" value="1" style="flex:1;padding:8px;background:#111;border:1px solid #444;color:#fff;border-radius:8px;">
+                    </div>
+                    <label style="color:#888;font-size:0.8rem;display:block;margin-bottom:4px;">버전</label>
+                    <select id="pdf-version-select" style="width:100%;padding:10px;margin-bottom:12px;background:#111;border:1px solid #444;color:#fff;border-radius:8px;">
+                        <option value="all">3종 전체 (풀카드+영만+한만)</option>
+                        <option value="full">① 풀카드만</option>
+                        <option value="en">② 영단어만</option>
+                        <option value="ko">③ 한글만</option>
+                    </select>
+                    <button id="pdf-btn" onclick="printVocaWordbookFromForm()" style="background: rgba(57, 255, 20, 0.1); color: var(--neon-green); border: 1px solid var(--neon-green); padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px;">📄 단어장 인쇄 / PDF 저장</button>
+                    <div id="week-bonus-banner" style="display:none; text-align:center; padding:12px; border-radius:8px; background:rgba(255,153,0,0.08); border:1px dashed var(--neon-orange); margin-bottom:10px;"></div>
     
                     <div id="final-gift-section" style="display: none; border-top: 1px solid #333; padding-top: 15px; margin-top: 5px;">
                         <p style="color: var(--neon-green); font-size: 0.85rem; font-weight: bold; margin-bottom: 8px;">◆ 10주 완주 성공! 선물 도착 🎊</p>
@@ -553,6 +591,9 @@
     </nav>
 
     <div id="print-area" style="display:none; padding:20px; background:#fff; color:#000;"></div>
+
+    <script src="trigger-credit.js?v=20260526"></script>
+    <script src="trigger-voca-pdf.js?v=20260526"></script>
 
     <script>
         function openGuide() {
@@ -1244,6 +1285,7 @@
             }
             renderRoutine();
             showAdminMenuIfEnabled();
+            if (typeof TriggerCredit !== 'undefined') TriggerCredit.updateDisplay();
         }
 
         function renderRoutine() {
@@ -1283,34 +1325,46 @@
             }
             container.innerHTML = html;
 
-            const pdfBtn = document.getElementById('pdf-btn');
-            const pdfGuideText = document.getElementById('pdf-guide-text');
+            const weekBanner = document.getElementById('week-bonus-banner');
             const completedWeeks = Math.floor((unlockedDay - 1) / 7);
-
-            if (completedWeeks >= 1) {
-                pdfBtn.disabled = false;
-                pdfBtn.innerText = `📥 ${completedWeeks}주차 누적 단어장 다운로드`;
-                pdfBtn.style.background = "rgba(57, 255, 20, 0.1)";
-                pdfBtn.style.color = "var(--neon-green)";
-                pdfBtn.style.borderColor = "var(--neon-green)";
-                pdfBtn.style.boxShadow = "var(--glow-green)";
-                pdfBtn.style.cursor = "pointer";
-                pdfBtn.onclick = generatePDF;
-                
-                if(pdfGuideText) {
-                    pdfGuideText.innerHTML = `<strong style="color:var(--neon-green);">축하합니다! ${completedWeeks}주차를 마스터했습니다.</strong><br>아래 버튼을 눌러 보상을 수령하세요!`;
-                }
-            } else {
-                pdfBtn.disabled = true;
-                pdfBtn.innerText = "다운로드 잠김 (7일 완료 시 오픈)";
-                pdfBtn.style.background = "#333";
-                pdfBtn.style.color = "#666";
-                pdfBtn.style.borderColor = "#555";
-                pdfBtn.style.boxShadow = "none";
-                pdfBtn.onclick = null;
-                
-                if(pdfGuideText) {
-                    pdfGuideText.innerHTML = `🔒 매 7일 루틴 완료 시<br>해당 주차 마스터 단어장(PDF) 보상이 열립니다.`;
+            if (weekBanner && typeof TriggerCredit !== 'undefined') {
+                if (completedWeeks >= 1) {
+                    var unclaimed = [];
+                    for (var w = 1; w <= completedWeeks; w++) {
+                        if (!TriggerCredit.isWeekBonusClaimed(currentLevel, w)) unclaimed.push(w);
+                    }
+                    if (unclaimed.length) {
+                        weekBanner.style.display = 'block';
+                        weekBanner.innerHTML =
+                            '<p style="color:var(--neon-orange);font-size:0.88rem;margin:0 0 8px;font-weight:bold;">◆ ' +
+                            unclaimed.join(', ') +
+                            '주차 보너스 +' +
+                            TriggerCredit.WEEK_BONUS +
+                            ' 크레딧</p>' +
+                            '<button type="button" id="btn-claim-week-bonus" style="width:100%;padding:10px;background:rgba(255,153,0,0.15);border:1px solid var(--neon-orange);color:#fff;border-radius:8px;font-weight:bold;cursor:pointer;">주차 보너스 받기</button>';
+                        var claimBtn = document.getElementById('btn-claim-week-bonus');
+                        if (claimBtn) {
+                            claimBtn.onclick = function () {
+                                var sum = 0;
+                                unclaimed.forEach(function (wn) {
+                                    sum += TriggerCredit.claimWeekBonus(currentLevel, wn);
+                                });
+                                if (sum > 0) {
+                                    alert('◆ 트리거 크레딧 +' + sum + ' (주차 보너스)');
+                                    renderRoutine();
+                                    TriggerCredit.updateDisplay();
+                                } else alert('이미 수령한 보너스입니다.');
+                            };
+                        }
+                    } else {
+                        weekBanner.style.display = 'block';
+                        weekBanner.innerHTML =
+                            '<p style="color:#888;font-size:0.85rem;margin:0;">' +
+                            completedWeeks +
+                            '주차까지 보너스 수령 완료 ◆</p>';
+                    }
+                } else {
+                    weekBanner.style.display = 'none';
                 }
             }
         }
@@ -1333,93 +1387,6 @@
                 localStorage.setItem(`trigger_unlocked_extra_today_${currentLevel}`, unlockedExtra + 1);
                 renderRoutine();
                 updateDashboardUI(); 
-            }
-        }
-
-        function generatePDF() {
-            const currentLevel = localStorage.getItem('trigger_level') || 'middle';
-            const unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
-            const completedWeeks = Math.floor((unlockedDay - 1) / 7);
-            
-            if(completedWeeks < 1) {
-                alert("아직 1주차를 완료하지 않았습니다.");
-                return;
-            }
-
-            alert(`🎊 ${completedWeeks}주차 마스터 보상!\n트리거 팀이 준비한 단어장 선물을 생성합니다.`);
-            
-            let allWrongs = [];
-            try {
-                allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
-            } catch (e) {
-                allWrongs = [];
-            }
-            if (!Array.isArray(allWrongs)) allWrongs = [];
-
-            function pdfWordMarkHtml(dayNum, wordStr) {
-                const rec = allWrongs.find(function (r) {
-                    return r && r.level === currentLevel && String(r.word) === String(wordStr) && Number(r.day) === Number(dayNum);
-                });
-                if (!rec) return '';
-                const labels = [];
-                if (rec.isWrong) labels.push('오답');
-                if (rec.isStarred) labels.push('별표');
-                if (!labels.length) return '';
-                return (
-                    ' <span style="font-size:10.5pt;font-weight:bold;color:#b71c1c;white-space:nowrap;">[' +
-                    labels.join(' · ') +
-                    ']</span>'
-                );
-            }
-
-            let printHtml = `
-                <div style="text-align:center; padding: 20px 0; border: 2px solid #000; margin-bottom: 30px;">
-                    <h1 style="font-size:28pt; margin: 0; color: #000;">TRIGGER VOCA · 마스터 단어장</h1>
-                    <p style="font-size:14pt; margin-top: 10px; color: #000;">${currentLevel === 'middle' ? '중등' : '고등'} 코스 - ${completedWeeks}주차 누적분</p>
-                    <p style="font-size:12pt; color: #666;">TRIGGER BLACK</p>
-                    <p style="font-size:10.5pt; color: #555; margin-top: 12px; line-height: 1.45;">※ 단어 옆 <strong>[오답]</strong>·<strong>[별표]</strong>는 이 기기에 저장된 테스트·별표 기록입니다.</p>
-                </div>`;
-            
-            printHtml += `<div style="font-size:12pt; line-height: 1.8; color: #000;">`; 
-            
-            for(let i=1; i < unlockedDay; i++) {
-                if (i % 7 === 6 || i % 7 === 0) continue; 
-                const dayWords = getWordsForDay(currentLevel, i);
-                
-                if(dayWords.length > 0) {
-                    printHtml += `
-                        <div style="page-break-inside: avoid; margin-bottom: 20px;">
-                            <div style="font-size:16pt; font-weight:bold; margin-top:15px; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom: 10px; color:#000;">Day ${i}</div>
-                            <ul style="list-style-type: none; padding-left: 0; margin: 0; color:#000;">`;
-                    
-                    dayWords.forEach(w => {
-                        const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
-                        const markHtml = pdfWordMarkHtml(i, w.word);
-                        printHtml += `
-                            <li style="margin-bottom: 8px; font-size: 13pt; display: flex; align-items: baseline;">
-                                <strong style="min-width:140px; display:inline-block; color:#000;">${w.word}</strong>${markHtml}
-                                <span style="color:#444; min-width:110px; display:inline-block; font-size:11pt; font-style: italic;">${w.ipa || ''}</span> 
-                                <span style="flex: 1; color:#000;">${safeMeanings}</span>
-                            </li>`;
-                    });
-                    
-                    printHtml += `</ul></div>`;
-                }
-            }
-            
-            printHtml += `</div>`;
-            
-            const printArea = document.getElementById('print-area');
-            if(printArea) {
-                printArea.innerHTML = printHtml;
-                printArea.style.display = 'block'; 
-                
-                setTimeout(() => {
-                    window.print(); 
-                    printArea.style.display = 'none'; 
-                }, 100);
-            } else {
-                alert("인쇄 기능이 준비되지 않았습니다.");
             }
         }
 
@@ -2057,7 +2024,7 @@
 
     </script>
     <script src="praise-share.js?v=20260517_kakao_return"></script>
-    <script src="app.js?v=20260524_share_entry"></script>
+    <script src="app.js?v=20260526_credit_pdf"></script>
     <script src="worddata.js"></script>
     <script src="words.js"></script>
     <script>

@@ -55,6 +55,12 @@
         #display.test-phase #meanings .choice-btn:first-child {
             margin-top: 0 !important;
         }
+        @media print {
+            body { background: #fff !important; }
+            #app, .back-btn, button { display: none !important; }
+            #print-area { display: block !important; position: absolute; left: 0; top: 0; width: 100%; padding: 20px; background: #fff; color: #000; }
+            .page-break { page-break-before: always; }
+        }
     </style>
 </head>
 <body class="study-bg">
@@ -67,6 +73,10 @@
             <div id="slot-1" class="energy-slot-vert"></div>
         </div>
 
+        <div class="trigger-credit-badge" onclick="typeof TriggerCredit!=='undefined'&&TriggerCredit.showCreditInfo()" style="position:absolute;top:20px;right:118px;z-index:100;padding:6px 10px;min-width:88px;cursor:pointer;background:rgba(255,153,0,0.08);border:1px solid var(--neon-orange);border-radius:10px;text-align:right;">
+            <span class="trigger-credit-label" style="font-size:0.62rem;color:var(--neon-orange);font-weight:bold;">크레딧</span>
+            <span id="trigger-credit-value-study" style="font-size:1.1rem;font-weight:800;color:#fff;display:block;">0</span>
+        </div>
         <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 8px; align-items: center; z-index: 100;">
             <button id="pause-btn" onclick="togglePause()" style="background: transparent; border: 1px solid var(--neon-blue); color: #fff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">⏸ 일시중지</button>
             <button id="exit-btn" onclick="location.href='index.html'" style="display: none; background: transparent; border: 1px solid var(--neon-orange); color: #ffffff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">나가기</button>
@@ -85,14 +95,18 @@
         
         <div class="footer" style="display:none;"></div>
     </div>
+
+    <div id="print-area" style="display:none; padding:20px; background:#fff; color:#000;"></div>
  
     <script src="worddata.js"></script>
     <script>
         window.wordsData = typeof wordsData !== 'undefined' ? wordsData : { middle: {}, high: {} };
     </script>
     
+    <script src="trigger-credit.js?v=20260526"></script>
+    <script src="trigger-voca-pdf.js?v=20260526"></script>
     <script src="praise-share.js?v=20260517_kakao2"></script>
-    <script src="app.js?v=20260524_share_entry"></script> 
+    <script src="app.js?v=20260526_credit_pdf"></script> 
     
     <script>
         if ('serviceWorker' in navigator) {
@@ -104,6 +118,7 @@
             });
         }
         window.addEventListener('DOMContentLoaded', () => {
+            if (typeof TriggerCredit !== 'undefined') TriggerCredit.updateDisplay();
             const targetEl = document.getElementById('target');
             if(targetEl) {
                 const observer = new MutationObserver(() => {
