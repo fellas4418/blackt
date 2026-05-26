@@ -99,11 +99,7 @@
         .login-btn:active { transform: scale(0.98); background: rgba(57, 255, 20, 0.1); }
 
         #welcome-msg { text-align: center; margin-bottom: 14px; }
-        .online-status-line { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
-        .online-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--neon-green); box-shadow: 0 0 6px var(--neon-green); animation: onlinePulse 1.8s ease-in-out infinite; flex-shrink: 0; }
-        .online-label { font-size: 0.72rem; letter-spacing: 0.14em; color: var(--neon-green); font-weight: 700; text-transform: uppercase; font-family: 'Courier New', monospace; opacity: 0.9; }
-        .online-done { font-size: 0.72rem; color: var(--neon-orange); margin-top: 4px; letter-spacing: 0.04em; width: 100%; }
-        @keyframes onlinePulse { 0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--neon-green); } 50% { opacity: 0.45; box-shadow: 0 0 4px var(--neon-green); } }
+        .online-done { font-size: 0.72rem; color: var(--neon-orange); margin-top: 4px; letter-spacing: 0.04em; }
 
         .guide-cyber-btn { position: absolute; right: 0; font-size: 0.72rem; cursor: pointer; color: var(--neon-blue); background: rgba(0, 243, 255, 0.06); padding: 4px 10px; border-radius: 4px; border: 1px solid rgba(0, 243, 255, 0.45); letter-spacing: 0.1em; font-family: 'Courier New', monospace; font-weight: bold; box-shadow: 0 0 10px rgba(0, 243, 255, 0.15); transition: 0.2s; }
         .guide-cyber-btn:active { background: rgba(0, 243, 255, 0.14); box-shadow: 0 0 14px rgba(0, 243, 255, 0.35); }
@@ -351,21 +347,29 @@
             <div class="logo" id="main-header-title" onclick="activateAdmin(event)" style="margin: 0; text-align: center; line-height: 1.2; font-size: 3rem; letter-spacing: -1px; cursor: pointer; user-select: none;">
                 트리거 <span class="brand-tab-module brand-tab-module--voca">보카</span>
             </div>
-            <p id="header-user-line" class="header-user-line" style="display: none; margin-top: 6px;">
-                <span id="header-user-name" class="header-user-line__name"></span>
-            </p>
-            
-            <div style="width: 100%; display: flex; justify-content: flex-end; align-items: center; margin-top: 16px; gap: 8px;">
-                <button type="button" class="trigger-credit-chip" onclick="typeof TriggerCredit!=='undefined'&&TriggerCredit.showCreditInfo()" title="트리거 크레딧">
-                    <span class="trigger-credit-chip__mark">CR</span>
-                    <span class="trigger-credit-chip__value" id="trigger-credit-value">0</span>
+
+            <div class="main-header-meta">
+                <button type="button" class="header-profile-credit" id="header-credit-btn" onclick="typeof TriggerCredit!=='undefined'&&TriggerCredit.showCreditInfo()" title="트리거 크레딧">
+                    <span class="header-credit-coins" aria-hidden="true">
+                        <img src="로고, 이미지/trigger-credit-coins.svg" alt="" width="42" height="38">
+                    </span>
+                    <span class="header-credit-value" id="trigger-credit-value">0</span>
+                    <span class="header-user-name" id="header-user-name"></span>
                 </button>
-                <button onclick="shareTriggerApp()" 
-                style="background: rgba(0, 243, 255, 0.06); border: 1px solid var(--neon-blue); color: #ffffff; padding: 7px 16px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 0 12px rgba(0,243,255,0.22); font-weight: bold; transition: 0.2s; letter-spacing: 0.04em;">
-                <span style="color: var(--neon-blue); text-shadow: 0 0 8px rgba(0,243,255,0.55);">◆</span>
-                <span>공유하기</span>
-            </button>
-        </div>
+                <div class="main-header-actions">
+                    <div class="header-share-btn-wrap">
+                        <button type="button" onclick="shareTriggerApp()" 
+                        style="background: rgba(0, 243, 255, 0.06); border: 1px solid var(--neon-blue); color: #ffffff; padding: 7px 16px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 0 12px rgba(0,243,255,0.22); font-weight: bold; transition: 0.2s; letter-spacing: 0.04em;">
+                            <span style="color: var(--neon-blue); text-shadow: 0 0 8px rgba(0,243,255,0.55);">◆</span>
+                            <span>공유하기</span>
+                        </button>
+                        <div id="header-online-line" class="header-online-line" style="display: none;">
+                            <span class="online-dot"></span>
+                            <span class="online-label">ONLINE</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <hr style="border: 0.5px solid #222; width: 95%; margin: 10px auto 25px auto;">
@@ -427,7 +431,7 @@
                 </div>
                 <div id="pdf-download-section" style="margin-top: 15px; text-align: left; border-top: 1px dashed #555; padding-top: 15px;">
                     <p style="color: #fff; font-size: 0.95rem; font-weight: bold; margin-bottom: 8px;">📄 단어장 (인쇄 → PDF 저장)</p>
-                    <p id="pdf-guide-text" style="color: #aaa; font-size: 0.85rem; margin-bottom: 12px; line-height: 1.5;">완료한 Day만 생성됩니다. ①영+뜻 4칸 · ②영만 · ③한만</p>
+                    <p id="pdf-guide-text" style="color: #aaa; font-size: 0.85rem; margin-bottom: 12px; line-height: 1.5;">완료한 Day만 생성 · ①영단어+뜻 · ②영만 · ③한만 · 오답/★별표 표시</p>
                     <label style="color:#888;font-size:0.8rem;display:block;margin-bottom:4px;">범위</label>
                     <select id="pdf-range-select" onchange="onPdfRangeChange()" style="width:100%;padding:10px;margin-bottom:10px;background:#111;border:1px solid #444;color:#fff;border-radius:8px;">
                         <option value="today">오늘(마지막 완료 Day)</option>
@@ -442,8 +446,8 @@
                     </div>
                     <label style="color:#888;font-size:0.8rem;display:block;margin-bottom:4px;">버전</label>
                     <select id="pdf-version-select" style="width:100%;padding:10px;margin-bottom:12px;background:#111;border:1px solid #444;color:#fff;border-radius:8px;">
-                        <option value="all">3종 전체 (풀카드+영만+한만)</option>
-                        <option value="full">① 풀카드만</option>
+                        <option value="all">3종 전체 (1·2·3번)</option>
+                        <option value="full">① 영단어+뜻만</option>
                         <option value="en">② 영단어만</option>
                         <option value="ko">③ 한글만</option>
                     </select>
@@ -1169,32 +1173,25 @@
             }
         }
 
-        function updateHeaderUserLine() {
-            const line = document.getElementById('header-user-line');
+        function updateHeaderProfile() {
             const nameEl = document.getElementById('header-user-name');
-            if (!line || !nameEl) return;
+            const onlineLine = document.getElementById('header-online-line');
+            const creditBtn = document.getElementById('header-credit-btn');
             const name = (localStorage.getItem('trigger_name') || '').trim();
-            if (!name) {
-                line.style.display = 'none';
-                nameEl.textContent = '';
-                return;
+            if (nameEl) {
+                nameEl.textContent = name;
+                nameEl.style.display = name ? 'block' : 'none';
             }
-            nameEl.textContent = name;
-            line.style.display = 'block';
+            if (onlineLine) onlineLine.style.display = name ? 'flex' : 'none';
+            if (creditBtn) creditBtn.style.visibility = name ? 'visible' : 'hidden';
         }
 
-        function renderWelcomeMsg(session) {
+        function renderVocaDoneMsg(session) {
             const welcomeMsg = document.getElementById('welcome-msg');
             if (!welcomeMsg) return;
             const name = (localStorage.getItem('trigger_name') || '').trim();
-            if (!name) {
-                welcomeMsg.innerHTML = '';
-                return;
-            }
-            const doneExtra = session > 5 ? '<div class="online-done">오늘 목표 완료</div>' : '';
             welcomeMsg.innerHTML =
-                '<div class="online-status-line"><span class="online-dot"></span><span class="online-label">ONLINE</span></div>' +
-                doneExtra;
+                name && session > 5 ? '<div class="online-done">오늘 목표 완료</div>' : '';
         }
 
         function checkLoginStatus() {
@@ -1202,7 +1199,7 @@
             if (urlParams.get('praise') === 'true' || urlParams.get('share_result') === '1') {
                 const modal = document.getElementById('login-modal');
                 if (modal) modal.style.display = 'none';
-                updateHeaderUserLine();
+                updateHeaderProfile();
                 return;
             }
             const savedName = localStorage.getItem('trigger_name');
@@ -1212,11 +1209,11 @@
 
             if (savedName) {
                 modal.style.display = 'none';
-                updateHeaderUserLine();
-                renderWelcomeMsg(currentSession);
+                updateHeaderProfile();
+                renderVocaDoneMsg(currentSession);
             } else {
                 modal.style.display = 'flex';
-                updateHeaderUserLine();
+                updateHeaderProfile();
             }
             updateDashboardUI();
         }
@@ -1232,8 +1229,8 @@
             const displayDay = day > 70 ? 70 : day;
             document.getElementById('stat-current-day').innerText = `Day ${displayDay}`;
 
-            updateHeaderUserLine();
-            renderWelcomeMsg(session);
+            updateHeaderProfile();
+            renderVocaDoneMsg(session);
 
             if (typeof wordsData !== 'undefined') {
                 let learnedTotal = 0;

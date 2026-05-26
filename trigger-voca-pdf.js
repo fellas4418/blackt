@@ -1,5 +1,5 @@
 /**
- * 보카 단어장 인쇄/PDF — 3버전(풀카드·영만·한만), 범위 선택
+ * 보카 단어장 인쇄/PDF — 3버전(①영단어+뜻·②영만·③한만), 범위 선택
  */
 (function (global) {
     function escapeHtml(s) {
@@ -43,16 +43,35 @@
         }
     }
 
+    function getWordMarkRecord(allWrongs, level, dayNum, wordStr) {
+        var key = String(wordStr || '').trim().toLowerCase();
+        if (!key) return null;
+        var fallback = null;
+        for (var i = 0; i < allWrongs.length; i++) {
+            var r = allWrongs[i];
+            if (!r || r.level !== level) continue;
+            if (String(r.word || '').trim().toLowerCase() !== key) continue;
+            if (Number(r.day) === Number(dayNum)) return r;
+            if (!fallback) fallback = r;
+        }
+        return fallback;
+    }
+
     function pdfWordMarkHtml(allWrongs, level, dayNum, wordStr) {
-        var rec = allWrongs.find(function (r) {
-            return r && r.level === level && String(r.word) === String(wordStr) && Number(r.day) === Number(dayNum);
-        });
-        if (!rec) return '';
-        var labels = [];
-        if (rec.isWrong) labels.push('오답');
-        if (rec.isStarred) labels.push('별표');
-        if (!labels.length) return '';
-        return ' <span style="font-size:8pt;font-weight:bold;color:#b71c1c;">[' + labels.join('·') + ']</span>';
+        var rec = getWordMarkRecord(allWrongs, level, dayNum, wordStr);
+        if (!rec || (!rec.isWrong && !rec.isStarred)) return '';
+        var parts = [];
+        if (rec.isWrong) {
+            parts.push(
+                '<span style="display:inline-block;font-size:7pt;font-weight:700;color:#b71c1c;background:#ffebee;border:1px solid #ef9a9a;padding:0 4px;border-radius:3px;margin-left:2px;vertical-align:middle;">오답</span>'
+            );
+        }
+        if (rec.isStarred) {
+            parts.push(
+                '<span style="display:inline-block;font-size:7pt;font-weight:700;color:#e65100;background:#fff8e1;border:1px solid #ffcc80;padding:0 4px;border-radius:3px;margin-left:2px;vertical-align:middle;">★별표</span>'
+            );
+        }
+        return '<span style="display:inline-flex;flex-wrap:wrap;gap:2px;align-items:center;margin-left:2px;">' + parts.join('') + '</span>';
     }
 
     function resolveDayList(level, range, customFrom, customTo) {
@@ -90,17 +109,29 @@
             var inner = '';
             if (mode === 'full') {
                 inner =
+                    '<div style="line-height:1.25;">' +
                     '<strong style="font-size:10pt;">' +
                     escapeHtml(w.word) +
                     '</strong>' +
                     mark +
+                    '</div>' +
                     '<div style="font-size:9pt;margin-top:4px;color:#333;">' +
                     escapeHtml(wordMeanStr(w)) +
                     '</div>';
             } else if (mode === 'en') {
-                inner = '<strong style="font-size:10.5pt;">' + escapeHtml(w.word) + '</strong>' + mark;
+                inner =
+                    '<div style="line-height:1.3;"><strong style="font-size:10.5pt;">' +
+                    escapeHtml(w.word) +
+                    '</strong>' +
+                    mark +
+                    '</div>';
             } else {
-                inner = '<span style="font-size:10.5pt;">' + escapeHtml(wordMeanStr(w)) + '</span>' + mark;
+                inner =
+                    '<div style="line-height:1.3;"><span style="font-size:10.5pt;">' +
+                    escapeHtml(wordMeanStr(w)) +
+                    '</span>' +
+                    mark +
+                    '</div>';
             }
             cells.push('<div class="pdf-cell" style="border:1px solid #ccc;padding:8px 6px;min-height:52px;box-sizing:border-box;">' + inner + '</div>');
         });
@@ -114,7 +145,11 @@
         );
     }
 
-    var MODE_TITLES = { full: '① 영단어 + 뜻 (4칸)', en: '② 영단어만 (뜻 회상)', ko: '③ 한글만 (단어 회상)' };
+    var MODE_TITLES = {
+        full: '① 영단어+뜻 (4칸)',
+        en: '② 영단어만 (뜻 회상)',
+        ko: '③ 한글만 (단어 회상)'
+    };
 
     function buildPrintHtml(opts) {
         var level = opts.level || 'middle';
@@ -132,7 +167,8 @@
             ' · ' +
             escapeHtml(titleExtra) +
             '</p>' +
-            '<p style="font-size:10pt;color:#666;">TRIGGER BLACK</p></div>';
+            '<p style="font-size:10pt;color:#666;">TRIGGER BLACK</p>' +
+            '<p style="font-size:9.5pt;color:#555;margin-top:10px;line-height:1.45;">※ 단어 옆 <strong style="color:#b71c1c;">오답</strong>·<strong style="color:#e65100;">★별표</strong>는 이 기기에 저장된 테스트·별표 기록입니다.</p></div>';
 
         versions.forEach(function (mode, vi) {
             if (vi > 0) html += '<div class="page-break" style="page-break-before:always;"></div>';

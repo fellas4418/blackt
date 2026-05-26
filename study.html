@@ -73,9 +73,11 @@
             <div id="slot-1" class="energy-slot-vert"></div>
         </div>
 
-        <button type="button" class="trigger-credit-chip trigger-credit-chip--study" onclick="typeof TriggerCredit!=='undefined'&&TriggerCredit.showCreditInfo()" title="트리거 크레딧">
-            <span class="trigger-credit-chip__mark">CR</span>
-            <span class="trigger-credit-chip__value" id="trigger-credit-value-study">0</span>
+        <button type="button" class="trigger-credit-chip--study" onclick="typeof TriggerCredit!=='undefined'&&TriggerCredit.showCreditInfo()" title="트리거 크레딧">
+            <span class="header-credit-coins" aria-hidden="true">
+                <img src="로고, 이미지/trigger-credit-coins.svg" alt="" width="34" height="30">
+            </span>
+            <span class="header-credit-value" id="trigger-credit-value-study">0</span>
         </button>
         <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 8px; align-items: center; z-index: 100;">
             <button id="pause-btn" onclick="togglePause()" style="background: transparent; border: 1px solid var(--neon-blue); color: #fff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">⏸ 일시중지</button>
