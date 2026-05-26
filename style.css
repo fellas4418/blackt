@@ -162,7 +162,7 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
     margin: 8px auto 12px;
 }
 .global-stats-shell {
-    margin-bottom: 16px;
+    margin-bottom: 0;
 }
 .global-stats-meta {
     display: flex;
@@ -191,21 +191,21 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 }
 .stat-credit-tap:active { opacity: 0.85; background: rgba(255, 153, 0, 0.1); }
 .header-credit-label {
-    font-size: 0.58rem;
+    font-size: 0.62rem;
     letter-spacing: 0.12em;
-    color: rgba(255, 153, 0, 0.55);
+    color: rgba(255, 153, 0, 0.78);
     text-transform: uppercase;
     font-weight: 600;
     font-family: 'Courier New', monospace;
     line-height: 1;
 }
 .header-credit-value {
-    font-size: 0.95rem;
+    font-size: 1.02rem;
     font-weight: 700;
-    color: var(--neon-orange);
+    color: #ffb340;
     font-variant-numeric: tabular-nums;
     line-height: 1;
-    text-shadow: 0 0 6px rgba(255, 153, 0, 0.25);
+    text-shadow: 0 0 8px rgba(255, 153, 0, 0.35);
     margin-left: auto;
 }
 .stat-online-top,
