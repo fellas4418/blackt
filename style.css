@@ -164,6 +164,9 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 .global-stats-shell {
     margin-bottom: 0;
 }
+.global-stats-shell + .main-tab-viewport {
+    margin-top: -10px;
+}
 .global-stats-meta {
     display: flex;
     justify-content: space-between;
@@ -178,35 +181,60 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 10px;
-    min-width: 86px;
+    gap: 8px;
+    min-width: 108px;
     width: auto;
     background: rgba(255, 153, 0, 0.05);
     border: 1px solid rgba(255, 153, 0, 0.22);
     border-radius: 8px;
     cursor: pointer;
-    padding: 5px 10px 5px 8px;
+    padding: 6px 10px 6px 8px;
     margin: 0;
     -webkit-tap-highlight-color: transparent;
 }
 .stat-credit-tap:active { opacity: 0.85; background: rgba(255, 153, 0, 0.1); }
+.header-credit-bars {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+    gap: 2px;
+    width: 13px;
+    height: 14px;
+    flex-shrink: 0;
+}
+.header-credit-bar {
+    display: block;
+    height: 3px;
+    width: 100%;
+    border-radius: 1px;
+    background: #ffb340;
+    box-shadow: 0 0 5px rgba(255, 153, 0, 0.45);
+}
+.header-credit-bar:nth-child(2) { width: 88%; opacity: 0.88; }
+.header-credit-bar--dim { width: 72%; opacity: 0.62; }
 .header-credit-label {
-    font-size: 0.62rem;
-    letter-spacing: 0.12em;
-    color: rgba(255, 153, 0, 0.78);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: #ffd699;
     text-transform: uppercase;
-    font-weight: 600;
+    font-weight: 700;
     font-family: 'Courier New', monospace;
     line-height: 1;
 }
 .header-credit-value {
-    font-size: 1.02rem;
+    font-size: 1.15rem;
     font-weight: 700;
-    color: #ffb340;
+    color: #ffcc66;
     font-variant-numeric: tabular-nums;
     line-height: 1;
-    text-shadow: 0 0 8px rgba(255, 153, 0, 0.35);
+    text-shadow: 0 0 10px rgba(255, 180, 80, 0.45);
     margin-left: auto;
+}
+.header-credit-hint {
+    font-size: 0.72rem;
+    color: rgba(255, 210, 130, 0.65);
+    line-height: 1;
+    flex-shrink: 0;
 }
 .stat-online-top,
 #header-online-line.stat-online-top {

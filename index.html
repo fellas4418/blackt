@@ -361,9 +361,15 @@
 
         <div class="global-stats-shell">
             <div class="global-stats-meta">
-                <button type="button" class="stat-credit-tap" id="header-credit-btn" onclick="typeof TriggerCredit!=='undefined'&&TriggerCredit.showCreditInfo()" title="트리거 크레딧">
+                <button type="button" class="stat-credit-tap" id="header-credit-btn" onclick="typeof TriggerCredit!=='undefined'&&TriggerCredit.showCreditInfo()" title="트리거 크레딧 안내">
+                    <span class="header-credit-bars" aria-hidden="true">
+                        <i class="header-credit-bar"></i>
+                        <i class="header-credit-bar"></i>
+                        <i class="header-credit-bar header-credit-bar--dim"></i>
+                    </span>
                     <span class="header-credit-label">CREDIT</span>
                     <span class="header-credit-value" id="trigger-credit-value">0</span>
+                    <span class="header-credit-hint" aria-hidden="true">ⓘ</span>
                 </button>
                 <div id="header-online-line" class="stat-online-top" style="display: none;">
                     <span class="online-dot"></span>
