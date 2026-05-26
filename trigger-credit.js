@@ -7,7 +7,7 @@
     var ACCURACY_BONUS = 5;
     var ACCURACY_BONUS_MIN = 90;
     var WEEK_BONUS = 50;
-    var KAKAO_BONUS = 3;
+    var KAKAO_BONUS = 20;
 
     function getBalance() {
         var n = parseInt(localStorage.getItem(STORAGE_BALANCE), 10);
@@ -128,6 +128,21 @@
     }
 
     function showCreditInfo() {
+        var modal = document.getElementById('credit-modal');
+        if (modal) {
+            var balEl = document.getElementById('credit-modal-balance');
+            if (balEl) balEl.textContent = String(getBalance());
+            var dailyEl = document.getElementById('credit-modal-daily-amt');
+            if (dailyEl) dailyEl.textContent = '+' + DAILY_BASE;
+            var accEl = document.getElementById('credit-modal-acc-amt');
+            if (accEl) accEl.textContent = '+' + ACCURACY_BONUS;
+            var weekEl = document.getElementById('credit-modal-week-amt');
+            if (weekEl) weekEl.textContent = '+' + WEEK_BONUS;
+            var kakaoEl = document.getElementById('credit-modal-kakao-amt');
+            if (kakaoEl) kakaoEl.textContent = '+' + KAKAO_BONUS;
+            modal.style.display = 'flex';
+            return;
+        }
         alert(
             '◆ 트리거 크레딧\n\n' +
                 '단어 학습을 완료하면 쌓이는 보상 포인트예요.\n' +
@@ -141,10 +156,15 @@
                 WEEK_BONUS +
                 '\n· 카톡 공유(하루 1회): +' +
                 KAKAO_BONUS +
-                '\n\n누적: ' +
+                ' ★ 가장 많이!\n\n누적: ' +
                 getBalance() +
                 ' 크레딧'
         );
+    }
+
+    function closeCreditInfo() {
+        var modal = document.getElementById('credit-modal');
+        if (modal) modal.style.display = 'none';
     }
 
     global.TriggerCredit = {
@@ -158,6 +178,7 @@
         formatEarnedHtml: formatEarnedHtml,
         updateDisplay: updateDisplay,
         showCreditInfo: showCreditInfo,
+        closeCreditInfo: closeCreditInfo,
         WEEK_BONUS: WEEK_BONUS
     };
 })(typeof window !== 'undefined' ? window : global);

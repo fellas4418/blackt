@@ -29,7 +29,7 @@
 
         body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: 'Pretendard', sans-serif; -webkit-font-smoothing: antialiased; padding-bottom: 90px; }
 
-        #login-modal, #wrong-modal, #all-words-modal, #report-modal, #guide-modal, #praise-popup { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 30000; transition: opacity 0.5s; padding: 20px; box-sizing: border-box; }
+        #login-modal, #wrong-modal, #all-words-modal, #report-modal, #guide-modal, #credit-modal, #praise-popup { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 30000; transition: opacity 0.5s; padding: 20px; box-sizing: border-box; }
 
         .login-card { background: var(--card-bg-color); border: 1px solid rgba(0, 243, 255, 0.3); box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); border-radius: 20px; padding: 25px; width: 90%; max-width: 400px; text-align: center; max-height: 80vh; overflow-y: auto; box-sizing: border-box; max-height: 90vh; }
         
@@ -295,6 +295,51 @@
             </div>
     
             <button class="login-btn" style="border-color: #fff; color: #000; background: #fff; box-shadow: none; width: 100%; margin-top: 25px; padding: 15px; font-weight: bold; cursor: pointer; font-size: 1rem; border-radius: 8px;" onclick="closeGuide()">확인했습니다</button>
+        </div>
+    </div>
+
+    <div id="credit-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 30000; align-items: center; justify-content: center;">
+        <div class="login-card" style="border-color: var(--neon-orange); box-shadow: 0 0 15px rgba(255,153,0,0.35); width: 90%; max-width: 420px; text-align:left; background: #111; padding: 30px; border-radius: 15px;">
+            <div style="font-size: 1.5rem; font-weight: bold; color: #fff; margin-bottom: 8px; text-align:center;">◆ 트리거 <span style="color:var(--neon-orange);text-shadow:0 0 8px rgba(255,153,0,0.4);">CREDIT</span></div>
+            <div style="font-size:0.72rem;color:#888;letter-spacing:0.12em;text-align:center;margin-bottom:22px;font-weight:600;">보상 포인트 안내</div>
+
+            <div style="color: #ddd; font-size: 0.95rem; line-height: 1.65; max-height: 400px; overflow-y: auto; padding-right: 10px;">
+                <p style="margin:0 0 18px;color:#bbb;font-size:0.92rem;">
+                    단어 학습을 완료하면 쌓이는 보상 포인트예요.<br>
+                    모은 크레딧은 <strong style="color:#eee;">문법·할인</strong> 등에 사용됩니다. <span style="color:#777;">(연동 일정은 추후 안내)</span>
+                </p>
+
+                <p style="margin:0 0 14px;color:var(--neon-orange);font-size:0.82rem;letter-spacing:0.08em;font-weight:bold;">쌓는 방법</p>
+
+                <p style="margin-bottom: 16px;">
+                    <strong style="color:var(--neon-blue); font-size: 1.05rem;">당일 학습 완료</strong> <span style="color:var(--neon-orange);font-weight:bold;" id="credit-modal-daily-amt">+10</span><br>
+                    <span style="color:#999;font-size:0.88rem;">정확도 80% 이상으로 당일 테스트 클리어</span>
+                </p>
+
+                <p style="margin-bottom: 16px;">
+                    <strong style="color:var(--neon-green); font-size: 1.05rem;">정확도 보너스</strong> <span style="color:var(--neon-orange);font-weight:bold;" id="credit-modal-acc-amt">+5</span> <span style="color:#777;font-size:0.88rem;">추가</span><br>
+                    <span style="color:#999;font-size:0.88rem;">정확도 90% 이상일 때</span>
+                </p>
+
+                <p style="margin-bottom: 16px;">
+                    <strong style="color:#FFD600; font-size: 1.05rem;">주차 완료</strong> <span style="color:var(--neon-orange);font-weight:bold;" id="credit-modal-week-amt">+50</span><br>
+                    <span style="color:#999;font-size:0.88rem;">Day 7 · 14 · 21 … 마일스톤</span>
+                </p>
+
+                <p style="margin-bottom: 16px; padding:12px 14px; border-radius:10px; background:rgba(255,153,0,0.08); border:1px solid rgba(255,153,0,0.35);">
+                    <strong style="color:var(--neon-orange); font-size: 1.1rem;">카톡 공유</strong> <span style="color:#fff;font-weight:bold;" id="credit-modal-kakao-amt">+20</span>
+                    <span style="display:inline-block;margin-left:6px;font-size:0.72rem;color:#000;background:var(--neon-orange);padding:2px 7px;border-radius:4px;font-weight:bold;vertical-align:middle;">가장 많이</span><br>
+                    <span style="color:#bbb;font-size:0.88rem;">학습 완료 후 공유 · 하루 1회</span>
+                </p>
+
+                <p style="margin:0;padding-top:14px;border-top:1px solid #333;text-align:center;">
+                    <span style="color:#888;font-size:0.88rem;">현재 누적</span><br>
+                    <strong style="color:var(--neon-orange);font-size:1.5rem;text-shadow:0 0 10px rgba(255,153,0,0.3);"><span id="credit-modal-balance">0</span></strong>
+                    <span style="color:#888;font-size:0.9rem;"> 크레딧</span>
+                </p>
+            </div>
+
+            <button class="login-btn" style="border-color: var(--neon-orange); color: #000; background: var(--neon-orange); box-shadow: 0 0 12px rgba(255,153,0,0.35); width: 100%; margin-top: 22px; padding: 15px; font-weight: bold; cursor: pointer; font-size: 1rem; border-radius: 8px;" onclick="typeof TriggerCredit!=='undefined'&&TriggerCredit.closeCreditInfo()">확인했습니다</button>
         </div>
     </div>
 
@@ -893,7 +938,7 @@
 
             function isMainSwipeBlocked() {
                 if (document.body.classList.contains('praise-receiver-flow')) return true;
-                var modalIds = ['login-modal', 'wrong-modal', 'all-words-modal', 'report-modal', 'guide-modal', 'praise-popup', 'share-result-popup', 'praise-kakao-return'];
+                var modalIds = ['login-modal', 'wrong-modal', 'all-words-modal', 'report-modal', 'guide-modal', 'credit-modal', 'praise-popup', 'share-result-popup', 'praise-kakao-return'];
                 return modalIds.some(function(id) {
                     var el = document.getElementById(id);
                     if (!el) return false;
