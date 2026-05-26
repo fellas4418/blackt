@@ -116,17 +116,21 @@
             const pcParam = params.get('pc');
             const targetPath = path.startsWith('/') ? path : '/' + path;
             const isVocaPath = /index\.html/i.test(targetPath);
+            const refParam = params.get('ref');
+            const refTrim = refParam ? String(refParam).trim() : '';
+            const isAppReferralShare = isVocaPath && !praise && !pcParam && !!refTrim;
             const finalUrl = new URL(
-                isVocaPath || praise ? '/praise-receiver.html' : targetPath,
-                isVocaPath || praise ? KAKAO_SHARE_ORIGIN : location.origin
+                isAppReferralShare ? '/index.html' : (isVocaPath || praise ? '/praise-receiver.html' : targetPath),
+                isVocaPath || praise || isAppReferralShare ? KAKAO_SHARE_ORIGIN : location.origin
             );
             if (praise) {
                 finalUrl.searchParams.set('praise', 'true');
-            } else if (isVocaPath) {
+            } else if (isVocaPath && !isAppReferralShare) {
                 finalUrl.searchParams.set('share_result', '1');
             }
             if (pcParam) finalUrl.searchParams.set('pc', pcParam);
             if (zone) finalUrl.searchParams.set('zone', zone);
+            if (refTrim) finalUrl.searchParams.set('ref', refTrim);
 
             const isVocaReceiver = praise || (isVocaPath && !!pcParam);
 

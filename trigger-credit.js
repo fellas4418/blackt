@@ -7,7 +7,8 @@
     var ACCURACY_BONUS = 5;
     var ACCURACY_BONUS_MIN = 90;
     var WEEK_BONUS = 50;
-    var KAKAO_BONUS = 20;
+    var KAKAO_BONUS = 5;
+    var APP_SHARE_REFERRAL_BONUS = 25;
 
     function getBalance() {
         var n = parseInt(localStorage.getItem(STORAGE_BALANCE), 10);
@@ -34,6 +35,74 @@
             } catch (e) {}
         }
         return amt;
+    }
+
+    function normalizePhone(raw) {
+        return String(raw || '').replace(/[^0-9]/g, '');
+    }
+
+    function referralIdFromPhone(phone) {
+        var p = normalizePhone(phone);
+        return p && /^010\d{8}$/.test(p) ? 'r' + p : '';
+    }
+
+    function getMyReferralId() {
+        var fromPhone = referralIdFromPhone(localStorage.getItem('trigger_phone'));
+        if (fromPhone) return fromPhone;
+        var guest = localStorage.getItem('trigger_referral_guest_id');
+        if (!guest) {
+            guest = 'g' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+            localStorage.setItem('trigger_referral_guest_id', guest);
+        }
+        return guest;
+    }
+
+    function captureReferralFromUrl() {
+        try {
+            var ref = new URLSearchParams(window.location.search).get('ref');
+            ref = String(ref || '').trim();
+            if (!ref) return;
+            sessionStorage.setItem('trigger_referred_by', ref);
+            var url = new URL(window.location.href);
+            url.searchParams.delete('ref');
+            window.history.replaceState({}, document.title, url.pathname + (url.search || '') + url.hash);
+        } catch (e) {}
+    }
+
+    function postReferralApi(path, body) {
+        return fetch(path, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body || {})
+        })
+            .then(function (res) {
+                return res.json();
+            })
+            .catch(function () {
+                return null;
+            });
+    }
+
+    function reportReferralSignup(referrerId, refereePhone) {
+        referrerId = String(referrerId || '').trim();
+        var phone = normalizePhone(refereePhone);
+        if (!referrerId || !/^010\d{8}$/.test(phone)) return;
+        if (referrerId === referralIdFromPhone(phone)) return;
+        sessionStorage.removeItem('trigger_referred_by');
+        postReferralApi('/api/referral/signup', {
+            referrer_id: referrerId,
+            referee_phone: phone
+        });
+    }
+
+    function syncReferralCreditsFromServer() {
+        var myId = getMyReferralId();
+        if (!myId || myId.charAt(0) !== 'r') return Promise.resolve(0);
+        return postReferralApi('/api/referral/claim', { referrer_id: myId }).then(function (data) {
+            var count = data && Number(data.count) > 0 ? Number(data.count) : 0;
+            if (!count) return 0;
+            return addCredit(count * APP_SHARE_REFERRAL_BONUS, '앱 공유 · 신규 가입 ' + count + '명');
+        });
     }
 
     function dayEarnKey(level, dayNum) {
@@ -127,36 +196,42 @@
         if (el2) el2.textContent = bal;
     }
 
+    function fillCreditModal() {
+        var balEl = document.getElementById('credit-modal-balance');
+        if (balEl) balEl.textContent = String(getBalance());
+        var dailyEl = document.getElementById('credit-modal-daily-amt');
+        if (dailyEl) dailyEl.textContent = '+' + DAILY_BASE;
+        var accEl = document.getElementById('credit-modal-acc-amt');
+        if (accEl) accEl.textContent = '+' + ACCURACY_BONUS;
+        var weekEl = document.getElementById('credit-modal-week-amt');
+        if (weekEl) weekEl.textContent = '+' + WEEK_BONUS;
+        var kakaoEl = document.getElementById('credit-modal-kakao-amt');
+        if (kakaoEl) kakaoEl.textContent = '+' + KAKAO_BONUS;
+        var shareEl = document.getElementById('credit-modal-share-amt');
+        if (shareEl) shareEl.textContent = '+' + APP_SHARE_REFERRAL_BONUS;
+    }
+
     function showCreditInfo() {
         var modal = document.getElementById('credit-modal');
         if (modal) {
-            var balEl = document.getElementById('credit-modal-balance');
-            if (balEl) balEl.textContent = String(getBalance());
-            var dailyEl = document.getElementById('credit-modal-daily-amt');
-            if (dailyEl) dailyEl.textContent = '+' + DAILY_BASE;
-            var accEl = document.getElementById('credit-modal-acc-amt');
-            if (accEl) accEl.textContent = '+' + ACCURACY_BONUS;
-            var weekEl = document.getElementById('credit-modal-week-amt');
-            if (weekEl) weekEl.textContent = '+' + WEEK_BONUS;
-            var kakaoEl = document.getElementById('credit-modal-kakao-amt');
-            if (kakaoEl) kakaoEl.textContent = '+' + KAKAO_BONUS;
+            fillCreditModal();
             modal.style.display = 'flex';
             return;
         }
         alert(
             '◆ 트리거 크레딧\n\n' +
-                '단어 학습을 완료하면 쌓이는 보상 포인트예요.\n' +
-                '모은 크레딧은 문법·할인 등에 사용됩니다. (연동 일정은 추후 안내)\n\n' +
-                '【 쌓는 방법 】\n' +
+                '단어 학습을 완료하면 쌓이는 보상 포인트예요.\n\n' +
                 '· 당일 학습 완료(80% 이상): +' +
                 DAILY_BASE +
                 '\n· 정확도 90% 이상: +' +
                 ACCURACY_BONUS +
                 ' 추가\n· 주차 완료(Day 7·14…): +' +
                 WEEK_BONUS +
-                '\n· 카톡 공유(하루 1회): +' +
+                '\n· 학습 완료 카톡 공유(하루 1회): +' +
                 KAKAO_BONUS +
-                ' ★ 가장 많이!\n\n누적: ' +
+                '\n· 앱 공유 → 신규 가입: +' +
+                APP_SHARE_REFERRAL_BONUS +
+                ' (가장 많이)\n\n누적: ' +
                 getBalance() +
                 ' 크레딧'
         );
@@ -166,6 +241,8 @@
         var modal = document.getElementById('credit-modal');
         if (modal) modal.style.display = 'none';
     }
+
+    captureReferralFromUrl();
 
     global.TriggerCredit = {
         getBalance: getBalance,
@@ -179,6 +256,11 @@
         updateDisplay: updateDisplay,
         showCreditInfo: showCreditInfo,
         closeCreditInfo: closeCreditInfo,
-        WEEK_BONUS: WEEK_BONUS
+        getMyReferralId: getMyReferralId,
+        captureReferralFromUrl: captureReferralFromUrl,
+        reportReferralSignup: reportReferralSignup,
+        syncReferralCreditsFromServer: syncReferralCreditsFromServer,
+        WEEK_BONUS: WEEK_BONUS,
+        APP_SHARE_REFERRAL_BONUS: APP_SHARE_REFERRAL_BONUS
     };
 })(typeof window !== 'undefined' ? window : global);

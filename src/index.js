@@ -735,6 +735,47 @@ async function handleExamReportGet(env, body) {
   return json({ ok: true, report, is_premium: isPremium ? 1 : 0 });
 }
 
+function referralIdFromPhone(phone) {
+  const p = normalizePhone(phone);
+  return p ? `r${p}` : "";
+}
+
+async function handleReferralSignup(env, body) {
+  const referrerId = String(body.referrer_id || "").trim();
+  const refereePhone = normalizePhone(body.referee_phone);
+  if (!referrerId || !/^010\d{8}$/.test(refereePhone)) {
+    return json({ error: "referrer_id/referee_phone가 필요합니다." }, 400);
+  }
+  if (referrerId === referralIdFromPhone(refereePhone)) {
+    return json({ ok: true, skipped: "self" });
+  }
+  await env.DB.prepare(
+    "INSERT OR IGNORE INTO referral_signups (referrer_id, referee_phone) VALUES (?1, ?2)"
+  )
+    .bind(referrerId, refereePhone)
+    .run();
+  return json({ ok: true });
+}
+
+async function handleReferralClaim(env, body) {
+  const referrerId = String(body.referrer_id || "").trim();
+  if (!referrerId) return json({ error: "referrer_id가 필요합니다." }, 400);
+  const pending = await env.DB.prepare(
+    "SELECT referee_phone FROM referral_signups WHERE referrer_id = ?1 AND credited_sharer = 0"
+  )
+    .bind(referrerId)
+    .all();
+  const count = (pending.results || []).length;
+  if (count > 0) {
+    await env.DB.prepare(
+      "UPDATE referral_signups SET credited_sharer = 1 WHERE referrer_id = ?1 AND credited_sharer = 0"
+    )
+      .bind(referrerId)
+      .run();
+  }
+  return json({ ok: true, count });
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") {
@@ -788,6 +829,12 @@ export default {
       }
       if (request.method === "POST" && path === "/api/exam-report/get") {
         return handleExamReportGet(env, await request.json());
+      }
+      if (request.method === "POST" && path === "/api/referral/signup") {
+        return handleReferralSignup(env, await request.json());
+      }
+      if (request.method === "POST" && path === "/api/referral/claim") {
+        return handleReferralClaim(env, await request.json());
       }
       if (request.method === "POST" && path === "/api/exam-report/admin/list") {
         return handleExamReportAdminList(env, request, await request.json());

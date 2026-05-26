@@ -134,6 +134,10 @@
     <script>
         (function () {
             const params = new URLSearchParams(location.search);
+            const refTrim = String(params.get('ref') || '').trim();
+            if (refTrim) {
+                try { sessionStorage.setItem('trigger_referred_by', refTrim); } catch (e) {}
+            }
             const pcRaw = params.get('pc') || '';
             let ctx = null;
             if (typeof TriggerPraise !== 'undefined' && TriggerPraise.decodePc) {
