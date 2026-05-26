@@ -643,10 +643,7 @@ function initApp() {
 
     wakeUpTTS(); 
     
-if (localStorage.getItem('trigger_admin_mode') === 'true') {
-    const menu = document.getElementById('admin-menu');
-    if (menu) menu.style.setProperty('display', 'flex', 'important');
-}
+if (typeof applyAdminPersistence === 'function') applyAdminPersistence();
     try {
         const sessionTag = document.getElementById('session-tag'); 
         const footer = document.querySelector('.footer');
@@ -1887,11 +1884,17 @@ function enableAdminMode(showAlert) {
 }
 
 function applyAdminPersistence() {
-    if (localStorage.getItem('trigger_admin_mode') !== 'true') return;
     const menu = document.getElementById('admin-menu');
-    if (menu) {
-        menu.style.setProperty('display', 'flex', 'important');
+    if (!menu) return;
+    if (localStorage.getItem('trigger_admin_mode') !== 'true') {
+        menu.style.setProperty('display', 'none', 'important');
+        return;
     }
+    if (typeof mainCurrentTab !== 'undefined' && mainCurrentTab !== 'voca') {
+        menu.style.setProperty('display', 'none', 'important');
+        return;
+    }
+    menu.style.setProperty('display', 'flex', 'important');
 }
 
 window.enableAdminMode = enableAdminMode;

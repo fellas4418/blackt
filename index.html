@@ -760,7 +760,7 @@
                 else if (tabId === 'grammar') { headerTitle.innerHTML = '트리거 <span class="brand-tab-module brand-tab-module--grammar">문법</span>'; }
             }
             window.scrollTo(0,0);
-            if (tabId === 'voca') showAdminMenuIfEnabled();
+            showAdminMenuIfEnabled();
             if(tabId === 'analysis' && typeof toggleAnalysisSubMenu === 'function') toggleAnalysisSubMenu();
         }
 
@@ -870,9 +870,13 @@
         })();
 
         function showAdminMenuIfEnabled() {
-            if (localStorage.getItem('trigger_admin_mode') !== 'true') return;
             const menu = document.getElementById('admin-menu');
-            if (menu) menu.style.setProperty('display', 'flex', 'important');
+            if (!menu) return;
+            if (localStorage.getItem('trigger_admin_mode') !== 'true' || mainCurrentTab !== 'voca') {
+                menu.style.setProperty('display', 'none', 'important');
+                return;
+            }
+            menu.style.setProperty('display', 'flex', 'important');
         }
 
         function adminGoDayCompleteKakaoScreenIndex() {

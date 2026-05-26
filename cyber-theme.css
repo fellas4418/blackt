@@ -492,6 +492,7 @@ body.dashboard-bg .main-tab-viewport {
 
 body.dashboard-bg .main-tab-track {
     display: flex;
+    align-items: flex-start;
     width: 300%;
     transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
     will-change: transform;
@@ -507,4 +508,11 @@ body.dashboard-bg .main-tab-track .tab-content {
     width: 33.333333%;
     box-sizing: border-box;
     min-width: 0;
+}
+
+body.dashboard-bg .main-tab-track .tab-content:not(.active) {
+    height: 0 !important;
+    overflow: hidden;
+    visibility: hidden;
+    pointer-events: none;
 }
