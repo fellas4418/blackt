@@ -776,8 +776,9 @@
             var startY = 0;
             var tracking = false;
             var pointerId = null;
-            var SWIPE_MIN = 32;
-            var SWIPE_RATIO = 1.12;
+            var swipeDecided = false;
+            var SWIPE_MIN = 28;
+            var SWIPE_RATIO = 1.05;
 
             function isMainSwipeBlocked() {
                 if (document.body.classList.contains('praise-receiver-flow')) return true;
@@ -785,7 +786,8 @@
                 return modalIds.some(function(id) {
                     var el = document.getElementById(id);
                     if (!el) return false;
-                    return window.getComputedStyle(el).display !== 'none';
+                    var st = window.getComputedStyle(el);
+                    return st.display !== 'none' && st.visibility !== 'hidden' && parseFloat(st.opacity || '1') > 0.01;
                 });
             }
 
@@ -794,16 +796,25 @@
                 return !!el.closest('.routine-scroll-box, .bottom-nav, .main-tab-swipe-hint');
             }
 
+            function resetSwipeTracking() {
+                tracking = false;
+                pointerId = null;
+                swipeDecided = false;
+            }
+
             function onSwipeStart(clientX, clientY, target) {
-                if (isMainSwipeBlocked() || isSwipeExcludedTarget(target)) return;
+                if (isMainSwipeBlocked() || isSwipeExcludedTarget(target)) return false;
                 tracking = true;
+                swipeDecided = false;
                 startX = clientX;
                 startY = clientY;
+                return true;
             }
 
             function onSwipeEnd(clientX, clientY) {
                 if (!tracking) return;
                 tracking = false;
+                swipeDecided = false;
                 if (isMainSwipeBlocked()) return;
                 var dx = clientX - startX;
                 var dy = clientY - startY;
@@ -814,20 +825,41 @@
 
             document.addEventListener('pointerdown', function(e) {
                 if (e.pointerType === 'mouse' && e.button !== 0) return;
-                pointerId = e.pointerId;
-                onSwipeStart(e.clientX, e.clientY, e.target);
-            });
+                if (onSwipeStart(e.clientX, e.clientY, e.target)) {
+                    pointerId = e.pointerId;
+                    try { document.body.setPointerCapture(e.pointerId); } catch (_) {}
+                } else {
+                    pointerId = null;
+                }
+            }, true);
+
+            document.addEventListener('pointermove', function(e) {
+                if (!tracking || pointerId === null || e.pointerId !== pointerId) return;
+                var dx = e.clientX - startX;
+                var dy = e.clientY - startY;
+                if (!swipeDecided && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+                    swipeDecided = true;
+                    if (Math.abs(dx) > Math.abs(dy) && e.cancelable) e.preventDefault();
+                }
+            }, { passive: false, capture: true });
 
             document.addEventListener('pointerup', function(e) {
                 if (pointerId !== null && e.pointerId !== pointerId) return;
+                if (pointerId !== null) {
+                    try { document.body.releasePointerCapture(pointerId); } catch (_) {}
+                }
                 pointerId = null;
                 onSwipeEnd(e.clientX, e.clientY);
-            });
+            }, true);
 
-            document.addEventListener('pointercancel', function() {
-                tracking = false;
+            document.addEventListener('pointercancel', function(e) {
+                if (pointerId !== null && e.pointerId !== pointerId) return;
+                if (pointerId !== null) {
+                    try { document.body.releasePointerCapture(pointerId); } catch (_) {}
+                }
                 pointerId = null;
-            });
+                resetSwipeTracking();
+            }, true);
 
             var prevBtn = document.getElementById('main-tab-hint-prev');
             var nextBtn = document.getElementById('main-tab-hint-next');
