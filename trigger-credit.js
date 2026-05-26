@@ -6,9 +6,9 @@
     var DAILY_BASE = 10;
     var ACCURACY_BONUS = 5;
     var ACCURACY_BONUS_MIN = 90;
-    var WEEK_BONUS = 50;
+    var WEEK_BONUS = 20;
     var KAKAO_BONUS = 5;
-    var APP_SHARE_REFERRAL_BONUS = 25;
+    var APP_SHARE_REFERRAL_BONUS = 50;
 
     function getBalance() {
         var n = parseInt(localStorage.getItem(STORAGE_BALANCE), 10);
@@ -220,8 +220,7 @@
         }
         alert(
             '◆ 트리거 크레딧\n\n' +
-                '단어 학습을 완료하면 쌓이는 보상 포인트예요.\n' +
-                '모은 크레딧은 트리거 앱 이용 금액 할인에 사용됩니다. (할인 연동 준비 중)\n\n' +
+                '다양한 트리거 앱 이용을 통해 쌓이는 보상 포인트예요. 모은 크레딧은 트리거 앱 이용 금액 할인에 사용됩니다. (할인 연동 준비 중)\n\n' +
                 '· 당일 학습 완료(80% 이상): +' +
                 DAILY_BASE +
                 '\n· 정확도 90% 이상: +' +
