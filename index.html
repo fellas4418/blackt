@@ -335,8 +335,9 @@
             </div>
             
             <div style="width: 100%; display: flex; justify-content: flex-end; margin-top: 25px;"> <button onclick="shareTriggerApp()" 
-                style="background: transparent; border: 1.5px solid #ffffff; color: #ffffff; padding: 7px 16px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 15px rgba(255,255,255,0.1); font-weight: bold; transition: 0.2s;">
-                <span>공유하기</span> <span style="font-size: 0.9rem; color: #ffffff;">✨</span>
+                style="background: rgba(0, 243, 255, 0.06); border: 1px solid var(--neon-blue); color: #ffffff; padding: 7px 16px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 0 12px rgba(0,243,255,0.22); font-weight: bold; transition: 0.2s; letter-spacing: 0.04em;">
+                <span style="color: var(--neon-blue); text-shadow: 0 0 8px rgba(0,243,255,0.55);">◆</span>
+                <span>공유하기</span>
             </button>
         </div>
         </div>
@@ -360,7 +361,6 @@
             </div>
 
             <div class="card level-section">
-                <div class="level-title" style="color: #888; font-size: 0.9rem; margin-bottom: 15px; font-weight: bold;">학습 레벨 선택</div>
                 <div class="level-buttons">
                     <button class="level-btn active" id="btn-middle" onclick="selectLevel('middle')" style="line-height: 1.4;">
                         중등단어<br>
@@ -375,10 +375,10 @@
 
             <div class="card" style="padding: 25px 20px; border: 1px solid var(--neon-orange); background: rgba(255, 153, 0, 0.05); text-align: center;">
                 <div style="position: relative; margin-bottom: 5px; height: 30px; display: flex; align-items: center; justify-content: center;">
-                    <div style="font-size: 1.2rem; font-weight: bold; color: var(--neon-orange);">오늘의 학습</div>
+                    <div style="font-size: 1.2rem; font-weight: bold; color: var(--neon-orange); letter-spacing: 0.06em;">TODAY MISSION</div>
                     <span onclick="openGuide()" style="position: absolute; right: 0; font-size:0.8rem; cursor:pointer; color:#fff; background:#444; padding:4px 10px; border-radius:12px; border:1px solid #666;">❓안내</span>
                 </div>
-                <div style="color: #aaa; font-size: 1.2rem; margin-bottom: 10px;">목표 단어: <span id="target-count-display" style="color: #fff; font-weight: bold;">0개</span></div>
+                <div style="color: #aaa; font-size: 1.2rem; margin-bottom: 10px;">타겟: <span id="target-count-display" style="color: #fff; font-weight: bold;">0개</span></div>
                 
                              <button class="start-btn" id="start-btn-main">학습 시작하기</button>
             </div>
@@ -389,7 +389,7 @@
                     <div class="info-count" id="total-word-count" style="color: #fff; font-size: 1rem; margin-top: 5px;">0 단어</div>
                 </div>
                 <div class="info-card clickable-card" onclick="showWrongWords()">
-                    <div class="info-title">⭐ 오답/별표</div>
+                    <div class="info-title">◈ 오답/별표</div>
                     <div class="info-count" id="wrong-word-count" style="color: #fff; font-size: 1rem; margin-top: 5px;">0 단어</div>
                 </div>
             </div>
@@ -404,7 +404,7 @@
                     <button id="pdf-btn" disabled style="background: #333; color: #666; border: 1px solid #555; padding: 10px 20px; border-radius: 8px; cursor: not-allowed; font-weight: bold; width: 100%; margin-bottom: 10px;">다운로드 잠김</button>
     
                     <div id="final-gift-section" style="display: none; border-top: 1px solid #333; padding-top: 15px; margin-top: 5px;">
-                        <p style="color: var(--neon-green); font-size: 0.85rem; font-weight: bold; margin-bottom: 8px;">🎊 10주 완주 성공! 선물 도착 🎊</p>
+                        <p style="color: var(--neon-green); font-size: 0.85rem; font-weight: bold; margin-bottom: 8px;">◆ 10주 완주 성공! 선물 도착 🎊</p>
                         <button onclick="printMyWrongTest()" style="width: 100%; padding: 12px; background: rgba(0, 243, 255, 0.1); border: 1px solid var(--neon-blue); color: var(--neon-blue); border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem;">
                             🖨️ 나만의 누적 오답 시험지 출력
                         </button>
@@ -1132,7 +1132,7 @@
                     } else {
                         const mins = Math.floor(remaining / 60000);
                         const secs = Math.floor((remaining % 60000) / 1000);
-                        startBtn.innerText = `쉬고 있어요 🔒 (${mins}:${secs < 10 ? '0' : ''}${secs})`;
+                        startBtn.innerText = `쿨타임🔒(${mins}:${secs < 10 ? '0' : ''}${secs})`;
                     }
                 };
                 updateTimerText();

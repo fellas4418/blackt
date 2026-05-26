@@ -1278,7 +1278,7 @@ function finishSession(didTest = true) {
     
             showSystemMessage(`
                 <div style="text-align:center;">
-                    <div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold;">망각 차단 완료! 🎉</div>
+                    <div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold;">망각 차단 CLEAR ◆</div>
                     <p style="color:#ddd; margin-top:10px;">잠시 후 <strong>오늘의 신규 단어</strong>를<br>바로 시작합니다!</p>
                     <div style="margin-top:20px; color:var(--neon-blue); font-size:1.2rem; font-weight:bold;">Ready...</div>
                 </div>
