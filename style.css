@@ -137,6 +137,57 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 #welcome-msg { text-align: center; color: var(--neon-blue); font-size: 1.1rem; margin-bottom: 6px; text-shadow: 0 0 3px var(--neon-blue); }
 #streak-msg { text-align: center; color: var(--neon-orange); font-size: 1rem; font-weight: bold; margin-bottom: 15px; }
 
+.trigger-credit-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 153, 0, 0.2);
+    color: #666;
+    font-size: 0.7rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    box-shadow: none;
+    font-family: inherit;
+}
+.trigger-credit-chip:hover { color: #999; border-color: rgba(255, 153, 0, 0.38); }
+.trigger-credit-chip__mark {
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    color: rgba(255, 153, 0, 0.55);
+    font-weight: 600;
+}
+.trigger-credit-chip__value {
+    color: rgba(255, 153, 0, 0.85);
+    font-weight: 600;
+    font-size: 0.76rem;
+    font-variant-numeric: tabular-nums;
+}
+.trigger-credit-chip--study {
+    position: absolute;
+    top: 22px;
+    left: 108px;
+    z-index: 90;
+    opacity: 0.88;
+}
+
+.header-user-line {
+    text-align: center;
+    margin: 2px 0 0;
+    padding: 0 8px;
+    font-size: 0.76rem;
+    color: #666;
+    letter-spacing: 0.03em;
+    line-height: 1.35;
+}
+.header-user-line__name {
+    color: #aaa;
+    font-weight: 500;
+}
+
 /* === 대시보드 (index.html) 스타일 === */
 .dashboard-bg { padding: 20px; display: flex; justify-content: center; }
 .dashboard-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 25px; margin: 0 auto; padding-bottom: 110px; }

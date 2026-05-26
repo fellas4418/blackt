@@ -125,8 +125,6 @@
         if (el) el.textContent = bal;
         var el2 = document.getElementById('trigger-credit-value-study');
         if (el2) el2.textContent = bal;
-        var el3 = document.getElementById('trigger-credit-value-row');
-        if (el3) el3.textContent = bal;
     }
 
     function showCreditInfo() {

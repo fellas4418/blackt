@@ -73,10 +73,10 @@
             <div id="slot-1" class="energy-slot-vert"></div>
         </div>
 
-        <div class="trigger-credit-badge" onclick="typeof TriggerCredit!=='undefined'&&TriggerCredit.showCreditInfo()" style="position:absolute;top:20px;right:118px;z-index:100;padding:6px 10px;min-width:88px;cursor:pointer;background:rgba(255,153,0,0.08);border:1px solid var(--neon-orange);border-radius:10px;text-align:right;">
-            <span class="trigger-credit-label" style="font-size:0.62rem;color:var(--neon-orange);font-weight:bold;">크레딧</span>
-            <span id="trigger-credit-value-study" style="font-size:1.1rem;font-weight:800;color:#fff;display:block;">0</span>
-        </div>
+        <button type="button" class="trigger-credit-chip trigger-credit-chip--study" onclick="typeof TriggerCredit!=='undefined'&&TriggerCredit.showCreditInfo()" title="트리거 크레딧">
+            <span class="trigger-credit-chip__mark">CR</span>
+            <span class="trigger-credit-chip__value" id="trigger-credit-value-study">0</span>
+        </button>
         <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 8px; align-items: center; z-index: 100;">
             <button id="pause-btn" onclick="togglePause()" style="background: transparent; border: 1px solid var(--neon-blue); color: #fff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">⏸ 일시중지</button>
             <button id="exit-btn" onclick="location.href='index.html'" style="display: none; background: transparent; border: 1px solid var(--neon-orange); color: #ffffff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">나가기</button>

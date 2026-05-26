@@ -98,13 +98,11 @@
         .login-btn { width: 100%; padding: 16px; background: transparent; border: 1.5px solid var(--neon-green); color: #fff; font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer; box-shadow: var(--glow-green); margin-top: 10px; transition: 0.2s;}
         .login-btn:active { transform: scale(0.98); background: rgba(57, 255, 20, 0.1); }
 
-        #welcome-msg { text-align: center; margin-bottom: 20px; }
-        .online-status-line { display: flex; align-items: center; justify-content: center; gap: 7px; flex-wrap: wrap; }
-        .online-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--neon-green); box-shadow: 0 0 8px var(--neon-green); animation: onlinePulse 1.8s ease-in-out infinite; flex-shrink: 0; }
-        .online-label { font-size: 0.78rem; letter-spacing: 0.12em; color: var(--neon-green); font-weight: 700; text-transform: uppercase; font-family: 'Courier New', monospace; }
-        .online-name { font-size: 1rem; color: #fff; font-weight: 600; }
-        .online-sep { color: #444; font-size: 0.85rem; user-select: none; }
-        .online-done { font-size: 0.75rem; color: var(--neon-orange); margin-top: 5px; letter-spacing: 0.04em; width: 100%; }
+        #welcome-msg { text-align: center; margin-bottom: 14px; }
+        .online-status-line { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
+        .online-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--neon-green); box-shadow: 0 0 6px var(--neon-green); animation: onlinePulse 1.8s ease-in-out infinite; flex-shrink: 0; }
+        .online-label { font-size: 0.72rem; letter-spacing: 0.14em; color: var(--neon-green); font-weight: 700; text-transform: uppercase; font-family: 'Courier New', monospace; opacity: 0.9; }
+        .online-done { font-size: 0.72rem; color: var(--neon-orange); margin-top: 4px; letter-spacing: 0.04em; width: 100%; }
         @keyframes onlinePulse { 0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--neon-green); } 50% { opacity: 0.45; box-shadow: 0 0 4px var(--neon-green); } }
 
         .guide-cyber-btn { position: absolute; right: 0; font-size: 0.72rem; cursor: pointer; color: var(--neon-blue); background: rgba(0, 243, 255, 0.06); padding: 4px 10px; border-radius: 4px; border: 1px solid rgba(0, 243, 255, 0.45); letter-spacing: 0.1em; font-family: 'Courier New', monospace; font-weight: bold; box-shadow: 0 0 10px rgba(0, 243, 255, 0.15); transition: 0.2s; }
@@ -168,17 +166,6 @@
         @keyframes bounceGlow { 0% { transform: translateY(0); text-shadow: 0 0 10px var(--neon-green); } 100% { transform: translateY(-15px); text-shadow: 0 0 25px var(--neon-green), 0 0 40px #fff; } }
 
         /* 👇 [수정됨] 프린트 시 백지 나오는 현상 해결 CSS 👇 */
-        .trigger-credit-badge {
-            display: flex; flex-direction: column; align-items: flex-end;
-            padding: 8px 14px; border-radius: 12px; cursor: pointer;
-            background: rgba(255, 153, 0, 0.08); border: 1px solid var(--neon-orange);
-            box-shadow: 0 0 14px rgba(255, 153, 0, 0.2); min-width: 108px;
-        }
-        .trigger-credit-badge .trigger-credit-label { font-size: 0.72rem; color: var(--neon-orange); font-weight: bold; letter-spacing: 0.04em; }
-        .trigger-credit-badge #trigger-credit-value { font-size: 1.45rem; font-weight: 800; color: #fff; font-family: Orbitron, Pretendard, sans-serif; line-height: 1.1; text-shadow: 0 0 12px rgba(255, 153, 0, 0.45); }
-        .trigger-credit-stat { border-left: 1px solid #444 !important; cursor: pointer; }
-        .trigger-credit-stat .stat-value { color: var(--neon-orange) !important; font-size: 1.15rem !important; font-weight: 800; text-decoration: none !important; }
-
         @media print {
             body { background: #ffffff !important; color: #000000 !important; font-size: 12pt; margin: 0; padding: 0; }
             /* body를 숨기는 대신, 인쇄 화면에 안 보여야 할 UI 컨테이너들만 정확히 가립니다 */
@@ -364,12 +351,15 @@
             <div class="logo" id="main-header-title" onclick="activateAdmin(event)" style="margin: 0; text-align: center; line-height: 1.2; font-size: 3rem; letter-spacing: -1px; cursor: pointer; user-select: none;">
                 트리거 <span class="brand-tab-module brand-tab-module--voca">보카</span>
             </div>
+            <p id="header-user-line" class="header-user-line" style="display: none; margin-top: 6px;">
+                <span id="header-user-name" class="header-user-line__name"></span>
+            </p>
             
-            <div style="width: 100%; display: flex; justify-content: space-between; align-items: flex-start; margin-top: 25px; gap: 10px; flex-wrap: wrap;">
-                <div class="trigger-credit-badge" onclick="typeof TriggerCredit!=='undefined'&&TriggerCredit.showCreditInfo()" title="크레딧 적립 안내">
-                    <span class="trigger-credit-label">트리거 크레딧</span>
-                    <span id="trigger-credit-value">0</span>
-                </div>
+            <div style="width: 100%; display: flex; justify-content: flex-end; align-items: center; margin-top: 16px; gap: 8px;">
+                <button type="button" class="trigger-credit-chip" onclick="typeof TriggerCredit!=='undefined'&&TriggerCredit.showCreditInfo()" title="트리거 크레딧">
+                    <span class="trigger-credit-chip__mark">CR</span>
+                    <span class="trigger-credit-chip__value" id="trigger-credit-value">0</span>
+                </button>
                 <button onclick="shareTriggerApp()" 
                 style="background: rgba(0, 243, 255, 0.06); border: 1px solid var(--neon-blue); color: #ffffff; padding: 7px 16px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 0 12px rgba(0,243,255,0.22); font-weight: bold; transition: 0.2s; letter-spacing: 0.04em;">
                 <span style="color: var(--neon-blue); text-shadow: 0 0 8px rgba(0,243,255,0.55);">◆</span>
@@ -393,8 +383,7 @@
             <div class="stats-row">
                 <div class="stat-item"><div class="stat-label">진행 중인 Day</div><div class="stat-value" id="stat-current-day" style="color: #fff;">Day 1</div></div>
                 <div class="stat-item" style="border-left: 1px solid #444; border-right: 1px solid #444;"><div class="stat-label">오늘의 사이클</div><div class="stat-value" id="stat-session" style="color: #fff;">1 / 5</div></div>
-                <div class="stat-item trigger-credit-stat" onclick="typeof TriggerCredit!=='undefined'&&TriggerCredit.showCreditInfo()"><div class="stat-label">트리거 크레딧</div><div class="stat-value" id="trigger-credit-value-row">0</div></div>
-                <div class="stat-item clickable-card" style="border-left: 1px solid #444;" onclick="showWeeklyReport()"><div class="stat-label">누적 리포트</div><div class="stat-value" style="color:#ddd; text-decoration:underline; font-size: 1rem; margin-top: 3px;">보기 📊</div></div>
+                <div class="stat-item clickable-card" onclick="showWeeklyReport()"><div class="stat-label">누적 리포트</div><div class="stat-value" style="color:#ddd; text-decoration:underline; font-size: 1rem; margin-top: 3px;">보기 📊</div></div>
             </div>
 
             <div class="card level-section">
@@ -774,16 +763,21 @@
             if (nextBtn) nextBtn.classList.toggle('is-hidden', idx >= MAIN_TAB_ORDER.length - 1);
         }
 
-        function getMainTabTranslatePct(tabIdx) {
-            return -(tabIdx * 100) / MAIN_TAB_ORDER.length;
+        function getMainTabViewportWidth() {
+            var viewport = document.querySelector('.main-tab-viewport');
+            return viewport ? viewport.getBoundingClientRect().width : window.innerWidth;
         }
 
-        function applyMainTabTrackPct(pct, noTransition) {
+        function getMainTabTranslatePx(tabIdx) {
+            return -tabIdx * getMainTabViewportWidth();
+        }
+
+        function applyMainTabTrackPx(px, noTransition) {
             var track = document.getElementById('main-tab-track');
             if (!track) return;
             if (noTransition) track.classList.add('no-transition');
             else track.classList.remove('no-transition');
-            track.style.transform = 'translateX(' + pct + '%)';
+            track.style.transform = 'translate3d(' + px + 'px, 0, 0)';
         }
 
         function beginMainTabSlide() {
@@ -808,7 +802,7 @@
 
         function snapMainTabTrack(animate) {
             if (animate) beginMainTabSlide();
-            applyMainTabTrackPct(getMainTabTranslatePct(MAIN_TAB_ORDER.indexOf(mainCurrentTab)), !animate);
+            applyMainTabTrackPx(getMainTabTranslatePx(MAIN_TAB_ORDER.indexOf(mainCurrentTab)), !animate);
             if (animate) endMainTabSlide();
         }
 
@@ -823,12 +817,12 @@
             var track = document.getElementById('main-tab-track');
             if (track) {
                 if (options.animate === false) {
-                    applyMainTabTrackPct(getMainTabTranslatePct(nextIdx), true);
+                    applyMainTabTrackPx(getMainTabTranslatePx(nextIdx), true);
                     void track.offsetWidth;
                     track.classList.remove('no-transition');
                 } else {
                     beginMainTabSlide();
-                    applyMainTabTrackPct(getMainTabTranslatePct(nextIdx), false);
+                    applyMainTabTrackPx(getMainTabTranslatePx(nextIdx), false);
                     endMainTabSlide();
                 }
             }
@@ -924,18 +918,25 @@
                 if (!swipeHorizontal) return;
                 if (e && e.cancelable) e.preventDefault();
                 beginMainTabSlide();
-                var viewport = document.querySelector('.main-tab-viewport');
-                var vw = viewport ? viewport.getBoundingClientRect().width : window.innerWidth;
+                var vw = getMainTabViewportWidth();
                 if (!vw) return;
                 var idx = MAIN_TAB_ORDER.indexOf(mainCurrentTab);
-                var basePct = getMainTabTranslatePct(idx);
-                var panelPct = 100 / MAIN_TAB_ORDER.length;
-                var nextPct = basePct + (dx / vw) * panelPct;
-                var minPct = 0;
-                var maxPct = getMainTabTranslatePct(MAIN_TAB_ORDER.length - 1);
-                if (nextPct > minPct) nextPct = minPct + (nextPct - minPct) * 0.3;
-                if (nextPct < maxPct) nextPct = maxPct + (nextPct - maxPct) * 0.3;
-                applyMainTabTrackPct(nextPct, true);
+                var basePx = getMainTabTranslatePx(idx);
+                var nextPx = basePx + dx;
+                var rightBound = 0;
+                var leftBound = getMainTabTranslatePx(MAIN_TAB_ORDER.length - 1);
+                var rubber = 0.32;
+                if (idx === 0 && nextPx > rightBound) {
+                    nextPx = rightBound + (nextPx - rightBound) * rubber;
+                } else if (idx === MAIN_TAB_ORDER.length - 1) {
+                    var prevTabPx = getMainTabTranslatePx(idx - 1);
+                    if (nextPx > prevTabPx) {
+                        nextPx = prevTabPx + (nextPx - prevTabPx) * rubber;
+                    }
+                }
+                if (nextPx > rightBound) nextPx = rightBound + (nextPx - rightBound) * rubber;
+                if (nextPx < leftBound) nextPx = leftBound + (nextPx - leftBound) * rubber;
+                applyMainTabTrackPx(nextPx, true);
             }
 
             function onSwipeEnd(clientX, clientY) {
@@ -1168,12 +1169,32 @@
             }
         }
 
-        function renderWelcomeMsg(name, session) {
+        function updateHeaderUserLine() {
+            const line = document.getElementById('header-user-line');
+            const nameEl = document.getElementById('header-user-name');
+            if (!line || !nameEl) return;
+            const name = (localStorage.getItem('trigger_name') || '').trim();
+            if (!name) {
+                line.style.display = 'none';
+                nameEl.textContent = '';
+                return;
+            }
+            nameEl.textContent = name;
+            line.style.display = 'block';
+        }
+
+        function renderWelcomeMsg(session) {
             const welcomeMsg = document.getElementById('welcome-msg');
-            if (!name || !welcomeMsg) return;
-            const safeName = String(name).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+            if (!welcomeMsg) return;
+            const name = (localStorage.getItem('trigger_name') || '').trim();
+            if (!name) {
+                welcomeMsg.innerHTML = '';
+                return;
+            }
             const doneExtra = session > 5 ? '<div class="online-done">오늘 목표 완료</div>' : '';
-            welcomeMsg.innerHTML = '<div class="online-status-line"><span class="online-name">' + safeName + '</span><span class="online-sep">·</span><span class="online-dot"></span><span class="online-label">ONLINE</span></div>' + doneExtra;
+            welcomeMsg.innerHTML =
+                '<div class="online-status-line"><span class="online-dot"></span><span class="online-label">ONLINE</span></div>' +
+                doneExtra;
         }
 
         function checkLoginStatus() {
@@ -1181,6 +1202,7 @@
             if (urlParams.get('praise') === 'true' || urlParams.get('share_result') === '1') {
                 const modal = document.getElementById('login-modal');
                 if (modal) modal.style.display = 'none';
+                updateHeaderUserLine();
                 return;
             }
             const savedName = localStorage.getItem('trigger_name');
@@ -1190,9 +1212,11 @@
 
             if (savedName) {
                 modal.style.display = 'none';
-                renderWelcomeMsg(savedName, currentSession);
+                updateHeaderUserLine();
+                renderWelcomeMsg(currentSession);
             } else {
                 modal.style.display = 'flex';
+                updateHeaderUserLine();
             }
             updateDashboardUI();
         }
@@ -1208,10 +1232,8 @@
             const displayDay = day > 70 ? 70 : day;
             document.getElementById('stat-current-day').innerText = `Day ${displayDay}`;
 
-            const welcomeMsg = document.getElementById('welcome-msg');
-            if (name && welcomeMsg) {
-                renderWelcomeMsg(name, session);
-            }
+            updateHeaderUserLine();
+            renderWelcomeMsg(session);
 
             if (typeof wordsData !== 'undefined') {
                 let learnedTotal = 0;
