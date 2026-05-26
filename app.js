@@ -1348,7 +1348,7 @@ function finishSession(didTest = true) {
     if (!stats[currentDay]) stats[currentDay] = { progress: 0, accuracy: 0 };
     stats[currentDay].progress = progressPercent;
 
-    let currentSessionDisplay = finishedNum >= totalSessions ? "완료 👑" : `${finishedNum} / ${totalSessions} 사이클`;
+    let currentSessionDisplay = finishedNum >= totalSessions ? "SYNC ◆" : `${finishedNum} / ${totalSessions} 사이클`;
     stats[currentDay].status = currentSessionDisplay;
 
     if (didTest && accuracy < 80 && (currentSessionRaw === String(DAILY_CYCLE_COUNT) || (isReviewDay && currentSessionRaw === '2'))) {

@@ -271,7 +271,7 @@
             blurb: bdg.blurb,
             headline: headlineFor(ctx),
             copies: [copyWarm(ctx), copyFun(ctx), copyShort(ctx)],
-            labels: ['🤗 따뜻하게 복사', '⚡ 신나게 복사', '✨ 짧게 복사']
+            labels: ['◆ WARM SYNC', '▲ BOOST COPY', '◇ SHORT SYNC']
         };
     }
 
