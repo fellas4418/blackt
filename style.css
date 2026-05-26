@@ -137,12 +137,21 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 #welcome-msg { text-align: center; color: var(--neon-blue); font-size: 1.1rem; margin-bottom: 6px; text-shadow: 0 0 3px var(--neon-blue); }
 #streak-msg { text-align: center; color: var(--neon-orange); font-size: 1rem; font-weight: bold; margin-bottom: 15px; }
 
+.main-header-shell {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 30px 10px 0;
+    box-sizing: border-box;
+}
 .main-header-meta {
     width: 100%;
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-top: 12px;
+    align-items: center;
+    margin-top: 14px;
     padding: 0 2px;
     gap: 10px;
     box-sizing: border-box;
@@ -150,65 +159,49 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 .header-profile-credit {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 1px;
+    align-items: flex-start;
+    gap: 2px;
     background: none;
     border: none;
     cursor: pointer;
     padding: 0;
-    min-width: 64px;
+    min-width: 48px;
     -webkit-tap-highlight-color: transparent;
 }
 .header-profile-credit:active { opacity: 0.85; }
-.header-credit-coins {
-    display: block;
-    width: 42px;
-    height: 38px;
-    line-height: 0;
-    filter: drop-shadow(0 2px 6px rgba(255, 153, 0, 0.25));
-}
-.header-credit-coins img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
+.header-credit-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    color: rgba(255, 153, 0, 0.55);
+    text-transform: lowercase;
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+    line-height: 1;
 }
 .header-credit-value {
-    font-size: 0.92rem;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--neon-orange);
     font-variant-numeric: tabular-nums;
-    line-height: 1.2;
+    line-height: 1.1;
     text-shadow: 0 0 8px rgba(255, 153, 0, 0.2);
 }
-.header-user-name {
-    font-size: 0.72rem;
-    color: #888;
-    max-width: 108px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    line-height: 1.3;
-    margin-top: 1px;
-}
-.main-header-actions {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    flex-shrink: 0;
-}
-.header-share-btn-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
+.main-header-divider {
+    border: 0;
+    border-top: 0.5px solid #222;
+    width: 95%;
+    margin: 6px auto 22px;
 }
 .header-online-line {
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: flex-end;
     gap: 5px;
-    margin-top: 7px;
-    padding-right: 2px;
+    margin-top: 10px;
+    margin-bottom: 0;
+    padding: 0 4px 2px 0;
+    box-sizing: border-box;
 }
 .header-online-line .online-dot {
     width: 6px;
@@ -240,19 +233,18 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
     opacity: 0.88;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 1px;
+    align-items: flex-start;
+    gap: 2px;
     background: none;
     border: none;
     cursor: pointer;
     padding: 0;
 }
-.trigger-credit-chip--study .header-credit-coins {
-    width: 34px;
-    height: 30px;
+.trigger-credit-chip--study .header-credit-label {
+    font-size: 0.58rem;
 }
 .trigger-credit-chip--study .header-credit-value {
-    font-size: 0.78rem;
+    font-size: 0.82rem;
 }
 
 /* === 대시보드 (index.html) 스타일 === */

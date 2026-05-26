@@ -343,36 +343,29 @@
 
     <div class="dashboard-container">
         
-        <div style="position: relative; display: flex; flex-direction: column; align-items: center; width: 100%; padding: 30px 10px 15px 10px; box-sizing: border-box;">
+        <div class="main-header-shell">
             <div class="logo" id="main-header-title" onclick="activateAdmin(event)" style="margin: 0; text-align: center; line-height: 1.2; font-size: 3rem; letter-spacing: -1px; cursor: pointer; user-select: none;">
                 트리거 <span class="brand-tab-module brand-tab-module--voca">보카</span>
             </div>
 
             <div class="main-header-meta">
                 <button type="button" class="header-profile-credit" id="header-credit-btn" onclick="typeof TriggerCredit!=='undefined'&&TriggerCredit.showCreditInfo()" title="트리거 크레딧">
-                    <span class="header-credit-coins" aria-hidden="true">
-                        <img src="로고, 이미지/trigger-credit-coins.svg" alt="" width="42" height="38">
-                    </span>
+                    <span class="header-credit-label">credit</span>
                     <span class="header-credit-value" id="trigger-credit-value">0</span>
-                    <span class="header-user-name" id="header-user-name"></span>
                 </button>
-                <div class="main-header-actions">
-                    <div class="header-share-btn-wrap">
-                        <button type="button" onclick="shareTriggerApp()" 
-                        style="background: rgba(0, 243, 255, 0.06); border: 1px solid var(--neon-blue); color: #ffffff; padding: 7px 16px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 0 12px rgba(0,243,255,0.22); font-weight: bold; transition: 0.2s; letter-spacing: 0.04em;">
-                            <span style="color: var(--neon-blue); text-shadow: 0 0 8px rgba(0,243,255,0.55);">◆</span>
-                            <span>공유하기</span>
-                        </button>
-                        <div id="header-online-line" class="header-online-line" style="display: none;">
-                            <span class="online-dot"></span>
-                            <span class="online-label">ONLINE</span>
-                        </div>
-                    </div>
-                </div>
+                <button type="button" onclick="shareTriggerApp()" 
+                style="background: rgba(0, 243, 255, 0.06); border: 1px solid var(--neon-blue); color: #ffffff; padding: 7px 16px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 0 12px rgba(0,243,255,0.22); font-weight: bold; transition: 0.2s; letter-spacing: 0.04em;">
+                    <span style="color: var(--neon-blue); text-shadow: 0 0 8px rgba(0,243,255,0.55);">◆</span>
+                    <span>공유하기</span>
+                </button>
+            </div>
+            <div id="header-online-line" class="header-online-line" style="display: none;">
+                <span class="online-dot"></span>
+                <span class="online-label">ONLINE</span>
             </div>
         </div>
         
-        <hr style="border: 0.5px solid #222; width: 95%; margin: 10px auto 25px auto;">
+        <hr class="main-header-divider">
 
         <div class="main-tab-viewport">
         <div class="main-tab-track" id="main-tab-track">
@@ -1174,14 +1167,9 @@
         }
 
         function updateHeaderProfile() {
-            const nameEl = document.getElementById('header-user-name');
             const onlineLine = document.getElementById('header-online-line');
             const creditBtn = document.getElementById('header-credit-btn');
             const name = (localStorage.getItem('trigger_name') || '').trim();
-            if (nameEl) {
-                nameEl.textContent = name;
-                nameEl.style.display = name ? 'block' : 'none';
-            }
             if (onlineLine) onlineLine.style.display = name ? 'flex' : 'none';
             if (creditBtn) creditBtn.style.visibility = name ? 'visible' : 'hidden';
         }
