@@ -370,7 +370,7 @@
                     <span class="online-label">ONLINE</span>
                 </div>
             </div>
-            <div class="stats-row stats-row--global" id="global-stats-row">
+            <div class="stats-row stats-row--global stats-voca-only" id="global-stats-row">
                 <div class="stat-item stat-item--day stats-voca-only">
                     <div class="stat-label">진행 중인 Day</div>
                     <div class="stat-value" id="stat-current-day" style="color: #fff;">Day 1</div>
@@ -1189,14 +1189,9 @@
         }
 
         function updateGlobalStatsForTab(tabId) {
-            const row = document.getElementById('global-stats-row');
-            if (!row) return;
-            row.classList.toggle('stats-row--compact', tabId !== 'voca');
             document.querySelectorAll('.stats-voca-only').forEach(function (el) {
                 el.style.display = tabId === 'voca' ? '' : 'none';
             });
-            const sessionCol = document.getElementById('stat-session-col');
-            if (sessionCol) sessionCol.style.display = tabId === 'voca' ? '' : 'none';
         }
 
         function renderVocaDoneMsg(session) {

@@ -151,7 +151,7 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    margin-top: 14px;
+    margin-top: 26px;
     padding: 0 2px;
     box-sizing: border-box;
 }
@@ -174,43 +174,39 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 .stats-row--global {
     margin-bottom: 0;
 }
-.stats-row--global.stats-row--compact .stat-item--day {
-    flex: 1;
-    border-right: 1px solid #444;
-}
-.stats-row--global.stats-row--compact .stat-item--report {
-    flex: 1;
-}
 .stat-credit-tap {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 2px;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    min-width: 86px;
     width: auto;
-    background: none;
-    border: none;
+    background: rgba(255, 153, 0, 0.05);
+    border: 1px solid rgba(255, 153, 0, 0.22);
+    border-radius: 8px;
     cursor: pointer;
-    padding: 0;
+    padding: 5px 10px 5px 8px;
     margin: 0;
     -webkit-tap-highlight-color: transparent;
 }
-.stat-credit-tap:active { opacity: 0.85; }
+.stat-credit-tap:active { opacity: 0.85; background: rgba(255, 153, 0, 0.1); }
 .header-credit-label {
-    font-size: 0.62rem;
-    letter-spacing: 0.16em;
-    color: rgba(255, 153, 0, 0.6);
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    color: rgba(255, 153, 0, 0.55);
     text-transform: uppercase;
-    font-weight: 700;
+    font-weight: 600;
     font-family: 'Courier New', monospace;
     line-height: 1;
 }
 .header-credit-value {
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: var(--neon-orange);
     font-variant-numeric: tabular-nums;
-    line-height: 1.1;
-    text-shadow: 0 0 8px rgba(255, 153, 0, 0.2);
+    line-height: 1;
+    text-shadow: 0 0 6px rgba(255, 153, 0, 0.25);
+    margin-left: auto;
 }
 .stat-online-top,
 #header-online-line.stat-online-top {
@@ -234,7 +230,7 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 }
 .stat-online-top .online-label,
 #header-online-line.stat-online-top .online-label {
-    font-size: 0.68rem;
+    font-size: 0.82rem;
     letter-spacing: 0.14em;
     color: var(--neon-green);
     font-weight: 700;
