@@ -225,7 +225,7 @@
 
     <div id="guide-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 30000; align-items: center; justify-content: center;">
         <div class="login-card" style="border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.3); width: 90%; max-width: 420px; text-align:left; background: #111; padding: 30px; border-radius: 15px;">
-            <div style="font-size: 1.6rem; font-weight: bold; color: #fff; margin-bottom: 25px; text-align:center;">TRIGGER VOCA<br><span style="font-size:0.65em;color:var(--neon-blue);letter-spacing:2px;font-weight:700">학습 시스템 안내</span></div>
+            <div style="font-size: 1.6rem; font-weight: bold; color: #fff; margin-bottom: 25px; text-align:center;">트리거 <span class="brand-tab-module brand-tab-module--voca">보카</span><br><span style="font-size:0.65em;color:#aaa;letter-spacing:1px;font-weight:600">학습 시스템 안내</span></div>
             
             <div style="color: #ddd; font-size: 0.95rem; line-height: 1.6; max-height: 400px; overflow-y: auto; padding-right: 10px;">
                 <p style="margin-bottom: 20px;">
@@ -305,7 +305,7 @@
         
         <div style="position: relative; display: flex; flex-direction: column; align-items: center; width: 100%; padding: 30px 10px 15px 10px; box-sizing: border-box;">
             <div class="logo" id="main-header-title" onclick="activateAdmin(event)" style="margin: 0; text-align: center; line-height: 1.2; font-size: 3rem; letter-spacing: -1px; cursor: pointer; user-select: none;">
-                TRIGGER BLACK<br><span class="brand-module-tag brand-module-tag--voca">VOCA</span>
+                트리거 <span class="brand-tab-module brand-tab-module--voca">보카</span>
             </div>
             
             <div style="width: 100%; display: flex; justify-content: flex-end; margin-top: 25px;"> <button onclick="shareTriggerApp()" 
@@ -416,7 +416,7 @@
 
         <div id="tab-analysis" class="tab-content">
             <div class="card module-scan-card" style="padding: 25px;">
-                <div class="module-scan-title">TRIGGER SCAN · 설정</div>
+                <div class="module-scan-title">트리거 <span class="brand-tab-module brand-tab-module--scan">스캔</span> · 설정</div>
                 <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 25px;">분석할 지문의 정보를 선택하면 더 정확한 배경지식과 해석이 제공됩니다.</p>
                 
                 <div class="input-group">
@@ -482,10 +482,10 @@
         <div id="tab-grammar" class="tab-content">
             <div class="card module-grammar-card">
                 <div class="module-grammar-badge">3H CORE · PREMIUM</div>
-                <div class="module-grammar-title">TRIGGER GRAMMAR</div>
+                <div class="module-grammar-title">트리거 <span class="brand-tab-module brand-tab-module--grammar">문법</span></div>
                 <p class="module-grammar-sub">Super Fast English Grammar</p>
-                <p class="module-grammar-desc">3시간으로 문장 골격·특수 구문을 정리합니다.<br>SCAN과 함께 쓰면 「왜 이렇게 쓰였는지」까지 이어집니다.</p>
-                <button type="button" class="module-grammar-btn" onclick="window.open('https://www.notion.so/3-26ea81fd05e580869538e10685e3cdf2', '_blank')">GRAMMAR 수강하기</button>
+                <p class="module-grammar-desc">3시간으로 문장 골격·특수 구문을 정리합니다.<br>스캔과 함께 쓰면 「왜 이렇게 쓰였는지」까지 이어집니다.</p>
+                <button type="button" class="module-grammar-btn" onclick="window.open('https://www.notion.so/3-26ea81fd05e580869538e10685e3cdf2', '_blank')">문법 수강하기</button>
             </div>
         </div>
     </div> 
@@ -691,9 +691,9 @@
             
             const headerTitle = document.getElementById('main-header-title');
             if (headerTitle) {
-                if (tabId === 'voca') { headerTitle.innerHTML = 'TRIGGER BLACK<br><span class="brand-module-tag brand-module-tag--voca">VOCA</span>'; }
-                else if (tabId === 'analysis') { headerTitle.innerHTML = 'TRIGGER BLACK<br><span class="brand-module-tag brand-module-tag--scan">SCAN</span>'; }
-                else if (tabId === 'grammar') { headerTitle.innerHTML = 'TRIGGER BLACK<br><span class="brand-module-tag brand-module-tag--grammar">GRAMMAR</span>'; }
+                if (tabId === 'voca') { headerTitle.innerHTML = '트리거 <span class="brand-tab-module brand-tab-module--voca">보카</span>'; }
+                else if (tabId === 'analysis') { headerTitle.innerHTML = '트리거 <span class="brand-tab-module brand-tab-module--scan">스캔</span>'; }
+                else if (tabId === 'grammar') { headerTitle.innerHTML = '트리거 <span class="brand-tab-module brand-tab-module--grammar">문법</span>'; }
             }
             window.scrollTo(0,0);
             if (tabId === 'voca') showAdminMenuIfEnabled();

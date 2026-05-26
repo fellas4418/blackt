@@ -28,16 +28,12 @@
     --glow-word: 0 0 8px rgba(255, 255, 255, 0.45);
 }
 
-.brand-module-tag {
-    font-size: 0.38em;
-    letter-spacing: 5px;
-    font-weight: 700;
-    display: block;
-    margin-top: 6px;
+.brand-tab-module {
+    font-weight: 800;
 }
-.brand-module-tag--voca { color: var(--neon-blue); }
-.brand-module-tag--scan { color: var(--neon-orange); }
-.brand-module-tag--grammar { color: var(--neon-purple); }
+.brand-tab-module--voca { color: var(--neon-blue); text-shadow: var(--glow-blue); }
+.brand-tab-module--scan { color: var(--neon-orange); text-shadow: var(--glow-orange); }
+.brand-tab-module--grammar { color: var(--neon-purple); text-shadow: var(--glow-purple); }
 
 .module-scan-card {
     border: 1px solid rgba(255, 153, 0, 0.35);
@@ -46,8 +42,7 @@
 .module-scan-title {
     font-size: 1.3rem;
     font-weight: bold;
-    color: var(--neon-orange);
-    text-shadow: var(--glow-orange);
+    color: #fff;
     margin-bottom: 10px;
 }
 
@@ -69,7 +64,6 @@
     font-size: 1.55rem;
     font-weight: 900;
     color: #fff;
-    text-shadow: var(--glow-purple);
     margin-bottom: 8px;
     line-height: 1.25;
 }
