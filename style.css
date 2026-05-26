@@ -168,6 +168,9 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 .global-stats-shell:not(.global-stats-shell--other-tab) + .main-tab-viewport {
     margin-top: -10px;
 }
+.global-stats-shell:not(.global-stats-shell--other-tab) .global-stats-meta {
+    padding-bottom: 16px;
+}
 .global-stats-shell--other-tab .global-stats-meta {
     padding-bottom: 7px;
 }
