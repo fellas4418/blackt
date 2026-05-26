@@ -126,7 +126,7 @@ function clearBlacktCooldownNotifySchedule() {
 
 function triggerShowCooldownDoneNotification() {
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
-    const title = '🧠 사라져 Voca';
+    const title = 'TRIGGER BLACK · VOCA';
     const options = {
         body: '3분 쉼이 끝났어요. 다음 사이클을 시작해 보세요! 🔥',
         icon: TRIGGER_IMG_DIR + 'icon-192.png',
@@ -716,7 +716,7 @@ function startStudy() {
                 showSystemMessage(`
                     <div style="text-align:center; padding:10px;">
                         <div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold; margin-bottom:10px;">연습 완료!</div>
-                        <p style="color:#888; margin:0 0 18px 0; line-height:1.5;">사라져 VOCA 방식(5초→3초→마지막 뜻)으로<br>2회전 학습이 끝났습니다.</p>
+                        <p style="color:#888; margin:0 0 18px 0; line-height:1.5;">TRIGGER VOCA 방식(5초→3초→마지막 뜻)으로<br>2회전 학습이 끝났습니다.</p>
                         <button onclick="location.reload()" style="width:100%; padding:16px; background:var(--neon-blue); color:#fff; border-radius:12px; border:none; font-weight:bold; cursor:pointer;">한 번 더 연습하기</button>
                         <button onclick="(window.customVocaGoBack ? window.customVocaGoBack() : (location.href='${returnUrl ? String(returnUrl).replace(/'/g, "\\'") : "analysis.html"}'))" style="width:100%; padding:14px; margin-top:10px; background:transparent; border:1px solid #444; color:#aaa; border-radius:12px; font-weight:bold; cursor:pointer;">분석 결과로 돌아가기</button>
                     </div>
@@ -1713,7 +1713,7 @@ window.printMyWrongTest = function() {
     let html = `
         <html>
         <head>
-            <title>Trigger Voca - 누적 오답 시험지</title>
+            <title>TRIGGER BLACK · VOCA — 누적 오답 시험지</title>
             <style>
                 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
                 body { font-family: 'Pretendard', sans-serif; padding: 30px; line-height: 1.5; color: #333; }
@@ -1767,7 +1767,7 @@ window.printMyWrongTest = function() {
                 </tbody>
             </table>
             <div class="footer">
-                Trigger Voca English System - Designed by 원장님
+                TRIGGER BLACK — Designed by 원장님
             </div>
             <div class="no-print" style="display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; margin-top: 20px;">
             <button class="btn-print" onclick="window.print()" style="width: 350px;">지금 바로 인쇄 (PDF 저장)</button>

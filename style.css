@@ -1,18 +1,102 @@
 :root {
-    --bg-color: #050505; 
-    --card-bg-color: #111111; 
-    --border-color: #222222;
-    --neon-blue: #00f3ff; 
-    --neon-green: #39ff14; 
-    --neon-orange: #ff9900; 
-    --neon-purple: #bc13fe;
-    
-    /* 🚀 광채 효과를 은은하게 축소하여 눈 피로 감소 (유지) */
-    --glow-blue: 0 0 8px rgba(0,243,255,0.4);
+    /* TRIGGER BLACK — core */
+    --black-bg: #050505;
+    --black-surface: #111111;
+    --black-border: #222222;
+    --text-muted: #aaaaaa;
+
+    --bg-color: var(--black-bg);
+    --card-bg-color: var(--black-surface);
+    --border-color: var(--black-border);
+
+    /* module accents: VOCA · SCAN · GRAMMAR */
+    --module-voca: #00f3ff;
+    --module-scan: #ff9900;
+    --module-grammar: #bc13fe;
+
+    --neon-blue: var(--module-voca);
+    --neon-green: #39ff14;
+    --neon-orange: var(--module-scan);
+    --neon-purple: var(--module-grammar);
+    --neon-kakao: #fee500;
+
+    --glow-blue: 0 0 8px rgba(0, 243, 255, 0.4);
     --glow-green: 0 0 8px rgba(57, 255, 20, 0.4);
-    --glow-orange: 0 0 10px rgba(255,153,0,0.5);
+    --glow-orange: 0 0 10px rgba(255, 153, 0, 0.5);
+    --glow-purple: 0 0 12px rgba(188, 19, 254, 0.45);
     --glow-text: 0 0 4px var(--neon-blue);
     --glow-word: 0 0 8px rgba(255, 255, 255, 0.45);
+}
+
+.brand-module-tag {
+    font-size: 0.38em;
+    letter-spacing: 5px;
+    font-weight: 700;
+    display: block;
+    margin-top: 6px;
+}
+.brand-module-tag--voca { color: var(--neon-blue); }
+.brand-module-tag--scan { color: var(--neon-orange); }
+.brand-module-tag--grammar { color: var(--neon-purple); }
+
+.module-scan-card {
+    border: 1px solid rgba(255, 153, 0, 0.35);
+    background: rgba(255, 153, 0, 0.05);
+}
+.module-scan-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--neon-orange);
+    text-shadow: var(--glow-orange);
+    margin-bottom: 10px;
+}
+
+.module-grammar-card {
+    border: 1px solid rgba(188, 19, 254, 0.45);
+    background: rgba(188, 19, 254, 0.06);
+    text-align: center;
+    padding: 32px 20px;
+    box-shadow: 0 0 24px rgba(188, 19, 254, 0.1);
+}
+.module-grammar-badge {
+    color: var(--neon-purple);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+}
+.module-grammar-title {
+    font-size: 1.55rem;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: var(--glow-purple);
+    margin-bottom: 8px;
+    line-height: 1.25;
+}
+.module-grammar-sub {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    letter-spacing: 1px;
+    margin: 0 0 16px;
+    font-weight: 600;
+}
+.module-grammar-desc {
+    color: #bbb;
+    font-size: 0.95rem;
+    line-height: 1.65;
+    margin: 0 0 26px;
+}
+.module-grammar-btn {
+    width: 100%;
+    padding: 15px;
+    background: var(--neon-purple);
+    border: none;
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: bold;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: var(--glow-purple);
 }
 
 body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: 'Pretendard', sans-serif; -webkit-font-smoothing: antialiased; }
@@ -120,9 +204,9 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 .nav-item { flex: 1; text-align: center; color: #555; font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; font-weight: bold; }
 .nav-icon { font-size: 1.4rem; }
 .nav-item.active { color: #fff; }
-.nav-item.active:nth-child(1) { color: var(--neon-orange); } 
-.nav-item.active:nth-child(2) { color: var(--neon-blue); }   
-.nav-item.active:nth-child(3) { color: #b537f2; }            
+.nav-item.active:nth-child(1) { color: var(--neon-blue); }
+.nav-item.active:nth-child(2) { color: var(--neon-orange); }
+.nav-item.active:nth-child(3) { color: var(--neon-purple); }            
 
 /* 🚀 훈련장 화면 깨짐 방지: study.html 전용 코드를 100% 원래 코드로 완전 복구 (절대 건드리지 않음) */
 .study-bg { overflow: hidden; }

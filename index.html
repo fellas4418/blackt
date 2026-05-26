@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>사라져 Voca - Neon</title>
+    <title>TRIGGER BLACK</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#000000">
@@ -137,9 +137,9 @@
         .nav-item { flex: 1; text-align: center; color: #555; font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; font-weight: bold; }
         .nav-icon { font-size: 1.4rem; }
         .nav-item.active { color: #fff; }
-        .nav-item.active:nth-child(1) { color: var(--neon-orange); } 
-        .nav-item.active:nth-child(2) { color: var(--neon-blue); }   
-        .nav-item.active:nth-child(3) { color: #b537f2; } 
+        .nav-item.active:nth-child(1) { color: var(--neon-blue); }
+        .nav-item.active:nth-child(2) { color: var(--neon-orange); }
+        .nav-item.active:nth-child(3) { color: var(--neon-purple); } 
 
         .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
         .tab-content.active { display: block; }
@@ -164,7 +164,7 @@
 <body class="dashboard-bg">
 
     <div id="splash-screen" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease;">
-        <img src="로고, 이미지/icon-512.png" alt="Trigger Logo" style="width: 180px; height: 180px; border-radius: 20px;">
+        <img src="로고, 이미지/icon-512.png" alt="TRIGGER BLACK" style="width: 180px; height: 180px; border-radius: 20px;">
     </div>
     <script>
         (function () {
@@ -225,7 +225,7 @@
 
     <div id="guide-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 30000; align-items: center; justify-content: center;">
         <div class="login-card" style="border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.3); width: 90%; max-width: 420px; text-align:left; background: #111; padding: 30px; border-radius: 15px;">
-            <div style="font-size: 1.6rem; font-weight: bold; color: #fff; margin-bottom: 25px; text-align:center;">🧠 사라져 Voca <br>학습 시스템 안내</div>
+            <div style="font-size: 1.6rem; font-weight: bold; color: #fff; margin-bottom: 25px; text-align:center;">TRIGGER VOCA<br><span style="font-size:0.65em;color:var(--neon-blue);letter-spacing:2px;font-weight:700">학습 시스템 안내</span></div>
             
             <div style="color: #ddd; font-size: 0.95rem; line-height: 1.6; max-height: 400px; overflow-y: auto; padding-right: 10px;">
                 <p style="margin-bottom: 20px;">
@@ -260,7 +260,7 @@
 
     <div id="login-modal" style="display:none;">
         <div class="login-card">
-            <div class="login-title">Trigger English</div>
+            <div class="login-title">TRIGGER BLACK</div>
             <div class="input-group"><span class="input-label">이름 (실명)</span><input type="text" id="user-name" class="neon-input"></div>
             <div class="input-group">
                 <span class="input-label">전화번호 (휴대폰)</span><input type="tel" id="user-phone" class="neon-input" placeholder="010-0000-0000">
@@ -305,7 +305,7 @@
         
         <div style="position: relative; display: flex; flex-direction: column; align-items: center; width: 100%; padding: 30px 10px 15px 10px; box-sizing: border-box;">
             <div class="logo" id="main-header-title" onclick="activateAdmin(event)" style="margin: 0; text-align: center; line-height: 1.2; font-size: 3rem; letter-spacing: -1px; cursor: pointer; user-select: none;">
-                사라져 Voca
+                TRIGGER BLACK<br><span class="brand-module-tag brand-module-tag--voca">VOCA</span>
             </div>
             
             <div style="width: 100%; display: flex; justify-content: flex-end; margin-top: 25px;"> <button onclick="shareTriggerApp()" 
@@ -415,8 +415,8 @@
         </div>
 
         <div id="tab-analysis" class="tab-content">
-            <div class="card" style="border: 1px solid var(--neon-blue); background: rgba(0, 243, 255, 0.05); padding: 25px;">
-                <div style="font-size: 1.3rem; font-weight: bold; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); margin-bottom: 10px;">📷 AI 지문 분석 설정</div>
+            <div class="card module-scan-card" style="padding: 25px;">
+                <div class="module-scan-title">TRIGGER SCAN · 설정</div>
                 <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 25px;">분석할 지문의 정보를 선택하면 더 정확한 배경지식과 해석이 제공됩니다.</p>
                 
                 <div class="input-group">
@@ -473,31 +473,32 @@
                     <input type="text" id="book-name" class="neon-input" placeholder="예: EBS 수능특강, 자이스토리 등">
                 </div>
 
-                <button onclick="goToAnalysisQuickReview()" style="width: 100%; padding: 14px; background: rgba(181, 55, 242, 0.08); border: 1.5px solid #b537f2; color: #fff; font-size: 0.98rem; font-weight: bold; border-radius: 12px; cursor: pointer; margin-top:8px; box-shadow: 0 0 10px rgba(181, 55, 242, 0.35);">⭐ 내 학습노트 빠른 복습</button>
+                <button onclick="goToAnalysisQuickReview()" style="width: 100%; padding: 14px; background: rgba(188, 19, 254, 0.08); border: 1.5px solid var(--neon-purple); color: #fff; font-size: 0.98rem; font-weight: bold; border-radius: 12px; cursor: pointer; margin-top:8px; box-shadow: var(--glow-purple);">⭐ 내 학습노트 빠른 복습</button>
         
-                <button onclick="goToAnalysis()" style="width: 100%; padding: 18px; background: transparent; border: 2px solid var(--neon-blue); color: #fff; font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer; margin-top:10px;">지문 분석 시작하기📷</button>
+                <button onclick="goToAnalysis()" style="width: 100%; padding: 18px; background: transparent; border: 2px solid var(--neon-orange); color: #fff; font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer; margin-top:10px; box-shadow: var(--glow-orange);">SCAN 시작하기 🔍</button>
             </div>
         </div>
 
         <div id="tab-grammar" class="tab-content">
-            <div class="card" style="border: 1px solid #b537f2; background: rgba(181, 55, 242, 0.08); text-align: center; padding: 30px 20px;">
-                <div style="color: #d789ff; font-size: 0.85rem; font-weight: bold; margin-bottom: 10px; letter-spacing: 1px;">PREMIUM CLASS</div>
-                <div style="font-size: 1.5rem; font-weight: 900; color: #fff; text-shadow: 0 0 10px #b537f2; margin-bottom: 15px; line-height: 1.3;">단 3시간,<br>영문법 마스터 ⚡</div>
-                <p style="color: #bbb; font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px;">단 3시간 만에 핵심을 관통하여<br>내신과 모의고사 문법을<br>빠르고 정확하게 끝냅니다.</p>
-                <button onclick="window.open('https://www.notion.so/3-26ea81fd05e580869538e10685e3cdf2', '_blank')" style="width: 100%; padding: 15px; background: #b537f2; border: none; color: #fff; font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer; box-shadow: 0 0 15px rgba(181, 55, 242, 0.5);">수강권 구매 및 수강하기</button>
+            <div class="card module-grammar-card">
+                <div class="module-grammar-badge">3H CORE · PREMIUM</div>
+                <div class="module-grammar-title">TRIGGER GRAMMAR</div>
+                <p class="module-grammar-sub">Super Fast English Grammar</p>
+                <p class="module-grammar-desc">3시간으로 문장 골격·특수 구문을 정리합니다.<br>SCAN과 함께 쓰면 「왜 이렇게 쓰였는지」까지 이어집니다.</p>
+                <button type="button" class="module-grammar-btn" onclick="window.open('https://www.notion.so/3-26ea81fd05e580869538e10685e3cdf2', '_blank')">GRAMMAR 수강하기</button>
             </div>
         </div>
     </div> 
     
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('voca', this)">
-            <span class="nav-icon">🏠</span><span>사라져 Voca</span>
+            <span class="nav-icon">📚</span><span>VOCA</span>
         </div>
         <div class="nav-item" onclick="switchTab('analysis', this)">
-            <span class="nav-icon">📷</span><span>지문 분석</span>
+            <span class="nav-icon">🔍</span><span>SCAN</span>
         </div>
         <div class="nav-item" onclick="switchTab('grammar', this)">
-            <span class="nav-icon">⚡</span><span>3시간 영문법</span>
+            <span class="nav-icon">⚡</span><span>GRAMMAR</span>
         </div>
     </nav>
 
@@ -690,9 +691,9 @@
             
             const headerTitle = document.getElementById('main-header-title');
             if (headerTitle) {
-                if (tabId === 'voca') { headerTitle.innerHTML = '사라져 Voca'; } 
-                else if (tabId === 'analysis') { headerTitle.innerHTML = 'Trigger<br>AI 지문 분석'; } 
-                else if (tabId === 'grammar') { headerTitle.innerHTML = 'Trigger<br>3시간 영문법'; }
+                if (tabId === 'voca') { headerTitle.innerHTML = 'TRIGGER BLACK<br><span class="brand-module-tag brand-module-tag--voca">VOCA</span>'; }
+                else if (tabId === 'analysis') { headerTitle.innerHTML = 'TRIGGER BLACK<br><span class="brand-module-tag brand-module-tag--scan">SCAN</span>'; }
+                else if (tabId === 'grammar') { headerTitle.innerHTML = 'TRIGGER BLACK<br><span class="brand-module-tag brand-module-tag--grammar">GRAMMAR</span>'; }
             }
             window.scrollTo(0,0);
             if (tabId === 'voca') showAdminMenuIfEnabled();
@@ -1103,9 +1104,9 @@
 
             let printHtml = `
                 <div style="text-align:center; padding: 20px 0; border: 2px solid #000; margin-bottom: 30px;">
-                    <h1 style="font-size:28pt; margin: 0; color: #000;">사라져 Voca 마스터 단어장</h1>
+                    <h1 style="font-size:28pt; margin: 0; color: #000;">TRIGGER VOCA · 마스터 단어장</h1>
                     <p style="font-size:14pt; margin-top: 10px; color: #000;">${currentLevel === 'middle' ? '중등' : '고등'} 코스 - ${completedWeeks}주차 누적분</p>
-                    <p style="font-size:12pt; color: #666;">트리거 팀(Trigger Team)</p>
+                    <p style="font-size:12pt; color: #666;">TRIGGER BLACK</p>
                     <p style="font-size:10.5pt; color: #555; margin-top: 12px; line-height: 1.45;">※ 단어 옆 <strong>[오답]</strong>·<strong>[별표]</strong>는 이 기기에 저장된 테스트·별표 기록입니다.</p>
                 </div>`;
             
@@ -1309,8 +1310,8 @@
                     Kakao.Share.sendDefault({
                         objectType: 'feed',
                         content: {
-                            title: `🧠 사라져 Voca - Trigger English`,
-                            description: `뇌과학 기반 10주 영어 단어 마스터 프로그램! 지금 바로 시작하세요.`,
+                            title: `TRIGGER BLACK · VOCA`,
+                            description: `10주 영어 단어 루틴 — TRIGGER BLACK에서 시작하세요.`,
                             imageUrl: 'https://blackt.pages.dev/' + encodeURI('로고, 이미지/icon-512.png'),
                             link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
                         },

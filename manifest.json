@@ -1,11 +1,11 @@
 {
     "id": "/",
-    "name": "Trigger Voca",
+    "name": "Trigger Black",
     "short_name": "Trigger",
     "start_url": "./index.html",
     "scope": "/",
     "display": "standalone",
-    "background_color": "#000000",
+    "background_color": "#050505",
     "theme_color": "#00f3ff",
     "launch_handler": {
         "client_mode": "navigate-existing"

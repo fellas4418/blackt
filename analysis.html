@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 지문 정밀 분석 - Trigger</title>
+    <title>TRIGGER SCAN</title>
     <link rel="stylesheet" href="style.css">
     <style>
         body { background: #000000; color: #fff; padding: 20px; font-family: 'Pretendard', sans-serif; }
@@ -1427,10 +1427,10 @@
             <div id="auth-status" class="auth-status">가입 시 입력한 이름/전화번호로 자동 연결됩니다.</div>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <div onclick="location.href='index.html?tab=analysis'" style="color: var(--neon-blue); cursor: pointer;">← 분석 설정으로 돌아가기</div>
+            <div onclick="location.href='index.html?tab=analysis'" style="color: var(--neon-orange); cursor: pointer;">← SCAN 설정으로 돌아가기</div>
             <button onclick="showNoteModal('grammar')" style="background: rgba(255,255,255,0.05); border: 1px solid #666; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight:bold;">⭐ 내 학습 노트</button>
         </div>
-        <h3 id="info-header" style="color: #fff; margin-bottom: 6px;">AI 지문 정밀 분석</h3>
+        <h3 id="info-header" style="color: #fff; margin-bottom: 6px;">TRIGGER SCAN</h3>
         <div class="analysis-nav-settings-row">
             <a class="analysis-context-strip-link" href="index.html?tab=analysis">설정 바꾸기</a>
         </div>
@@ -1464,7 +1464,7 @@
             <div id="analysis-tab-panel-passage" class="analysis-tab-panel is-active" role="tabpanel" aria-labelledby="analysis-tab-btn-passage">
     <section id="analysis-passage-zone" class="analysis-zone-card passage-zone">
         <header class="analysis-zone-label">
-            <div class="analysis-zone-title-row">📷 지문 분석</div>
+            <div class="analysis-zone-title-row">🔍 SCAN · 지문</div>
             <div class="analysis-zone-desc">
                 <div class="analysis-zone-desc-body passage-zone-desc-lines"><span class="passage-zone-desc-highlight">한 문항(한 지문)만 프레임에 맞게 찍어 주세요.</span> 선명하게 찍을수록 정확도가 올라갑니다.</div>
             </div>
@@ -1490,7 +1490,7 @@
             <button onclick="openPicker('gallery')" class="login-btn" style="flex: 1; border-color: var(--neon-blue); margin-top: 0;">사진 선택 🖼️</button>
         </div>
         <div id="ai-btn-area" style="display:none; margin-top: 15px;">
-            <button id="ocr-btn" onclick="runGeminiAnalysis()" class="start-btn" style="border-color: var(--neon-orange);">트리거 AI 정밀 분석 시작 🔍</button>
+            <button id="ocr-btn" onclick="runGeminiAnalysis()" class="start-btn" style="border-color: var(--neon-orange);">SCAN 정밀 분석 시작 🔍</button>
         </div>
         <div id="passage-history-bar" style="margin-top: 18px; margin-bottom: 12px;">
             <button type="button" id="passage-history-toggle" class="login-btn" style="width:100%; margin-top:0; border-color:var(--neon-orange); color:#ffb36b;">📚 이전 지문 분석 기록 보기</button>
@@ -1542,10 +1542,11 @@
             </div>
         </div>
         
-        <div class="guide-box grammar-promo-guide" style="border-color: #b537f2; background: rgba(181, 55, 242, 0.05); ">
-            <p class="guide-title" style="color: #d789ff; font-size:1.1rem;">🔥 근본적인 독해력을 올리고 싶다면?</p>
-            <p class="guide-text" style="color: #eee; font-size:0.95rem;">단어는 아는데 해석이 턱턱 막히고 문장 구조가 안 보이시나요?<br>특수 구문부터 필수 문법까지 <b>단 3시간 만에 영어의 문을 여는 가장 명쾌한 로드맵.</b></p>
-            <button onclick="window.open('https://tri3.imweb.me/', '_blank')" class="kakao-btn grammar-promo-cta-btn" style="background:#b537f2; color:#fff; border-radius:12px;">👉 된다니까 3시간 영문법 수강하기</button>
+        <div class="guide-box grammar-promo-guide" style="border-color: rgba(188, 19, 254, 0.45); background: rgba(188, 19, 254, 0.06);">
+            <p class="guide-title" style="color: var(--neon-purple); font-size:0.78rem; letter-spacing:2px; font-weight:800; margin-bottom:10px;">TRIGGER GRAMMAR · 3H CORE</p>
+            <p class="guide-title" style="color: #fff; font-size:1.05rem;">🔥 문장 구조가 안 보일 때</p>
+            <p class="guide-text" style="color: #eee; font-size:0.95rem;">단어는 아는데 해석이 막히나요?<br>특수 구문·문장 골격을 <b>3시간</b>에 정리 — SCAN과 함께 쓰면 「왜 이렇게 쓰였는지」까지 이어집니다.</p>
+            <button onclick="window.open('https://tri3.imweb.me/', '_blank')" class="kakao-btn grammar-promo-cta-btn" style="background:var(--neon-purple); color:#fff; border-radius:12px; box-shadow:0 0 12px rgba(188,19,254,0.45);">GRAMMAR 수강하기</button>
         </div>
 
         <button onclick="location.reload()" class="login-btn" style="border-color: #fff; margin-top: 20px; background: transparent; width: 100%;">다른 지문 분석하기</button>
@@ -1971,7 +1972,7 @@
             return s;
         }
         const infoTrim = buildAnalysisContextTrim(params);
-        document.getElementById('info-header').innerText = infoTrim ? infoTrim + ' 분석' : 'AI 지문 정밀 분석';
+        document.getElementById('info-header').innerText = infoTrim ? infoTrim + ' · SCAN' : 'TRIGGER SCAN';
 
         let selectedBase64 = "";
         let currentNoteTab = 'grammar';
@@ -3576,7 +3577,7 @@
             } else {
                 keywordHtml += '<div style="color:#888;">추출된 주요 단어가 없습니다.</div>';
             }
-            keywordHtml += '<button class="kakao-btn voca-practice-cta-btn" style="background:var(--neon-green); color:#000; margin-top:15px;" onclick="startVocaPractice()"><span class="voca-cta-line1"><span class="voca-cta-text-wrap"><span class="voca-cta-ico" aria-hidden="true">👉</span><span class="voca-cta-text">사라져 VOCA로</span></span></span><span class="voca-cta-line2">나만의 단어 연습하기</span></button>';
+            keywordHtml += '<button class="kakao-btn voca-practice-cta-btn" style="background:var(--neon-green); color:#000; margin-top:15px;" onclick="startVocaPractice()"><span class="voca-cta-line1"><span class="voca-cta-text-wrap"><span class="voca-cta-ico" aria-hidden="true">👉</span><span class="voca-cta-text">TRIGGER VOCA로</span></span></span><span class="voca-cta-line2">나만의 단어 연습하기</span></button>';
             return keywordHtml;
         }
 
@@ -4368,7 +4369,7 @@
             if (currentNoteTab === 'voca') {
                 html += `
                     <div style="margin-bottom:12px;">
-                        <button class="kakao-btn voca-practice-cta-btn" style="background:var(--neon-green); color:#000; margin-top:0;" onclick="startVocaPractice()"><span class="voca-cta-line1"><span class="voca-cta-text-wrap"><span class="voca-cta-ico" aria-hidden="true">👉</span><span class="voca-cta-text">사라져 VOCA로</span></span></span><span class="voca-cta-line2">나만의 단어 연습하기</span></button>
+                        <button class="kakao-btn voca-practice-cta-btn" style="background:var(--neon-green); color:#000; margin-top:0;" onclick="startVocaPractice()"><span class="voca-cta-line1"><span class="voca-cta-text-wrap"><span class="voca-cta-ico" aria-hidden="true">👉</span><span class="voca-cta-text">TRIGGER VOCA로</span></span></span><span class="voca-cta-line2">나만의 단어 연습하기</span></button>
                     </div>
                 `;
             }
