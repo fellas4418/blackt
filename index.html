@@ -359,28 +359,30 @@
         
         <hr class="main-header-divider">
 
-        <div class="stats-row stats-row--global" id="global-stats-row">
-            <div class="stat-item stat-item--day">
+        <div class="global-stats-shell">
+            <div class="global-stats-meta">
                 <button type="button" class="stat-credit-tap" id="header-credit-btn" onclick="typeof TriggerCredit!=='undefined'&&TriggerCredit.showCreditInfo()" title="트리거 크레딧">
                     <span class="header-credit-label">CREDIT</span>
                     <span class="header-credit-value" id="trigger-credit-value">0</span>
                 </button>
-                <div class="stats-voca-only">
-                    <div class="stat-label">진행 중인 Day</div>
-                    <div class="stat-value" id="stat-current-day" style="color: #fff;">Day 1</div>
-                </div>
-            </div>
-            <div class="stat-item stats-voca-only" id="stat-session-col" style="border-left: 1px solid #444; border-right: 1px solid #444;">
-                <div class="stat-label">오늘의 사이클</div>
-                <div class="stat-value" id="stat-session" style="color: #fff;">1 / 5</div>
-            </div>
-            <div class="stat-item stat-item--report clickable-card" onclick="showWeeklyReport()">
                 <div id="header-online-line" class="stat-online-top" style="display: none;">
                     <span class="online-dot"></span>
                     <span class="online-label">ONLINE</span>
                 </div>
-                <div class="stat-label">My 리포트</div>
-                <div class="stat-value" style="color:#ddd; text-decoration:underline; font-size: 1rem; margin-top: 3px;">보기 📊</div>
+            </div>
+            <div class="stats-row stats-row--global" id="global-stats-row">
+                <div class="stat-item stat-item--day stats-voca-only">
+                    <div class="stat-label">진행 중인 Day</div>
+                    <div class="stat-value" id="stat-current-day" style="color: #fff;">Day 1</div>
+                </div>
+                <div class="stat-item stats-voca-only" id="stat-session-col" style="border-left: 1px solid #444; border-right: 1px solid #444;">
+                    <div class="stat-label">오늘의 사이클</div>
+                    <div class="stat-value" id="stat-session" style="color: #fff;">1 / 5</div>
+                </div>
+                <div class="stat-item stat-item--report clickable-card" onclick="showWeeklyReport()">
+                    <div class="stat-label">My 리포트</div>
+                    <div class="stat-value" style="color:#ddd; text-decoration:underline; font-size: 1rem; margin-top: 3px;">보기 📊</div>
+                </div>
             </div>
         </div>
 
