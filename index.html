@@ -142,9 +142,8 @@
         .nav-item.active:nth-child(2) { color: var(--neon-orange); }
         .nav-item.active:nth-child(3) { color: var(--neon-purple); } 
 
-        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content { display: none; }
         .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .report-bar-bg { width: 100%; background: #222; height: 12px; border-radius: 6px; margin-top: 5px; overflow: hidden; }
         .report-bar-fill { height: 100%; background: var(--neon-green); width: 0%; border-radius: 6px; box-shadow: 0 0 5px var(--neon-green); transition: width 0.5s; }
@@ -163,6 +162,11 @@
     </style>
 </head>
 <body class="dashboard-bg">
+
+    <div class="cyber-stars" aria-hidden="true"></div>
+
+    <button type="button" class="main-tab-swipe-hint main-tab-swipe-hint--prev is-hidden" id="main-tab-hint-prev" aria-label="이전 탭">‹</button>
+    <button type="button" class="main-tab-swipe-hint main-tab-swipe-hint--next" id="main-tab-hint-next" aria-label="다음 탭">›</button>
 
     <div id="splash-screen" class="cyber-splash" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease;">
         <img src="로고, 이미지/icon-512.png" alt="TRIGGER BLACK" class="cyber-splash-logo" style="width: 180px; height: 180px; border-radius: 20px;">
@@ -677,14 +681,41 @@
             localStorage.setItem('trigger_unlocked_extra_today_high', '0');
         }
 
-        function switchTab(tabId, element) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        var MAIN_TAB_ORDER = ['voca', 'analysis', 'grammar'];
+        var mainCurrentTab = 'voca';
+
+        function updateMainTabSwipeHints() {
+            var prevBtn = document.getElementById('main-tab-hint-prev');
+            var nextBtn = document.getElementById('main-tab-hint-next');
+            var idx = MAIN_TAB_ORDER.indexOf(mainCurrentTab);
+            if (prevBtn) prevBtn.classList.toggle('is-hidden', idx <= 0);
+            if (nextBtn) nextBtn.classList.toggle('is-hidden', idx >= MAIN_TAB_ORDER.length - 1);
+        }
+
+        function switchTab(tabId, element, options) {
+            options = options || {};
+            if (MAIN_TAB_ORDER.indexOf(tabId) === -1) return;
+
+            var prevIdx = MAIN_TAB_ORDER.indexOf(mainCurrentTab);
+            var nextIdx = MAIN_TAB_ORDER.indexOf(tabId);
+            var slideClass = null;
+            if (options.animate !== false && tabId !== mainCurrentTab) {
+                slideClass = nextIdx > prevIdx ? 'tab-slide-in-left' : 'tab-slide-in-right';
+            }
+
+            document.querySelectorAll('.tab-content').forEach(function(tab) {
+                tab.classList.remove('active', 'tab-slide-in-left', 'tab-slide-in-right');
+            });
             var tabEl = document.getElementById('tab-' + tabId);
             if (!tabEl) return;
             tabEl.classList.add('active');
-            
+            if (slideClass) tabEl.classList.add(slideClass);
+
+            mainCurrentTab = tabId;
+            updateMainTabSwipeHints();
+
             document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
-            
+
             if (element) {
                 element.classList.add('active');
             } else {
@@ -693,7 +724,7 @@
                 else if (tabId === 'analysis' && navItems.length > 1) navItems[1].classList.add('active');
                 else if (tabId === 'grammar' && navItems.length > 2) navItems[2].classList.add('active');
             }
-            
+
             const headerTitle = document.getElementById('main-header-title');
             if (headerTitle) {
                 if (tabId === 'voca') { headerTitle.innerHTML = '트리거 <span class="brand-tab-module brand-tab-module--voca">보카</span>'; }
@@ -702,8 +733,68 @@
             }
             window.scrollTo(0,0);
             if (tabId === 'voca') showAdminMenuIfEnabled();
-            if(tabId === 'analysis' && typeof toggleAnalysisSubMenu === 'function') toggleAnalysisSubMenu(); 
+            if(tabId === 'analysis' && typeof toggleAnalysisSubMenu === 'function') toggleAnalysisSubMenu();
         }
+
+        function switchMainTabByOffset(offset) {
+            var idx = MAIN_TAB_ORDER.indexOf(mainCurrentTab);
+            var nextIdx = idx + offset;
+            if (nextIdx < 0 || nextIdx >= MAIN_TAB_ORDER.length) return;
+            switchTab(MAIN_TAB_ORDER[nextIdx]);
+        }
+
+        (function initMainTabSwipe() {
+            var startX = 0;
+            var startY = 0;
+            var tracking = false;
+            var SWIPE_MIN = 55;
+            var SWIPE_RATIO = 1.4;
+
+            function isMainSwipeBlocked() {
+                if (document.body.classList.contains('praise-receiver-flow')) return true;
+                var modalIds = ['login-modal', 'wrong-modal', 'all-words-modal', 'report-modal', 'guide-modal', 'praise-popup', 'share-result-popup', 'praise-kakao-return'];
+                return modalIds.some(function(id) {
+                    var el = document.getElementById(id);
+                    if (!el) return false;
+                    return window.getComputedStyle(el).display !== 'none';
+                });
+            }
+
+            function isSwipeExcludedTarget(el) {
+                if (!el || !el.closest) return false;
+                return !!el.closest('.routine-scroll-box, select, input, textarea, button, a, .nav-item, .level-btn, .start-btn, .routine-action-btn, .main-tab-swipe-hint');
+            }
+
+            function onTouchStart(e) {
+                if (isMainSwipeBlocked() || isSwipeExcludedTarget(e.target)) return;
+                if (!e.changedTouches || !e.changedTouches[0]) return;
+                tracking = true;
+                startX = e.changedTouches[0].clientX;
+                startY = e.changedTouches[0].clientY;
+            }
+
+            function onTouchEnd(e) {
+                if (!tracking) return;
+                tracking = false;
+                if (isMainSwipeBlocked() || !e.changedTouches || !e.changedTouches[0]) return;
+                var dx = e.changedTouches[0].clientX - startX;
+                var dy = e.changedTouches[0].clientY - startY;
+                if (Math.abs(dx) < SWIPE_MIN || Math.abs(dx) < Math.abs(dy) * SWIPE_RATIO) return;
+                if (dx < 0) switchMainTabByOffset(1);
+                else switchMainTabByOffset(-1);
+            }
+
+            document.addEventListener('touchstart', onTouchStart, { passive: true });
+            document.addEventListener('touchend', onTouchEnd, { passive: true });
+            document.addEventListener('touchcancel', function() { tracking = false; }, { passive: true });
+
+            var prevBtn = document.getElementById('main-tab-hint-prev');
+            var nextBtn = document.getElementById('main-tab-hint-next');
+            if (prevBtn) prevBtn.addEventListener('click', function() { switchMainTabByOffset(-1); });
+            if (nextBtn) nextBtn.addEventListener('click', function() { switchMainTabByOffset(1); });
+
+            updateMainTabSwipeHints();
+        })();
 
         function showAdminMenuIfEnabled() {
             if (localStorage.getItem('trigger_admin_mode') !== 'true') return;
@@ -1546,11 +1637,11 @@
             const tabParam = urlParams.get('tab');
 
             if (tabParam === 'analysis') {
-                if (typeof switchTab === 'function') switchTab('analysis');
+                if (typeof switchTab === 'function') switchTab('analysis', null, { animate: false });
             } else if (tabParam === 'grammar') {
-                if (typeof switchTab === 'function') switchTab('grammar');
+                if (typeof switchTab === 'function') switchTab('grammar', null, { animate: false });
             } else {
-                if (typeof switchTab === 'function') switchTab('voca');
+                if (typeof switchTab === 'function') switchTab('voca', null, { animate: false });
             }
 
             if (urlParams.get('share_result') === '1') {

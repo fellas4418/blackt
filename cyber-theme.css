@@ -379,3 +379,137 @@ body.analysis-page::after {
     box-shadow: 0 0 12px rgba(0, 243, 255, 0.2) !important;
     font-family: var(--font-display) !important;
 }
+
+/* ── 메인 대시보드: 코너 브래킷 제거 (모달 login-card 제외) ── */
+body.dashboard-bg .dashboard-container .card::before,
+body.dashboard-bg .dashboard-container .card::after,
+body.dashboard-bg .dashboard-container .info-card::before,
+body.dashboard-bg .dashboard-container .info-card::after,
+body.dashboard-bg .dashboard-container .stats-row::before,
+body.dashboard-bg .dashboard-container .stats-row::after,
+body.dashboard-bg .dashboard-container .module-scan-card::before,
+body.dashboard-bg .dashboard-container .module-scan-card::after,
+body.dashboard-bg .dashboard-container .module-grammar-card::before,
+body.dashboard-bg .dashboard-container .module-grammar-card::after,
+body.dashboard-bg .dashboard-container .routine-scroll-box::before,
+body.dashboard-bg .dashboard-container .routine-scroll-box::after {
+    display: none !important;
+}
+
+/* ── 메인: 은은한 별빛 ── */
+body.dashboard-bg .cyber-stars {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+        radial-gradient(1px 1px at 8% 12%, rgba(255, 255, 255, 0.45), transparent),
+        radial-gradient(1px 1px at 22% 68%, rgba(0, 243, 255, 0.35), transparent),
+        radial-gradient(1.5px 1.5px at 35% 28%, rgba(255, 255, 255, 0.3), transparent),
+        radial-gradient(1px 1px at 48% 82%, rgba(188, 19, 254, 0.25), transparent),
+        radial-gradient(1px 1px at 58% 15%, rgba(255, 255, 255, 0.35), transparent),
+        radial-gradient(1px 1px at 71% 44%, rgba(0, 243, 255, 0.28), transparent),
+        radial-gradient(1.5px 1.5px at 84% 22%, rgba(255, 255, 255, 0.32), transparent),
+        radial-gradient(1px 1px at 92% 58%, rgba(255, 255, 255, 0.28), transparent),
+        radial-gradient(1px 1px at 15% 42%, rgba(255, 255, 255, 0.22), transparent),
+        radial-gradient(1px 1px at 63% 72%, rgba(255, 255, 255, 0.2), transparent);
+    animation: cyberStarTwinkleA 7s ease-in-out infinite alternate;
+}
+
+body.dashboard-bg .cyber-stars::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(1px 1px at 12% 88%, rgba(255, 255, 255, 0.3), transparent),
+        radial-gradient(1px 1px at 28% 35%, rgba(0, 243, 255, 0.22), transparent),
+        radial-gradient(1px 1px at 41% 55%, rgba(255, 255, 255, 0.25), transparent),
+        radial-gradient(1.5px 1.5px at 55% 38%, rgba(255, 255, 255, 0.28), transparent),
+        radial-gradient(1px 1px at 76% 85%, rgba(188, 19, 254, 0.2), transparent),
+        radial-gradient(1px 1px at 88% 38%, rgba(255, 255, 255, 0.32), transparent),
+        radial-gradient(1px 1px at 6% 58%, rgba(255, 255, 255, 0.18), transparent),
+        radial-gradient(1px 1px at 95% 12%, rgba(0, 243, 255, 0.2), transparent);
+    animation: cyberStarTwinkleB 5.5s ease-in-out infinite alternate;
+}
+
+@keyframes cyberStarTwinkleA {
+    0% { opacity: 0.25; }
+    50% { opacity: 0.55; }
+    100% { opacity: 0.3; }
+}
+
+@keyframes cyberStarTwinkleB {
+    0% { opacity: 0.15; }
+    50% { opacity: 0.5; }
+    100% { opacity: 0.2; }
+}
+
+/* ── 메인: 좌우 스와이프 힌트 화살표 ── */
+.main-tab-swipe-hint {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1500;
+    width: 36px;
+    height: 56px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: rgba(0, 243, 255, 0.22);
+    font-family: var(--font-display);
+    font-size: 1.65rem;
+    line-height: 1;
+    cursor: pointer;
+    text-shadow: 0 0 10px rgba(0, 243, 255, 0.15);
+    transition: color 0.2s, opacity 0.2s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.main-tab-swipe-hint--prev { left: 2px; }
+.main-tab-swipe-hint--next { right: 2px; }
+
+.main-tab-swipe-hint:hover,
+.main-tab-swipe-hint:focus-visible {
+    color: rgba(0, 243, 255, 0.45);
+    outline: none;
+}
+
+.main-tab-swipe-hint.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+body.dashboard-bg.modal-open .main-tab-swipe-hint,
+body.dashboard-bg.praise-receiver-flow .main-tab-swipe-hint {
+    opacity: 0;
+    pointer-events: none;
+}
+body.dashboard-bg .tab-content.active.tab-slide-in-left {
+    animation: mainTabSlideInFromRight 0.32s ease-out both;
+}
+
+body.dashboard-bg .tab-content.active.tab-slide-in-right {
+    animation: mainTabSlideInFromLeft 0.32s ease-out both;
+}
+
+@keyframes mainTabSlideInFromRight {
+    from {
+        opacity: 0.55;
+        transform: translateX(24px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes mainTabSlideInFromLeft {
+    from {
+        opacity: 0.55;
+        transform: translateX(-24px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
