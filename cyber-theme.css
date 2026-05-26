@@ -516,3 +516,10 @@ body.dashboard-bg .main-tab-track .tab-content:not(.active) {
     visibility: hidden;
     pointer-events: none;
 }
+
+body.dashboard-bg .main-tab-track.is-sliding .tab-content:not(.active) {
+    height: auto !important;
+    overflow: visible;
+    visibility: visible;
+    pointer-events: none;
+}

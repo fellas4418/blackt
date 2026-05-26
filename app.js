@@ -311,8 +311,43 @@ function showWordExclusionScreen(onDone) {
         return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
     }
 
-    function renderList() {
+    function applyExclChipStyle(row, isExcluded) {
+        row.style.border = '1px solid ' + (isExcluded ? '#333' : 'rgba(0,243,255,0.35)');
+        row.style.background = isExcluded ? 'rgba(0,0,0,0.4)' : 'rgba(0,243,255,0.06)';
+        row.style.opacity = isExcluded ? '0.4' : '1';
+        row.style.color = isExcluded ? '#666' : '#fff';
+        row.style.textDecoration = isExcluded ? 'line-through' : 'none';
+    }
+
+    function bindExclWordRows() {
+        document.querySelectorAll('.excl-word-chip').forEach(row => {
+            row.onclick = () => {
+                const idx = parseInt(row.getAttribute('data-idx'), 10);
+                const wObj = fullDayWords[idx];
+                if (!wObj || !wObj.word) return;
+                if (excluded.has(wObj.word)) excluded.delete(wObj.word);
+                else excluded.add(wObj.word);
+                renderList(false);
+            };
+        });
+    }
+
+    function renderList(fullRebuild) {
         const studyCount = total - excluded.size;
+        const listEl = document.getElementById('excl-word-list');
+
+        if (!fullRebuild && listEl) {
+            document.querySelectorAll('.excl-word-chip').forEach(row => {
+                const idx = parseInt(row.getAttribute('data-idx'), 10);
+                const wObj = fullDayWords[idx];
+                if (!wObj || !wObj.word) return;
+                applyExclChipStyle(row, excluded.has(wObj.word));
+            });
+            const countEl = document.getElementById('excl-study-count');
+            if (countEl) countEl.textContent = String(studyCount);
+            return;
+        }
+
         const listHtml = fullDayWords.map((w, i) => {
             const isExcluded = excluded.has(w.word);
             return `<div class="excl-word-chip" data-idx="${i}" style="padding:8px 4px; border-radius:8px; border:1px solid ${isExcluded ? '#333' : 'rgba(0,243,255,0.35)'}; background:${isExcluded ? 'rgba(0,0,0,0.4)' : 'rgba(0,243,255,0.06)'}; opacity:${isExcluded ? '0.4' : '1'}; cursor:pointer; text-align:center; font-weight:bold; color:${isExcluded ? '#666' : '#fff'}; font-size:0.82rem; word-break:break-word; line-height:1.3; text-decoration:${isExcluded ? 'line-through' : 'none'};">${escHtml(w.word)}</div>`;
@@ -322,22 +357,13 @@ function showWordExclusionScreen(onDone) {
             <div style="text-align:center; padding:5px; max-width:100%;">
                 <div style="font-size:1.2rem; color:var(--neon-blue); font-weight:bold; margin-bottom:8px;">아는 단어 제외</div>
                 <p style="color:#888; font-size:0.9rem; margin-bottom:12px; line-height:1.5;">아는 단어를 탭해 학습에서 빼세요.<br><strong>3·5회 테스트는 ${total}개 전체</strong>입니다.</p>
-                <div id="excl-word-list" style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; max-height:45vh; overflow-y:auto; margin-bottom:12px; padding:2px;">${listHtml}</div>
-                <div style="color:#aaa; font-size:0.9rem; margin-bottom:12px;">학습 <strong style="color:var(--neon-green);">${studyCount}</strong>개 · 테스트 <strong style="color:#fff;">${total}</strong>개</div>
+                <div id="excl-word-list" style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; max-height:45vh; overflow-y:auto; margin-bottom:12px; padding:2px; overscroll-behavior:contain;">${listHtml}</div>
+                <div style="color:#aaa; font-size:0.9rem; margin-bottom:12px;">학습 <strong id="excl-study-count" style="color:var(--neon-green);">${studyCount}</strong>개 · 테스트 <strong style="color:#fff;">${total}</strong>개</div>
                 <button id="exclusion-start-btn" style="width:100%; padding:15px; background:var(--neon-green); color:#000; font-weight:bold; border-radius:10px; border:none; cursor:pointer;">선택 완료</button>
             </div>
         `);
 
-        document.querySelectorAll('.excl-word-chip').forEach(row => {
-            row.onclick = () => {
-                const idx = parseInt(row.getAttribute('data-idx'), 10);
-                const wObj = fullDayWords[idx];
-                if (!wObj || !wObj.word) return;
-                if (excluded.has(wObj.word)) excluded.delete(wObj.word);
-                else excluded.add(wObj.word);
-                renderList();
-            };
-        });
+        bindExclWordRows();
         const startBtn = document.getElementById('exclusion-start-btn');
         if (startBtn) {
             startBtn.onclick = () => {
@@ -347,7 +373,7 @@ function showWordExclusionScreen(onDone) {
             };
         }
     }
-    renderList();
+    renderList(true);
 }
 
 function beginTestPhase() {

@@ -99,10 +99,12 @@
         .login-btn:active { transform: scale(0.98); background: rgba(57, 255, 20, 0.1); }
 
         #welcome-msg { text-align: center; margin-bottom: 20px; }
-        .online-status-line { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.82rem; letter-spacing: 0.14em; color: var(--neon-green); font-weight: 700; text-transform: uppercase; font-family: 'Courier New', monospace; }
-        .online-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--neon-green); box-shadow: 0 0 8px var(--neon-green); animation: onlinePulse 1.8s ease-in-out infinite; flex-shrink: 0; }
-        .online-name { font-size: 1.05rem; color: #fff; margin-top: 6px; font-weight: 600; }
-        .online-done { font-size: 0.75rem; color: var(--neon-orange); margin-top: 4px; letter-spacing: 0.04em; }
+        .online-status-line { display: flex; align-items: center; justify-content: center; gap: 7px; flex-wrap: wrap; }
+        .online-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--neon-green); box-shadow: 0 0 8px var(--neon-green); animation: onlinePulse 1.8s ease-in-out infinite; flex-shrink: 0; }
+        .online-label { font-size: 0.78rem; letter-spacing: 0.12em; color: var(--neon-green); font-weight: 700; text-transform: uppercase; font-family: 'Courier New', monospace; }
+        .online-name { font-size: 1rem; color: #fff; font-weight: 600; }
+        .online-sep { color: #444; font-size: 0.85rem; user-select: none; }
+        .online-done { font-size: 0.75rem; color: var(--neon-orange); margin-top: 5px; letter-spacing: 0.04em; width: 100%; }
         @keyframes onlinePulse { 0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--neon-green); } 50% { opacity: 0.45; box-shadow: 0 0 4px var(--neon-green); } }
 
         .guide-cyber-btn { position: absolute; right: 0; font-size: 0.72rem; cursor: pointer; color: var(--neon-blue); background: rgba(0, 243, 255, 0.06); padding: 4px 10px; border-radius: 4px; border: 1px solid rgba(0, 243, 255, 0.45); letter-spacing: 0.1em; font-family: 'Courier New', monospace; font-weight: bold; box-shadow: 0 0 10px rgba(0, 243, 255, 0.15); transition: 0.2s; }
@@ -394,7 +396,7 @@
             <div class="card" style="padding: 25px 20px; border: 1px solid var(--neon-orange); background: rgba(255, 153, 0, 0.05); text-align: center;">
                 <div style="position: relative; margin-bottom: 5px; height: 30px; display: flex; align-items: center; justify-content: center;">
                     <div style="font-size: 1.2rem; font-weight: bold; color: var(--neon-orange); letter-spacing: 0.06em;">TODAY MISSION</div>
-                    <span class="guide-cyber-btn" onclick="openGuide()">◈ SYS</span>
+                    <span class="guide-cyber-btn" onclick="openGuide()">안내</span>
                 </div>
                 <div class="mission-count"><span id="target-count-display">0개</span></div>
                 
@@ -731,6 +733,44 @@
             if (nextBtn) nextBtn.classList.toggle('is-hidden', idx >= MAIN_TAB_ORDER.length - 1);
         }
 
+        function getMainTabTranslatePct(tabIdx) {
+            return -(tabIdx * 100) / MAIN_TAB_ORDER.length;
+        }
+
+        function applyMainTabTrackPct(pct, noTransition) {
+            var track = document.getElementById('main-tab-track');
+            if (!track) return;
+            if (noTransition) track.classList.add('no-transition');
+            else track.classList.remove('no-transition');
+            track.style.transform = 'translateX(' + pct + '%)';
+        }
+
+        function beginMainTabSlide() {
+            var track = document.getElementById('main-tab-track');
+            if (track) track.classList.add('is-sliding');
+        }
+
+        function endMainTabSlide() {
+            var track = document.getElementById('main-tab-track');
+            if (!track) return;
+            function onSlideEnd(ev) {
+                if (ev.propertyName !== 'transform') return;
+                track.classList.remove('is-sliding');
+                track.removeEventListener('transitionend', onSlideEnd);
+            }
+            if (track.classList.contains('no-transition')) {
+                track.classList.remove('is-sliding');
+                return;
+            }
+            track.addEventListener('transitionend', onSlideEnd);
+        }
+
+        function snapMainTabTrack(animate) {
+            if (animate) beginMainTabSlide();
+            applyMainTabTrackPct(getMainTabTranslatePct(MAIN_TAB_ORDER.indexOf(mainCurrentTab)), !animate);
+            if (animate) endMainTabSlide();
+        }
+
         function switchTab(tabId, element, options) {
             options = options || {};
             if (MAIN_TAB_ORDER.indexOf(tabId) === -1) return;
@@ -741,14 +781,14 @@
 
             var track = document.getElementById('main-tab-track');
             if (track) {
-                var offsetPct = (nextIdx * 100) / MAIN_TAB_ORDER.length;
                 if (options.animate === false) {
-                    track.classList.add('no-transition');
-                    track.style.transform = 'translateX(-' + offsetPct + '%)';
+                    applyMainTabTrackPct(getMainTabTranslatePct(nextIdx), true);
                     void track.offsetWidth;
                     track.classList.remove('no-transition');
                 } else {
-                    track.style.transform = 'translateX(-' + offsetPct + '%)';
+                    beginMainTabSlide();
+                    applyMainTabTrackPct(getMainTabTranslatePct(nextIdx), false);
+                    endMainTabSlide();
                 }
             }
 
@@ -795,6 +835,7 @@
             var tracking = false;
             var pointerId = null;
             var swipeDecided = false;
+            var swipeHorizontal = false;
             var SWIPE_MIN = 28;
             var SWIPE_RATIO = 1.05;
 
@@ -818,25 +859,60 @@
                 tracking = false;
                 pointerId = null;
                 swipeDecided = false;
+                swipeHorizontal = false;
             }
 
             function onSwipeStart(clientX, clientY, target) {
                 if (isMainSwipeBlocked() || isSwipeExcludedTarget(target)) return false;
                 tracking = true;
                 swipeDecided = false;
+                swipeHorizontal = false;
                 startX = clientX;
                 startY = clientY;
                 return true;
             }
 
+            function onSwipeMove(clientX, clientY, e) {
+                if (!tracking) return;
+                var dx = clientX - startX;
+                var dy = clientY - startY;
+                if (!swipeDecided && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+                    swipeDecided = true;
+                    swipeHorizontal = Math.abs(dx) > Math.abs(dy);
+                }
+                if (!swipeHorizontal) return;
+                if (e && e.cancelable) e.preventDefault();
+                beginMainTabSlide();
+                var viewport = document.querySelector('.main-tab-viewport');
+                var vw = viewport ? viewport.getBoundingClientRect().width : window.innerWidth;
+                if (!vw) return;
+                var idx = MAIN_TAB_ORDER.indexOf(mainCurrentTab);
+                var basePct = getMainTabTranslatePct(idx);
+                var panelPct = 100 / MAIN_TAB_ORDER.length;
+                var nextPct = basePct + (dx / vw) * panelPct;
+                var minPct = 0;
+                var maxPct = getMainTabTranslatePct(MAIN_TAB_ORDER.length - 1);
+                if (nextPct > minPct) nextPct = minPct + (nextPct - minPct) * 0.3;
+                if (nextPct < maxPct) nextPct = maxPct + (nextPct - maxPct) * 0.3;
+                applyMainTabTrackPct(nextPct, true);
+            }
+
             function onSwipeEnd(clientX, clientY) {
                 if (!tracking) return;
                 tracking = false;
+                var wasHorizontal = swipeHorizontal;
                 swipeDecided = false;
-                if (isMainSwipeBlocked()) return;
+                swipeHorizontal = false;
+                if (isMainSwipeBlocked()) {
+                    snapMainTabTrack(true);
+                    return;
+                }
                 var dx = clientX - startX;
                 var dy = clientY - startY;
-                if (Math.abs(dx) < SWIPE_MIN || Math.abs(dx) < Math.abs(dy) * SWIPE_RATIO) return;
+                if (!wasHorizontal || Math.abs(dx) < SWIPE_MIN || Math.abs(dx) < Math.abs(dy) * SWIPE_RATIO) {
+                    snapMainTabTrack(true);
+                    return;
+                }
                 if (dx < 0) switchMainTabByOffset(1);
                 else switchMainTabByOffset(-1);
             }
@@ -853,12 +929,7 @@
 
             document.addEventListener('pointermove', function(e) {
                 if (!tracking || pointerId === null || e.pointerId !== pointerId) return;
-                var dx = e.clientX - startX;
-                var dy = e.clientY - startY;
-                if (!swipeDecided && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
-                    swipeDecided = true;
-                    if (Math.abs(dx) > Math.abs(dy) && e.cancelable) e.preventDefault();
-                }
+                onSwipeMove(e.clientX, e.clientY, e);
             }, { passive: false, capture: true });
 
             document.addEventListener('pointerup', function(e) {
@@ -877,6 +948,7 @@
                 }
                 pointerId = null;
                 resetSwipeTracking();
+                snapMainTabTrack(true);
             }, true);
 
             var prevBtn = document.getElementById('main-tab-hint-prev');
@@ -1060,7 +1132,7 @@
             if (!name || !welcomeMsg) return;
             const safeName = String(name).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
             const doneExtra = session > 5 ? '<div class="online-done">오늘 목표 완료</div>' : '';
-            welcomeMsg.innerHTML = '<div class="online-status-line"><span class="online-dot"></span><span>ONLINE</span></div><div class="online-name">' + safeName + '</div>' + doneExtra;
+            welcomeMsg.innerHTML = '<div class="online-status-line"><span class="online-name">' + safeName + '</span><span class="online-sep">·</span><span class="online-dot"></span><span class="online-label">ONLINE</span></div>' + doneExtra;
         }
 
         function checkLoginStatus() {
