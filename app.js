@@ -301,6 +301,7 @@ function needsWordExclusionScreen(isReviewDay) {
 }
 
 function showWordExclusionScreen(onDone) {
+    clearStudyCheckpoint();
     fullDayWords = todayWords.slice();
     smartStudyActive = true;
     const excluded = new Set();
@@ -314,23 +315,20 @@ function showWordExclusionScreen(onDone) {
         const studyCount = total - excluded.size;
         const listHtml = fullDayWords.map((w, i) => {
             const isExcluded = excluded.has(w.word);
-            return `<div class="excl-word-row" data-idx="${i}" style="padding:12px; margin-bottom:8px; border-radius:10px; border:1px solid ${isExcluded ? '#333' : '#444'}; background:${isExcluded ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.03)'}; opacity:${isExcluded ? '0.45' : '1'}; cursor:pointer; text-align:left;">
-                <div style="font-weight:bold; color:#fff; font-size:1.05rem;">${escHtml(w.word)}${isExcluded ? ' <span style="color:#888; font-size:0.85rem;">· 학습 제외</span>' : ''}</div>
-                <div style="color:#aaa; font-size:0.9rem; margin-top:4px;">${escHtml(Array.isArray(w.meanings) ? w.meanings.join(', ') : (w.meaning || ''))}</div>
-            </div>`;
+            return `<div class="excl-word-chip" data-idx="${i}" style="padding:8px 4px; border-radius:8px; border:1px solid ${isExcluded ? '#333' : 'rgba(0,243,255,0.35)'}; background:${isExcluded ? 'rgba(0,0,0,0.4)' : 'rgba(0,243,255,0.06)'}; opacity:${isExcluded ? '0.4' : '1'}; cursor:pointer; text-align:center; font-weight:bold; color:${isExcluded ? '#666' : '#fff'}; font-size:0.82rem; word-break:break-word; line-height:1.3; text-decoration:${isExcluded ? 'line-through' : 'none'};">${escHtml(w.word)}</div>`;
         }).join('');
 
         showSystemMessage(`
             <div style="text-align:center; padding:5px; max-width:100%;">
                 <div style="font-size:1.2rem; color:var(--neon-blue); font-weight:bold; margin-bottom:8px;">아는 단어 제외</div>
                 <p style="color:#888; font-size:0.9rem; margin-bottom:12px; line-height:1.5;">아는 단어를 탭해 학습에서 빼세요.<br><strong>3·5회 테스트는 ${total}개 전체</strong>입니다.</p>
-                <div id="excl-word-list" style="max-height:45vh; overflow-y:auto; margin-bottom:12px;">${listHtml}</div>
+                <div id="excl-word-list" style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; max-height:45vh; overflow-y:auto; margin-bottom:12px; padding:2px;">${listHtml}</div>
                 <div style="color:#aaa; font-size:0.9rem; margin-bottom:12px;">학습 <strong style="color:var(--neon-green);">${studyCount}</strong>개 · 테스트 <strong style="color:#fff;">${total}</strong>개</div>
-                <button id="exclusion-start-btn" style="width:100%; padding:15px; background:var(--neon-green); color:#000; font-weight:bold; border-radius:10px; border:none; cursor:pointer;">학습 시작하기</button>
+                <button id="exclusion-start-btn" style="width:100%; padding:15px; background:var(--neon-green); color:#000; font-weight:bold; border-radius:10px; border:none; cursor:pointer;">선택 완료</button>
             </div>
         `);
 
-        document.querySelectorAll('.excl-word-row').forEach(row => {
+        document.querySelectorAll('.excl-word-chip').forEach(row => {
             row.onclick = () => {
                 const idx = parseInt(row.getAttribute('data-idx'), 10);
                 const wObj = fullDayWords[idx];
@@ -495,6 +493,8 @@ function saveStudyCheckpoint() {
     if (!targetWords || targetWords.length < 1) return;
     const sessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
     const dayNow = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`), 10) || 1;
+    const isReviewDay = (dayNow % 7 === 6 || dayNow % 7 === 0);
+    if (needsWordExclusionScreen(isReviewDay)) return;
     try {
         const payload = {
             v: 2,
@@ -609,6 +609,12 @@ function runStudyHtmlEntryTail(sessionTag, currentSession, isReviewDay, restored
         }
     }
 
+    if (needsWordExclusionScreen(isReviewDay)) {
+        clearStudyCheckpoint();
+        showWordExclusionScreen(() => startStudy());
+        return;
+    }
+
     if (restored) {
         if (restored.phase === 'pre_countdown') {
             startCountdown("곧 테스트를 시작합니다.", beginTestPhase);
@@ -626,11 +632,6 @@ function runStudyHtmlEntryTail(sessionTag, currentSession, isReviewDay, restored
         studyLoopCount = 2;
         score = 0;
         startCountdown("곧 테스트를 시작합니다.", beginTestPhase);
-        return;
-    }
-
-    if (needsWordExclusionScreen(isReviewDay)) {
-        showWordExclusionScreen(() => startStudy());
         return;
     }
 

@@ -98,7 +98,17 @@
         .login-btn { width: 100%; padding: 16px; background: transparent; border: 1.5px solid var(--neon-green); color: #fff; font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer; box-shadow: var(--glow-green); margin-top: 10px; transition: 0.2s;}
         .login-btn:active { transform: scale(0.98); background: rgba(57, 255, 20, 0.1); }
 
-        #welcome-msg { text-align: center; color: var(--neon-blue); font-size: 1.1rem; margin-bottom: 20px; text-shadow: var(--glow-text); }
+        #welcome-msg { text-align: center; margin-bottom: 20px; }
+        .online-status-line { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.82rem; letter-spacing: 0.14em; color: var(--neon-green); font-weight: 700; text-transform: uppercase; font-family: 'Courier New', monospace; }
+        .online-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--neon-green); box-shadow: 0 0 8px var(--neon-green); animation: onlinePulse 1.8s ease-in-out infinite; flex-shrink: 0; }
+        .online-name { font-size: 1.05rem; color: #fff; margin-top: 6px; font-weight: 600; }
+        .online-done { font-size: 0.75rem; color: var(--neon-orange); margin-top: 4px; letter-spacing: 0.04em; }
+        @keyframes onlinePulse { 0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--neon-green); } 50% { opacity: 0.45; box-shadow: 0 0 4px var(--neon-green); } }
+
+        .guide-cyber-btn { position: absolute; right: 0; font-size: 0.72rem; cursor: pointer; color: var(--neon-blue); background: rgba(0, 243, 255, 0.06); padding: 4px 10px; border-radius: 4px; border: 1px solid rgba(0, 243, 255, 0.45); letter-spacing: 0.1em; font-family: 'Courier New', monospace; font-weight: bold; box-shadow: 0 0 10px rgba(0, 243, 255, 0.15); transition: 0.2s; }
+        .guide-cyber-btn:active { background: rgba(0, 243, 255, 0.14); box-shadow: 0 0 14px rgba(0, 243, 255, 0.35); }
+
+        .mission-count { font-size: 1.5rem; font-weight: bold; color: #fff; margin-bottom: 10px; letter-spacing: 0.04em; }
 
         .dashboard-bg { padding: 20px; display: flex; justify-content: center; }
         .dashboard-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 5px; margin: 0 auto; padding-bottom: 110px; position: relative; }
@@ -124,6 +134,14 @@
         .info-row { display: flex; gap: 15px; margin-bottom: 20px; }
         .info-card { flex: 1; text-align: center; padding: 22px; background: var(--card-bg-color); border: 1px solid #222; border-radius: 18px; transition: 0.2s; }
         .info-card:active { background: #1a1a1a; }
+        .info-card--clear { border-color: rgba(57, 255, 20, 0.35); background: rgba(57, 255, 20, 0.04); }
+        .info-card--clear:active { background: rgba(57, 255, 20, 0.08); }
+        .info-card--clear .info-title { color: var(--neon-green); }
+        .info-card--clear .info-count { color: var(--neon-green); text-shadow: 0 0 8px rgba(57, 255, 20, 0.35); }
+        .info-card--wrong { border-color: rgba(255, 153, 0, 0.35); background: rgba(255, 153, 0, 0.04); }
+        .info-card--wrong:active { background: rgba(255, 153, 0, 0.08); }
+        .info-card--wrong .info-title { color: var(--neon-orange); }
+        .info-card--wrong .info-count { color: var(--neon-orange); text-shadow: 0 0 8px rgba(255, 153, 0, 0.35); }
         .info-title { font-size: 0.95rem; margin-bottom: 8px; color: #aaa; }
         .info-count { font-size: 1.4rem; font-weight: 700; color: #fff; }
 
@@ -256,27 +274,27 @@
             <div style="color: #ddd; font-size: 0.95rem; line-height: 1.6; max-height: 400px; overflow-y: auto; padding-right: 10px;">
                 <p style="margin-bottom: 20px;">
                     <strong style="color:var(--neon-blue); font-size: 1.1rem;">1. 15단계 '블링크' 루틴</strong><br>
-                    하루 5사이클 루틴으로 뜻이 보였다 사라지는 깜빡임 학습을 반복합니다. 3·5사이클 복습 테스트를 거쳐 당일 목표를 완료합니다.
+                    하루 5사이클 깜빡임 학습 → 3·5회 테스트로 당일 클리어.
                 </p>
     
                 <p style="margin-bottom: 20px;">
                     <strong style="color:var(--neon-orange); font-size: 1.1rem;">2. 3분 쿨타임 (장기기억 전환)</strong><br>
-                    사이클 사이마다 3분간 강제 휴식이 부여됩니다. 다음 라운드로 넘어가기 전, 암기한 단어들을 가볍게 정리하며 숨 고르는 시간입니다.
+                    사이클 사이 3분 강제 휴식. 단기 암기를 장기 기억으로 넘기는 시간.
                 </p>
     
                 <p style="margin-bottom: 20px;">
                     <strong style="color:var(--neon-green); font-size: 1.1rem;">3. 3일 누적 복습 (망각 차단)</strong><br>
-                    당일 학습 전, 2일 전+하루 전 오답·별표 단어를 먼저 복습합니다. 총 이틀 간의 복습 후 당일 신규 진도로 이어갈 수 있는 누적 복습입니다.
+                    신규 전, 이틀 전·하루 전 오답·별표를 먼저 복습. 망각 차단.
                 </p>
     
                 <p style="margin-bottom: 20px;">
                     <strong style="color:#afff00; font-size: 1.1rem;">4. 5+2 주말 마스터</strong><br>
-                    주말 이틀은 신규 진도 없이 그 주 묶음 복습과 오답 정리를 진행합니다. 한 주 분량을 다시 훑으며 약점을 촘촘히 보완합니다.
+                    주말 2일은 신규 없음. 그주 묶음 + 오답만 다시 훑기.
                 </p>
     
                 <p>
                     <strong style="color:#FFD600; font-size: 1.1rem;">5. 매일 성취 인증</strong><br>
-                    학습 결과를 공유하고 인증하며 끝까지 완주할 수 있는 동기를 부여합니다.
+                    완료 후 공유·인증. 매일 끝까지 밀어주는 동기.
                 </p>
             </div>
     
@@ -376,21 +394,21 @@
             <div class="card" style="padding: 25px 20px; border: 1px solid var(--neon-orange); background: rgba(255, 153, 0, 0.05); text-align: center;">
                 <div style="position: relative; margin-bottom: 5px; height: 30px; display: flex; align-items: center; justify-content: center;">
                     <div style="font-size: 1.2rem; font-weight: bold; color: var(--neon-orange); letter-spacing: 0.06em;">TODAY MISSION</div>
-                    <span onclick="openGuide()" style="position: absolute; right: 0; font-size:0.8rem; cursor:pointer; color:#fff; background:#444; padding:4px 10px; border-radius:12px; border:1px solid #666;">❓안내</span>
+                    <span class="guide-cyber-btn" onclick="openGuide()">◈ SYS</span>
                 </div>
-                <div style="color: #aaa; font-size: 1.2rem; margin-bottom: 10px;">타겟: <span id="target-count-display" style="color: #fff; font-weight: bold;">0개</span></div>
+                <div class="mission-count"><span id="target-count-display">0개</span></div>
                 
                              <button class="start-btn" id="start-btn-main">학습 시작하기</button>
             </div>
 
             <div class="info-row">
-                <div class="info-card clickable-card" onclick="showAllWords()">
+                <div class="info-card info-card--clear clickable-card" onclick="showAllWords()">
                     <div class="info-title">◆ CLEAR LOG</div>
-                    <div class="info-count" id="total-word-count" style="color: #fff; font-size: 1rem; margin-top: 5px;">0 단어</div>
+                    <div class="info-count" id="total-word-count">0 단어</div>
                 </div>
-                <div class="info-card clickable-card" onclick="showWrongWords()">
+                <div class="info-card info-card--wrong clickable-card" onclick="showWrongWords()">
                     <div class="info-title">◈ 오답/별표</div>
-                    <div class="info-count" id="wrong-word-count" style="color: #fff; font-size: 1rem; margin-top: 5px;">0 단어</div>
+                    <div class="info-count" id="wrong-word-count">0 단어</div>
                 </div>
             </div>
 
@@ -1037,6 +1055,14 @@
             }
         }
 
+        function renderWelcomeMsg(name, session) {
+            const welcomeMsg = document.getElementById('welcome-msg');
+            if (!name || !welcomeMsg) return;
+            const safeName = String(name).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+            const doneExtra = session > 5 ? '<div class="online-done">오늘 목표 완료</div>' : '';
+            welcomeMsg.innerHTML = '<div class="online-status-line"><span class="online-dot"></span><span>ONLINE</span></div><div class="online-name">' + safeName + '</div>' + doneExtra;
+        }
+
         function checkLoginStatus() {
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('praise') === 'true' || urlParams.get('share_result') === '1') {
@@ -1048,11 +1074,10 @@
             const currentLevel = localStorage.getItem('trigger_level') || 'middle';
             const currentSession = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`)) || 1;
             const modal = document.getElementById('login-modal');
-            const welcomeMsg = document.getElementById('welcome-msg');
 
             if (savedName) {
                 modal.style.display = 'none';
-                welcomeMsg.innerText = currentSession > 5 ? `환영합니다, ${savedName}님! (오늘 목표 완료!)` : `환영합니다, ${savedName}님!`;
+                renderWelcomeMsg(savedName, currentSession);
             } else {
                 modal.style.display = 'flex';
             }
@@ -1072,7 +1097,7 @@
 
             const welcomeMsg = document.getElementById('welcome-msg');
             if (name && welcomeMsg) {
-                welcomeMsg.innerText = session > 5 ? `환영합니다, ${name}님! (오늘 목표 완료!)` : `환영합니다, ${name}님!`;
+                renderWelcomeMsg(name, session);
             }
 
             if (typeof wordsData !== 'undefined') {
