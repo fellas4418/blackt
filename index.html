@@ -142,9 +142,6 @@
         .nav-item.active:nth-child(2) { color: var(--neon-orange); }
         .nav-item.active:nth-child(3) { color: var(--neon-purple); } 
 
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
         .report-bar-bg { width: 100%; background: #222; height: 12px; border-radius: 6px; margin-top: 5px; overflow: hidden; }
         .report-bar-fill { height: 100%; background: var(--neon-green); width: 0%; border-radius: 6px; box-shadow: 0 0 5px var(--neon-green); transition: width 0.5s; }
         
@@ -163,7 +160,27 @@
 </head>
 <body class="dashboard-bg">
 
-    <div class="cyber-stars" aria-hidden="true"></div>
+    <div class="cyber-stars" id="cyber-stars" aria-hidden="true"></div>
+    <script>
+        (function initCyberStars() {
+            var layer = document.getElementById('cyber-stars');
+            if (!layer) return;
+            var pts = [
+                [6, 8], [14, 22], [22, 55], [31, 14], [38, 72], [45, 38], [52, 88],
+                [58, 18], [66, 48], [74, 8], [81, 62], [88, 28], [93, 78], [10, 42],
+                [18, 85], [27, 32], [42, 58], [56, 42], [63, 68], [72, 22], [85, 52], [96, 12]
+            ];
+            for (var i = 0; i < pts.length; i++) {
+                var star = document.createElement('span');
+                star.className = 'cyber-star';
+                star.style.left = pts[i][0] + '%';
+                star.style.top = pts[i][1] + '%';
+                star.style.animationDelay = (i * 0.31) + 's';
+                star.style.animationDuration = (2.4 + (i % 5) * 0.5) + 's';
+                layer.appendChild(star);
+            }
+        })();
+    </script>
 
     <button type="button" class="main-tab-swipe-hint main-tab-swipe-hint--prev is-hidden" id="main-tab-hint-prev" aria-label="이전 탭">‹</button>
     <button type="button" class="main-tab-swipe-hint main-tab-swipe-hint--next" id="main-tab-hint-next" aria-label="다음 탭">›</button>
@@ -325,7 +342,9 @@
         </div>
         
         <hr style="border: 0.5px solid #222; width: 95%; margin: 10px auto 25px auto;">
-        
+
+        <div class="main-tab-viewport">
+        <div class="main-tab-track" id="main-tab-track">
         <div id="tab-voca" class="tab-content active">
             
             <button id="install-app-btn" style="display:none; width: 100%; margin-bottom: 25px; padding: 12px; background: rgba(0, 243, 255, 0.05); color: var(--neon-blue); font-size: 1.05rem; font-weight: bold; border: 1px dashed var(--neon-blue); border-radius: 12px; box-shadow: 0 0 15px rgba(0,243,255,0.15); cursor: pointer; transition: 0.3s;">
@@ -496,6 +515,8 @@
                 <p class="module-grammar-desc">3시간으로 문장 골격·특수 구문을 정리합니다.<br>스캔과 함께 쓰면 「왜 이렇게 쓰였는지」까지 이어집니다.</p>
                 <button type="button" class="module-grammar-btn" onclick="window.open('https://www.notion.so/3-26ea81fd05e580869538e10685e3cdf2', '_blank')">문법 수강하기</button>
             </div>
+        </div>
+        </div>
         </div>
     </div> 
     
@@ -696,20 +717,27 @@
             options = options || {};
             if (MAIN_TAB_ORDER.indexOf(tabId) === -1) return;
 
-            var prevIdx = MAIN_TAB_ORDER.indexOf(mainCurrentTab);
             var nextIdx = MAIN_TAB_ORDER.indexOf(tabId);
-            var slideClass = null;
-            if (options.animate !== false && tabId !== mainCurrentTab) {
-                slideClass = nextIdx > prevIdx ? 'tab-slide-in-left' : 'tab-slide-in-right';
+            var tabEl = document.getElementById('tab-' + tabId);
+            if (!tabEl) return;
+
+            var track = document.getElementById('main-tab-track');
+            if (track) {
+                var offsetPct = (nextIdx * 100) / MAIN_TAB_ORDER.length;
+                if (options.animate === false) {
+                    track.classList.add('no-transition');
+                    track.style.transform = 'translateX(-' + offsetPct + '%)';
+                    void track.offsetWidth;
+                    track.classList.remove('no-transition');
+                } else {
+                    track.style.transform = 'translateX(-' + offsetPct + '%)';
+                }
             }
 
             document.querySelectorAll('.tab-content').forEach(function(tab) {
-                tab.classList.remove('active', 'tab-slide-in-left', 'tab-slide-in-right');
+                tab.classList.remove('active');
             });
-            var tabEl = document.getElementById('tab-' + tabId);
-            if (!tabEl) return;
             tabEl.classList.add('active');
-            if (slideClass) tabEl.classList.add(slideClass);
 
             mainCurrentTab = tabId;
             updateMainTabSwipeHints();
@@ -747,8 +775,9 @@
             var startX = 0;
             var startY = 0;
             var tracking = false;
-            var SWIPE_MIN = 55;
-            var SWIPE_RATIO = 1.4;
+            var pointerId = null;
+            var SWIPE_MIN = 32;
+            var SWIPE_RATIO = 1.12;
 
             function isMainSwipeBlocked() {
                 if (document.body.classList.contains('praise-receiver-flow')) return true;
@@ -762,31 +791,43 @@
 
             function isSwipeExcludedTarget(el) {
                 if (!el || !el.closest) return false;
-                return !!el.closest('.routine-scroll-box, select, input, textarea, button, a, .nav-item, .level-btn, .start-btn, .routine-action-btn, .main-tab-swipe-hint');
+                return !!el.closest('.routine-scroll-box, .bottom-nav, .main-tab-swipe-hint');
             }
 
-            function onTouchStart(e) {
-                if (isMainSwipeBlocked() || isSwipeExcludedTarget(e.target)) return;
-                if (!e.changedTouches || !e.changedTouches[0]) return;
+            function onSwipeStart(clientX, clientY, target) {
+                if (isMainSwipeBlocked() || isSwipeExcludedTarget(target)) return;
                 tracking = true;
-                startX = e.changedTouches[0].clientX;
-                startY = e.changedTouches[0].clientY;
+                startX = clientX;
+                startY = clientY;
             }
 
-            function onTouchEnd(e) {
+            function onSwipeEnd(clientX, clientY) {
                 if (!tracking) return;
                 tracking = false;
-                if (isMainSwipeBlocked() || !e.changedTouches || !e.changedTouches[0]) return;
-                var dx = e.changedTouches[0].clientX - startX;
-                var dy = e.changedTouches[0].clientY - startY;
+                if (isMainSwipeBlocked()) return;
+                var dx = clientX - startX;
+                var dy = clientY - startY;
                 if (Math.abs(dx) < SWIPE_MIN || Math.abs(dx) < Math.abs(dy) * SWIPE_RATIO) return;
                 if (dx < 0) switchMainTabByOffset(1);
                 else switchMainTabByOffset(-1);
             }
 
-            document.addEventListener('touchstart', onTouchStart, { passive: true });
-            document.addEventListener('touchend', onTouchEnd, { passive: true });
-            document.addEventListener('touchcancel', function() { tracking = false; }, { passive: true });
+            document.addEventListener('pointerdown', function(e) {
+                if (e.pointerType === 'mouse' && e.button !== 0) return;
+                pointerId = e.pointerId;
+                onSwipeStart(e.clientX, e.clientY, e.target);
+            });
+
+            document.addEventListener('pointerup', function(e) {
+                if (pointerId !== null && e.pointerId !== pointerId) return;
+                pointerId = null;
+                onSwipeEnd(e.clientX, e.clientY);
+            });
+
+            document.addEventListener('pointercancel', function() {
+                tracking = false;
+                pointerId = null;
+            });
 
             var prevBtn = document.getElementById('main-tab-hint-prev');
             var nextBtn = document.getElementById('main-tab-hint-next');
