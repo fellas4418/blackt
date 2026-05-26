@@ -187,11 +187,195 @@ window.handleCooldownExpiredUi = handleCooldownExpiredUi;
 
 let isPreReviewMode = false;
 let todayWords = [];
+let fullDayWords = [];
+let smartStudyActive = false;
+let sessionTestWrongWords = [];
 let reviewRetryCount = 0; 
 let isMuted = localStorage.getItem('trigger_muted') === 'true';
 let isPaused = false;
 const currentLevel = localStorage.getItem('trigger_level') || 'middle';
 window.lastWrongOptions = [];
+
+function isSmartStudyEligible(isReviewDay) {
+    if (isPreReviewMode) return false;
+    if (isReviewDay) return false;
+    if (window.__customVocaPractice && window.__customVocaPractice.active) return false;
+    return true;
+}
+
+function smartStudyExcludedKey() {
+    const day = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`), 10) || 1;
+    return `trigger_excluded_${currentLevel}_${day}`;
+}
+
+function smartStudyExcludedDoneKey() {
+    const day = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`), 10) || 1;
+    return `trigger_excluded_done_${currentLevel}_${day}`;
+}
+
+function smartStudyCycle4Key() {
+    const day = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`), 10) || 1;
+    return `trigger_cycle4_study_${currentLevel}_${day}`;
+}
+
+function loadExcludedWordSet() {
+    try {
+        const raw = localStorage.getItem(smartStudyExcludedKey());
+        if (!raw) return new Set();
+        const arr = JSON.parse(raw);
+        return new Set(Array.isArray(arr) ? arr : []);
+    } catch (e) { return new Set(); }
+}
+
+function saveExcludedWords(wordArr) {
+    localStorage.setItem(smartStudyExcludedKey(), JSON.stringify(wordArr));
+    localStorage.setItem(smartStudyExcludedDoneKey(), 'true');
+}
+
+function hasExcludedSelectionDone() {
+    return localStorage.getItem(smartStudyExcludedDoneKey()) === 'true';
+}
+
+function loadCycle4StudyWords() {
+    try {
+        const raw = localStorage.getItem(smartStudyCycle4Key());
+        if (!raw) return [];
+        const arr = JSON.parse(raw);
+        return Array.isArray(arr) ? arr : [];
+    } catch (e) { return []; }
+}
+
+function saveCycle4StudyWords(words) {
+    localStorage.setItem(smartStudyCycle4Key(), JSON.stringify(words));
+}
+
+function clearSmartStudyDayState(level, day) {
+    try {
+        localStorage.removeItem(`trigger_excluded_${level}_${day}`);
+        localStorage.removeItem(`trigger_excluded_done_${level}_${day}`);
+        localStorage.removeItem(`trigger_cycle4_study_${level}_${day}`);
+    } catch (e) {}
+}
+
+function shuffleWordList(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+function buildStudyWordsFromExcluded(excludedSet) {
+    return fullDayWords.filter(w => w && w.word && !excludedSet.has(w.word));
+}
+
+function getStudyBaseList() {
+    const sessionNum = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`) || '1', 10);
+    if (sessionNum >= 4) return loadCycle4StudyWords();
+    return buildStudyWordsFromExcluded(loadExcludedWordSet());
+}
+
+function applySmartStudyWordSets(isReviewDay) {
+    fullDayWords = todayWords.slice();
+    smartStudyActive = isSmartStudyEligible(isReviewDay);
+    if (!smartStudyActive) {
+        targetWords = todayWords.slice();
+        return;
+    }
+    const sessionNum = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`) || '1', 10);
+    if (sessionNum >= 4) {
+        targetWords = loadCycle4StudyWords().slice();
+    } else if (hasExcludedSelectionDone()) {
+        targetWords = buildStudyWordsFromExcluded(loadExcludedWordSet());
+    } else {
+        targetWords = fullDayWords.slice();
+    }
+}
+
+function needsWordExclusionScreen(isReviewDay) {
+    if (!isSmartStudyEligible(isReviewDay)) return false;
+    const sessionNum = parseInt(localStorage.getItem(`trigger_session_${currentLevel}`) || '1', 10);
+    if (sessionNum !== 1) return false;
+    return !hasExcludedSelectionDone();
+}
+
+function showWordExclusionScreen(onDone) {
+    fullDayWords = todayWords.slice();
+    smartStudyActive = true;
+    const excluded = new Set();
+    const total = fullDayWords.length;
+
+    function escHtml(s) {
+        return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+    }
+
+    function renderList() {
+        const studyCount = total - excluded.size;
+        const listHtml = fullDayWords.map((w, i) => {
+            const isExcluded = excluded.has(w.word);
+            return `<div class="excl-word-row" data-idx="${i}" style="padding:12px; margin-bottom:8px; border-radius:10px; border:1px solid ${isExcluded ? '#333' : '#444'}; background:${isExcluded ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.03)'}; opacity:${isExcluded ? '0.45' : '1'}; cursor:pointer; text-align:left;">
+                <div style="font-weight:bold; color:#fff; font-size:1.05rem;">${escHtml(w.word)}${isExcluded ? ' <span style="color:#888; font-size:0.85rem;">· 학습 제외</span>' : ''}</div>
+                <div style="color:#aaa; font-size:0.9rem; margin-top:4px;">${escHtml(Array.isArray(w.meanings) ? w.meanings.join(', ') : (w.meaning || ''))}</div>
+            </div>`;
+        }).join('');
+
+        showSystemMessage(`
+            <div style="text-align:center; padding:5px; max-width:100%;">
+                <div style="font-size:1.2rem; color:var(--neon-blue); font-weight:bold; margin-bottom:8px;">아는 단어 제외</div>
+                <p style="color:#888; font-size:0.9rem; margin-bottom:12px; line-height:1.5;">아는 단어를 탭해 학습에서 빼세요.<br><strong>3·5회 테스트는 ${total}개 전체</strong>입니다.</p>
+                <div id="excl-word-list" style="max-height:45vh; overflow-y:auto; margin-bottom:12px;">${listHtml}</div>
+                <div style="color:#aaa; font-size:0.9rem; margin-bottom:12px;">학습 <strong style="color:var(--neon-green);">${studyCount}</strong>개 · 테스트 <strong style="color:#fff;">${total}</strong>개</div>
+                <button id="exclusion-start-btn" style="width:100%; padding:15px; background:var(--neon-green); color:#000; font-weight:bold; border-radius:10px; border:none; cursor:pointer;">학습 시작하기</button>
+            </div>
+        `);
+
+        document.querySelectorAll('.excl-word-row').forEach(row => {
+            row.onclick = () => {
+                const idx = parseInt(row.getAttribute('data-idx'), 10);
+                const wObj = fullDayWords[idx];
+                if (!wObj || !wObj.word) return;
+                if (excluded.has(wObj.word)) excluded.delete(wObj.word);
+                else excluded.add(wObj.word);
+                renderList();
+            };
+        });
+        const startBtn = document.getElementById('exclusion-start-btn');
+        if (startBtn) {
+            startBtn.onclick = () => {
+                saveExcludedWords(Array.from(excluded));
+                targetWords = shuffleWordList(buildStudyWordsFromExcluded(excluded));
+                if (typeof onDone === 'function') onDone();
+            };
+        }
+    }
+    renderList();
+}
+
+function beginTestPhase() {
+    score = 0;
+    currentIdx = 0;
+    if (smartStudyActive && fullDayWords.length > 0) {
+        sessionTestWrongWords = [];
+        targetWords = shuffleWordList(fullDayWords.slice());
+    }
+    startTest();
+}
+
+function startTodayWordsAfterPreReview() {
+    const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
+    const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
+    applySmartStudyWordSets(isReviewDay);
+    currentIdx = 0;
+    score = 0;
+    studyLoopCount = 1;
+    if (needsWordExclusionScreen(isReviewDay)) {
+        showWordExclusionScreen(() => startStudy());
+    } else {
+        startStudy();
+    }
+}
+window.startTodayWordsAfterPreReview = startTodayWordsAfterPreReview;
 
 // [QR 유입 경로 기억 로직] 즉시 실행형으로 교체 (43번 줄 아래)
 (function() {
@@ -313,7 +497,7 @@ function saveStudyCheckpoint() {
     const dayNow = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`), 10) || 1;
     try {
         const payload = {
-            v: 1,
+            v: 2,
             level: currentLevel,
             day: dayNow,
             session: sessionRaw,
@@ -321,6 +505,9 @@ function saveStudyCheckpoint() {
             customSavedVoca: !!(window.__customVocaPractice && window.__customVocaPractice.active),
             firstWord: targetWords[0] && targetWords[0].word ? String(targetWords[0].word) : '',
             wordsJson: JSON.stringify(targetWords),
+            fullDayWordsJson: smartStudyActive ? JSON.stringify(fullDayWords) : '',
+            smartStudyActive: !!smartStudyActive,
+            sessionTestWrongJson: smartStudyActive ? JSON.stringify(sessionTestWrongWords) : '[]',
             currentIdx,
             studyLoopCount,
             score,
@@ -341,7 +528,7 @@ function tryRestoreStudyCheckpoint(ctx) {
     } catch (e) {
         return null;
     }
-    if (!ck || ck.v !== 1) return null;
+    if (!ck || (ck.v !== 1 && ck.v !== 2)) return null;
     const sessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
     const dayNow = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`), 10) || 1;
     if (ck.level !== currentLevel || ck.day !== dayNow || ck.session !== sessionRaw) return null;
@@ -358,6 +545,22 @@ function tryRestoreStudyCheckpoint(ctx) {
     if (!Array.isArray(words) || words.length < 1) return null;
 
     targetWords = words;
+    if (ck.v >= 2) {
+        smartStudyActive = !!ck.smartStudyActive;
+        try {
+            const fd = typeof ck.fullDayWordsJson === 'string' ? JSON.parse(ck.fullDayWordsJson) : [];
+            fullDayWords = Array.isArray(fd) && fd.length > 0 ? fd : todayWords.slice();
+        } catch (e) {
+            fullDayWords = todayWords.slice();
+        }
+        try {
+            sessionTestWrongWords = typeof ck.sessionTestWrongJson === 'string'
+                ? JSON.parse(ck.sessionTestWrongJson) : [];
+            if (!Array.isArray(sessionTestWrongWords)) sessionTestWrongWords = [];
+        } catch (e) {
+            sessionTestWrongWords = [];
+        }
+    }
     let idx = parseInt(ck.currentIdx, 10);
     if (Number.isNaN(idx) || idx < 0) idx = 0;
     currentIdx = Math.min(idx, targetWords.length);
@@ -408,11 +611,11 @@ function runStudyHtmlEntryTail(sessionTag, currentSession, isReviewDay, restored
 
     if (restored) {
         if (restored.phase === 'pre_countdown') {
-            startCountdown("곧 테스트를 시작합니다.", startTest);
+            startCountdown("곧 테스트를 시작합니다.", beginTestPhase);
         } else if (restored.phase === 'test') {
             startTest();
         } else {
-            startStudy();
+            startStudy(true);
         }
         return;
     }
@@ -422,7 +625,12 @@ function runStudyHtmlEntryTail(sessionTag, currentSession, isReviewDay, restored
         currentIdx = 0;
         studyLoopCount = 2;
         score = 0;
-        startCountdown("곧 테스트를 시작합니다.", startTest);
+        startCountdown("곧 테스트를 시작합니다.", beginTestPhase);
+        return;
+    }
+
+    if (needsWordExclusionScreen(isReviewDay)) {
+        showWordExclusionScreen(() => startStudy());
         return;
     }
 
@@ -632,11 +840,11 @@ if (localStorage.getItem('trigger_admin_mode') === 'true') {
                 };
                 return; 
             } else {
-                targetWords = todayWords;
+                applySmartStudyWordSets(isReviewDay);
                 isPreReviewMode = false; 
             }
         } else {
-            targetWords = todayWords;
+            applySmartStudyWordSets(isReviewDay);
             isPreReviewMode = false;
         }
 
@@ -685,8 +893,12 @@ function togglePause() {
     }
 }
 
-function startStudy() {
+function startStudy(skipShuffle) {
     __studyCkptPhase = 'study';
+    if (currentIdx === 0 && smartStudyActive && !skipShuffle) {
+        const base = getStudyBaseList();
+        targetWords = shuffleWordList(base);
+    }
     const slot1 = document.getElementById('slot-1');
     const slot2 = document.getElementById('slot-2');
 
@@ -729,7 +941,7 @@ function startStudy() {
 
             if (sNum === 3 || sNum === DAILY_CYCLE_COUNT || currentSessionRaw === 'final' || isPreReviewMode) {
                 score = 0; 
-                startCountdown("곧 테스트를 시작합니다.", startTest); 
+                startCountdown("곧 테스트를 시작합니다.", beginTestPhase); 
             } else {
                 finishSession(false);
             }
@@ -870,15 +1082,18 @@ function updateUI(data, isTest = false) {
 
     const currentNum = currentIdx + 1;
     const totalNum = targetWords.length;
+    const counterLabel = isTest
+        ? (smartStudyActive && fullDayWords.length > 0 ? '테스트 진행 (전체)' : '테스트 진행')
+        : (smartStudyActive && fullDayWords.length > targetWords.length ? '학습 진행' : '학습 진행');
     const counterGap = isTest ? 'margin-top: 10px; margin-bottom: 0;' : 'margin-top: 5px; margin-bottom: 2px;';
 
     const counterHtml = `
         <div id="session-counter" style="text-align: center; ${counterGap} font-family: 'Pretendard', sans-serif; width: 100%;">
-            <div style="font-size: 0.9rem; color: #666; font-weight: 800; margin-bottom: 4px;">오늘의 단어 순서</div>
+            <div style="font-size: 0.9rem; color: #666; font-weight: 800; margin-bottom: 4px;">${counterLabel}</div>
             <div style="font-size: 1rem; color: #aaa; font-weight: bold;">
                 <span style="color: var(--neon-blue); font-size: 1.1rem;">${currentNum}</span> 
                 <span style="color: #444; margin: 0 2px;">/</span> 
-                ${totalNum}
+                ${totalNum}${smartStudyActive && !isTest && fullDayWords.length > totalNum ? `<span style="color:#555; font-size:0.85rem;"> (테스트 ${fullDayWords.length}개)</span>` : ''}
             </div>
         </div>
     `;
@@ -983,6 +1198,12 @@ function handleAnswer(isCorrect) {
     } else {
         // [오답 시 처리] 3회차 중간 테스트는 무시하고 5회/최종만 리스트에 저장
         const currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`);
+
+        if (smartStudyActive && currentSessionRaw === '3') {
+            if (!sessionTestWrongWords.some(w => w.word === currentWordData.word)) {
+                sessionTestWrongWords.push({ ...currentWordData });
+            }
+        }
         
         if (currentSessionRaw !== '3') {
             const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
@@ -1032,7 +1253,14 @@ function finishSession(didTest = true) {
     clearStudyCheckpoint();
     let currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
     let currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
-    const accuracy = targetWords.length > 0 ? Math.floor((score / targetWords.length) * 100) : 0;
+    const testTotal = (didTest && smartStudyActive && fullDayWords.length > 0)
+        ? fullDayWords.length
+        : targetWords.length;
+    const accuracy = testTotal > 0 ? Math.floor((score / testTotal) * 100) : 0;
+
+    if (smartStudyActive && didTest && currentSessionRaw === '3') {
+        saveCycle4StudyWords(sessionTestWrongWords);
+    }
     
     if (isPreReviewMode) {
         const sessionTag = document.getElementById('session-tag');
@@ -1045,10 +1273,6 @@ function finishSession(didTest = true) {
             reviewRetryCount = 0; 
     
             isPreReviewMode = false;
-            targetWords = todayWords; 
-            currentIdx = 0;           
-            score = 0;                
-            studyLoopCount = 1;       
 
             if (sessionTag) {
                 sessionTag.innerText = `1 / ${DAILY_CYCLE_COUNT} 사이클 진행 중`;
@@ -1064,7 +1288,7 @@ function finishSession(didTest = true) {
             `);
     
             setTimeout(() => {
-                startStudy(); 
+                startTodayWordsAfterPreReview();
             }, 1500); 
     
         } else {
@@ -1076,10 +1300,6 @@ function finishSession(didTest = true) {
                 reviewRetryCount = 0; 
 
                 isPreReviewMode = false;
-                targetWords = todayWords;
-                currentIdx = 0;
-                score = 0;
-                studyLoopCount = 1;
 
                 if (sessionTag) {
                     sessionTag.innerText = `1 / ${DAILY_CYCLE_COUNT} 사이클 진행 중`;
@@ -1090,7 +1310,7 @@ function finishSession(didTest = true) {
                     <div style="text-align:center;">
                         <div style="font-size:1.5rem; color:var(--neon-orange); font-weight:bold;">⚠️ 집중 학습 대상</div>
                         <p style="color:#888; margin-top:10px;">2회 연속 기준 미달입니다.<br>해당 단어는 오답 리스트에서 확인하고<br>우선 오늘 진도부터 나갑니다.</p>
-                        <button onclick="startStudy()" style="width:100%; padding:16px; background:var(--neon-blue); color:#fff; border-radius:12px; margin-top:20px; border:none; font-weight:bold;">오늘 단어 시작하기</button>
+                        <button onclick="startTodayWordsAfterPreReview()" style="width:100%; padding:16px; background:var(--neon-blue); color:#fff; border-radius:12px; margin-top:20px; border:none; font-weight:bold;">오늘 단어 시작하기</button>
                     </div>
                 `);
             } else {
@@ -1159,6 +1379,7 @@ function finishSession(didTest = true) {
         stats[currentDay].accuracy = accuracy;
         localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));
 
+        clearSmartStudyDayState(currentLevel, currentDay);
         localStorage.setItem(`trigger_current_day_${currentLevel}`, currentDay + 1);
         localStorage.setItem(`trigger_session_${currentLevel}`, '1');
 
