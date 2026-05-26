@@ -348,24 +348,41 @@
                 트리거 <span class="brand-tab-module brand-tab-module--voca">보카</span>
             </div>
 
-            <div class="main-header-meta">
-                <button type="button" class="header-profile-credit" id="header-credit-btn" onclick="typeof TriggerCredit!=='undefined'&&TriggerCredit.showCreditInfo()" title="트리거 크레딧">
-                    <span class="header-credit-label">credit</span>
-                    <span class="header-credit-value" id="trigger-credit-value">0</span>
-                </button>
+            <div class="main-header-meta main-header-meta--share">
                 <button type="button" onclick="shareTriggerApp()" 
                 style="background: rgba(0, 243, 255, 0.06); border: 1px solid var(--neon-blue); color: #ffffff; padding: 7px 16px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 0 12px rgba(0,243,255,0.22); font-weight: bold; transition: 0.2s; letter-spacing: 0.04em;">
                     <span style="color: var(--neon-blue); text-shadow: 0 0 8px rgba(0,243,255,0.55);">◆</span>
                     <span>공유하기</span>
                 </button>
             </div>
-            <div id="header-online-line" class="header-online-line" style="display: none;">
-                <span class="online-dot"></span>
-                <span class="online-label">ONLINE</span>
-            </div>
         </div>
         
         <hr class="main-header-divider">
+
+        <div class="stats-row stats-row--global" id="global-stats-row">
+            <div class="stat-item stat-item--day">
+                <button type="button" class="stat-credit-tap" id="header-credit-btn" onclick="typeof TriggerCredit!=='undefined'&&TriggerCredit.showCreditInfo()" title="트리거 크레딧">
+                    <span class="header-credit-label">CREDIT</span>
+                    <span class="header-credit-value" id="trigger-credit-value">0</span>
+                </button>
+                <div class="stats-voca-only">
+                    <div class="stat-label">진행 중인 Day</div>
+                    <div class="stat-value" id="stat-current-day" style="color: #fff;">Day 1</div>
+                </div>
+            </div>
+            <div class="stat-item stats-voca-only" id="stat-session-col" style="border-left: 1px solid #444; border-right: 1px solid #444;">
+                <div class="stat-label">오늘의 사이클</div>
+                <div class="stat-value" id="stat-session" style="color: #fff;">1 / 5</div>
+            </div>
+            <div class="stat-item stat-item--report clickable-card" onclick="showWeeklyReport()">
+                <div id="header-online-line" class="stat-online-top" style="display: none;">
+                    <span class="online-dot"></span>
+                    <span class="online-label">ONLINE</span>
+                </div>
+                <div class="stat-label">My 리포트</div>
+                <div class="stat-value" style="color:#ddd; text-decoration:underline; font-size: 1rem; margin-top: 3px;">보기 📊</div>
+            </div>
+        </div>
 
         <div class="main-tab-viewport">
         <div class="main-tab-track" id="main-tab-track">
@@ -376,12 +393,6 @@
             </button>
 
             <div id="welcome-msg"></div>
-
-            <div class="stats-row">
-                <div class="stat-item"><div class="stat-label">진행 중인 Day</div><div class="stat-value" id="stat-current-day" style="color: #fff;">Day 1</div></div>
-                <div class="stat-item" style="border-left: 1px solid #444; border-right: 1px solid #444;"><div class="stat-label">오늘의 사이클</div><div class="stat-value" id="stat-session" style="color: #fff;">1 / 5</div></div>
-                <div class="stat-item clickable-card" onclick="showWeeklyReport()"><div class="stat-label">누적 리포트</div><div class="stat-value" style="color:#ddd; text-decoration:underline; font-size: 1rem; margin-top: 3px;">보기 📊</div></div>
-            </div>
 
             <div class="card level-section">
                 <div class="level-buttons">
@@ -831,6 +842,7 @@
 
             mainCurrentTab = tabId;
             updateMainTabSwipeHints();
+            updateGlobalStatsForTab(tabId);
 
             document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
 
@@ -1172,6 +1184,17 @@
             const name = (localStorage.getItem('trigger_name') || '').trim();
             if (onlineLine) onlineLine.style.display = name ? 'flex' : 'none';
             if (creditBtn) creditBtn.style.visibility = name ? 'visible' : 'hidden';
+        }
+
+        function updateGlobalStatsForTab(tabId) {
+            const row = document.getElementById('global-stats-row');
+            if (!row) return;
+            row.classList.toggle('stats-row--compact', tabId !== 'voca');
+            document.querySelectorAll('.stats-voca-only').forEach(function (el) {
+                el.style.display = tabId === 'voca' ? '' : 'none';
+            });
+            const sessionCol = document.getElementById('stat-session-col');
+            if (sessionCol) sessionCol.style.display = tabId === 'voca' ? '' : 'none';
         }
 
         function renderVocaDoneMsg(session) {
