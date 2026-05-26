@@ -159,19 +159,20 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
     border: 0;
     border-top: 0.5px solid #222;
     width: 95%;
-    margin: 8px auto 12px;
+    margin: 8px auto 16px;
 }
 .global-stats-shell {
+    margin-top: 12px;
     margin-bottom: 0;
 }
 .global-stats-shell:not(.global-stats-shell--other-tab) + .main-tab-viewport {
     margin-top: -10px;
 }
 .global-stats-shell--other-tab .global-stats-meta {
-    padding-bottom: 14px;
+    padding-bottom: 7px;
 }
 .global-stats-shell--other-tab + .main-tab-viewport {
-    margin-top: 16px;
+    margin-top: 8px;
 }
 .global-stats-meta {
     display: flex;
