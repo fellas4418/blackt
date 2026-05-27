@@ -1,18 +1,33 @@
 function showSystemMessage(text) {
     const targetEl = document.getElementById('target');
     const meaningsEl = document.getElementById('meanings');
-    
+    const headerEl = document.querySelector('.header');
+    const displayEl = document.getElementById('display');
+
+    const oldCounter = document.getElementById('session-counter');
+    if (oldCounter) oldCounter.remove();
+    if (headerEl) headerEl.classList.remove('test-phase-header');
+    if (displayEl) {
+        displayEl.classList.remove('test-phase');
+        displayEl.classList.add('study-system-phase');
+    }
+
     if (targetEl) {
+        targetEl.removeAttribute('style');
+        targetEl.classList.add('system-msg');
         targetEl.innerHTML = text;
-        targetEl.style.setProperty('font-size', '24px', 'important'); 
-        targetEl.style.setProperty('text-shadow', 'none', 'important');
-        targetEl.style.setProperty('margin-top', '30px', 'important');
+        targetEl.style.fontSize = '24px';
+        targetEl.style.textShadow = 'none';
+        targetEl.style.marginTop = '0';
         targetEl.style.color = '#aaaaaa';
         targetEl.style.lineHeight = '1.6';
         targetEl.style.wordBreak = 'keep-all';
         targetEl.style.fontWeight = 'normal';
+        targetEl.style.width = '100%';
+        targetEl.style.boxSizing = 'border-box';
+        targetEl.style.textAlign = 'center';
     }
-    if (meaningsEl) meaningsEl.innerHTML = "";
+    if (meaningsEl) meaningsEl.innerHTML = '';
 }
 
 function stopStudyTimersAndSpeech() {
@@ -1117,11 +1132,35 @@ if (wrongWordCountEl) {
 function fontSizeForStudyWord(word) {
     const n = (word || '').length;
     if (n <= 7) return '3.3rem';
-    if (n <= 9) return '2.85rem';
-    if (n <= 11) return '2.45rem';
-    if (n <= 13) return '2.05rem';
-    if (n <= 16) return '1.7rem';
-    return '1.45rem';
+    if (n <= 9) return '2.7rem';
+    if (n <= 11) return '2.15rem';
+    if (n <= 13) return '1.85rem';
+    if (n <= 16) return '1.55rem';
+    return '1.3rem';
+}
+
+/** 영단어 한 줄 유지 — 가로 공간보다 길면 글자 크기만 줄임 */
+function fitStudyWordText(el) {
+    if (!el) return;
+    el.style.whiteSpace = 'nowrap';
+    el.style.wordBreak = 'normal';
+    el.style.overflowWrap = 'normal';
+    let maxW = el.clientWidth;
+    if (!maxW || el.scrollWidth > maxW) {
+        const soloWrap = el.closest('.study-word-text--solo');
+        if (soloWrap && soloWrap.clientWidth) maxW = soloWrap.clientWidth;
+    }
+    if (!maxW) return;
+    let sizePx = parseFloat(window.getComputedStyle(el).fontSize);
+    if (!sizePx || isNaN(sizePx)) sizePx = 24;
+    const minPx = 13;
+    let guard = 0;
+    while (sizePx > minPx && guard < 100) {
+        el.style.fontSize = sizePx + 'px';
+        if (el.scrollWidth <= maxW) break;
+        sizePx -= 1;
+        guard++;
+    }
 }
 
 function updateUI(data, isTest = false) {
@@ -1132,8 +1171,12 @@ function updateUI(data, isTest = false) {
 
     if (!targetEl || !mBox || !data) return;
 
+    targetEl.classList.remove('system-msg');
     if (headerEl) headerEl.classList.toggle('test-phase-header', isTest);
-    if (displayEl) displayEl.classList.toggle('test-phase', isTest);
+    if (displayEl) {
+        displayEl.classList.toggle('test-phase', isTest);
+        displayEl.classList.remove('study-system-phase');
+    }
 
     const oldCounter = document.getElementById('session-counter');
     if (oldCounter) oldCounter.remove();
@@ -1197,12 +1240,16 @@ function updateUI(data, isTest = false) {
             starBtn.innerText = isStarred ? "⭐" : "☆";
             starBtn.onclick = (e) => { e.stopPropagation(); toggleStar(data); };
         }
+        requestAnimationFrame(() => fitStudyWordText(targetEl.querySelector('.study-word-text')));
     } else {
         targetEl.innerHTML = `
             <div style="display:flex; flex-direction:column; align-items:center; width:100%; box-sizing:border-box; padding:0 16px;">
-                <div class="study-word-text" style="font-size:${wordFontSize}; font-weight:bold; cursor:pointer; text-align:center; line-height:1.15; word-break:break-word; max-width:100%;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</div>
+                <div class="study-word-text--solo" style="width:100%; text-align:center;">
+                    <span class="study-word-text" style="font-size:${wordFontSize}; font-weight:bold; cursor:pointer; line-height:1.15;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</span>
+                </div>
                 <div class="ipa-text" style="font-size:1.2rem; color:#888; margin-top:8px;">${data.ipa || ''}</div>
             </div>`;
+        requestAnimationFrame(() => fitStudyWordText(targetEl.querySelector('.study-word-text')));
         
         let dictPool = [];
         if (typeof wordsData !== 'undefined' && wordsData[currentLevel]) {

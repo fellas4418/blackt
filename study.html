@@ -55,6 +55,20 @@
         #display.test-phase #meanings .choice-btn:first-child {
             margin-top: 0 !important;
         }
+        /* 완료·휴식 등 시스템 안내: 화면 중앙 정렬 */
+        #display.study-system-phase {
+            margin-top: 0 !important;
+            justify-content: center !important;
+            align-items: center !important;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+        #display.study-system-phase #target {
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            width: 90% !important;
+            max-width: 420px;
+        }
         .study-word-row {
             display: flex;
             align-items: center;
@@ -74,9 +88,21 @@
         .study-word-row .study-word-text {
             flex: 1;
             min-width: 0;
+            display: block;
+            width: 100%;
             text-align: center;
             line-height: 1.15;
-            word-break: break-word;
+            white-space: nowrap;
+            word-break: normal;
+            overflow-wrap: normal;
+        }
+        #target .study-word-text--solo {
+            display: inline-block;
+            max-width: 100%;
+            text-align: center;
+            white-space: nowrap;
+            word-break: normal;
+            overflow-wrap: normal;
         }
         @media print {
             body { background: #fff !important; }
