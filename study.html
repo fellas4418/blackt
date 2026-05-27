@@ -55,6 +55,29 @@
         #display.test-phase #meanings .choice-btn:first-child {
             margin-top: 0 !important;
         }
+        .study-word-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 100%;
+            padding: 0 16px;
+            box-sizing: border-box;
+            gap: 8px;
+        }
+        .study-word-row .study-star-spacer,
+        .study-word-row #star-btn {
+            flex-shrink: 0;
+            width: 1.85rem;
+            text-align: center;
+        }
+        .study-word-row .study-word-text {
+            flex: 1;
+            min-width: 0;
+            text-align: center;
+            line-height: 1.15;
+            word-break: break-word;
+        }
         @media print {
             body { background: #fff !important; }
             #app, .back-btn, button { display: none !important; }
@@ -73,10 +96,6 @@
             <div id="slot-1" class="energy-slot-vert"></div>
         </div>
 
-        <button type="button" class="trigger-credit-chip--study" onclick="typeof TriggerCredit!=='undefined'&&TriggerCredit.showCreditInfo()" title="트리거 크레딧">
-            <span class="header-credit-label">CREDIT</span>
-            <span class="header-credit-value" id="trigger-credit-value-study">0</span>
-        </button>
         <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 8px; align-items: center; z-index: 100;">
             <button id="pause-btn" onclick="togglePause()" style="background: transparent; border: 1px solid var(--neon-blue); color: #fff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">⏸ 일시중지</button>
             <button id="exit-btn" onclick="location.href='index.html'" style="display: none; background: transparent; border: 1px solid var(--neon-orange); color: #ffffff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">나가기</button>
@@ -118,7 +137,6 @@
             });
         }
         window.addEventListener('DOMContentLoaded', () => {
-            if (typeof TriggerCredit !== 'undefined') TriggerCredit.updateDisplay();
             const targetEl = document.getElementById('target');
             if(targetEl) {
                 const observer = new MutationObserver(() => {

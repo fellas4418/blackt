@@ -1114,6 +1114,16 @@ if (wrongWordCountEl) {
 }
 }
 
+function fontSizeForStudyWord(word) {
+    const n = (word || '').length;
+    if (n <= 7) return '3.3rem';
+    if (n <= 9) return '2.85rem';
+    if (n <= 11) return '2.45rem';
+    if (n <= 13) return '2.05rem';
+    if (n <= 16) return '1.7rem';
+    return '1.45rem';
+}
+
 function updateUI(data, isTest = false) {
     const targetEl = document.getElementById('target');
     const mBox = document.getElementById('meanings');
@@ -1153,9 +1163,12 @@ function updateUI(data, isTest = false) {
     let safeMeanings = Array.isArray(data.meanings) ? data.meanings : (data.meaning ? [data.meaning] : ["뜻 확인 필요"]);
     const fullMeaning = safeMeanings.join(', ');
 
-    targetEl.style.setProperty('font-size', '3.3rem', 'important'); 
+    const wordFontSize = fontSizeForStudyWord(data.word);
+    targetEl.style.setProperty('font-size', '1rem', 'important');
     targetEl.style.setProperty('text-shadow', '0 0 8px rgba(255, 255, 255, 0.45)', 'important');
     targetEl.style.setProperty('color', '#fff', 'important');
+    targetEl.style.setProperty('width', '100%', 'important');
+    targetEl.style.setProperty('box-sizing', 'border-box', 'important');
     if (isTest) {
         targetEl.style.removeProperty('margin-top');
         mBox.style.marginTop = '';
@@ -1166,11 +1179,11 @@ function updateUI(data, isTest = false) {
 
     if (!isTest) {
         targetEl.innerHTML = `
-            <div style="display:flex; flex-direction:column; align-items:center;">
-                <div style="display:flex; justify-content:center; align-items:center;">
-                    <span style="font-size:1.8rem; visibility:hidden; pointer-events:none;">☆</span>
-                    <span style="cursor:pointer; margin:0 10px;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</span>
-                    <button id="star-btn" style="background:none; border:none; font-size:1.8rem; cursor:pointer; color:var(--neon-orange); padding-bottom:5px;">☆</button>
+            <div style="display:flex; flex-direction:column; align-items:center; width:100%; box-sizing:border-box; padding:0 4px;">
+                <div class="study-word-row">
+                    <span class="study-star-spacer" style="font-size:1.8rem; visibility:hidden; pointer-events:none;">☆</span>
+                    <span class="study-word-text" style="cursor:pointer; font-size:${wordFontSize}; font-weight:bold;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</span>
+                    <button id="star-btn" style="background:none; border:none; font-size:1.8rem; cursor:pointer; color:var(--neon-orange); padding:0 0 5px 0;">☆</button>
                 </div>
                 <div class="ipa-text" style="font-size:1.2rem; color:#888; margin-top:8px;">${data.ipa || ''}</div>
             </div>`;
@@ -1186,8 +1199,8 @@ function updateUI(data, isTest = false) {
         }
     } else {
         targetEl.innerHTML = `
-            <div style="display:flex; flex-direction:column; align-items:center;">
-                <div style="font-size:3.3rem; font-weight:bold; cursor:pointer;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</div>
+            <div style="display:flex; flex-direction:column; align-items:center; width:100%; box-sizing:border-box; padding:0 16px;">
+                <div class="study-word-text" style="font-size:${wordFontSize}; font-weight:bold; cursor:pointer; text-align:center; line-height:1.15; word-break:break-word; max-width:100%;" onclick="playPronunciation('${data.word.replace(/'/g, "\\'")}', true)">${data.word}</div>
                 <div class="ipa-text" style="font-size:1.2rem; color:#888; margin-top:8px;">${data.ipa || ''}</div>
             </div>`;
         
