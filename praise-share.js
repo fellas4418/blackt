@@ -3,14 +3,14 @@
  */
 (function (global) {
     var BADGES = [
-        { emoji: '◆', title: 'FOCUS CORE', blurb: '한 번 시작하면 끝까지 밀어붙이는 출력이에요.' },
-        { emoji: '◇', title: 'SYNC MASTER', blurb: '꾸준한 동기화가 가장 큰 무기예요.' },
-        { emoji: '▣', title: 'TARGET LOCK', blurb: '오늘의 목표를 정확히 적중했어요.' },
-        { emoji: '▲', title: 'BOOST UP', blurb: '한 걸음 한 걸음, 확실히 올라가고 있어요.' },
-        { emoji: '◉', title: 'ROUTINE CORE', blurb: '매일의 작은 루틴이 누적됐어요.' },
-        { emoji: '◎', title: 'MULTI SYNC', blurb: '여러 일을 정리하면서도 학습을 유지했어요.' },
-        { emoji: '⬡', title: 'PRECISION HIT', blurb: '오늘의 타깃을 정확히 찍었어요.' },
-        { emoji: '◈', title: 'BRAVE NODE', blurb: '부담 속에서도 앞으로 전진했어요.' }
+        { emoji: '◆', title: '몰입형', blurb: '한 번 시작하면 깊게 파는 타입이에요.' },
+        { emoji: '◇', title: '성실형', blurb: '맡은 걸 꾸준히 해내는 타입이에요.' },
+        { emoji: '▣', title: '개근형', blurb: '빠짐없이 매일 챙기는 타입이에요.' },
+        { emoji: '▲', title: '끈기형', blurb: '지쳐도 포기하지 않는 타입이에요.' },
+        { emoji: '◉', title: '집중형', blurb: '흐트러짐 없이 오늘에만 몰두하는 타입이에요.' },
+        { emoji: '◎', title: '만점형', blurb: '테스트·정확도에서 실력을 보여 주는 타입이에요.' },
+        { emoji: '⬡', title: '마라톤형', blurb: '길어도 끝까지 가는 타입이에요.' },
+        { emoji: '◈', title: '불도저형', blurb: '어려워도 밀어붙이는 타입이에요.' }
     ];
 
     function fnv1a32(str) {
@@ -193,14 +193,14 @@
     }
 
     var HEADLINES = [
-        '{{name}}님, 오늘 Day {{day}}까지 밀어냈어요. 누적 {{total}}단어 — {{emoji}} {{badge}} 배지!',
-        '{{name}}님, 꾸준함이 보여요. (Day {{day}} · 누적 {{total}}단어) 오늘의 칭찬: {{emoji}} {{badge}}',
-        '{{emoji}} {{badge}}! {{name}}님은 오늘도 한 덩어리를 끝냈어요. Day {{day}}, 총 {{total}}단어 클리어.',
-        '대단해요 {{name}}님! Day {{day}} 학습 완료 · 지금까지 {{total}}단어. {{emoji}} {{badge}}',
-        '{{name}}님, 조금씩 쌓인 게 {{total}}단어예요. 오늘은 Day {{day}}! {{emoji}} {{badge}} 가자!',
-        '와! {{name}}님 오늘 기록: Day {{day}}, 누적 {{total}}단어. 칭찬 스티커 {{emoji}} {{badge}}',
-        '{{name}}님, 오늘의 한 줄: "끝까지했다" — Day {{day}} / {{total}}단어 / {{badge}} {{emoji}}',
-        '{{emoji}} 칭찬 도착! {{name}}님 · Day {{day}} · {{total}}단어 · 테마 「{{badge}}」'
+        '{{name}}님, 오늘 Day {{day}}까지 해냈어요. 누적 {{total}}단어 — 오늘의 학습 유형: {{emoji}} {{badge}}',
+        '{{name}}님, 꾸준함이 보여요. (Day {{day}} · {{total}}단어) {{emoji}} {{badge}}',
+        '{{emoji}} {{badge}}! {{name}}님, 오늘도 한 바퀴 끝냈어요. Day {{day}}, 총 {{total}}단어.',
+        '{{name}}님, Day {{day}} 학습 완료 · 지금까지 {{total}}단어. 오늘 유형 {{emoji}} {{badge}}',
+        '{{name}}님, 쌓인 게 벌써 {{total}}단어예요. 오늘 Day {{day}} — {{emoji}} {{badge}}',
+        '{{name}}님 오늘 기록: Day {{day}}, {{total}}단어. 오늘의 학습 유형 {{emoji}} {{badge}}',
+        '{{name}}님, 오늘 한 줄: "끝까지 해냈다" — Day {{day}} / {{total}}단어 / {{badge}} {{emoji}}',
+        '{{emoji}} 응원 전달! {{name}}님 · Day {{day}} · {{total}}단어 · 「{{badge}}」'
     ];
 
     function sub(tpl, ctx, badge) {
@@ -220,14 +220,14 @@
     function copyWarm(ctx) {
         var b = badgeFor(ctx);
         var lines = [
-            '{{name}}님, 오늘 Day {{day}}까지 해낸 거 진짜 대단해요. 늘 응원하고 있어요. ({{emoji}} {{badge}} · 누적 {{total}}단어)',
-            '{{name}}님, 매일 조금씩이 모여서 벌써 {{total}}단어예요. 오늘 Day {{day}}도 수고 많았어요. {{emoji}} {{badge}}',
-            '{{name}}님에게: 힘들 때일수록 지금처럼 해냈다는 게 멋있어요. Day {{day}} · {{badge}} {{emoji}} · {{total}}단어 함께 가요.',
-            '{{name}}님, 오늘도 목표까지 왔네요 (Day {{day}}). 결과보다 과정이 자랑스러워요. {{emoji}} {{badge}} · {{total}}단어',
-            '{{name}}님 늘 응원해요. 오늘 기록 Day {{day}}, 누적 {{total}}단어 — {{emoji}} {{badge}} 배지 받아요!',
-            '{{name}}님, 피곤했을 텐데 밀어붙였죠? 그 마음이 제일 예뻐요. Day {{day}} · {{total}}단어 · {{badge}} {{emoji}}',
-            '{{name}}님에게 보내는 따뜻한 박수 👏 Day {{day}} 완료, {{total}}단어. {{emoji}} {{badge}} 최고예요.',
-            '{{name}}님, 오늘도 한 걸음 전진! Day {{day}} · {{total}}단어. {{emoji}} 「{{badge}}」 칭찬해요.'
+            '{{name}}님, 오늘 Day {{day}}까지 해낸 거 정말 대단해요. 늘 응원해요. (오늘 유형 {{emoji}} {{badge}} · 누적 {{total}}단어)',
+            '{{name}}님, 매일 조금씩 모여 벌써 {{total}}단어예요. 오늘 Day {{day}}도 수고 많았어요. {{emoji}} {{badge}}',
+            '{{name}}님에게: 힘들 때일수록 지금처럼 해냈다는 게 멋있어요. Day {{day}} · {{badge}} {{emoji}} · {{total}}단어, 함께 가요.',
+            '{{name}}님, 오늘도 목표까지 왔네요 (Day {{day}}). 과정이 자랑스러워요. {{emoji}} {{badge}} · {{total}}단어',
+            '{{name}}님 늘 응원해요. Day {{day}}, 누적 {{total}}단어 — 오늘의 학습 유형 {{emoji}} {{badge}}!',
+            '{{name}}님, 피곤했을 텐데 끝까지 했죠? 그 마음이 제일 예뻐요. Day {{day}} · {{total}}단어 · {{badge}} {{emoji}}',
+            '{{name}}님에게 보내는 박수 👏 Day {{day}} 완료, {{total}}단어. {{emoji}} {{badge}} 최고예요.',
+            '{{name}}님, 오늘도 한 걸음 전진! Day {{day}} · {{total}}단어. {{emoji}} 「{{badge}}」 응원해요.'
         ];
         return sub(lines[ctx.m % lines.length], ctx, b);
     }
@@ -235,14 +235,14 @@
     function copyFun(ctx) {
         var b = badgeFor(ctx);
         var lines = [
-            '{{name}}님 미쳤다… Day {{day}} 클리어?! 누적 {{total}}단어 {{emoji}} {{badge}} 등장!',
-            '오늘의 MVP {{name}}님! Day {{day}} · {{total}}단어 · 칭찬 세례 {{emoji}} {{badge}}',
-            '{{name}}님 이 속도면 다음 스테이지도 금방이네요 ⚡ Day {{day}} / {{total}}단어 / {{badge}}',
-            '{{emoji}} 들려요? 그건 {{name}}님 실력 업데이트 소리… Day {{day}} · {{total}}단어 · {{badge}}',
-            '{{name}}님 한 컷 찍어야 해요 📸 오늘 Day {{day}}, {{total}}단어 레전드 찍었음!',
-            '{{name}}님 오늘 뇌 업그레이드 완료? Day {{day}} · {{total}}단어 — {{badge}} {{emoji}} 인정?',
-            '{{name}}님, 오늘의 키워드: 성취감 폭발! Day {{day}} · {{badge}} {{emoji}} · {{total}}단어',
-            '박진감 넘치는 하루 {{name}}님! Day {{day}} 뚝딱 · {{total}}단어 적립 {{emoji}} {{badge}}'
+            '{{name}}님 대박… Day {{day}} 클리어?! 누적 {{total}}단어 · {{emoji}} {{badge}} 등장!',
+            '오늘의 주인공 {{name}}님! Day {{day}} · {{total}}단어 · {{emoji}} {{badge}}',
+            '{{name}}님 이 속도면 금방 늘겠는데요 ⚡ Day {{day}} / {{total}}단어 / {{badge}}',
+            '{{emoji}} 들려요? {{name}}님 실력 올라가는 소리… Day {{day}} · {{total}}단어 · {{badge}}',
+            '{{name}}님 오늘 Day {{day}}, {{total}}단어 — 기록 갱신각 📸 {{badge}} {{emoji}}',
+            '{{name}}님 오늘 단어 뇌에 각인 완료? Day {{day}} · {{total}}단어 — {{badge}} {{emoji}} 인정?',
+            '{{name}}님, 오늘 키워드: 성취감 폭발! Day {{day}} · {{badge}} {{emoji}} · {{total}}단어',
+            '텐션 넘치는 하루 {{name}}님! Day {{day}} 뚝딱 · {{total}}단어 · {{emoji}} {{badge}}'
         ];
         return sub(lines[ctx.m % lines.length], ctx, b);
     }
@@ -250,13 +250,13 @@
     function copyShort(ctx) {
         var b = badgeFor(ctx);
         var lines = [
-            '{{name}}님 오늘도 고생했어요 👏 Day {{day}} · {{total}}단어 · {{emoji}}',
+            '{{name}}님 오늘도 고생했어요 👏 Day {{day}} · {{total}}단어 · {{emoji}} {{badge}}',
             '{{name}}님 짱 👍 Day {{day}} / {{total}}단어 / {{badge}}',
-            '{{emoji}} {{name}}님 오늘도 완주! Day{{day}}·{{total}}어휘',
-            '{{name}}님 칭찬해요 💚 D{{day}} · {{total}} · {{badge}}',
-            '{{name}}님 수고링! {{day}}일차 ✅ {{total}}단어',
-            '{{emoji}} {{name}} 최고 · D{{day}} · {{total}}',
-            '{{name}} 오늘도 해냄 🔥 {{day}}·{{total}}',
+            '{{emoji}} {{name}}님 오늘도 완주! Day {{day}} · {{total}}단어 · {{badge}}',
+            '{{name}}님 응원해요 💚 D{{day}} · {{total}} · {{badge}}',
+            '{{name}}님 수고! {{day}}일차 ✅ {{total}}단어 · {{badge}}',
+            '{{emoji}} {{name}}님 최고 · D{{day}} · {{total}} · {{badge}}',
+            '{{name}}님 오늘도 해냄 🔥 {{day}} · {{total}} · {{badge}}',
             '{{badge}} {{name}}님 👏 {{day}}/{{total}}'
         ];
         return sub(lines[ctx.m % lines.length], ctx, b);
@@ -271,7 +271,7 @@
             blurb: bdg.blurb,
             headline: headlineFor(ctx),
             copies: [copyWarm(ctx), copyFun(ctx), copyShort(ctx)],
-            labels: ['◆ WARM SYNC', '▲ BOOST COPY', '◇ SHORT SYNC']
+            labels: ['따뜻한 칭찬', '재미있게', '짧게']
         };
     }
 
@@ -317,9 +317,9 @@
         kakaoSubtitleLine: function (ctx) {
             var b = badgeFor(ctx);
             if (ctx.k === 'exam') {
-                return '시험 리포트까지! 오늘의 배지 후보: ' + b.emoji + ' ' + b.title;
+                return '시험 리포트까지! 오늘의 학습 유형: ' + b.emoji + ' ' + b.title;
             }
-            return '오늘의 배지 후보: ' + b.emoji + ' ' + b.title;
+            return '오늘의 학습 유형: ' + b.emoji + ' ' + b.title;
         }
     };
 })(typeof window !== 'undefined' ? window : this);

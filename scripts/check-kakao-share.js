@@ -117,7 +117,7 @@ function checkPraiseShare(TriggerPraise) {
         fail('kakaoSubtitleLine threw: ' + e.message);
         return;
     }
-    if (!line || !line.includes('배지')) fail('kakaoSubtitleLine empty or invalid');
+    if (!line || !line.includes('학습 유형')) fail('kakaoSubtitleLine empty or invalid');
     else pass('kakaoSubtitleLine: ' + line.slice(0, 40) + '…');
 
     if (typeof TriggerPraise.returnToKakaoInApp !== 'function') fail('returnToKakaoInApp missing');
@@ -145,8 +145,8 @@ function simulateBundle(TriggerPraise) {
         fail('bundle simulation badgeLine: ' + e.message);
         return;
     }
-    const title = `🔥 [${st.n}]님, 단어 학습 완료!`;
-    const description = `누적 클리어: ${st.t} 단어\n오늘의 진도: Day ${st.d}`;
+    const title = `[${st.n}]님, 오늘 단어 학습을 끝냈어요!`;
+    const description = `누적: ${st.t}단어 · 오늘: Day ${st.d}\n\n칭찬 한마디 보내주시면 힘이 됩니다.`;
   if (!title.includes('테스트') && !title.includes('학습자')) {
         fail('bundle title unexpected');
     } else pass('bundle title OK');

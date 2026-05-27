@@ -227,15 +227,15 @@
     <div id="praise-popup" style="display:none; z-index: 40000;">
         <div id="praise-popup-inner">
             <div id="praise-emoji" style="font-size: 4rem; margin-bottom: 12px; line-height: 1; animation: bounceGlow 0.8s infinite alternate;">◆</div>
-            <div id="praise-badge-title" style="font-size: 1.05rem; color: var(--neon-orange); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px;">BADGE SYNC</div>
-            <h1 id="praise-main-title" style="color:var(--neon-green); text-shadow: 0 0 10px var(--neon-green); margin: 0 0 12px; font-size: 2rem;">SYNC COMPLETE</h1>
+            <div id="praise-badge-title" style="font-size: 1.05rem; color: var(--neon-orange); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px;">학습 유형</div>
+            <h1 id="praise-main-title" style="color:var(--neon-green); text-shadow: 0 0 10px var(--neon-green); margin: 0 0 12px; font-size: 2rem;">오늘의 학습 유형</h1>
             <p id="praise-headline" style="color:#e0e4ea; font-size:1.02rem; line-height:1.55; margin: 0 0 10px; text-align:center;"></p>
             <p id="praise-blurb" style="color:#777; font-size:0.88rem; line-height:1.45; margin: 0 0 16px; text-align:center;"></p>
             <p id="praise-intro" style="color:#666; font-size:0.82rem; line-height:1.45; margin: 0 0 10px;">축하 문장을 복사한 뒤, 아래 버튼으로 카톡 채팅으로 돌아가 붙여넣어 보내 주세요.</p>
             <div id="praise-copy-wrap" style="display:flex; flex-direction:column; gap:8px; width:100%; margin-bottom:12px;">
-                <button type="button" class="praise-copy-btn" id="praise-copy-0">◆ WARM SYNC</button>
-                <button type="button" class="praise-copy-btn" id="praise-copy-1">▲ BOOST COPY</button>
-                <button type="button" class="praise-copy-btn" id="praise-copy-2">◇ SHORT SYNC</button>
+                <button type="button" class="praise-copy-btn" id="praise-copy-0">따뜻한 칭찬</button>
+                <button type="button" class="praise-copy-btn" id="praise-copy-1">재미있게</button>
+                <button type="button" class="praise-copy-btn" id="praise-copy-2">짧게</button>
             </div>
             <p id="praise-copy-feedback" style="display:none; font-size:0.88rem; color:var(--neon-green); margin:0 0 12px;"></p>
             <button type="button" id="praise-close-btn" class="login-btn" style="border-color: var(--neon-green); width: 80%; max-width: 300px; font-size: 1.05rem;" onclick="window.closePraisePopup && window.closePraisePopup()">💬 카톡으로 돌아가 보내기</button>
@@ -245,7 +245,7 @@
     <div id="share-result-popup" style="display:none;">
         <div id="share-result-popup-inner">
             <div id="share-result-emoji" style="font-size: 3.5rem; margin-bottom: 10px; line-height: 1;">▣</div>
-            <h1 id="share-result-title" style="color:var(--neon-blue); margin: 0 0 14px; font-size: 1.45rem;">SYNC RESULT</h1>
+            <h1 id="share-result-title" style="color:var(--neon-blue); margin: 0 0 14px; font-size: 1.45rem;">학습 결과</h1>
             <p id="share-result-body" style="color:#e0e4ea; font-size:1.02rem; line-height:1.65; margin: 0 0 10px; white-space: pre-line;"></p>
             <p id="share-result-badge" style="color:#888; font-size:0.88rem; line-height:1.45; margin: 0 0 18px;"></p>
             <button type="button" id="share-result-praise-btn" class="login-btn" style="border-color: var(--neon-orange); color: var(--neon-orange); width: 100%; max-width: 300px; font-size: 1rem; margin-bottom: 10px;">👍 응원 문구 복사하기</button>
@@ -1906,7 +1906,7 @@
                     var shareBadge =
                         typeof TriggerPraise !== 'undefined' && TriggerPraise.badgeFor
                             ? TriggerPraise.badgeFor(shareCtx)
-                            : { emoji: '🎉', title: '오늘의 도전', blurb: '' };
+                            : { emoji: '◆', title: '몰입형', blurb: '' };
                     var sEm = document.getElementById('share-result-emoji');
                     var sTitle = document.getElementById('share-result-title');
                     var sBody = document.getElementById('share-result-body');
@@ -1919,7 +1919,7 @@
                     }
                     if (sBadge) {
                         sBadge.textContent =
-                            '오늘의 배지 후보: ' + (shareBadge.emoji || '') + ' ' + (shareBadge.title || '');
+                            '오늘의 학습 유형: ' + (shareBadge.emoji || '') + ' ' + (shareBadge.title || '');
                     }
                     var sharePc = urlParams.get('pc') || '';
                     var praiseGoBtn = document.getElementById('share-result-praise-btn');
@@ -1973,7 +1973,7 @@
                             ? TriggerPraise.uiPack(ctx)
                             : {
                                   emoji: '🎉',
-                                  badgeTitle: '오늘의 도전',
+                                  badgeTitle: '몰입형',
                                   blurb: '',
                                   headline: ctx.n + '님, 학습을 마친 걸 응원해요!',
                                   copies: [
@@ -1990,7 +1990,7 @@
                     var bl = document.getElementById('praise-blurb');
                     if (em) em.textContent = pack.emoji || '🎉';
                     if (bt) bt.textContent = '「' + (pack.badgeTitle || '') + '」';
-                    if (mt) mt.textContent = ctx.k === 'exam' ? '분석까지, 수고했어요!' : '축하 배지 도착!';
+                    if (mt) mt.textContent = ctx.k === 'exam' ? '분석까지, 수고했어요!' : '오늘의 학습 유형';
                     if (hl) hl.textContent = pack.headline || '';
                     if (bl) bl.textContent = pack.blurb || '';
 

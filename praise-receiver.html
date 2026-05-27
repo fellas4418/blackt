@@ -111,7 +111,7 @@
         <div class="card praise">
             <div class="emoji" id="praise-emoji">🏆</div>
             <p class="sub-text" id="praise-badge-title" style="color: var(--neon-orange); font-weight: 800;"></p>
-            <h1 id="praise-main-title">축하 배지 도착!</h1>
+            <h1 id="praise-main-title">오늘의 학습 유형</h1>
             <p class="body-text" id="praise-headline"></p>
             <p class="sub-text" id="praise-blurb"></p>
             <p class="intro">축하 문장을 복사한 뒤, 아래 버튼으로 카톡 채팅으로 돌아가 붙여넣어 보내 주세요.</p>
@@ -213,13 +213,13 @@
                 const badge =
                     typeof TriggerPraise !== 'undefined' && TriggerPraise.badgeFor
                         ? TriggerPraise.badgeFor(ctx)
-                        : { emoji: '🎉', title: '오늘의 도전' };
+                        : { emoji: '◆', title: '몰입형' };
                 document.getElementById('result-emoji').textContent = badge.emoji || '🔥';
                 document.getElementById('result-title').textContent = '[' + ctx.n + ']님 학습 결과';
                 document.getElementById('result-body').textContent =
                     '오늘의 진도: Day ' + ctx.d + '\n누적 클리어: ' + ctx.t + ' 단어';
                 document.getElementById('result-badge').textContent =
-                    '오늘의 배지 후보: ' + (badge.emoji || '') + ' ' + (badge.title || '');
+                    '오늘의 학습 유형: ' + (badge.emoji || '') + ' ' + (badge.title || '');
                 document.getElementById('result-praise-btn').onclick = function () {
                     const q = 'praise=true' + (pcRaw ? '&pc=' + encodeURIComponent(pcRaw) : '');
                     location.replace('/praise-receiver.html?' + q);
@@ -234,7 +234,7 @@
                         ? TriggerPraise.uiPack(ctx)
                         : {
                               emoji: '🎉',
-                              badgeTitle: '오늘의 도전',
+                              badgeTitle: '몰입형',
                               blurb: '',
                               headline: ctx.n + '님, 학습을 마친 걸 응원해요!',
                               copies: [ctx.n + '님 오늘도 고생 많았어요.', ctx.n + '님 멋져요!', ctx.n + '님 최고 👏'],
@@ -243,7 +243,7 @@
                 document.getElementById('praise-emoji').textContent = pack.emoji || '🏆';
                 document.getElementById('praise-badge-title').textContent = '「' + (pack.badgeTitle || '') + '」';
                 document.getElementById('praise-main-title').textContent =
-                    ctx.k === 'exam' ? '분석까지, 수고했어요!' : '축하 배지 도착!';
+                    ctx.k === 'exam' ? '분석까지, 수고했어요!' : '오늘의 학습 유형';
                 document.getElementById('praise-headline').textContent = pack.headline || '';
                 document.getElementById('praise-blurb').textContent = pack.blurb || '';
                 const wrap = document.getElementById('praise-copy-wrap');

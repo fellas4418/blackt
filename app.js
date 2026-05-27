@@ -1707,9 +1707,9 @@ function buildVocaShareBundle() {
         badgeLine = '';
     }
 
-    const title = `🔥 [${st.n}]님, 단어 학습 완료!`;
-    const description = `누적 클리어: ${st.t} 단어\n오늘의 진도: Day ${st.d}\n\n오늘도 목표를 달성했습니다! 칭찬 배지를 보내주세요.${badgeLine ? '\n\n' + badgeLine : ''}`;
-    const clipboardText = `${title}\n${description}\n\n${shareUrl}\n\n칭찬 배지: ${praiseShareUrl}`;
+    const title = `[${st.n}]님, 오늘 단어 학습을 끝냈어요!`;
+    const description = `누적: ${st.t}단어 · 오늘: Day ${st.d}\n\n칭찬 한마디 보내주시면 힘이 됩니다.${badgeLine ? '\n\n' + badgeLine : ''}`;
+    const clipboardText = `${title}\n${description}\n\n${shareUrl}\n\n칭찬 보내기: ${praiseShareUrl}`;
 
     return {
         shareUrl,
@@ -1727,7 +1727,7 @@ function buildVocaShareBundle() {
             },
             buttons: [
                 { title: '결과 자세히 보기', link: { mobileWebUrl: shareUrl, webUrl: shareUrl } },
-                { title: '👍 칭찬 응원 배지 보내기', link: { mobileWebUrl: praiseShareUrl, webUrl: praiseShareUrl } }
+                { title: '칭찬 보내기', link: { mobileWebUrl: praiseShareUrl, webUrl: praiseShareUrl } }
             ]
         }
     };
