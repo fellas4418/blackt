@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRIGGER SCAN</title>
+    <title>TRIGGER 지문분석</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="cyber-theme.css">
     <style>
@@ -1428,10 +1428,10 @@
             <div id="auth-status" class="auth-status">가입 시 입력한 이름/전화번호로 자동 연결됩니다.</div>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <div onclick="location.href='index.html?tab=analysis'" style="color: var(--neon-orange); cursor: pointer;">← SCAN 설정으로 돌아가기</div>
+            <div onclick="location.href='index.html?tab=analysis'" style="color: var(--neon-orange); cursor: pointer;">← 지문분석 설정으로 돌아가기</div>
             <button onclick="showNoteModal('grammar')" style="background: rgba(255,255,255,0.05); border: 1px solid #666; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight:bold;">⭐ 내 학습 노트</button>
         </div>
-        <h3 id="info-header" style="color: #fff; margin-bottom: 6px;">TRIGGER SCAN</h3>
+        <h3 id="info-header" style="color: #fff; margin-bottom: 6px;">TRIGGER 지문분석</h3>
         <div class="analysis-nav-settings-row">
             <a class="analysis-context-strip-link" href="index.html?tab=analysis">설정 바꾸기</a>
         </div>
@@ -1465,7 +1465,7 @@
             <div id="analysis-tab-panel-passage" class="analysis-tab-panel is-active" role="tabpanel" aria-labelledby="analysis-tab-btn-passage">
     <section id="analysis-passage-zone" class="analysis-zone-card passage-zone">
         <header class="analysis-zone-label">
-            <div class="analysis-zone-title-row">🔍 SCAN · 지문</div>
+            <div class="analysis-zone-title-row">🔍 지문분석</div>
             <div class="analysis-zone-desc">
                 <div class="analysis-zone-desc-body passage-zone-desc-lines"><span class="passage-zone-desc-highlight">한 문항(한 지문)만 프레임에 맞게 찍어 주세요.</span> 선명하게 찍을수록 정확도가 올라갑니다.</div>
             </div>
@@ -1491,7 +1491,7 @@
             <button onclick="openPicker('gallery')" class="login-btn" style="flex: 1; border-color: var(--neon-blue); margin-top: 0;">사진 선택 🖼️</button>
         </div>
         <div id="ai-btn-area" style="display:none; margin-top: 15px;">
-            <button id="ocr-btn" onclick="runGeminiAnalysis()" class="start-btn" style="border-color: var(--neon-orange);">SCAN 정밀 분석 시작 🔍</button>
+            <button id="ocr-btn" onclick="runGeminiAnalysis()" class="start-btn" style="border-color: var(--neon-orange);">지문분석 시작 🔍</button>
         </div>
         <div id="passage-history-bar" style="margin-top: 18px; margin-bottom: 12px;">
             <button type="button" id="passage-history-toggle" class="login-btn" style="width:100%; margin-top:0; border-color:var(--neon-orange); color:#ffb36b;">📚 이전 지문 분석 기록 보기</button>
@@ -1546,7 +1546,7 @@
         <div class="guide-box grammar-promo-guide" style="border-color: rgba(188, 19, 254, 0.45); background: rgba(188, 19, 254, 0.06);">
             <p class="guide-title" style="color: var(--neon-purple); font-size:0.78rem; letter-spacing:2px; font-weight:800; margin-bottom:10px;">TRIGGER GRAMMAR · 3H CORE</p>
             <p class="guide-title" style="color: #fff; font-size:1.05rem;">🔥 문장 구조가 안 보일 때</p>
-            <p class="guide-text" style="color: #eee; font-size:0.95rem;">단어는 아는데 해석이 막히나요?<br>특수 구문·문장 골격을 <b>3시간</b>에 정리 — SCAN과 함께 쓰면 「왜 이렇게 쓰였는지」까지 이어집니다.</p>
+            <p class="guide-text" style="color: #eee; font-size:0.95rem;">단어는 아는데 해석이 막히나요?<br>특수 구문·문장 골격을 <b>3시간</b>에 정리 — 지문분석과 함께 쓰면 「왜 이렇게 쓰였는지」까지 이어집니다.</p>
             <button onclick="window.open('https://tri3.imweb.me/', '_blank')" class="kakao-btn grammar-promo-cta-btn" style="background:var(--neon-purple); color:#fff; border-radius:12px; box-shadow:0 0 12px rgba(188,19,254,0.45);">GRAMMAR 수강하기</button>
         </div>
 
@@ -1973,7 +1973,7 @@
             return s;
         }
         const infoTrim = buildAnalysisContextTrim(params);
-        document.getElementById('info-header').innerText = infoTrim ? infoTrim + ' · SCAN' : 'TRIGGER SCAN';
+        document.getElementById('info-header').innerText = infoTrim ? infoTrim + ' · 지문분석' : 'TRIGGER 지문분석';
 
         let selectedBase64 = "";
         let currentNoteTab = 'grammar';

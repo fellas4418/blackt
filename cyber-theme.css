@@ -274,6 +274,12 @@ body.analysis-page::after {
 }
 
 /* ── 스플래시 ── */
+body.splash-active .dashboard-container,
+body.splash-active .bottom-nav,
+body.splash-active .main-tab-swipe-hint {
+    visibility: hidden;
+}
+
 #splash-screen.cyber-splash {
     background: #000 !important;
     overflow: hidden;

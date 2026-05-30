@@ -449,21 +449,6 @@ window.startTodayWordsAfterPreReview = startTodayWordsAfterPreReview;
     if (tabParam === 'analysis') {
         localStorage.setItem('trigger_user_origin', 'analysis_qr');
     }
-
-    // 2. 저장된 유입 경로 확인
-    const userOrigin = localStorage.getItem('trigger_user_origin');
-
-    // 3. 분석 유입자라면 '시험 분석' 탭으로 즉시 고정
-    if (tabParam === 'analysis' || userOrigin === 'analysis_qr') {
-        // switchTab 함수가 로드될 때까지 0.01초 간격으로 체크해서 즉시 실행
-        const checkSwitchTab = setInterval(function() {
-            if (typeof switchTab === 'function') {
-                switchTab('analysis');
-                console.log("분석 유입자용 메인화면 강제 고정 완료");
-                clearInterval(checkSwitchTab);
-            }
-        }, 10);
-    }
 })();
 
 function startCountdown(message, callback) {
