@@ -1342,10 +1342,125 @@ function handleAnswer(isCorrect) {
     startTest();
 }
 
+const VOCA_WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev';
+const DAILY_SESSION_LOG = '[daily_session]';
+
+async function syncDailySessionToServer(level, dayNum, accuracy, sessionNumber) {
+    console.log(DAILY_SESSION_LOG, 'syncDailySessionToServer 호출', {
+        level: level,
+        dayNum: dayNum,
+        accuracy: accuracy,
+        sessionNumber: sessionNumber
+    });
+    try {
+        const name = String(localStorage.getItem('trigger_name') || '').trim();
+        const phone = String(localStorage.getItem('trigger_phone') || '').replace(/[^0-9]/g, '');
+        console.log(DAILY_SESSION_LOG, '1) localStorage 로그인 정보', {
+            trigger_name: name || '(없음)',
+            trigger_phone: phone || '(없음)',
+            phoneValid: /^010\d{8}$/.test(phone)
+        });
+        if (!name || !/^010\d{8}$/.test(phone)) {
+            console.warn(DAILY_SESSION_LOG, '중단: trigger_name 또는 trigger_phone 없음/형식 오류');
+            return;
+        }
+
+        let wrongWords = [];
+        try {
+            wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+        } catch (e) {
+            wrongWords = [];
+        }
+        const wrongCount = wrongWords.filter(function (w) {
+            return w.level === level && parseInt(w.day, 10) === dayNum && w.isWrong;
+        }).length;
+
+        const base = VOCA_WORKER_URL.replace(/\/$/, '');
+        console.log(DAILY_SESSION_LOG, '2) /api/auth/simple 요청', { url: base + '/api/auth/simple', name: name, phone: phone });
+        const authRes = await fetch(base + '/api/auth/simple', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name, phone: phone })
+        });
+        const authData = await authRes.json();
+        console.log(DAILY_SESSION_LOG, '2) /api/auth/simple 응답', {
+            status: authRes.status,
+            ok: authRes.ok,
+            body: authData
+        });
+        if (!authRes.ok || !authData.ok) {
+            console.warn(DAILY_SESSION_LOG, '중단: auth/simple 실패', authData.error || authData);
+            return;
+        }
+
+        const userId = String(authData.user_id || '').trim();
+        const password = String(authData.auth_password || '').trim();
+        if (!userId || !password) {
+            console.warn(DAILY_SESSION_LOG, '중단: user_id 또는 auth_password 없음', {
+                userId: userId || '(없음)',
+                hasPassword: !!password
+            });
+            return;
+        }
+
+        const saveBody = {
+            user_id: userId,
+            password: password,
+            voca: [],
+            grammar: [],
+            daily_session: {
+                level: level,
+                day_num: dayNum,
+                accuracy: accuracy,
+                wrong_count: wrongCount,
+                session_number: sessionNumber,
+                subject: 'english'
+            }
+        };
+        console.log(DAILY_SESSION_LOG, '3) /api/sync/save 요청 body', {
+            url: base + '/api/sync/save',
+            user_id: userId,
+            password: '(마스킹)',
+            daily_session: saveBody.daily_session,
+            hasDailySession: !!saveBody.daily_session
+        });
+        const saveRes = await fetch(base + '/api/sync/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(saveBody)
+        });
+        let saveData = null;
+        try {
+            saveData = await saveRes.json();
+        } catch (parseErr) {
+            saveData = { parseError: String(parseErr && parseErr.message ? parseErr.message : parseErr) };
+        }
+        console.log(DAILY_SESSION_LOG, '3) /api/sync/save 응답', {
+            status: saveRes.status,
+            ok: saveRes.ok,
+            body: saveData
+        });
+        if (!saveRes.ok || !(saveData && saveData.ok)) {
+            console.warn(DAILY_SESSION_LOG, '중단: sync/save 실패', saveData);
+            return;
+        }
+        console.log(DAILY_SESSION_LOG, '완료: D1 daily_session 저장 성공');
+    } catch (e) {
+        console.error(DAILY_SESSION_LOG, '예외 발생', e);
+    }
+}
+
 function finishSession(didTest = true) {
     clearStudyCheckpoint();
     let currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
     let currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
+    console.log(DAILY_SESSION_LOG, 'finishSession 진입', {
+        didTest: didTest,
+        currentLevel: currentLevel,
+        currentDay: currentDay,
+        currentSessionRaw: currentSessionRaw,
+        isPreReviewMode: isPreReviewMode
+    });
     const testTotal = (didTest && smartStudyActive && fullDayWords.length > 0)
         ? fullDayWords.length
         : targetWords.length;
@@ -1417,6 +1532,7 @@ function finishSession(didTest = true) {
                 `);
             }
         }
+        console.log(DAILY_SESSION_LOG, 'finishSession 조기 종료 (망각차단 복습) → sync 미호출');
         return; 
     }
     
@@ -1457,10 +1573,9 @@ function finishSession(didTest = true) {
                 <button onclick="retryOnlyWrongs()" style="width:100%; padding:16px; background:var(--neon-blue); color:#fff; border-radius:12px; margin-top:20px; border:none; font-weight:bold;">최후의 사이클 시작</button>
             </div>
         `);
+        console.log(DAILY_SESSION_LOG, 'finishSession 조기 종료 (최후의 사이클 진입) → sync 미호출', { accuracy: accuracy });
         return;
     }
-
-    if ((finishedNum >= totalSessions || currentSessionRaw === 'final') && didTest) {
         let unlocked = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
         const startDayKey = `trigger_start_day_${currentLevel}_${today}`;
         const startDay = parseInt(localStorage.getItem(startDayKey)) || unlocked;
@@ -1494,8 +1609,22 @@ function finishSession(didTest = true) {
             const weekResult = TriggerCredit.tryWeekBonus(currentLevel, currentDay);
             creditEarnedHtml = TriggerCredit.formatEarnedHtml(dailyResult, weekResult);
         }
+        console.log(DAILY_SESSION_LOG, 'finishSession Day 완료 → syncDailySessionToServer 호출 직전', {
+            currentLevel: currentLevel,
+            currentDay: currentDay,
+            accuracy: accuracy,
+            finishedNum: finishedNum,
+            currentSessionRaw: currentSessionRaw,
+            didTest: didTest
+        });
+        syncDailySessionToServer(currentLevel, currentDay, accuracy, finishedNum);
         showStudyDayCompleteScreen(accuracy, currentDay, creditEarnedHtml);
     } else {
+        console.log(DAILY_SESSION_LOG, 'finishSession 사이클 중간 완료 → sync 미호출', {
+            finishedNum: finishedNum,
+            totalSessions: totalSessions,
+            didTest: didTest
+        });
         localStorage.setItem(`trigger_session_${currentLevel}`, (finishedNum + 1).toString());
         localStorage.setItem('blackt_cooldown', Date.now() + COOL_DOWN_TIME);
         scheduleBlacktCooldownEndNotification();
@@ -1740,7 +1869,8 @@ function buildVocaShareBundle() {
     }
 
     const title = `[${st.n}]님, 오늘 단어 학습을 끝냈어요!`;
-    const description = `누적: ${st.t}단어 · 오늘: Day ${st.d}\n\n칭찬 한마디 보내주시면 힘이 됩니다.${badgeLine ? '\n\n' + badgeLine : ''}`;
+    const accPart = st.a != null && !isNaN(st.a) ? ` · 정답률 ${st.a}%` : '';
+    const description = `누적: ${st.t}단어 · 오늘: Day ${st.d}${accPart}\n\n칭찬 한마디 보내주시면 힘이 됩니다.${badgeLine ? '\n\n' + badgeLine : ''}`;
     const clipboardText = `${title}\n${description}\n\n${shareUrl}\n\n칭찬 보내기: ${praiseShareUrl}`;
 
     return {

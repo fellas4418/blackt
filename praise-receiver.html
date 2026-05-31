@@ -130,7 +130,7 @@
         </div>
     </div>
 
-    <script src="praise-share.js?v=20260520_receiver"></script>
+    <script src="praise-share.js?v=20260531_acc"></script>
     <script>
         (function () {
             const params = new URLSearchParams(location.search);
@@ -216,8 +216,12 @@
                         : { emoji: '◆', title: '몰입형' };
                 document.getElementById('result-emoji').textContent = badge.emoji || '🔥';
                 document.getElementById('result-title').textContent = '[' + ctx.n + ']님 학습 결과';
-                document.getElementById('result-body').textContent =
-                    '오늘의 진도: Day ' + ctx.d + '\n누적 클리어: ' + ctx.t + ' 단어';
+                const resultLines = ['오늘의 진도: Day ' + ctx.d];
+                if (ctx.a != null && !isNaN(ctx.a)) {
+                    resultLines.push('정답률: ' + ctx.a + '%');
+                }
+                resultLines.push('누적 클리어: ' + ctx.t + ' 단어');
+                document.getElementById('result-body').textContent = resultLines.join('\n');
                 document.getElementById('result-badge').textContent =
                     '오늘의 학습 유형: ' + (badge.emoji || '') + ' ' + (badge.title || '');
                 document.getElementById('result-praise-btn').onclick = function () {

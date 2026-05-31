@@ -101,12 +101,21 @@
             if (i % 7 === 6 || i % 7 === 0) continue;
             learnedTotal += getWordsForDay(level, i).length;
         }
+        var accuracy = null;
+        try {
+            var stats = JSON.parse(global.localStorage.getItem('trigger_stats_' + level) || '{}');
+            var dayStat = stats[String(displayDay)];
+            if (dayStat != null && typeof dayStat === 'object' && dayStat.accuracy != null) {
+                accuracy = Math.min(100, Math.max(0, parseInt(dayStat.accuracy, 10) || 0));
+            }
+        } catch (e5) {}
         var base = {
             n: userName.slice(0, 48),
             d: Math.min(999, Math.max(1, displayDay)),
             t: Math.min(999999, Math.max(0, learnedTotal)),
             k: kind === 'exam' ? 'exam' : 'voca'
         };
+        if (accuracy != null) base.a = accuracy;
         var meta = praiseMetaFromCtx(base);
         base.b = meta.b;
         base.m = meta.m;
@@ -151,6 +160,9 @@
             b: (h >>> 0) % BADGES.length,
             m: ((h >>> 13) >>> 0) % 8
         };
+        if (ctx.a != null && ctx.a !== '') {
+            payload.a = Math.min(100, Math.max(0, parseInt(ctx.a, 10) || 0));
+        }
         try {
             return global
                 .btoa(global.unescape(global.encodeURIComponent(JSON.stringify(payload))))
@@ -175,7 +187,11 @@
                 t: Math.min(999999, Math.max(0, parseInt(o.t, 10) || 0)),
                 k: o.k === 'exam' ? 'exam' : 'voca',
                 b: Math.abs(parseInt(o.b, 10) || 0) % BADGES.length,
-                m: Math.abs(parseInt(o.m, 10) || 0) % 8
+                m: Math.abs(parseInt(o.m, 10) || 0) % 8,
+                a:
+                    o.a != null && o.a !== ''
+                        ? Math.min(100, Math.max(0, parseInt(o.a, 10) || 0))
+                        : null
             };
         } catch (e2) {
             return null;

@@ -36,7 +36,8 @@ function loadPraiseShare() {
                 trigger_name: '테스트',
                 trigger_current_day_middle: '5',
                 trigger_session_middle: '1',
-                trigger_unlocked_day_middle: '5'
+                trigger_unlocked_day_middle: '5',
+                trigger_stats_middle: '{"4":{"progress":100,"accuracy":92}}'
             },
             getItem(k) {
                 return this._d[k] ?? null;
@@ -109,6 +110,8 @@ function checkPraiseShare(TriggerPraise) {
     if (st.b == null || st.m == null || isNaN(st.b)) {
         fail('statsFromStorage missing b/m meta');
     } else pass('statsFromStorage includes badge meta');
+    if (st.a !== 92) fail('statsFromStorage missing accuracy (expected 92, got ' + st.a + ')');
+    else pass('statsFromStorage includes accuracy');
 
     let line = '';
     try {
@@ -126,6 +129,10 @@ function checkPraiseShare(TriggerPraise) {
     const pc = TriggerPraise.encodePc(st);
     if (!pc) fail('encodePc returned empty');
     else pass('encodePc length ' + pc.length);
+
+    const decoded = TriggerPraise.decodePc(pc);
+    if (!decoded || decoded.a !== 92) fail('decodePc missing accuracy');
+    else pass('decodePc roundtrip includes accuracy');
 
     const bare = { n: '학습자', d: 1, t: 0, k: 'voca' };
     try {

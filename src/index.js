@@ -155,6 +155,32 @@ async function handleSyncSave(env, body) {
     ).bind(userId, point, sentence, explanation, passageTitle).run();
   }
 
+  const ds = body.daily_session;
+  if (ds && typeof ds === "object" && !Array.isArray(ds)) {
+    const level = String(ds.level || "").trim();
+    const dayNum = parseInt(ds.day_num ?? ds.dayNum, 10);
+    const accuracyVal = parseInt(ds.accuracy, 10);
+    const wrongCount = parseInt(ds.wrong_count ?? ds.wrongCount, 10);
+    const subject = String(ds.subject || "english").trim() || "english";
+    const sessionNumber = parseInt(ds.session_number ?? ds.sessionNumber, 10);
+    if (level && Number.isFinite(dayNum) && dayNum > 0) {
+      await env.DB.prepare(
+        `INSERT OR REPLACE INTO daily_session (user_id, subject, level, day_num, accuracy, wrong_count, session_number, created_at)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, datetime('now'))`
+      )
+        .bind(
+          userId,
+          subject,
+          level,
+          dayNum,
+          Number.isFinite(accuracyVal) ? accuracyVal : 0,
+          Number.isFinite(wrongCount) ? wrongCount : 0,
+          Number.isFinite(sessionNumber) ? sessionNumber : null
+        )
+        .run();
+    }
+  }
+
   return json({ ok: true });
 }
 
