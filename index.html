@@ -225,8 +225,8 @@
         .study-cal-legend-swatch--off { background: #2a2a2a; border: 1px solid #333; }
 
         .study-week-section {
-            margin-bottom: 16px; padding-bottom: 14px;
-            border-bottom: 1px solid #2a2a2a;
+            margin-top: 16px; padding-top: 14px;
+            border-top: 1px solid #2a2a2a;
         }
         .study-week-heading { font-size: 0.78rem; font-weight: 700; color: #ccc; margin-bottom: 10px; }
         .study-week-bars {
@@ -2044,7 +2044,6 @@
             var weekBarsHtml = buildWeeklyAchievementBarsHtml(map, today);
             host.innerHTML =
                 '<div class="study-cal-meta">' + levelLabel + '<br>지금 ' + kstNowLabel() + '</div>' +
-                weekBarsHtml +
                 '<div class="study-month-nav">' +
                 '<button type="button" class="study-month-nav-btn" onclick="shiftCalendarMonth(-1)" aria-label="이전 달">‹</button>' +
                 '<span class="study-month-nav-title">' + monthTitle + (isCurrentMonth ? ' · 이번 달' : '') + '</span>' +
@@ -2057,7 +2056,8 @@
                 '<span><span class="study-cal-legend-swatch study-cal-legend-swatch--off"></span> 미학습</span>' +
                 '<span><span class="study-cal-legend-swatch study-cal-legend-swatch--on"></span> 학습 완료</span>' +
                 '<span>주황 테두리 = 오늘</span>' +
-                '</div>';
+                '</div>' +
+                weekBarsHtml;
             setReportModalTitle('학습 캘린더');
         }
 
