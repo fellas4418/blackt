@@ -707,6 +707,40 @@ async function handleExamReportSave(env, body) {
   return json({ ok: true, id });
 }
 
+async function handleAdminDailySession(env, request, url) {
+  if (!verifyPaymentSecret(env, request, {})) return json({ error: "unauthorized" }, 401);
+  const userId = String(url.searchParams.get("user_id") || "").trim();
+  if (userId) {
+    const rows = await env.DB.prepare(
+      `SELECT day_num, level, accuracy, wrong_count, created_at
+       FROM daily_session WHERE user_id = ?1 ORDER BY day_num ASC`
+    )
+      .bind(userId)
+      .all();
+    return json({ ok: true, user_id: userId, items: rows.results || [] });
+  }
+  const rows = await env.DB.prepare(
+    `SELECT
+      s.user_id,
+      s.completed_days,
+      s.avg_accuracy,
+      s.last_study_at,
+      (SELECT level FROM daily_session d2
+       WHERE d2.user_id = s.user_id
+       ORDER BY datetime(d2.created_at) DESC LIMIT 1) AS level
+    FROM (
+      SELECT user_id,
+        COUNT(*) AS completed_days,
+        ROUND(AVG(accuracy), 1) AS avg_accuracy,
+        MAX(created_at) AS last_study_at
+      FROM daily_session
+      GROUP BY user_id
+    ) s
+    ORDER BY datetime(s.last_study_at) DESC`
+  ).all();
+  return json({ ok: true, items: rows.results || [] });
+}
+
 async function handleExamReportAdminList(env, request, body) {
   if (!verifyPaymentSecret(env, request, body)) return json({ error: "unauthorized" }, 401);
   const rows = await env.DB.prepare(
@@ -861,6 +895,9 @@ export default {
       }
       if (request.method === "POST" && path === "/api/referral/claim") {
         return handleReferralClaim(env, await request.json());
+      }
+      if (request.method === "GET" && path === "/api/admin/daily-session") {
+        return handleAdminDailySession(env, request, url);
       }
       if (request.method === "POST" && path === "/api/exam-report/admin/list") {
         return handleExamReportAdminList(env, request, await request.json());
