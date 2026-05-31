@@ -421,6 +421,69 @@ async function handleChatHistory(env, body) {
   return json({ ok: true, items: rows.results || [] });
 }
 
+const STREAK_MILESTONES = [7, 14, 30];
+
+function kstTodayYmd() {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
+function addDaysYmd(ymd, delta) {
+  const parts = String(ymd || "").split("-").map((x) => parseInt(x, 10));
+  if (parts.length !== 3 || parts.some((n) => !Number.isFinite(n))) return ymd;
+  const dt = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2] + delta));
+  return dt.toISOString().slice(0, 10);
+}
+
+/** distinct KST dates (desc) → 연속 일수 (오늘 또는 어제까지 이어지는 구간) */
+function computeStreakFromDates(sortedDescYmd, todayYmd) {
+  if (!sortedDescYmd.length) return 0;
+  const latest = sortedDescYmd[0];
+  const yesterday = addDaysYmd(todayYmd, -1);
+  if (latest !== todayYmd && latest !== yesterday) return 0;
+  const set = new Set(sortedDescYmd);
+  let anchor = latest === todayYmd ? todayYmd : yesterday;
+  let count = 0;
+  let cur = anchor;
+  while (set.has(cur)) {
+    count += 1;
+    cur = addDaysYmd(cur, -1);
+  }
+  return count;
+}
+
+function milestoneForStreak(streak) {
+  const n = Number(streak) || 0;
+  return STREAK_MILESTONES.includes(n) ? n : null;
+}
+
+async function handleStreak(env, body) {
+  const userId = String(body.user_id || "").trim();
+  const password = String(body.password || "");
+  if (!(await verifyUser(env, userId, password))) return json({ error: "인증 실패" }, 401);
+
+  const rows = await env.DB.prepare(
+    `SELECT DISTINCT date(created_at, '+9 hours') AS d
+     FROM daily_session
+     WHERE user_id = ?1
+     ORDER BY d DESC`
+  )
+    .bind(userId)
+    .all();
+
+  const dates = (rows.results || [])
+    .map((r) => String(r.d || "").trim())
+    .filter(Boolean);
+  const today = kstTodayYmd();
+  const streak = computeStreakFromDates(dates, today);
+  const milestone = milestoneForStreak(streak);
+  return json({ ok: true, streak, milestone });
+}
+
 async function handleSyncDelete(env, body) {
   const userId = String(body.user_id || "").trim();
   const password = String(body.password || "");
@@ -862,6 +925,9 @@ export default {
       }
       if (request.method === "POST" && path === "/api/sync/delete") {
         return handleSyncDelete(env, await request.json());
+      }
+      if (request.method === "POST" && path === "/api/streak") {
+        return handleStreak(env, await request.json());
       }
       if (request.method === "POST" && path === "/api/payment/confirm") {
         return handlePaymentConfirm(env, request);

@@ -132,6 +132,8 @@ const DAILY_CYCLE_COUNT = 5;
 const TRIGGER_IMG_DIR = '로고, 이미지/';
 /** 카톡 공유 링크 고정 도메인 (다른 origin 사용 금지) */
 const KAKAO_SHARE_ORIGIN = 'https://blackt.pages.dev';
+const VOCA_WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev';
+const DAILY_SESSION_LOG = '[daily_session]';
 function triggerPagesImgUrl(fileName) {
     return KAKAO_SHARE_ORIGIN + '/' + encodeURI(TRIGGER_IMG_DIR + fileName);
 }
@@ -190,6 +192,139 @@ function triggerShowCooldownDoneNotification() {
 }
 
 window.triggerShowCooldownDoneNotification = triggerShowCooldownDoneNotification;
+
+const STREAK_MILESTONE_MESSAGES = {
+    7: 'STREAK 7 · 7일 연속 학습 달성',
+    14: 'STREAK 14 · 상위 5% 학습자',
+    30: 'STREAK 30 · 전설 등극'
+};
+
+function updateStreakDashboardDisplay(streak) {
+    const el = document.getElementById('stat-streak-value');
+    if (!el) return;
+    const n = Math.max(0, parseInt(streak, 10) || 0);
+    el.textContent = 'STREAK ' + n;
+    try {
+        localStorage.setItem('trigger_streak_cached', String(n));
+    } catch (e) {}
+}
+
+function shouldNotifyStreakMilestone(milestone) {
+    const m = parseInt(milestone, 10);
+    if (!STREAK_MILESTONE_MESSAGES[m]) return false;
+    const key = 'trigger_streak_done_' + m;
+    try {
+        if (localStorage.getItem(key) === '1') return false;
+        localStorage.setItem(key, '1');
+    } catch (e) {
+        return true;
+    }
+    return true;
+}
+
+function triggerShowStreakMilestoneNotification(milestone) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    const m = parseInt(milestone, 10);
+    const body = STREAK_MILESTONE_MESSAGES[m];
+    if (!body) return;
+    const title = 'TRIGGER BLACK · VOCA';
+    const options = {
+        body: body,
+        icon: TRIGGER_IMG_DIR + 'icon-192.png',
+        tag: 'blackt-streak-' + m,
+        vibrate: [200, 100, 200]
+    };
+    try {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistration().then(function (reg) {
+                if (reg && typeof reg.showNotification === 'function') {
+                    reg.showNotification(title, options);
+                } else {
+                    new Notification(title, options);
+                }
+            }).catch(function () {
+                try { new Notification(title, options); } catch (e) {}
+            });
+        } else {
+            new Notification(title, options);
+        }
+    } catch (e) {}
+}
+
+window.triggerShowStreakMilestoneNotification = triggerShowStreakMilestoneNotification;
+window.updateStreakDashboardDisplay = updateStreakDashboardDisplay;
+
+async function fetchStreakWithCredentials(userId, password) {
+    const base = VOCA_WORKER_URL.replace(/\/$/, '');
+    const res = await fetch(base + '/api/streak', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, password: password })
+    });
+    const data = await res.json().catch(function () {
+        return {};
+    });
+    if (!res.ok || !data.ok) return null;
+    return { streak: data.streak, milestone: data.milestone };
+}
+
+async function fetchUserStreakForDashboard() {
+    const name = String(localStorage.getItem('trigger_name') || '').trim();
+    const phone = String(localStorage.getItem('trigger_phone') || '').replace(/[^0-9]/g, '');
+    if (!name || !/^010\d{8}$/.test(phone)) {
+        updateStreakDashboardDisplay(0);
+        return null;
+    }
+    try {
+        const base = VOCA_WORKER_URL.replace(/\/$/, '');
+        const authRes = await fetch(base + '/api/auth/simple', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name, phone: phone })
+        });
+        const authData = await authRes.json();
+        if (!authRes.ok || !authData.ok) {
+            updateStreakDashboardDisplay(0);
+            return null;
+        }
+        const userId = String(authData.user_id || '').trim();
+        const password = String(authData.auth_password || '').trim();
+        if (!userId || !password) {
+            updateStreakDashboardDisplay(0);
+            return null;
+        }
+        const streakData = await fetchStreakWithCredentials(userId, password);
+        if (!streakData) {
+            const cached = parseInt(localStorage.getItem('trigger_streak_cached') || '0', 10) || 0;
+            updateStreakDashboardDisplay(cached);
+            return null;
+        }
+        updateStreakDashboardDisplay(streakData.streak);
+        return streakData;
+    } catch (e) {
+        const cached = parseInt(localStorage.getItem('trigger_streak_cached') || '0', 10) || 0;
+        updateStreakDashboardDisplay(cached);
+        return null;
+    }
+}
+
+window.fetchUserStreakForDashboard = fetchUserStreakForDashboard;
+
+async function refreshStreakAfterDailySession(userId, password) {
+    try {
+        const streakData = await fetchStreakWithCredentials(userId, password);
+        if (!streakData) return;
+        updateStreakDashboardDisplay(streakData.streak);
+        if (streakData.milestone && shouldNotifyStreakMilestone(streakData.milestone)) {
+            if (Notification.permission === 'default') {
+                try { Notification.requestPermission(); } catch (e) {}
+            }
+            triggerShowStreakMilestoneNotification(streakData.milestone);
+        }
+    } catch (e) {
+        console.warn(DAILY_SESSION_LOG, 'streak 조회 실패', e);
+    }
+}
 
 function scheduleBlacktCooldownEndNotification() {
     clearBlacktCooldownNotifySchedule();
@@ -1342,9 +1477,6 @@ function handleAnswer(isCorrect) {
     startTest();
 }
 
-const VOCA_WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev';
-const DAILY_SESSION_LOG = '[daily_session]';
-
 async function syncDailySessionToServer(level, dayNum, accuracy, sessionNumber) {
     console.log(DAILY_SESSION_LOG, 'syncDailySessionToServer 호출', {
         level: level,
@@ -1445,6 +1577,7 @@ async function syncDailySessionToServer(level, dayNum, accuracy, sessionNumber) 
             return;
         }
         console.log(DAILY_SESSION_LOG, '완료: D1 daily_session 저장 성공');
+        void refreshStreakAfterDailySession(userId, password);
     } catch (e) {
         console.error(DAILY_SESSION_LOG, '예외 발생', e);
     }

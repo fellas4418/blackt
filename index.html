@@ -429,9 +429,13 @@
                     <div class="stat-label">진행 중인 Day</div>
                     <div class="stat-value" id="stat-current-day" style="color: #fff;">Day 1</div>
                 </div>
-                <div class="stat-item stats-voca-only" id="stat-session-col" style="border-left: 1px solid #444; border-right: 1px solid #444;">
+                <div class="stat-item stats-voca-only" id="stat-session-col" style="border-left: 1px solid #444;">
                     <div class="stat-label">오늘의 사이클</div>
                     <div class="stat-value" id="stat-session" style="color: #fff;">1 / 5</div>
+                </div>
+                <div class="stat-item stat-item--streak stats-voca-only" id="stat-streak-col" style="border-left: 1px solid #444; border-right: 1px solid #444;">
+                    <div class="stat-label">연속 학습</div>
+                    <div class="stat-value" id="stat-streak-value" style="color: var(--neon-orange); text-shadow: 0 0 8px rgba(255, 153, 0, 0.45); font-weight: 700; letter-spacing: 0.06em;">STREAK 0</div>
                 </div>
                 <div class="stat-item stat-item--report clickable-card" onclick="showWeeklyReport()">
                     <div class="stat-label">My 리포트</div>
@@ -1288,6 +1292,9 @@
             if (nameEl) nameEl.value = '';
             if (phoneEl) phoneEl.value = '';
             if (agreeEl) agreeEl.checked = false;
+            if (typeof updateStreakDashboardDisplay === 'function') {
+                updateStreakDashboardDisplay(0);
+            }
             checkLoginStatus();
         }
 
@@ -1337,12 +1344,18 @@
                 modal.style.display = 'none';
                 updateHeaderProfile();
                 renderVocaDoneMsg(currentSession);
+                if (typeof fetchUserStreakForDashboard === 'function') {
+                    fetchUserStreakForDashboard();
+                }
                 if (typeof TriggerCredit !== 'undefined') {
                     TriggerCredit.syncReferralCreditsFromServer();
                 }
             } else {
                 modal.style.display = 'flex';
                 updateHeaderProfile();
+                if (typeof updateStreakDashboardDisplay === 'function') {
+                    updateStreakDashboardDisplay(0);
+                }
             }
             updateDashboardUI();
         }
@@ -1360,6 +1373,11 @@
 
             updateHeaderProfile();
             renderVocaDoneMsg(session);
+            if (name && typeof fetchUserStreakForDashboard === 'function') {
+                fetchUserStreakForDashboard();
+            } else if (typeof updateStreakDashboardDisplay === 'function') {
+                updateStreakDashboardDisplay(0);
+            }
 
             if (typeof wordsData !== 'undefined') {
                 let learnedTotal = 0;
@@ -2173,7 +2191,7 @@
 
     </script>
     <script src="praise-share.js?v=20260517_kakao_return"></script>
-    <script src="app.js?v=20260531_fix"></script>
+    <script src="app.js?v=20260531_streak"></script>
     <script src="worddata.js"></script>
     <script src="words.js"></script>
     <script>
