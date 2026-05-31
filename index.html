@@ -1290,7 +1290,7 @@
             if (phoneEl) phoneEl.value = '';
             if (agreeEl) agreeEl.checked = false;
             if (typeof updateStreakDashboardDisplay === 'function') {
-                updateStreakDashboardDisplay(0);
+                updateStreakDashboardDisplay(0, { loggedIn: false });
             }
             checkLoginStatus();
         }
@@ -1351,7 +1351,7 @@
                 modal.style.display = 'flex';
                 updateHeaderProfile();
                 if (typeof updateStreakDashboardDisplay === 'function') {
-                    updateStreakDashboardDisplay(0);
+                    updateStreakDashboardDisplay(0, { loggedIn: false });
                 }
             }
             updateDashboardUI();
@@ -1373,7 +1373,7 @@
             if (name && typeof fetchUserStreakForDashboard === 'function') {
                 fetchUserStreakForDashboard();
             } else if (typeof updateStreakDashboardDisplay === 'function') {
-                updateStreakDashboardDisplay(0);
+                updateStreakDashboardDisplay(0, { loggedIn: false });
             }
 
             if (typeof wordsData !== 'undefined') {
@@ -2188,7 +2188,7 @@
 
     </script>
     <script src="praise-share.js?v=20260517_kakao_return"></script>
-    <script src="app.js?v=20260531_streak2"></script>
+    <script src="app.js?v=20260531_streak3"></script>
     <script src="worddata.js"></script>
     <script src="words.js"></script>
     <script>

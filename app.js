@@ -199,22 +199,52 @@ const STREAK_MILESTONE_MESSAGES = {
     30: 'STREAK 30 · 전설 등극'
 };
 
-function updateStreakDashboardDisplay(streak) {
+function isVocaProfileLoggedIn() {
+    const name = String(localStorage.getItem('trigger_name') || '').trim();
+    const phone = String(localStorage.getItem('trigger_phone') || '').replace(/[^0-9]/g, '');
+    return !!(name && /^010\d{8}$/.test(phone));
+}
+
+function updateStreakDashboardDisplay(streak, options) {
     const el = document.getElementById('stat-streak-sub');
     if (!el) return;
-    const n = Math.max(0, parseInt(streak, 10) || 0);
-    if (n > 0) {
-        el.textContent = '🔥 연속 ' + n + '일';
-        el.style.display = '';
-        el.setAttribute('aria-hidden', 'false');
-    } else {
+    const opts = options || {};
+    const loggedIn = opts.loggedIn !== undefined ? !!opts.loggedIn : isVocaProfileLoggedIn();
+    if (!loggedIn) {
         el.textContent = '';
         el.style.display = 'none';
         el.setAttribute('aria-hidden', 'true');
+        el.classList.remove('stat-streak-sub--dim', 'stat-streak-sub--loading');
+        return;
     }
+    el.style.display = '';
+    el.setAttribute('aria-hidden', 'false');
+    if (opts.loading) {
+        el.textContent = '연속 불러오는 중…';
+        el.classList.add('stat-streak-sub--loading');
+        el.classList.remove('stat-streak-sub--dim');
+        return;
+    }
+    el.classList.remove('stat-streak-sub--loading');
+    if (opts.failed) {
+        el.textContent = '연속 —';
+        el.classList.add('stat-streak-sub--dim');
+        return;
+    }
+    const n = Math.max(0, parseInt(streak, 10) || 0);
+    el.textContent = '🔥 연속 ' + n + '일';
+    el.classList.toggle('stat-streak-sub--dim', n === 0);
     try {
         localStorage.setItem('trigger_streak_cached', String(n));
     } catch (e) {}
+}
+
+function maybeRefreshStreakOnIndexVisible() {
+    if (!document.getElementById('stat-streak-sub')) return;
+    if (!isVocaProfileLoggedIn()) return;
+    if (typeof fetchUserStreakForDashboard === 'function') {
+        fetchUserStreakForDashboard();
+    }
 }
 
 function shouldNotifyStreakMilestone(milestone) {
@@ -280,9 +310,10 @@ async function fetchUserStreakForDashboard() {
     const name = String(localStorage.getItem('trigger_name') || '').trim();
     const phone = String(localStorage.getItem('trigger_phone') || '').replace(/[^0-9]/g, '');
     if (!name || !/^010\d{8}$/.test(phone)) {
-        updateStreakDashboardDisplay(0);
+        updateStreakDashboardDisplay(0, { loggedIn: false });
         return null;
     }
+    updateStreakDashboardDisplay(0, { loggedIn: true, loading: true });
     try {
         const base = VOCA_WORKER_URL.replace(/\/$/, '');
         const authRes = await fetch(base + '/api/auth/simple', {
@@ -292,31 +323,35 @@ async function fetchUserStreakForDashboard() {
         });
         const authData = await authRes.json();
         if (!authRes.ok || !authData.ok) {
-            updateStreakDashboardDisplay(0);
+            updateStreakDashboardDisplay(0, { loggedIn: true, failed: true });
             return null;
         }
         const userId = String(authData.user_id || '').trim();
         const password = String(authData.auth_password || '').trim();
         if (!userId || !password) {
-            updateStreakDashboardDisplay(0);
+            updateStreakDashboardDisplay(0, { loggedIn: true, failed: true });
             return null;
         }
         const streakData = await fetchStreakWithCredentials(userId, password);
         if (!streakData) {
             const cached = parseInt(localStorage.getItem('trigger_streak_cached') || '0', 10) || 0;
-            updateStreakDashboardDisplay(cached);
+            updateStreakDashboardDisplay(cached, { loggedIn: true, failed: true });
             return null;
         }
-        updateStreakDashboardDisplay(streakData.streak);
+        updateStreakDashboardDisplay(streakData.streak, { loggedIn: true });
         return streakData;
     } catch (e) {
         const cached = parseInt(localStorage.getItem('trigger_streak_cached') || '0', 10) || 0;
-        updateStreakDashboardDisplay(cached);
+        updateStreakDashboardDisplay(cached, { loggedIn: true, failed: true });
         return null;
     }
 }
 
 window.fetchUserStreakForDashboard = fetchUserStreakForDashboard;
+window.addEventListener('pageshow', maybeRefreshStreakOnIndexVisible);
+document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') maybeRefreshStreakOnIndexVisible();
+});
 
 async function refreshStreakAfterDailySession(userId, password) {
     try {

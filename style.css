@@ -359,6 +359,7 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 .stat-label { font-size: 0.75rem; color: #666; margin-bottom: 5px; }
 .stat-value { font-size: 1.15rem; font-weight: bold; color: var(--neon-blue); }
 .stat-streak-sub {
+    display: block;
     margin-top: 5px;
     font-size: 0.72rem;
     font-weight: 600;
@@ -366,6 +367,13 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
     text-shadow: 0 0 6px rgba(255, 153, 0, 0.35);
     line-height: 1.2;
     white-space: nowrap;
+}
+.stat-streak-sub--dim {
+    opacity: 0.72;
+}
+.stat-streak-sub--loading {
+    opacity: 0.55;
+    font-size: 0.68rem;
 }
 
 /* === 수준별 버튼 & 학습 섹션 === */
