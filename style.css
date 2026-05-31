@@ -215,12 +215,13 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 .header-app-menu-btn--anchored {
     position: absolute;
     right: 0;
-    top: calc(30px + 0.12 * 3rem);
+    /* shell padding-top + line-height 여백 = 보카 글자 상단 */
+    top: calc(30px + ((1.2 - 1) / 2) * 3rem);
     z-index: 6;
     margin: 0;
-    padding: 8px 0 10px 12px;
-    min-width: 40px;
-    min-height: 40px;
+    padding: 0 0 12px 12px;
+    min-width: 44px;
+    min-height: 44px;
 }
 .header-app-menu-btn:active {
     opacity: 0.55;
@@ -229,13 +230,13 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 .header-app-menu-bars {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 4px;
-    width: 18px;
+    justify-content: flex-start;
+    gap: 4.5px;
+    width: 20px;
 }
 .header-app-menu-bars i {
     display: block;
-    height: 2.25px;
+    height: 2.5px;
     width: 100%;
     border-radius: 1px;
     background: #d8d8d8;
