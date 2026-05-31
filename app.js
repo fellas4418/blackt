@@ -200,10 +200,18 @@ const STREAK_MILESTONE_MESSAGES = {
 };
 
 function updateStreakDashboardDisplay(streak) {
-    const el = document.getElementById('stat-streak-value');
+    const el = document.getElementById('stat-streak-sub');
     if (!el) return;
     const n = Math.max(0, parseInt(streak, 10) || 0);
-    el.textContent = 'STREAK ' + n;
+    if (n > 0) {
+        el.textContent = '🔥 연속 ' + n + '일';
+        el.style.display = '';
+        el.setAttribute('aria-hidden', 'false');
+    } else {
+        el.textContent = '';
+        el.style.display = 'none';
+        el.setAttribute('aria-hidden', 'true');
+    }
     try {
         localStorage.setItem('trigger_streak_cached', String(n));
     } catch (e) {}

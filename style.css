@@ -358,6 +358,15 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 .stat-item { text-align: center; flex: 1; }
 .stat-label { font-size: 0.75rem; color: #666; margin-bottom: 5px; }
 .stat-value { font-size: 1.15rem; font-weight: bold; color: var(--neon-blue); }
+.stat-streak-sub {
+    margin-top: 5px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--neon-orange);
+    text-shadow: 0 0 6px rgba(255, 153, 0, 0.35);
+    line-height: 1.2;
+    white-space: nowrap;
+}
 
 /* === 수준별 버튼 & 학습 섹션 === */
 .level-buttons { display: flex; gap: 12px; margin-top: 15px; }
