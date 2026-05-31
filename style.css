@@ -146,6 +146,23 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
     padding: 30px 10px 0;
     box-sizing: border-box;
 }
+.main-header-toolbar {
+    position: absolute;
+    top: 8px;
+    right: 6px;
+    z-index: 6;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.main-header-toolbar .stat-online-top {
+    margin: 0;
+    padding: 0;
+}
+.main-header-toolbar .header-app-menu-btn {
+    width: 38px;
+    height: 34px;
+}
 .main-header-meta {
     width: 100%;
     display: flex;
@@ -188,21 +205,6 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
     display: flex;
     align-items: center;
     gap: 6px;
-}
-.header-menu-cluster {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-}
-.header-online-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--neon-green);
-    box-shadow: 0 0 8px var(--neon-green);
-    animation: onlinePulse 1.8s ease-in-out infinite;
-    flex-shrink: 0;
 }
 .header-app-menu-btn {
     display: flex;
