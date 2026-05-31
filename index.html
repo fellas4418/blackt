@@ -225,10 +225,10 @@
         .study-cal-legend-swatch--off { background: #2a2a2a; border: 1px solid #333; }
 
         .study-week-section {
-            margin-top: 16px; padding-top: 14px;
+            margin-top: 20px; padding-top: 20px;
             border-top: 1px solid #2a2a2a;
         }
-        .study-week-heading { font-size: 0.78rem; font-weight: 700; color: #ccc; margin-bottom: 10px; }
+        .study-week-heading { font-size: 0.78rem; font-weight: 700; color: #ddd; margin-top: 2px; margin-bottom: 12px; }
         .study-week-bars {
             display: flex; align-items: flex-end; justify-content: space-between;
             gap: 6px; height: 88px;
@@ -257,7 +257,21 @@
         .study-week-bar-fill--future { background: #252525; opacity: 0.5; }
         .study-week-dow { font-size: 0.65rem; color: #888; margin-top: 5px; }
         .study-week-date { font-size: 0.58rem; color: #555; margin-top: 1px; }
-        .study-week-hint { font-size: 0.62rem; color: #555; margin-top: 8px; }
+        .study-week-legend {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px;
+            margin-top: 10px; font-size: 0.68rem; color: #ccc;
+        }
+        .study-week-legend-swatch {
+            display: inline-block; width: 10px; height: 10px; border-radius: 2px;
+            margin-right: 4px; vertical-align: middle;
+        }
+        .study-week-legend-swatch--good {
+            background: var(--neon-green); box-shadow: 0 0 5px rgba(57, 255, 20, 0.35);
+        }
+        .study-week-legend-swatch--warn {
+            background: var(--neon-orange); box-shadow: 0 0 5px rgba(255, 153, 0, 0.35);
+        }
+        .study-week-legend-swatch--miss { background: #444; border: 1px solid #555; }
         
         @keyframes bounceGlow { 0% { transform: translateY(0); text-shadow: 0 0 10px var(--neon-green); } 100% { transform: translateY(-15px); text-shadow: 0 0 25px var(--neon-green), 0 0 40px #fff; } }
 
@@ -1932,7 +1946,11 @@
             return '<div class="study-week-section">' +
                 '<div class="study-week-heading">이번 주 성취 (' + rangeLabel + ') · ' + doneCount + '일 완료</div>' +
                 '<div class="study-week-bars">' + cols + '</div>' +
-                '<div class="study-week-hint">막대 높이 = 정답률 · 초록 80% 이상 · 주황·회색 = 미완·미학습</div></div>';
+                '<div class="study-week-legend">' +
+                '<span><span class="study-week-legend-swatch study-week-legend-swatch--good"></span>80% 이상</span>' +
+                '<span><span class="study-week-legend-swatch study-week-legend-swatch--warn"></span>80% 미만</span>' +
+                '<span><span class="study-week-legend-swatch study-week-legend-swatch--miss"></span>미학습</span>' +
+                '</div></div>';
         }
 
         function daysInMonth(year, month) {
@@ -2038,12 +2056,10 @@
                     (sub ? '<span class="study-month-day-sub">' + sub + '</span>' : '') +
                     '</div>';
             }
-            var levelLabel = level === 'high' ? '고등' : '중등';
             var monthTitle = year + '년 ' + month + '월';
             var isCurrentMonth = year === todayInfo.year && month === todayInfo.month;
             var weekBarsHtml = buildWeeklyAchievementBarsHtml(map, today);
             host.innerHTML =
-                '<div class="study-cal-meta">' + levelLabel + '<br>지금 ' + kstNowLabel() + '</div>' +
                 '<div class="study-month-nav">' +
                 '<button type="button" class="study-month-nav-btn" onclick="shiftCalendarMonth(-1)" aria-label="이전 달">‹</button>' +
                 '<span class="study-month-nav-title">' + monthTitle + (isCurrentMonth ? ' · 이번 달' : '') + '</span>' +
