@@ -172,7 +172,7 @@
         }
     </style>
 </head>
-<body class="dashboard-bg splash-active">
+<body class="dashboard-bg">
 
     <div class="cyber-stars" id="cyber-stars" aria-hidden="true"></div>
     <script>
@@ -198,34 +198,6 @@
 
     <button type="button" class="main-tab-swipe-hint main-tab-swipe-hint--prev is-hidden" id="main-tab-hint-prev" aria-label="이전 탭">‹</button>
     <button type="button" class="main-tab-swipe-hint main-tab-swipe-hint--next" id="main-tab-hint-next" aria-label="다음 탭">›</button>
-
-    <div id="splash-screen" class="cyber-splash" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease;">
-        <img src="로고, 이미지/icon-512.png" alt="TRIGGER BLACK" class="cyber-splash-logo" style="width: 180px; height: 180px; border-radius: 20px;">
-        <div class="cyber-splash-boot">
-            <span>SYSTEM BOOT</span>
-            <span class="cyber-splash-line">TRIGGER BLACK</span>
-        </div>
-    </div>
-    <script>
-        (function () {
-            function dismissTriggerSplash() {
-                var el = document.getElementById('splash-screen');
-                if (!el || el.getAttribute('data-dismissed') === '1') return;
-                el.setAttribute('data-dismissed', '1');
-                el.style.transition = 'opacity 0.35s ease';
-                el.style.opacity = '0';
-                el.style.pointerEvents = 'none';
-                setTimeout(function () {
-                    el.style.display = 'none';
-                    document.body.classList.remove('splash-active');
-                }, 400);
-            }
-            window.dismissTriggerSplash = dismissTriggerSplash;
-            setTimeout(function () {
-                if (document.body.classList.contains('splash-active')) dismissTriggerSplash();
-            }, 4000);
-        })();
-    </script>
 
     <div id="praise-popup" style="display:none; z-index: 40000;">
         <div id="praise-popup-inner">
@@ -957,7 +929,7 @@
             function isSwipeExcludedTarget(el) {
                 if (!el || !el.closest) return false;
                 if (el.closest('.routine-scroll-box, .bottom-nav, .main-tab-swipe-hint')) return true;
-                if (el.closest('button, a, input, select, textarea, label, [onclick], [role="button"], .clickable-card, .stat-item, .info-card, .level-btn, .start-btn, .nav-item, .guide-cyber-btn, .stat-credit-tap, .header-credit-info-btn, .routine-action-btn, .neon-input, .login-btn, .choice-btn')) return true;
+                if (el.closest('button, a, [role="button"], .clickable-card, .stat-item, .info-card, .level-btn, .start-btn, .nav-item, .guide-cyber-btn, .stat-credit-tap, .header-credit-info-btn, .routine-action-btn, .login-btn, .choice-btn')) return true;
                 return false;
             }
 
@@ -1889,10 +1861,6 @@
                 initialTab = 'grammar';
             }
             if (typeof switchTab === 'function') switchTab(initialTab, null, { animate: false });
-
-            if (typeof window.dismissTriggerSplash === 'function') {
-                window.dismissTriggerSplash();
-            }
 
             if (urlParams.get('share_result') === '1') {
                 document.body.classList.add('praise-receiver-flow');
