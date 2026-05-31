@@ -215,13 +215,19 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 .header-app-menu-btn--anchored {
     position: absolute;
     right: 0;
-    /* shell padding-top + line-height 여백 = 보카 글자 상단 */
+    /* shell padding-top + line-height 여백 = 글자 상단 (3rem 기본) */
     top: calc(30px + ((1.2 - 1) / 2) * 3rem);
     z-index: 6;
     margin: 0;
     padding: 0 0 12px 12px;
     min-width: 44px;
     min-height: 44px;
+}
+.main-header-shell--tab-analysis #main-header-title {
+    font-size: 2.45rem !important;
+}
+.main-header-shell--tab-analysis .header-app-menu-btn--anchored {
+    top: calc(30px + ((1.2 - 1) / 2) * 2.45rem);
 }
 .header-app-menu-btn:active {
     opacity: 0.55;

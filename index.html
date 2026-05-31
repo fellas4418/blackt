@@ -1072,6 +1072,10 @@
                 else if (tabId === 'grammar' && navItems.length > 2) navItems[2].classList.add('active');
             }
 
+            const headerShell = document.querySelector('.main-header-shell');
+            if (headerShell) {
+                headerShell.classList.toggle('main-header-shell--tab-analysis', tabId === 'analysis');
+            }
             const headerTitle = document.getElementById('main-header-title');
             if (headerTitle) {
                 if (tabId === 'voca') { headerTitle.innerHTML = '트리거 <span class="brand-tab-module brand-tab-module--voca">보카</span>'; }
