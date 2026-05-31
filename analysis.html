@@ -2956,6 +2956,24 @@
             setAuthStatus(`자동 연결 완료 · 단어 ${savedVocaCache.length}개 · 문법 ${savedGrammarCache.length}개 동기화됨${premHint}`);
         }
 
+        function resetAnalysisAuthOnLogout() {
+            authUserId = '';
+            authPassword = '';
+            isPremiumUser = false;
+            savedVocaCache = [];
+            savedGrammarCache = [];
+            noteSyncResolved = false;
+            try { sessionStorage.removeItem('trigger_auth_user'); } catch (e) {}
+            setAnalysisEnabled(false);
+            setAuthStatus('로그아웃되었습니다. 메인 화면에서 다시 로그인해 주세요.', true);
+            refreshPremiumAiPanelVisibility();
+            updateAiAskPremiumGate();
+        }
+
+        window.addEventListener('storage', function (e) {
+            if (e.key === 'trigger_name' && !e.newValue) resetAnalysisAuthOnLogout();
+        });
+
         async function tryAutoLoginByProfile() {
             const profileName = (localStorage.getItem('trigger_name') || '').trim();
             const profilePhone = String(localStorage.getItem('trigger_phone') || '').replace(/[^0-9]/g, '');

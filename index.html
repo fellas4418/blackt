@@ -29,7 +29,7 @@
 
         body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: 'Pretendard', sans-serif; -webkit-font-smoothing: antialiased; padding-bottom: 90px; }
 
-        #login-modal, #wrong-modal, #all-words-modal, #report-modal, #guide-modal, #credit-modal, #praise-popup { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 30000; transition: opacity 0.5s; padding: 20px; box-sizing: border-box; }
+        #login-modal, #wrong-modal, #all-words-modal, #report-modal, #guide-modal, #credit-modal, #account-modal, #praise-popup { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 30000; transition: opacity 0.5s; padding: 20px; box-sizing: border-box; }
 
         .login-card { background: var(--card-bg-color); border: 1px solid rgba(0, 243, 255, 0.3); box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); border-radius: 20px; padding: 25px; width: 90%; max-width: 400px; text-align: center; max-height: 80vh; overflow-y: auto; box-sizing: border-box; max-height: 90vh; }
         
@@ -321,6 +321,28 @@
         </div>
     </div>
 
+    <div id="account-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 30000; align-items: center; justify-content: center;">
+        <div class="login-card" style="border-color: var(--neon-green); box-shadow: 0 0 15px rgba(57,255,20,0.35); width: 90%; max-width: 420px; text-align:left; background: #111; padding: 30px; border-radius: 15px;">
+            <div style="font-size: 1.5rem; font-weight: bold; color: #fff; margin-bottom: 8px; text-align:center;">◆ 내 <span style="color:var(--neon-green);text-shadow:0 0 8px rgba(57,255,20,0.4);">ACCOUNT</span></div>
+            <div style="font-size:0.88rem;color:#aaa;letter-spacing:0.1em;text-align:center;margin-bottom:22px;font-weight:600;">계정 정보</div>
+
+            <div style="color:#ddd;font-size:0.95rem;line-height:1.65;">
+                <p style="margin:0 0 6px;color:#888;font-size:0.78rem;letter-spacing:0.06em;">이름</p>
+                <p id="account-modal-name" style="margin:0 0 18px;font-size:1.05rem;font-weight:700;color:#fff;font-family:'Courier New',monospace;"></p>
+
+                <p style="margin:0 0 6px;color:#888;font-size:0.78rem;letter-spacing:0.06em;">전화번호</p>
+                <p id="account-modal-phone" style="margin:0 0 18px;font-size:1.05rem;font-weight:700;color:var(--neon-green);font-family:'Courier New',monospace;text-shadow:0 0 8px rgba(57,255,20,0.25);"></p>
+
+                <p style="margin:0;padding:12px 14px;border-radius:10px;background:rgba(0,243,255,0.06);border:1px solid rgba(0,243,255,0.2);color:#aaa;font-size:0.86rem;line-height:1.55;">
+                    로그아웃해도 <strong style="color:#ccc;">Day·오답·클리어 등 학습 진도</strong>는 이 기기에 그대로 유지됩니다.
+                </p>
+            </div>
+
+            <button type="button" class="login-btn" style="border-color:#ff6b6b;color:#fff;background:rgba(255,107,107,0.12);box-shadow:0 0 12px rgba(255,107,107,0.25);width:100%;margin-top:22px;padding:15px;font-weight:bold;cursor:pointer;font-size:1rem;border-radius:8px;" onclick="performAccountLogout()">로그아웃</button>
+            <button type="button" class="login-btn" style="border-color:var(--neon-green);color:#000;background:var(--neon-green);box-shadow:0 0 12px rgba(57,255,20,0.35);width:100%;margin-top:10px;padding:15px;font-weight:bold;cursor:pointer;font-size:1rem;border-radius:8px;" onclick="closeAccountModal()">닫기</button>
+        </div>
+    </div>
+
     <div id="login-modal" style="display:none;">
         <div class="login-card">
             <div class="login-title">TRIGGER BLACK</div>
@@ -399,6 +421,7 @@
                 <div id="header-online-line" class="stat-online-top" style="display: none;">
                     <span class="online-dot"></span>
                     <span class="online-label">ONLINE</span>
+                    <button type="button" id="header-account-btn" class="header-account-btn" style="display:none;" onclick="openAccountModal()" aria-label="내 계정">내 계정</button>
                 </div>
             </div>
             <div class="stats-row stats-row--global stats-voca-only" id="global-stats-row">
@@ -917,7 +940,7 @@
 
             function isMainSwipeBlocked() {
                 if (document.body.classList.contains('praise-receiver-flow')) return true;
-                var modalIds = ['login-modal', 'wrong-modal', 'all-words-modal', 'report-modal', 'guide-modal', 'credit-modal', 'praise-popup', 'share-result-popup', 'praise-kakao-return'];
+                var modalIds = ['login-modal', 'wrong-modal', 'all-words-modal', 'report-modal', 'guide-modal', 'credit-modal', 'account-modal', 'praise-popup', 'share-result-popup', 'praise-kakao-return'];
                 return modalIds.some(function(id) {
                     var el = document.getElementById(id);
                     if (!el) return false;
@@ -929,7 +952,7 @@
             function isSwipeExcludedTarget(el) {
                 if (!el || !el.closest) return false;
                 if (el.closest('.routine-scroll-box, .bottom-nav, .main-tab-swipe-hint')) return true;
-                if (el.closest('button, a, [role="button"], .clickable-card, .stat-item, .info-card, .level-btn, .start-btn, .nav-item, .guide-cyber-btn, .stat-credit-tap, .header-credit-info-btn, .routine-action-btn, .login-btn, .choice-btn')) return true;
+                if (el.closest('button, a, [role="button"], .clickable-card, .stat-item, .info-card, .level-btn, .start-btn, .nav-item, .guide-cyber-btn, .stat-credit-tap, .header-credit-info-btn, .header-account-btn, .routine-action-btn, .login-btn, .choice-btn')) return true;
                 return false;
             }
 
@@ -1221,12 +1244,61 @@
             }
         }
 
+        function maskAccountName(name) {
+            const n = String(name || '').trim();
+            if (!n) return '—';
+            if (n.length === 1) return n + '*';
+            if (n.length === 2) return n.charAt(0) + '*';
+            return n.charAt(0) + '*'.repeat(n.length - 2) + n.charAt(n.length - 1);
+        }
+
+        function maskAccountPhone(phone) {
+            const p = String(phone || '').replace(/[^0-9]/g, '');
+            if (p.length === 11) return p.slice(0, 3) + '-****-' + p.slice(7);
+            if (p.length >= 4) return '****-' + p.slice(-4);
+            return '****';
+        }
+
+        function openAccountModal() {
+            const name = (localStorage.getItem('trigger_name') || '').trim();
+            const phone = String(localStorage.getItem('trigger_phone') || '').replace(/[^0-9]/g, '');
+            if (!name) return;
+            const nameEl = document.getElementById('account-modal-name');
+            const phoneEl = document.getElementById('account-modal-phone');
+            const modal = document.getElementById('account-modal');
+            if (nameEl) nameEl.textContent = maskAccountName(name);
+            if (phoneEl) phoneEl.textContent = maskAccountPhone(phone);
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeAccountModal() {
+            const modal = document.getElementById('account-modal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function performAccountLogout() {
+            localStorage.removeItem('trigger_name');
+            localStorage.removeItem('trigger_phone');
+            clearLoginMirror();
+            try { sessionStorage.removeItem('trigger_auth_user'); } catch (e) {}
+            closeAccountModal();
+            const nameEl = document.getElementById('user-name');
+            const phoneEl = document.getElementById('user-phone');
+            const agreeEl = document.getElementById('agree-privacy');
+            if (nameEl) nameEl.value = '';
+            if (phoneEl) phoneEl.value = '';
+            if (agreeEl) agreeEl.checked = false;
+            checkLoginStatus();
+        }
+
         function updateHeaderProfile() {
             const onlineLine = document.getElementById('header-online-line');
             const creditBtn = document.getElementById('header-credit-btn');
+            const accountBtn = document.getElementById('header-account-btn');
             const name = (localStorage.getItem('trigger_name') || '').trim();
             if (onlineLine) onlineLine.style.display = name ? 'flex' : 'none';
             if (creditBtn) creditBtn.style.visibility = name ? 'visible' : 'hidden';
+            if (accountBtn) accountBtn.style.display = name ? '' : 'none';
         }
 
         function updateGlobalStatsForTab(tabId) {

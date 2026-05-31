@@ -210,6 +210,28 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
     background: rgba(255, 153, 0, 0.24);
     box-shadow: 0 0 14px rgba(255, 153, 0, 0.38);
 }
+.header-account-btn {
+    flex-shrink: 0;
+    font-size: 0.68rem;
+    cursor: pointer;
+    color: #c8ffd0;
+    background: rgba(57, 255, 20, 0.1);
+    padding: 5px 9px;
+    border-radius: 6px;
+    border: 1px solid rgba(57, 255, 20, 0.55);
+    letter-spacing: 0.04em;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(57, 255, 20, 0.18);
+    transition: 0.2s;
+    line-height: 1;
+    margin-left: 4px;
+    -webkit-tap-highlight-color: transparent;
+}
+.header-account-btn:active {
+    background: rgba(57, 255, 20, 0.2);
+    box-shadow: 0 0 14px rgba(57, 255, 20, 0.32);
+}
 .stats-row--global {
     margin-bottom: 0;
 }
