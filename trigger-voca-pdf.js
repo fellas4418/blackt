@@ -43,6 +43,129 @@
         }
     }
 
+    function getMasterWrongDb() {
+        try {
+            var arr = JSON.parse(localStorage.getItem('trigger_master_wrong_db') || '[]');
+            return Array.isArray(arr) ? arr : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function getMasterWrongCount(level, wordStr) {
+        var key = String(wordStr || '').trim().toLowerCase();
+        if (!key) return 0;
+        var db = getMasterWrongDb();
+        for (var i = 0; i < db.length; i++) {
+            var row = db[i];
+            if (!row || row.level !== level) continue;
+            if (String(row.word || '').trim().toLowerCase() !== key) continue;
+            return Math.max(0, parseInt(row.wrongCount, 10) || 0);
+        }
+        return 0;
+    }
+
+    function lookupWordMeanings(level, dayNum, wordStr) {
+        var key = String(wordStr || '').trim().toLowerCase();
+        var words = getWordsForDay(level, dayNum);
+        for (var i = 0; i < words.length; i++) {
+            if (String(words[i].word || '').trim().toLowerCase() === key) {
+                return wordMeanStr(words[i]);
+            }
+        }
+        return '';
+    }
+
+    /** 인쇄 범위 Day 중 오답·별표 단어 (틀린 횟수 내림차순) */
+    function collectReviewWords(level, days, allWrongs) {
+        var daySet = {};
+        days.forEach(function (d) {
+            daySet[Number(d)] = true;
+        });
+        var byKey = {};
+        allWrongs.forEach(function (r) {
+            if (!r || r.level !== level) return;
+            if (!daySet[Number(r.day)]) return;
+            if (!r.isWrong && !r.isStarred) return;
+            var key = String(r.word || '').trim().toLowerCase();
+            if (!key) return;
+            var wc = getMasterWrongCount(level, r.word);
+            if (!byKey[key]) {
+                var mean = wordMeanStr(r);
+                if (!mean) mean = lookupWordMeanings(level, r.day, r.word);
+                byKey[key] = {
+                    word: r.word,
+                    meanings: mean,
+                    wrongCount: wc,
+                    isWrong: !!r.isWrong,
+                    isStarred: !!r.isStarred
+                };
+            } else {
+                byKey[key].isWrong = byKey[key].isWrong || !!r.isWrong;
+                byKey[key].isStarred = byKey[key].isStarred || !!r.isStarred;
+                byKey[key].wrongCount = Math.max(byKey[key].wrongCount, wc);
+                if (!byKey[key].meanings) {
+                    byKey[key].meanings = wordMeanStr(r) || lookupWordMeanings(level, r.day, r.word);
+                }
+            }
+        });
+        var list = Object.keys(byKey).map(function (k) {
+            return byKey[k];
+        });
+        list.sort(function (a, b) {
+            if (b.wrongCount !== a.wrongCount) return b.wrongCount - a.wrongCount;
+            return String(a.word || '').localeCompare(String(b.word || ''), 'ko');
+        });
+        return list;
+    }
+
+    function buildReviewSectionHtml(reviewList) {
+        if (!reviewList.length) return '';
+        var rows = reviewList
+            .map(function (item, idx) {
+                var tags = [];
+                if (item.isWrong) tags.push('오답');
+                if (item.isStarred) tags.push('★');
+                var tagHtml = tags.length
+                    ? ' <span style="font-size:8pt;color:#666;">(' + escapeHtml(tags.join('·')) + ')</span>'
+                    : '';
+                return (
+                    '<tr>' +
+                    '<td style="border:1px solid #000;padding:8px;text-align:center;width:8%;">' +
+                    (idx + 1) +
+                    '</td>' +
+                    '<td style="border:1px solid #000;padding:8px 12px;text-align:left;font-weight:bold;font-size:11pt;">' +
+                    escapeHtml(item.word) +
+                    tagHtml +
+                    '</td>' +
+                    '<td style="border:1px solid #000;padding:8px 12px;text-align:left;font-size:10pt;">' +
+                    escapeHtml(item.meanings || '') +
+                    '</td>' +
+                    '<td style="border:1px solid #000;padding:8px;text-align:center;width:14%;font-weight:bold;">' +
+                    (item.wrongCount > 0 ? item.wrongCount : '—') +
+                    '</td>' +
+                    '</tr>'
+                );
+            })
+            .join('');
+        return (
+            '<div style="page-break-inside:avoid;">' +
+            '<h2 style="font-size:16pt;color:#000;border-bottom:2px solid #000;padding-bottom:8px;margin:0 0 12px;">복습 필요 단어</h2>' +
+            '<p style="font-size:9.5pt;color:#555;margin:0 0 14px;line-height:1.45;">' +
+            '인쇄 범위에서 <strong>오답</strong>·<strong>★별표</strong>한 단어를 틀린 횟수 순으로 모았습니다. (별표만 한 단어는 횟수 —)' +
+            '</p>' +
+            '<table style="width:100%;border-collapse:collapse;margin-bottom:20px;">' +
+            '<thead><tr style="background:#f2f2f2;">' +
+            '<th style="border:1px solid #000;padding:8px;font-size:10pt;">번호</th>' +
+            '<th style="border:1px solid #000;padding:8px;font-size:10pt;">영단어</th>' +
+            '<th style="border:1px solid #000;padding:8px;font-size:10pt;">뜻</th>' +
+            '<th style="border:1px solid #000;padding:8px;font-size:10pt;">틀린 횟수</th>' +
+            '</tr></thead><tbody>' +
+            rows +
+            '</tbody></table></div>'
+        );
+    }
+
     function getWordMarkRecord(allWrongs, level, dayNum, wordStr) {
         var key = String(wordStr || '').trim().toLowerCase();
         if (!key) return null;
@@ -188,6 +311,12 @@
                 html += '</div>';
             });
         });
+
+        var reviewList = collectReviewWords(level, days, allWrongs);
+        if (reviewList.length) {
+            html += '<div class="page-break" style="page-break-before:always;"></div>';
+            html += buildReviewSectionHtml(reviewList);
+        }
 
         return html;
     }
