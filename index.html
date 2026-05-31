@@ -547,15 +547,9 @@
     <div class="dashboard-container">
         
         <div class="main-header-shell">
-            <div class="main-header-toolbar">
-                <div id="header-online-line" class="stat-online-top" style="display: none;">
-                    <span class="online-dot"></span>
-                    <span class="online-label">ONLINE</span>
-                </div>
-                <button type="button" id="header-app-menu-btn" class="header-app-menu-btn" onclick="openAppMenu()" aria-label="메뉴" aria-expanded="false" aria-controls="app-menu-panel">
-                    <span class="header-app-menu-bars" aria-hidden="true"><i></i><i></i><i></i></span>
-                </button>
-            </div>
+            <button type="button" id="header-app-menu-btn" class="header-app-menu-btn header-app-menu-btn--top" onclick="openAppMenu()" aria-label="메뉴" aria-expanded="false" aria-controls="app-menu-panel">
+                <span class="header-app-menu-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+            </button>
             <div class="logo" id="main-header-title" onclick="activateAdmin(event)" style="margin: 0; text-align: center; line-height: 1.2; font-size: 3rem; letter-spacing: -1px; cursor: pointer; user-select: none;">
                 트리거 <span class="brand-tab-module brand-tab-module--voca">보카</span>
             </div>
@@ -583,6 +577,10 @@
                         <span class="header-credit-label">CREDIT</span>
                         <span class="header-credit-value" id="trigger-credit-value">0</span>
                     </button>
+                </div>
+                <div id="header-online-line" class="stat-online-top" style="display: none;">
+                    <span class="online-dot"></span>
+                    <span class="online-label">ONLINE</span>
                 </div>
             </div>
             <div class="stats-row stats-row--global stats-voca-only" id="global-stats-row">
