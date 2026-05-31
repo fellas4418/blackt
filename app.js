@@ -359,16 +359,7 @@ function showWordExclusionScreen(onDone) {
     }
 
     function bindExclWordRows() {
-        document.querySelectorAll('.excl-word-chip').forEach(row => {
-            row.onclick = () => {
-                const idx = parseInt(row.getAttribute('data-idx'), 10);
-                const wObj = fullDayWords[idx];
-                if (!wObj || !wObj.word) return;
-                if (excluded.has(wObj.word)) excluded.delete(wObj.word);
-                else excluded.add(wObj.word);
-                renderList(false);
-            };
-        });
+        /* 클릭은 bindStudyScreenActionsOnce(#display 위임)에서 처리 */
     }
 
     function renderList(fullRebuild) {
@@ -403,14 +394,23 @@ function showWordExclusionScreen(onDone) {
         `);
 
         bindExclWordRows();
-        const startBtn = document.getElementById('exclusion-start-btn');
-        if (startBtn) {
-            startBtn.onclick = () => {
+        window.__exclWordScreen = {
+            toggleIdx: function (idx) {
+                const wObj = fullDayWords[idx];
+                if (!wObj || !wObj.word) return;
+                if (excluded.has(wObj.word)) excluded.delete(wObj.word);
+                else excluded.add(wObj.word);
+                renderList(false);
+            },
+            finish: function () {
                 saveExcludedWords(Array.from(excluded));
                 targetWords = shuffleWordList(buildStudyWordsFromExcluded(excluded));
+                window.__exclWordScreen = null;
                 if (typeof onDone === 'function') onDone();
-            };
-        }
+            }
+        };
+        const startBtn = document.getElementById('exclusion-start-btn');
+        if (startBtn) startBtn.onclick = null;
     }
     renderList(true);
 }
@@ -2057,16 +2057,53 @@ window.adminGoDayCompleteKakaoScreen = function () {
 (function bindStudyCompleteActionsOnce() {
     if (window.__studyCompleteActionsBound) return;
     window.__studyCompleteActionsBound = true;
-    function onStudyCompleteTap(ev) {
-        const shareBtn = ev.target && ev.target.closest ? ev.target.closest('#btn-study-kakao-share') : null;
-        const exitBtn = ev.target && ev.target.closest ? ev.target.closest('#btn-study-exit-home') : null;
-        if (!shareBtn && !exitBtn) return;
+    function onStudyScreenTap(ev) {
+        const t = ev.target;
+        if (!t || !t.closest) return;
+
+        const chip = t.closest('.excl-word-chip');
+        if (chip && window.__exclWordScreen && typeof window.__exclWordScreen.toggleIdx === 'function') {
+            ev.preventDefault();
+            ev.stopPropagation();
+            window.__exclWordScreen.toggleIdx(parseInt(chip.getAttribute('data-idx'), 10));
+            return;
+        }
+        const exclStart = t.closest('#exclusion-start-btn');
+        if (exclStart && window.__exclWordScreen && typeof window.__exclWordScreen.finish === 'function') {
+            ev.preventDefault();
+            ev.stopPropagation();
+            window.__exclWordScreen.finish();
+            return;
+        }
+
+        const pdfBtn = t.closest('#btn-study-voca-pdf');
+        const shareBtn = t.closest('#btn-study-kakao-share');
+        const exitBtn = t.closest('#btn-study-exit-home');
+        if (!pdfBtn && !shareBtn && !exitBtn) return;
         ev.preventDefault();
         ev.stopPropagation();
-        if (shareBtn && typeof shareKakao === 'function') shareKakao();
-        else if (exitBtn) location.href = 'index.html?tab=voca';
+        if (pdfBtn) {
+            let dayNum = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`), 10) || 1;
+            dayNum = dayNum > 1 ? dayNum - 1 : 1;
+            if (typeof TriggerVocaPdf !== 'undefined') {
+                TriggerVocaPdf.printToday(currentLevel, dayNum, 'all');
+            } else {
+                alert('단어장 기능을 불러오지 못했습니다. 메인 보카 탭에서 시도해 주세요.');
+            }
+        } else if (shareBtn) {
+            if (shareBtn.disabled) return;
+            const label = shareBtn.textContent;
+            shareBtn.disabled = true;
+            shareBtn.textContent = '공유 준비 중…';
+            Promise.resolve(typeof shareKakao === 'function' ? shareKakao() : undefined).finally(function () {
+                shareBtn.disabled = false;
+                shareBtn.textContent = label;
+            });
+        } else if (exitBtn) {
+            location.href = 'index.html?tab=voca';
+        }
     }
-    document.addEventListener('click', onStudyCompleteTap, true);
+    document.addEventListener('click', onStudyScreenTap, true);
 })();
 
 window.jumpToSession = function(n) {

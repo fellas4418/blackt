@@ -956,7 +956,9 @@
 
             function isSwipeExcludedTarget(el) {
                 if (!el || !el.closest) return false;
-                return !!el.closest('.routine-scroll-box, .bottom-nav, .main-tab-swipe-hint');
+                if (el.closest('.routine-scroll-box, .bottom-nav, .main-tab-swipe-hint')) return true;
+                if (el.closest('button, a, input, select, textarea, label, [onclick], [role="button"], .clickable-card, .stat-item, .info-card, .level-btn, .start-btn, .nav-item, .guide-cyber-btn, .stat-credit-tap, .header-credit-info-btn, .routine-action-btn, .neon-input, .login-btn, .choice-btn')) return true;
+                return false;
             }
 
             function resetSwipeTracking() {
@@ -985,6 +987,7 @@
                     swipeHorizontal = Math.abs(dx) > Math.abs(dy);
                 }
                 if (!swipeHorizontal) return;
+                if (Math.abs(dx) < SWIPE_MIN) return;
                 if (e && e.cancelable) e.preventDefault();
                 beginMainTabSlide();
                 var vw = getMainTabViewportWidth();
@@ -2130,7 +2133,7 @@
 
     </script>
     <script src="praise-share.js?v=20260517_kakao_return"></script>
-    <script src="app.js?v=20260526_credit_pdf"></script>
+    <script src="app.js?v=20260531_fix"></script>
     <script src="worddata.js"></script>
     <script src="words.js"></script>
     <script>
