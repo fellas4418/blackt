@@ -193,6 +193,50 @@ function triggerShowCooldownDoneNotification() {
 
 window.triggerShowCooldownDoneNotification = triggerShowCooldownDoneNotification;
 
+function formatStreakDashboardLabel(days) {
+    const n = Math.max(0, parseInt(days, 10) || 0);
+    return 'STREAK · ' + n + '일';
+}
+
+const STUDY_CALENDAR_KEY = 'trigger_voca_study_calendar';
+
+function kstYmd(d) {
+    return new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Seoul',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    }).format(d || new Date());
+}
+
+function markStudyCalendarComplete(level, dayNum, accuracy) {
+    try {
+        if (typeof isAdminDayCompleteSharePreview === 'function' && isAdminDayCompleteSharePreview()) {
+            return;
+        }
+    } catch (e) {}
+    const lvl = String(level || '').trim();
+    if (lvl !== 'middle' && lvl !== 'high') return;
+    const ymd = kstYmd();
+    let data = {};
+    try {
+        data = JSON.parse(localStorage.getItem(STUDY_CALENDAR_KEY) || '{}');
+    } catch (e) {
+        data = {};
+    }
+    if (!data[lvl] || typeof data[lvl] !== 'object') data[lvl] = {};
+    data[lvl][ymd] = {
+        day: parseInt(dayNum, 10) || 0,
+        accuracy: Math.max(0, parseInt(accuracy, 10) || 0)
+    };
+    try {
+        localStorage.setItem(STUDY_CALENDAR_KEY, JSON.stringify(data));
+    } catch (e) {}
+}
+
+window.markStudyCalendarComplete = markStudyCalendarComplete;
+window.kstYmd = kstYmd;
+
 const STREAK_MILESTONE_MESSAGES = {
     7: 'STREAK 7 · 7일 연속 학습 달성',
     14: 'STREAK 14 · 상위 5% 학습자',
@@ -232,7 +276,7 @@ function updateStreakDashboardDisplay(streak, options) {
         return;
     }
     const n = Math.max(0, parseInt(streak, 10) || 0);
-    el.textContent = '🔥 연속 ' + n + '일';
+    el.textContent = formatStreakDashboardLabel(n);
     el.classList.toggle('stat-streak-sub--dim', n === 0);
     try {
         localStorage.setItem('trigger_streak_cached', String(n));
@@ -1795,6 +1839,7 @@ function finishSession(didTest = true) {
             currentSessionRaw: currentSessionRaw,
             didTest: didTest
         });
+        markStudyCalendarComplete(currentLevel, currentDay, accuracy);
         syncDailySessionToServer(currentLevel, currentDay, accuracy, finishedNum);
         showStudyDayCompleteScreen(accuracy, currentDay, creditEarnedHtml);
     } else {

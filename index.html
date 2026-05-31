@@ -170,6 +170,40 @@
 
         .report-bar-bg { width: 100%; background: #222; height: 12px; border-radius: 6px; margin-top: 5px; overflow: hidden; }
         .report-bar-fill { height: 100%; background: var(--neon-green); width: 0%; border-radius: 6px; box-shadow: 0 0 5px var(--neon-green); transition: width 0.5s; }
+
+        .report-view-tabs { display: flex; gap: 8px; margin-bottom: 12px; width: 100%; }
+        .report-view-tab {
+            flex: 1; padding: 9px 8px; border-radius: 10px; font-size: 0.82rem; font-weight: 700;
+            border: 1px solid #444; background: transparent; color: #888; cursor: pointer;
+        }
+        .report-view-tab.is-active {
+            border-color: var(--neon-blue); color: #fff; background: rgba(0, 243, 255, 0.08);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+        }
+        .study-cal-meta { font-size: 0.72rem; color: #888; margin-bottom: 10px; letter-spacing: 0.03em; }
+        .study-cal-layout { display: flex; gap: 6px; align-items: flex-start; }
+        .study-cal-weekdays {
+            display: flex; flex-direction: column; gap: 3px; padding-top: 0;
+            font-size: 0.58rem; color: #555; line-height: 1;
+        }
+        .study-cal-weekdays span {
+            width: 14px; height: 11px; display: flex; align-items: center; justify-content: flex-end;
+        }
+        .study-cal-scroll { overflow-x: auto; flex: 1; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+        .study-cal-cols { display: flex; gap: 3px; }
+        .study-cal-col { display: flex; flex-direction: column; gap: 3px; }
+        .study-cal-cell {
+            width: 11px; height: 11px; border-radius: 2px; background: #2a2a2a;
+            border: 1px solid #333; box-sizing: border-box;
+        }
+        .study-cal-cell--on {
+            background: var(--neon-blue); border-color: rgba(0, 243, 255, 0.65);
+            box-shadow: 0 0 6px rgba(0, 243, 255, 0.45);
+        }
+        .study-cal-cell--off { background: #2a2a2a; border-color: #333; }
+        .study-cal-cell--future { background: #1a1a1a; border-color: #222; opacity: 0.35; }
+        .study-cal-legend { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 0.68rem; color: #666; }
+        .study-cal-legend .study-cal-cell { width: 10px; height: 10px; }
         
         @keyframes bounceGlow { 0% { transform: translateY(0); text-shadow: 0 0 10px var(--neon-green); } 100% { transform: translateY(-15px); text-shadow: 0 0 25px var(--neon-green), 0 0 40px #fff; } }
 
@@ -387,13 +421,23 @@
     <div id="report-modal" style="display:none;">
         <div class="login-card" style="border-color: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); width: 90%; max-width: 450px;">
             <div class="login-title" id="report-modal-title" style="color:var(--neon-blue); text-shadow: none;"></div>
+
+            <div class="report-view-tabs">
+                <button type="button" id="tab-report-days" class="report-view-tab is-active" onclick="switchReportView('days')">Day 진도</button>
+                <button type="button" id="tab-report-calendar" class="report-view-tab" onclick="switchReportView('calendar')">학습 캘린더</button>
+            </div>
             
-            <div style="display:flex; gap:10px; margin-bottom:15px; width:100%;">
+            <div id="report-level-tabs" style="display:flex; gap:10px; margin-bottom:15px; width:100%;">
                <button id="tab-report-middle" onclick="showWeeklyReport('middle')" style="flex:1; padding:10px; border-radius:10px; background:var(--neon-orange); color:#000; font-weight:bold; border:none; cursor:pointer;">중등</button>
                <button id="tab-report-high" onclick="showWeeklyReport('high')" style="flex:1; padding:10px; border-radius:10px; background:transparent; border:1px solid #444; color:#888; font-weight:bold; cursor:pointer;">고등</button>
             </div>
 
-            <div id="report-list" style="text-align:left; color:#fff; margin-bottom:20px; font-size:1rem; line-height:1.8; max-height: 300px; overflow-y: auto; padding-right:10px;"></div>
+            <div id="report-panel-days">
+                <div id="report-list" style="text-align:left; color:#fff; margin-bottom:20px; font-size:1rem; line-height:1.8; max-height: 300px; overflow-y: auto; padding-right:10px;"></div>
+            </div>
+            <div id="report-panel-calendar" style="display:none; margin-bottom:20px;">
+                <div id="study-calendar-host"></div>
+            </div>
             <button class="login-btn" style="border-color: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue);" onclick="document.getElementById('report-modal').style.display='none'">닫기</button>
         </div>
     </div>
@@ -1345,7 +1389,7 @@
                 return;
             }
             var n = Math.max(0, parseInt(streak, 10) || 0);
-            el.textContent = '🔥 연속 ' + n + '일';
+            el.textContent = 'STREAK · ' + n + '일';
             el.classList.toggle('stat-streak-sub--dim', n === 0);
             try { localStorage.setItem('trigger_streak_cached', String(n)); } catch (e) {}
         }
@@ -1732,21 +1776,135 @@
             document.getElementById('all-words-modal').style.display = 'flex';
         }
 
+        var __reportViewMode = 'days';
+        var __reportLevel = 'middle';
+        var STUDY_CALENDAR_WEEKS = 18;
+        var STUDY_CALENDAR_STORAGE_KEY = 'trigger_voca_study_calendar';
+
+        function kstYmdForCalendar(d) {
+            if (typeof kstYmd === 'function') return kstYmd(d);
+            return new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'Asia/Seoul',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            }).format(d || new Date());
+        }
+
+        function calendarYmdToDate(ymd) {
+            var p = String(ymd || '').split('-').map(Number);
+            return new Date(Date.UTC(p[0], p[1] - 1, p[2]));
+        }
+
+        function calendarAddDays(ymd, delta) {
+            var dt = calendarYmdToDate(ymd);
+            dt.setUTCDate(dt.getUTCDate() + delta);
+            return dt.toISOString().slice(0, 10);
+        }
+
+        function calendarWeekdayMon0(ymd) {
+            var w = calendarYmdToDate(ymd).getUTCDay();
+            return w === 0 ? 6 : w - 1;
+        }
+
+        function calendarMondayOf(ymd) {
+            return calendarAddDays(ymd, -calendarWeekdayMon0(ymd));
+        }
+
+        function getStudyCalendarMap(level) {
+            var data = {};
+            try {
+                data = JSON.parse(localStorage.getItem(STUDY_CALENDAR_STORAGE_KEY) || '{}');
+            } catch (e) {
+                data = {};
+            }
+            return (data[level] && typeof data[level] === 'object') ? data[level] : {};
+        }
+
+        function updateReportLevelTabStyles(currentLevel) {
+            document.getElementById('tab-report-middle').style.cssText = currentLevel === 'middle'
+                ? "flex:1; padding:10px; border-radius:10px; background:var(--neon-orange); color:#000; font-weight:bold; border:none; cursor:pointer;"
+                : "flex:1; padding:10px; border-radius:10px; background:transparent; border:1px solid #444; color:#888; font-weight:bold; cursor:pointer;";
+            document.getElementById('tab-report-high').style.cssText = currentLevel === 'high'
+                ? "flex:1; padding:10px; border-radius:10px; background:var(--neon-orange); color:#000; font-weight:bold; border:none; cursor:pointer;"
+                : "flex:1; padding:10px; border-radius:10px; background:transparent; border:1px solid #444; color:#888; font-weight:bold; cursor:pointer;";
+        }
+
+        function switchReportView(mode) {
+            __reportViewMode = mode === 'calendar' ? 'calendar' : 'days';
+            var tabDays = document.getElementById('tab-report-days');
+            var tabCal = document.getElementById('tab-report-calendar');
+            var panelDays = document.getElementById('report-panel-days');
+            var panelCal = document.getElementById('report-panel-calendar');
+            if (tabDays) tabDays.classList.toggle('is-active', __reportViewMode === 'days');
+            if (tabCal) tabCal.classList.toggle('is-active', __reportViewMode === 'calendar');
+            if (panelDays) panelDays.style.display = __reportViewMode === 'days' ? '' : 'none';
+            if (panelCal) panelCal.style.display = __reportViewMode === 'calendar' ? '' : 'none';
+            showWeeklyReport(__reportLevel);
+        }
+
+        function renderStudyCalendar(level) {
+            var host = document.getElementById('study-calendar-host');
+            if (!host) return;
+            var today = kstYmdForCalendar();
+            var map = getStudyCalendarMap(level);
+            var endMonday = calendarMondayOf(today);
+            var startMonday = calendarAddDays(endMonday, -(STUDY_CALENDAR_WEEKS - 1) * 7);
+            var studyCount = 0;
+            var colsHtml = '';
+            for (var col = 0; col < STUDY_CALENDAR_WEEKS; col++) {
+                var cells = '';
+                for (var row = 0; row < 7; row++) {
+                    var ymd = calendarAddDays(startMonday, col * 7 + row);
+                    var title = ymd;
+                    var cls = 'study-cal-cell';
+                    if (ymd > today) {
+                        cls += ' study-cal-cell--future';
+                    } else if (map[ymd]) {
+                        cls += ' study-cal-cell--on';
+                        studyCount += 1;
+                        var ent = map[ymd];
+                        title = ymd + ' · Day ' + (ent.day || '?');
+                        if (ent.accuracy) title += ' · ' + ent.accuracy + '%';
+                    } else {
+                        cls += ' study-cal-cell--off';
+                    }
+                    cells += '<div class="' + cls + '" title="' + title.replace(/"/g, '') + '" aria-label="' + title.replace(/"/g, '') + '"></div>';
+                }
+                colsHtml += '<div class="study-cal-col">' + cells + '</div>';
+            }
+            var levelLabel = level === 'high' ? '고등' : '중등';
+            host.innerHTML =
+                '<div class="study-cal-meta">' + levelLabel + ' · 최근 ' + STUDY_CALENDAR_WEEKS + '주 · 학습 ' + studyCount + '일</div>' +
+                '<div class="study-cal-layout">' +
+                '<div class="study-cal-weekdays"><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span><span>일</span></div>' +
+                '<div class="study-cal-scroll"><div class="study-cal-cols">' + colsHtml + '</div></div>' +
+                '</div>' +
+                '<div class="study-cal-legend">' +
+                '<span class="study-cal-cell study-cal-cell--off"></span><span>미학습</span>' +
+                '<span class="study-cal-cell study-cal-cell--on"></span><span>학습 완료</span>' +
+                '</div>';
+            document.getElementById('report-modal-title').innerHTML =
+                '<div style="text-align:center;width:100%;font-size:0.9em;">학습 캘린더</div>';
+        }
+
         function showWeeklyReport(requestedLevel) {
             const currentLevel = requestedLevel || localStorage.getItem('trigger_level') || 'middle';
+            __reportLevel = currentLevel;
+            updateReportLevelTabStyles(currentLevel);
+
+            if (__reportViewMode === 'calendar') {
+                renderStudyCalendar(currentLevel);
+                document.getElementById('report-modal').style.display = 'flex';
+                return;
+            }
+
             const stats = JSON.parse(localStorage.getItem(`trigger_stats_${currentLevel}`) || '{}');
             const listContainer = document.getElementById('report-list');
-            
-            document.getElementById('tab-report-middle').style.cssText = currentLevel === 'middle' 
-                ? "flex:1; padding:10px; border-radius:10px; background:var(--neon-orange); color:#000; font-weight:bold; border:none; cursor:pointer;" 
-                : "flex:1; padding:10px; border-radius:10px; background:transparent; border:1px solid #444; color:#888; font-weight:bold; cursor:pointer;";
-            document.getElementById('tab-report-high').style.cssText = currentLevel === 'high' 
-                ? "flex:1; padding:10px; border-radius:10px; background:var(--neon-orange); color:#000; font-weight:bold; border:none; cursor:pointer;" 
-                : "flex:1; padding:10px; border-radius:10px; background:transparent; border:1px solid #444; color:#888; font-weight:bold; cursor:pointer;";
 
             document.getElementById('report-modal-title').innerHTML = `
             <div style="text-align: center; width: 100%; font-size: 0.9em;">
-            누적 학습 리포트
+            누적 학습 리포트 · Day 진도
             </div>`;
 
             let html = '';
@@ -2290,7 +2448,7 @@
 
     </script>
     <script src="praise-share.js?v=20260517_kakao_return"></script>
-    <script src="app.js?v=20260531_streak3"></script>
+    <script src="app.js?v=20260531_calendar1"></script>
     <script src="worddata.js"></script>
     <script src="words.js"></script>
     <script>
