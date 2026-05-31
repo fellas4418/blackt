@@ -1576,6 +1576,8 @@ function finishSession(didTest = true) {
         console.log(DAILY_SESSION_LOG, 'finishSession 조기 종료 (최후의 사이클 진입) → sync 미호출', { accuracy: accuracy });
         return;
     }
+
+    if ((finishedNum >= totalSessions || currentSessionRaw === 'final') && didTest) {
         let unlocked = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
         const startDayKey = `trigger_start_day_${currentLevel}_${today}`;
         const startDay = parseInt(localStorage.getItem(startDayKey)) || unlocked;
