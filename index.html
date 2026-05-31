@@ -180,30 +180,49 @@
             border-color: var(--neon-blue); color: #fff; background: rgba(0, 243, 255, 0.08);
             box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
         }
-        .study-cal-meta { font-size: 0.72rem; color: #888; margin-bottom: 10px; letter-spacing: 0.03em; }
-        .study-cal-layout { display: flex; gap: 6px; align-items: flex-start; }
-        .study-cal-weekdays {
-            display: flex; flex-direction: column; gap: 3px; padding-top: 0;
-            font-size: 0.58rem; color: #555; line-height: 1;
+        .study-cal-meta { font-size: 0.72rem; color: #888; margin-bottom: 10px; letter-spacing: 0.03em; line-height: 1.45; }
+        .study-month-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 12px; gap: 8px;
         }
-        .study-cal-weekdays span {
-            width: 14px; height: 11px; display: flex; align-items: center; justify-content: flex-end;
+        .study-month-nav-btn {
+            background: rgba(0, 243, 255, 0.06); border: 1px solid rgba(0, 243, 255, 0.35);
+            color: var(--neon-blue); border-radius: 8px; width: 36px; height: 32px;
+            font-size: 1rem; cursor: pointer; line-height: 1;
         }
-        .study-cal-scroll { overflow-x: auto; flex: 1; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
-        .study-cal-cols { display: flex; gap: 3px; }
-        .study-cal-col { display: flex; flex-direction: column; gap: 3px; }
-        .study-cal-cell {
-            width: 11px; height: 11px; border-radius: 2px; background: #2a2a2a;
-            border: 1px solid #333; box-sizing: border-box;
+        .study-month-nav-title { font-size: 1rem; font-weight: 700; color: #fff; letter-spacing: 0.02em; }
+        .study-month-dow-row {
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+            margin-bottom: 6px; font-size: 0.68rem; color: #666; text-align: center;
         }
-        .study-cal-cell--on {
-            background: var(--neon-blue); border-color: rgba(0, 243, 255, 0.65);
-            box-shadow: 0 0 6px rgba(0, 243, 255, 0.45);
+        .study-month-dow-row span:first-child { color: rgba(255, 120, 120, 0.85); }
+        .study-month-grid {
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
         }
-        .study-cal-cell--off { background: #2a2a2a; border-color: #333; }
-        .study-cal-cell--future { background: #1a1a1a; border-color: #222; opacity: 0.35; }
-        .study-cal-legend { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 0.68rem; color: #666; }
-        .study-cal-legend .study-cal-cell { width: 10px; height: 10px; }
+        .study-month-day {
+            min-height: 38px; border-radius: 8px; border: 1px solid #333;
+            background: #222; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; font-size: 0.82rem;
+            color: #888; box-sizing: border-box; padding: 2px;
+        }
+        .study-month-day--pad { visibility: hidden; border: none; background: transparent; min-height: 38px; }
+        .study-month-day--on {
+            background: rgba(0, 243, 255, 0.18); border-color: rgba(0, 243, 255, 0.65);
+            color: #fff; box-shadow: 0 0 8px rgba(0, 243, 255, 0.35);
+        }
+        .study-month-day--off { background: #1e1e1e; border-color: #2e2e2e; color: #666; }
+        .study-month-day--future { background: #161616; border-color: #252525; color: #444; opacity: 0.65; }
+        .study-month-day--today {
+            outline: 2px solid var(--neon-orange); outline-offset: 1px;
+            color: #fff; font-weight: 700;
+        }
+        .study-month-day-sub { font-size: 0.5rem; color: rgba(0, 243, 255, 0.85); margin-top: 1px; line-height: 1; }
+        .study-cal-legend { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 12px; font-size: 0.68rem; color: #666; }
+        .study-cal-legend-swatch {
+            width: 12px; height: 12px; border-radius: 3px; display: inline-block; vertical-align: middle;
+        }
+        .study-cal-legend-swatch--on { background: var(--neon-blue); box-shadow: 0 0 6px rgba(0, 243, 255, 0.4); }
+        .study-cal-legend-swatch--off { background: #2a2a2a; border: 1px solid #333; }
         
         @keyframes bounceGlow { 0% { transform: translateY(0); text-shadow: 0 0 10px var(--neon-green); } 100% { transform: translateY(-15px); text-shadow: 0 0 25px var(--neon-green), 0 0 40px #fff; } }
 
@@ -1778,7 +1797,8 @@
 
         var __reportViewMode = 'days';
         var __reportLevel = 'middle';
-        var STUDY_CALENDAR_WEEKS = 18;
+        var __calendarViewYear = null;
+        var __calendarViewMonth = null;
         var STUDY_CALENDAR_STORAGE_KEY = 'trigger_voca_study_calendar';
 
         function kstYmdForCalendar(d) {
@@ -1791,24 +1811,59 @@
             }).format(d || new Date());
         }
 
+        function kstNowLabel() {
+            return new Intl.DateTimeFormat('ko-KR', {
+                timeZone: 'Asia/Seoul',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'short',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            }).format(new Date()) + ' (한국시간)';
+        }
+
         function calendarYmdToDate(ymd) {
             var p = String(ymd || '').split('-').map(Number);
             return new Date(Date.UTC(p[0], p[1] - 1, p[2]));
         }
 
-        function calendarAddDays(ymd, delta) {
-            var dt = calendarYmdToDate(ymd);
-            dt.setUTCDate(dt.getUTCDate() + delta);
-            return dt.toISOString().slice(0, 10);
+        function calendarYmdFromParts(y, m, d) {
+            return y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
         }
 
-        function calendarWeekdayMon0(ymd) {
-            var w = calendarYmdToDate(ymd).getUTCDay();
-            return w === 0 ? 6 : w - 1;
+        function calendarWeekdaySun0(ymd) {
+            return calendarYmdToDate(ymd).getUTCDay();
         }
 
-        function calendarMondayOf(ymd) {
-            return calendarAddDays(ymd, -calendarWeekdayMon0(ymd));
+        function daysInMonth(year, month) {
+            return new Date(Date.UTC(year, month, 0)).getUTCDate();
+        }
+
+        function getKstYearMonthToday() {
+            var ymd = kstYmdForCalendar();
+            var p = ymd.split('-').map(Number);
+            return { year: p[0], month: p[1], day: p[2], ymd: ymd };
+        }
+
+        function resetCalendarViewToToday() {
+            var t = getKstYearMonthToday();
+            __calendarViewYear = t.year;
+            __calendarViewMonth = t.month;
+        }
+
+        function shiftCalendarMonth(delta) {
+            if (__calendarViewYear == null) resetCalendarViewToToday();
+            __calendarViewMonth += delta;
+            if (__calendarViewMonth > 12) {
+                __calendarViewMonth = 1;
+                __calendarViewYear += 1;
+            } else if (__calendarViewMonth < 1) {
+                __calendarViewMonth = 12;
+                __calendarViewYear -= 1;
+            }
+            renderStudyCalendar(__reportLevel);
         }
 
         function getStudyCalendarMap(level) {
@@ -1832,6 +1887,7 @@
 
         function switchReportView(mode) {
             __reportViewMode = mode === 'calendar' ? 'calendar' : 'days';
+            if (__reportViewMode === 'calendar') resetCalendarViewToToday();
             var tabDays = document.getElementById('tab-report-days');
             var tabCal = document.getElementById('tab-report-calendar');
             var panelDays = document.getElementById('report-panel-days');
@@ -1846,43 +1902,61 @@
         function renderStudyCalendar(level) {
             var host = document.getElementById('study-calendar-host');
             if (!host) return;
-            var today = kstYmdForCalendar();
+            if (__calendarViewYear == null) resetCalendarViewToToday();
+            var todayInfo = getKstYearMonthToday();
+            var today = todayInfo.ymd;
+            var year = __calendarViewYear;
+            var month = __calendarViewMonth;
             var map = getStudyCalendarMap(level);
-            var endMonday = calendarMondayOf(today);
-            var startMonday = calendarAddDays(endMonday, -(STUDY_CALENDAR_WEEKS - 1) * 7);
-            var studyCount = 0;
-            var colsHtml = '';
-            for (var col = 0; col < STUDY_CALENDAR_WEEKS; col++) {
-                var cells = '';
-                for (var row = 0; row < 7; row++) {
-                    var ymd = calendarAddDays(startMonday, col * 7 + row);
-                    var title = ymd;
-                    var cls = 'study-cal-cell';
-                    if (ymd > today) {
-                        cls += ' study-cal-cell--future';
-                    } else if (map[ymd]) {
-                        cls += ' study-cal-cell--on';
-                        studyCount += 1;
-                        var ent = map[ymd];
-                        title = ymd + ' · Day ' + (ent.day || '?');
-                        if (ent.accuracy) title += ' · ' + ent.accuracy + '%';
-                    } else {
-                        cls += ' study-cal-cell--off';
-                    }
-                    cells += '<div class="' + cls + '" title="' + title.replace(/"/g, '') + '" aria-label="' + title.replace(/"/g, '') + '"></div>';
+            var dim = daysInMonth(year, month);
+            var firstYmd = calendarYmdFromParts(year, month, 1);
+            var startPad = calendarWeekdaySun0(firstYmd);
+            var monthStudyCount = 0;
+            var cellsHtml = '';
+            var i;
+            for (i = 0; i < startPad; i++) {
+                cellsHtml += '<div class="study-month-day study-month-day--pad" aria-hidden="true"></div>';
+            }
+            for (var day = 1; day <= dim; day++) {
+                var ymd = calendarYmdFromParts(year, month, day);
+                var cls = 'study-month-day';
+                var title = ymd;
+                var sub = '';
+                if (ymd === today) cls += ' study-month-day--today';
+                if (ymd > today) {
+                    cls += ' study-month-day--future';
+                } else if (map[ymd]) {
+                    cls += ' study-month-day--on';
+                    monthStudyCount += 1;
+                    var ent = map[ymd];
+                    title = ymd + ' · Day ' + (ent.day || '?');
+                    if (ent.accuracy) title += ' · ' + ent.accuracy + '%';
+                    sub = ent.day ? 'D' + ent.day : '';
+                } else {
+                    cls += ' study-month-day--off';
                 }
-                colsHtml += '<div class="study-cal-col">' + cells + '</div>';
+                cellsHtml += '<div class="' + cls + '" title="' + title.replace(/"/g, '') + '" aria-label="' + title.replace(/"/g, '') + '">' +
+                    '<span>' + day + '</span>' +
+                    (sub ? '<span class="study-month-day-sub">' + sub + '</span>' : '') +
+                    '</div>';
             }
             var levelLabel = level === 'high' ? '고등' : '중등';
+            var monthTitle = year + '년 ' + month + '월';
+            var isCurrentMonth = year === todayInfo.year && month === todayInfo.month;
             host.innerHTML =
-                '<div class="study-cal-meta">' + levelLabel + ' · 최근 ' + STUDY_CALENDAR_WEEKS + '주 · 학습 ' + studyCount + '일</div>' +
-                '<div class="study-cal-layout">' +
-                '<div class="study-cal-weekdays"><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span><span>일</span></div>' +
-                '<div class="study-cal-scroll"><div class="study-cal-cols">' + colsHtml + '</div></div>' +
+                '<div class="study-cal-meta">' + levelLabel + '<br>지금 ' + kstNowLabel() + '</div>' +
+                '<div class="study-month-nav">' +
+                '<button type="button" class="study-month-nav-btn" onclick="shiftCalendarMonth(-1)" aria-label="이전 달">‹</button>' +
+                '<span class="study-month-nav-title">' + monthTitle + (isCurrentMonth ? ' · 이번 달' : '') + '</span>' +
+                '<button type="button" class="study-month-nav-btn" onclick="shiftCalendarMonth(1)" aria-label="다음 달">›</button>' +
                 '</div>' +
+                '<div class="study-month-dow-row"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>' +
+                '<div class="study-month-grid">' + cellsHtml + '</div>' +
+                '<div class="study-cal-meta" style="margin-top:10px;">이 달 학습 ' + monthStudyCount + '일</div>' +
                 '<div class="study-cal-legend">' +
-                '<span class="study-cal-cell study-cal-cell--off"></span><span>미학습</span>' +
-                '<span class="study-cal-cell study-cal-cell--on"></span><span>학습 완료</span>' +
+                '<span><span class="study-cal-legend-swatch study-cal-legend-swatch--off"></span> 미학습</span>' +
+                '<span><span class="study-cal-legend-swatch study-cal-legend-swatch--on"></span> 학습 완료</span>' +
+                '<span>주황 테두리 = 오늘</span>' +
                 '</div>';
             document.getElementById('report-modal-title').innerHTML =
                 '<div style="text-align:center;width:100%;font-size:0.9em;">학습 캘린더</div>';
