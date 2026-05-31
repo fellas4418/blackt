@@ -1268,6 +1268,17 @@
         }
         #chat-history-modal { position: fixed; inset: 0; z-index: 35000; background: rgba(0,0,0,0.92); display: none; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; }
         #chat-history-modal .chat-history-inner { background: #111; border: 1px solid #444; border-radius: 16px; max-width: 480px; width: 100%; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; }
+        #passage-pdf-modal { position: fixed; inset: 0; z-index: 35000; background: rgba(0,0,0,0.92); display: none; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; }
+        #passage-pdf-modal .passage-pdf-inner { background: #111; border: 1px solid rgba(0,243,255,0.35); box-shadow: 0 0 18px rgba(0,243,255,0.12); border-radius: 16px; max-width: 460px; width: 100%; max-height: 82vh; overflow: hidden; display: flex; flex-direction: column; }
+        #passage-pdf-modal .passage-pdf-head { padding: 16px 18px; border-bottom: 1px solid #333; }
+        #passage-pdf-modal .passage-pdf-body { padding: 14px 18px; overflow-y: auto; flex: 1; }
+        #passage-pdf-modal .passage-pdf-foot { padding: 14px 18px 18px; border-top: 1px solid #333; }
+        #passage-pdf-checklist { max-height: 220px; overflow-y: auto; border: 1px solid #333; border-radius: 10px; padding: 8px 10px; background: rgba(0,0,0,0.35); margin: 10px 0 14px; }
+        .passage-pdf-check-row { display: flex; align-items: flex-start; gap: 8px; padding: 8px 4px; border-bottom: 1px solid #222; font-size: 0.86rem; line-height: 1.45; color: #ddd; cursor: pointer; }
+        .passage-pdf-check-row:last-child { border-bottom: none; }
+        .passage-pdf-check-row input { margin-top: 3px; flex-shrink: 0; }
+        .passage-pdf-check-meta { color: #888; font-size: 0.72rem; display: block; margin-bottom: 2px; }
+        .passage-pdf-opt-row { display: flex; align-items: center; gap: 8px; font-size: 0.84rem; color: #bbb; margin-bottom: 8px; }
         #chat-history-list { overflow-y: auto; padding: 12px; flex: 1; font-size: 0.88rem; color: #ddd; line-height: 1.5; }
         #chat-history-list .chat-history-item {
             border: 1px solid #2a2a2a;
@@ -1550,6 +1561,8 @@
             <button onclick="window.open('https://tri3.imweb.me/', '_blank')" class="kakao-btn grammar-promo-cta-btn" style="background:var(--neon-purple); color:#fff; border-radius:12px; box-shadow:0 0 12px rgba(188,19,254,0.45);">GRAMMAR 수강하기</button>
         </div>
 
+        <button type="button" id="btn-passage-pdf-export" class="login-btn" style="border-color: var(--neon-blue); color: var(--neon-blue); width: 100%; margin-top: 16px;" onclick="openPassagePdfSelectModal()">📄 분석 결과 인쇄 · PDF 저장</button>
+
         <button onclick="location.reload()" class="login-btn" style="border-color: #fff; margin-top: 20px; background: transparent; width: 100%;">다른 지문 분석하기</button>
     </div>
         </div>
@@ -1704,6 +1717,30 @@
         <button type="button" id="exam-rpt-lightbox-close" class="login-btn" style="margin-bottom:14px;border-color:#fff;color:#fff;">닫기</button>
         <img id="exam-rpt-lightbox-img" src="" alt="시험지 미리보기">
     </div>
+    </div>
+
+    <div id="passage-pdf-modal" aria-hidden="true">
+        <div class="passage-pdf-inner">
+            <div class="passage-pdf-head">
+                <div style="font-size:1.15rem;font-weight:bold;color:#fff;text-align:center;">📄 분석 결과 <span style="color:var(--neon-blue);">PDF · 인쇄</span></div>
+                <p style="margin:8px 0 0;font-size:0.84rem;color:#aaa;text-align:center;line-height:1.5;">내보낼 지문을 선택하세요. 브라우저 인쇄 → PDF 저장을 이용하세요.</p>
+            </div>
+            <div class="passage-pdf-body">
+                <label class="passage-pdf-opt-row" style="cursor:pointer;margin-bottom:10px;">
+                    <input type="checkbox" id="passage-pdf-select-all" checked>
+                    <span>전체 선택</span>
+                </label>
+                <div id="passage-pdf-checklist"></div>
+                <label class="passage-pdf-opt-row" style="cursor:pointer;">
+                    <input type="checkbox" id="passage-pdf-include-chat" checked>
+                    <span>AI 질문·답변 기록 포함</span>
+                </label>
+            </div>
+            <div class="passage-pdf-foot">
+                <button type="button" id="passage-pdf-run" class="login-btn" style="width:100%;margin-top:0;border-color:var(--neon-blue);color:#000;background:var(--neon-blue);box-shadow:0 0 12px rgba(0,243,255,0.35);font-weight:bold;">선택 항목 인쇄 · PDF 저장</button>
+                <button type="button" id="passage-pdf-close" class="login-btn" style="width:100%;margin-top:10px;border-color:#666;color:#ccc;background:transparent;">닫기</button>
+            </div>
+        </div>
     </div>
 
     <div id="chat-history-modal" aria-hidden="true">
@@ -7717,6 +7754,453 @@
             } catch (e) {}
             examRptOnReportReady('');
         }
+
+        function getPassageAnalysisResByFp(fp) {
+            if (!fp) return null;
+            if (fp === lastPassageAnalysisFingerprint && lastAnalysisResForChat) return lastAnalysisResForChat;
+            const hit = getCachedAnalysis(fp);
+            return hit && hit.res ? hit.res : null;
+        }
+
+        function passagePdfListCandidates() {
+            const out = [];
+            const seen = new Set();
+            const hist = loadPassageHistoryList();
+            if (lastPassageAnalysisFingerprint && lastAnalysisResForChat) {
+                seen.add(lastPassageAnalysisFingerprint);
+                const histRow = hist.find(function (x) {
+                    return x && x.fp === lastPassageAnalysisFingerprint;
+                });
+                out.push({
+                    fp: lastPassageAnalysisFingerprint,
+                    title: getPassageTitleForSave(),
+                    ts: histRow && histRow.ts ? histRow.ts : Date.now(),
+                    isCurrent: true
+                });
+            }
+            hist.forEach(function (row) {
+                if (!row || !row.fp || seen.has(row.fp)) return;
+                if (!getPassageAnalysisResByFp(row.fp)) return;
+                seen.add(row.fp);
+                out.push({
+                    fp: row.fp,
+                    title: row.title || '지문 분석',
+                    ts: row.ts || 0,
+                    isCurrent: false
+                });
+            });
+            return out;
+        }
+
+        function closePassagePdfSelectModal() {
+            const modal = document.getElementById('passage-pdf-modal');
+            if (!modal) return;
+            modal.style.display = 'none';
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        function renderPassagePdfChecklist() {
+            const box = document.getElementById('passage-pdf-checklist');
+            const selectAll = document.getElementById('passage-pdf-select-all');
+            if (!box) return;
+            const list = passagePdfListCandidates();
+            if (!list.length) {
+                box.innerHTML =
+                    '<div style="padding:12px;color:#888;font-size:0.86rem;text-align:center;line-height:1.55;">내보낼 분석 결과가 없어요.<br>지문을 분석한 뒤 다시 시도해 주세요.</div>';
+                if (selectAll) selectAll.checked = false;
+                return;
+            }
+            box.innerHTML = list
+                .map(function (row, idx) {
+                    const dlab = escapeHtml(fmtPassageHistoryDate(row.ts) || '');
+                    const title = escapeHtml(String(row.title || '지문 분석').substring(0, 120));
+                    const cur = row.isCurrent ? ' <span style="color:var(--neon-blue);font-size:0.72rem;">(현재)</span>' : '';
+                    return (
+                        '<label class="passage-pdf-check-row">' +
+                        '<input type="checkbox" class="passage-pdf-item-cb" value="' +
+                        escapeHtml(row.fp) +
+                        '" checked>' +
+                        '<span><span class="passage-pdf-check-meta">' +
+                        (idx + 1) +
+                        '. ' +
+                        dlab +
+                        cur +
+                        '</span>' +
+                        title +
+                        '</span></label>'
+                    );
+                })
+                .join('');
+            if (selectAll) selectAll.checked = true;
+        }
+
+        function openPassagePdfSelectModal() {
+            const modal = document.getElementById('passage-pdf-modal');
+            if (!modal) return;
+            renderPassagePdfChecklist();
+            modal.style.display = 'flex';
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        async function passagePdfFetchChatHistoryAsync() {
+            if (!authUserId || !authPassword) return [];
+            const histBody = { user_id: authUserId, password: authPassword };
+            const histCode = getGoldenKeyInviteCodeForApi();
+            if (histCode) histBody.invite_code = histCode;
+            const data = await postJson('/api/chat/history', histBody);
+            return Array.isArray(data.items) ? data.items : [];
+        }
+
+        function passagePdfSortedGrammar(res) {
+            const grammar = Array.isArray(res.grammar) ? res.grammar.slice() : [];
+            if (grammar.length && Array.isArray(res.full_translation)) {
+                grammar.forEach(function (g) {
+                    const gClean = String(g.sentence || '')
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]/g, '');
+                    let fIndex = 999;
+                    for (let i = 0; i < res.full_translation.length; i++) {
+                        const sClean = String(res.full_translation[i].eng || '')
+                            .toLowerCase()
+                            .replace(/[^a-z0-9]/g, '');
+                        if (gClean.length > 5 && sClean.includes(gClean)) {
+                            fIndex = i;
+                            break;
+                        }
+                    }
+                    g._order = fIndex;
+                });
+                grammar.sort(function (a, b) {
+                    return (a._order || 999) - (b._order || 999);
+                });
+            }
+            return grammar.filter(function (g) {
+                return !isTrivialGrammarPoint(g);
+            });
+        }
+
+        function passagePdfBuildEngOnlyHtml(res) {
+            const rows = Array.isArray(res.full_translation) ? res.full_translation : [];
+            if (!rows.length) return '<p class="muted">—</p>';
+            return rows
+                .map(function (row, idx) {
+                    if (isConsecutiveDuplicateTranslationRow(rows, idx)) return '';
+                    const eng = normalizePassageEngForDisplay(row.eng);
+                    if (!eng) return '';
+                    return '<div class="trans-row"><div class="trans-eng">' + escapeHtml(eng) + '</div></div>';
+                })
+                .join('');
+        }
+
+        function passagePdfBuildKorOnlyHtml(res) {
+            const rows = Array.isArray(res.full_translation) ? res.full_translation : [];
+            if (!rows.length) return '<p class="muted">—</p>';
+            return rows
+                .map(function (row, idx) {
+                    if (isConsecutiveDuplicateTranslationRow(rows, idx)) return '';
+                    const kor = stripLeadingCircledNumbersFromKorLine(row.kor || '');
+                    if (!kor) return '';
+                    return '<div class="trans-row"><div class="trans-kor">' + escapeHtml(kor) + '</div></div>';
+                })
+                .join('');
+        }
+
+        function passagePdfBuildGrammarHtml(res) {
+            const grammar = passagePdfSortedGrammar(res);
+            if (!grammar.length) return '<p class="muted">—</p>';
+            return grammar
+                .map(function (g, i) {
+                    return (
+                        '<div class="grammar-item">' +
+                        '<strong>[G' +
+                        (i + 1) +
+                        '] ' +
+                        escapeHtml(g.point || '') +
+                        '</strong>' +
+                        '<div class="grammar-sent">"' +
+                        escapeHtml(g.sentence || '') +
+                        '"</div>' +
+                        '<div class="grammar-exp">' +
+                        escapeHtml(g.explanation || '') +
+                        '</div></div>'
+                    );
+                })
+                .join('');
+        }
+
+        function passagePdfBuildKeywordsHtml(res) {
+            const kws = buildDeterministicKeywordList(res);
+            if (!kws.length) return '<p class="muted">—</p>';
+            return (
+                '<ul class="kw-list">' +
+                kws
+                    .map(function (k) {
+                        return (
+                            '<li><strong>' +
+                            escapeHtml(k.eng || '') +
+                            '</strong> — ' +
+                            escapeHtml(k.kor || '') +
+                            '</li>'
+                        );
+                    })
+                    .join('') +
+                '</ul>'
+            );
+        }
+
+        function passagePdfBuildGoldenKeyHtml(res) {
+            const gk = normalizeGoldenKey(res);
+            const typeLabel = {
+                original: '① 실제 주제',
+                keyword_paraphrase: '② 키워드 동의어·유의어 변형 주제',
+                structure_paraphrase: '③ 문장만 다르게 말한 주제'
+            };
+            let html = '';
+            if (gk.topic_keywords && gk.topic_keywords.length) {
+                html +=
+                    '<p class="gk-kw-line"><strong>핵심 키워드</strong> · ' +
+                    gk.topic_keywords.map(function (k) {
+                        return escapeHtml(String(k || ''));
+                    }).join(' · ') +
+                    '</p>';
+            }
+            let hasVar = false;
+            (gk.topic_variants || []).forEach(function (v) {
+                if (!v) return;
+                const sen = String(v.sentence_en || '').trim();
+                if (!sen) return;
+                hasVar = true;
+                const lab = typeLabel[v.type] || v.type || '주제문';
+                html += '<div class="gk-var">';
+                html += '<h4>' + escapeHtml(lab) + '</h4>';
+                html += '<p class="gk-en">' + escapeHtml(sen) + '</p>';
+                if (v.interpretation_ko) {
+                    html += '<p class="gk-ko">' + escapeHtml(String(v.interpretation_ko).trim()) + '</p>';
+                }
+                html += '</div>';
+            });
+            if (!html && !hasVar) return '<p class="muted">—</p>';
+            return html;
+        }
+
+        function passagePdfBuildChatHistoryHtml(items) {
+            if (!items || !items.length) return '<p class="muted">저장된 질문이 없습니다.</p>';
+            const sorted = sortChatHistoryNewestFirst(items);
+            return sorted
+                .map(function (row, idx) {
+                    const p = parseChatHistoryQuestionStored(row.question);
+                    const when = escapeHtml(fmtPassageHistoryDate(row.created_at) || String(row.created_at || ''));
+                    const qText = p.q || chatHistoryQuestionPreview(row.question);
+                    const ans = normalizeAiAskAnswerSectionLabels(String(row.answer || '').trim());
+                    let block = '<div class="chat-item">';
+                    block += '<div class="chat-meta">#' + (idx + 1) + ' · ' + when + '</div>';
+                    if (p.ctx) {
+                        block +=
+                            '<div class="chat-q"><strong>선택 문장</strong><p>' +
+                            escapeHtml(p.ctx) +
+                            '</p></div>';
+                    }
+                    block +=
+                        '<div class="chat-q"><strong>질문</strong><p>' +
+                        escapeHtml(qText) +
+                        '</p></div>';
+                    block +=
+                        '<div class="chat-a"><strong>답변</strong><pre>' +
+                        escapeHtml(ans || '(답변 없음)') +
+                        '</pre></div></div>';
+                    return block;
+                })
+                .join('');
+        }
+
+        function passagePdfBuildPassageBlockHtml(block, index) {
+            const res = block.res;
+            const title = escapeHtml(block.title || '지문 분석');
+            const dateLab = escapeHtml(fmtPassageHistoryDate(block.ts) || '');
+            return (
+                '<section class="passage-block">' +
+                '<h2>' +
+                (index + 1) +
+                '. ' +
+                title +
+                (dateLab ? ' <span class="sub-date">(' + dateLab + ')</span>' : '') +
+                '</h2>' +
+                '<h3>1. 지문 원문</h3>' +
+                passagePdfBuildEngOnlyHtml(res) +
+                '<h3>2. 한국어 해석</h3>' +
+                passagePdfBuildKorOnlyHtml(res) +
+                '<h3>3. 문법 포인트</h3>' +
+                passagePdfBuildGrammarHtml(res) +
+                '<h3>4. 주요 단어 리스트</h3>' +
+                passagePdfBuildKeywordsHtml(res) +
+                '<h3>5. Golden Key 주제문 3종</h3>' +
+                passagePdfBuildGoldenKeyHtml(res) +
+                '</section>'
+            );
+        }
+
+        function passagePdfOpenPrintWindow(blocks, opts) {
+            opts = opts || {};
+            const name = (localStorage.getItem('trigger_name') || '').trim() || '학습자';
+            const grade = (
+                (localStorage.getItem('trigger_saved_exam_grade') || '').trim() ||
+                params.get('grade') ||
+                ''
+            ).trim();
+            const nowLab = new Date().toLocaleString('ko-KR');
+            let body =
+                '<h1>TRIGGER BLACK · 지문 분석 결과</h1>' +
+                '<p class="doc-meta"><strong>이름</strong> ' +
+                escapeHtml(name) +
+                (grade ? ' · <strong>학년</strong> ' + escapeHtml(grade) : '') +
+                ' · <strong>출력</strong> ' +
+                escapeHtml(nowLab) +
+                ' · <strong>지문</strong> ' +
+                blocks.length +
+                '건</p>';
+            blocks.forEach(function (block, idx) {
+                body += passagePdfBuildPassageBlockHtml(block, idx);
+            });
+            if (opts.includeChat !== false) {
+                body += '<section class="passage-block chat-section"><h2>6. AI 질문·답변 기록</h2>';
+                if (opts.chatNote) {
+                    body += '<p class="muted">' + escapeHtml(opts.chatNote) + '</p>';
+                } else {
+                    body += passagePdfBuildChatHistoryHtml(opts.chatItems || []);
+                }
+                body += '</section>';
+            }
+            body +=
+                '<p class="foot-note">브라우저 메뉴에서 「인쇄」→ 「PDF로 저장」을 선택하세요.</p>';
+            const html =
+                '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>지문 분석 결과</title>' +
+                '<style>' +
+                'body{font-family:"Pretendard",-apple-system,sans-serif;padding:28px 24px 40px;color:#111;background:#fff;line-height:1.55;}' +
+                'h1{font-size:1.2rem;margin:0 0 10px;border-bottom:2px solid #111;padding-bottom:8px;}' +
+                'h2{font-size:1.02rem;margin:0 0 12px;color:#111;}' +
+                'h3{font-size:0.92rem;margin:18px 0 8px;color:#333;border-left:4px solid #0066cc;padding-left:8px;}' +
+                'h4{font-size:0.88rem;margin:0 0 6px;color:#444;}' +
+                '.doc-meta{font-size:0.82rem;color:#555;margin:0 0 20px;}' +
+                '.sub-date{font-size:0.78rem;color:#777;font-weight:normal;}' +
+                '.passage-block{page-break-before:always;margin-top:28px;padding-top:8px;border-top:1px solid #ddd;}' +
+                '.passage-block:first-of-type{page-break-before:auto;border-top:none;margin-top:0;padding-top:0;}' +
+                '.trans-row{margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #eee;}' +
+                '.trans-eng{font-weight:600;line-height:1.55;}' +
+                '.trans-kor{color:#444;margin-top:4px;white-space:pre-wrap;}' +
+                '.grammar-item{margin-bottom:12px;padding-bottom:10px;border-bottom:1px dashed #ddd;}' +
+                '.grammar-sent{font-style:italic;color:#333;margin:4px 0;}' +
+                '.grammar-exp{font-size:0.9rem;color:#444;}' +
+                '.kw-list{margin:0;padding-left:18px;}' +
+                '.kw-list li{margin-bottom:4px;}' +
+                '.gk-var{margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #eee;}' +
+                '.gk-en{font-weight:600;margin:0 0 4px;}' +
+                '.gk-ko{color:#444;margin:0;font-size:0.9rem;}' +
+                '.gk-kw-line{font-size:0.9rem;margin:0 0 12px;}' +
+                '.chat-item{margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #ddd;}' +
+                '.chat-meta{font-size:0.78rem;color:#666;margin-bottom:6px;}' +
+                '.chat-q p,.chat-a pre{margin:4px 0 0;font-size:0.88rem;white-space:pre-wrap;word-break:break-word;}' +
+                '.chat-a pre{background:#f7f7f7;padding:10px;border-radius:6px;border:1px solid #e5e5e5;}' +
+                '.muted{color:#888;font-size:0.88rem;}' +
+                '.foot-note{margin-top:28px;font-size:11px;color:#888;}' +
+                '@media print{body{padding:16px;} .passage-block{page-break-before:always;}}' +
+                '</style></head><body>' +
+                body +
+                '</body></html>';
+            const w = window.open('', '_blank');
+            if (w) {
+                w.document.write(html);
+                w.document.close();
+                setTimeout(function () {
+                    w.print();
+                }, 400);
+            } else {
+                alert('팝업이 차단되었습니다. 브라우저에서 팝업을 허용한 뒤 다시 시도해 주세요.');
+            }
+        }
+
+        async function runPassagePdfExport() {
+            const checked = Array.prototype.slice
+                .call(document.querySelectorAll('.passage-pdf-item-cb:checked'))
+                .map(function (el) {
+                    return el.value;
+                });
+            if (!checked.length) {
+                alert('내보낼 지문을 하나 이상 선택해 주세요.');
+                return;
+            }
+            const includeChat =
+                document.getElementById('passage-pdf-include-chat') &&
+                document.getElementById('passage-pdf-include-chat').checked !== false;
+            const candidates = passagePdfListCandidates();
+            const blocks = [];
+            checked.forEach(function (fp) {
+                const res = getPassageAnalysisResByFp(fp);
+                if (!res) return;
+                const meta =
+                    candidates.find(function (c) {
+                        return c.fp === fp;
+                    }) || { title: '지문 분석', ts: Date.now() };
+                blocks.push({ fp: fp, res: res, title: meta.title, ts: meta.ts });
+            });
+            if (!blocks.length) {
+                alert('선택한 지문의 분석 데이터를 찾을 수 없어요.');
+                return;
+            }
+            closePassagePdfSelectModal();
+            const runBtn = document.getElementById('passage-pdf-run');
+            if (runBtn) {
+                runBtn.disabled = true;
+                runBtn.textContent = '준비 중…';
+            }
+            let chatItems = [];
+            let chatNote = '';
+            if (includeChat) {
+                if (!authUserId || !authPassword) {
+                    chatNote = '로그인(이름·전화번호) 후에만 질문 기록을 불러올 수 있습니다.';
+                } else {
+                    try {
+                        chatItems = await passagePdfFetchChatHistoryAsync();
+                    } catch (e) {
+                        chatNote = (e && e.message) || '질문 기록 불러오기 실패';
+                    }
+                }
+            }
+            if (runBtn) {
+                runBtn.disabled = false;
+                runBtn.textContent = '선택 항목 인쇄 · PDF 저장';
+            }
+            passagePdfOpenPrintWindow(blocks, { chatItems: chatItems, chatNote: chatNote, includeChat: includeChat });
+        }
+
+        (function initPassagePdfUi() {
+            const modal = document.getElementById('passage-pdf-modal');
+            const closeBtn = document.getElementById('passage-pdf-close');
+            const runBtn = document.getElementById('passage-pdf-run');
+            const selectAll = document.getElementById('passage-pdf-select-all');
+            const checklist = document.getElementById('passage-pdf-checklist');
+            function closeModal() {
+                closePassagePdfSelectModal();
+            }
+            if (closeBtn) closeBtn.addEventListener('click', closeModal);
+            if (modal) {
+                modal.addEventListener('click', function (e) {
+                    if (e.target === modal) closeModal();
+                });
+            }
+            if (runBtn) runBtn.addEventListener('click', runPassagePdfExport);
+            if (selectAll && checklist) {
+                selectAll.addEventListener('change', function () {
+                    checklist.querySelectorAll('.passage-pdf-item-cb').forEach(function (cb) {
+                        cb.checked = selectAll.checked;
+                    });
+                });
+                checklist.addEventListener('change', function () {
+                    const all = checklist.querySelectorAll('.passage-pdf-item-cb');
+                    const on = checklist.querySelectorAll('.passage-pdf-item-cb:checked');
+                    if (all.length) selectAll.checked = all.length === on.length;
+                });
+            }
+        })();
 
         function examRptOpenPdfWindow() {
             const name = (localStorage.getItem('trigger_name') || '').trim();
