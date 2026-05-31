@@ -147,17 +147,19 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
     box-sizing: border-box;
 }
 .main-header-title-row {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
     width: 100%;
-    max-width: 100%;
-    gap: 10px;
+    text-align: center;
     padding: 0 4px;
     box-sizing: border-box;
 }
-.main-header-title-row .logo {
-    flex: 0 1 auto;
+.main-header-title-cluster {
+    display: inline-block;
+    position: relative;
+    max-width: calc(100% - 8px);
+    vertical-align: top;
+}
+.main-header-title-cluster .logo {
+    display: block;
 }
 .main-header-meta {
     width: 100%;
@@ -217,11 +219,13 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
     transition: opacity 0.15s;
 }
 .header-app-menu-btn--inline {
-    align-self: flex-start;
-    margin-top: 0.14em;
-    padding: 8px 2px 12px 0;
-    min-width: 32px;
-    min-height: 32px;
+    position: absolute;
+    left: 100%;
+    top: 0.14em;
+    margin: 0 0 0 8px;
+    padding: 6px 4px 10px 2px;
+    min-width: 34px;
+    min-height: 34px;
 }
 .header-app-menu-btn:active {
     opacity: 0.55;
@@ -231,12 +235,12 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 3px;
-    width: 14px;
+    gap: 3.5px;
+    width: 16px;
 }
 .header-app-menu-bars i {
     display: block;
-    height: 1.5px;
+    height: 2px;
     width: 100%;
     border-radius: 1px;
     background: #ccc;
