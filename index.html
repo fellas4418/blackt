@@ -119,6 +119,18 @@
         .stat-item { text-align: center; flex: 1; }
         .stat-label { font-size: 0.75rem; color: #ccc; margin-bottom: 5px; } 
         .stat-value { font-size: 1.15rem; font-weight: bold; color: var(--neon-blue); }
+        .stat-streak-sub {
+            display: block;
+            margin-top: 5px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--neon-orange);
+            text-shadow: 0 0 6px rgba(255, 153, 0, 0.35);
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+        .stat-streak-sub--dim { opacity: 0.72; }
+        .stat-streak-sub--loading { opacity: 0.55; }
 
         .level-buttons { display: flex; gap: 12px; margin-top: 15px; }
         .level-btn { flex: 1; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; padding: 14px; color: #666; font-weight: 600; cursor: pointer; transition: 0.3s; }
@@ -1289,9 +1301,7 @@
             if (nameEl) nameEl.value = '';
             if (phoneEl) phoneEl.value = '';
             if (agreeEl) agreeEl.checked = false;
-            if (typeof updateStreakDashboardDisplay === 'function') {
-                updateStreakDashboardDisplay(0, { loggedIn: false });
-            }
+            paintIndexStreakSub(0, { loggedIn: false });
             checkLoginStatus();
         }
 
@@ -1303,6 +1313,92 @@
             if (onlineLine) onlineLine.style.display = name ? 'flex' : 'none';
             if (creditBtn) creditBtn.style.visibility = name ? 'visible' : 'hidden';
             if (accountBtn) accountBtn.style.display = name ? '' : 'none';
+        }
+
+        var INDEX_STREAK_WORKER = 'https://trigger-ocr-api.ohryee.workers.dev';
+        var indexStreakFetchToken = 0;
+
+        function paintIndexStreakSub(streak, options) {
+            var el = document.getElementById('stat-streak-sub');
+            if (!el) return;
+            var opts = options || {};
+            var loggedIn = opts.loggedIn !== undefined ? !!opts.loggedIn : !!(localStorage.getItem('trigger_name') || '').trim();
+            if (!loggedIn) {
+                el.textContent = '';
+                el.style.display = 'none';
+                el.setAttribute('aria-hidden', 'true');
+                el.classList.remove('stat-streak-sub--dim', 'stat-streak-sub--loading');
+                return;
+            }
+            el.style.display = 'block';
+            el.setAttribute('aria-hidden', 'false');
+            if (opts.loading) {
+                el.textContent = '연속 불러오는 중…';
+                el.classList.add('stat-streak-sub--loading');
+                el.classList.remove('stat-streak-sub--dim');
+                return;
+            }
+            el.classList.remove('stat-streak-sub--loading');
+            if (opts.failed) {
+                el.textContent = '연속 —';
+                el.classList.add('stat-streak-sub--dim');
+                return;
+            }
+            var n = Math.max(0, parseInt(streak, 10) || 0);
+            el.textContent = '🔥 연속 ' + n + '일';
+            el.classList.toggle('stat-streak-sub--dim', n === 0);
+            try { localStorage.setItem('trigger_streak_cached', String(n)); } catch (e) {}
+        }
+
+        async function fetchAndPaintIndexStreak() {
+            var name = (localStorage.getItem('trigger_name') || '').trim();
+            var phone = (localStorage.getItem('trigger_phone') || '').replace(/[^0-9]/g, '');
+            if (!name || !/^010\d{8}$/.test(phone)) {
+                paintIndexStreakSub(0, { loggedIn: false });
+                return;
+            }
+            var token = ++indexStreakFetchToken;
+            paintIndexStreakSub(0, { loggedIn: true, loading: true });
+            var base = INDEX_STREAK_WORKER.replace(/\/$/, '');
+            try {
+                var authRes = await fetch(base + '/api/auth/simple', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: name, phone: phone })
+                });
+                var authData = await authRes.json().catch(function () { return {}; });
+                if (token !== indexStreakFetchToken) return;
+                if (!authRes.ok || !authData.ok) {
+                    paintIndexStreakSub(0, { loggedIn: true, failed: true });
+                    return;
+                }
+                var userId = String(authData.user_id || '').trim();
+                var password = String(authData.auth_password || '').trim();
+                if (!userId || !password) {
+                    paintIndexStreakSub(0, { loggedIn: true, failed: true });
+                    return;
+                }
+                var streakRes = await fetch(base + '/api/streak', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId, password: password })
+                });
+                var streakData = await streakRes.json().catch(function () { return {}; });
+                if (token !== indexStreakFetchToken) return;
+                if (!streakRes.ok || !streakData.ok) {
+                    var cachedFail = parseInt(localStorage.getItem('trigger_streak_cached') || '0', 10) || 0;
+                    paintIndexStreakSub(cachedFail, { loggedIn: true, failed: true });
+                    return;
+                }
+                paintIndexStreakSub(streakData.streak, { loggedIn: true });
+                if (typeof updateStreakDashboardDisplay === 'function') {
+                    updateStreakDashboardDisplay(streakData.streak, { loggedIn: true });
+                }
+            } catch (e) {
+                if (token !== indexStreakFetchToken) return;
+                var cachedErr = parseInt(localStorage.getItem('trigger_streak_cached') || '0', 10) || 0;
+                paintIndexStreakSub(cachedErr, { loggedIn: true, failed: true });
+            }
         }
 
         function updateGlobalStatsForTab(tabId) {
@@ -1341,18 +1437,14 @@
                 modal.style.display = 'none';
                 updateHeaderProfile();
                 renderVocaDoneMsg(currentSession);
-                if (typeof fetchUserStreakForDashboard === 'function') {
-                    fetchUserStreakForDashboard();
-                }
+                fetchAndPaintIndexStreak();
                 if (typeof TriggerCredit !== 'undefined') {
                     TriggerCredit.syncReferralCreditsFromServer();
                 }
             } else {
                 modal.style.display = 'flex';
                 updateHeaderProfile();
-                if (typeof updateStreakDashboardDisplay === 'function') {
-                    updateStreakDashboardDisplay(0, { loggedIn: false });
-                }
+                paintIndexStreakSub(0, { loggedIn: false });
             }
             updateDashboardUI();
         }
@@ -1370,10 +1462,10 @@
 
             updateHeaderProfile();
             renderVocaDoneMsg(session);
-            if (name && typeof fetchUserStreakForDashboard === 'function') {
-                fetchUserStreakForDashboard();
-            } else if (typeof updateStreakDashboardDisplay === 'function') {
-                updateStreakDashboardDisplay(0, { loggedIn: false });
+            if (name) {
+                fetchAndPaintIndexStreak();
+            } else {
+                paintIndexStreakSub(0, { loggedIn: false });
             }
 
             if (typeof wordsData !== 'undefined') {
@@ -1914,8 +2006,18 @@
             }
         }
 
+        window.addEventListener('pageshow', function () {
+            if ((localStorage.getItem('trigger_name') || '').trim()) fetchAndPaintIndexStreak();
+        });
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'visible' && (localStorage.getItem('trigger_name') || '').trim()) {
+                fetchAndPaintIndexStreak();
+            }
+        });
+
         window.addEventListener('DOMContentLoaded', () => {
     tryRestoreLoginState();
+    if ((localStorage.getItem('trigger_name') || '').trim()) fetchAndPaintIndexStreak();
     handleKakaoAndInstall();
 
     // 🔥 저장된 학년 불러와서 자동 세팅 (예전 "중등" → 중2로 이전)
