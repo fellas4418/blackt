@@ -4372,6 +4372,87 @@
             return role === 'CNJ' || role === 'REL';
         }
 
+        function isPassageComponentPunctuationOnly(text) {
+            const t = String(text || '');
+            if (!t.replace(/\s+/g, '').length) return true;
+            return /^[\s,.;:!?…\-—–()[\]{}'"’”]+$/.test(t);
+        }
+
+        function passageCompSpanHtmlOrPlain(p, field) {
+            if (isPassageComponentPunctuationOnly(p.text)) {
+                const raw = field === 'kor' ? p.kor : p.text;
+                return escapeHtml(raw || '');
+            }
+            return buildPassageCompSpanHtml(p, field);
+        }
+
+        function passageComponentDisplayWeight(p) {
+            if (isPassageComponentPunctuationOnly(p.text)) return 0;
+            const t = String(p.text || '').replace(/\s+/g, '');
+            return t.length || 1;
+        }
+
+        function passagePartNeedsKorDisplay(p) {
+            if (isPassageComponentPunctuationOnly(p.text)) return false;
+            return true;
+        }
+
+        function distributePlainKorByWeightToIndices(parts, plainKor, indices, wSum) {
+            if (!plainKor || !indices.length) return;
+            const sum = wSum > 0 ? wSum : indices.length;
+            let pos = 0;
+            const len = plainKor.length;
+            for (let j = 0; j < indices.length; j++) {
+                const i = indices[j];
+                const w = passageComponentDisplayWeight(parts[i]);
+                const isLast = j === indices.length - 1;
+                const chunkLen = isLast ? Math.max(0, len - pos) : Math.max(1, Math.round((w / sum) * len));
+                parts[i].kor = plainKor.slice(pos, pos + chunkLen);
+                pos += chunkLen;
+            }
+        }
+
+        function fillPassagePartsKorFromPlain(plainKor, parts) {
+            const out = parts.map(function (p) {
+                return { text: p.text, role: p.role, kor: String(p.kor || '') };
+            });
+            if (!plainKor) return out;
+            const needFill = out.some(function (p) {
+                return passagePartNeedsKorDisplay(p) && !p.kor;
+            });
+            if (!needFill) return out;
+            const hasAnyKor = out.some(function (p) {
+                return p.kor && p.kor.length > 0;
+            });
+            if (!hasAnyKor) {
+                const indices = [];
+                let wSum = 0;
+                out.forEach(function (p, i) {
+                    if (!passagePartNeedsKorDisplay(p)) return;
+                    indices.push(i);
+                    wSum += passageComponentDisplayWeight(p);
+                });
+                distributePlainKorByWeightToIndices(out, plainKor, indices, wSum);
+                return out;
+            }
+            let pool = plainKor;
+            out.forEach(function (p) {
+                if (!p.kor) return;
+                const idx = pool.indexOf(p.kor);
+                if (idx >= 0) pool = pool.slice(0, idx) + pool.slice(idx + p.kor.length);
+            });
+            if (!pool) pool = plainKor;
+            const fillIdx = [];
+            let wSum = 0;
+            out.forEach(function (p, i) {
+                if (!passagePartNeedsKorDisplay(p) || p.kor) return;
+                fillIdx.push(i);
+                wSum += passageComponentDisplayWeight(p);
+            });
+            if (fillIdx.length) distributePlainKorByWeightToIndices(out, pool, fillIdx, wSum);
+            return out;
+        }
+
         function normalizePassageComponentRole(role) {
             const raw = String(role || '').trim();
             if (!raw) return '';
@@ -4443,7 +4524,7 @@
                     continue;
                 }
                 used[pick] = true;
-                html += buildPassageCompSpanHtml(parts[pick], 'kor');
+                html += passageCompSpanHtmlOrPlain(parts[pick], 'kor');
                 pos += pickLen;
             }
             if (pos !== plainKor.length) return null;
@@ -4451,18 +4532,11 @@
         }
 
         function buildKorHtmlOrderedFromParts(parts) {
-            if (
-                !parts ||
-                !parts.some(function (p) {
-                    return p.kor && p.kor.length > 0;
-                })
-            ) {
-                return null;
-            }
+            if (!parts || !parts.length) return null;
             return decorateCircledNumberMarks(
                 parts
                     .map(function (p) {
-                        return buildPassageCompSpanHtml(p, 'kor');
+                        return passageCompSpanHtmlOrPlain(p, 'kor');
                     })
                     .join('')
             );
@@ -4515,7 +4589,24 @@
             const meta = PASSAGE_COMPONENT_ROLE_META[p.role];
             const isKor = field === 'kor';
             const txt = isKor ? p.kor : p.text;
-            if (isKor && (!txt || !String(txt).length)) return '';
+            if (isKor && (!txt || !String(txt).length)) {
+                if (!passagePartNeedsKorDisplay(p)) return '';
+                return (
+                    '<span class="passage-comp-wrap" data-role="' +
+                    p.role +
+                    '">' +
+                    '<span class="passage-comp-lbl" data-role="' +
+                    p.role +
+                    '">' +
+                    escapeHtml(meta.title) +
+                    '</span>' +
+                    '<span class="passage-comp ' +
+                    meta.cls +
+                    ' passage-comp-kor" data-role="' +
+                    p.role +
+                    '"></span></span>'
+                );
+            }
             return (
                 '<span class="passage-comp-wrap" data-role="' +
                 p.role +
@@ -4556,7 +4647,7 @@
                     pos += 1;
                     continue;
                 }
-                html += buildPassageCompSpanHtml(pick, field);
+                html += passageCompSpanHtmlOrPlain(pick, field);
                 pos += pickLen;
             }
             return html;
@@ -4624,16 +4715,19 @@
             if (!parts) return null;
             return parts
                 .map(function (p) {
-                    return buildPassageCompSpanHtml(p, 'eng');
+                    return passageCompSpanHtmlOrPlain(p, 'eng');
                 })
                 .join('');
         }
 
         function buildKorHtmlFromPassageComponents(eng, kor, components) {
             const parts = validatePassageComponents(eng, components, kor);
-            if (!parts || !parts.hasKor) return null;
+            if (!parts) return null;
+            const plainKor = plainKorForComponents(kor);
+            if (!plainKor) return null;
+            const filled = fillPassagePartsKorFromPlain(plainKor, parts);
             /* 영어 components 순서와 동일 인덱스·동일 역할로 해석 표시 (왼쪽 스캔 매칭 사용 안 함) */
-            return buildKorHtmlOrderedFromParts(parts);
+            return buildKorHtmlOrderedFromParts(filled);
         }
 
         function passageHasAnyComponents(res) {
@@ -9042,7 +9136,7 @@
       · **normal**: 위 특이 구조가 없을 때. \`full_translation\`은 **입력에 나온 문장 순서 그대로** 유지하세요.
     - **장문 독해**: 문단이 많고 길면 \`paragraph_subtitles\`에 \`[{ "row_index": 0, "subtitle": "한 줄 소제목" }, ...]\` 형태로 \`full_translation\` **행 인덱스(0부터)**와 맞추거나, 각 \`full_translation\` 객체에 선택 필드 \`"subtitle"\`을 넣어도 됩니다.
     - **복합**(예: 순서 배열 + 어법): **어법 우선** — \`type\`은 반드시 \`"grammar"\`로 하고, \`paragraphs\`와 \`grammar_panel_eng\`·\`corrections\`를 함께 채워 시각 요소를 모두 반영합니다.
-17. **문장성분(components):** \`full_translation\`의 **각 행**마다 \`components\` 배열을 **반드시** 넣으세요(해당 \`eng\`가 **완전한 영어 문장·절**일 때). 각 항목: \`text\`, \`kor\`, \`role\`. \`text\`를 **배열 순서대로** 이으면 그 행 \`eng\`와 **완전히 동일**해야 합니다. 행 \`kor\`는 **자연스러운 한 줄 해석(~하다체)** 전체이고, 각 \`components[i].kor\`는 **그 영어 조각만**의 뜻입니다(앱이 **인덱스 순서**로 영어·해석을 맞춰 표시). \`role\`: **S**, **V**, **O**, **C**, **SC**, **OC**, **IO**, **DO**, **M**, **CNJ**(접속사·종속접속사만), **REL**(관계사만). **절 분해:** 부사절·종속절·관계절·등위절은 **절 전체를 M 한 덩어리로 묶지 말고**, **CNJ/REL 단독** + **각 절 안 S·V·O·M** + **주절 S·V·O**로 나누세요. 복문 **6~16개**, 단문 **3~6개**. **(A)** 표지만 줄은 \`[]\`. **kor 분리(매우 중요 — 접속 어미 합치기 금지):** 이미 **CNJ** 조각(\`, and\`, \`but\`, \`or\`, \`so\` 등)이 있으면, **앞 절의 V·S·O·C의 kor에 접속·이어줌 어미를 넣지 마세요.** ❌ \`can't force\` → \`강요할 수 없으며\` (뒤에 \`, and\` CNJ가 따로 있는데 -며를 V에 포함) · ✅ \`can't force\` → \`강요할 수 없다\`, \`, and\` → \`, 그리고\`. **V(서술어)·관계절 안 동사**의 kor는 **평서 원형 ~다**로 끝내세요(\`~한다\`, \`~했다\`, \`~할 수 없다\`, \`~이다\`). **-고/-며/-지만/-는데/-어서** 등 **다음 절·CNJ로 넘어가는 연결**은 **CNJ(또는 다음 절 첫 조각)**에만 두세요. **한정적 관계절:** 명사를 꾸미는 관계절은 필요 시 **~한** 형태(예: \`본 것한\`, \`생각하는 한\`)를 **명사·관계절 수식(M 등)** 쪽에 두되, **REL 뒤 절의 동사(V)** kor는 **그대로 ~다**(예: \`that\` + \`we think\` → REL \`that\` / V \`생각한다\` — V에 \`생각하는\`만 넣고 -다를 빼지 마세요). **CNJ/REL**에만 대응 한국어가 없으면 \`kor\`: \`""\` 가능.
+17. **문장성분(components):** \`full_translation\`의 **각 행**마다 \`components\` 배열을 **반드시** 넣으세요(해당 \`eng\`가 **완전한 영어 문장·절**일 때). 각 항목: \`text\`, \`kor\`, \`role\`. \`text\`를 **배열 순서대로** 이으면 그 행 \`eng\`와 **완전히 동일**해야 합니다. 행 \`kor\`는 **자연스러운 한 줄 해석(~하다체)** 전체이고, 각 \`components[i].kor\`는 **그 영어 조각만**의 뜻입니다(앱이 **인덱스 순서**로 영어·해석을 맞춰 표시). \`role\`: **S**, **V**, **O**, **C**, **SC**, **OC**, **IO**, **DO**, **M**, **CNJ**(접속·종속접속 **단어만**: and, but, or, when, after, because, although, if, so 등), **REL**(관계사 **단어만**: who, which, that, where, when 등). **구두점(매우 중요):** **쉼표(,)·마침표(.)·세미콜론만**인 조각은 **절대 만들지 마세요.** 쉼표는 접속사가 아니므로 **CNJ/REL 라벨을 붙이지 않고**, **앞·뒤 S/V/O/M/CNJ의 text에 붙여** 넣으세요(예: \`online,\` / \`something\` — \`,\`만 단독 CNJ 금지). 등위절은 CNJ 조각이 \` and\`처럼 **접속 단어를 포함**하게 하세요. **절 분해:** 부사절·종속절·관계절·등위절은 **절 전체를 M 한 덩어리로 묶지 말고**, **CNJ/REL 단독(단어)** + **각 절 안 S·V·O·M** + **주절 S·V·O**로 나누세요. 복문 **6~16개**, 단문 **3~6개**. **(A)** 표지만 줄은 \`[]\`. **kor 분리(매우 중요 — 접속 어미 합치기 금지):** **CNJ** 조각(\` and\`, \`but\` 등 **접속 단어**)이 있으면 **앞 절 V·S·O·C의 kor에 -며/-고 등 연결 어미를 넣지 마세요.** ❌ \`can't force\` → \`강요할 수 없으며\` · ✅ \`can't force\` → \`강요할 수 없다\`, \` and\` → \` 그리고\`. **V(서술어)·관계절 안 동사**의 kor는 **평서 원형 ~다**로 끝내세요(\`~한다\`, \`~했다\`, \`~할 수 없다\`, \`~이다\`). **-고/-며/-지만/-는데/-어서** 등 **다음 절·CNJ로 넘어가는 연결**은 **CNJ(또는 다음 절 첫 조각)**에만 두세요. **한정적 관계절:** 명사를 꾸미는 관계절은 필요 시 **~한** 형태(예: \`본 것한\`, \`생각하는 한\`)를 **명사·관계절 수식(M 등)** 쪽에 두되, **REL 뒤 절의 동사(V)** kor는 **그대로 ~다**(예: \`that\` + \`we think\` → REL \`that\` / V \`생각한다\` — V에 \`생각하는\`만 넣고 -다를 빼지 마세요). **CNJ/REL**에만 대응 한국어가 없으면 \`kor\`: \`""\` 가능.
 
 출력 JSON 형식:
 {
@@ -9075,7 +9169,7 @@
     "paragraph_subtitles": null
   },
   "full_translation": [
-    { "eng": "After the map was posted online, something unexpected happened.", "kor": "지도가 온라인에 게시된 후 예상치 못한 일이 일어났다.", "components": [{ "text": "After ", "kor": "", "role": "CNJ" }, { "text": "the map", "kor": "지도가", "role": "S" }, { "text": " was posted", "kor": " 게시된", "role": "V" }, { "text": " online", "kor": " 온라인에", "role": "M" }, { "text": ", ", "kor": " 후 ", "role": "CNJ" }, { "text": "something unexpected", "kor": "예상치 못한 일이", "role": "S" }, { "text": " happened.", "kor": " 일어났다.", "role": "V" }] }
+    { "eng": "After the map was posted online, something unexpected happened.", "kor": "지도가 온라인에 게시된 후 예상치 못한 일이 일어났다.", "components": [{ "text": "After ", "kor": "", "role": "CNJ" }, { "text": "the map", "kor": "지도가", "role": "S" }, { "text": " was posted", "kor": " 게시된", "role": "V" }, { "text": " online,", "kor": " 온라인에", "role": "M" }, { "text": " something unexpected", "kor": " 후 예상치 못한 일이", "role": "S" }, { "text": " happened.", "kor": " 일어났다.", "role": "V" }] }
   ],
   "grammar": [
     { "point": "중·고 핵심 문법 표준 명칭 (수능·교과서 용어)", "sentence": "문법이 적용된 영어 원문 부분 (지문에서 그대로 발췌)", "explanation": "절·구문·구조 중심으로 해석 팁 (사전적 단어 뜻만 쓰지 말 것)" }
