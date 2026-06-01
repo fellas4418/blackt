@@ -325,12 +325,6 @@
             box-shadow: 0 0 0 1px rgba(255, 60, 60, 0.28), 0 0 8px rgba(255, 50, 50, 0.14);
             display: inline;
         }
-        #translation-rows-root.passage-show-kw .passage-comp.passage-comp-topic-kw {
-            box-shadow:
-                inset 0 0 0 2px rgba(255, 75, 75, 0.92),
-                0 0 0 1px rgba(255, 60, 60, 0.28),
-                0 0 8px rgba(255, 50, 50, 0.14);
-        }
         .passage-comp-wrap {
             display: inline-flex;
             flex-direction: column;
@@ -4289,25 +4283,20 @@
             return ranges;
         }
 
-        function passageCompTextMatchesTopicKw(text, phrasesSorted) {
-            const t = normalizePassageEngForDisplay(text);
-            if (!t || !phrasesSorted || !phrasesSorted.length) return false;
-            if (t.replace(/\s/g, '').length < 2) return false;
-            return phrasesSorted.some(function (ph) {
-                const p = normalizePassageEngForDisplay(ph);
-                if (!p || p.length < 2) return false;
-                if (/\s/.test(p)) return t.toLowerCase().indexOf(p.toLowerCase()) >= 0;
-                return collectPhraseRangesInText(t, p).length > 0;
-            });
+        function topicKwPhraseOnceKey(ph) {
+            return normalizePassageEngForDisplay(ph).toLowerCase();
         }
 
         function wrapPhrasesInPlainSegment(segment, phrasesSorted, globalPhraseOnce) {
             if (!segment || !phrasesSorted.length) return segment;
             const intervals = [];
             phrasesSorted.forEach(function (ph) {
-                collectPhraseRangesInText(segment, ph).forEach(function (r) {
-                    intervals.push({ s: r.start, e: r.start + r.len, len: r.len, phLow: ph.toLowerCase() });
-                });
+                const phKey = topicKwPhraseOnceKey(ph);
+                if (globalPhraseOnce && phKey && globalPhraseOnce.has(phKey)) return;
+                const ranges = collectPhraseRangesInText(segment, ph);
+                if (!ranges.length) return;
+                const r = ranges[0];
+                intervals.push({ s: r.start, e: r.start + r.len, len: r.len, phKey: phKey });
             });
             intervals.sort(function (a, b) {
                 if (b.len !== a.len) return b.len - a.len;
@@ -4328,21 +4317,21 @@
             let out = '';
             let cur = 0;
             chosen.forEach(function (u) {
-                out += segment.slice(cur, u.s);
+                out += escapeHtml(segment.slice(cur, u.s));
                 const slice = segment.slice(u.s, u.e);
-                const phKey = u.phLow;
+                const phKey = u.phKey;
                 if (globalPhraseOnce && phKey && globalPhraseOnce.has(phKey)) {
-                    out += slice;
+                    out += escapeHtml(slice);
                 } else {
                     out +=
                         '<span class="passage-topic-kw" data-passage-kw="1">' +
-                        slice +
+                        escapeHtml(slice) +
                         '</span>';
                     if (globalPhraseOnce && phKey) globalPhraseOnce.add(phKey);
                 }
                 cur = u.e;
             });
-            out += segment.slice(cur);
+            out += escapeHtml(segment.slice(cur));
             return out;
         }
 
@@ -4449,13 +4438,13 @@
             return html;
         }
 
-        function passageCompSpanHtmlOrPlain(p, field, topicKwPhrases) {
+        function passageCompSpanHtmlOrPlain(p, field, topicKwPhrases, topicKwOnce) {
             if (isPassageComponentPunctuationOnly(p.text)) {
                 const raw = field === 'kor' ? p.kor : p.text;
                 return escapeHtml(raw || '');
             }
             if (field === 'kor') return buildPassageKorCompHtml(p);
-            return buildPassageCompSpanHtml(p, field, topicKwPhrases);
+            return buildPassageCompSpanHtml(p, field, topicKwPhrases, topicKwOnce);
         }
 
         function passageComponentDisplayWeight(p) {
@@ -4657,14 +4646,14 @@
             return parts;
         }
 
-        function buildPassageCompSpanHtml(p, field, topicKwPhrases) {
+        function buildPassageCompSpanHtml(p, field, topicKwPhrases, topicKwOnce) {
             const meta = PASSAGE_COMPONENT_ROLE_META[p.role];
             const isKor = field === 'kor';
             const txt = isKor ? p.kor : p.text;
-            const topicKwCls =
-                !isKor && topicKwPhrases && passageCompTextMatchesTopicKw(p.text, topicKwPhrases)
-                    ? ' passage-comp-topic-kw'
-                    : '';
+            let innerHtml = escapeHtml(txt);
+            if (!isKor && topicKwPhrases && topicKwPhrases.length && txt) {
+                innerHtml = wrapPhrasesInPlainSegment(String(txt), topicKwPhrases, topicKwOnce);
+            }
             if (isKor && (!txt || !String(txt).length)) {
                 if (!passagePartNeedsKorDisplay(p)) return '';
                 return (
@@ -4695,11 +4684,10 @@
                 '<span class="passage-comp ' +
                 meta.cls +
                 (isKor ? ' passage-comp-kor' : '') +
-                topicKwCls +
                 '" data-role="' +
                 p.role +
                 '">' +
-                escapeHtml(txt) +
+                innerHtml +
                 '</span></span>'
             );
         }
@@ -4787,12 +4775,12 @@
             return grammarBoxes.join('');
         }
 
-        function buildEngHtmlFromPassageComponents(eng, components, kor, topicKwPhrases) {
+        function buildEngHtmlFromPassageComponents(eng, components, kor, topicKwPhrases, topicKwOnce) {
             const parts = validatePassageComponents(eng, components, kor);
             if (!parts) return null;
             return parts
                 .map(function (p) {
-                    return passageCompSpanHtmlOrPlain(p, 'eng', topicKwPhrases);
+                    return passageCompSpanHtmlOrPlain(p, 'eng', topicKwPhrases, topicKwOnce);
                 })
                 .join('');
         }
@@ -6206,6 +6194,7 @@
             const topicFocusRow = computeTopicFocusRowIndex(res, gkForPassage);
 
             let transRowsHtml = '';
+            const passageTopicKwOnce = new Set();
             if (res.full_translation && Array.isArray(res.full_translation)) {
                 transRowsHtml = res.full_translation.map((s, rowIdx) => {
                     if (isConsecutiveDuplicateTranslationRow(res.full_translation, rowIdx)) {
@@ -6234,7 +6223,13 @@
                     }
 
                     const plainEng = normalizePassageEngForDisplay(String(s.eng || ''));
-                    const compEng = buildEngHtmlFromPassageComponents(plainEng, s.components, s.kor, topicKwPhrases);
+                    const compEng = buildEngHtmlFromPassageComponents(
+                        plainEng,
+                        s.components,
+                        s.kor,
+                        topicKwPhrases,
+                        passageTopicKwOnce
+                    );
                     let finalEng;
                     if (compEng) {
                         finalEng = compEng;
@@ -6242,7 +6237,7 @@
                         finalEng = wrapTopicKeywordPhrasesInEngHtml(
                             escapeHtml(plainEng),
                             topicKwPhrases,
-                            null
+                            passageTopicKwOnce
                         );
                     }
                     const finalKor =
@@ -6282,7 +6277,8 @@
                 transRowsHtml =
                     buildInsertionTranslationRowHtml(plLayout, res, {
                         keywordsObj: aiKeywordsObj,
-                        topicKwPhrases: topicKwPhrases
+                        topicKwPhrases: topicKwPhrases,
+                        topicKwOnce: new Set()
                     }) + transRowsHtml;
             }
 
