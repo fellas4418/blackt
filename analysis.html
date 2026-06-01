@@ -325,6 +325,12 @@
             box-shadow: 0 0 0 1px rgba(255, 60, 60, 0.28), 0 0 8px rgba(255, 50, 50, 0.14);
             display: inline;
         }
+        #translation-rows-root.passage-show-kw .passage-comp.passage-comp-topic-kw {
+            box-shadow:
+                inset 0 0 0 2px rgba(255, 75, 75, 0.92),
+                0 0 0 1px rgba(255, 60, 60, 0.28),
+                0 0 8px rgba(255, 50, 50, 0.14);
+        }
         .passage-comp-wrap {
             display: inline-flex;
             flex-direction: column;
@@ -4258,36 +4264,15 @@
             return bestScore > 0 ? best : -1;
         }
 
-        function mapPlainRangeToHtmlPositions(html, plainStart, plainLen) {
-            let plainIdx = 0;
-            let htmlStart = -1;
-            let htmlEnd = -1;
-            for (let i = 0; i < html.length; i++) {
-                if (html.charAt(i) === '<') {
-                    const gt = html.indexOf('>', i);
-                    i = gt < 0 ? html.length - 1 : gt;
-                    continue;
-                }
-                if (plainIdx === plainStart) htmlStart = i;
-                if (plainIdx === plainStart + plainLen - 1) {
-                    htmlEnd = i + 1;
-                    break;
-                }
-                plainIdx += 1;
-            }
-            if (htmlStart >= 0 && htmlEnd < 0) htmlEnd = html.length;
-            return { htmlStart: htmlStart, htmlEnd: htmlEnd };
-        }
-
-        function collectTopicPhrasePlainRanges(plainEng, phrase) {
-            const rowPlain = normalizePassageEngForDisplay(plainEng);
+        function collectPhraseRangesInText(text, phrase) {
+            const seg = normalizePassageEngForDisplay(text);
             const ph = normalizePassageEngForDisplay(phrase);
             const ranges = [];
-            if (!rowPlain || !ph || ph.length < 2) return ranges;
-            const low = rowPlain.toLowerCase();
+            if (!seg || !ph || ph.length < 2) return ranges;
+            const low = seg.toLowerCase();
             const phLow = ph.toLowerCase();
             let pos = 0;
-            while (pos < rowPlain.length) {
+            while (pos < seg.length) {
                 const idx = low.indexOf(phLow, pos);
                 if (idx < 0) break;
                 ranges.push({ start: idx, len: ph.length });
@@ -4296,7 +4281,7 @@
             if (ranges.length || /\s/.test(ph)) return ranges;
             const re = /[a-zA-Z][a-zA-Z'-]*/g;
             let m;
-            while ((m = re.exec(rowPlain)) !== null) {
+            while ((m = re.exec(seg)) !== null) {
                 if (aiKeywordMatchesLemma(ph, m[0])) {
                     ranges.push({ start: m.index, len: m[0].length });
                 }
@@ -4304,65 +4289,25 @@
             return ranges;
         }
 
-        function applyTopicKwMarksToEngHtml(html, plainEng, phrasesSorted) {
-            if (!html || !phrasesSorted.length) return html;
-            const rowPlain = normalizePassageEngForDisplay(plainEng);
-            if (!rowPlain) return html;
-            const intervals = [];
-            phrasesSorted.forEach(function (ph) {
-                collectTopicPhrasePlainRanges(rowPlain, ph).forEach(function (r) {
-                    intervals.push({ s: r.start, e: r.start + r.len, len: r.len });
-                });
+        function passageCompTextMatchesTopicKw(text, phrasesSorted) {
+            const t = normalizePassageEngForDisplay(text);
+            if (!t || !phrasesSorted || !phrasesSorted.length) return false;
+            if (t.replace(/\s/g, '').length < 2) return false;
+            return phrasesSorted.some(function (ph) {
+                const p = normalizePassageEngForDisplay(ph);
+                if (!p || p.length < 2) return false;
+                if (/\s/.test(p)) return t.toLowerCase().indexOf(p.toLowerCase()) >= 0;
+                return collectPhraseRangesInText(t, p).length > 0;
             });
-            if (!intervals.length) return html;
-            intervals.sort(function (a, b) {
-                if (b.len !== a.len) return b.len - a.len;
-                return a.s - b.s;
-            });
-            const chosen = [];
-            intervals.forEach(function (iv) {
-                if (
-                    chosen.some(function (c) {
-                        return !(iv.e <= c.s || iv.s >= c.e);
-                    })
-                ) {
-                    return;
-                }
-                chosen.push(iv);
-            });
-            let eng = html;
-            chosen
-                .sort(function (a, b) {
-                    return b.s - a.s;
-                })
-                .forEach(function (u) {
-                    const plainLen = u.e - u.s;
-                    const range = mapPlainRangeToHtmlPositions(eng, u.s, plainLen);
-                    if (range.htmlStart < 0 || range.htmlEnd <= range.htmlStart) return;
-                    eng =
-                        eng.substring(0, range.htmlStart) +
-                        '<span class="passage-topic-kw" data-passage-kw="1">' +
-                        eng.substring(range.htmlStart, range.htmlEnd) +
-                        '</span>' +
-                        eng.substring(range.htmlEnd);
-                });
-            return eng;
         }
 
         function wrapPhrasesInPlainSegment(segment, phrasesSorted, globalPhraseOnce) {
             if (!segment || !phrasesSorted.length) return segment;
-            const lowerSeg = segment.toLowerCase();
             const intervals = [];
             phrasesSorted.forEach(function (ph) {
-                const phLow = ph.toLowerCase();
-                if (phLow.length < 2) return;
-                let pos = 0;
-                while (pos < segment.length) {
-                    const idx = lowerSeg.indexOf(phLow, pos);
-                    if (idx === -1) break;
-                    intervals.push({ s: idx, e: idx + ph.length, len: ph.length, phLow: phLow });
-                    pos = idx + ph.length;
-                }
+                collectPhraseRangesInText(segment, ph).forEach(function (r) {
+                    intervals.push({ s: r.start, e: r.start + r.len, len: r.len, phLow: ph.toLowerCase() });
+                });
             });
             intervals.sort(function (a, b) {
                 if (b.len !== a.len) return b.len - a.len;
@@ -4504,13 +4449,13 @@
             return html;
         }
 
-        function passageCompSpanHtmlOrPlain(p, field) {
+        function passageCompSpanHtmlOrPlain(p, field, topicKwPhrases) {
             if (isPassageComponentPunctuationOnly(p.text)) {
                 const raw = field === 'kor' ? p.kor : p.text;
                 return escapeHtml(raw || '');
             }
             if (field === 'kor') return buildPassageKorCompHtml(p);
-            return buildPassageCompSpanHtml(p, field);
+            return buildPassageCompSpanHtml(p, field, topicKwPhrases);
         }
 
         function passageComponentDisplayWeight(p) {
@@ -4712,10 +4657,14 @@
             return parts;
         }
 
-        function buildPassageCompSpanHtml(p, field) {
+        function buildPassageCompSpanHtml(p, field, topicKwPhrases) {
             const meta = PASSAGE_COMPONENT_ROLE_META[p.role];
             const isKor = field === 'kor';
             const txt = isKor ? p.kor : p.text;
+            const topicKwCls =
+                !isKor && topicKwPhrases && passageCompTextMatchesTopicKw(p.text, topicKwPhrases)
+                    ? ' passage-comp-topic-kw'
+                    : '';
             if (isKor && (!txt || !String(txt).length)) {
                 if (!passagePartNeedsKorDisplay(p)) return '';
                 return (
@@ -4746,6 +4695,7 @@
                 '<span class="passage-comp ' +
                 meta.cls +
                 (isKor ? ' passage-comp-kor' : '') +
+                topicKwCls +
                 '" data-role="' +
                 p.role +
                 '">' +
@@ -4837,12 +4787,12 @@
             return grammarBoxes.join('');
         }
 
-        function buildEngHtmlFromPassageComponents(eng, components, kor) {
+        function buildEngHtmlFromPassageComponents(eng, components, kor, topicKwPhrases) {
             const parts = validatePassageComponents(eng, components, kor);
             if (!parts) return null;
             return parts
                 .map(function (p) {
-                    return passageCompSpanHtmlOrPlain(p, 'eng');
+                    return passageCompSpanHtmlOrPlain(p, 'eng', topicKwPhrases);
                 })
                 .join('');
         }
@@ -4865,11 +4815,8 @@
             return false;
         }
 
-        function wrapTopicKeywordPhrasesInEngHtml(html, phrasesSorted, globalPhraseOnce, rowPlainEng) {
+        function wrapTopicKeywordPhrasesInEngHtml(html, phrasesSorted, globalPhraseOnce) {
             if (!html || !phrasesSorted.length) return html;
-            if (rowPlainEng != null && String(rowPlainEng) !== '') {
-                return applyTopicKwMarksToEngHtml(html, rowPlainEng, phrasesSorted);
-            }
             return html.split(/(<[^>]+>)/g).map(function (part) {
                 if (part.charAt(0) === '<') return part;
                 return wrapPhrasesInPlainSegment(part, phrasesSorted, globalPhraseOnce);
@@ -6287,8 +6234,17 @@
                     }
 
                     const plainEng = normalizePassageEngForDisplay(String(s.eng || ''));
-                    let finalEng = buildEngHtmlFromPassageComponents(plainEng, s.components, s.kor);
-                    if (!finalEng) finalEng = escapeHtml(plainEng);
+                    const compEng = buildEngHtmlFromPassageComponents(plainEng, s.components, s.kor, topicKwPhrases);
+                    let finalEng;
+                    if (compEng) {
+                        finalEng = compEng;
+                    } else {
+                        finalEng = wrapTopicKeywordPhrasesInEngHtml(
+                            escapeHtml(plainEng),
+                            topicKwPhrases,
+                            null
+                        );
+                    }
                     const finalKor =
                         buildKorHtmlFromPassageComponents(plainEng, s.kor, s.components) ||
                         formatKorTextForTranslationRow(s.kor);
@@ -6296,8 +6252,6 @@
                     const grammarMarked = applyGrammarMarksToEngDisplay(finalEng, res.grammar, plainEng);
                     finalEng = grammarMarked.eng;
                     const grammarMarks = grammarMarked.grammarMarks;
-
-                    finalEng = wrapTopicKeywordPhrasesInEngHtml(finalEng, topicKwPhrases, null, plainEng);
 
                     finalEng = applyEngFragmentClickableKeywords(finalEng, aiKeywordsObj);
 
