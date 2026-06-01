@@ -455,25 +455,35 @@
             line-height: 1.9;
             font-size: 0.86rem;
         }
+        /* 박스 대신 성분 색 밑줄로 구분 (폰 가독성 개선) */
         #translation-rows-root.passage-show-components .passage-comp[data-role],
         #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role] {
             display: inline;
-            padding: 1px 3px;
-            margin: 0 2px;
-            border-radius: 5px;
-            -webkit-box-decoration-break: clone;
-            box-decoration-break: clone;
-        }
-        /* 수식어(M)는 강조 박스 없이 일반 텍스트처럼 표시 */
-        #translation-rows-root.passage-show-components .passage-comp[data-role="M"],
-        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="M"] {
+            padding: 0;
+            margin: 0;
+            border-radius: 0;
             background: none;
             box-shadow: none;
             color: inherit;
             font-weight: inherit;
-            padding: 0;
-            margin: 0;
-            border-radius: 0;
+            border-bottom: 2px solid transparent;
+            -webkit-box-decoration-break: clone;
+            box-decoration-break: clone;
+        }
+        #translation-rows-root.passage-show-components .passage-comp[data-role="S"] { border-bottom-color: #5b9dff; }
+        #translation-rows-root.passage-show-components .passage-comp[data-role="V"] { border-bottom-color: #3ddc7a; }
+        #translation-rows-root.passage-show-components .passage-comp[data-role="O"],
+        #translation-rows-root.passage-show-components .passage-comp[data-role="IO"],
+        #translation-rows-root.passage-show-components .passage-comp[data-role="DO"] { border-bottom-color: #ff9137; }
+        #translation-rows-root.passage-show-components .passage-comp[data-role="C"],
+        #translation-rows-root.passage-show-components .passage-comp[data-role="SC"],
+        #translation-rows-root.passage-show-components .passage-comp[data-role="OC"] { border-bottom-color: #c35fff; }
+        #translation-rows-root.passage-show-components .passage-comp[data-role="CNJ"],
+        #translation-rows-root.passage-show-components .passage-comp[data-role="REL"] { border-bottom-color: #ffd250; }
+        /* 수식어(M)는 강조 없이 일반 텍스트처럼 표시 */
+        #translation-rows-root.passage-show-components .passage-comp[data-role="M"],
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="M"] {
+            border-bottom: none;
         }
         /* 문장성분 보기에서는 단어장 매칭 초록 하이라이트를 끄고 주변 단어와 동일하게 */
         #translation-rows-root.passage-show-components .hl-voca {
@@ -502,9 +512,9 @@
             white-space: nowrap;
         }
         .passage-comp-legend .lg-swatch {
-            width: 14px;
-            height: 14px;
-            border-radius: 4px;
+            width: 16px;
+            height: 3px;
+            border-radius: 2px;
             flex: 0 0 auto;
         }
         .passage-comp-legend .lg-swatch[data-role="S"] { background: linear-gradient(180deg, rgba(55, 130, 255, 0.78), rgba(25, 85, 210, 0.62)); box-shadow: inset 0 0 0 1px rgba(140, 195, 255, 0.85); }
@@ -4676,33 +4686,31 @@
             return parts;
         }
 
+        /** 성분 텍스트의 앞뒤 구두점·공백을 분리 (마침표 등에 밑줄이 들어가지 않게) */
+        function splitPassageCompEdgePunct(s) {
+            const str = String(s == null ? '' : s);
+            if (!str) return { lead: '', core: '', trail: '' };
+            const edge = '\\s.,;:!?…·"\'\u201c\u201d\u2018\u2019()\\[\\]{}\\-\u2014\u2013';
+            const lead = (str.match(new RegExp('^[' + edge + ']+')) || [''])[0];
+            const rest = str.slice(lead.length);
+            const trail = (rest.match(new RegExp('[' + edge + ']+$')) || [''])[0];
+            const core = trail ? rest.slice(0, rest.length - trail.length) : rest;
+            return { lead: lead, core: core, trail: trail };
+        }
+
         function buildPassageCompSpanHtml(p, field, topicKwPhrases, topicKwOnce) {
             const meta = PASSAGE_COMPONENT_ROLE_META[p.role];
             const isKor = field === 'kor';
             const txt = isKor ? p.kor : p.text;
-            let innerHtml = escapeHtml(txt);
-            if (!isKor && topicKwPhrases && topicKwPhrases.length && txt) {
-                innerHtml = wrapPhrasesInPlainSegment(String(txt), topicKwPhrases, topicKwOnce);
-            }
-            if (isKor && (!txt || !String(txt).length)) {
-                if (!passagePartNeedsKorDisplay(p)) return '';
-                return (
-                    '<span class="passage-comp-wrap" data-role="' +
-                    p.role +
-                    '">' +
-                    '<span class="passage-comp-lbl" data-role="' +
-                    p.role +
-                    '">' +
-                    escapeHtml(meta.title) +
-                    '</span>' +
-                    '<span class="passage-comp ' +
-                    meta.cls +
-                    ' passage-comp-kor" data-role="' +
-                    p.role +
-                    '"></span></span>'
-                );
+            if (!txt || !String(txt).length) return '';
+            const seg = splitPassageCompEdgePunct(txt);
+            if (!seg.core) return escapeHtml(String(txt));
+            let innerHtml = escapeHtml(seg.core);
+            if (!isKor && topicKwPhrases && topicKwPhrases.length) {
+                innerHtml = wrapPhrasesInPlainSegment(String(seg.core), topicKwPhrases, topicKwOnce);
             }
             return (
+                escapeHtml(seg.lead) +
                 '<span class="passage-comp-wrap" data-role="' +
                 p.role +
                 '">' +
@@ -4718,7 +4726,8 @@
                 p.role +
                 '">' +
                 innerHtml +
-                '</span></span>'
+                '</span></span>' +
+                escapeHtml(seg.trail)
             );
         }
 
