@@ -470,16 +470,26 @@
             -webkit-box-decoration-break: clone;
             box-decoration-break: clone;
         }
-        #translation-rows-root.passage-show-components .passage-comp[data-role="S"] { border-bottom-color: #5b9dff; }
-        #translation-rows-root.passage-show-components .passage-comp[data-role="V"] { border-bottom-color: #3ddc7a; }
+        #translation-rows-root.passage-show-components .passage-comp[data-role="S"],
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="S"] { border-bottom-color: #5b9dff; }
+        #translation-rows-root.passage-show-components .passage-comp[data-role="V"],
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="V"] { border-bottom-color: #3ddc7a; }
         #translation-rows-root.passage-show-components .passage-comp[data-role="O"],
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="O"],
         #translation-rows-root.passage-show-components .passage-comp[data-role="IO"],
-        #translation-rows-root.passage-show-components .passage-comp[data-role="DO"] { border-bottom-color: #ff9137; }
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="IO"],
+        #translation-rows-root.passage-show-components .passage-comp[data-role="DO"],
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="DO"] { border-bottom-color: #ff9137; }
         #translation-rows-root.passage-show-components .passage-comp[data-role="C"],
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="C"],
         #translation-rows-root.passage-show-components .passage-comp[data-role="SC"],
-        #translation-rows-root.passage-show-components .passage-comp[data-role="OC"] { border-bottom-color: #c35fff; }
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="SC"],
+        #translation-rows-root.passage-show-components .passage-comp[data-role="OC"],
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="OC"] { border-bottom-color: #c35fff; }
         #translation-rows-root.passage-show-components .passage-comp[data-role="CNJ"],
-        #translation-rows-root.passage-show-components .passage-comp[data-role="REL"] { border-bottom-color: #ffd250; }
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="CNJ"],
+        #translation-rows-root.passage-show-components .passage-comp[data-role="REL"],
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="REL"] { border-bottom-color: #ffd250; }
         /* 수식어(M)는 강조 없이 일반 텍스트처럼 표시 */
         #translation-rows-root.passage-show-components .passage-comp[data-role="M"],
         #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="M"] {
