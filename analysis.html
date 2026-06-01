@@ -4502,7 +4502,6 @@
                 const idx = pool.indexOf(p.kor);
                 if (idx >= 0) pool = pool.slice(0, idx) + pool.slice(idx + p.kor.length);
             });
-            if (!pool) pool = plainKor;
             const fillIdx = [];
             let wSum = 0;
             out.forEach(function (p, i) {
@@ -4512,6 +4511,16 @@
             });
             if (fillIdx.length) distributePlainKorByWeightToIndices(out, pool, fillIdx, wSum);
             return out;
+        }
+
+        function passagePartsKorText(parts) {
+            return normalizePassageKorForDisplay(
+                (parts || [])
+                    .map(function (p) {
+                        return String((p && p.kor) || '');
+                    })
+                    .join('')
+            );
         }
 
         function normalizePassageComponentRole(role) {
@@ -4791,6 +4800,7 @@
             const plainKor = plainKorForComponents(kor);
             if (!plainKor) return null;
             const filled = fillPassagePartsKorFromPlain(plainKor, parts);
+            if (passagePartsKorText(filled) !== plainKor) return null;
             /* 영어 components 순서와 동일 인덱스·동일 역할로 해석 표시 (왼쪽 스캔 매칭 사용 안 함) */
             return buildKorHtmlOrderedFromParts(filled);
         }
