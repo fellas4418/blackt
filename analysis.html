@@ -313,13 +313,6 @@
             padding: 0;
             margin: 0 0 6px;
         }
-        #translation-rows-root.passage-show-components:not(.passage-show-topic) .translation-row[data-topic-focus="1"] {
-            outline: 2px dashed rgba(255, 190, 70, 0.88);
-            outline-offset: 3px;
-            border-radius: 14px;
-            padding: 6px 8px;
-            margin: 4px 0 8px;
-        }
         #translation-rows-root.passage-show-topic.passage-show-components .translation-row[data-topic-focus="1"] {
             background: linear-gradient(135deg, rgba(255, 190, 70, 0.42), rgba(255, 120, 60, 0.16));
             box-shadow: inset 0 0 0 2px rgba(255, 210, 120, 0.95), 0 0 14px rgba(255, 160, 50, 0.12);
@@ -4596,24 +4589,7 @@
         function buildKorHtmlFromPassageComponents(eng, kor, components) {
             const parts = validatePassageComponents(eng, components, kor);
             if (!parts || !parts.hasKor) return null;
-            const raw = String(kor || '').trim();
-            if (!raw) return null;
-            const lines = raw
-                .split(/\r?\n/)
-                .map(stripLeadingCircledNumbersFromKorLine)
-                .filter(function (ln) {
-                    return String(ln || '').trim().length > 0;
-                });
-            if (!lines.length) return null;
-            if (lines.length === 1) {
-                return buildKorHtmlForPlainKor(plainKorForComponents(kor), parts);
-            }
-            const lineHtmls = lines.map(function (ln) {
-                return buildKorHtmlForPlainKor(normalizePassageKorForDisplay(ln), parts);
-            });
-            if (lineHtmls.every(Boolean)) {
-                return lineHtmls.join('<br>');
-            }
+            /* 영어 components 순서와 동일 인덱스·동일 역할로 해석 표시 (왼쪽 스캔 매칭 사용 안 함) */
             return buildKorHtmlOrderedFromParts(parts);
         }
 
