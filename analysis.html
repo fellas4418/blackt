@@ -4627,15 +4627,22 @@
             return used.every(Boolean);
         }
 
+        /** 한글 줄에서 색칠할 핵심 성분 (수식어·연결어는 제외하고 일반 텍스트로) */
+        function isCorePassageRole(role) {
+            return (
+                role === 'S' ||
+                role === 'V' ||
+                role === 'O' ||
+                role === 'IO' ||
+                role === 'DO' ||
+                role === 'C' ||
+                role === 'SC' ||
+                role === 'OC'
+            );
+        }
+
         function buildKorHtmlByPlainScan(plainKor, parts) {
             if (!plainKor || !parts || !parts.length) return null;
-            if (
-                !parts.every(function (p) {
-                    return p.kor && p.kor.length > 0;
-                })
-            ) {
-                return null;
-            }
             const used = new Array(parts.length).fill(false);
             let pos = 0;
             let html = '';
@@ -4644,7 +4651,9 @@
                 let pickLen = 0;
                 for (let i = 0; i < parts.length; i++) {
                     if (used[i]) continue;
+                    if (!isCorePassageRole(parts[i].role)) continue;
                     const k = parts[i].kor;
+                    if (!k) continue;
                     if (plainKor.slice(pos, pos + k.length) === k && k.length > pickLen) {
                         pick = i;
                         pickLen = k.length;
