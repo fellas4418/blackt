@@ -2821,86 +2821,24 @@
             return gKey.length > 5 && rowKey.length > 0 && rowKey.includes(gKey);
         }
 
-        function findGrammarPlainRangeInRow(plainEng, gSentNorm) {
-            const rowPlain = normalizePassageEngForDisplay(plainEng);
-            const gSent = normalizePassageEngForDisplay(gSentNorm);
-            if (!rowPlain || !gSent) return null;
-            const exact = rowPlain.toLowerCase().indexOf(gSent.toLowerCase());
-            if (exact >= 0) return { start: exact, len: gSent.length };
-            const gKey = passageGrammarNormKey(gSent);
-            if (gKey.length <= 5) return null;
-            for (let i = 0; i < rowPlain.length; i++) {
-                const tailKey = passageGrammarNormKey(rowPlain.slice(i));
-                if (tailKey.indexOf(gKey) !== 0) continue;
-                let end = i + 1;
-                while (end <= rowPlain.length) {
-                    const sliceKey = passageGrammarNormKey(rowPlain.slice(i, end));
-                    if (sliceKey.length > gKey.length) break;
-                    if (sliceKey === gKey) return { start: i, len: end - i };
-                    end += 1;
-                }
-                return { start: i, len: Math.max(1, end - i - 1) };
-            }
-            return null;
-        }
-
-        function mapPlainRangeToHtmlPositions(html, plainStart, plainLen) {
-            let plainIdx = 0;
-            let htmlStart = -1;
-            let htmlEnd = -1;
-            for (let i = 0; i < html.length; i++) {
-                if (html.charAt(i) === '<') {
-                    const gt = html.indexOf('>', i);
-                    i = gt < 0 ? html.length - 1 : gt;
-                    continue;
-                }
-                if (plainIdx === plainStart) htmlStart = i;
-                if (plainIdx === plainStart + plainLen - 1) {
-                    htmlEnd = i + 1;
-                    break;
-                }
-                plainIdx += 1;
-            }
-            if (htmlStart >= 0 && htmlEnd < 0) htmlEnd = html.length;
-            return { htmlStart: htmlStart, htmlEnd: htmlEnd };
-        }
-
+        /** 지문 eng HTML은 건드리지 않고, 해당 행에 맞는 G1·G2… 배지만 붙임 (문장성분 span 깨짐 방지) */
         function applyGrammarMarksToEngDisplay(finalEng, grammarList, plainEng) {
-            let eng = finalEng;
             let grammarMarks = '';
             if (!grammarList || !grammarList.length) {
-                return { eng: eng, grammarMarks: grammarMarks };
+                return { eng: finalEng, grammarMarks: grammarMarks };
             }
             const rowPlain = normalizePassageEngForDisplay(
                 plainEng != null && String(plainEng) !== '' ? plainEng : ''
             );
             if (!rowPlain) {
-                return { eng: eng, grammarMarks: grammarMarks };
+                return { eng: finalEng, grammarMarks: grammarMarks };
             }
-            const highlights = [];
             grammarList.forEach(function (g, i) {
-                const gSent = String(g.sentence || '').trim();
-                const gSentNorm = normalizePassageEngForDisplay(gSent);
-                if (!grammarSentenceMatchesPlainRow(gSent, rowPlain)) return;
-                grammarMarks += grammarBadgeHtml(i, g.point);
-                const rangePlain = findGrammarPlainRangeInRow(rowPlain, gSentNorm);
-                if (!rangePlain) return;
-                highlights.push({ startIdx: rangePlain.start, plainLen: rangePlain.len });
+                if (grammarSentenceMatchesPlainRow(g.sentence, rowPlain)) {
+                    grammarMarks += grammarBadgeHtml(i, g.point);
+                }
             });
-            highlights.sort(function (a, b) {
-                return b.startIdx - a.startIdx;
-            });
-            highlights.forEach(function (h) {
-                const range = mapPlainRangeToHtmlPositions(eng, h.startIdx, h.plainLen);
-                if (range.htmlStart < 0 || range.htmlEnd <= range.htmlStart) return;
-                eng =
-                    eng.substring(0, range.htmlStart) +
-                    '<span class="hl-grammar">' +
-                    eng.substring(range.htmlStart, range.htmlEnd) +
-                    '</span>' +
-                    eng.substring(range.htmlEnd);
-            });
-            return { eng: eng, grammarMarks: grammarMarks };
+            return { eng: finalEng, grammarMarks: grammarMarks };
         }
 
         function buildInsertionTranslationRowHtml(pl, res, opts) {
