@@ -453,7 +453,7 @@
         #translation-rows-root.passage-show-components .eng-text,
         #translation-rows-root.passage-show-components .kor-text {
             line-height: 1.9;
-            font-size: 0.92rem;
+            font-size: 0.86rem;
         }
         #translation-rows-root.passage-show-components .passage-comp[data-role],
         #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role] {
@@ -463,6 +463,22 @@
             border-radius: 5px;
             -webkit-box-decoration-break: clone;
             box-decoration-break: clone;
+        }
+        /* 수식어(M)는 강조 박스 없이 일반 텍스트처럼 표시 */
+        #translation-rows-root.passage-show-components .passage-comp[data-role="M"],
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="M"] {
+            background: none;
+            box-shadow: none;
+            color: inherit;
+            font-weight: inherit;
+            padding: 0;
+            margin: 0;
+            border-radius: 0;
+        }
+        /* 문장성분 보기에서는 단어장 매칭 초록 하이라이트를 끄고 주변 단어와 동일하게 */
+        #translation-rows-root.passage-show-components .hl-voca {
+            color: inherit;
+            font-weight: inherit;
         }
         .passage-comp-legend {
             display: none;
@@ -6343,7 +6359,6 @@
                   '<span class="lg-item"><span class="lg-swatch" data-role="V"></span>서술어</span>' +
                   '<span class="lg-item"><span class="lg-swatch" data-role="O"></span>목적어</span>' +
                   '<span class="lg-item"><span class="lg-swatch" data-role="C"></span>보어</span>' +
-                  '<span class="lg-item"><span class="lg-swatch" data-role="M"></span>수식어</span>' +
                   '<span class="lg-item"><span class="lg-swatch" data-role="CNJ"></span>연결어</span>' +
                   '</div>'
                 : '';
