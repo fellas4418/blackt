@@ -4258,6 +4258,97 @@
             return bestScore > 0 ? best : -1;
         }
 
+        function mapPlainRangeToHtmlPositions(html, plainStart, plainLen) {
+            let plainIdx = 0;
+            let htmlStart = -1;
+            let htmlEnd = -1;
+            for (let i = 0; i < html.length; i++) {
+                if (html.charAt(i) === '<') {
+                    const gt = html.indexOf('>', i);
+                    i = gt < 0 ? html.length - 1 : gt;
+                    continue;
+                }
+                if (plainIdx === plainStart) htmlStart = i;
+                if (plainIdx === plainStart + plainLen - 1) {
+                    htmlEnd = i + 1;
+                    break;
+                }
+                plainIdx += 1;
+            }
+            if (htmlStart >= 0 && htmlEnd < 0) htmlEnd = html.length;
+            return { htmlStart: htmlStart, htmlEnd: htmlEnd };
+        }
+
+        function collectTopicPhrasePlainRanges(plainEng, phrase) {
+            const rowPlain = normalizePassageEngForDisplay(plainEng);
+            const ph = normalizePassageEngForDisplay(phrase);
+            const ranges = [];
+            if (!rowPlain || !ph || ph.length < 2) return ranges;
+            const low = rowPlain.toLowerCase();
+            const phLow = ph.toLowerCase();
+            let pos = 0;
+            while (pos < rowPlain.length) {
+                const idx = low.indexOf(phLow, pos);
+                if (idx < 0) break;
+                ranges.push({ start: idx, len: ph.length });
+                pos = idx + ph.length;
+            }
+            if (ranges.length || /\s/.test(ph)) return ranges;
+            const re = /[a-zA-Z][a-zA-Z'-]*/g;
+            let m;
+            while ((m = re.exec(rowPlain)) !== null) {
+                if (aiKeywordMatchesLemma(ph, m[0])) {
+                    ranges.push({ start: m.index, len: m[0].length });
+                }
+            }
+            return ranges;
+        }
+
+        function applyTopicKwMarksToEngHtml(html, plainEng, phrasesSorted) {
+            if (!html || !phrasesSorted.length) return html;
+            const rowPlain = normalizePassageEngForDisplay(plainEng);
+            if (!rowPlain) return html;
+            const intervals = [];
+            phrasesSorted.forEach(function (ph) {
+                collectTopicPhrasePlainRanges(rowPlain, ph).forEach(function (r) {
+                    intervals.push({ s: r.start, e: r.start + r.len, len: r.len });
+                });
+            });
+            if (!intervals.length) return html;
+            intervals.sort(function (a, b) {
+                if (b.len !== a.len) return b.len - a.len;
+                return a.s - b.s;
+            });
+            const chosen = [];
+            intervals.forEach(function (iv) {
+                if (
+                    chosen.some(function (c) {
+                        return !(iv.e <= c.s || iv.s >= c.e);
+                    })
+                ) {
+                    return;
+                }
+                chosen.push(iv);
+            });
+            let eng = html;
+            chosen
+                .sort(function (a, b) {
+                    return b.s - a.s;
+                })
+                .forEach(function (u) {
+                    const plainLen = u.e - u.s;
+                    const range = mapPlainRangeToHtmlPositions(eng, u.s, plainLen);
+                    if (range.htmlStart < 0 || range.htmlEnd <= range.htmlStart) return;
+                    eng =
+                        eng.substring(0, range.htmlStart) +
+                        '<span class="passage-topic-kw" data-passage-kw="1">' +
+                        eng.substring(range.htmlStart, range.htmlEnd) +
+                        '</span>' +
+                        eng.substring(range.htmlEnd);
+                });
+            return eng;
+        }
+
         function wrapPhrasesInPlainSegment(segment, phrasesSorted, globalPhraseOnce) {
             if (!segment || !phrasesSorted.length) return segment;
             const lowerSeg = segment.toLowerCase();
@@ -4774,8 +4865,11 @@
             return false;
         }
 
-        function wrapTopicKeywordPhrasesInEngHtml(html, phrasesSorted, globalPhraseOnce) {
+        function wrapTopicKeywordPhrasesInEngHtml(html, phrasesSorted, globalPhraseOnce, rowPlainEng) {
             if (!html || !phrasesSorted.length) return html;
+            if (rowPlainEng != null && String(rowPlainEng) !== '') {
+                return applyTopicKwMarksToEngHtml(html, rowPlainEng, phrasesSorted);
+            }
             return html.split(/(<[^>]+>)/g).map(function (part) {
                 if (part.charAt(0) === '<') return part;
                 return wrapPhrasesInPlainSegment(part, phrasesSorted, globalPhraseOnce);
@@ -6165,7 +6259,6 @@
             const topicFocusRow = computeTopicFocusRowIndex(res, gkForPassage);
 
             let transRowsHtml = '';
-            const passageTopicKwOnce = new Set();
             if (res.full_translation && Array.isArray(res.full_translation)) {
                 transRowsHtml = res.full_translation.map((s, rowIdx) => {
                     if (isConsecutiveDuplicateTranslationRow(res.full_translation, rowIdx)) {
@@ -6204,7 +6297,7 @@
                     finalEng = grammarMarked.eng;
                     const grammarMarks = grammarMarked.grammarMarks;
 
-                    finalEng = wrapTopicKeywordPhrasesInEngHtml(finalEng, topicKwPhrases, passageTopicKwOnce);
+                    finalEng = wrapTopicKeywordPhrasesInEngHtml(finalEng, topicKwPhrases, null, plainEng);
 
                     finalEng = applyEngFragmentClickableKeywords(finalEng, aiKeywordsObj);
 
@@ -6235,8 +6328,7 @@
                 transRowsHtml =
                     buildInsertionTranslationRowHtml(plLayout, res, {
                         keywordsObj: aiKeywordsObj,
-                        topicKwPhrases: topicKwPhrases,
-                        topicKwOnce: passageTopicKwOnce
+                        topicKwPhrases: topicKwPhrases
                     }) + transRowsHtml;
             }
 
