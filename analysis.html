@@ -4860,9 +4860,11 @@
             if (!parts) return null;
             const plainKor = plainKorForComponents(kor);
             if (!plainKor) return null;
-            const filled = fillPassagePartsKorFromPlain(plainKor, parts);
-            /* 영어 components 순서와 동일 인덱스·동일 역할로 해석 표시 (왼쪽 스캔 매칭 사용 안 함) */
-            return buildKorHtmlOrderedFromParts(filled);
+            /* 자연스러운 해석 어순을 유지하면서 성분 조각에만 색/라벨 (위치 1:1 아님, 색/역할 기준 동기화) */
+            const scanned = buildKorHtmlByPlainScan(plainKor, parts);
+            if (scanned) return scanned;
+            /* 조각이 자연 해석문과 안 맞으면: 영어순 재조합(직독직해) 대신 자연 해석문 그대로 표시 */
+            return decorateCircledNumberMarks(escapeHtml(plainKor));
         }
 
         function passageHasAnyComponents(res) {
