@@ -299,24 +299,30 @@
             opacity: 0.45;
             cursor: not-allowed;
         }
+        #translation-rows-root.passage-show-topic .translation-row[data-topic-focus="1"] {
+            background: linear-gradient(135deg, rgba(255, 190, 70, 0.38), rgba(255, 120, 60, 0.14));
+            box-shadow: inset 0 0 0 2px rgba(255, 210, 120, 0.9);
+            border-radius: 14px;
+            padding: 10px 12px 12px;
+            margin: 6px 0 10px;
+        }
         #translation-rows-root.passage-show-topic .translation-row[data-topic-focus="1"] .eng-text {
-            background: linear-gradient(90deg, rgba(255, 190, 70, 0.32), rgba(255, 120, 60, 0.14));
-            box-shadow: inset 0 0 0 1px rgba(255, 210, 120, 0.45);
-            border-radius: 12px;
-            padding: 8px 10px;
-            margin: -2px 0 4px;
+            background: transparent;
+            box-shadow: none;
+            border-radius: 0;
+            padding: 0;
+            margin: 0 0 6px;
         }
         #translation-rows-root.passage-show-components:not(.passage-show-topic) .translation-row[data-topic-focus="1"] {
-            outline: 2px dashed rgba(255, 190, 70, 0.82);
-            outline-offset: 4px;
+            outline: 2px dashed rgba(255, 190, 70, 0.88);
+            outline-offset: 3px;
             border-radius: 14px;
+            padding: 6px 8px;
+            margin: 4px 0 8px;
         }
-        #translation-rows-root.passage-show-topic.passage-show-components .translation-row[data-topic-focus="1"] .eng-text {
-            background: linear-gradient(90deg, rgba(255, 190, 70, 0.36), rgba(255, 120, 60, 0.16));
-            box-shadow: inset 0 0 0 2px rgba(255, 210, 120, 0.88);
-            border-radius: 12px;
-            padding: 10px 10px 8px;
-            margin: 2px 0 6px;
+        #translation-rows-root.passage-show-topic.passage-show-components .translation-row[data-topic-focus="1"] {
+            background: linear-gradient(135deg, rgba(255, 190, 70, 0.42), rgba(255, 120, 60, 0.16));
+            box-shadow: inset 0 0 0 2px rgba(255, 210, 120, 0.95), 0 0 14px rgba(255, 160, 50, 0.12);
         }
         #translation-rows-root.passage-show-kw .passage-topic-kw {
             border: 1px solid rgba(255, 75, 75, 0.92);
@@ -345,8 +351,7 @@
             white-space: nowrap;
             color: #b8c6d4;
         }
-        #translation-rows-root.passage-show-components .passage-comp-lbl,
-        #grammar-points-root.passage-show-components .passage-comp-lbl {
+        #translation-rows-root.passage-show-components .passage-comp-lbl {
             display: block;
         }
         .passage-comp {
@@ -357,7 +362,7 @@
             text-align: center;
         }
         #translation-rows-root.passage-show-components .passage-comp[data-role="S"],
-        #grammar-points-root.passage-show-components .passage-comp[data-role="S"] {
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="S"] {
             background: linear-gradient(180deg, rgba(55, 130, 255, 0.78), rgba(25, 85, 210, 0.62));
             box-shadow: inset 0 0 0 1px rgba(140, 195, 255, 0.85), 0 0 10px rgba(55, 130, 255, 0.22);
             border-radius: 8px;
@@ -366,18 +371,13 @@
             color: #f2f8ff;
             font-weight: 600;
         }
-        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="S"],
-        #grammar-points-root.passage-show-components .passage-comp-lbl[data-role="S"] { color: #8ec4ff; }
-        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="V"],
-        #grammar-points-root.passage-show-components .passage-comp-lbl[data-role="V"] { color: #8dffb0; }
-        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="O"],
-        #grammar-points-root.passage-show-components .passage-comp-lbl[data-role="O"] { color: #ffc898; }
-        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="C"],
-        #grammar-points-root.passage-show-components .passage-comp-lbl[data-role="C"] { color: #e0b8ff; }
-        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="M"],
-        #grammar-points-root.passage-show-components .passage-comp-lbl[data-role="M"] { color: #b8c4d4; }
+        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="S"] { color: #8ec4ff; }
+        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="V"] { color: #8dffb0; }
+        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="O"] { color: #ffc898; }
+        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="C"] { color: #e0b8ff; }
+        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="M"] { color: #b8c4d4; }
         #translation-rows-root.passage-show-components .passage-comp[data-role="V"],
-        #grammar-points-root.passage-show-components .passage-comp[data-role="V"] {
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="V"] {
             background: linear-gradient(180deg, rgba(45, 220, 95, 0.78), rgba(18, 150, 65, 0.62));
             box-shadow: inset 0 0 0 1px rgba(130, 255, 170, 0.85), 0 0 10px rgba(45, 220, 95, 0.2);
             border-radius: 8px;
@@ -387,7 +387,7 @@
             font-weight: 600;
         }
         #translation-rows-root.passage-show-components .passage-comp[data-role="O"],
-        #grammar-points-root.passage-show-components .passage-comp[data-role="O"] {
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="O"] {
             background: linear-gradient(180deg, rgba(255, 145, 55, 0.82), rgba(210, 85, 20, 0.65));
             box-shadow: inset 0 0 0 1px rgba(255, 200, 130, 0.88), 0 0 10px rgba(255, 145, 55, 0.22);
             border-radius: 8px;
@@ -397,7 +397,7 @@
             font-weight: 600;
         }
         #translation-rows-root.passage-show-components .passage-comp[data-role="C"],
-        #grammar-points-root.passage-show-components .passage-comp[data-role="C"] {
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="C"] {
             background: linear-gradient(180deg, rgba(195, 95, 255, 0.78), rgba(130, 40, 200, 0.62));
             box-shadow: inset 0 0 0 1px rgba(230, 170, 255, 0.85), 0 0 10px rgba(195, 95, 255, 0.2);
             border-radius: 8px;
@@ -407,7 +407,7 @@
             font-weight: 600;
         }
         #translation-rows-root.passage-show-components .passage-comp[data-role="SC"],
-        #grammar-points-root.passage-show-components .passage-comp[data-role="SC"] {
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="SC"] {
             background: linear-gradient(180deg, rgba(150, 120, 255, 0.75), rgba(95, 60, 190, 0.6));
             box-shadow: inset 0 0 0 1px rgba(200, 180, 255, 0.82);
             border-radius: 8px;
@@ -417,7 +417,7 @@
             font-weight: 600;
         }
         #translation-rows-root.passage-show-components .passage-comp[data-role="OC"],
-        #grammar-points-root.passage-show-components .passage-comp[data-role="OC"] {
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="OC"] {
             background: linear-gradient(180deg, rgba(255, 115, 175, 0.75), rgba(190, 50, 120, 0.6));
             box-shadow: inset 0 0 0 1px rgba(255, 180, 220, 0.82);
             border-radius: 8px;
@@ -427,7 +427,7 @@
             font-weight: 600;
         }
         #translation-rows-root.passage-show-components .passage-comp[data-role="IO"],
-        #grammar-points-root.passage-show-components .passage-comp[data-role="IO"] {
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="IO"] {
             background: linear-gradient(180deg, rgba(255, 175, 90, 0.76), rgba(200, 110, 35, 0.6));
             box-shadow: inset 0 0 0 1px rgba(255, 210, 150, 0.82);
             border-radius: 8px;
@@ -437,7 +437,7 @@
             font-weight: 600;
         }
         #translation-rows-root.passage-show-components .passage-comp[data-role="DO"],
-        #grammar-points-root.passage-show-components .passage-comp[data-role="DO"] {
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="DO"] {
             background: linear-gradient(180deg, rgba(255, 110, 90, 0.76), rgba(200, 55, 45, 0.6));
             box-shadow: inset 0 0 0 1px rgba(255, 175, 160, 0.82);
             border-radius: 8px;
@@ -447,7 +447,7 @@
             font-weight: 600;
         }
         #translation-rows-root.passage-show-components .passage-comp[data-role="M"],
-        #grammar-points-root.passage-show-components .passage-comp[data-role="M"] {
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="M"] {
             background: linear-gradient(180deg, rgba(130, 145, 165, 0.72), rgba(75, 88, 108, 0.58));
             box-shadow: inset 0 0 0 1px rgba(180, 195, 215, 0.75);
             border-radius: 8px;
@@ -456,25 +456,17 @@
             color: #f0f4fa;
             font-weight: 500;
         }
-        #translation-rows-root.passage-show-components .kor-text .passage-comp-kor[data-role="S"],
-        #grammar-points-root.passage-show-components .grammar-box-explanation .passage-comp-kor[data-role="S"] {
+        #translation-rows-root.passage-show-components .kor-text .passage-comp-kor[data-role="S"] {
             color: #d8ecff;
         }
-        #translation-rows-root.passage-show-components .kor-text .passage-comp-kor[data-role="V"],
-        #grammar-points-root.passage-show-components .grammar-box-explanation .passage-comp-kor[data-role="V"] {
+        #translation-rows-root.passage-show-components .kor-text .passage-comp-kor[data-role="V"] {
             color: #d4ffe0;
         }
-        #translation-rows-root.passage-show-components .kor-text .passage-comp-kor[data-role="O"],
-        #grammar-points-root.passage-show-components .grammar-box-explanation .passage-comp-kor[data-role="O"] {
+        #translation-rows-root.passage-show-components .kor-text .passage-comp-kor[data-role="O"] {
             color: #ffe8d0;
         }
-        #translation-rows-root.passage-show-components .kor-text .passage-comp-kor[data-role="C"],
-        #grammar-points-root.passage-show-components .grammar-box-explanation .passage-comp-kor[data-role="C"] {
+        #translation-rows-root.passage-show-components .kor-text .passage-comp-kor[data-role="C"] {
             color: #f3e0ff;
-        }
-        .grammar-box-sentence,
-        .grammar-box-explanation {
-            line-height: 1.55;
         }
         .passage-topic-kw {
             border: 1px solid transparent;
@@ -2740,6 +2732,19 @@
             return t;
         }
 
+        function plainKorForComponents(korRaw) {
+            const raw = String(korRaw || '').trim();
+            if (!raw) return '';
+            const merged = raw
+                .split(/\r?\n/)
+                .map(stripLeadingCircledNumbersFromKorLine)
+                .filter(function (ln) {
+                    return String(ln || '').trim().length > 0;
+                })
+                .join(' ');
+            return normalizePassageKorForDisplay(merged);
+        }
+
         function stripLeadingCircledNumbersFromKorLine(line) {
             return String(line || '').replace(/^[\s\u00A0\u3000]*[\u2460-\u2473]+(?:\s+|\t)*/u, '');
         }
@@ -4379,7 +4384,14 @@
         }
 
         function buildKorHtmlByPlainScan(plainKor, parts) {
-            if (!passageKorComponentsCoverPlain(plainKor, parts)) return null;
+            if (!plainKor || !parts || !parts.length) return null;
+            if (
+                !parts.every(function (p) {
+                    return p.kor && p.kor.length > 0;
+                })
+            ) {
+                return null;
+            }
             const used = new Array(parts.length).fill(false);
             let pos = 0;
             let html = '';
@@ -4403,7 +4415,31 @@
                 html += buildPassageCompSpanHtml(parts[pick], 'kor');
                 pos += pickLen;
             }
+            if (pos !== plainKor.length) return null;
             return decorateCircledNumberMarks(html);
+        }
+
+        function buildKorHtmlOrderedFromParts(parts) {
+            if (
+                !parts ||
+                !parts.every(function (p) {
+                    return p.kor && p.kor.length > 0;
+                })
+            ) {
+                return null;
+            }
+            return decorateCircledNumberMarks(
+                parts
+                    .map(function (p) {
+                        return buildPassageCompSpanHtml(p, 'kor');
+                    })
+                    .join('')
+            );
+        }
+
+        function buildKorHtmlForPlainKor(plainKor, parts) {
+            if (!plainKor || !parts) return null;
+            return buildKorHtmlByPlainScan(plainKor, parts) || buildKorHtmlOrderedFromParts(parts);
         }
 
         function validatePassageComponents(eng, components, kor) {
@@ -4428,8 +4464,13 @@
                 })
                 .join('');
             if (joined !== plain) return null;
-            const plainKor = normalizePassageKorForDisplay(kor);
-            if (plainKor && passageKorComponentsCoverPlain(plainKor, parts)) {
+            const plainKor = plainKorForComponents(kor);
+            if (
+                plainKor &&
+                parts.every(function (p) {
+                    return p.kor && p.kor.length > 0;
+                })
+            ) {
                 parts.hasKor = true;
             }
             return parts;
@@ -4485,51 +4526,6 @@
             return html;
         }
 
-        function passageComponentsForGrammarSentence(gSentence, fullTranslation) {
-            const gPlain = normalizePassageEngForDisplay(gSentence);
-            if (!gPlain || gPlain.length < 3) return null;
-            const rows = Array.isArray(fullTranslation) ? fullTranslation : [];
-            let best = null;
-            let bestScore = -1;
-            for (let i = 0; i < rows.length; i++) {
-                const parts = validatePassageComponents(rows[i].eng, rows[i].components, rows[i].kor);
-                if (!parts) continue;
-                const engPlain = normalizePassageEngForDisplay(rows[i].eng);
-                if (engPlain.indexOf(gPlain) !== -1) {
-                    if (gPlain.length > bestScore) {
-                        bestScore = gPlain.length;
-                        best = parts;
-                    }
-                    continue;
-                }
-                const gNorm = gPlain.toLowerCase().replace(/[^a-z0-9]/g, '');
-                const engNorm = engPlain.toLowerCase().replace(/[^a-z0-9]/g, '');
-                if (gNorm.length > 5 && engNorm.indexOf(gNorm) !== -1 && gNorm.length > bestScore) {
-                    bestScore = gNorm.length;
-                    best = parts;
-                }
-            }
-            return best;
-        }
-
-        function buildGrammarSentenceDisplayHtml(gSentence, parts) {
-            const plain = normalizePassageEngForDisplay(gSentence);
-            if (!parts) return escapeHtml(plain);
-            return buildTextHtmlWithPassageComponents(plain, parts, 'eng');
-        }
-
-        function buildGrammarExplanationDisplayHtml(explanation, parts) {
-            const raw = String(explanation || '');
-            if (!raw) return '';
-            if (!parts) return escapeHtml(raw);
-            const plain = normalizePassageKorForDisplay(raw);
-            if (parts.hasKor) {
-                const scanned = buildKorHtmlByPlainScan(plain, parts);
-                if (scanned) return scanned;
-            }
-            return buildTextHtmlWithPassageComponents(plain, parts, 'kor');
-        }
-
         function buildGrammarListWrapHtml(res, savedGrammarList) {
             if (!res.grammar || !res.grammar.length) {
                 return '<div style="color:#888; font-size:0.9rem;">특이한 특수 구문은 발견되지 않았습니다.</div>';
@@ -4543,9 +4539,6 @@
                 });
                 const btnClass = isSaved ? 'save-btn-small active' : 'save-btn-small';
                 const btnText = isSaved ? '✅ 저장됨' : '⭐ 저장';
-                const compParts = passageComponentsForGrammarSentence(g.sentence, res.full_translation);
-                const sentHtml = buildGrammarSentenceDisplayHtml(g.sentence, compParts);
-                const explHtml = buildGrammarExplanationDisplayHtml(g.explanation, compParts);
 
                 return (
                     '<div class="grammar-box" id="grammar-box-' +
@@ -4569,11 +4562,11 @@
                     '] ' +
                     escapeHtml(g.point || '') +
                     '</strong>' +
-                    '<div class="grammar-box-sentence" style="color:#ddd; font-size:0.85rem; font-style:italic; margin-bottom:6px;">&quot;' +
-                    sentHtml +
+                    '<div style="color:#ddd; font-size:0.85rem; font-style:italic; margin-bottom:6px;">&quot;' +
+                    escapeHtml(g.sentence || '') +
                     '&quot;</div>' +
-                    '<div class="grammar-box-explanation" style="color:#eee; font-size:0.9rem;">' +
-                    explHtml +
+                    '<div style="color:#eee; font-size:0.9rem;">' +
+                    escapeHtml(g.explanation || '') +
                     '</div></div>'
                 );
             });
@@ -4603,7 +4596,25 @@
         function buildKorHtmlFromPassageComponents(eng, kor, components) {
             const parts = validatePassageComponents(eng, components, kor);
             if (!parts || !parts.hasKor) return null;
-            return buildKorHtmlByPlainScan(normalizePassageKorForDisplay(kor), parts);
+            const raw = String(kor || '').trim();
+            if (!raw) return null;
+            const lines = raw
+                .split(/\r?\n/)
+                .map(stripLeadingCircledNumbersFromKorLine)
+                .filter(function (ln) {
+                    return String(ln || '').trim().length > 0;
+                });
+            if (!lines.length) return null;
+            if (lines.length === 1) {
+                return buildKorHtmlForPlainKor(plainKorForComponents(kor), parts);
+            }
+            const lineHtmls = lines.map(function (ln) {
+                return buildKorHtmlForPlainKor(normalizePassageKorForDisplay(ln), parts);
+            });
+            if (lineHtmls.every(Boolean)) {
+                return lineHtmls.join('<br>');
+            }
+            return buildKorHtmlOrderedFromParts(parts);
         }
 
         function passageHasAnyComponents(res) {
@@ -4735,11 +4746,9 @@
 
         window.togglePassageComponentView = function (btn) {
             const root = document.getElementById('translation-rows-root');
-            const grammarRoot = document.getElementById('grammar-points-root');
             if (!root || !btn) return;
             const on = !root.classList.contains('passage-show-components');
             root.classList.toggle('passage-show-components', on);
-            if (grammarRoot) grammarRoot.classList.toggle('passage-show-components', on);
             btn.setAttribute('aria-pressed', on ? 'true' : 'false');
             btn.classList.toggle('is-on', on);
             btn.textContent = on ? '문장성분 끄기' : '문장성분 보기';
@@ -6129,7 +6138,7 @@
                 '<li class="passage-guide-line">단어를 클릭하면 뜻을 볼 수 있어요</li>';
             if (hasPassageComponents) {
                 passageGuideItems +=
-                    '<li class="passage-guide-line">문장성분 보기를 켜면 영어·해석·문법 해설에 주어·서술어 등이 같은 색으로 표시돼요</li>';
+                    '<li class="passage-guide-line">문장성분 보기를 켜면 영어·해석에 주어·서술어 등이 같은 색으로 표시돼요</li>';
             }
             if (hasGrammarPoints) {
                 passageGuideItems +=
@@ -6165,7 +6174,7 @@
             document.getElementById('ai-report-area').innerHTML = `
                 ${passageTopBlock}
                 ${translationCardHtml}
-                <div class="result-card" style="border-color: #bc13fe;"><span class="result-label" style="color:#bc13fe;">🛠️ 트리거 팀의 문법 포인트</span><div class="result-content" id="grammar-points-root">${grammarListWrap}</div></div>
+                <div class="result-card" style="border-color: #bc13fe;"><span class="result-label" style="color:#bc13fe;">🛠️ 트리거 팀의 문법 포인트</span><div class="result-content">${grammarListWrap}</div></div>
                 <div class="result-card"><span class="result-label keyword-list-heading-label" style="color:#ff0055;"><span class="keyword-list-heading-row"><span class="keyword-list-heading-icon" aria-hidden="true">📚</span><span class="keyword-list-heading-main">주요 단어 리스트<br><span class="keyword-list-heading-sub">(내 학습 노트에 저장가능)</span></span></span></span><div id="passage-keyword-panel" class="result-content">${keywordHtml}</div></div>
                 ${goldenKeyHtml}
                 <div class="result-card" style="border-color: var(--neon-orange);"><span class="result-label" style="color:var(--neon-orange);">🌎 쓸데없이 고퀄인 배경지식</span><div class="result-content passage-background-knowledge">${backgroundHtml}</div></div>
