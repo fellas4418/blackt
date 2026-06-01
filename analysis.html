@@ -326,12 +326,16 @@
             display: inline;
         }
         .passage-comp-wrap {
+            display: inline;
+            margin: 0;
+            max-width: 100%;
+        }
+        #translation-rows-root.passage-show-components .passage-comp-wrap {
             display: inline-flex;
             flex-direction: column;
             align-items: center;
             vertical-align: bottom;
             margin: 0 2px;
-            max-width: 100%;
         }
         .passage-comp-lbl {
             display: none;
@@ -348,10 +352,15 @@
             display: block;
         }
         .passage-comp {
-            display: inline-block;
+            display: inline;
             border-radius: 8px;
-            padding: 0 2px;
+            padding: 0;
             margin: 0;
+            text-align: left;
+        }
+        #translation-rows-root.passage-show-components .passage-comp {
+            display: inline-block;
+            padding: 0 2px;
             text-align: center;
         }
         #translation-rows-root.passage-show-components .passage-comp[data-role="S"],
