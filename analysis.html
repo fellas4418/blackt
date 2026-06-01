@@ -369,6 +369,28 @@
         #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="O"] { color: #ffc898; }
         #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="C"] { color: #e0b8ff; }
         #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="M"] { color: #b8c4d4; }
+        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="CNJ"] { color: #ffe08a; }
+        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="REL"] { color: #7ee8ff; }
+        #translation-rows-root.passage-show-components .passage-comp[data-role="CNJ"],
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="CNJ"] {
+            background: linear-gradient(180deg, rgba(255, 210, 80, 0.82), rgba(200, 150, 30, 0.65));
+            box-shadow: inset 0 0 0 1px rgba(255, 230, 150, 0.9), 0 0 10px rgba(255, 200, 60, 0.22);
+            border-radius: 8px;
+            padding: 4px 7px;
+            margin: 2px 3px;
+            color: #fff9e8;
+            font-weight: 700;
+        }
+        #translation-rows-root.passage-show-components .passage-comp[data-role="REL"],
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="REL"] {
+            background: linear-gradient(180deg, rgba(60, 210, 230, 0.78), rgba(25, 140, 165, 0.62));
+            box-shadow: inset 0 0 0 1px rgba(140, 235, 255, 0.85), 0 0 10px rgba(60, 210, 230, 0.2);
+            border-radius: 8px;
+            padding: 4px 7px;
+            margin: 2px 3px;
+            color: #e8fcff;
+            font-weight: 700;
+        }
         #translation-rows-root.passage-show-components .passage-comp[data-role="V"],
         #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="V"] {
             background: linear-gradient(180deg, rgba(45, 220, 95, 0.78), rgba(18, 150, 65, 0.62));
@@ -4298,7 +4320,9 @@
             OC: { cls: 'passage-comp-oc', title: '목적보어' },
             IO: { cls: 'passage-comp-io', title: '간접목적어' },
             DO: { cls: 'passage-comp-do', title: '직접목적어' },
-            M: { cls: 'passage-comp-m', title: '수식어' }
+            M: { cls: 'passage-comp-m', title: '수식어' },
+            CNJ: { cls: 'passage-comp-cnj', title: '접속사' },
+            REL: { cls: 'passage-comp-rel', title: '관계사' }
         };
         const PASSAGE_COMPONENT_ROLE_ALIASES = {
             SUBJECT: 'S',
@@ -4331,8 +4355,22 @@
             MOD: 'M',
             ADJ: 'M',
             ADV: 'M',
-            수식어: 'M'
+            수식어: 'M',
+            CNJ: 'CNJ',
+            CONJ: 'CNJ',
+            CONJUNCTION: 'CNJ',
+            접속사: 'CNJ',
+            REL: 'REL',
+            RELATIVE: 'REL',
+            REL_PRON: 'REL',
+            관계사: 'REL',
+            관계대명사: 'REL',
+            관계부사: 'REL'
         };
+
+        function passageComponentKorOptional(role) {
+            return role === 'CNJ' || role === 'REL';
+        }
 
         function normalizePassageComponentRole(role) {
             const raw = String(role || '').trim();
@@ -4415,7 +4453,7 @@
         function buildKorHtmlOrderedFromParts(parts) {
             if (
                 !parts ||
-                !parts.every(function (p) {
+                !parts.some(function (p) {
                     return p.kor && p.kor.length > 0;
                 })
             ) {
@@ -4461,6 +4499,10 @@
             if (
                 plainKor &&
                 parts.every(function (p) {
+                    if (passageComponentKorOptional(p.role)) return true;
+                    return p.kor && p.kor.length > 0;
+                }) &&
+                parts.some(function (p) {
                     return p.kor && p.kor.length > 0;
                 })
             ) {
@@ -4473,6 +4515,7 @@
             const meta = PASSAGE_COMPONENT_ROLE_META[p.role];
             const isKor = field === 'kor';
             const txt = isKor ? p.kor : p.text;
+            if (isKor && (!txt || !String(txt).length)) return '';
             return (
                 '<span class="passage-comp-wrap" data-role="' +
                 p.role +
@@ -8999,7 +9042,7 @@
       · **normal**: 위 특이 구조가 없을 때. \`full_translation\`은 **입력에 나온 문장 순서 그대로** 유지하세요.
     - **장문 독해**: 문단이 많고 길면 \`paragraph_subtitles\`에 \`[{ "row_index": 0, "subtitle": "한 줄 소제목" }, ...]\` 형태로 \`full_translation\` **행 인덱스(0부터)**와 맞추거나, 각 \`full_translation\` 객체에 선택 필드 \`"subtitle"\`을 넣어도 됩니다.
     - **복합**(예: 순서 배열 + 어법): **어법 우선** — \`type\`은 반드시 \`"grammar"\`로 하고, \`paragraphs\`와 \`grammar_panel_eng\`·\`corrections\`를 함께 채워 시각 요소를 모두 반영합니다.
-17. **문장성분(components):** \`full_translation\`의 **각 행**마다 \`components\` 배열을 **반드시** 넣으세요(해당 \`eng\`가 **완전한 영어 문장·절**일 때). 각 항목: \`text\`(영어 조각), \`kor\`(그 조각의 한국어 대응, **행 kor 안에 그대로 포함되는 연속 문자열**), \`role\`. \`text\`를 **배열 순서대로** 이으면 그 행 \`eng\`와 **완전히 동일**해야 합니다. \`kor\` 조각들은 **해석(kor) 문자열을 왼쪽부터 차례로 덮도록** 나누세요(영어 어순과 한국어 어순이 달라도 됨 — 예: eng는 S→V→O 순이어도 kor 조각은 「주어→목적어→서술어」 순으로 이어져야 할 수 있음). \`role\`: **S**, **V**, **O**, **C**, **SC**, **OC**, **IO**, **DO**, **M**. 한 행당 **3~8개**, **주어·서술어는 가능하면 반드시** 포함. **(A)** 표지만·1~2단어 표지 줄은 \`components\`: \`[]\`. 앱은 **문장성분 보기** 토글 시 영어·해석에 **같은 역할 = 같은 색 배경**으로 표시합니다.
+17. **문장성분(components):** \`full_translation\`의 **각 행**마다 \`components\` 배열을 **반드시** 넣으세요(해당 \`eng\`가 **완전한 영어 문장·절**일 때). 각 항목: \`text\`, \`kor\`, \`role\`. \`text\`를 **배열 순서대로** 이으면 그 행 \`eng\`와 **완전히 동일**해야 합니다. **같은 배열 인덱스**의 \`kor\`는 그 \`text\`와 **같은 문법적 역할**의 한국어 구간입니다(앱이 영어·해석을 **인덱스 순서로 동기화**해 표시합니다). \`role\` 코드: **S**(주어), **V**(서술어), **O**(목적어), **C**(보어), **SC**, **OC**, **IO**, **DO**, **M**(수식어·부사구 등), **CNJ**(접속사·종속접속사: when/after/because/although/if/and/but 등 **절을 이끄는 말만**), **REL**(관계사: who/which/that/where/when 등 **관계절을 이끄는 말만**). **절 단위 분해(매우 중요):** 부사절·종속절·관계절·등위절이 있으면 **절 전체를 M 하나로 묶지 마세요.** (1) **CNJ** 또는 **REL**은 **접속·관계 기능을 하는 낱말(또는 that절의 that)**만 단독 조각으로 두세요. (2) 그 **뒤 절 안**에서는 반드시 **주어(S)·서술어(V)·목적어·보어·수식어(M)**를 다시 나누세요. (3) **주절(핵심 문장)**도 S·V·(O/C)를 반드시 나누세요. 예: \`After the map was posted online, something happened.\` → \`After\`(CNJ) + \`the map\`(S) + \`was posted\`(V) + \`online\`(M) + \`,\`(CNJ 또는 구두점만) + \`something\`(S) + \`happened\`(V) — **「After the map was posted online」 전체를 수식어 한 덩어리로 넣지 마세요.** 관계절: \`the trees that grew quickly\` → \`the trees\`(S) + \`that\`(REL) + \`grew\`(V) + \`quickly\`(M) 식으로 **관계사 뒤 절도 S·V 분해**. 복문·종속이 있으면 한 행당 **6~16개**까지 허용(단문만 **3~6개**). **(A)** 표지만·1~2단어 표지 줄은 \`components\`: \`[]\`. **CNJ/REL**은 한국어에 대응 어절이 없으면 \`kor\`를 \`""\`로 둬도 됩니다.
 
 출력 JSON 형식:
 {
@@ -9032,7 +9075,7 @@
     "paragraph_subtitles": null
   },
   "full_translation": [
-    { "eng": "Scientists have discovered a new species.", "kor": "과학자들은 새로운 종을 발견했다.", "subtitle": "선택: 장문일 때 소제목", "components": [{ "text": "Scientists", "kor": "과학자들은", "role": "S" }, { "text": " have discovered", "kor": " 발견했다", "role": "V" }, { "text": " a new species.", "kor": " 새로운 종을", "role": "O" }] }
+    { "eng": "After the map was posted online, something unexpected happened.", "kor": "지도가 온라인에 게시된 후 예상치 못한 일이 일어났다.", "components": [{ "text": "After ", "kor": "", "role": "CNJ" }, { "text": "the map", "kor": "지도가", "role": "S" }, { "text": " was posted", "kor": " 게시된", "role": "V" }, { "text": " online", "kor": " 온라인에", "role": "M" }, { "text": ", ", "kor": " 후 ", "role": "CNJ" }, { "text": "something unexpected", "kor": "예상치 못한 일이", "role": "S" }, { "text": " happened.", "kor": " 일어났다.", "role": "V" }] }
   ],
   "grammar": [
     { "point": "중·고 핵심 문법 표준 명칭 (수능·교과서 용어)", "sentence": "문법이 적용된 영어 원문 부분 (지문에서 그대로 발췌)", "explanation": "절·구문·구조 중심으로 해석 팁 (사전적 단어 뜻만 쓰지 말 것)" }
