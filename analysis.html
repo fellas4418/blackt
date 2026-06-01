@@ -314,6 +314,49 @@
             box-shadow: 0 0 0 1px rgba(255, 60, 60, 0.28), 0 0 8px rgba(255, 50, 50, 0.14);
             display: inline;
         }
+        .passage-comp {
+            display: inline;
+            position: relative;
+            border-radius: 4px;
+            padding: 0 1px;
+        }
+        .passage-comp::before {
+            display: none;
+            margin-right: 2px;
+            font-size: 0.58rem;
+            font-weight: 800;
+            line-height: 1;
+            vertical-align: super;
+            letter-spacing: -0.04em;
+            opacity: 0.92;
+        }
+        #translation-rows-root.passage-show-components .passage-comp::before {
+            display: inline;
+        }
+        #translation-rows-root.passage-show-components .passage-comp[data-role="S"]::before { content: "주"; color: #6eb5ff; }
+        #translation-rows-root.passage-show-components .passage-comp[data-role="V"]::before { content: "서"; color: #7dff8a; }
+        #translation-rows-root.passage-show-components .passage-comp[data-role="O"]::before { content: "목"; color: #ffb36b; }
+        #translation-rows-root.passage-show-components .passage-comp[data-role="C"]::before { content: "보"; color: #d789ff; }
+        #translation-rows-root.passage-show-components .passage-comp[data-role="SC"]::before { content: "주보"; color: #b8a0ff; font-size: 0.52rem; }
+        #translation-rows-root.passage-show-components .passage-comp[data-role="OC"]::before { content: "목보"; color: #c9a0ff; font-size: 0.52rem; }
+        #translation-rows-root.passage-show-components .passage-comp[data-role="IO"]::before { content: "간목"; color: #ff9f7a; font-size: 0.52rem; }
+        #translation-rows-root.passage-show-components .passage-comp[data-role="DO"]::before { content: "직목"; color: #ff8a5c; font-size: 0.52rem; }
+        #translation-rows-root.passage-show-components .passage-comp[data-role="M"]::before { content: "수"; color: #9aa8b8; }
+        #translation-rows-root.passage-show-components .passage-comp-s {
+            box-shadow: inset 0 -2px 0 rgba(110, 181, 255, 0.55);
+        }
+        #translation-rows-root.passage-show-components .passage-comp-v {
+            box-shadow: inset 0 -2px 0 rgba(125, 255, 138, 0.5);
+        }
+        #translation-rows-root.passage-show-components .passage-comp-o {
+            box-shadow: inset 0 -2px 0 rgba(255, 179, 107, 0.55);
+        }
+        #translation-rows-root.passage-show-components .passage-comp-c {
+            box-shadow: inset 0 -2px 0 rgba(215, 137, 255, 0.5);
+        }
+        #translation-rows-root.passage-show-components .passage-comp-m {
+            box-shadow: inset 0 -2px 0 rgba(154, 168, 184, 0.4);
+        }
         .passage-topic-kw {
             border: 1px solid transparent;
             border-radius: 6px;
@@ -4122,6 +4165,108 @@
             return out;
         }
 
+        const PASSAGE_COMPONENT_ROLE_META = {
+            S: { cls: 'passage-comp-s', title: '주어' },
+            V: { cls: 'passage-comp-v', title: '서술어' },
+            O: { cls: 'passage-comp-o', title: '목적어' },
+            C: { cls: 'passage-comp-c', title: '보어' },
+            SC: { cls: 'passage-comp-sc', title: '주격보어' },
+            OC: { cls: 'passage-comp-oc', title: '목적보어' },
+            IO: { cls: 'passage-comp-io', title: '간접목적어' },
+            DO: { cls: 'passage-comp-do', title: '직접목적어' },
+            M: { cls: 'passage-comp-m', title: '수식어' }
+        };
+        const PASSAGE_COMPONENT_ROLE_ALIASES = {
+            SUBJECT: 'S',
+            SUBJ: 'S',
+            주어: 'S',
+            VERB: 'V',
+            PREDICATE: 'V',
+            PRED: 'V',
+            서술어: 'V',
+            OBJECT: 'O',
+            OBJ: 'O',
+            목적어: 'O',
+            COMPLEMENT: 'C',
+            COMP: 'C',
+            보어: 'C',
+            SC: 'SC',
+            SUBJECT_COMPLEMENT: 'SC',
+            주격보어: 'SC',
+            OC: 'OC',
+            OBJECT_COMPLEMENT: 'OC',
+            목적보어: 'OC',
+            IO: 'IO',
+            INDIRECT_OBJECT: 'IO',
+            간접목적어: 'IO',
+            DO: 'DO',
+            DIRECT_OBJECT: 'DO',
+            직접목적어: 'DO',
+            M: 'M',
+            MODIFIER: 'M',
+            MOD: 'M',
+            ADJ: 'M',
+            ADV: 'M',
+            수식어: 'M'
+        };
+
+        function normalizePassageComponentRole(role) {
+            const raw = String(role || '').trim();
+            if (!raw) return '';
+            const up = raw.toUpperCase();
+            if (PASSAGE_COMPONENT_ROLE_META[up]) return up;
+            const alias = PASSAGE_COMPONENT_ROLE_ALIASES[up] || PASSAGE_COMPONENT_ROLE_ALIASES[raw];
+            return alias && PASSAGE_COMPONENT_ROLE_META[alias] ? alias : '';
+        }
+
+        function validatePassageComponents(eng, components) {
+            const plain = normalizePassageEngForDisplay(eng);
+            if (!plain || !Array.isArray(components) || !components.length) return null;
+            const parts = [];
+            for (let i = 0; i < components.length; i++) {
+                const c = components[i];
+                const role = normalizePassageComponentRole(c.role);
+                if (!role) return null;
+                const text = String(c.text != null ? c.text : '');
+                if (!text) return null;
+                parts.push({ text: text, role: role });
+            }
+            const joined = parts.map(function (p) {
+                return p.text;
+            }).join('');
+            if (joined !== plain) return null;
+            return parts;
+        }
+
+        function buildEngHtmlFromPassageComponents(eng, components) {
+            const parts = validatePassageComponents(eng, components);
+            if (!parts) return null;
+            return parts
+                .map(function (p) {
+                    const meta = PASSAGE_COMPONENT_ROLE_META[p.role];
+                    return (
+                        '<span class="passage-comp ' +
+                        meta.cls +
+                        '" data-role="' +
+                        p.role +
+                        '" title="' +
+                        escapeHtml(meta.title) +
+                        '">' +
+                        escapeHtml(p.text) +
+                        '</span>'
+                    );
+                })
+                .join('');
+        }
+
+        function passageHasAnyComponents(res) {
+            const rows = Array.isArray(res && res.full_translation) ? res.full_translation : [];
+            for (let i = 0; i < rows.length; i++) {
+                if (validatePassageComponents(rows[i].eng, rows[i].components)) return true;
+            }
+            return false;
+        }
+
         function wrapTopicKeywordPhrasesInEngHtml(html, phrasesSorted, globalPhraseOnce) {
             if (!html || !phrasesSorted.length) return html;
             return html.split(/(<[^>]+>)/g).map(function (part) {
@@ -4239,6 +4384,16 @@
             btn.setAttribute('aria-pressed', hide ? 'true' : 'false');
             btn.classList.toggle('is-on', hide);
             btn.textContent = hide ? '해석 보이기' : '해석 가리기';
+        };
+
+        window.togglePassageComponentView = function (btn) {
+            const root = document.getElementById('translation-rows-root');
+            if (!root || !btn) return;
+            const on = !root.classList.contains('passage-show-components');
+            root.classList.toggle('passage-show-components', on);
+            btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+            btn.classList.toggle('is-on', on);
+            btn.textContent = on ? '문장성분 끄기' : '문장성분 보기';
         };
 
         async function toggleGrammarSave(point, sentence, explanation, btnElement) {
@@ -5568,7 +5723,9 @@
                             '</div>';
                     }
 
-                    let finalEng = escapeHtml(normalizePassageEngForDisplay(String(s.eng || '')));
+                    const plainEng = normalizePassageEngForDisplay(String(s.eng || ''));
+                    let finalEng = buildEngHtmlFromPassageComponents(plainEng, s.components);
+                    if (!finalEng) finalEng = escapeHtml(plainEng);
                     finalEng = decorateCircledNumberMarks(finalEng);
                     let grammarMarks = "";
 
@@ -5647,14 +5804,23 @@
                 topicKwPhrases.length > 0
                     ? '<button type="button" class="passage-toggle-btn" id="btn-passage-kw-toggle" aria-pressed="false" onclick="togglePassageKeywordHighlight(this)">키워드 보기</button>'
                     : '';
+            const hasPassageComponents = passageHasAnyComponents(res);
+            const passageCompToggleBtn = hasPassageComponents
+                ? '<button type="button" class="passage-toggle-btn" id="btn-passage-comp-toggle" aria-pressed="false" onclick="togglePassageComponentView(this)">문장성분 보기</button>'
+                : '';
             const hasGrammarPoints = res.grammar && res.grammar.length > 0;
             let passageGuideItems =
                 '<li class="passage-guide-line">단어를 클릭하면 뜻을 볼 수 있어요</li>';
+            if (hasPassageComponents) {
+                passageGuideItems +=
+                    '<li class="passage-guide-line">문장성분 보기를 켜면 주어·서술어·목적어 등이 표시돼요</li>';
+            }
             if (hasGrammarPoints) {
                 passageGuideItems +=
                     '<li class="passage-guide-line"><span class="grammar-badge grammar-badge-sample" aria-hidden="true">G1 ↓</span>를 누르면 아래 문법 설명으로 이동해요</li>';
             }
-            const passageLayoutToolbarInner = passageTopicToggleBtn + passageKwToggleBtn + passageKorHideBtn;
+            const passageLayoutToolbarInner =
+                passageTopicToggleBtn + passageKwToggleBtn + passageCompToggleBtn + passageKorHideBtn;
             const passageLayoutCardHtml = buildPassageLayoutCardHtml(
                 res,
                 aiKeywordsObj,
@@ -8530,6 +8696,7 @@
       · **normal**: 위 특이 구조가 없을 때. \`full_translation\`은 **입력에 나온 문장 순서 그대로** 유지하세요.
     - **장문 독해**: 문단이 많고 길면 \`paragraph_subtitles\`에 \`[{ "row_index": 0, "subtitle": "한 줄 소제목" }, ...]\` 형태로 \`full_translation\` **행 인덱스(0부터)**와 맞추거나, 각 \`full_translation\` 객체에 선택 필드 \`"subtitle"\`을 넣어도 됩니다.
     - **복합**(예: 순서 배열 + 어법): **어법 우선** — \`type\`은 반드시 \`"grammar"\`로 하고, \`paragraphs\`와 \`grammar_panel_eng\`·\`corrections\`를 함께 채워 시각 요소를 모두 반영합니다.
+17. **문장성분(components):** \`full_translation\`의 **각 행**마다 \`components\` 배열을 **반드시** 넣으세요(해당 \`eng\`가 **완전한 영어 문장·절**일 때). \`components\`의 각 \`text\`를 **순서대로 이어 붙이면** 그 행의 \`eng\`와 **글자·공백·구두점까지 동일**해야 합니다(공백은 보통 한 칸). \`role\`은 아래 코드만 사용: **S**(주어), **V**(서술어·조동사 포함), **O**(목적어), **C**(보어), **SC**(주격보어), **OC**(목적보어), **IO**(간접목적어), **DO**(직접목적어), **M**(수식어·부사·형용사 구 등). 한 행당 **3~8개** 덩어리로 나누고, **주어·서술어는 가능하면 반드시** 포함하세요. **(A)** 표지만 있는 줄·1~2단어짜리 표지·순서배열 단락 제목만 있는 줄은 \`components\`: \`[]\`(빈 배열). 앱은 **문장성분 보기** 토글 시에만 표시합니다.
 
 출력 JSON 형식:
 {
@@ -8562,7 +8729,7 @@
     "paragraph_subtitles": null
   },
   "full_translation": [
-    { "eng": "원문 문장(grammar 유형이면 교정 완료 평문)", "kor": "해당 문장의 한국어 해석", "subtitle": "선택: 장문일 때 소제목" }
+    { "eng": "원문 문장(grammar 유형이면 교정 완료 평문)", "kor": "해당 문장의 한국어 해석", "subtitle": "선택: 장문일 때 소제목", "components": [{ "text": "Scientists", "role": "S" }, { "text": " have discovered", "role": "V" }, { "text": " a new species.", "role": "O" }] }
   ],
   "grammar": [
     { "point": "중·고 핵심 문법 표준 명칭 (수능·교과서 용어)", "sentence": "문법이 적용된 영어 원문 부분 (지문에서 그대로 발췌)", "explanation": "절·구문·구조 중심으로 해석 팁 (사전적 단어 뜻만 쓰지 말 것)" }
