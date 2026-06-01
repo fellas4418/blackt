@@ -330,7 +330,22 @@
             margin: 0;
             max-width: 100%;
         }
+        /* 영어 줄: 단어 위, 성분 라벨 아래로 세로 배치 */
         #translation-rows-root.passage-show-components .passage-comp-wrap {
+            display: inline-flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            vertical-align: top;
+            margin: 0 1px;
+            max-width: 100%;
+        }
+        /* 한글 줄: 라벨 없이 기존처럼 자연스럽게 흐름 */
+        #translation-rows-root.passage-show-components .kor-text .passage-comp-wrap {
+            display: inline;
+            margin: 0;
+        }
+        /* 수식어(M)는 라벨 없이 일반 텍스트처럼 흐름 */
+        #translation-rows-root.passage-show-components .passage-comp-wrap[data-role="M"] {
             display: inline;
             margin: 0;
         }
@@ -346,6 +361,15 @@
             color: #b8c6d4;
         }
         #translation-rows-root.passage-show-components .passage-comp-lbl {
+            display: block;
+            padding: 0;
+            margin-top: 2px;
+            font-size: 0.58rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        #translation-rows-root.passage-show-components .kor-text .passage-comp-lbl,
+        #translation-rows-root.passage-show-components .passage-comp-wrap[data-role="M"] .passage-comp-lbl {
             display: none;
         }
         .passage-comp {
@@ -357,8 +381,10 @@
         }
         #translation-rows-root.passage-show-components .passage-comp {
             display: inline;
-            padding: 0 2px;
-            text-align: left;
+            padding: 0;
+            text-align: center;
+            min-width: 0;
+            white-space: normal;
         }
         #translation-rows-root.passage-show-components .passage-comp[data-role="S"],
         #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="S"] {
@@ -370,13 +396,16 @@
             color: #f2f8ff;
             font-weight: 600;
         }
-        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="S"] { color: #8ec4ff; }
-        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="V"] { color: #8dffb0; }
-        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="O"] { color: #ffc898; }
-        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="C"] { color: #e0b8ff; }
-        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="M"] { color: #b8c4d4; }
-        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="CNJ"] { color: #ffe08a; }
-        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="REL"] { color: #7ee8ff; }
+        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="S"] { color: #5ba6ff; }
+        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="V"] { color: #4fe892; }
+        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="O"],
+        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="IO"],
+        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="DO"] { color: #ff9b52; }
+        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="C"],
+        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="SC"],
+        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="OC"] { color: #d6a6ff; }
+        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="CNJ"],
+        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="REL"] { color: #aab6c4; }
         #translation-rows-root.passage-show-components .passage-comp[data-role="CNJ"],
         #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="CNJ"],
         #translation-rows-root.passage-show-components .passage-comp[data-role="REL"],
@@ -471,15 +500,15 @@
             box-decoration-break: clone;
         }
         #translation-rows-root.passage-show-components .passage-comp[data-role="S"],
-        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="S"] { border-bottom-color: #5b9dff; }
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="S"] { border-bottom-color: #2f8bff; border-bottom-width: 3px; }
         #translation-rows-root.passage-show-components .passage-comp[data-role="V"],
-        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="V"] { border-bottom-color: #3ddc7a; }
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="V"] { border-bottom-color: #18e06a; border-bottom-width: 3px; }
         #translation-rows-root.passage-show-components .passage-comp[data-role="O"],
         #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="O"],
         #translation-rows-root.passage-show-components .passage-comp[data-role="IO"],
         #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="IO"],
         #translation-rows-root.passage-show-components .passage-comp[data-role="DO"],
-        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="DO"] { border-bottom-color: #ff9137; }
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="DO"] { border-bottom-color: #ff7a1a; }
         #translation-rows-root.passage-show-components .passage-comp[data-role="C"],
         #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="C"],
         #translation-rows-root.passage-show-components .passage-comp[data-role="SC"],
@@ -489,7 +518,7 @@
         #translation-rows-root.passage-show-components .passage-comp[data-role="CNJ"],
         #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="CNJ"],
         #translation-rows-root.passage-show-components .passage-comp[data-role="REL"],
-        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="REL"] { border-bottom-color: #ffd250; }
+        #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="REL"] { border-bottom-color: #9aa7b5; }
         /* 수식어(M)는 강조 없이 일반 텍스트처럼 표시 */
         #translation-rows-root.passage-show-components .passage-comp[data-role="M"],
         #translation-rows-root.passage-show-components .kor-text .passage-comp[data-role="M"] {
@@ -527,12 +556,12 @@
             border-radius: 2px;
             flex: 0 0 auto;
         }
-        .passage-comp-legend .lg-swatch[data-role="S"] { background: linear-gradient(180deg, rgba(55, 130, 255, 0.78), rgba(25, 85, 210, 0.62)); box-shadow: inset 0 0 0 1px rgba(140, 195, 255, 0.85); }
-        .passage-comp-legend .lg-swatch[data-role="V"] { background: linear-gradient(180deg, rgba(45, 220, 95, 0.78), rgba(18, 150, 65, 0.62)); box-shadow: inset 0 0 0 1px rgba(130, 255, 170, 0.85); }
-        .passage-comp-legend .lg-swatch[data-role="O"] { background: linear-gradient(180deg, rgba(255, 145, 55, 0.82), rgba(210, 85, 20, 0.65)); box-shadow: inset 0 0 0 1px rgba(255, 200, 130, 0.88); }
-        .passage-comp-legend .lg-swatch[data-role="C"] { background: linear-gradient(180deg, rgba(195, 95, 255, 0.78), rgba(130, 40, 200, 0.62)); box-shadow: inset 0 0 0 1px rgba(230, 170, 255, 0.85); }
-        .passage-comp-legend .lg-swatch[data-role="M"] { background: linear-gradient(180deg, rgba(130, 145, 165, 0.72), rgba(75, 88, 108, 0.58)); box-shadow: inset 0 0 0 1px rgba(180, 195, 215, 0.75); }
-        .passage-comp-legend .lg-swatch[data-role="CNJ"] { background: linear-gradient(180deg, rgba(255, 210, 80, 0.82), rgba(200, 150, 30, 0.65)); box-shadow: inset 0 0 0 1px rgba(255, 230, 150, 0.9); }
+        .passage-comp-legend .lg-swatch[data-role="S"] { background: #2f8bff; }
+        .passage-comp-legend .lg-swatch[data-role="V"] { background: #18e06a; }
+        .passage-comp-legend .lg-swatch[data-role="O"] { background: #ff7a1a; }
+        .passage-comp-legend .lg-swatch[data-role="C"] { background: #c35fff; }
+        .passage-comp-legend .lg-swatch[data-role="M"] { background: #9aa7b5; }
+        .passage-comp-legend .lg-swatch[data-role="CNJ"] { background: #9aa7b5; }
         .passage-topic-kw {
             border: 1px solid transparent;
             border-radius: 6px;
