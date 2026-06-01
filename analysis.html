@@ -306,6 +306,18 @@
             padding: 8px 10px;
             margin: -2px 0 4px;
         }
+        #translation-rows-root.passage-show-components:not(.passage-show-topic) .translation-row[data-topic-focus="1"] {
+            outline: 2px dashed rgba(255, 190, 70, 0.82);
+            outline-offset: 4px;
+            border-radius: 14px;
+        }
+        #translation-rows-root.passage-show-topic.passage-show-components .translation-row[data-topic-focus="1"] .eng-text {
+            background: linear-gradient(90deg, rgba(255, 190, 70, 0.36), rgba(255, 120, 60, 0.16));
+            box-shadow: inset 0 0 0 2px rgba(255, 210, 120, 0.88);
+            border-radius: 12px;
+            padding: 10px 10px 8px;
+            margin: 2px 0 6px;
+        }
         #translation-rows-root.passage-show-kw .passage-topic-kw {
             border: 1px solid rgba(255, 75, 75, 0.92);
             border-radius: 6px;
@@ -314,13 +326,38 @@
             box-shadow: 0 0 0 1px rgba(255, 60, 60, 0.28), 0 0 8px rgba(255, 50, 50, 0.14);
             display: inline;
         }
+        .passage-comp-wrap {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: bottom;
+            margin: 0 2px;
+            max-width: 100%;
+        }
+        .passage-comp-lbl {
+            display: none;
+            text-align: center;
+            font-size: 0.6rem;
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: -0.03em;
+            padding: 0 3px 4px;
+            white-space: nowrap;
+            color: #b8c6d4;
+        }
+        #translation-rows-root.passage-show-components .passage-comp-lbl,
+        #grammar-points-root.passage-show-components .passage-comp-lbl {
+            display: block;
+        }
         .passage-comp {
-            display: inline;
+            display: inline-block;
             border-radius: 8px;
             padding: 0 2px;
             margin: 0;
+            text-align: center;
         }
-        #translation-rows-root.passage-show-components .passage-comp[data-role="S"] {
+        #translation-rows-root.passage-show-components .passage-comp[data-role="S"],
+        #grammar-points-root.passage-show-components .passage-comp[data-role="S"] {
             background: linear-gradient(180deg, rgba(55, 130, 255, 0.78), rgba(25, 85, 210, 0.62));
             box-shadow: inset 0 0 0 1px rgba(140, 195, 255, 0.85), 0 0 10px rgba(55, 130, 255, 0.22);
             border-radius: 8px;
@@ -329,7 +366,18 @@
             color: #f2f8ff;
             font-weight: 600;
         }
-        #translation-rows-root.passage-show-components .passage-comp[data-role="V"] {
+        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="S"],
+        #grammar-points-root.passage-show-components .passage-comp-lbl[data-role="S"] { color: #8ec4ff; }
+        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="V"],
+        #grammar-points-root.passage-show-components .passage-comp-lbl[data-role="V"] { color: #8dffb0; }
+        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="O"],
+        #grammar-points-root.passage-show-components .passage-comp-lbl[data-role="O"] { color: #ffc898; }
+        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="C"],
+        #grammar-points-root.passage-show-components .passage-comp-lbl[data-role="C"] { color: #e0b8ff; }
+        #translation-rows-root.passage-show-components .passage-comp-lbl[data-role="M"],
+        #grammar-points-root.passage-show-components .passage-comp-lbl[data-role="M"] { color: #b8c4d4; }
+        #translation-rows-root.passage-show-components .passage-comp[data-role="V"],
+        #grammar-points-root.passage-show-components .passage-comp[data-role="V"] {
             background: linear-gradient(180deg, rgba(45, 220, 95, 0.78), rgba(18, 150, 65, 0.62));
             box-shadow: inset 0 0 0 1px rgba(130, 255, 170, 0.85), 0 0 10px rgba(45, 220, 95, 0.2);
             border-radius: 8px;
@@ -338,7 +386,8 @@
             color: #edfff2;
             font-weight: 600;
         }
-        #translation-rows-root.passage-show-components .passage-comp[data-role="O"] {
+        #translation-rows-root.passage-show-components .passage-comp[data-role="O"],
+        #grammar-points-root.passage-show-components .passage-comp[data-role="O"] {
             background: linear-gradient(180deg, rgba(255, 145, 55, 0.82), rgba(210, 85, 20, 0.65));
             box-shadow: inset 0 0 0 1px rgba(255, 200, 130, 0.88), 0 0 10px rgba(255, 145, 55, 0.22);
             border-radius: 8px;
@@ -347,7 +396,8 @@
             color: #fff8f0;
             font-weight: 600;
         }
-        #translation-rows-root.passage-show-components .passage-comp[data-role="C"] {
+        #translation-rows-root.passage-show-components .passage-comp[data-role="C"],
+        #grammar-points-root.passage-show-components .passage-comp[data-role="C"] {
             background: linear-gradient(180deg, rgba(195, 95, 255, 0.78), rgba(130, 40, 200, 0.62));
             box-shadow: inset 0 0 0 1px rgba(230, 170, 255, 0.85), 0 0 10px rgba(195, 95, 255, 0.2);
             border-radius: 8px;
@@ -356,7 +406,8 @@
             color: #faf0ff;
             font-weight: 600;
         }
-        #translation-rows-root.passage-show-components .passage-comp[data-role="SC"] {
+        #translation-rows-root.passage-show-components .passage-comp[data-role="SC"],
+        #grammar-points-root.passage-show-components .passage-comp[data-role="SC"] {
             background: linear-gradient(180deg, rgba(150, 120, 255, 0.75), rgba(95, 60, 190, 0.6));
             box-shadow: inset 0 0 0 1px rgba(200, 180, 255, 0.82);
             border-radius: 8px;
@@ -365,7 +416,8 @@
             color: #f5f0ff;
             font-weight: 600;
         }
-        #translation-rows-root.passage-show-components .passage-comp[data-role="OC"] {
+        #translation-rows-root.passage-show-components .passage-comp[data-role="OC"],
+        #grammar-points-root.passage-show-components .passage-comp[data-role="OC"] {
             background: linear-gradient(180deg, rgba(255, 115, 175, 0.75), rgba(190, 50, 120, 0.6));
             box-shadow: inset 0 0 0 1px rgba(255, 180, 220, 0.82);
             border-radius: 8px;
@@ -374,7 +426,8 @@
             color: #fff0f7;
             font-weight: 600;
         }
-        #translation-rows-root.passage-show-components .passage-comp[data-role="IO"] {
+        #translation-rows-root.passage-show-components .passage-comp[data-role="IO"],
+        #grammar-points-root.passage-show-components .passage-comp[data-role="IO"] {
             background: linear-gradient(180deg, rgba(255, 175, 90, 0.76), rgba(200, 110, 35, 0.6));
             box-shadow: inset 0 0 0 1px rgba(255, 210, 150, 0.82);
             border-radius: 8px;
@@ -383,7 +436,8 @@
             color: #fff6eb;
             font-weight: 600;
         }
-        #translation-rows-root.passage-show-components .passage-comp[data-role="DO"] {
+        #translation-rows-root.passage-show-components .passage-comp[data-role="DO"],
+        #grammar-points-root.passage-show-components .passage-comp[data-role="DO"] {
             background: linear-gradient(180deg, rgba(255, 110, 90, 0.76), rgba(200, 55, 45, 0.6));
             box-shadow: inset 0 0 0 1px rgba(255, 175, 160, 0.82);
             border-radius: 8px;
@@ -392,7 +446,8 @@
             color: #fff2ef;
             font-weight: 600;
         }
-        #translation-rows-root.passage-show-components .passage-comp[data-role="M"] {
+        #translation-rows-root.passage-show-components .passage-comp[data-role="M"],
+        #grammar-points-root.passage-show-components .passage-comp[data-role="M"] {
             background: linear-gradient(180deg, rgba(130, 145, 165, 0.72), rgba(75, 88, 108, 0.58));
             box-shadow: inset 0 0 0 1px rgba(180, 195, 215, 0.75);
             border-radius: 8px;
@@ -401,17 +456,25 @@
             color: #f0f4fa;
             font-weight: 500;
         }
-        #translation-rows-root.passage-show-components .kor-text .passage-comp-kor[data-role="S"] {
+        #translation-rows-root.passage-show-components .kor-text .passage-comp-kor[data-role="S"],
+        #grammar-points-root.passage-show-components .grammar-box-explanation .passage-comp-kor[data-role="S"] {
             color: #d8ecff;
         }
-        #translation-rows-root.passage-show-components .kor-text .passage-comp-kor[data-role="V"] {
+        #translation-rows-root.passage-show-components .kor-text .passage-comp-kor[data-role="V"],
+        #grammar-points-root.passage-show-components .grammar-box-explanation .passage-comp-kor[data-role="V"] {
             color: #d4ffe0;
         }
-        #translation-rows-root.passage-show-components .kor-text .passage-comp-kor[data-role="O"] {
+        #translation-rows-root.passage-show-components .kor-text .passage-comp-kor[data-role="O"],
+        #grammar-points-root.passage-show-components .grammar-box-explanation .passage-comp-kor[data-role="O"] {
             color: #ffe8d0;
         }
-        #translation-rows-root.passage-show-components .kor-text .passage-comp-kor[data-role="C"] {
+        #translation-rows-root.passage-show-components .kor-text .passage-comp-kor[data-role="C"],
+        #grammar-points-root.passage-show-components .grammar-box-explanation .passage-comp-kor[data-role="C"] {
             color: #f3e0ff;
+        }
+        .grammar-box-sentence,
+        .grammar-box-explanation {
+            line-height: 1.55;
         }
         .passage-topic-kw {
             border: 1px solid transparent;
@@ -4377,17 +4440,154 @@
             const isKor = field === 'kor';
             const txt = isKor ? p.kor : p.text;
             return (
+                '<span class="passage-comp-wrap" data-role="' +
+                p.role +
+                '">' +
+                '<span class="passage-comp-lbl" data-role="' +
+                p.role +
+                '">' +
+                escapeHtml(meta.title) +
+                '</span>' +
                 '<span class="passage-comp ' +
                 meta.cls +
                 (isKor ? ' passage-comp-kor' : '') +
                 '" data-role="' +
                 p.role +
-                '" title="' +
-                escapeHtml(meta.title) +
                 '">' +
                 escapeHtml(txt) +
-                '</span>'
+                '</span></span>'
             );
+        }
+
+        function buildTextHtmlWithPassageComponents(plainText, parts, field) {
+            if (!plainText || !parts || !parts.length) return escapeHtml(plainText || '');
+            let pos = 0;
+            let html = '';
+            while (pos < plainText.length) {
+                let pick = null;
+                let pickLen = 0;
+                for (let i = 0; i < parts.length; i++) {
+                    const t = field === 'kor' ? parts[i].kor : parts[i].text;
+                    if (!t) continue;
+                    if (plainText.slice(pos, pos + t.length) === t && t.length > pickLen) {
+                        pick = parts[i];
+                        pickLen = t.length;
+                    }
+                }
+                if (!pick) {
+                    html += escapeHtml(plainText.charAt(pos));
+                    pos += 1;
+                    continue;
+                }
+                html += buildPassageCompSpanHtml(pick, field);
+                pos += pickLen;
+            }
+            return html;
+        }
+
+        function passageComponentsForGrammarSentence(gSentence, fullTranslation) {
+            const gPlain = normalizePassageEngForDisplay(gSentence);
+            if (!gPlain || gPlain.length < 3) return null;
+            const rows = Array.isArray(fullTranslation) ? fullTranslation : [];
+            let best = null;
+            let bestScore = -1;
+            for (let i = 0; i < rows.length; i++) {
+                const parts = validatePassageComponents(rows[i].eng, rows[i].components, rows[i].kor);
+                if (!parts) continue;
+                const engPlain = normalizePassageEngForDisplay(rows[i].eng);
+                if (engPlain.indexOf(gPlain) !== -1) {
+                    if (gPlain.length > bestScore) {
+                        bestScore = gPlain.length;
+                        best = parts;
+                    }
+                    continue;
+                }
+                const gNorm = gPlain.toLowerCase().replace(/[^a-z0-9]/g, '');
+                const engNorm = engPlain.toLowerCase().replace(/[^a-z0-9]/g, '');
+                if (gNorm.length > 5 && engNorm.indexOf(gNorm) !== -1 && gNorm.length > bestScore) {
+                    bestScore = gNorm.length;
+                    best = parts;
+                }
+            }
+            return best;
+        }
+
+        function buildGrammarSentenceDisplayHtml(gSentence, parts) {
+            const plain = normalizePassageEngForDisplay(gSentence);
+            if (!parts) return escapeHtml(plain);
+            return buildTextHtmlWithPassageComponents(plain, parts, 'eng');
+        }
+
+        function buildGrammarExplanationDisplayHtml(explanation, parts) {
+            const raw = String(explanation || '');
+            if (!raw) return '';
+            if (!parts) return escapeHtml(raw);
+            const plain = normalizePassageKorForDisplay(raw);
+            if (parts.hasKor) {
+                const scanned = buildKorHtmlByPlainScan(plain, parts);
+                if (scanned) return scanned;
+            }
+            return buildTextHtmlWithPassageComponents(plain, parts, 'kor');
+        }
+
+        function buildGrammarListWrapHtml(res, savedGrammarList) {
+            if (!res.grammar || !res.grammar.length) {
+                return '<div style="color:#888; font-size:0.9rem;">특이한 특수 구문은 발견되지 않았습니다.</div>';
+            }
+            const grammarBoxes = res.grammar.map(function (g, i) {
+                const safePoint = String(g.point || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const safeSentence = String(g.sentence || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const safeExplanation = String(g.explanation || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const isSaved = savedGrammarList.some(function (item) {
+                    return item.sentence === g.sentence;
+                });
+                const btnClass = isSaved ? 'save-btn-small active' : 'save-btn-small';
+                const btnText = isSaved ? '✅ 저장됨' : '⭐ 저장';
+                const compParts = passageComponentsForGrammarSentence(g.sentence, res.full_translation);
+                const sentHtml = buildGrammarSentenceDisplayHtml(g.sentence, compParts);
+                const explHtml = buildGrammarExplanationDisplayHtml(g.explanation, compParts);
+
+                return (
+                    '<div class="grammar-box" id="grammar-box-' +
+                    i +
+                    '">' +
+                    '<button class="' +
+                    btnClass +
+                    '" data-grammar-sentence="' +
+                    String(g.sentence || '').replace(/"/g, '&quot;') +
+                    '" onclick="toggleGrammarSave(\'' +
+                    safePoint +
+                    "', '" +
+                    safeSentence +
+                    "', '" +
+                    safeExplanation +
+                    '\', this)">' +
+                    btnText +
+                    '</button>' +
+                    '<strong style="color:#bc13fe; display:block; margin-bottom:4px; padding-right:60px;">⚡ [G' +
+                    (i + 1) +
+                    '] ' +
+                    escapeHtml(g.point || '') +
+                    '</strong>' +
+                    '<div class="grammar-box-sentence" style="color:#ddd; font-size:0.85rem; font-style:italic; margin-bottom:6px;">&quot;' +
+                    sentHtml +
+                    '&quot;</div>' +
+                    '<div class="grammar-box-explanation" style="color:#eee; font-size:0.9rem;">' +
+                    explHtml +
+                    '</div></div>'
+                );
+            });
+            if (grammarBoxes.length > GRAMMAR_PREVIEW_VISIBLE) {
+                return (
+                    grammarBoxes.slice(0, GRAMMAR_PREVIEW_VISIBLE).join('') +
+                    '<button type="button" id="grammar-list-toggle-btn" class="grammar-list-toggle-btn" onclick="toggleGrammarPointList()">문법 포인트 펼치기 ▼</button>' +
+                    '<div id="grammar-list-body" class="grammar-list-body--collapsed" style="margin-top:12px;">' +
+                    grammarBoxes.slice(GRAMMAR_PREVIEW_VISIBLE).join('') +
+                    '</div>' +
+                    '<button type="button" id="grammar-list-toggle-btn-bottom" class="grammar-list-toggle-btn" onclick="toggleGrammarPointList()" style="margin-top:12px;">문법 포인트 펼치기 ▼</button>'
+                );
+            }
+            return grammarBoxes.join('');
         }
 
         function buildEngHtmlFromPassageComponents(eng, components, kor) {
@@ -4535,9 +4735,11 @@
 
         window.togglePassageComponentView = function (btn) {
             const root = document.getElementById('translation-rows-root');
+            const grammarRoot = document.getElementById('grammar-points-root');
             if (!root || !btn) return;
             const on = !root.classList.contains('passage-show-components');
             root.classList.toggle('passage-show-components', on);
+            if (grammarRoot) grammarRoot.classList.toggle('passage-show-components', on);
             btn.setAttribute('aria-pressed', on ? 'true' : 'false');
             btn.classList.toggle('is-on', on);
             btn.textContent = on ? '문장성분 끄기' : '문장성분 보기';
@@ -5799,43 +6001,7 @@
                 });
             }
 
-            let grammarHtml = '';
-            let grammarListWrap = '';
-            let savedGrammarList = savedGrammarCache;
-            if (res.grammar && res.grammar.length > 0) {
-                const grammarBoxes = res.grammar.map((g, i) => {
-                    const safePoint = String(g.point || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                    const safeSentence = String(g.sentence || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                    const safeExplanation = String(g.explanation || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                    const isSaved = savedGrammarList.some(item => item.sentence === g.sentence);
-                    const btnClass = isSaved ? "save-btn-small active" : "save-btn-small";
-                    const btnText = isSaved ? "✅ 저장됨" : "⭐ 저장";
-
-                    return `
-                    <div class="grammar-box" id="grammar-box-${i}">
-                        <button class="${btnClass}" data-grammar-sentence="${String(g.sentence || '').replace(/"/g, '&quot;')}" onclick="toggleGrammarSave('${safePoint}', '${safeSentence}', '${safeExplanation}', this)">${btnText}</button>
-                        <strong style="color:#bc13fe; display:block; margin-bottom:4px; padding-right:60px;">⚡ [G${i+1}] ${g.point}</strong>
-                        <div style="color:#ddd; font-size:0.85rem; font-style:italic; margin-bottom:6px;">"${g.sentence}"</div>
-                        <div style="color:#eee; font-size:0.9rem;">${g.explanation}</div>
-                    </div>
-                `;
-                });
-                grammarHtml = grammarBoxes.join('');
-                if (grammarBoxes.length > GRAMMAR_PREVIEW_VISIBLE) {
-                    grammarListWrap =
-                        grammarBoxes.slice(0, GRAMMAR_PREVIEW_VISIBLE).join('') +
-                        '<button type="button" id="grammar-list-toggle-btn" class="grammar-list-toggle-btn" onclick="toggleGrammarPointList()">문법 포인트 펼치기 ▼</button>' +
-                        '<div id="grammar-list-body" class="grammar-list-body--collapsed" style="margin-top:12px;">' +
-                        grammarBoxes.slice(GRAMMAR_PREVIEW_VISIBLE).join('') +
-                        '</div>' +
-                        '<button type="button" id="grammar-list-toggle-btn-bottom" class="grammar-list-toggle-btn" onclick="toggleGrammarPointList()" style="margin-top:12px;">문법 포인트 펼치기 ▼</button>';
-                } else {
-                    grammarListWrap = grammarHtml;
-                }
-            } else {
-                grammarHtml = '<div style="color:#888; font-size:0.9rem;">특이한 특수 구문은 발견되지 않았습니다.</div>';
-                grammarListWrap = grammarHtml;
-            }
+            const savedGrammarList = savedGrammarCache;
 
             const gkForPassage = normalizeGoldenKey(res);
             const topicKwPhrases = topicKeywordPhrasesFromLines(gkForPassage.topic_keywords);
@@ -5963,14 +6129,16 @@
                 '<li class="passage-guide-line">단어를 클릭하면 뜻을 볼 수 있어요</li>';
             if (hasPassageComponents) {
                 passageGuideItems +=
-                    '<li class="passage-guide-line">문장성분 보기를 켜면 영어·해석에 같은 색 배경으로 주어·서술어·목적어가 구분돼요</li>';
+                    '<li class="passage-guide-line">문장성분 보기를 켜면 영어·해석·문법 해설에 주어·서술어 등이 같은 색으로 표시돼요</li>';
             }
             if (hasGrammarPoints) {
                 passageGuideItems +=
                     '<li class="passage-guide-line"><span class="grammar-badge grammar-badge-sample" aria-hidden="true">G1 ↓</span>를 누르면 아래 문법 설명으로 이동해요</li>';
             }
+            const grammarListWrap = buildGrammarListWrapHtml(res, savedGrammarList);
+
             const passageLayoutToolbarInner =
-                passageTopicToggleBtn + passageKwToggleBtn + passageCompToggleBtn + passageKorHideBtn;
+                passageCompToggleBtn + passageTopicToggleBtn + passageKwToggleBtn + passageKorHideBtn;
             const passageLayoutCardHtml = buildPassageLayoutCardHtml(
                 res,
                 aiKeywordsObj,
@@ -5997,7 +6165,7 @@
             document.getElementById('ai-report-area').innerHTML = `
                 ${passageTopBlock}
                 ${translationCardHtml}
-                <div class="result-card" style="border-color: #bc13fe;"><span class="result-label" style="color:#bc13fe;">🛠️ 트리거 팀의 문법 포인트</span><div class="result-content">${grammarListWrap}</div></div>
+                <div class="result-card" style="border-color: #bc13fe;"><span class="result-label" style="color:#bc13fe;">🛠️ 트리거 팀의 문법 포인트</span><div class="result-content" id="grammar-points-root">${grammarListWrap}</div></div>
                 <div class="result-card"><span class="result-label keyword-list-heading-label" style="color:#ff0055;"><span class="keyword-list-heading-row"><span class="keyword-list-heading-icon" aria-hidden="true">📚</span><span class="keyword-list-heading-main">주요 단어 리스트<br><span class="keyword-list-heading-sub">(내 학습 노트에 저장가능)</span></span></span></span><div id="passage-keyword-panel" class="result-content">${keywordHtml}</div></div>
                 ${goldenKeyHtml}
                 <div class="result-card" style="border-color: var(--neon-orange);"><span class="result-label" style="color:var(--neon-orange);">🌎 쓸데없이 고퀄인 배경지식</span><div class="result-content passage-background-knowledge">${backgroundHtml}</div></div>
