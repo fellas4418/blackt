@@ -59,7 +59,7 @@ function assertNoExecutableMarkup(label, markup) {
     if (/<img\b/i.test(markup)) fail(label + ' contains raw img tag');
     else pass(label + ' escapes img-like payloads');
     const rawTags = String(markup || '').match(/<[^>]*>/g) || [];
-    if (rawTags.some((tag) => /\son(?:error|load|mouseover)\s*=/i.test(tag))) fail(label + ' contains raw event attribute');
+    if (rawTags.some((tag) => /\son(?:error|load|mouseover)\s*=/i.test(tag.replace(/"[^"]*"/g, '""')))) fail(label + ' contains raw event attribute');
     else pass(label + ' has no raw event attributes');
 }
 
