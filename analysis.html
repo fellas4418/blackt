@@ -4644,6 +4644,12 @@
         function buildKorHtmlByPlainScan(plainKor, parts) {
             if (!plainKor || !parts || !parts.length) return null;
             const used = new Array(parts.length).fill(false);
+            /* 성분 kor을 공백 정규화 + 앞뒤 구두점 제거한 비교용 코어 (영어에 표시된 성분을 해석에도 동기화) */
+            const coreKor = parts.map(function (p) {
+                if (!isCorePassageRole(p.role) || !p.kor) return '';
+                const norm = normalizePassageKorForDisplay(String(p.kor));
+                return splitPassageCompEdgePunct(norm).core;
+            });
             let pos = 0;
             let html = '';
             while (pos < plainKor.length) {
@@ -4651,8 +4657,7 @@
                 let pickLen = 0;
                 for (let i = 0; i < parts.length; i++) {
                     if (used[i]) continue;
-                    if (!isCorePassageRole(parts[i].role)) continue;
-                    const k = parts[i].kor;
+                    const k = coreKor[i];
                     if (!k) continue;
                     if (plainKor.slice(pos, pos + k.length) === k && k.length > pickLen) {
                         pick = i;
@@ -4665,7 +4670,12 @@
                     continue;
                 }
                 used[pick] = true;
-                html += passageCompSpanHtmlOrPlain(parts[pick], 'kor');
+                /* 표시는 항상 자연 해석문 조각을 그대로 사용 (성분 kor의 군더더기 구두점·공백 차이 무시) */
+                const matched = plainKor.slice(pos, pos + pickLen);
+                html += passageCompSpanHtmlOrPlain(
+                    { text: parts[pick].text, role: parts[pick].role, kor: matched },
+                    'kor'
+                );
                 pos += pickLen;
             }
             if (pos !== plainKor.length) return null;
