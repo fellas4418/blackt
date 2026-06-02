@@ -2803,6 +2803,18 @@
             return String(s || '').replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m]));
         }
 
+        function escapeHtmlAttr(s) {
+            return escapeHtml(s);
+        }
+
+        function inlineJsStringArg(s) {
+            return escapeHtmlAttr(JSON.stringify(String(s == null ? '' : s)));
+        }
+
+        function keywordButtonId(eng) {
+            return 'btn-kw-' + encodeURIComponent(String(eng || ''));
+        }
+
         /** 지문 eng 표시: OCR·모델이 넣은 연속 공백·특수 공백을 한 칸으로 줄여 가독성 확보 */
         function normalizePassageEngForDisplay(s) {
             let t = String(s || '');
@@ -3870,16 +3882,18 @@
                     const isSaved = savedVocaList.some(item => String(item.eng || '').toLowerCase() === String(kw.eng).toLowerCase());
                     const btnClass = isSaved ? 'kw-save-btn active' : 'kw-save-btn';
                     const btnText = isSaved ? '✅' : '저장';
-                    const safeEng = String(kw.eng || '').replace(/'/g, "\\'");
-                    const safeKor = String(kw.kor || '').replace(/'/g, "\\'");
+                    const engArg = inlineJsStringArg(kw.eng);
+                    const korArg = inlineJsStringArg(kw.kor);
+                    const levelArg = inlineJsStringArg(kw.level);
+                    const btnId = escapeHtmlAttr(keywordButtonId(kw.eng));
                     const levelTag = kw.level === 'middle' ? '<span class="kw-tag kw-mid">중등</span>' :
                         kw.level === 'high' ? '<span class="kw-tag kw-high">고등</span>' :
                             '<span class="kw-tag kw-other">기타</span>';
                     vocaItemsArray.push(
                         '<div class="kw-container"><div class="kw-body">' + levelTag +
-                        '<strong style="color:#fff; font-size:1.05rem; cursor:pointer;" onclick="showWordPopup(\'' + safeEng + '\', \'' + safeKor + '\', \'' + kw.level + '\')">' + kw.eng + '</strong> ' +
-                        '<span style="color:#aaa; font-size:0.9rem; margin-left:6px;">' + kw.kor + '</span></div>' +
-                        '<button id="btn-kw-' + kw.eng + '" class="' + btnClass + '" onclick="toggleVocaSave(\'' + safeEng + '\', \'' + safeKor + '\', \'' + kw.level + '\', this)">' + btnText + '</button></div>'
+                        '<strong style="color:#fff; font-size:1.05rem; cursor:pointer;" onclick="showWordPopup(' + engArg + ', ' + korArg + ', ' + levelArg + ')">' + escapeHtml(kw.eng) + '</strong> ' +
+                        '<span style="color:#aaa; font-size:0.9rem; margin-left:6px;">' + escapeHtml(kw.kor) + '</span></div>' +
+                        '<button id="' + btnId + '" class="' + btnClass + '" onclick="toggleVocaSave(' + engArg + ', ' + korArg + ', ' + levelArg + ', this)">' + btnText + '</button></div>'
                     );
                 });
                 if (vocaItemsArray.length > 3) {
@@ -4009,18 +4023,18 @@
             const isSaved = savedVocaCache.some(item => String(item.eng || '').toLowerCase() === String(eng || '').toLowerCase());
             const btnText = isSaved ? "✅" : "저장";
             const btnClass = isSaved ? "kw-save-btn active" : "kw-save-btn";
-            
-            const safeEng = String(eng || '').replace(/'/g, "\\'");
-            let safeKor = String(kor || '').replace(/'/g, "\\'");
-            if (safeKor === "undefined" || safeKor === "null") safeKor = "";
+            const cleanKor = kor == null || String(kor) === "undefined" || String(kor) === "null" ? "" : String(kor);
+            const engArg = inlineJsStringArg(eng);
+            const korArg = inlineJsStringArg(cleanKor);
+            const levelArg = inlineJsStringArg(level);
             
             popup.innerHTML = `
                 <div style="flex:1;">
-                    <strong style="color:#fff; font-size:1.15rem;">${eng || ''}</strong>
-                    <div style="color:#aaa; font-size:0.9rem; margin-top:2px;">${safeKor}</div>
+                    <strong style="color:#fff; font-size:1.15rem;">${escapeHtml(eng || '')}</strong>
+                    <div style="color:#aaa; font-size:0.9rem; margin-top:2px;">${escapeHtml(cleanKor)}</div>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <button class="${btnClass}" onclick="toggleVocaSave('${safeEng}', '${safeKor}', '${level}', this)" style="padding: 8px 14px; border-radius: 8px;">${btnText}</button>
+                    <button class="${btnClass}" onclick="toggleVocaSave(${engArg}, ${korArg}, ${levelArg}, this)" style="padding: 8px 14px; border-radius: 8px;">${btnText}</button>
                     <button type="button" onclick="closeWordPopup()" style="padding: 8px 14px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid #555; color:#bbb; font-weight:bold; cursor:pointer; font-size:0.75rem; line-height:1.2;">닫기</button>
                 </div>
             `;
@@ -4054,7 +4068,7 @@
                     });
                 }
                 if (type === 'voca' && target && target.eng) {
-                    const listBtn = document.getElementById(`btn-kw-${target.eng}`);
+                    const listBtn = document.getElementById(keywordButtonId(target.eng));
                     if (listBtn) {
                         listBtn.innerText = "저장";
                         listBtn.classList.remove('active');
@@ -4200,7 +4214,7 @@
 
         function grammarBadgeHtml(index, point) {
             const i = Number(index);
-            const safePoint = String(point || '').replace(/"/g, '&quot;');
+            const safePoint = escapeHtmlAttr(point || '');
             const label = '문법 G' + (i + 1) + ', 아래 설명으로 이동';
             return (
                 '<span class="grammar-badge" role="button" tabindex="0" ' +
@@ -4802,9 +4816,9 @@
                 return '<div style="color:#888; font-size:0.9rem;">특이한 특수 구문은 발견되지 않았습니다.</div>';
             }
             const grammarBoxes = res.grammar.map(function (g, i) {
-                const safePoint = String(g.point || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                const safeSentence = String(g.sentence || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                const safeExplanation = String(g.explanation || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const pointArg = inlineJsStringArg(g.point);
+                const sentenceArg = inlineJsStringArg(g.sentence);
+                const explanationArg = inlineJsStringArg(g.explanation);
                 const isSaved = savedGrammarList.some(function (item) {
                     return item.sentence === g.sentence;
                 });
@@ -4818,14 +4832,14 @@
                     '<button class="' +
                     btnClass +
                     '" data-grammar-sentence="' +
-                    String(g.sentence || '').replace(/"/g, '&quot;') +
-                    '" onclick="toggleGrammarSave(\'' +
-                    safePoint +
-                    "', '" +
-                    safeSentence +
-                    "', '" +
-                    safeExplanation +
-                    '\', this)">' +
+                    escapeHtmlAttr(g.sentence || '') +
+                    '" onclick="toggleGrammarSave(' +
+                    pointArg +
+                    ', ' +
+                    sentenceArg +
+                    ', ' +
+                    explanationArg +
+                    ', this)">' +
                     btnText +
                     '</button>' +
                     '<strong style="color:#bc13fe; display:block; margin-bottom:4px; padding-right:60px;">⚡ [G' +
@@ -5055,7 +5069,7 @@
                     btnElement.innerText = "저장";
                     btnElement.classList.remove('active');
                 }
-                const listBtn = document.getElementById(`btn-kw-${eng}`);
+                const listBtn = document.getElementById(keywordButtonId(eng));
                 if(listBtn) { listBtn.innerText = "저장"; listBtn.classList.remove('active'); }
             } else {
                 const item = { 
@@ -5070,7 +5084,7 @@
                     btnElement.innerText = "✅";
                     btnElement.classList.add('active');
                 }
-                const listBtn = document.getElementById(`btn-kw-${eng}`);
+                const listBtn = document.getElementById(keywordButtonId(eng));
                 if(listBtn) { listBtn.innerText = "✅"; listBtn.classList.add('active'); }
             }
             checkAllSavedStatus();
@@ -6244,7 +6258,7 @@
             const aiSubjectSnippet = res.subject?.formal ? res.subject.formal.substring(0, 12).trim() : "지문 분석";
             currentPassageTitle = `[${categoryInfo}] ${aiSubjectSnippet}...`;
 
-            let backgroundHtml = res.background || '내용 확인 중';
+            let backgroundHtml = escapeHtml(res.background || '내용 확인 중').replace(/\r?\n/g, '<br>');
 
             // 단어 리스트: worddata(마스터) + 시중 단어장 표제어(merged) — AI keywords 미사용
             aiKeywordsObj = buildDeterministicKeywordList(res);
