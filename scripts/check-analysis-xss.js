@@ -58,7 +58,7 @@ function assertNoExecutableMarkup(label, markup) {
     else pass(label + ' has no script tag');
     if (/<img\b/i.test(markup)) fail(label + ' contains raw img tag');
     else pass(label + ' escapes img-like payloads');
-    if (/\sonerror\s*=|\sonload\s*=|\sonmouseover\s*=/i.test(markup)) fail(label + ' contains raw event attribute');
+    if (/<[^>]+\son(?:error|load|mouseover)\s*=/i.test(markup)) fail(label + ' contains raw event attribute');
     else pass(label + ' has no raw event attributes');
 }
 
