@@ -9431,6 +9431,143 @@
             showExamReportWorkspaceCore();
         })();
 
+        function passageAnalysisErrMsg(err) {
+            if (!err) return '';
+            if (typeof err === 'string') return err;
+            return String(err.message || err.apiError || err || '');
+        }
+
+        function isPassageAnalysisTransientError(err) {
+            if (err && err.passageAnalysisKind === 'transient') return true;
+            const m = passageAnalysisErrMsg(err).toLowerCase();
+            const st = err && err.httpStatus;
+            if (st === 429 || st === 503 || st === 502 || st === 500) return true;
+            if (err && err.name === 'TypeError' && m.indexOf('failed to fetch') !== -1) return true;
+            return /high demand|quota|resource exhausted|overloaded|unavailable|too many|rate limit|empty_response|empty_gemini|internal_error|temporarily|try again|json|syntaxerror|network|ai 응답 중단/i.test(m);
+        }
+
+        function isPassageAnalysisOcrLikelyError(err) {
+            if (err && err.passageAnalysisKind === 'ocr') return true;
+            return /empty_passage|인식하지 못했|판독/i.test(passageAnalysisErrMsg(err));
+        }
+
+        function parsePassageAnalysisGeminiData(data) {
+            if (!data) {
+                const e = new Error('empty_response');
+                e.passageAnalysisKind = 'transient';
+                throw e;
+            }
+            if (data.error) {
+                const e = new Error(data.error.message || data.error || 'API Error');
+                if (isPassageAnalysisTransientError(e)) e.passageAnalysisKind = 'transient';
+                throw e;
+            }
+            const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (!text) {
+                const finish = data?.candidates?.[0]?.finishReason || '';
+                const block = data?.promptFeedback?.blockReason || '';
+                const e = new Error(finish || block ? ('AI 응답 중단: ' + (finish || block)) : 'empty_response');
+                e.passageAnalysisKind = 'transient';
+                throw e;
+            }
+            let cleanJsonStr = String(text).trim();
+            const startIndex = cleanJsonStr.indexOf('{');
+            const endIndex = cleanJsonStr.lastIndexOf('}');
+            if (startIndex !== -1 && endIndex !== -1) {
+                cleanJsonStr = cleanJsonStr.substring(startIndex, endIndex + 1);
+            }
+            let res;
+            try {
+                res = JSON.parse(cleanJsonStr);
+            } catch (parseErr) {
+                const e = new Error('분석 결과 형식 오류(JSON). 잠시 후 다시 시도해 주세요.');
+                e.passageAnalysisKind = 'transient';
+                throw e;
+            }
+            const rows = res && res.full_translation;
+            const hasRows = Array.isArray(rows) && rows.some(function (row) {
+                return row && String(row.eng || '').trim().length > 0;
+            });
+            if (!hasRows) {
+                const e = new Error('empty_passage');
+                e.passageAnalysisKind = 'ocr';
+                throw e;
+            }
+            return res;
+        }
+
+        async function requestPassageAnalyzeOnce(payload) {
+            const base = WORKER_URL.replace(/\/$/, '');
+            const urls = [base + '/api/analyze', base + '/'];
+            let lastErr = null;
+            for (const u of urls) {
+                try {
+                    const r = await fetch(u, {
+                        method: 'POST',
+                        cache: 'no-store',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const d = await r.json().catch(() => ({}));
+                    if (!r.ok) {
+                        const e = new Error((d && (d.error?.message || d.error)) ? (d.error.message || d.error) : 'HTTP ' + r.status);
+                        e.httpStatus = r.status;
+                        if (isPassageAnalysisTransientError(e)) e.passageAnalysisKind = 'transient';
+                        throw e;
+                    }
+                    return parsePassageAnalysisGeminiData(d);
+                } catch (e) {
+                    lastErr = e;
+                }
+            }
+            throw lastErr || new Error('API Error');
+        }
+
+        async function requestPassageAnalyzeWithRetry(payload) {
+            const maxAttempts = 4;
+            const delays = [0, 2500, 5000, 8000];
+            let lastErr = null;
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                if (attempt > 0) {
+                    await new Promise(function (r) { setTimeout(r, delays[attempt] || 5000); });
+                }
+                try {
+                    return await requestPassageAnalyzeOnce(payload);
+                } catch (e) {
+                    lastErr = e;
+                    if (attempt < maxAttempts - 1 && isPassageAnalysisTransientError(e)) continue;
+                    break;
+                }
+            }
+            throw lastErr || new Error('API Error');
+        }
+
+        function alertPassageAnalysisFailure(error, isTextMode) {
+            const msg = passageAnalysisErrMsg(error);
+            if (isPassageAnalysisTransientError(error)) {
+                alert(
+                    '분석 서버가 일시적으로 바쁩니다.\n\n' +
+                    '5~10분 뒤에 다시 시도해 주세요.\n' +
+                    '급하시면 「지문 복사/붙여넣기」로 분석할 수 있어요.\n' +
+                    (isTextMode ? '' : '(사진·결제 문제가 아닐 수 있어요)') +
+                    (msg ? '\n\n기술 정보: ' + msg.slice(0, 120) : '')
+                );
+                return;
+            }
+            if (!isTextMode && isPassageAnalysisOcrLikelyError(error)) {
+                alert(
+                    '사진에서 지문을 읽지 못했어요.\n\n' +
+                    '아래를 확인한 뒤 다시 올려 주세요.\n' +
+                    '- 한 문항(한 지문)만, 다음 번호가 안 보이게\n' +
+                    '- 글자가 화면에 꽉 차게, 수평·밝은 곳\n' +
+                    '- 흔들림·그림자·반사 없이\n\n' +
+                    '계속 실패하면 「지문 복사/붙여넣기」를 이용해 주세요.'
+                );
+                return;
+            }
+            alert('에러가 발생했어요. 잠시 후 다시 시도해 주세요.\n\n' + (msg || ''));
+        }
+
         async function runGeminiAnalysis(isTextMode = false) {
             const editArea = document.getElementById('ocr-edit-area');
             const editedText = (editArea.innerText || editArea.textContent || "").trim();
@@ -9442,33 +9579,15 @@
                 alert("분석할 지문을 입력해주세요!");
                 return;
             }
+            if (!isTextMode && !selectedBase64) {
+                alert('사진을 먼저 선택하거나 촬영해 주세요.');
+                return;
+            }
 
             if (activeBtn) activeBtn.disabled = true;
             startLoadingText(activeBtn);
 
             try {
-                async function requestAnalyze(payload) {
-                    const base = WORKER_URL.replace(/\/$/, '');
-                    const urls = [base + '/api/analyze', base + '/'];
-                    let lastErr = null;
-                    for (const u of urls) {
-                        try {
-                            const r = await fetch(u, {
-                                method: 'POST',
-                                cache: 'no-store',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify(payload)
-                            });
-                            const d = await r.json().catch(() => ({}));
-                            if (!r.ok) throw new Error((d && (d.error?.message || d.error)) ? (d.error.message || d.error) : `HTTP ${r.status}`);
-                            if (d && d.error) throw new Error(d.error.message || d.error || 'API Error');
-                            return d;
-                        } catch (e) {
-                            lastErr = e;
-                        }
-                    }
-                    throw lastErr || new Error('API Error');
-                }
 
                 const prompt = `당신은 대한민국 최고의 1타 영어 강사입니다. 입력된 지문을 분석하여 반드시 순수한 JSON 형식으로만 응답하세요. 마크다운 태그(\`\`\`json 등)는 절대 생략하세요.
 
@@ -9594,35 +9713,12 @@
                     };
                 }
 
-                let data = null;
-                let maxRetries = 3;
-                for (let attempt = 1; attempt <= maxRetries; attempt++) {
-                    data = await requestAnalyze(payload);
-                    if (data.error && data.error.message && data.error.message.includes("high demand")) {
-                        if (attempt < maxRetries) {
-                            await new Promise(r => setTimeout(r, 3000));
-                            continue;
-                        }
-                    }
-                    if(data.error) throw new Error(data.error.message || 'API Error'); 
-                    break;
-                }
+                const res = await requestPassageAnalyzeWithRetry(payload);
 
                 clearInterval(loadingInterval);
                 document.getElementById('input-section').style.display = 'none';
                 document.getElementById('edit-section').style.display = 'none';
                 document.getElementById('result-section').style.display = 'block';
-
-                let res = data;
-                if (data.candidates && data.candidates[0].content.parts[0].text) {
-                    let cleanJsonStr = data.candidates[0].content.parts[0].text;
-                    const startIndex = cleanJsonStr.indexOf('{');
-                    const endIndex = cleanJsonStr.lastIndexOf('}');
-                    if (startIndex !== -1 && endIndex !== -1) {
-                        cleanJsonStr = cleanJsonStr.substring(startIndex, endIndex + 1);
-                    }
-                    res = JSON.parse(cleanJsonStr);
-                }
 
                 if (passageFingerprint) {
                     try { setCachedAnalysis(passageFingerprint, res); } catch (e) {}
@@ -9633,22 +9729,7 @@
             } catch (error) {
                 console.error("🔥 진짜 에러 원인:", error);
                 stopLoadingText(isTextMode, activeBtn);
-
-                // ✅ 사용자용 메시지: 사진 인식(OCR) 실패 유도
-                if (!isTextMode) {
-                    alert(
-                        "사진을 인식하지 못했어요.\n\n" +
-                        "아래처럼 다시 한 번만 선명하게 찍어서 올려주세요.\n" +
-                        "- 글자가 화면에 꽉 차게(너무 멀리서 찍지 않기)\n" +
-                        "- 흔들림/기울어짐 없이 수평 유지\n" +
-                        "- 그림자/반사광 피하기 (밝은 곳에서)\n" +
-                        "- 초점이 또렷하게 잡힌 사진\n\n" +
-                        "다시 사진을 선택해서 올려주세요!"
-                    );
-                    return;
-                }
-
-                alert("에러가 발생했어요. 잠시 후 다시 시도해주세요.\n\n" + (error && error.message ? error.message : ""));
+                alertPassageAnalysisFailure(error, isTextMode);
             }
         }
 
