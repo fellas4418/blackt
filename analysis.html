@@ -6846,8 +6846,17 @@
             });
             const titleIn = document.getElementById('passage-title-input');
             if (titleIn) {
-                titleIn.value =
-                    hist && typeof hist.userTitle === 'string' ? hist.userTitle : '';
+                let restoredUserTitle = '';
+                if (hist) {
+                    if (Object.prototype.hasOwnProperty.call(hist, 'userTitle')) {
+                        restoredUserTitle = typeof hist.userTitle === 'string' ? hist.userTitle : '';
+                    } else {
+                        const legacyTitle = typeof hist.title === 'string' ? hist.title.trim() : '';
+                        const autoTitle = typeof currentPassageTitle === 'string' ? currentPassageTitle.trim() : '';
+                        if (legacyTitle && legacyTitle !== autoTitle) restoredUserTitle = legacyTitle;
+                    }
+                }
+                titleIn.value = restoredUserTitle;
             }
             try {
                 passageHistoryUpsertFromCurrent();
