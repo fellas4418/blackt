@@ -25,7 +25,7 @@ export async function onRequestPost(context) {
       });
     }
 
-    // 2. 고정 및 가변 프롬프트 처리 (요청하신 필수 문법 목록 일괄 포함)
+    // 2. 문법 카테고리 고정 틀 정의
     let systemInstruction = "";
     if (analysis_type === "DEFAULT" || analysis_type === "VERBS_ALL") {
       systemInstruction = `
@@ -43,7 +43,7 @@ export async function onRequestPost(context) {
       systemInstruction = `영어 지문에서 다음 분류에 맞춰 분석하세요: ${analysis_type}`;
     }
 
-    // 3. D1 - passages 테이블 스키마 정합성 맞춤 및 중복 변수 매핑 수정
+    // 3. D1 - passages 테이블 스키마 저장
     const passageInsert = await env.DB.prepare(
       "INSERT INTO passages (exam_name, prob_no, prob_type, passage_text, created_at) VALUES (?, ?, ?, ?, datetime('now')) RETURNING id"
     ).bind(
@@ -58,8 +58,8 @@ export async function onRequestPost(context) {
     }
     const passageId = passageInsert.id;
 
-    // 4. Gemini API 호출 (v1beta 버전 엔드포인트와 특정 모델명 지정으로 페이로드 에러 해결)
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${env.GEMINI_API_KEY}`;
+    // 4. Gemini API 호출 (최신 버전 규격 gemini-2.5-flash 모델 적용 완료)
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${env.GEMINI_API_KEY}`;
     
     const geminiResponse = await fetch(geminiUrl, {
       method: "POST",
