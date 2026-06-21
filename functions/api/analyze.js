@@ -8,7 +8,15 @@ export async function onRequestPost(context) {
   };
 
   try {
-    const { passage, analysis_type = "DEFAULT" } = await request.json();
+    // 1. 요청 데이터 추출 및 예외 처리
+    const body = await request.json().catch(() => ({}));
+    const { 
+      passage, 
+      analysis_type = "DEFAULT",
+      exam_name = null,
+      prob_no = null,
+      prob_type = null
+    } = body;
     
     if (!passage || passage.trim() === "") {
       return new Response(JSON.stringify({ error: "지문이 비어 있습니다." }), { 
@@ -17,26 +25,30 @@ export async function onRequestPost(context) {
       });
     }
 
-    // 1. 가변 프롬프트 처리 (나중에 지시사항이 늘어나면 케이스만 추가하면 됨)
+    // 2. 가변 프롬프트 처리
     let systemInstruction = "";
     if (analysis_type === "GRAMMAR_ALL") {
       systemInstruction = "영어 지문에서 사역동사, 지각동사, 수여동사뿐만 아니라 관계대명사, 준동사 구조까지 모두 찾아 정밀 분석하세요.";
     } else {
-      // 기본값: 사역/지각/수여동사 고정 틀
       systemInstruction = "영어 지문에서 '사역동사', '지각동사', '수여동사' 등 특수동사 구조가 쓰인 문장을 찾아 정밀하게 분석하세요.";
     }
 
-    // 2. D1 - passages 테이블 원문 저장
+    // 3. D1 - passages 테이블 스키마 정합성 맞춤 (passage_text 및 모의고사 정보 컬럼 반영)
     const passageInsert = await env.DB.prepare(
-      "INSERT INTO passages (content, created_at) VALUES (?, datetime('now')) RETURNING id"
-    ).bind(passage).first();
+      "INSERT INTO passages (exam_name, prob_no, prob_type, passage_text, created_at) VALUES (?, ?, ?, ?, datetime('now')) RETURNING id"
+    ).bind(
+      exam_name,
+      prob_no,
+      prob_no ? parseInt(prob_no, 10) : null, // 정수형 변환 처리 리스크 방지
+      passage
+    ).first();
 
     if (!passageInsert || !passageInsert.id) {
-      throw new Error("passages 테이블 저장 실패");
+      throw new Error("passages 테이블 저장에 실패했습니다.");
     }
     const passageId = passageInsert.id;
 
-    // 3. Gemini API 호출 + 엄격한 JSON 스키마 강제
+    // 4. Gemini API 호출 + 엄격한 JSON 스키마 강제
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${env.GEMINI_API_KEY}`;
     
     const geminiResponse = await fetch(geminiUrl, {
@@ -44,13 +56,11 @@ export async function onRequestPost(context) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ parts: [{ text: `지문:\n${passage}` }] }],
-        // systemInstruction을 통해 역할과 규칙을 명확히 주입
         systemInstruction: {
           parts: [{ text: `${systemInstruction} 지문의 첫 번째 문장을 1번으로 하여 문장 번호를 매기세요.` }]
         },
         generationConfig: {
           responseMimeType: "application/json",
-          // [핵심] 출력 형식을 완벽하게 통제하는 스키마 구조 선언
           responseSchema: {
             type: "ARRAY",
             items: {
@@ -74,23 +84,29 @@ export async function onRequestPost(context) {
     }
 
     const geminiData = await geminiResponse.json();
-    const analysisResults = JSON.parse(geminiData.candidates[0].content.parts[0].text);
+    const aiResponseText = geminiData.candidates[0].content.parts[0].text;
+    
+    let analysisResults;
+    try {
+      analysisResults = JSON.parse(aiResponseText);
+    } catch (e) {
+      throw new Error("Gemini 응답을 파싱하는 중 오류가 발생했습니다.");
+    }
 
-    // 4. D1 - special_verbs 테이블 Bulk Insert (안전한 트랜잭션 처리)
-    if (analysisResults.length > 0) {
+    // 5. D1 - special_verbs 테이블 Bulk Insert (안전한 트랜잭션 처리)
+    if (analysisResults && analysisResults.length > 0) {
       const statements = analysisResults.map(item => {
         return env.DB.prepare(
           "INSERT INTO special_verbs (passage_id, sentence_number, word, tag_class, display_text, created_at) VALUES (?, ?, ?, ?, ?, datetime('now'))"
         ).bind(
           passageId,
-          item.sentence_number,
-          item.word,
-          item.tag_class,
-          item.display_text
+          item.sentence_number || 0,
+          item.word || "",
+          item.tag_class || "",
+          item.display_text || ""
         );
       });
 
-      // 단 한 번의 DB 커넥션으로 트랜잭션 처리 (성능 및 안정성 극대화)
       await env.DB.batch(statements);
     }
 
