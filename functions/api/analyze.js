@@ -49,7 +49,7 @@ export async function onRequestPost(context) {
     const passageId = passageInsert.id;
 
     // 4. Gemini API 호출 + 엄격한 JSON 스키마 강제
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${env.GEMINI_API_KEY}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${env.GEMINI_API_KEY}`;
     
     const geminiResponse = await fetch(geminiUrl, {
       method: "POST",
