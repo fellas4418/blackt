@@ -25,21 +25,31 @@ export async function onRequestPost(context) {
       });
     }
 
-    // 2. 가변 프롬프트 처리
+    // 2. 고정 및 가변 프롬프트 처리 (요청하신 필수 문법 목록 일괄 포함)
     let systemInstruction = "";
-    if (analysis_type === "GRAMMAR_ALL") {
+    if (analysis_type === "DEFAULT" || analysis_type === "VERBS_ALL") {
+      systemInstruction = `
+영어 지문을 정밀 분석하여 다음 문법 카테고리에 해당하는 문장 구조를 찾아내세요:
+1. '수여동사' (4형식 문장 구조)
+2. '감각동사' (2형식 주격보어 구조 - look, smell, taste, sound, feel 등)
+3. '사역동사' (5형식 목적격보어 구조 - make, have, let 및 준사역 help, get 등)
+4. '감정동사' (사람의 감정을 유발하거나 느끼게 하는 동사 구조)
+5. '5형식 동사' (사역/지각 제외하고 목적격 보어를 취하는 구조 - call, find, keep, consider, want 등)
+6. '2형식 동사' (remain, stay, turn, become, seem 등 주격 보어를 취하는 상태/상태변화 유지 구조)
+`;
+    } else if (analysis_type === "GRAMMAR_ALL") {
       systemInstruction = "영어 지문에서 사역동사, 지각동사, 수여동사뿐만 아니라 관계대명사, 준동사 구조까지 모두 찾아 정밀 분석하세요.";
     } else {
-      systemInstruction = "영어 지문에서 '사역동사', '지각동사', '수여동사' 등 특수동사 구조가 쓰인 문장을 찾아 정밀하게 분석하세요.";
+      systemInstruction = `영어 지문에서 다음 분류에 맞춰 분석하세요: ${analysis_type}`;
     }
 
-    // 3. D1 - passages 테이블 스키마 정합성 맞춤 (passage_text 및 모의고사 정보 컬럼 반영)
+    // 3. D1 - passages 테이블 스키마 정합성 맞춤 및 중복 변수 매핑 수정
     const passageInsert = await env.DB.prepare(
       "INSERT INTO passages (exam_name, prob_no, prob_type, passage_text, created_at) VALUES (?, ?, ?, ?, datetime('now')) RETURNING id"
     ).bind(
       exam_name,
-      prob_no,
-      prob_no ? parseInt(prob_no, 10) : null, // 정수형 변환 처리 리스크 방지
+      prob_no ? parseInt(prob_no, 10) : null,
+      prob_type,
       passage
     ).first();
 
@@ -48,7 +58,7 @@ export async function onRequestPost(context) {
     }
     const passageId = passageInsert.id;
 
-    // 4. Gemini API 호출 + 엄격한 JSON 스키마 강제
+    // 4. Gemini API 호출 (v1beta 버전 엔드포인트와 특정 모델명 지정으로 페이로드 에러 해결)
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${env.GEMINI_API_KEY}`;
     
     const geminiResponse = await fetch(geminiUrl, {
