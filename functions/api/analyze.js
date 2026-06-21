@@ -43,7 +43,7 @@ export async function onRequestPost(context) {
       systemInstruction = `영어 지문에서 다음 분류에 맞춰 분석하세요: ${analysis_type}`;
     }
 
-    // 3. D1 - passages 테이블 스키마 저장
+    // 3. D1 - passages 테이블 스키마 저장 (passage_text 반영)
     const passageInsert = await env.DB.prepare(
       "INSERT INTO passages (exam_name, prob_no, prob_type, passage_text, created_at) VALUES (?, ?, ?, ?, datetime('now')) RETURNING id"
     ).bind(
@@ -58,7 +58,7 @@ export async function onRequestPost(context) {
     }
     const passageId = passageInsert.id;
 
-    // 4. Gemini API 호출 (최신 버전 규격 gemini-2.5-flash 모델 적용 완료)
+    // 4. Gemini API 호출 (최신 버전에 호환되는 규격인 gemini-2.5-flash 모델 사용)
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${env.GEMINI_API_KEY}`;
     
     const geminiResponse = await fetch(geminiUrl, {
@@ -103,11 +103,11 @@ export async function onRequestPost(context) {
       throw new Error("Gemini 응답을 파싱하는 중 오류가 발생했습니다.");
     }
 
-    // 5. D1 - special_verbs 테이블 Bulk Insert (안전한 트랜잭션 처리)
+    // 5. D1 - special_verbs 테이블 스키마에 맞춤 (sentence_no, target_word, tag_text 반영)
     if (analysisResults && analysisResults.length > 0) {
       const statements = analysisResults.map(item => {
         return env.DB.prepare(
-          "INSERT INTO special_verbs (passage_id, sentence_number, word, tag_class, display_text, created_at) VALUES (?, ?, ?, ?, ?, datetime('now'))"
+          "INSERT INTO special_verbs (passage_id, sentence_no, target_word, tag_class, tag_text) VALUES (?, ?, ?, ?, ?)"
         ).bind(
           passageId,
           item.sentence_number || 0,
