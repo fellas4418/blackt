@@ -1,0 +1,99 @@
+{
+  "id": "svo",
+  "chapter": "01",
+  "title": "주·동·목",
+  "subtitle": "누가 · 뭐 한다 · 뭘",
+  "guide": [
+    "주어 뒤에는 은/는",
+    "목적어 뒤에는 을/를",
+    "동사는 ~다",
+    "한국어 순서는 주·목·동"
+  ],
+  "steps": [
+    {
+      "eng": "A penguin likes fish.",
+      "change": "base",
+      "eng_tokens": [
+        { "text": "A penguin", "maps": 0, "role": "s" },
+        { "text": "likes", "maps": 2, "role": "v" },
+        { "text": "fish", "maps": 1, "role": "o" }
+      ],
+      "kor_slots": [
+        { "word": "펭귄", "particle": "은", "role": "주어", "rule": "은/는" },
+        { "word": "물고기", "particle": "를", "role": "목적어", "rule": "을/를" },
+        { "word": "좋아한다", "particle": "", "role": "서술어", "rule": "-다" }
+      ]
+    },
+    {
+      "eng": "A penguin likes pizza.",
+      "change": "o",
+      "eng_tokens": [
+        { "text": "A penguin", "maps": 0, "role": "s" },
+        { "text": "likes", "maps": 2, "role": "v" },
+        { "text": "pizza", "maps": 1, "role": "o" }
+      ],
+      "kor_slots": [
+        { "word": "펭귄", "particle": "은", "role": "주어", "rule": "은/는" },
+        { "word": "피자", "particle": "를", "role": "목적어", "rule": "을/를" },
+        { "word": "좋아한다", "particle": "", "role": "서술어", "rule": "-다" }
+      ]
+    },
+    {
+      "eng": "A penguin likes homework.",
+      "change": "o",
+      "eng_tokens": [
+        { "text": "A penguin", "maps": 0, "role": "s" },
+        { "text": "likes", "maps": 2, "role": "v" },
+        { "text": "homework", "maps": 1, "role": "o" }
+      ],
+      "kor_slots": [
+        { "word": "펭귄", "particle": "은", "role": "주어", "rule": "은/는" },
+        { "word": "숙제", "particle": "를", "role": "목적어", "rule": "을/를" },
+        { "word": "좋아한다", "particle": "", "role": "서술어", "rule": "-다" }
+      ]
+    },
+    {
+      "eng": "Einstein likes homework.",
+      "change": "s",
+      "eng_tokens": [
+        { "text": "Einstein", "maps": 0, "role": "s" },
+        { "text": "likes", "maps": 2, "role": "v" },
+        { "text": "homework", "maps": 1, "role": "o" }
+      ],
+      "kor_slots": [
+        { "word": "아인슈타인", "particle": "은", "role": "주어", "rule": "은/는" },
+        { "word": "숙제", "particle": "를", "role": "목적어", "rule": "을/를" },
+        { "word": "좋아한다", "particle": "", "role": "서술어", "rule": "-다" }
+      ]
+    },
+    {
+      "eng": "Mario likes homework.",
+      "change": "s",
+      "eng_tokens": [
+        { "text": "Mario", "maps": 0, "role": "s" },
+        { "text": "likes", "maps": 2, "role": "v" },
+        { "text": "homework", "maps": 1, "role": "o" }
+      ],
+      "kor_slots": [
+        { "word": "마리오", "particle": "는", "role": "주어", "rule": "은/는" },
+        { "word": "숙제", "particle": "를", "role": "목적어", "rule": "을/를" },
+        { "word": "좋아한다", "particle": "", "role": "서술어", "rule": "-다" }
+      ]
+    },
+    {
+      "eng": "Mario likes homework every day.",
+      "change": "len",
+      "eng_tokens": [
+        { "text": "Mario", "maps": 0, "role": "s" },
+        { "text": "likes", "maps": 2, "role": "v" },
+        { "text": "homework every day", "maps": 1, "role": "o" }
+      ],
+      "kor_slots": [
+        { "word": "마리오", "particle": "는", "role": "주어", "rule": "은/는" },
+        { "word": "매일 숙제", "particle": "를", "role": "목적어", "rule": "을/를" },
+        { "word": "좋아한다", "particle": "", "role": "서술어", "rule": "-다" }
+      ]
+    }
+  ],
+  "next": { "id": "svc", "title": "주·동·보", "ready": false }
+}

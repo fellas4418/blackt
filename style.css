@@ -34,6 +34,7 @@
 .brand-tab-module--voca { color: var(--neon-blue); text-shadow: var(--glow-blue); }
 .brand-tab-module--scan { color: var(--neon-orange); text-shadow: var(--glow-orange); }
 .brand-tab-module--grammar { color: var(--neon-purple); text-shadow: var(--glow-purple); }
+.brand-tab-module--reading { color: var(--neon-green); text-shadow: var(--glow-green); }
 
 .module-scan-card {
     border: 1px solid rgba(255, 153, 0, 0.35);

@@ -1,0 +1,307 @@
+/* 트리거 독해 — 연습 화면 (pattern.html) */
+
+.pattern-page {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 16px 28px;
+    box-sizing: border-box;
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+.pattern-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    gap: 8px;
+}
+
+.pattern-back {
+    background: transparent;
+    border: 1px solid #444;
+    color: #aaa;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.pattern-meta {
+    font-size: 0.8rem;
+    color: #888;
+    text-align: right;
+    flex: 1;
+}
+
+.pattern-meta strong {
+    color: var(--neon-green);
+}
+
+.pattern-guide {
+    background: rgba(57, 255, 20, 0.06);
+    border: 1px solid rgba(57, 255, 20, 0.25);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    overflow: hidden;
+}
+
+.pattern-guide-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.88rem;
+    font-weight: bold;
+    color: var(--neon-green);
+}
+
+.pattern-guide-body {
+    padding: 0 14px 12px;
+    font-size: 0.82rem;
+    color: #bbb;
+    line-height: 1.6;
+}
+
+.pattern-guide-body.is-collapsed {
+    display: none;
+}
+
+.pattern-guide-body li {
+    margin: 4px 0;
+}
+
+.pattern-stage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 0 24px;
+}
+
+.pattern-eng {
+    font-size: clamp(1.35rem, 5.5vw, 1.75rem);
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+    line-height: 1.45;
+    margin-bottom: 24px;
+    padding: 0 8px;
+}
+
+.pattern-eng-token {
+    display: inline;
+    padding: 2px 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s, box-shadow 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.pattern-eng-token--s {
+    --pt-c: #5eb8ff;
+}
+
+.pattern-eng-token--o {
+    --pt-c: #5effa8;
+}
+
+.pattern-eng-token--v {
+    --pt-c: #ffcc55;
+}
+
+.pattern-eng-token.is-lit,
+.pattern-eng-token:active {
+    background: rgba(94, 184, 255, 0.22);
+    box-shadow: 0 0 10px rgba(94, 184, 255, 0.35);
+}
+
+.pattern-eng-token--o.is-lit,
+.pattern-eng-token--o:active {
+    background: rgba(94, 255, 168, 0.22);
+    box-shadow: 0 0 10px rgba(94, 255, 168, 0.35);
+}
+
+.pattern-eng-token--v.is-lit,
+.pattern-eng-token--v:active {
+    background: rgba(255, 204, 85, 0.22);
+    box-shadow: 0 0 10px rgba(255, 204, 85, 0.35);
+}
+
+.pattern-kor-wrap {
+    width: 100%;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.35s, transform 0.35s;
+    pointer-events: none;
+}
+
+.pattern-kor-wrap.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.pattern-kor-row {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    margin-bottom: 8px;
+}
+
+.pattern-kor-row--words {
+    margin-bottom: 12px;
+}
+
+.pattern-kor-slot {
+    text-align: center;
+    min-width: 64px;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.pattern-kor-slot.is-dim {
+    opacity: 0.35;
+}
+
+.pattern-kor-slot.is-lit {
+    opacity: 1;
+    transform: scale(1.03);
+}
+
+.pattern-kor-word {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.pattern-kor-slot--s .pattern-kor-word {
+    color: #5eb8ff;
+}
+
+.pattern-kor-slot--o .pattern-kor-word {
+    color: #5effa8;
+}
+
+.pattern-kor-slot--v .pattern-kor-word {
+    color: #ffcc55;
+}
+
+.pattern-kor-rule {
+    font-size: 0.68rem;
+    color: #888;
+    margin-top: 2px;
+}
+
+.pattern-kor-role {
+    font-size: 0.62rem;
+    color: #555;
+    margin-top: 2px;
+}
+
+.pattern-progress {
+    width: 100%;
+    height: 4px;
+    background: #222;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.pattern-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--neon-green);
+    border-radius: 2px;
+    transition: width 0.1s linear;
+}
+
+.pattern-actions {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pattern-btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+}
+
+.pattern-btn--reveal {
+    background: rgba(57, 255, 20, 0.1);
+    border: 1.5px solid var(--neon-green);
+    color: #fff;
+    box-shadow: 0 0 12px rgba(57, 255, 20, 0.15);
+}
+
+.pattern-btn--next {
+    background: rgba(0, 243, 255, 0.1);
+    border: 1.5px solid var(--neon-blue);
+    color: #fff;
+}
+
+.pattern-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.pattern-complete-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.pattern-complete-overlay.is-open {
+    display: flex;
+}
+
+.pattern-complete-box {
+    background: #1a1a1a;
+    border: 1px solid var(--neon-green);
+    border-radius: 16px;
+    padding: 28px 22px;
+    width: 100%;
+    max-width: 340px;
+    text-align: center;
+}
+
+.pattern-complete-box h2 {
+    color: var(--neon-green);
+    font-size: 1.2rem;
+    margin: 0 0 8px;
+}
+
+.pattern-complete-box p {
+    color: #888;
+    font-size: 0.88rem;
+    margin: 0 0 20px;
+}
+
+.pattern-complete-box .pattern-btn {
+    margin-bottom: 8px;
+}
+
+.pattern-error {
+    text-align: center;
+    color: #888;
+    padding: 40px 20px;
+}

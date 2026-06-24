@@ -77,6 +77,7 @@ async function handleSimpleAuth(env, body) {
       message: "simple_auth_success",
       user_id: userId,
       auth_password: password,
+      is_new_user: false,
     });
   }
 
@@ -104,6 +105,7 @@ async function handleSimpleAuth(env, body) {
       message: "simple_auth_success",
       user_id: userId,
       auth_password: password,
+      is_new_user: false,
     });
   }
 
@@ -122,6 +124,7 @@ async function handleSimpleAuth(env, body) {
     message: "simple_auth_success",
     user_id: userId,
     auth_password: password,
+    is_new_user: true,
   });
 }
 
@@ -481,7 +484,26 @@ async function handleStreak(env, body) {
   const today = kstTodayYmd();
   const streak = computeStreakFromDates(dates, today);
   const milestone = milestoneForStreak(streak);
-  return json({ ok: true, streak, milestone });
+
+  const progressRows = await env.DB.prepare(
+    `SELECT level, MAX(day_num) AS max_day
+     FROM daily_session
+     WHERE user_id = ?1 AND level IN ('middle', 'high')
+     GROUP BY level`
+  )
+    .bind(userId)
+    .all();
+
+  const voca_progress = {};
+  for (const r of progressRows.results || []) {
+    const lvl = String(r.level || "").trim();
+    const maxDay = parseInt(r.max_day, 10) || 0;
+    if (maxDay > 0) {
+      voca_progress[lvl] = { completed_day: maxDay, next_day: maxDay + 1 };
+    }
+  }
+
+  return json({ ok: true, streak, milestone, voca_progress });
 }
 
 async function handleSyncDelete(env, body) {

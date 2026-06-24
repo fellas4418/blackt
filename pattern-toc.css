@@ -1,0 +1,137 @@
+/* 트리거 독해 — 목차 탭 전용 (index tab-reading) */
+
+.pt-toc-intro {
+    color: #aaa;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    margin: 0 0 16px 0;
+}
+
+.pt-toc-start-btn {
+    width: 100%;
+    padding: 16px;
+    margin-bottom: 20px;
+    background: rgba(57, 255, 20, 0.08);
+    border: 1.5px solid var(--neon-green);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(57, 255, 20, 0.2);
+}
+
+.pt-toc-start-btn:active {
+    transform: scale(0.98);
+}
+
+.pt-toc-chapter {
+    border: 1px solid #333;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.pt-toc-ch-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.pt-toc-ch-head:active {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.pt-toc-ch-title {
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: #eee;
+}
+
+.pt-toc-ch-num {
+    color: var(--neon-green);
+    margin-right: 8px;
+    font-family: var(--font-mono, monospace);
+}
+
+.pt-toc-chevron {
+    color: #666;
+    font-size: 0.75rem;
+    transition: transform 0.2s;
+}
+
+.pt-toc-chapter.is-open .pt-toc-chevron {
+    transform: rotate(180deg);
+}
+
+.pt-toc-ch-body {
+    display: none;
+    border-top: 1px solid #2a2a2a;
+    padding: 4px 0 8px;
+}
+
+.pt-toc-chapter.is-open .pt-toc-ch-body {
+    display: block;
+}
+
+.pt-toc-section-label {
+    font-size: 0.72rem;
+    color: #666;
+    padding: 8px 16px 4px;
+    letter-spacing: 0.04em;
+}
+
+.pt-toc-pattern {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px 12px 20px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    color: #ccc;
+    font-size: 0.9rem;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.pt-toc-pattern:active:not(:disabled) {
+    background: rgba(57, 255, 20, 0.06);
+}
+
+.pt-toc-pattern:disabled {
+    cursor: default;
+    opacity: 0.45;
+}
+
+.pt-toc-pattern.is-done .pt-toc-pattern-title {
+    color: var(--neon-green);
+}
+
+.pt-toc-pattern-title {
+    flex: 1;
+}
+
+.pt-toc-badge {
+    font-size: 0.68rem;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-left: 8px;
+    flex-shrink: 0;
+}
+
+.pt-toc-badge--ready {
+    color: var(--neon-green);
+    border: 1px solid rgba(57, 255, 20, 0.4);
+}
+
+.pt-toc-badge--soon {
+    color: #666;
+    border: 1px solid #444;
+}

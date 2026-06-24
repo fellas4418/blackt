@@ -1801,10 +1801,13 @@ function finishSession(didTest = true) {
         let unlocked = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
         const startDayKey = `trigger_start_day_${currentLevel}_${today}`;
         const startDay = parseInt(localStorage.getItem(startDayKey)) || unlocked;
+        const nextDay = currentDay + 1;
 
-        if (unlocked === currentDay && (unlocked < startDay + 3)) {
-            localStorage.setItem(`trigger_unlocked_day_${currentLevel}`, unlocked + 1);
+        let newUnlocked = Math.max(unlocked, nextDay);
+        if (unlocked === currentDay && unlocked < startDay + 3) {
+            newUnlocked = Math.max(newUnlocked, unlocked + 1);
         }
+        localStorage.setItem(`trigger_unlocked_day_${currentLevel}`, newUnlocked);
         
         stats[currentDay].accuracy = accuracy;
         localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));

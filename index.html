@@ -6,6 +6,7 @@
     <title>TRIGGER BLACK</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="cyber-theme.css">
+    <link rel="stylesheet" href="pattern-toc.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#000000">
     
@@ -166,7 +167,8 @@
         .nav-item.active { color: #fff; }
         .nav-item.active:nth-child(1) { color: var(--neon-blue); }
         .nav-item.active:nth-child(2) { color: var(--neon-orange); }
-        .nav-item.active:nth-child(3) { color: var(--neon-purple); } 
+        .nav-item.active:nth-child(3) { color: var(--neon-green); }
+        .nav-item.active:nth-child(4) { color: var(--neon-purple); }
 
         .report-bar-bg { width: 100%; background: #222; height: 12px; border-radius: 6px; margin-top: 5px; overflow: hidden; }
         .report-bar-fill { height: 100%; background: var(--neon-green); width: 0%; border-radius: 6px; box-shadow: 0 0 5px var(--neon-green); transition: width 0.5s; }
@@ -779,6 +781,15 @@
             </div>
         </div>
 
+        <div id="tab-reading" class="tab-content">
+            <div class="card" style="padding: 22px 18px; border: 1px solid rgba(57, 255, 20, 0.25); background: rgba(57, 255, 20, 0.04);">
+                <div style="font-size: 1.15rem; font-weight: bold; color: var(--neon-green); margin-bottom: 8px;">트리거 <span class="brand-tab-module brand-tab-module--reading">독해</span></div>
+                <p class="pt-toc-intro">3시간 영문법 교재와 같은 순서입니다. 처음부터 가도 되고, 궁금한 부분만 골라도 됩니다.</p>
+                <button type="button" class="pt-toc-start-btn" onclick="PatternToc.startFromBeginning()">처음부터 시작하기</button>
+                <div id="pattern-toc-root"></div>
+            </div>
+        </div>
+
         <div id="tab-grammar" class="tab-content">
             <div class="card module-grammar-card">
                 <div class="module-grammar-badge">3H CORE · PREMIUM</div>
@@ -799,6 +810,9 @@
         <div class="nav-item" onclick="switchTab('analysis', this)">
             <span class="nav-icon nav-icon-glyph nav-icon--scan" aria-hidden="true"></span><span>지문분석</span>
         </div>
+        <div class="nav-item" onclick="switchTab('reading', this)">
+            <span class="nav-icon nav-icon-glyph nav-icon--reading" aria-hidden="true"></span><span>독해</span>
+        </div>
         <div class="nav-item" onclick="switchTab('grammar', this)">
             <span class="nav-icon nav-icon-glyph nav-icon--grammar" aria-hidden="true"></span><span>GRAMMAR</span>
         </div>
@@ -808,6 +822,7 @@
 
     <script src="trigger-credit.js?v=20260526"></script>
     <script src="trigger-voca-pdf.js?v=20260531_review"></script>
+    <script src="pattern-toc.js?v=20260625"></script>
 
     <script>
         function openGuide() {
@@ -977,7 +992,7 @@
             localStorage.setItem('trigger_unlocked_extra_today_high', '0');
         }
 
-        var MAIN_TAB_ORDER = ['voca', 'analysis', 'grammar'];
+        var MAIN_TAB_ORDER = ['voca', 'analysis', 'reading', 'grammar'];
         var mainCurrentTab = 'voca';
 
         function updateMainTabSwipeHints() {
@@ -1069,7 +1084,8 @@
                 const navItems = document.querySelectorAll('.nav-item');
                 if (tabId === 'voca' && navItems.length > 0) navItems[0].classList.add('active');
                 else if (tabId === 'analysis' && navItems.length > 1) navItems[1].classList.add('active');
-                else if (tabId === 'grammar' && navItems.length > 2) navItems[2].classList.add('active');
+                else if (tabId === 'reading' && navItems.length > 2) navItems[2].classList.add('active');
+                else if (tabId === 'grammar' && navItems.length > 3) navItems[3].classList.add('active');
             }
 
             const headerShell = document.querySelector('.main-header-shell');
@@ -1080,11 +1096,13 @@
             if (headerTitle) {
                 if (tabId === 'voca') { headerTitle.innerHTML = '트리거 <span class="brand-tab-module brand-tab-module--voca">보카</span>'; }
                 else if (tabId === 'analysis') { headerTitle.innerHTML = '트리거 <span class="brand-tab-module brand-tab-module--scan">지문분석</span>'; }
+                else if (tabId === 'reading') { headerTitle.innerHTML = '트리거 <span class="brand-tab-module brand-tab-module--reading">독해</span>'; }
                 else if (tabId === 'grammar') { headerTitle.innerHTML = '트리거 <span class="brand-tab-module brand-tab-module--grammar">문법</span>'; }
             }
             window.scrollTo(0,0);
             showAdminMenuIfEnabled();
             if(tabId === 'analysis' && typeof toggleAnalysisSubMenu === 'function') toggleAnalysisSubMenu();
+            if (tabId === 'reading' && typeof PatternToc !== 'undefined' && PatternToc.refresh) PatternToc.refresh();
         }
 
         function switchMainTabByOffset(offset) {
@@ -1337,11 +1355,34 @@
         function startDayStudy(day) {
             const currentLevel = localStorage.getItem('trigger_level') || 'middle';
             const savedDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
-            if (savedDay !== day) {
+            const targetDay = Math.max(parseInt(day, 10) || 1, savedDay);
+            if (savedDay !== targetDay) {
                 localStorage.setItem(`trigger_session_${currentLevel}`, '1'); 
             }
-            localStorage.setItem(`trigger_current_day_${currentLevel}`, day);
+            localStorage.setItem(`trigger_current_day_${currentLevel}`, targetDay);
             location.href = 'study.html';
+        }
+
+        /** 서버 daily_session 기준 완료 Day — localStorage가 뒤처졌을 때만 앞으로 맞춤 */
+        function mergeVocaProgressFromServer(vocaProgress) {
+            if (!vocaProgress || typeof vocaProgress !== 'object') return false;
+            let changed = false;
+            ['middle', 'high'].forEach(function (lvl) {
+                const p = vocaProgress[lvl];
+                if (!p) return;
+                const nextDay = Math.min(71, Math.max(1, parseInt(p.next_day, 10) || 1));
+                const cur = parseInt(localStorage.getItem('trigger_current_day_' + lvl), 10) || 1;
+                const unlocked = parseInt(localStorage.getItem('trigger_unlocked_day_' + lvl), 10) || 1;
+                if (nextDay > cur) {
+                    localStorage.setItem('trigger_current_day_' + lvl, String(nextDay));
+                    changed = true;
+                }
+                if (nextDay > unlocked) {
+                    localStorage.setItem('trigger_unlocked_day_' + lvl, String(nextDay));
+                    changed = true;
+                }
+            });
+            return changed;
         }
 
         function getShortDate() {
@@ -1372,17 +1413,35 @@
                 TriggerCredit.reportReferralSignup(referredBy, phone);
             }
 
-            const formData = new URLSearchParams();
-            formData.append("date", getShortDate());
-            formData.append("name", name);
-            formData.append("phone", phone);
-            formData.append("level", "미정(가입완료)");
-            if (isNewSignup && referredBy) formData.append("referrer", referredBy);
+            if (isNewSignup) {
+                let sheetIsNewUser = true;
+                try {
+                    const base = INDEX_STREAK_WORKER.replace(/\/$/, '');
+                    const authRes = await fetch(base + '/api/auth/simple', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: name, phone: phone })
+                    });
+                    const authData = await authRes.json().catch(function () { return {}; });
+                    if (authRes.ok && authData.ok && authData.is_new_user === false) {
+                        sheetIsNewUser = false;
+                    }
+                } catch (e) {}
 
-            fetch(GOOGLE_SHEET_URL, {
-                method: 'POST',
-                body: formData
-            }).catch(e => console.log(e));
+                if (sheetIsNewUser) {
+                    const formData = new URLSearchParams();
+                    formData.append("date", getShortDate());
+                    formData.append("name", name);
+                    formData.append("phone", phone);
+                    formData.append("level", "미정(가입완료)");
+                    if (referredBy) formData.append("referrer", referredBy);
+
+                    fetch(GOOGLE_SHEET_URL, {
+                        method: 'POST',
+                        body: formData
+                    }).catch(e => console.log(e));
+                }
+            }
         }
 
         function selectLevel(level) {
@@ -1652,6 +1711,9 @@
                 if (typeof updateStreakDashboardDisplay === 'function') {
                     updateStreakDashboardDisplay(streakData.streak, { loggedIn: true });
                 }
+                if (mergeVocaProgressFromServer(streakData.voca_progress)) {
+                    updateDashboardUI();
+                }
             } catch (e) {
                 if (token !== indexStreakFetchToken) return;
                 var cachedErr = parseInt(localStorage.getItem('trigger_streak_cached') || '0', 10) || 0;
@@ -1713,6 +1775,7 @@
             const day = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
             const session = parseInt(localStorage.getItem(`trigger_session_${lvl}`)) || 1;
             const unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${lvl}`)) || 1;
+            const resumeDay = Math.max(unlockedDay, day);
 
             // ✅ [수정됨 1] 70일 완료 시 Day 71 방지
             const displayDay = day > 70 ? 70 : day;
@@ -1757,7 +1820,7 @@
                 startBtn.style.borderColor = "var(--neon-blue)";
                 startBtn.style.boxShadow = "var(--glow-blue)";
                 startBtn.style.color = "#fff";
-                startBtn.onclick = () => startDayStudy(unlockedDay);
+                startBtn.onclick = () => startDayStudy(resumeDay);
             } else if (endTime && endTime - Date.now() > 0) {
                 startBtn.disabled = true; 
                 startBtn.style.borderColor = "#444";
@@ -1779,7 +1842,7 @@
                         startBtn.style.borderColor = "var(--neon-orange)";
                         startBtn.style.boxShadow = "var(--glow-orange)";
                         startBtn.style.color = "#fff";
-                        startBtn.onclick = () => startDayStudy(unlockedDay);
+                        startBtn.onclick = () => startDayStudy(resumeDay);
                     } else {
                         const mins = Math.floor(remaining / 60000);
                         const secs = Math.floor((remaining % 60000) / 1000);
@@ -1794,7 +1857,7 @@
                 startBtn.style.borderColor = "var(--neon-orange)";
                 startBtn.style.boxShadow = "var(--glow-orange)";
                 startBtn.style.color = "#fff";
-                startBtn.onclick = () => startDayStudy(unlockedDay);
+                startBtn.onclick = () => startDayStudy(resumeDay);
             }
             renderRoutine();
             showAdminMenuIfEnabled();
@@ -2536,6 +2599,8 @@
             var initialTab = 'voca';
             if (tabParam === 'analysis' || localStorage.getItem('trigger_user_origin') === 'analysis_qr') {
                 initialTab = 'analysis';
+            } else if (tabParam === 'reading') {
+                initialTab = 'reading';
             } else if (tabParam === 'grammar') {
                 initialTab = 'grammar';
             }

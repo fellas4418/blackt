@@ -235,6 +235,33 @@ body.analysis-page::after {
     top: 1px;
 }
 
+.nav-icon--reading {
+    border: 1.5px solid currentColor;
+    border-radius: 3px;
+    box-shadow: 0 0 8px currentColor;
+}
+
+.nav-icon--reading::before,
+.nav-icon--reading::after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    height: 1.5px;
+    background: currentColor;
+    opacity: 0.85;
+}
+
+.nav-icon--reading::before {
+    top: 6px;
+    box-shadow: 0 5px 0 currentColor;
+}
+
+.nav-icon--reading::after {
+    top: 16px;
+    width: 60%;
+}
+
 /* ── 에너지 / 프로그레스 ── */
 .energy-slot,
 .energy-slot-vert {

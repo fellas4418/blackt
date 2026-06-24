@@ -1,0 +1,121 @@
+{
+  "title": "트리거 독해",
+  "intro": "3시간 영문법 교재와 같은 순서입니다. 처음부터 가도 되고, 궁금한 부분만 골라도 됩니다.",
+  "chapters": [
+    {
+      "id": "01",
+      "title": "문장 성분",
+      "patterns": [
+        { "id": "svo", "title": "주·동·목", "ready": true },
+        { "id": "svc", "title": "주·동·보", "ready": false },
+        { "id": "svoc", "title": "주·동·목·보", "ready": false }
+      ]
+    },
+    {
+      "id": "02",
+      "title": "품사",
+      "sections": [
+        {
+          "title": "동사",
+          "patterns": [
+            { "id": "verb_s3", "title": "3인칭 단수 -s", "ready": false },
+            { "id": "causative", "title": "사역", "ready": false },
+            { "id": "sensory", "title": "감각", "ready": false },
+            { "id": "dative", "title": "수여", "ready": false },
+            { "id": "emotion", "title": "감정", "ready": false }
+          ]
+        },
+        {
+          "title": "형용사",
+          "patterns": [
+            { "id": "adj_comp", "title": "비교급·최상급", "ready": false },
+            { "id": "adj_as", "title": "as ~ as", "ready": false },
+            { "id": "the_comp", "title": "the ~, the ~", "ready": false }
+          ]
+        },
+        {
+          "title": "부사",
+          "patterns": [
+            { "id": "adverb", "title": "부사", "ready": false }
+          ]
+        },
+        {
+          "title": "동명사",
+          "patterns": [
+            { "id": "gerund", "title": "동명사", "ready": false }
+          ]
+        },
+        {
+          "title": "to부정사",
+          "patterns": [
+            { "id": "to_inf", "title": "to부정사", "ready": false }
+          ]
+        },
+        {
+          "title": "접속사·관계사",
+          "patterns": [
+            { "id": "conj", "title": "접속사", "ready": false },
+            { "id": "rel_who", "title": "관계대명사 who", "ready": false },
+            { "id": "rel_which", "title": "관계대명사 which/that", "ready": false },
+            { "id": "rel_adv", "title": "관계부사", "ready": false }
+          ]
+        },
+        {
+          "title": "분사",
+          "patterns": [
+            { "id": "participle", "title": "현재·과거분사", "ready": false }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "03",
+      "title": "분사구문",
+      "patterns": [
+        { "id": "participle_clause", "title": "분사구문", "ready": false }
+      ]
+    },
+    {
+      "id": "04",
+      "title": "시제",
+      "patterns": [
+        { "id": "tense", "title": "시제", "ready": false }
+      ]
+    },
+    {
+      "id": "05",
+      "title": "능동태·수동태",
+      "patterns": [
+        { "id": "passive", "title": "수동태", "ready": false }
+      ]
+    },
+    {
+      "id": "06",
+      "title": "가정법",
+      "patterns": [
+        { "id": "subjunctive", "title": "가정법", "ready": false }
+      ]
+    },
+    {
+      "id": "07",
+      "title": "도치",
+      "patterns": [
+        { "id": "inversion", "title": "도치", "ready": false }
+      ]
+    },
+    {
+      "id": "08",
+      "title": "기타 문장",
+      "patterns": [
+        { "id": "dummy_subj", "title": "가주어·진주어", "ready": false },
+        { "id": "dummy_obj", "title": "가목적어·진목적어", "ready": false },
+        { "id": "emphasis", "title": "It·That 강조", "ready": false },
+        { "id": "so_that", "title": "So·That", "ready": false },
+        { "id": "there", "title": "There + 동사 + 주어", "ready": false },
+        { "id": "obj_to_ger", "title": "to/동명사 목적어", "ready": false },
+        { "id": "indirect_q", "title": "직접·간접의문문", "ready": false },
+        { "id": "parallel", "title": "병렬", "ready": false }
+      ]
+    }
+  ]
+}

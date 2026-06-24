@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>TRIGGER · 독해</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="cyber-theme.css">
+    <link rel="stylesheet" href="pattern.css">
+</head>
+<body>
+    <div class="pattern-page">
+        <div class="pattern-topbar">
+            <button type="button" class="pattern-back" id="pattern-back">← 목차</button>
+            <div class="pattern-meta" id="pattern-chapter-label"><strong>01</strong> · 주·동·목</div>
+        </div>
+
+        <div class="pattern-guide">
+            <div class="pattern-guide-head" id="pattern-guide-head">📌 이번 해석 <span style="font-weight:normal;color:#666;font-size:0.75rem;">탭하여 접기</span></div>
+            <div class="pattern-guide-body" id="pattern-guide-body"></div>
+        </div>
+
+        <div class="pattern-progress" aria-hidden="true">
+            <div class="pattern-progress-fill" id="pattern-progress-fill"></div>
+        </div>
+
+        <div class="pattern-stage" id="pattern-stage">
+            <div class="pattern-eng" id="pattern-eng"></div>
+            <div class="pattern-kor-wrap" id="pattern-kor-wrap"></div>
+        </div>
+
+        <div class="pattern-actions">
+            <button type="button" class="pattern-btn pattern-btn--reveal" id="pattern-btn-reveal">해석 보기</button>
+            <button type="button" class="pattern-btn pattern-btn--next" id="pattern-btn-next" style="display:none;">다음 →</button>
+        </div>
+        <p id="pattern-step-counter" style="text-align:center;color:#555;font-size:0.75rem;margin-top:8px;">1 / 6</p>
+    </div>
+
+    <div class="pattern-complete-overlay" id="pattern-complete">
+        <div class="pattern-complete-box">
+            <h2 id="pattern-complete-title">연습 완료</h2>
+            <p>교재 순서대로 이어가거나, 목차에서 다른 패턴을 골라 보세요.</p>
+            <button type="button" class="pattern-btn pattern-btn--next" id="pattern-complete-next" style="display:none;">다음 패턴</button>
+            <button type="button" class="pattern-btn pattern-btn--reveal" id="pattern-complete-retry">한 번 더</button>
+            <button type="button" class="pattern-btn pattern-back" id="pattern-complete-toc">목차로</button>
+            <button type="button" class="pattern-btn pattern-back" id="pattern-complete-close" style="margin-top:4px;border:none;">닫기</button>
+        </div>
+    </div>
+
+    <script src="pattern.js"></script>
+</body>
+</html>
