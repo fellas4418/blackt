@@ -3337,7 +3337,8 @@
             const data = await res.json().catch(() => ({}));
             if (!res.ok || data.error) {
                 const apiError = typeof data.error === 'string' ? data.error : (data.error && data.error.message) || '';
-                const err = new Error(apiError || `요청 실패 (${res.status})`);
+                const apiMessage = typeof data.message === 'string' ? data.message : '';
+                const err = new Error(apiMessage || apiError || `요청 실패 (${res.status})`);
                 err.httpStatus = res.status;
                 err.apiError = apiError;
                 throw err;
@@ -8174,25 +8175,21 @@
             return pts.length % 2 ? pts[mid] : examRptRound1((pts[mid - 1] + pts[mid]) / 2);
         }
 
-        function examRptFillMissingQuestions(list) {
-            if (!list.length) return list;
+        function examRptMissingQuestionNumbers(list) {
+            if (!list.length) return [];
             const nums = list.map(function (q) {
                 return q.number;
             });
             const min = Math.min.apply(null, nums);
             const max = Math.max.apply(null, nums);
             const have = new Set(nums);
-            const guess = examRptMedianPoints(list, 'multiple');
-            const added = [];
+            const missing = [];
             for (let n = min; n <= max; n++) {
                 if (!have.has(n)) {
-                    added.push({ number: n, type: 'multiple', points: guess, _inferred: true });
+                    missing.push(n);
                 }
             }
-            if (!added.length) return list;
-            return list.concat(added).sort(function (a, b) {
-                return a.number - b.number;
-            });
+            return missing;
         }
 
         function examRptParsePoints(value) {
@@ -8219,7 +8216,14 @@
             out.forEach(function (q) {
                 if ((Number(q.points) || 0) <= 0) q.points = examRptMedianPoints(out, q.type === 'essay' ? 'essay' : 'multiple');
             });
-            return examRptFillMissingQuestions(out);
+            return out;
+        }
+
+        function examRptAssertNoMissingQuestions(list) {
+            const missing = examRptMissingQuestionNumbers(list);
+            if (missing.length) {
+                throw new Error('문항 번호 ' + missing.join(', ') + '을(를) 인식하지 못했습니다. 빠진 페이지나 흐린 사진이 없는지 확인한 뒤 다시 촬영해 주세요.');
+            }
         }
 
         async function examRptExtractViaGeminiProxy() {
@@ -8261,6 +8265,7 @@
                     const parsed = JSON.parse(clean);
                     const normalized = examRptNormalizeQuestions(parsed.questions);
                     if (!normalized.length) throw new Error('문항을 인식하지 못했습니다. 더 선명한 사진으로 다시 시도해 주세요.');
+                    examRptAssertNoMissingQuestions(normalized);
                     return normalized;
                 } catch (ex) {
                     lastErr = ex;
@@ -8307,6 +8312,7 @@
                         meta: { school_name: school, exam_type: examType },
                     });
                     questions = examRptNormalizeQuestions(data.questions);
+                    examRptAssertNoMissingQuestions(questions);
                 } catch (err) {
                     if (!examRptIsApiNotFoundError(err)) throw err;
                     questions = await examRptExtractViaGeminiProxy();

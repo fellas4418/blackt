@@ -93,12 +93,7 @@ async function handleSimpleAuth(env, body) {
     await env.DB.prepare("UPDATE users SET id = ?1, password_hash = ?2 WHERE id = ?3")
       .bind(userId, passwordHash, phone)
       .run();
-    await env.DB.prepare("UPDATE saved_voca SET user_id = ?1 WHERE user_id = ?2")
-      .bind(userId, phone)
-      .run();
-    await env.DB.prepare("UPDATE saved_grammar SET user_id = ?1 WHERE user_id = ?2")
-      .bind(userId, phone)
-      .run();
+    await migrateLegacyUserReferences(env, phone, userId);
     return json({
       ok: true,
       message: "simple_auth_success",
@@ -123,6 +118,27 @@ async function handleSimpleAuth(env, body) {
     user_id: userId,
     auth_password: password,
   });
+}
+
+async function tableExists(env, tableName) {
+  const row = await env.DB.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?1")
+    .bind(tableName)
+    .first();
+  return !!row;
+}
+
+async function migrateLegacyUserReferences(env, oldUserId, newUserId) {
+  const tables = ["saved_voca", "saved_grammar", "exam_analysis", "chat_history"];
+  const existingTables = [];
+  for (const table of tables) {
+    if (await tableExists(env, table)) existingTables.push(table);
+  }
+
+  for (const table of existingTables) {
+    await env.DB.prepare(`UPDATE ${table} SET user_id = ?1 WHERE user_id = ?2`)
+      .bind(newUserId, oldUserId)
+      .run();
+  }
 }
 
 async function handleSyncSave(env, body) {
@@ -398,6 +414,7 @@ async function handleChatAsk(env, body) {
       .run();
   } catch (dbErr) {
     console.error("chat_history insert failed:", dbErr?.message || dbErr);
+    return json({ error: "chat_history_save_failed", message: "답변 기록 저장에 실패했습니다. 잠시 후 다시 시도해 주세요." }, 500);
   }
 
   return json({ ok: true, answer: answerText, id });
@@ -603,6 +620,20 @@ async function handleWordMeaning(env, body) {
   return json({ items });
 }
 
+function missingQuestionNumbers(list) {
+  if (!Array.isArray(list) || list.length === 0) return [];
+  const nums = list.map((q) => q.number).filter((n) => Number.isFinite(n));
+  if (!nums.length) return [];
+  const min = Math.min(...nums);
+  const max = Math.max(...nums);
+  const have = new Set(nums);
+  const missing = [];
+  for (let n = min; n <= max; n++) {
+    if (!have.has(n)) missing.push(n);
+  }
+  return missing;
+}
+
 async function handleExamExtract(env, body) {
   const userId = String(body.user_id || "").trim();
   const password = String(body.password || "");
@@ -675,15 +706,14 @@ Rules:
     if ((Number(q.points) || 0) <= 0) q.points = medianPoints(normalized, q.type === "essay" ? "essay" : "multiple");
   });
   if (normalized.length) {
-    const nums = normalized.map((q) => q.number);
-    const min = Math.min(...nums);
-    const max = Math.max(...nums);
-    const have = new Set(nums);
-    const guess = medianPoints(normalized, "multiple");
-    for (let n = min; n <= max; n++) {
-      if (!have.has(n)) normalized.push({ number: n, type: "multiple", points: guess, _inferred: true });
+    const missing = missingQuestionNumbers(normalized);
+    if (missing.length) {
+      return json({
+        error: "missing_question_numbers",
+        message: `문항 번호 ${missing.join(", ")}을(를) 인식하지 못했습니다. 빠진 페이지나 흐린 사진이 없는지 확인한 뒤 다시 촬영해 주세요.`,
+        missing_numbers: missing,
+      }, 422);
     }
-    normalized.sort((a, b) => a.number - b.number);
   }
   if (!normalized.length) return json({ error: "정규화된 문항이 없습니다." }, 422);
   return json({ ok: true, questions: normalized });
