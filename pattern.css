@@ -97,7 +97,7 @@
 .pattern-stage {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     justify-content: flex-start;
     padding: 4px 0 6px;
     flex: 0 1 auto;
@@ -106,15 +106,15 @@
 
 .pattern-cols {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: auto auto auto;
     justify-content: start;
     align-items: start;
-    column-gap: 10px;
-    width: 100%;
+    column-gap: 5px;
+    width: fit-content;
     max-width: 100%;
-    padding: 0 2px;
+    margin: 0 auto;
+    padding: 0;
     box-sizing: border-box;
-    overflow: hidden;
 }
 
 .pattern-col {
@@ -182,15 +182,25 @@
     transition: color 0.2s;
 }
 
-.pattern-col.is-focus .pattern-col-eng,
-.pattern-col.is-focus .pattern-col-eng .pattern-eng-token,
-.pattern-col.is-focus .pattern-col-kor .pattern-kor-word {
+.pattern-kor-particle {
+    display: inline;
+    transition: color 0.2s;
+}
+
+.pattern-col.is-focus .pattern-col-eng .pattern-eng-token {
     color: var(--neon-green);
+}
+
+.pattern-col.is-focus .pattern-kor-word {
+    color: var(--neon-green);
+}
+
+.pattern-col.is-focus .pattern-kor-particle {
+    color: #ffcc55;
 }
 
 .pattern-role-label {
     text-align: center;
-    color: var(--neon-green);
     font-size: 1.14rem;
     font-weight: 800;
     min-height: 1.3em;
@@ -201,7 +211,20 @@
     width: 100%;
     box-sizing: border-box;
     letter-spacing: 0.04em;
-    text-shadow: 0 0 14px rgba(57, 255, 20, 0.45);
+}
+
+.pattern-role-comp {
+    color: var(--neon-blue, #00f3ff);
+}
+
+.pattern-role-plus {
+    color: #666;
+    font-weight: 600;
+    margin: 0 1px;
+}
+
+.pattern-role-marker {
+    color: #ffcc55;
 }
 
 .pattern-progress {

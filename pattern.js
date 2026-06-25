@@ -58,11 +58,36 @@
         return 's';
     }
 
-    function roleLabelForStep(step) {
+    function roleLabelParts(step) {
         var focus = getFocusRole(step);
-        if (focus === 's') return '주어+은/는/이가';
-        if (focus === 'o') return '목적어+을/를';
-        return '서술어+다';
+        if (focus === 's') return { comp: '주어', marker: '은/는/이가' };
+        if (focus === 'o') return { comp: '목적어', marker: '을/를' };
+        return { comp: '서술어', marker: '다' };
+    }
+
+    function fillKorEl(korEl, korSlot, role) {
+        korEl.innerHTML = '';
+        if (!korSlot) return;
+
+        var wordSpan = document.createElement('span');
+        wordSpan.className = 'pattern-kor-word';
+        var partSpan = document.createElement('span');
+        partSpan.className = 'pattern-kor-particle';
+
+        if (korSlot.particle) {
+            wordSpan.textContent = korSlot.word;
+            partSpan.textContent = korSlot.particle;
+            korEl.appendChild(wordSpan);
+            korEl.appendChild(partSpan);
+        } else if (role === 'v' && korSlot.word && korSlot.word.slice(-1) === '다') {
+            wordSpan.textContent = korSlot.word.slice(0, -1);
+            partSpan.textContent = '다';
+            korEl.appendChild(wordSpan);
+            korEl.appendChild(partSpan);
+        } else {
+            wordSpan.textContent = korSlot.word;
+            korEl.appendChild(wordSpan);
+        }
     }
 
     function findEngByRole(step, role) {
@@ -112,7 +137,14 @@
 
     function updateRoleLabel(step) {
         var label = document.getElementById('pattern-role-label');
-        if (label) label.textContent = roleLabelForStep(step);
+        if (!label) return;
+        var p = roleLabelParts(step);
+        label.innerHTML =
+            '<span class="pattern-role-comp">' +
+            escapeHtml(p.comp) +
+            '</span><span class="pattern-role-plus">+</span><span class="pattern-role-marker">' +
+            escapeHtml(p.marker) +
+            '</span>';
     }
 
     var measureEng;
@@ -155,8 +187,18 @@
             });
         });
 
+        var gap = 5;
+        var sum = widths.s + widths.o + widths.v;
+        var gaps = gap * (COL_ROLES.length - 1);
+        var stage = wrap.parentElement;
+        var avail = stage ? stage.clientWidth : wrap.clientWidth;
+        var factor = 1;
+        if (sum + gaps > avail && avail > 0 && sum > 0) {
+            factor = (avail - gaps) / sum;
+        }
+
         wrap.style.gridTemplateColumns = COL_ROLES.map(function (role) {
-            return 'minmax(0, ' + Math.max(widths[role], 1) + 'fr)';
+            return Math.ceil(widths[role] * factor) + 'px';
         }).join(' ');
     }
 
@@ -186,12 +228,7 @@
 
             var korEl = document.createElement('div');
             korEl.className = 'pattern-col-kor';
-            var korSpan = document.createElement('span');
-            korSpan.className = 'pattern-kor-word';
-            korSpan.textContent = korSlot
-                ? korSlot.word + (korSlot.particle || '')
-                : '';
-            korEl.appendChild(korSpan);
+            fillKorEl(korEl, korSlot, role);
 
             inner.appendChild(engEl);
             inner.appendChild(korEl);
@@ -210,11 +247,9 @@
         if (!col) return;
 
         var engSpan = col.querySelector('.pattern-eng-token');
-        var korSpan = col.querySelector('.pattern-kor-word');
+        var korEl = col.querySelector('.pattern-col-kor');
         if (engSpan && engTok) engSpan.textContent = engTok.text;
-        if (korSpan && korSlot) {
-            korSpan.textContent = korSlot.word + (korSlot.particle || '');
-        }
+        if (korEl && korSlot) fillKorEl(korEl, korSlot, role);
     }
 
     function flipColumn(role, updateFn) {
