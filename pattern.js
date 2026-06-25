@@ -60,6 +60,12 @@
         return 's';
     }
 
+    function phaseChapterForRole(role) {
+        if (role === 's') return 'Ⅰ';
+        if (role === 'o') return 'Ⅱ';
+        return 'Ⅲ';
+    }
+
     function phaseLabelForStep(step) {
         var focus = getFocusRole(step);
         if (focus === 's') return '주어 변화';
@@ -70,7 +76,11 @@
     function updatePhaseBadge(step, prevStep) {
         var badge = document.getElementById('pattern-phase-badge');
         if (!badge) return;
-        badge.textContent = phaseLabelForStep(step);
+        var focus = getFocusRole(step);
+        badge.innerHTML = '<span class="pattern-phase-badge-core">' +
+            '<span class="pattern-phase-badge-ch">' + phaseChapterForRole(focus) + '</span>' +
+            '<span class="pattern-phase-badge-txt">' + phaseLabelForStep(step) + '</span>' +
+            '</span>';
         if (prevStep && getFocusRole(prevStep) !== getFocusRole(step)) {
             badge.classList.remove('is-switching');
             void badge.offsetWidth;

@@ -98,6 +98,21 @@
         { "word": "숙제", "particle": "를", "role": "목적어", "rule": "을/를" },
         { "word": "사랑한다", "particle": "", "role": "서술어", "rule": "-다" }
       ]
+    },
+    {
+      "eng": "Mario hates homework.",
+      "change": "v",
+      "focus": "v",
+      "eng_tokens": [
+        { "text": "Mario", "maps": 0, "role": "s" },
+        { "text": "hates", "maps": 2, "role": "v" },
+        { "text": "homework", "maps": 1, "role": "o" }
+      ],
+      "kor_slots": [
+        { "word": "마리오", "particle": "는", "role": "주어", "rule": "은/는" },
+        { "word": "숙제", "particle": "를", "role": "목적어", "rule": "을/를" },
+        { "word": "싫어한다", "particle": "", "role": "서술어", "rule": "-다" }
+      ]
     }
   ],
   "next": { "id": "svc", "title": "주·동·보", "ready": false }
