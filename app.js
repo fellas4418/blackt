@@ -2385,10 +2385,11 @@ function activateAdminMode(e) {
 }
 
 function enableAdminMode(showAlert) {
+    try { sessionStorage.setItem('trigger_admin_mode_session', '1'); } catch (e) {}
     localStorage.setItem('trigger_admin_mode', 'true');
     applyAdminPersistence();
     if (showAlert) {
-        alert('🛠️ 관리자 모드 활성화!\n(이 기기에서 계속 유지됩니다)');
+        alert('🛠️ 관리자 모드 활성화!\n(새로고침하면 해제됩니다)');
         const menu = document.getElementById('admin-menu');
         if (menu) {
             window.scrollTo({ top: menu.offsetTop - 40, behavior: 'smooth' });
