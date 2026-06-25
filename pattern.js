@@ -264,17 +264,19 @@
             return;
         }
 
-        inner.classList.remove('is-flipping');
-        void inner.offsetWidth;
-        inner.classList.add('is-flipping');
+        inner.classList.remove('is-flip-out-left', 'is-flip-in-left');
+        inner.style.transform = '';
+        inner.style.opacity = '';
+        inner.classList.add('is-flip-out-left');
 
         setTimeout(function () {
             updateFn();
+            inner.classList.remove('is-flip-out-left');
+            inner.classList.add('is-flip-in-left');
+            setTimeout(function () {
+                inner.classList.remove('is-flip-in-left');
+            }, 280);
         }, 260);
-
-        setTimeout(function () {
-            inner.classList.remove('is-flipping');
-        }, 540);
     }
 
     function setProgress(ratio) {
