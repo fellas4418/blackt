@@ -1,39 +1,22 @@
 (function () {
     'use strict';
 
-    var TIMING = {
-        thinkMs: 5000,
-        thinkMsFirst: 8000,
-        thinkMsRepeat: 4000,
-        revealMinMs: 6000,
-        revealMinMsFirst: 8000,
-        revealMinMsRepeat: 5000,
-        revealAutoNextMs: 15000
-    };
+    var INTRO_BAR_MS = 7000;
 
     var state = {
         data: null,
-        stepIdx: 0,
-        phase: 'think',
-        timers: [],
-        highlightIdx: -1,
+        variantIdx: 0,
+        introDone: false,
         isRepeat: false,
-        progressInterval: null
+        progressInterval: null,
+        highlightIdx: -1
     };
 
-    function clearTimers() {
-        state.timers.forEach(clearTimeout);
-        state.timers = [];
+    function clearProgress() {
         if (state.progressInterval) {
             clearInterval(state.progressInterval);
             state.progressInterval = null;
         }
-    }
-
-    function schedule(fn, ms) {
-        var id = setTimeout(fn, ms);
-        state.timers.push(id);
-        return id;
     }
 
     function getPatternId() {
@@ -46,18 +29,6 @@
 
     function markDone(id) {
         localStorage.setItem('pattern_done_' + id, '1');
-    }
-
-    function getThinkMs() {
-        if (state.stepIdx === 0 && !state.isRepeat) return TIMING.thinkMsFirst;
-        if (state.isRepeat) return TIMING.thinkMsRepeat;
-        return TIMING.thinkMs;
-    }
-
-    function getRevealMinMs() {
-        if (state.stepIdx === 0 && !state.isRepeat) return TIMING.revealMinMsFirst;
-        if (state.isRepeat) return TIMING.revealMinMsRepeat;
-        return TIMING.revealMinMs;
     }
 
     function roleClass(role) {
@@ -73,7 +44,50 @@
             .replace(/>/g, '&gt;');
     }
 
-    function renderEng(step) {
+    function currentStep() {
+        return state.data.steps[state.variantIdx];
+    }
+
+    function hintForStep(step, isFirst) {
+        if (!step) return '';
+        if (isFirst) return '문장과 해석을 함께 읽어 보세요';
+        var ch = step.change || '';
+        if (ch === 'o') return '→ 목적어만 바뀌었어요. 해석도 목적어 부분만 바뀝니다';
+        if (ch === 's') return '→ 주어만 바뀌었어요. 해석도 주어 부분만 바뀝니다';
+        if (ch === 'v') return '→ 동사만 바뀌었어요. 해석도 동사 부분만 바뀝니다';
+        if (ch === 'len') return '→ 문장이 조금 길어졌어요';
+        return '→ 눌러서 다음으로, ← 눌러서 이전으로';
+    }
+
+    function findChangedTokenIndices(prevStep, nextStep) {
+        var indices = [];
+        var prev = prevStep && prevStep.eng_tokens ? prevStep.eng_tokens : [];
+        var next = nextStep && nextStep.eng_tokens ? nextStep.eng_tokens : [];
+        var len = Math.max(prev.length, next.length);
+        for (var i = 0; i < len; i++) {
+            var pt = prev[i] ? prev[i].text : '';
+            var nt = next[i] ? next[i].text : '';
+            if (pt !== nt) indices.push(i);
+        }
+        return indices;
+    }
+
+    function findChangedKorIndices(prevStep, nextStep) {
+        var indices = [];
+        var prev = prevStep && prevStep.kor_slots ? prevStep.kor_slots : [];
+        var next = nextStep && nextStep.kor_slots ? nextStep.kor_slots : [];
+        var len = Math.max(prev.length, next.length);
+        for (var i = 0; i < len; i++) {
+            var pw = (prev[i] && prev[i].word) || '';
+            var pp = (prev[i] && prev[i].particle) || '';
+            var nw = (next[i] && next[i].word) || '';
+            var np = (next[i] && next[i].particle) || '';
+            if (pw + pp !== nw + np) indices.push(i);
+        }
+        return indices;
+    }
+
+    function buildEngDom(step) {
         var el = document.getElementById('pattern-eng');
         if (!el) return;
         el.innerHTML = '';
@@ -83,6 +97,7 @@
             span.className =
                 'pattern-eng-token pattern-eng-token--' + roleClass(tok.role);
             span.textContent = tok.text;
+            span.dataset.tokenIdx = String(i);
             span.dataset.maps = String(tok.maps);
             span.addEventListener('click', function (e) {
                 e.stopPropagation();
@@ -92,11 +107,28 @@
         });
     }
 
-    function renderKor(step) {
+    function updateEngTokens(step, changedIndices) {
+        var tokens = step.eng_tokens || [];
+        changedIndices.forEach(function (i) {
+            var tok = tokens[i];
+            if (!tok) return;
+            var span = document.querySelector(
+                '.pattern-eng-token[data-token-idx="' + i + '"]'
+            );
+            if (!span) return;
+            span.textContent = tok.text;
+            span.classList.add('is-changing');
+            span.classList.add('is-lit');
+            setTimeout(function () {
+                span.classList.remove('is-changing');
+            }, 700);
+        });
+    }
+
+    function buildKorDom(step) {
         var wrap = document.getElementById('pattern-kor-wrap');
         if (!wrap) return;
         wrap.innerHTML = '';
-        wrap.classList.remove('is-visible');
 
         var rowWords = document.createElement('div');
         rowWords.className = 'pattern-kor-row pattern-kor-row--words';
@@ -139,8 +171,28 @@
         wrap.appendChild(rowRoles);
     }
 
+    function updateKorSlots(step, changedIndices) {
+        var slots = step.kor_slots || [];
+        changedIndices.forEach(function (i) {
+            var slot = slots[i];
+            if (!slot) return;
+            var cells = document.querySelectorAll('.pattern-kor-slot[data-idx="' + i + '"]');
+            cells.forEach(function (cell) {
+                if (cell.classList.contains('kor-word-cell')) {
+                    var wordEl = cell.querySelector('.pattern-kor-word');
+                    if (wordEl) {
+                        wordEl.textContent = slot.word + (slot.particle || '');
+                    }
+                    cell.classList.add('is-changing', 'is-lit');
+                    setTimeout(function () {
+                        cell.classList.remove('is-changing');
+                    }, 700);
+                }
+            });
+        });
+    }
+
     function highlightPair(korIdx) {
-        if (state.phase !== 'reveal') return;
         state.highlightIdx = korIdx;
         document.querySelectorAll('.pattern-eng-token').forEach(function (el) {
             el.classList.toggle('is-lit', el.dataset.maps === String(korIdx));
@@ -155,7 +207,7 @@
     function clearHighlight() {
         state.highlightIdx = -1;
         document.querySelectorAll('.pattern-eng-token').forEach(function (el) {
-            el.classList.remove('is-lit');
+            el.classList.remove('is-lit', 'is-dim');
         });
         document.querySelectorAll('.pattern-kor-slot').forEach(function (el) {
             el.classList.remove('is-lit', 'is-dim');
@@ -167,89 +219,141 @@
         if (fill) fill.style.width = Math.min(100, Math.max(0, ratio * 100)) + '%';
     }
 
-    function runProgressBar(ms, onDone) {
+    function runIntroBar(onDone) {
+        var wrap = document.getElementById('pattern-progress-wrap');
+        if (wrap) wrap.classList.remove('is-hidden');
         var start = Date.now();
         setProgress(0);
+        clearProgress();
         state.progressInterval = setInterval(function () {
             var elapsed = Date.now() - start;
-            setProgress(elapsed / ms);
-            if (elapsed >= ms) {
-                clearInterval(state.progressInterval);
-                state.progressInterval = null;
+            setProgress(elapsed / INTRO_BAR_MS);
+            if (elapsed >= INTRO_BAR_MS) {
+                clearProgress();
                 setProgress(1);
                 if (onDone) onDone();
             }
         }, 50);
     }
 
-    function setPhase(phase) {
-        state.phase = phase;
-        var btnReveal = document.getElementById('pattern-btn-reveal');
+    function hideIntroBar() {
+        clearProgress();
+        var wrap = document.getElementById('pattern-progress-wrap');
+        if (wrap) wrap.classList.add('is-hidden');
+    }
+
+    function updateNavUi() {
+        var nav = document.getElementById('pattern-nav');
+        var hint = document.getElementById('pattern-nav-hint');
+        var btnPrev = document.getElementById('pattern-btn-prev');
         var btnNext = document.getElementById('pattern-btn-next');
-        var korWrap = document.getElementById('pattern-kor-wrap');
+        var counter = document.getElementById('pattern-step-counter');
+        var total = state.data.steps.length;
+        var step = currentStep();
 
-        if (phase === 'think') {
-            if (korWrap) korWrap.classList.remove('is-visible');
-            if (btnReveal) {
-                btnReveal.style.display = '';
-                btnReveal.disabled = false;
+        if (counter) {
+            counter.textContent = state.variantIdx + 1 + ' / ' + total;
+        }
+
+        var showNav = state.introDone;
+        if (nav) nav.classList.toggle('is-hidden', !showNav);
+        if (hint) {
+            hint.classList.toggle('is-hidden', !showNav);
+            hint.textContent = hintForStep(step, state.variantIdx === 0 && showNav);
+        }
+
+        if (btnPrev) btnPrev.disabled = state.variantIdx <= 0;
+        if (btnNext) {
+            btnNext.disabled = false;
+            if (state.variantIdx >= total - 1) {
+                btnNext.textContent = '✓';
+                btnNext.setAttribute('aria-label', '완료');
+            } else {
+                btnNext.textContent = '→';
+                btnNext.setAttribute('aria-label', '다음');
             }
-            if (btnNext) {
-                btnNext.style.display = 'none';
-                btnNext.disabled = true;
-            }
-            clearHighlight();
-            runProgressBar(getThinkMs(), function () {
-                showReveal();
-            });
-        } else if (phase === 'reveal') {
-            if (korWrap) korWrap.classList.add('is-visible');
-            if (btnReveal) btnReveal.style.display = 'none';
-            if (btnNext) {
-                btnNext.style.display = '';
-                btnNext.disabled = true;
-            }
-            runProgressBar(getRevealMinMs(), function () {
-                if (btnNext) btnNext.disabled = false;
-            });
-            schedule(function () {
-                if (state.phase === 'reveal') goNextStep();
-            }, TIMING.revealAutoNextMs);
         }
     }
 
-    function showReveal() {
-        clearTimers();
-        if (state.progressInterval) {
-            clearInterval(state.progressInterval);
-            state.progressInterval = null;
+    function renderVariant(prevIdx, nextIdx) {
+        var prevStep = prevIdx >= 0 ? state.data.steps[prevIdx] : null;
+        var nextStep = state.data.steps[nextIdx];
+
+        if (prevIdx < 0) {
+            buildEngDom(nextStep);
+            buildKorDom(nextStep);
+        } else {
+            var engChanged = findChangedTokenIndices(prevStep, nextStep);
+            var korChanged = findChangedKorIndices(prevStep, nextStep);
+            if (engChanged.length === 0 && korChanged.length === 0) {
+                buildEngDom(nextStep);
+                buildKorDom(nextStep);
+            } else {
+                updateEngTokens(nextStep, engChanged);
+                updateKorSlots(nextStep, korChanged);
+            }
         }
-        setPhase('reveal');
+
+        clearHighlight();
+        updateNavUi();
     }
 
-    function goNextStep() {
-        clearTimers();
-        if (state.progressInterval) {
-            clearInterval(state.progressInterval);
-            state.progressInterval = null;
+    function goToVariant(idx) {
+        if (!state.data || idx < 0 || idx >= state.data.steps.length) return;
+        var prevIdx = state.variantIdx;
+        state.variantIdx = idx;
+        renderVariant(prevIdx, idx);
+    }
+
+    function onIntroComplete() {
+        state.introDone = true;
+        hideIntroBar();
+        if (state.data.steps.length > 1) {
+            goToVariant(1);
+        } else {
+            updateNavUi();
         }
-        state.stepIdx++;
-        if (state.stepIdx >= state.data.steps.length) {
+    }
+
+    function startSession() {
+        state.variantIdx = 0;
+        state.introDone = state.isRepeat;
+
+        var step = currentStep();
+        buildEngDom(step);
+        buildKorDom(step);
+        updateNavUi();
+
+        if (state.isRepeat) {
+            hideIntroBar();
+            var hint = document.getElementById('pattern-nav-hint');
+            if (hint) {
+                hint.classList.remove('is-hidden');
+                hint.textContent = '← → 로 바뀌는 부분을 확인해 보세요';
+            }
+        } else {
+            var nav = document.getElementById('pattern-nav');
+            if (nav) nav.classList.add('is-hidden');
+            var hintEl = document.getElementById('pattern-nav-hint');
+            if (hintEl) {
+                hintEl.classList.remove('is-hidden');
+                hintEl.textContent = hintForStep(step, true);
+            }
+            runIntroBar(onIntroComplete);
+        }
+    }
+
+    function goNext() {
+        if (state.variantIdx >= state.data.steps.length - 1) {
             finishPattern();
             return;
         }
-        loadStep();
+        goToVariant(state.variantIdx + 1);
     }
 
-    function loadStep() {
-        var step = state.data.steps[state.stepIdx];
-        var counter = document.getElementById('pattern-step-counter');
-        if (counter) {
-            counter.textContent = state.stepIdx + 1 + ' / ' + state.data.steps.length;
-        }
-        renderEng(step);
-        renderKor(step);
-        setPhase('think');
+    function goPrev() {
+        if (state.variantIdx <= 0) return;
+        goToVariant(state.variantIdx - 1);
     }
 
     function finishPattern() {
@@ -302,35 +406,16 @@
     }
 
     function bindUi() {
-        var btnReveal = document.getElementById('pattern-btn-reveal');
-        var btnNext = document.getElementById('pattern-btn-next');
-        var stage = document.getElementById('pattern-stage');
-
-        if (btnReveal) {
-            btnReveal.addEventListener('click', function () {
-                if (state.phase === 'think') showReveal();
-            });
-        }
-        if (btnNext) {
-            btnNext.addEventListener('click', function () {
-                if (!btnNext.disabled && state.phase === 'reveal') goNextStep();
-            });
-        }
-        if (stage) {
-            stage.addEventListener('click', function (e) {
-                if (e.target.closest('button, .pattern-eng-token')) return;
-                if (state.phase === 'think') showReveal();
-            });
-        }
+        document.getElementById('pattern-btn-prev').addEventListener('click', goPrev);
+        document.getElementById('pattern-btn-next').addEventListener('click', goNext);
 
         document.getElementById('pattern-back').addEventListener('click', function () {
             location.href = 'index.html?tab=reading';
         });
         document.getElementById('pattern-complete-retry').addEventListener('click', function () {
             document.getElementById('pattern-complete').classList.remove('is-open');
-            state.stepIdx = 0;
             state.isRepeat = true;
-            loadStep();
+            startSession();
         });
         document.getElementById('pattern-complete-toc').addEventListener('click', function () {
             location.href = 'index.html?tab=reading';
@@ -370,7 +455,7 @@
                 }
                 renderGuide();
                 bindUi();
-                loadStep();
+                startSession();
             })
             .catch(function () {
                 showError('연습 데이터를 불러오지 못했습니다.');

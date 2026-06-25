@@ -16,24 +16,28 @@
         </div>
 
         <div class="pattern-guide">
-            <div class="pattern-guide-head" id="pattern-guide-head">📌 이번 해석 <span style="font-weight:normal;color:#666;font-size:0.75rem;">탭하여 접기</span></div>
+            <div class="pattern-guide-head" id="pattern-guide-head">📌 이번 해석 <span class="pattern-guide-fold">탭하여 접기</span></div>
             <div class="pattern-guide-body" id="pattern-guide-body"></div>
         </div>
 
-        <div class="pattern-progress" aria-hidden="true">
-            <div class="pattern-progress-fill" id="pattern-progress-fill"></div>
-        </div>
+        <div class="pattern-main">
+            <div class="pattern-progress" id="pattern-progress-wrap" aria-hidden="true">
+                <div class="pattern-progress-fill" id="pattern-progress-fill"></div>
+            </div>
 
-        <div class="pattern-stage" id="pattern-stage">
-            <div class="pattern-eng" id="pattern-eng"></div>
-            <div class="pattern-kor-wrap" id="pattern-kor-wrap"></div>
-        </div>
+            <div class="pattern-stage" id="pattern-stage">
+                <div class="pattern-eng" id="pattern-eng"></div>
+                <div class="pattern-kor-wrap is-visible" id="pattern-kor-wrap"></div>
+            </div>
 
-        <div class="pattern-actions">
-            <button type="button" class="pattern-btn pattern-btn--reveal" id="pattern-btn-reveal">해석 보기</button>
-            <button type="button" class="pattern-btn pattern-btn--next" id="pattern-btn-next" style="display:none;">다음 →</button>
+            <p class="pattern-nav-hint" id="pattern-nav-hint"></p>
+
+            <div class="pattern-nav" id="pattern-nav">
+                <button type="button" class="pattern-nav-btn" id="pattern-btn-prev" aria-label="이전">←</button>
+                <span class="pattern-nav-counter" id="pattern-step-counter">1 / 6</span>
+                <button type="button" class="pattern-nav-btn" id="pattern-btn-next" aria-label="다음">→</button>
+            </div>
         </div>
-        <p id="pattern-step-counter" style="text-align:center;color:#555;font-size:0.75rem;margin-top:8px;">1 / 6</p>
     </div>
 
     <div class="pattern-complete-overlay" id="pattern-complete">
