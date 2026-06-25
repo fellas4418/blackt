@@ -141,15 +141,6 @@
     width: 100%;
 }
 
-.pattern-sentence-block {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    width: fit-content;
-    max-width: 100%;
-    margin: 0 auto;
-}
-
 .pattern-cols {
     display: grid;
     grid-template-columns: auto auto auto;
@@ -158,7 +149,7 @@
     column-gap: 12px;
     width: fit-content;
     max-width: 100%;
-    margin: 0;
+    margin: 0 auto;
     padding: 0;
     box-sizing: border-box;
 }
@@ -271,9 +262,13 @@
 
 .pattern-phase-badge {
     position: relative;
-    display: block;
-    align-self: flex-start;
-    width: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    align-self: center;
+    width: 100%;
+    max-width: 340px;
     margin: 0 0 26px;
     padding: 0;
     line-height: 1;
@@ -284,13 +279,29 @@
     flex-shrink: 0;
 }
 
+.pattern-phase-badge::before,
+.pattern-phase-badge::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    min-width: 24px;
+}
+
+.pattern-phase-badge::before {
+    background: linear-gradient(90deg, transparent, rgba(188, 19, 254, 0.5));
+}
+
+.pattern-phase-badge::after {
+    background: linear-gradient(90deg, rgba(188, 19, 254, 0.5), transparent);
+}
+
 .pattern-phase-badge-core {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 14px 7px;
+    padding: 7px 16px 8px;
     border: 1px solid rgba(188, 19, 254, 0.42);
-    border-radius: 8px 8px 8px 2px;
+    border-radius: 10px;
     background: linear-gradient(160deg, rgba(188, 19, 254, 0.2) 0%, rgba(68, 12, 120, 0.1) 100%);
     box-shadow: 0 2px 14px rgba(188, 19, 254, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
