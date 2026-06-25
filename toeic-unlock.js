@@ -1,7 +1,7 @@
 (function () {
     /** 강사·토익 학생용 — 코드 추가·변경은 여기만 수정 */
     const TOEIC_UNLOCK_CODES = {
-        toeic2026: true,
+        noy: true,
     };
     const TAP_COUNT = 5;
     const TAP_WINDOW_MS = 2500;
