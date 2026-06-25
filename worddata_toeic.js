@@ -1,6 +1,5 @@
-(function (g) {
-  if (typeof g.wordsData === "undefined") g.wordsData = {};
-  g.wordsData.toeic = {
+(function () {
+  var toeicData = {
   "week1": {
     "1": [
       {
@@ -83572,4 +83571,10 @@
     }
   }
 };
-})(typeof window !== "undefined" ? window : globalThis);
+  if (typeof wordsData !== "undefined") {
+    wordsData.toeic = toeicData;
+  } else if (typeof window !== "undefined") {
+    window.wordsData = window.wordsData || {};
+    window.wordsData.toeic = toeicData;
+  }
+})();

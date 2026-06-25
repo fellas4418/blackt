@@ -43,11 +43,19 @@ def build_structure(file_path, per_day):
 
 def write_toeic_js(file_path, per_day):
     toeic_data = build_structure(file_path, per_day)
+    payload = json.dumps(toeic_data, ensure_ascii=False, indent=2)
     with open('worddata_toeic.js', 'w', encoding='utf-8') as f:
-        f.write('(function (g) {\n')
-        f.write('  if (typeof g.wordsData === "undefined") g.wordsData = {};\n')
-        f.write(f'  g.wordsData.toeic = {json.dumps(toeic_data, ensure_ascii=False, indent=2)};\n')
-        f.write('})(typeof window !== "undefined" ? window : globalThis);\n')
+        f.write('(function () {\n')
+        f.write('  var toeicData = ')
+        f.write(payload)
+        f.write(';\n')
+        f.write('  if (typeof wordsData !== "undefined") {\n')
+        f.write('    wordsData.toeic = toeicData;\n')
+        f.write('  } else if (typeof window !== "undefined") {\n')
+        f.write('    window.wordsData = window.wordsData || {};\n')
+        f.write('    window.wordsData.toeic = toeicData;\n')
+        f.write('  }\n')
+        f.write('})();\n')
 
 
 if __name__ == '__main__':
