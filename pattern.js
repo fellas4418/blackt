@@ -226,6 +226,16 @@
         wrap.style.gridTemplateColumns = COL_ROLES.map(function (role) {
             return Math.ceil(widths[role] * factor) + 'px';
         }).join(' ');
+        alignPhaseBadge();
+    }
+
+    function alignPhaseBadge() {
+        var badge = document.getElementById('pattern-phase-badge');
+        var cols = document.getElementById('pattern-cols');
+        var center = document.querySelector('.pattern-content-center');
+        if (!badge || !cols || !center) return;
+        var offset = cols.getBoundingClientRect().left - center.getBoundingClientRect().left;
+        badge.style.paddingLeft = Math.max(0, Math.round(offset)) + 'px';
     }
 
     function buildColsDom(step) {
@@ -274,6 +284,7 @@
 
         applyFocusRole(step);
         updatePhaseBadge(step, null);
+        requestAnimationFrame(alignPhaseBadge);
     }
 
     function updateColContent(step, role) {

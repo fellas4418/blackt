@@ -141,23 +141,6 @@
     width: 100%;
 }
 
-.pattern-sentence-block {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    width: fit-content;
-    max-width: 100%;
-    margin: 0 auto;
-}
-
-.pattern-sentence-block .pattern-stage {
-    width: auto;
-}
-
-.pattern-sentence-block .pattern-cols {
-    margin: 0;
-}
-
 .pattern-cols {
     display: grid;
     grid-template-columns: auto auto auto;
@@ -280,8 +263,7 @@
 .pattern-phase-badge {
     position: relative;
     display: block;
-    align-self: flex-start;
-    width: auto;
+    width: 100%;
     margin: 0 0 26px;
     padding: 0;
     line-height: 1;
@@ -290,6 +272,7 @@
     background: transparent;
     box-shadow: none;
     flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 .pattern-phase-badge-core {
