@@ -115,6 +115,51 @@
         if (label) label.textContent = roleLabelForStep(step);
     }
 
+    var measureEng;
+    var measureKor;
+
+    function ensureMeasurer() {
+        if (measureEng) return;
+        var box = document.createElement('div');
+        box.id = 'pattern-measure';
+        box.setAttribute('aria-hidden', 'true');
+        box.style.cssText =
+            'position:fixed;left:-9999px;top:0;visibility:hidden;pointer-events:none;white-space:nowrap;';
+        measureEng = document.createElement('span');
+        measureEng.className = 'pattern-col-eng';
+        measureKor = document.createElement('span');
+        measureKor.className = 'pattern-col-kor';
+        box.appendChild(measureEng);
+        box.appendChild(measureKor);
+        document.body.appendChild(box);
+    }
+
+    function applyColWidths() {
+        var wrap = document.getElementById('pattern-cols');
+        if (!wrap || !state.data) return;
+        ensureMeasurer();
+
+        var widths = { s: 0, o: 0, v: 0 };
+        state.data.steps.forEach(function (step) {
+            COL_ROLES.forEach(function (role) {
+                var eng = findEngByRole(step, role);
+                var kor = findKorByRole(step, role);
+                if (eng) {
+                    measureEng.textContent = eng.text;
+                    widths[role] = Math.max(widths[role], measureEng.offsetWidth);
+                }
+                if (kor) {
+                    measureKor.textContent = kor.word + (kor.particle || '');
+                    widths[role] = Math.max(widths[role], measureKor.offsetWidth);
+                }
+            });
+        });
+
+        wrap.style.gridTemplateColumns = COL_ROLES.map(function (role) {
+            return Math.ceil(widths[role]) + 'px';
+        }).join(' ');
+    }
+
     function buildColsDom(step) {
         var wrap = document.getElementById('pattern-cols');
         if (!wrap) return;
@@ -440,6 +485,8 @@
                 }
                 renderGuide();
                 bindUi();
+                applyColWidths();
+                window.addEventListener('resize', applyColWidths);
                 startSession();
             })
             .catch(function () {

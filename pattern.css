@@ -105,19 +105,19 @@
 }
 
 .pattern-cols {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: flex-start;
-    gap: 16px 22px;
+    display: grid;
+    grid-template-columns: auto auto auto;
+    justify-content: start;
+    align-items: start;
+    column-gap: 22px;
     width: 100%;
     padding: 0 10px;
     box-sizing: border-box;
-    flex-wrap: wrap;
 }
 
 .pattern-col {
-    flex: 0 0 auto;
+    width: 100%;
+    min-width: 0;
     perspective: 700px;
 }
 
