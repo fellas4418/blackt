@@ -470,6 +470,14 @@
         if (overlay) overlay.classList.add('is-open');
     }
 
+    function syncGuideExpanded() {
+        var guide = document.querySelector('.pattern-guide');
+        var body = document.getElementById('pattern-guide-body');
+        if (guide && body) {
+            guide.classList.toggle('is-expanded', !body.classList.contains('is-collapsed'));
+        }
+    }
+
     function renderGuide() {
         var head = document.getElementById('pattern-guide-head');
         var body = document.getElementById('pattern-guide-body');
@@ -486,10 +494,12 @@
 
         var collapsed = localStorage.getItem('pattern_guide_collapsed_' + state.data.id) === '1';
         body.classList.toggle('is-collapsed', collapsed);
+        syncGuideExpanded();
 
         if (head) {
             head.onclick = function () {
                 body.classList.toggle('is-collapsed');
+                syncGuideExpanded();
                 localStorage.setItem(
                     'pattern_guide_collapsed_' + state.data.id,
                     body.classList.contains('is-collapsed') ? '1' : '0'

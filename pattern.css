@@ -43,11 +43,9 @@
 }
 
 .pattern-guide {
-    background: rgba(57, 255, 20, 0.06);
-    border: 1px solid rgba(57, 255, 20, 0.25);
-    border-radius: 12px;
+    position: relative;
+    z-index: 30;
     margin-bottom: 6px;
-    overflow: hidden;
     flex-shrink: 0;
 }
 
@@ -55,12 +53,20 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 6px 14px 1px;
+    padding: 6px 14px;
     cursor: pointer;
     user-select: none;
     font-size: 1rem;
     font-weight: bold;
     color: var(--neon-green);
+    background: rgba(57, 255, 20, 0.06);
+    border: 1px solid rgba(57, 255, 20, 0.25);
+    border-radius: 12px;
+}
+
+.pattern-guide.is-expanded .pattern-guide-head {
+    border-radius: 12px 12px 0 0;
+    border-bottom: none;
 }
 
 .pattern-guide-fold {
@@ -70,20 +76,24 @@
 }
 
 .pattern-guide-body {
-    padding: 0 14px 1px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    z-index: 31;
+    padding: 2px 14px 6px;
     font-size: 0.95rem;
     color: #ccc;
     line-height: 1.3;
+    background: rgba(18, 18, 18, 0.97);
+    border: 1px solid rgba(57, 255, 20, 0.25);
+    border-top: 1px solid rgba(57, 255, 20, 0.12);
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
 }
 
 .pattern-guide-body.is-collapsed {
-    max-height: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    overflow: hidden;
-    visibility: hidden;
-    opacity: 0;
-    pointer-events: none;
+    display: none;
 }
 
 .pattern-guide-body li {
@@ -105,10 +115,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     width: 100%;
     min-height: 0;
-    padding-bottom: 9vh;
+    padding-top: 2px;
     box-sizing: border-box;
 }
 
