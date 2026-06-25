@@ -2,6 +2,7 @@
     'use strict';
 
     var INTRO_BAR_MS = 7000;
+    var COL_ROLES = ['s', 'o', 'v'];
 
     var state = {
         data: null,
@@ -57,182 +58,143 @@
         return 's';
     }
 
+    function roleLabelForStep(step) {
+        var focus = getFocusRole(step);
+        if (focus === 's') return '주어+은/는/이가';
+        if (focus === 'o') return '목적어+을/를';
+        return '서술어+다';
+    }
+
+    function findEngByRole(step, role) {
+        return (step.eng_tokens || []).find(function (t) {
+            return roleClass(t.role) === role;
+        });
+    }
+
+    function findKorByRole(step, role) {
+        return (step.kor_slots || []).find(function (s) {
+            return roleClass(s.role) === role;
+        });
+    }
+
+    function roleContentChanged(prevStep, nextStep, role) {
+        var pe = findEngByRole(prevStep, role);
+        var ne = findEngByRole(nextStep, role);
+        var pk = findKorByRole(prevStep, role);
+        var nk = findKorByRole(nextStep, role);
+        if (pe && ne && pe.text !== ne.text) return true;
+        if (pk && nk) {
+            var pt = (pk.word || '') + (pk.particle || '');
+            var nt = (nk.word || '') + (nk.particle || '');
+            if (pt !== nt) return true;
+        }
+        return false;
+    }
+
+    function getFlipRole(prevStep, nextStep) {
+        var ch = nextStep.change || '';
+        if (ch === 's' || ch === 'o' || ch === 'v') {
+            if (roleContentChanged(prevStep, nextStep, ch)) return ch;
+        }
+        for (var i = 0; i < COL_ROLES.length; i++) {
+            var r = COL_ROLES[i];
+            if (roleContentChanged(prevStep, nextStep, r)) return r;
+        }
+        return null;
+    }
+
     function applyFocusRole(step) {
         var focus = getFocusRole(step);
-        document.querySelectorAll('.pattern-eng-token').forEach(function (el) {
-            var on = el.classList.contains('pattern-eng-token--' + focus);
-            el.classList.toggle('is-focus', on);
-        });
-        document.querySelectorAll('.pattern-kor-slot.kor-word-cell').forEach(function (el) {
-            var on = el.classList.contains('pattern-kor-slot--' + focus);
-            el.classList.toggle('is-focus', on);
+        document.querySelectorAll('.pattern-col').forEach(function (el) {
+            el.classList.toggle('is-focus', el.dataset.role === focus);
         });
     }
 
-    function hintForStep(step, isFirst) {
-        if (!step) return '';
-        if (isFirst) return '주어에 색이 들어간 부분을 영어·해석과 함께 읽어 보세요';
-        var ch = step.change || '';
-        if (ch === 'o') return '→ 목적어만 바뀌었어요. 해석도 목적어 부분만 바뀝니다';
-        if (ch === 's') return '→ 주어만 바뀌었어요. 해석도 주어 부분만 바뀝니다';
-        if (ch === 'v') return '→ 동사만 바뀌었어요. 해석도 동사 부분만 바뀝니다';
-        if (ch === 'len') return '→ 문장이 조금 길어졌어요';
-        return '→ 눌러서 다음으로, ← 눌러서 이전으로';
+    function updateRoleLabel(step) {
+        var label = document.getElementById('pattern-role-label');
+        if (label) label.textContent = roleLabelForStep(step);
     }
 
-    function findChangedTokenIndices(prevStep, nextStep) {
-        var indices = [];
-        var prev = prevStep && prevStep.eng_tokens ? prevStep.eng_tokens : [];
-        var next = nextStep && nextStep.eng_tokens ? nextStep.eng_tokens : [];
-        var len = Math.max(prev.length, next.length);
-        for (var i = 0; i < len; i++) {
-            var pt = prev[i] ? prev[i].text : '';
-            var nt = next[i] ? next[i].text : '';
-            if (pt !== nt) indices.push(i);
-        }
-        return indices;
-    }
-
-    function findChangedKorIndices(prevStep, nextStep) {
-        var indices = [];
-        var prev = prevStep && prevStep.kor_slots ? prevStep.kor_slots : [];
-        var next = nextStep && nextStep.kor_slots ? nextStep.kor_slots : [];
-        var len = Math.max(prev.length, next.length);
-        for (var i = 0; i < len; i++) {
-            var pw = (prev[i] && prev[i].word) || '';
-            var pp = (prev[i] && prev[i].particle) || '';
-            var nw = (next[i] && next[i].word) || '';
-            var np = (next[i] && next[i].particle) || '';
-            if (pw + pp !== nw + np) indices.push(i);
-        }
-        return indices;
-    }
-
-    function buildEngDom(step) {
-        var el = document.getElementById('pattern-eng');
-        if (!el) return;
-        el.innerHTML = '';
-        (step.eng_tokens || []).forEach(function (tok, i) {
-            if (i > 0) el.appendChild(document.createTextNode(' '));
-            var span = document.createElement('span');
-            span.className =
-                'pattern-eng-token pattern-eng-token--' + roleClass(tok.role);
-            span.textContent = tok.text;
-            span.dataset.tokenIdx = String(i);
-            span.dataset.maps = String(tok.maps);
-            span.addEventListener('click', function (e) {
-                e.stopPropagation();
-                highlightPair(tok.maps);
-            });
-            el.appendChild(span);
-        });
-    }
-
-    function updateEngTokens(step, changedIndices) {
-        var tokens = step.eng_tokens || [];
-        changedIndices.forEach(function (i) {
-            var tok = tokens[i];
-            if (!tok) return;
-            var span = document.querySelector(
-                '.pattern-eng-token[data-token-idx="' + i + '"]'
-            );
-            if (!span) return;
-            span.textContent = tok.text;
-            span.classList.add('is-changing');
-            span.classList.add('is-lit');
-            setTimeout(function () {
-                span.classList.remove('is-changing');
-            }, 700);
-        });
-    }
-
-    function buildKorDom(step) {
-        var wrap = document.getElementById('pattern-kor-wrap');
+    function buildColsDom(step) {
+        var wrap = document.getElementById('pattern-cols');
         if (!wrap) return;
         wrap.innerHTML = '';
 
-        var rowWords = document.createElement('div');
-        rowWords.className = 'pattern-kor-row pattern-kor-row--words';
+        COL_ROLES.forEach(function (role) {
+            var engTok = findEngByRole(step, role);
+            var korSlot = findKorByRole(step, role);
+            if (!engTok && !korSlot) return;
 
-        var rowRules = document.createElement('div');
-        rowRules.className = 'pattern-kor-row';
+            var col = document.createElement('div');
+            col.className = 'pattern-col pattern-col--' + role;
+            col.dataset.role = role;
 
-        var rowRoles = document.createElement('div');
-        rowRoles.className = 'pattern-kor-row';
+            var inner = document.createElement('div');
+            inner.className = 'pattern-col-inner';
 
-        (step.kor_slots || []).forEach(function (slot, idx) {
-            var rc = roleClass(slot.role);
+            var engEl = document.createElement('div');
+            engEl.className = 'pattern-col-eng';
+            var engSpan = document.createElement('span');
+            engSpan.className = 'pattern-eng-token pattern-eng-token--' + role;
+            engSpan.textContent = engTok ? engTok.text : '';
+            engEl.appendChild(engSpan);
 
-            function cell(content, extra) {
-                var c = document.createElement('div');
-                c.className = 'pattern-kor-slot pattern-kor-slot--' + rc + (extra || '');
-                c.dataset.idx = String(idx);
-                c.innerHTML = content;
-                return c;
-            }
+            var korEl = document.createElement('div');
+            korEl.className = 'pattern-col-kor';
+            var korSpan = document.createElement('span');
+            korSpan.className = 'pattern-kor-word';
+            korSpan.textContent = korSlot
+                ? korSlot.word + (korSlot.particle || '')
+                : '';
+            korEl.appendChild(korSpan);
 
-            rowWords.appendChild(
-                cell(
-                    '<div class="pattern-kor-word">' +
-                        escapeHtml(slot.word + (slot.particle || '')) +
-                        '</div>',
-                    ' kor-word-cell'
-                )
-            );
-            rowRules.appendChild(
-                cell('<div class="pattern-kor-rule">' + escapeHtml(slot.rule || '') + '</div>')
-            );
-            rowRoles.appendChild(
-                cell('<div class="pattern-kor-role">(' + escapeHtml(slot.role || '') + ')</div>')
-            );
+            inner.appendChild(engEl);
+            inner.appendChild(korEl);
+            col.appendChild(inner);
+            wrap.appendChild(col);
         });
 
-        wrap.appendChild(rowWords);
-        wrap.appendChild(rowRules);
-        wrap.appendChild(rowRoles);
+        applyFocusRole(step);
+        updateRoleLabel(step);
     }
 
-    function updateKorSlots(step, changedIndices) {
-        var slots = step.kor_slots || [];
-        changedIndices.forEach(function (i) {
-            var slot = slots[i];
-            if (!slot) return;
-            var cells = document.querySelectorAll('.pattern-kor-slot[data-idx="' + i + '"]');
-            cells.forEach(function (cell) {
-                if (cell.classList.contains('kor-word-cell')) {
-                    var wordEl = cell.querySelector('.pattern-kor-word');
-                    if (wordEl) {
-                        wordEl.textContent = slot.word + (slot.particle || '');
-                    }
-                    cell.classList.add('is-changing', 'is-lit');
-                    setTimeout(function () {
-                        cell.classList.remove('is-changing');
-                    }, 700);
-                }
-            });
-        });
+    function updateColContent(step, role) {
+        var engTok = findEngByRole(step, role);
+        var korSlot = findKorByRole(step, role);
+        var col = document.querySelector('.pattern-col[data-role="' + role + '"]');
+        if (!col) return;
+
+        var engSpan = col.querySelector('.pattern-eng-token');
+        var korSpan = col.querySelector('.pattern-kor-word');
+        if (engSpan && engTok) engSpan.textContent = engTok.text;
+        if (korSpan && korSlot) {
+            korSpan.textContent = korSlot.word + (korSlot.particle || '');
+        }
     }
 
-    function highlightPair(korIdx) {
-        state.highlightIdx = korIdx;
-        document.querySelectorAll('.pattern-eng-token').forEach(function (el) {
-            el.classList.toggle('is-lit', el.dataset.maps === String(korIdx));
-        });
-        document.querySelectorAll('.pattern-kor-slot.kor-word-cell').forEach(function (el) {
-            var on = el.dataset.idx === String(korIdx);
-            el.classList.toggle('is-lit', on);
-            el.classList.toggle('is-dim', !on && state.highlightIdx >= 0);
-        });
-    }
+    function flipColumn(role, updateFn) {
+        var col = document.querySelector('.pattern-col[data-role="' + role + '"]');
+        if (!col) {
+            updateFn();
+            return;
+        }
+        var inner = col.querySelector('.pattern-col-inner');
+        if (!inner) {
+            updateFn();
+            return;
+        }
 
-    function clearHighlight() {
-        state.highlightIdx = -1;
-        document.querySelectorAll('.pattern-eng-token').forEach(function (el) {
-            el.classList.remove('is-lit', 'is-dim');
-        });
-        document.querySelectorAll('.pattern-kor-slot').forEach(function (el) {
-            el.classList.remove('is-lit', 'is-dim');
-        });
+        inner.classList.remove('is-flip-in');
+        inner.classList.add('is-flip-out');
+
+        setTimeout(function () {
+            updateFn();
+            inner.classList.remove('is-flip-out');
+            inner.classList.add('is-flip-in');
+            setTimeout(function () {
+                inner.classList.remove('is-flip-in');
+            }, 340);
+        }, 300);
     }
 
     function setProgress(ratio) {
@@ -265,12 +227,10 @@
 
     function updateNavUi() {
         var nav = document.getElementById('pattern-nav');
-        var hint = document.getElementById('pattern-nav-hint');
         var btnPrev = document.getElementById('pattern-btn-prev');
         var btnNext = document.getElementById('pattern-btn-next');
         var counter = document.getElementById('pattern-step-counter');
         var total = state.data.steps.length;
-        var step = currentStep();
 
         if (counter) {
             counter.textContent = state.variantIdx + 1 + ' / ' + total;
@@ -278,10 +238,6 @@
 
         var showNav = state.introDone;
         if (nav) nav.classList.toggle('is-hidden', !showNav);
-        if (hint) {
-            hint.classList.toggle('is-hidden', !showNav);
-            hint.textContent = hintForStep(step, state.variantIdx === 0 && showNav);
-        }
 
         if (btnPrev) btnPrev.disabled = state.variantIdx <= 0;
         if (btnNext) {
@@ -300,49 +256,42 @@
         var prevStep = prevIdx >= 0 ? state.data.steps[prevIdx] : null;
         var nextStep = state.data.steps[nextIdx];
 
-        if (prevIdx < 0) {
-            buildEngDom(nextStep);
-            buildKorDom(nextStep);
+        if (prevIdx < 0 || !prevStep) {
+            buildColsDom(nextStep);
         } else {
-            var engChanged = findChangedTokenIndices(prevStep, nextStep);
-            var korChanged = findChangedKorIndices(prevStep, nextStep);
-            if (engChanged.length === 0 && korChanged.length === 0) {
-                buildEngDom(nextStep);
-                buildKorDom(nextStep);
+            var flipRole = getFlipRole(prevStep, nextStep);
+            if (flipRole) {
+                updateColContent(nextStep, flipRole);
             } else {
-                updateEngTokens(nextStep, engChanged);
-                updateKorSlots(nextStep, korChanged);
+                buildColsDom(nextStep);
             }
+            applyFocusRole(nextStep);
+            updateRoleLabel(nextStep);
         }
 
-        applyFocusRole(nextStep);
-        clearHighlight();
         updateNavUi();
     }
 
-    function renderVariant(prevIdx, nextIdx, skipFlip) {
-        if (skipFlip || prevIdx < 0) {
+    function renderVariant(prevIdx, nextIdx) {
+        if (prevIdx < 0) {
             applyStepDom(prevIdx, nextIdx);
             return;
         }
 
-        var stage = document.getElementById('pattern-stage');
-        if (!stage) {
+        var prevStep = state.data.steps[prevIdx];
+        var nextStep = state.data.steps[nextIdx];
+        var flipRole = getFlipRole(prevStep, nextStep);
+
+        if (flipRole) {
+            flipColumn(flipRole, function () {
+                updateColContent(nextStep, flipRole);
+                applyFocusRole(nextStep);
+                updateRoleLabel(nextStep);
+                updateNavUi();
+            });
+        } else {
             applyStepDom(prevIdx, nextIdx);
-            return;
         }
-
-        stage.classList.remove('is-flip-in');
-        stage.classList.add('is-flip-out');
-
-        setTimeout(function () {
-            applyStepDom(prevIdx, nextIdx);
-            stage.classList.remove('is-flip-out');
-            stage.classList.add('is-flip-in');
-            setTimeout(function () {
-                stage.classList.remove('is-flip-in');
-            }, 340);
-        }, 300);
     }
 
     function goToVariant(idx) {
@@ -367,26 +316,14 @@
         state.introDone = state.isRepeat;
 
         var step = currentStep();
-        buildEngDom(step);
-        buildKorDom(step);
-        applyFocusRole(step);
+        buildColsDom(step);
         updateNavUi();
 
         if (state.isRepeat) {
             hideIntroBar();
-            var hint = document.getElementById('pattern-nav-hint');
-            if (hint) {
-                hint.classList.remove('is-hidden');
-                hint.textContent = '← → 로 바뀌는 부분을 확인해 보세요';
-            }
         } else {
             var nav = document.getElementById('pattern-nav');
             if (nav) nav.classList.add('is-hidden');
-            var hintEl = document.getElementById('pattern-nav-hint');
-            if (hintEl) {
-                hintEl.classList.remove('is-hidden');
-                hintEl.textContent = hintForStep(step, true);
-            }
             runIntroBar(onIntroComplete);
         }
     }
