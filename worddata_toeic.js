@@ -1,6 +1,9 @@
 (function (g) {
-  if (typeof g.wordsData === "undefined") g.wordsData = {};
-  g.wordsData.toeic = {
+  const rootWordsData = (typeof wordsData !== "undefined" && wordsData && typeof wordsData === "object")
+    ? wordsData
+    : (g.wordsData && typeof g.wordsData === "object" ? g.wordsData : {});
+  g.wordsData = rootWordsData;
+  rootWordsData.toeic = {
   "week1": {
     "1": [
       {
