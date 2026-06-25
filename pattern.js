@@ -77,7 +77,7 @@
             badge.classList.add('is-switching');
             setTimeout(function () {
                 badge.classList.remove('is-switching');
-            }, 520);
+            }, 620);
         }
     }
 
