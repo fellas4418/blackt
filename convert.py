@@ -61,5 +61,5 @@ if __name__ == '__main__':
 
     print("✅ [사라져 Voca] 전용 worddata.js 생성 완료!")
 
-    write_toeic_js('voca_toeic.txt', 20)
+    write_toeic_js('voca_toeic.txt', 56)
     print("✅ [토익] worddata_toeic.js 생성 완료!")
