@@ -108,7 +108,7 @@
     justify-content: center;
     width: 100%;
     min-height: 0;
-    padding-bottom: 6vh;
+    padding-bottom: 9vh;
     box-sizing: border-box;
 }
 
@@ -136,7 +136,7 @@
     grid-template-columns: auto auto auto;
     justify-content: start;
     align-items: start;
-    column-gap: 10px;
+    column-gap: 12px;
     width: fit-content;
     max-width: 100%;
     margin: 0 auto;
@@ -154,7 +154,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 4px;
+    gap: 3px;
     transform-style: preserve-3d;
 }
 
@@ -179,7 +179,7 @@
 }
 
 .pattern-col-eng {
-    font-size: clamp(1.48rem, 5.8vw, 1.92rem);
+    font-size: clamp(1.58rem, 6.2vw, 2.05rem);
     font-weight: 700;
     color: #fff;
     line-height: 1.3;
@@ -188,12 +188,29 @@
 }
 
 .pattern-col-kor {
-    font-size: clamp(1.18rem, 4.5vw, 1.34rem);
+    font-size: clamp(1.26rem, 4.8vw, 1.42rem);
     font-weight: 700;
     color: #fff;
     line-height: 1.32;
     text-align: left;
     white-space: nowrap;
+}
+
+.pattern-col-comp {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #555;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.pattern-col-marker {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #555;
+    line-height: 1.2;
+    white-space: nowrap;
+    margin-top: 1px;
 }
 
 .pattern-eng-token {
@@ -225,32 +242,35 @@
     color: #ffcc55;
 }
 
-.pattern-role-label {
-    text-align: center;
-    font-size: 1.14rem;
-    font-weight: 800;
-    min-height: 1.3em;
-    margin: 12px 0 0;
-    padding: 6px 14px;
-    line-height: 1.35;
-    flex-shrink: 0;
-    width: 100%;
-    box-sizing: border-box;
-    letter-spacing: 0.04em;
-}
-
-.pattern-role-comp {
+.pattern-col.is-focus .pattern-col-comp {
     color: var(--neon-blue, #00f3ff);
 }
 
-.pattern-role-plus {
-    color: #666;
-    font-weight: 600;
-    margin: 0 1px;
+.pattern-col.is-focus .pattern-col-marker {
+    color: #ffcc55;
 }
 
-.pattern-role-marker {
-    color: #ffcc55;
+.pattern-phase-badge {
+    text-align: center;
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: var(--neon-green);
+    margin: 0 0 10px;
+    padding: 6px 16px;
+    line-height: 1.3;
+    border: 1px solid rgba(57, 255, 20, 0.35);
+    border-radius: 20px;
+    background: rgba(57, 255, 20, 0.08);
+    flex-shrink: 0;
+}
+
+.pattern-phase-badge.is-switching {
+    animation: pattern-phase-pulse 0.52s ease;
+}
+
+@keyframes pattern-phase-pulse {
+    0%, 100% { transform: scale(1); box-shadow: none; }
+    45% { transform: scale(1.06); box-shadow: 0 0 14px rgba(57, 255, 20, 0.45); }
 }
 
 .pattern-progress {

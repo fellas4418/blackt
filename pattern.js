@@ -3,6 +3,8 @@
 
     var INTRO_BAR_MS = 7000;
     var COL_ROLES = ['s', 'v', 'o'];
+    var COL_COMP = { s: '주어', o: '목적어', v: '서술어' };
+    var COL_MARKER = { s: '은/는/이가', o: '을/를', v: '다' };
 
     var state = {
         data: null,
@@ -58,11 +60,25 @@
         return 's';
     }
 
-    function roleLabelParts(step) {
+    function phaseLabelForStep(step) {
         var focus = getFocusRole(step);
-        if (focus === 's') return { comp: '주어', marker: '은/는/이가' };
-        if (focus === 'o') return { comp: '목적어', marker: '을/를' };
-        return { comp: '서술어', marker: '다' };
+        if (focus === 's') return '주어 변화';
+        if (focus === 'o') return '목적어 변화';
+        return '서술어 변화';
+    }
+
+    function updatePhaseBadge(step, prevStep) {
+        var badge = document.getElementById('pattern-phase-badge');
+        if (!badge) return;
+        badge.textContent = phaseLabelForStep(step);
+        if (prevStep && getFocusRole(prevStep) !== getFocusRole(step)) {
+            badge.classList.remove('is-switching');
+            void badge.offsetWidth;
+            badge.classList.add('is-switching');
+            setTimeout(function () {
+                badge.classList.remove('is-switching');
+            }, 520);
+        }
     }
 
     function fillKorEl(korEl, korSlot, role) {
@@ -135,20 +151,10 @@
         });
     }
 
-    function updateRoleLabel(step) {
-        var label = document.getElementById('pattern-role-label');
-        if (!label) return;
-        var p = roleLabelParts(step);
-        label.innerHTML =
-            '<span class="pattern-role-comp">' +
-            escapeHtml(p.comp) +
-            '</span><span class="pattern-role-plus">+</span><span class="pattern-role-marker">' +
-            escapeHtml(p.marker) +
-            '</span>';
-    }
-
     var measureEng;
     var measureKor;
+    var measureComp;
+    var measureMarker;
 
     function ensureMeasurer() {
         if (measureEng) return;
@@ -161,8 +167,14 @@
         measureEng.className = 'pattern-col-eng';
         measureKor = document.createElement('span');
         measureKor.className = 'pattern-col-kor';
+        measureComp = document.createElement('span');
+        measureComp.className = 'pattern-col-comp';
+        measureMarker = document.createElement('span');
+        measureMarker.className = 'pattern-col-marker';
         box.appendChild(measureEng);
         box.appendChild(measureKor);
+        box.appendChild(measureComp);
+        box.appendChild(measureMarker);
         document.body.appendChild(box);
     }
 
@@ -184,10 +196,14 @@
                     measureKor.textContent = kor.word + (kor.particle || '');
                     widths[role] = Math.max(widths[role], measureKor.offsetWidth);
                 }
+                measureComp.textContent = COL_COMP[role] || '';
+                widths[role] = Math.max(widths[role], measureComp.offsetWidth);
+                measureMarker.textContent = COL_MARKER[role] || '';
+                widths[role] = Math.max(widths[role], measureMarker.offsetWidth);
             });
         });
 
-        var gap = 10;
+        var gap = 12;
         var sum = widths.s + widths.o + widths.v;
         var gaps = gap * (COL_ROLES.length - 1);
         var stage = wrap.parentElement;
@@ -219,6 +235,10 @@
             var inner = document.createElement('div');
             inner.className = 'pattern-col-inner';
 
+            var compEl = document.createElement('div');
+            compEl.className = 'pattern-col-comp';
+            compEl.textContent = COL_COMP[role] || '';
+
             var engEl = document.createElement('div');
             engEl.className = 'pattern-col-eng';
             var engSpan = document.createElement('span');
@@ -230,14 +250,20 @@
             korEl.className = 'pattern-col-kor';
             fillKorEl(korEl, korSlot, role);
 
+            var markerEl = document.createElement('div');
+            markerEl.className = 'pattern-col-marker';
+            markerEl.textContent = COL_MARKER[role] || '';
+
+            inner.appendChild(compEl);
             inner.appendChild(engEl);
             inner.appendChild(korEl);
+            inner.appendChild(markerEl);
             col.appendChild(inner);
             wrap.appendChild(col);
         });
 
         applyFocusRole(step);
-        updateRoleLabel(step);
+        updatePhaseBadge(step, null);
     }
 
     function updateColContent(step, role) {
@@ -348,7 +374,7 @@
                 buildColsDom(nextStep);
             }
             applyFocusRole(nextStep);
-            updateRoleLabel(nextStep);
+            updatePhaseBadge(nextStep, prevStep);
         }
 
         updateNavUi();
@@ -368,7 +394,7 @@
             flipColumn(flipRole, function () {
                 updateColContent(nextStep, flipRole);
                 applyFocusRole(nextStep);
-                updateRoleLabel(nextStep);
+                updatePhaseBadge(nextStep, prevStep);
                 updateNavUi();
             });
         } else {
@@ -470,19 +496,6 @@
                 );
             };
         }
-
-        lockGuideHeight();
-    }
-
-    function lockGuideHeight() {
-        var guide = document.querySelector('.pattern-guide');
-        var body = document.getElementById('pattern-guide-body');
-        if (!guide || !body) return;
-
-        var wasCollapsed = body.classList.contains('is-collapsed');
-        body.classList.remove('is-collapsed');
-        guide.style.minHeight = guide.offsetHeight + 'px';
-        if (wasCollapsed) body.classList.add('is-collapsed');
     }
 
     function bindUi() {
