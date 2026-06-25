@@ -468,6 +468,19 @@
                 );
             };
         }
+
+        lockGuideHeight();
+    }
+
+    function lockGuideHeight() {
+        var guide = document.querySelector('.pattern-guide');
+        var body = document.getElementById('pattern-guide-body');
+        if (!guide || !body) return;
+
+        var wasCollapsed = body.classList.contains('is-collapsed');
+        body.classList.remove('is-collapsed');
+        guide.style.minHeight = guide.offsetHeight + 'px';
+        if (wasCollapsed) body.classList.add('is-collapsed');
     }
 
     function bindUi() {
