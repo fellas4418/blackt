@@ -869,6 +869,10 @@
         }
 
         function getReviewWordsForDay(level, absoluteDay) {
+            if (typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.isToeicLevel(level)) {
+                if (!TriggerToeicSchedule.isReviewDay(level, absoluteDay)) return [];
+                return TriggerToeicSchedule.buildToeicReviewWords(level, absoluteDay);
+            }
             var localDay = absoluteDay % 7 === 0 ? 7 : absoluteDay % 7;
             if (localDay !== 6 && localDay !== 7) return [];
             var weekNum = Math.ceil(absoluteDay / 7);
@@ -881,6 +885,19 @@
 
         function getWordsForDay(level, absoluteDay) {
             if (typeof wordsData === 'undefined' || !wordsData[level]) return [];
+            if (typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.isToeicLevel(level)) {
+                var wl = {
+                    week: TriggerToeicSchedule.weekNumForLevel(level, absoluteDay),
+                    localDay: TriggerToeicSchedule.localDayForLevel(level, absoluteDay)
+                };
+                if (TriggerToeicSchedule.isReviewDay(level, absoluteDay)) {
+                    return TriggerToeicSchedule.buildToeicReviewWords(level, absoluteDay);
+                }
+                var toeicWeekData = wordsData[level]['week' + wl.week];
+                if (!toeicWeekData) return [];
+                var toeicDayData = toeicWeekData[String(wl.localDay)];
+                return Array.isArray(toeicDayData) ? toeicDayData : [];
+            }
             var week = Math.ceil(absoluteDay / 7);
             var localDay = absoluteDay % 7 === 0 ? 7 : absoluteDay % 7;
             if (localDay === 6 || localDay === 7) {
@@ -899,7 +916,25 @@
             return Array.isArray(dayData) ? dayData : [];
         }
 
-        const TOTAL_DAYS = 70; 
+        function vocaTotalDaysForLevel(level) {
+            if (typeof TriggerToeicSchedule !== 'undefined') return TriggerToeicSchedule.vocaTotalDays(level);
+            return 70;
+        }
+        function vocaIsReviewDayForLevel(level, day) {
+            if (typeof TriggerToeicSchedule !== 'undefined') return TriggerToeicSchedule.isReviewDay(level, day);
+            var d = parseInt(day, 10) || 0;
+            return d % 7 === 6 || d % 7 === 0;
+        }
+
+        function syncPdfDayLimits(level) {
+            var max = vocaTotalDaysForLevel(level);
+            var fromEl = document.getElementById('pdf-day-from');
+            var toEl = document.getElementById('pdf-day-to');
+            if (fromEl) fromEl.max = String(max);
+            if (toEl) toEl.max = String(max);
+        }
+
+        const TOTAL_DAYS = 70;
         const todayStr = new Date().toLocaleDateString();
         
         const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzQM_AXzcq1vth9e1j9v54puAoJAur3gELmfvIq3e8fO7C8-D3RwTHs83cyCo0rsPp1/exec";
@@ -1274,8 +1309,7 @@
             }
             const lvl = localStorage.getItem('trigger_level') || 'middle';
             const currentDay = parseInt(localStorage.getItem('trigger_current_day_' + lvl), 10) || 1;
-            const localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
-            const isReviewDay = localDay === 6 || localDay === 7;
+            const isReviewDay = vocaIsReviewDayForLevel(lvl, currentDay);
             const finalSession = isReviewDay ? '2' : '5';
             localStorage.setItem('trigger_session_' + lvl, finalSession);
             try {
@@ -1782,8 +1816,8 @@
             const unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${lvl}`)) || 1;
             const resumeDay = Math.max(unlockedDay, day);
 
-            // ✅ [수정됨 1] 70일 완료 시 Day 71 방지
-            const displayDay = day > 70 ? 70 : day;
+            const maxDay = vocaTotalDaysForLevel(lvl);
+            const displayDay = day > maxDay ? maxDay : day;
             document.getElementById('stat-current-day').innerText = `Day ${displayDay}`;
 
             updateHeaderProfile();
@@ -1797,7 +1831,7 @@
             if (typeof wordsData !== 'undefined') {
                 let learnedTotal = 0;
                 for (let i = 1; i < unlockedDay; i++) { 
-                    if (i % 7 === 6 || i % 7 === 0) continue;
+                    if (vocaIsReviewDayForLevel(lvl, i)) continue;
                     learnedTotal += getWordsForDay(lvl, i).length;
                 }
                 document.getElementById('total-word-count').innerText = `${learnedTotal} 단어`;
@@ -1807,6 +1841,8 @@
                 
                 document.getElementById('target-count-display').innerText = displayCount + "개";
             }
+
+            syncPdfDayLimits(lvl);
 
             const allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
             const levelWrongs = allWrongs.filter(w => w.level === lvl);
@@ -1874,10 +1910,17 @@
             let unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
             const container = document.getElementById('routine-list-container');
             if (!container) return;
+
+            const routineTitleEl = document.querySelector('.routine-section > div');
+            if (routineTitleEl && typeof TriggerToeicSchedule !== 'undefined') {
+                routineTitleEl.textContent = TriggerToeicSchedule.routineTitle(currentLevel);
+            }
+
+            const totalDays = vocaTotalDaysForLevel(currentLevel);
             
             let html = '';
-            for(let i=1; i<=TOTAL_DAYS; i++) {
-                let isReview = (i % 7 === 6 || i % 7 === 0);
+            for(let i=1; i<=totalDays; i++) {
+                let isReview = vocaIsReviewDayForLevel(currentLevel, i);
                 let dayLabel = isReview ? `Day ${i} (복습)` : `Day ${i}`;
                 
                 if (i < unlockedDay) {
@@ -1907,7 +1950,9 @@
             container.innerHTML = html;
 
             const weekBanner = document.getElementById('week-bonus-banner');
-            const completedWeeks = Math.floor((unlockedDay - 1) / 7);
+            const completedWeeks = typeof TriggerToeicSchedule !== 'undefined'
+                ? TriggerToeicSchedule.completedBlocks(currentLevel, unlockedDay)
+                : Math.floor((unlockedDay - 1) / 7);
             if (weekBanner && typeof TriggerCredit !== 'undefined') {
                 if (completedWeeks >= 1) {
                     var unclaimed = [];
@@ -2007,7 +2052,7 @@
             document.getElementById('wrong-list').innerHTML = html;
             
             const titleEl = document.getElementById('wrong-modal-title');
-            titleEl.innerText = `[${lvl === 'high' ? '고등' : '중등'}] 오답/별표`;
+            titleEl.innerText = `[${lvl === 'high' ? '고등' : (lvl === 'toeic' ? '토익' : '중등')}] 오답/별표`;
             titleEl.style.fontSize = "1.3rem"; 
             
             document.getElementById('wrong-modal').style.display = 'flex';
@@ -2026,7 +2071,7 @@
             const levelUnlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${lvl}`)) || 1;
             
             for(let i = 1; i < levelUnlockedDay; i++) {
-                if (i % 7 === 6 || i % 7 === 0) continue; 
+                if (vocaIsReviewDayForLevel(lvl, i)) continue;
                 const dayWords = getWordsForDay(lvl, i);
                 if(dayWords.length > 0) {
                     html += `<div onclick="toggleAccordion('day-list-${i}')" style="background: rgba(255,153,0,0.1); border: 1px solid rgba(255,153,0,0.3); color:var(--neon-orange); padding: 15px; margin-top:10px; border-radius: 8px; font-weight:bold; display: flex; justify-content: space-between; cursor: pointer;">
@@ -2052,7 +2097,7 @@
             }
             
             const titleEl = document.getElementById('all-words-title');
-            titleEl.innerText = `◆ CLEAR LOG [${lvl === 'high' ? '고등' : '중등'}]`;
+            titleEl.innerText = `◆ CLEAR LOG [${lvl === 'high' ? '고등' : (lvl === 'toeic' ? '토익' : '중등')}]`;
             titleEl.style.fontSize = "1.3rem";
 
             document.getElementById('all-words-modal').style.display = 'flex';
@@ -2307,9 +2352,10 @@
 
             setReportModalTitle('Day 진도');
 
+            const totalDays = vocaTotalDaysForLevel(currentLevel);
             let html = '';
-            for(let i=1; i<=TOTAL_DAYS; i++) {
-                let isReview = (i % 7 === 6 || i % 7 === 0);
+            for(let i=1; i<=totalDays; i++) {
+                let isReview = vocaIsReviewDayForLevel(currentLevel, i);
                 let dayLabel = isReview ? `Day ${i} (복습)` : `Day ${i}`;
                 let dayStat = stats[i];
 
@@ -2465,8 +2511,7 @@
         function forceAdminFinishTest() {
             const lvl = localStorage.getItem('trigger_level') || 'middle';
             const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
-            let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
-            const isReviewDay = (localDay === 6 || localDay === 7);
+            const isReviewDay = vocaIsReviewDayForLevel(lvl, currentDay);
 
             const finalSession = isReviewDay ? '2' : '5';
             localStorage.setItem('trigger_session_' + lvl, finalSession); 
@@ -2856,7 +2901,8 @@
     <script src="admin-unlock.js"></script>
     <script src="app.js?v=20260531_calendar1"></script>
     <script src="worddata.js"></script>
-    <script src="worddata_toeic.js?v=20260625_toeicfix"></script>
+    <script src="worddata_toeic.js?v=20260625_toeic54"></script>
+    <script src="toeic-schedule.js"></script>
     <script src="toeic-unlock.js"></script>
     <script src="words.js"></script>
     <script>

@@ -22,6 +22,13 @@
         localStorage.setItem('trigger_level', 'toeic');
         localStorage.setItem('trigger_toeic_unlocked', '1');
         initToeicProgressIfNeeded();
+        const maxDay = (typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.TOEIC_TOTAL_DAYS)
+            ? TriggerToeicSchedule.TOEIC_TOTAL_DAYS
+            : 54;
+        ['trigger_current_day_toeic', 'trigger_unlocked_day_toeic'].forEach(function (key) {
+            const v = parseInt(localStorage.getItem(key), 10);
+            if (v > maxDay) localStorage.setItem(key, String(maxDay));
+        });
         if (typeof window.applyToeicModeBadge === 'function') window.applyToeicModeBadge(true);
         if (typeof window.updateDashboardUI === 'function') window.updateDashboardUI();
     }
@@ -41,6 +48,11 @@
             if (btnM) btnM.className = 'level-btn';
             if (btnH) btnH.className = 'level-btn';
             window.applyToeicModeBadge(true);
+            const maxDay = TriggerToeicSchedule.TOEIC_TOTAL_DAYS;
+            ['trigger_current_day_toeic', 'trigger_unlocked_day_toeic'].forEach(function (key) {
+                const v = parseInt(localStorage.getItem(key), 10);
+                if (v > maxDay) localStorage.setItem(key, String(maxDay));
+            });
             if (typeof window.updateDashboardUI === 'function') window.updateDashboardUI();
             return;
         }

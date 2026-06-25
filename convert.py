@@ -41,8 +41,45 @@ def build_structure(file_path, per_day):
         
     return result
 
-def write_toeic_js(file_path, per_day):
-    toeic_data = build_structure(file_path, per_day)
+def build_structure_toeic(file_path, per_day=62, blocks=9):
+    with open(file_path, 'r', encoding='utf-8') as f:
+        lines = [line.strip() for line in f if '|' in line]
+
+    result = {}
+    word_idx = 0
+    new_day_count = 0
+    total_words = len(lines)
+
+    for b in range(1, blocks + 1):
+        result[f"week{b}"] = {}
+        block_words = []
+        for d in range(1, 6):
+            new_day_count += 1
+            day_list = []
+            remaining = total_words - word_idx
+            if new_day_count == 45:
+                take = remaining
+            else:
+                take = min(per_day, remaining)
+            for _ in range(take):
+                if word_idx < total_words:
+                    word, mean = lines[word_idx].split('|', 1)
+                    word_obj = {"word": word.strip(), "meanings": [mean.strip()]}
+                    day_list.append(word_obj)
+                    block_words.append(word_obj)
+                    word_idx += 1
+            result[f"week{b}"][str(d)] = day_list
+
+        result[f"week{b}"]["6"] = {
+            "test": block_words,
+            "review_cap": 80
+        }
+
+    return result
+
+
+def write_toeic_js(file_path, per_day=62):
+    toeic_data = build_structure_toeic(file_path, per_day)
     payload = json.dumps(toeic_data, ensure_ascii=False, indent=2)
     with open('worddata_toeic.js', 'w', encoding='utf-8') as f:
         f.write('(function () {\n')
@@ -69,5 +106,5 @@ if __name__ == '__main__':
 
     print("✅ [사라져 Voca] 전용 worddata.js 생성 완료!")
 
-    write_toeic_js('voca_toeic.txt', 56)
+    write_toeic_js('voca_toeic.txt', 62)
     print("✅ [토익] worddata_toeic.js 생성 완료!")

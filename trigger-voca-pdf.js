@@ -25,12 +25,18 @@
         return [];
     }
 
+    function vocaMaxDays(level) {
+        if (typeof TriggerToeicSchedule !== 'undefined') return TriggerToeicSchedule.vocaTotalDays(level);
+        return 70;
+    }
+
     function getLastClearedDay(level) {
         var ud = parseInt(localStorage.getItem('trigger_unlocked_day_' + level), 10) || 1;
         var cd = parseInt(localStorage.getItem('trigger_current_day_' + level), 10) || 1;
         var sess = parseInt(localStorage.getItem('trigger_session_' + level), 10) || 1;
-        if (ud > 1) return Math.min(70, ud - 1);
-        if (sess > 5) return Math.min(70, cd);
+        var cap = vocaMaxDays(level);
+        if (ud > 1) return Math.min(cap, ud - 1);
+        if (sess > 5) return Math.min(cap, cd);
         return Math.max(1, cd - 1);
     }
 
@@ -203,14 +209,22 @@
         if (range === 'today') {
             days = [last];
         } else if (range === 'week') {
-            var weekStart = Math.floor((last - 1) / 7) * 7 + 1;
-            var weekEnd = Math.min(weekStart + 6, last);
+            var weekStart;
+            var weekEnd;
+            if (typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.isToeicLevel(level)) {
+                weekStart = Math.floor((last - 1) / 6) * 6 + 1;
+                weekEnd = Math.min(weekStart + 5, last);
+            } else {
+                weekStart = Math.floor((last - 1) / 7) * 7 + 1;
+                weekEnd = Math.min(weekStart + 6, last);
+            }
             for (var d = weekStart; d <= weekEnd; d++) days.push(d);
         } else if (range === 'all') {
             for (var a = 1; a <= last; a++) days.push(a);
         } else if (range === 'custom') {
-            var from = Math.max(1, Math.min(70, parseInt(customFrom, 10) || 1));
-            var to = Math.max(1, Math.min(70, parseInt(customTo, 10) || from));
+            var cap = vocaMaxDays(level);
+            var from = Math.max(1, Math.min(cap, parseInt(customFrom, 10) || 1));
+            var to = Math.max(1, Math.min(cap, parseInt(customTo, 10) || from));
             if (from > to) {
                 var t = from;
                 from = to;

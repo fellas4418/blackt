@@ -457,6 +457,31 @@ let isPaused = false;
 const currentLevel = localStorage.getItem('trigger_level') || 'middle';
 window.lastWrongOptions = [];
 
+function vocaIsReviewDay(day, level) {
+    level = level || currentLevel;
+    if (typeof TriggerToeicSchedule !== 'undefined') return TriggerToeicSchedule.isReviewDay(level, day);
+    const d = parseInt(day, 10) || 0;
+    return d % 7 === 6 || d % 7 === 0;
+}
+function vocaTotalDays(level) {
+    level = level || currentLevel;
+    if (typeof TriggerToeicSchedule !== 'undefined') return TriggerToeicSchedule.vocaTotalDays(level);
+    return 70;
+}
+function vocaWeekAndLocal(level, absoluteDay) {
+    if (typeof TriggerToeicSchedule !== 'undefined') {
+        return {
+            week: TriggerToeicSchedule.weekNumForLevel(level, absoluteDay),
+            localDay: TriggerToeicSchedule.localDayForLevel(level, absoluteDay)
+        };
+    }
+    const day = parseInt(absoluteDay, 10) || 1;
+    return {
+        week: Math.ceil(day / 7),
+        localDay: day % 7 === 0 ? 7 : day % 7
+    };
+}
+
 function isSmartStudyEligible(isReviewDay) {
     if (isPreReviewMode) return false;
     if (isReviewDay) return false;
@@ -649,7 +674,7 @@ function beginTestPhase() {
 
 function startTodayWordsAfterPreReview() {
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
-    const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
+    const isReviewDay = vocaIsReviewDay(currentDay);
     applySmartStudyWordSets(isReviewDay);
     currentIdx = 0;
     score = 0;
@@ -765,7 +790,7 @@ function saveStudyCheckpoint() {
     if (!targetWords || targetWords.length < 1) return;
     const sessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
     const dayNow = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`), 10) || 1;
-    const isReviewDay = (dayNow % 7 === 6 || dayNow % 7 === 0);
+    const isReviewDay = vocaIsReviewDay(dayNow);
     if (needsWordExclusionScreen(isReviewDay)) return;
     try {
         const payload = {
@@ -1023,8 +1048,16 @@ if (typeof applyAdminPersistence === 'function') applyAdminPersistence();
         let currentSession = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
         const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
         
-        let week = Math.ceil(currentDay / 7);
-        let localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
+        if (currentDay > vocaTotalDays(currentLevel)) {
+            clearStudyCheckpoint();
+            showSystemMessage(`Day ${currentDay} 데이터를<br>불러올 수 없습니다.`);
+            setTimeout(() => { location.href = 'index.html?tab=voca'; }, 2500);
+            return;
+        }
+
+        const wl = vocaWeekAndLocal(currentLevel, currentDay);
+        let week = wl.week;
+        let localDay = wl.localDay;
         
         let dayData = null;
         if (typeof wordsData !== 'undefined' && wordsData[currentLevel] && wordsData[currentLevel]["week" + week]) {
@@ -1042,7 +1075,7 @@ if (typeof applyAdminPersistence === 'function') applyAdminPersistence();
             return;
         }
 
-        const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
+        const isReviewDay = vocaIsReviewDay(currentDay);
 
         if (isReviewDay) {
             todayWords = getReviewWordsForDay(currentLevel, currentDay);
@@ -1055,11 +1088,15 @@ if (typeof applyAdminPersistence === 'function') applyAdminPersistence();
                 } else if (dayData && Array.isArray(dayData.review_parts)) {
                     allReviewWords = dayData.review_parts.flat();
                 }
-                const halfIndex = Math.ceil(allReviewWords.length / 2);
-                if (currentDay % 7 === 6) {
-                    todayWords = allReviewWords.slice(0, halfIndex);
-                } else if (currentDay % 7 === 0) {
-                    todayWords = allReviewWords.slice(halfIndex);
+                if (typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.isToeicLevel(currentLevel)) {
+                    todayWords = TriggerToeicSchedule.buildToeicReviewWords(currentLevel, currentDay);
+                } else {
+                    const halfIndex = Math.ceil(allReviewWords.length / 2);
+                    if (currentDay % 7 === 6) {
+                        todayWords = allReviewWords.slice(0, halfIndex);
+                    } else if (currentDay % 7 === 0) {
+                        todayWords = allReviewWords.slice(halfIndex);
+                    }
                 }
             }
         } else {
@@ -1496,7 +1533,7 @@ function handleAnswer(isCorrect) {
     if (isCorrect) {
         score++;
         
-        const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
+        const isReviewDay = vocaIsReviewDay(currentDay);
         let currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`);
         let isFinalStep = (currentSessionRaw === String(DAILY_CYCLE_COUNT) || currentSessionRaw === 'final' || (isReviewDay && currentSessionRaw === '2'));
 
@@ -1756,7 +1793,7 @@ function finishSession(didTest = true) {
         return; 
     }
     
-    const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
+    const isReviewDay = vocaIsReviewDay(currentDay);
     const today = new Date().toLocaleDateString();
     
     let totalSessions = isReviewDay ? 2 : DAILY_CYCLE_COUNT;
@@ -1817,12 +1854,16 @@ function finishSession(didTest = true) {
         localStorage.setItem(`trigger_session_${currentLevel}`, '1');
 
         if ((currentSessionRaw === String(DAILY_CYCLE_COUNT) || currentSessionRaw === 'final' || (isReviewDay && currentSessionRaw === '2')) && accuracy >= 80) {
-            if (currentDay === 70) {
+            if (currentDay === vocaTotalDays(currentLevel)) {
                 const giftSection = document.getElementById('final-gift-section');
                 if (giftSection) {
                     giftSection.style.display = 'block';
                     const guideText = document.getElementById('pdf-guide-text');
-                    if (guideText) guideText.innerHTML = '🏆 10주 완주! 단어장·주차 보너스는 아래에서, 최종 오답 시험지는 하단에서 받으세요.';
+                    if (guideText) {
+                        guideText.innerHTML = TriggerToeicSchedule && TriggerToeicSchedule.isToeicLevel(currentLevel)
+                            ? '🏆 54일 완주! 단어장·보너스는 아래에서, 최종 오답 시험지는 하단에서 받으세요.'
+                            : '🏆 10주 완주! 단어장·주차 보너스는 아래에서, 최종 오답 시험지는 하단에서 받으세요.';
+                    }
                     window.scrollTo({ top: giftSection.offsetTop, behavior: 'smooth' });
                 }
             }
@@ -1969,8 +2010,12 @@ function getWeekNewWordsPool(level, weekNum) {
     return pool;
 }
 
-/** 6·7일차: 해당 주 1~5일치 전량을 이틀에 나눠 복습 */
+/** 6·7일차(중고등) / 6일차(토익): 복습 단어 */
 function getReviewWordsForDay(level, absoluteDay) {
+    if (typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.isToeicLevel(level)) {
+        if (!TriggerToeicSchedule.isReviewDay(level, absoluteDay)) return [];
+        return TriggerToeicSchedule.buildToeicReviewWords(level, absoluteDay);
+    }
     const localDay = absoluteDay % 7 === 0 ? 7 : absoluteDay % 7;
     if (localDay !== 6 && localDay !== 7) return [];
     const weekNum = Math.ceil(absoluteDay / 7);
@@ -1983,6 +2028,16 @@ function getReviewWordsForDay(level, absoluteDay) {
 
 function getWordsForDay(level, absoluteDay) {
     if (typeof wordsData === 'undefined' || !wordsData[level]) return [];
+    if (typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.isToeicLevel(level)) {
+        const wl = vocaWeekAndLocal(level, absoluteDay);
+        if (TriggerToeicSchedule.isReviewDay(level, absoluteDay)) {
+            return TriggerToeicSchedule.buildToeicReviewWords(level, absoluteDay);
+        }
+        const weekData = wordsData[level]['week' + wl.week];
+        if (!weekData) return [];
+        const dayData = weekData[String(wl.localDay)];
+        return Array.isArray(dayData) ? dayData : [];
+    }
     const week = Math.ceil(absoluteDay / 7);
     const localDay = absoluteDay % 7 === 0 ? 7 : absoluteDay % 7;
     if (localDay === 6 || localDay === 7) {
@@ -2072,7 +2127,7 @@ function buildVocaShareBundle() {
         let learnedTotal = 0;
         const unlockedDay = parseInt(localStorage.getItem(`trigger_unlocked_day_${currentLevel}`)) || 1;
         for (let i = 1; i < unlockedDay; i++) {
-            if (i % 7 === 6 || i % 7 === 0) continue;
+            if (vocaIsReviewDay(i, currentLevel)) continue;
             learnedTotal += getWordsForDay(currentLevel, i).length;
         }
         st.t = learnedTotal;
@@ -2262,8 +2317,7 @@ window.adminGoDayCompleteKakaoScreen = function () {
     }
     const lvl = localStorage.getItem('trigger_level') || 'middle';
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${lvl}`)) || 1;
-    const localDay = currentDay % 7 === 0 ? 7 : currentDay % 7;
-    const isReviewDay = localDay === 6 || localDay === 7;
+    const isReviewDay = vocaIsReviewDay(currentDay, lvl);
     const finalSession = isReviewDay ? '2' : String(DAILY_CYCLE_COUNT);
     localStorage.setItem(`trigger_session_${lvl}`, finalSession);
     try {
@@ -2355,7 +2409,7 @@ window.jumpToSession = function(n) {
 function jumpToFinish() {
     const lvl = localStorage.getItem('trigger_level') || 'middle';
     const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
-    const isReviewDay = (currentDay % 7 === 6 || currentDay % 7 === 0);
+    const isReviewDay = vocaIsReviewDay(currentDay);
     localStorage.setItem('trigger_session_' + lvl, isReviewDay ? '2' : String(DAILY_CYCLE_COUNT));
     clearBlacktCooldownNotifySchedule();
     localStorage.removeItem('blackt_cooldown');
