@@ -2,7 +2,7 @@
     'use strict';
 
     var INTRO_BAR_MS = 7000;
-    var COL_ROLES = ['s', 'o', 'v'];
+    var COL_ROLES = ['s', 'v', 'o'];
 
     var state = {
         data: null,
@@ -187,7 +187,7 @@
             });
         });
 
-        var gap = 5;
+        var gap = 10;
         var sum = widths.s + widths.o + widths.v;
         var gaps = gap * (COL_ROLES.length - 1);
         var stage = wrap.parentElement;
@@ -264,17 +264,17 @@
             return;
         }
 
-        inner.classList.remove('is-flip-in');
-        inner.classList.add('is-flip-out');
+        inner.classList.remove('is-flipping');
+        void inner.offsetWidth;
+        inner.classList.add('is-flipping');
 
         setTimeout(function () {
             updateFn();
-            inner.classList.remove('is-flip-out');
-            inner.classList.add('is-flip-in');
-            setTimeout(function () {
-                inner.classList.remove('is-flip-in');
-            }, 340);
-        }, 300);
+        }, 260);
+
+        setTimeout(function () {
+            inner.classList.remove('is-flipping');
+        }, 540);
     }
 
     function setProgress(ratio) {
