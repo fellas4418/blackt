@@ -2364,8 +2364,6 @@ function jumpToFinish() {
     location.href = 'index.html?tab=voca';
 }
 
-try { localStorage.removeItem('trigger_admin_mode'); } catch (e) {}
-
 let adminClickCount = 0;
 let adminTimer = null;
 
@@ -2387,7 +2385,6 @@ function activateAdminMode(e) {
 }
 
 function enableAdminMode(showAlert) {
-    return;
     localStorage.setItem('trigger_admin_mode', 'true');
     applyAdminPersistence();
     if (showAlert) {

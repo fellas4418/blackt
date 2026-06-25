@@ -1701,7 +1701,7 @@
     </style>
 </head>
 <body class="analysis-page">
-    <div id="nav-area">
+    <div id="nav-area" style="position:relative;">
         <div id="auth-box" class="auth-box">
             <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
                 <div style="font-size:0.85rem; color:#ccc;">이름+전화번호 기반 자동 동기화</div>
@@ -1717,6 +1717,7 @@
         <div class="analysis-nav-settings-row">
             <a class="analysis-context-strip-link" href="index.html?tab=analysis">설정 바꾸기</a>
         </div>
+        <div data-admin-unlock-corner="1" style="position:absolute;bottom:2px;right:2px;width:56px;height:56px;opacity:0;z-index:6;cursor:default;" aria-hidden="true"></div>
     </div>
 
     <div id="word-popup"></div>
@@ -9370,10 +9371,6 @@
                 adminKeyEl.addEventListener('change', examRptPersistAdminApiKey);
                 adminKeyEl.addEventListener('blur', examRptPersistAdminApiKey);
             }
-            try { localStorage.removeItem('trigger_admin_mode'); } catch (e) {}
-            (function bindExamRptAdminModeTap() {
-                return;
-            })();
             window.addEventListener('focus', function () {
                 if (examRptIsAdminMode()) examRptSyncAdminSection();
             });
@@ -9776,6 +9773,7 @@
         })();
 
     </script>
+    <script src="admin-unlock.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function () {

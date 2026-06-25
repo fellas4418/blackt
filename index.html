@@ -569,7 +569,7 @@
         
         <hr class="main-header-divider">
 
-        <div class="global-stats-shell">
+        <div class="global-stats-shell" style="position:relative;">
             <div class="global-stats-meta">
                 <div class="header-credit-wrap">
                     <button type="button" class="stat-credit-tap" id="header-credit-btn" onclick="typeof TriggerCredit!=='undefined'&&TriggerCredit.showCreditInfo()" title="탭하면 크레딧 적립 규칙">
@@ -602,6 +602,7 @@
                     <div class="stat-value" style="color:#ddd; text-decoration:underline; font-size: 1rem; margin-top: 3px;">보기 📊</div>
                 </div>
             </div>
+            <div data-admin-unlock-corner="1" style="position:absolute;bottom:2px;right:2px;width:56px;height:56px;opacity:0;z-index:6;cursor:default;" aria-hidden="true"></div>
         </div>
 
         <div class="main-tab-viewport">
@@ -2853,6 +2854,7 @@
     </script>
     <script src="praise-share.js?v=20260517_kakao_return"></script>
     <script src="app.js?v=20260531_calendar1"></script>
+    <script src="admin-unlock.js"></script>
     <script src="worddata.js"></script>
     <script src="worddata_toeic.js"></script>
     <script src="toeic-unlock.js"></script>
