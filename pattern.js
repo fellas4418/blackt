@@ -48,9 +48,30 @@
         return state.data.steps[state.variantIdx];
     }
 
+    function getFocusRole(step) {
+        if (!step) return 's';
+        if (step.focus) return step.focus;
+        var ch = step.change || '';
+        if (ch === 'o') return 'o';
+        if (ch === 'v') return 'v';
+        return 's';
+    }
+
+    function applyFocusRole(step) {
+        var focus = getFocusRole(step);
+        document.querySelectorAll('.pattern-eng-token').forEach(function (el) {
+            var on = el.classList.contains('pattern-eng-token--' + focus);
+            el.classList.toggle('is-focus', on);
+        });
+        document.querySelectorAll('.pattern-kor-slot.kor-word-cell').forEach(function (el) {
+            var on = el.classList.contains('pattern-kor-slot--' + focus);
+            el.classList.toggle('is-focus', on);
+        });
+    }
+
     function hintForStep(step, isFirst) {
         if (!step) return '';
-        if (isFirst) return '문장과 해석을 함께 읽어 보세요';
+        if (isFirst) return '주어에 색이 들어간 부분을 영어·해석과 함께 읽어 보세요';
         var ch = step.change || '';
         if (ch === 'o') return '→ 목적어만 바뀌었어요. 해석도 목적어 부분만 바뀝니다';
         if (ch === 's') return '→ 주어만 바뀌었어요. 해석도 주어 부분만 바뀝니다';
@@ -275,7 +296,7 @@
         }
     }
 
-    function renderVariant(prevIdx, nextIdx) {
+    function applyStepDom(prevIdx, nextIdx) {
         var prevStep = prevIdx >= 0 ? state.data.steps[prevIdx] : null;
         var nextStep = state.data.steps[nextIdx];
 
@@ -294,8 +315,34 @@
             }
         }
 
+        applyFocusRole(nextStep);
         clearHighlight();
         updateNavUi();
+    }
+
+    function renderVariant(prevIdx, nextIdx, skipFlip) {
+        if (skipFlip || prevIdx < 0) {
+            applyStepDom(prevIdx, nextIdx);
+            return;
+        }
+
+        var stage = document.getElementById('pattern-stage');
+        if (!stage) {
+            applyStepDom(prevIdx, nextIdx);
+            return;
+        }
+
+        stage.classList.remove('is-flip-in');
+        stage.classList.add('is-flip-out');
+
+        setTimeout(function () {
+            applyStepDom(prevIdx, nextIdx);
+            stage.classList.remove('is-flip-out');
+            stage.classList.add('is-flip-in');
+            setTimeout(function () {
+                stage.classList.remove('is-flip-in');
+            }, 340);
+        }, 300);
     }
 
     function goToVariant(idx) {
@@ -322,6 +369,7 @@
         var step = currentStep();
         buildEngDom(step);
         buildKorDom(step);
+        applyFocusRole(step);
         updateNavUi();
 
         if (state.isRepeat) {

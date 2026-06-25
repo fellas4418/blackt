@@ -5,7 +5,7 @@
     min-height: 100dvh;
     display: flex;
     flex-direction: column;
-    padding: 16px 16px 28px;
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
     box-sizing: border-box;
     max-width: 480px;
     margin: 0 auto;
@@ -88,30 +88,51 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     min-height: 0;
-    margin-top: -12px;
-    padding-bottom: 8px;
+    margin-top: 0;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
 }
 
 .pattern-stage {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 8px 0 16px;
-    flex: 1;
+    justify-content: flex-start;
+    padding: 4px 0 6px;
+    flex: 0 1 auto;
+    perspective: 900px;
+    transform-style: preserve-3d;
+}
+
+.pattern-stage.is-flip-out {
+    animation: pattern-flip-out 0.32s ease-in forwards;
+    pointer-events: none;
+}
+
+.pattern-stage.is-flip-in {
+    animation: pattern-flip-in 0.32s ease-out forwards;
+}
+
+@keyframes pattern-flip-out {
+    0% { transform: rotateY(0deg); opacity: 1; }
+    100% { transform: rotateY(-88deg); opacity: 0; }
+}
+
+@keyframes pattern-flip-in {
+    0% { transform: rotateY(88deg); opacity: 0; }
+    100% { transform: rotateY(0deg); opacity: 1; }
 }
 
 .pattern-eng {
-    font-size: clamp(1.55rem, 6.2vw, 2.05rem);
+    font-size: clamp(2.02rem, 8.06vw, 2.67rem);
     font-weight: 700;
     color: #fff;
     text-align: center;
-    line-height: 1.5;
-    margin-bottom: 28px;
+    line-height: 1.45;
+    margin-bottom: 10px;
     padding: 0 8px;
-    min-height: 2.8em;
+    min-height: 2.4em;
 }
 
 .pattern-eng-token {
@@ -123,43 +144,16 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-.pattern-eng-token--s {
-    --pt-c: #5eb8ff;
+.pattern-eng-token.is-focus {
+    color: var(--neon-green);
+    background: rgba(57, 255, 20, 0.14);
+    box-shadow: 0 0 14px rgba(57, 255, 20, 0.35);
 }
 
-.pattern-eng-token--o {
-    --pt-c: #5effa8;
-}
-
-.pattern-eng-token--v {
-    --pt-c: #ffcc55;
-}
-
-.pattern-eng-token.is-lit,
-.pattern-eng-token:active {
-    background: rgba(94, 184, 255, 0.28);
-    box-shadow: 0 0 12px rgba(94, 184, 255, 0.4);
-}
-
-.pattern-eng-token--o.is-lit,
-.pattern-eng-token--o:active,
-.pattern-eng-token--o.is-changing {
-    background: rgba(94, 255, 168, 0.28);
-    box-shadow: 0 0 12px rgba(94, 255, 168, 0.45);
-}
-
-.pattern-eng-token--s.is-lit,
-.pattern-eng-token--s:active,
-.pattern-eng-token--s.is-changing {
-    background: rgba(94, 184, 255, 0.28);
-    box-shadow: 0 0 12px rgba(94, 184, 255, 0.45);
-}
-
-.pattern-eng-token--v.is-lit,
-.pattern-eng-token--v:active,
-.pattern-eng-token--v.is-changing {
-    background: rgba(255, 204, 85, 0.28);
-    box-shadow: 0 0 12px rgba(255, 204, 85, 0.45);
+.pattern-eng-token.is-lit {
+    color: var(--neon-green);
+    background: rgba(57, 255, 20, 0.22);
+    box-shadow: 0 0 16px rgba(57, 255, 20, 0.45);
 }
 
 .pattern-eng-token.is-changing {
@@ -182,12 +176,12 @@
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 12px 20px;
-    margin-bottom: 10px;
+    gap: 10px 16px;
+    margin-bottom: 6px;
 }
 
 .pattern-kor-row--words {
-    margin-bottom: 14px;
+    margin-bottom: 8px;
 }
 
 .pattern-kor-slot {
@@ -215,16 +209,13 @@
     color: #fff;
 }
 
-.pattern-kor-slot--s .pattern-kor-word {
-    color: #5eb8ff;
+.pattern-kor-slot.is-focus .pattern-kor-word {
+    color: var(--neon-green);
+    text-shadow: 0 0 12px rgba(57, 255, 20, 0.4);
 }
 
-.pattern-kor-slot--o .pattern-kor-word {
-    color: #5effa8;
-}
-
-.pattern-kor-slot--v .pattern-kor-word {
-    color: #ffcc55;
+.pattern-kor-slot.is-lit .pattern-kor-word {
+    color: var(--neon-green);
 }
 
 .pattern-kor-rule {
@@ -270,9 +261,10 @@
     color: #aaa;
     font-size: 0.95rem;
     min-height: 1.4em;
-    margin: 0 0 12px;
+    margin: 4px 0 8px;
     padding: 0 8px;
     line-height: 1.45;
+    flex-shrink: 0;
 }
 
 .pattern-nav-hint.is-hidden {
@@ -287,7 +279,7 @@
     justify-content: center;
     gap: 20px;
     flex-shrink: 0;
-    padding: 4px 0;
+    padding: 4px 0 calc(4px + env(safe-area-inset-bottom, 0px));
 }
 
 .pattern-nav.is-hidden {
