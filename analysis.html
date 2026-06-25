@@ -9370,25 +9370,9 @@
                 adminKeyEl.addEventListener('change', examRptPersistAdminApiKey);
                 adminKeyEl.addEventListener('blur', examRptPersistAdminApiKey);
             }
+            try { localStorage.removeItem('trigger_admin_mode'); } catch (e) {}
             (function bindExamRptAdminModeTap() {
-                let tap = 0;
-                let timer = null;
-                const hdr = document.getElementById('info-header');
-                if (!hdr) return;
-                hdr.addEventListener('click', function () {
-                    tap++;
-                    clearTimeout(timer);
-                    timer = setTimeout(function () {
-                        tap = 0;
-                    }, 1500);
-                    if (tap >= 3) {
-                        tap = 0;
-                        localStorage.setItem('trigger_admin_mode', 'true');
-                        examRptAdminListAutoLoaded = false;
-                        examRptSyncAdminSection();
-                        alert('🛠️ 관리자 모드 활성화!\n선생님 메모·학생 의뢰 목록을 사용할 수 있습니다.');
-                    }
-                });
+                return;
             })();
             window.addEventListener('focus', function () {
                 if (examRptIsAdminMode()) examRptSyncAdminSection();

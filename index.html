@@ -553,7 +553,7 @@
                 <span class="header-app-menu-bars" aria-hidden="true"><i></i><i></i><i></i></span>
             </button>
             <div class="main-header-title-row">
-                <div class="logo" id="main-header-title" onclick="activateAdmin(event)" style="margin: 0; text-align: center; line-height: 1.2; font-size: 3rem; letter-spacing: -1px; cursor: pointer; user-select: none;">
+                <div class="logo" id="main-header-title" style="margin: 0; text-align: center; line-height: 1.2; font-size: 3rem; letter-spacing: -1px; user-select: none;">
                     트리거 <span class="brand-tab-module brand-tab-module--voca">보카</span>
                 </div>
             </div>
@@ -2437,6 +2437,7 @@
         let adminClicks = 0;
         let adminTimer = null;
         function activateAdmin(e) {
+            return;
             if (e) {
                 e.stopPropagation();
                 e.preventDefault();
