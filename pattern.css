@@ -141,6 +141,23 @@
     width: 100%;
 }
 
+.pattern-sentence-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.pattern-sentence-block .pattern-stage {
+    width: auto;
+}
+
+.pattern-sentence-block .pattern-cols {
+    margin: 0;
+}
+
 .pattern-cols {
     display: grid;
     grid-template-columns: auto auto auto;
@@ -262,13 +279,9 @@
 
 .pattern-phase-badge {
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    align-self: center;
-    width: 100%;
-    max-width: 340px;
+    display: block;
+    align-self: flex-start;
+    width: auto;
     margin: 0 0 26px;
     padding: 0;
     line-height: 1;
@@ -277,22 +290,6 @@
     background: transparent;
     box-shadow: none;
     flex-shrink: 0;
-}
-
-.pattern-phase-badge::before,
-.pattern-phase-badge::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    min-width: 24px;
-}
-
-.pattern-phase-badge::before {
-    background: linear-gradient(90deg, transparent, rgba(188, 19, 254, 0.5));
-}
-
-.pattern-phase-badge::after {
-    background: linear-gradient(90deg, rgba(188, 19, 254, 0.5), transparent);
 }
 
 .pattern-phase-badge-core {
