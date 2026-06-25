@@ -156,7 +156,7 @@
         });
 
         wrap.style.gridTemplateColumns = COL_ROLES.map(function (role) {
-            return Math.ceil(widths[role]) + 'px';
+            return 'minmax(0, ' + Math.max(widths[role], 1) + 'fr)';
         }).join(' ');
     }
 
