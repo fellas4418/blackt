@@ -18,10 +18,7 @@
         }
     }
 
-    function enableToeicMode() {
-        localStorage.setItem('trigger_level', 'toeic');
-        localStorage.setItem('trigger_toeic_unlocked', '1');
-        initToeicProgressIfNeeded();
+    function clampToeicDayKeys() {
         const maxDay = (typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.TOEIC_TOTAL_DAYS)
             ? TriggerToeicSchedule.TOEIC_TOTAL_DAYS
             : 54;
@@ -29,8 +26,30 @@
             const v = parseInt(localStorage.getItem(key), 10);
             if (v > maxDay) localStorage.setItem(key, String(maxDay));
         });
-        if (typeof window.applyToeicModeBadge === 'function') window.applyToeicModeBadge(true);
-        if (typeof window.updateDashboardUI === 'function') window.updateDashboardUI();
+    }
+
+    window.isToeicUnlocked = function () {
+        return localStorage.getItem('trigger_toeic_unlocked') === '1';
+    };
+
+    window.applyToeicLevelButton = function () {
+        const btn = document.getElementById('btn-toeic');
+        if (!btn) return;
+        btn.style.display = window.isToeicUnlocked() ? '' : 'none';
+    };
+
+    function enableToeicMode() {
+        localStorage.setItem('trigger_toeic_unlocked', '1');
+        initToeicProgressIfNeeded();
+        clampToeicDayKeys();
+        window.applyToeicLevelButton();
+        if (typeof window.selectLevel === 'function') {
+            window.selectLevel('toeic');
+        } else {
+            localStorage.setItem('trigger_level', 'toeic');
+            if (typeof window.applyToeicModeBadge === 'function') window.applyToeicModeBadge(true);
+            if (typeof window.updateDashboardUI === 'function') window.updateDashboardUI();
+        }
     }
 
     window.applyToeicModeBadge = function (show) {
@@ -41,23 +60,27 @@
     };
 
     window.syncLevelOnLoad = function () {
-        const lvl = localStorage.getItem('trigger_level') || 'middle';
+        window.applyToeicLevelButton();
+        let lvl = localStorage.getItem('trigger_level') || 'middle';
+        if (lvl === 'toeic' && !window.isToeicUnlocked()) {
+            lvl = 'middle';
+            localStorage.setItem('trigger_level', 'middle');
+        }
         if (lvl === 'toeic') {
-            const btnM = document.getElementById('btn-middle');
-            const btnH = document.getElementById('btn-high');
-            if (btnM) btnM.className = 'level-btn';
-            if (btnH) btnH.className = 'level-btn';
-            window.applyToeicModeBadge(true);
-            const maxDay = TriggerToeicSchedule.TOEIC_TOTAL_DAYS;
-            ['trigger_current_day_toeic', 'trigger_unlocked_day_toeic'].forEach(function (key) {
-                const v = parseInt(localStorage.getItem(key), 10);
-                if (v > maxDay) localStorage.setItem(key, String(maxDay));
-            });
-            if (typeof window.updateDashboardUI === 'function') window.updateDashboardUI();
+            clampToeicDayKeys();
+            if (typeof window.selectLevel === 'function') {
+                window.selectLevel('toeic');
+            } else {
+                window.applyToeicModeBadge(true);
+                if (typeof window.updateDashboardUI === 'function') window.updateDashboardUI();
+            }
             return;
         }
-        window.applyToeicModeBadge(false);
-        if (typeof window.selectLevel === 'function') window.selectLevel(lvl);
+        if (typeof window.selectLevel === 'function') {
+            window.selectLevel(lvl);
+        } else {
+            window.applyToeicModeBadge(false);
+        }
     };
 
     function tryUnlockToeic() {

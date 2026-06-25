@@ -625,6 +625,10 @@
                         고등단어<br>
                         <span style="font-size: 0.9rem; color: var(--neon-blue); font-weight: normal; opacity: 0.9;">2,000</span>
                     </button>
+                    <button class="level-btn" id="btn-toeic" onclick="selectLevel('toeic')" style="display:none; line-height: 1.4;">
+                        토익단어<br>
+                        <span style="font-size: 0.9rem; color: #88ccff; font-weight: normal; opacity: 0.9;">2,775</span>
+                    </button>
                 </div>
             </div>
 
@@ -1486,11 +1490,16 @@
             
             document.getElementById('btn-middle').className = "level-btn";
             document.getElementById('btn-high').className = "level-btn";
-            document.getElementById('btn-' + level).className = "level-btn active";
+            const btnToeic = document.getElementById('btn-toeic');
+            if (btnToeic) btnToeic.className = "level-btn";
+            const activeBtn = document.getElementById('btn-' + level);
+            if (activeBtn) activeBtn.className = "level-btn active";
 
-            if (typeof applyToeicModeBadge === 'function') applyToeicModeBadge(false);
+            if (typeof applyToeicModeBadge === 'function') applyToeicModeBadge(level === 'toeic');
 
             updateDashboardUI();
+
+            if (level !== 'middle' && level !== 'high') return;
 
             const name = localStorage.getItem('trigger_name');
             const phone = localStorage.getItem('trigger_phone');
