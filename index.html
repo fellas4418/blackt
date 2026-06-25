@@ -628,6 +628,7 @@
             </div>
 
             <div class="card" style="padding: 25px 20px; border: 1px solid var(--neon-orange); background: rgba(255, 153, 0, 0.05); text-align: center;">
+                <div id="toeic-mode-badge" style="display:none; font-size:0.72rem; color:#8cf; letter-spacing:0.12em; margin-bottom:6px;">TOEIC TRACK</div>
                 <div style="position: relative; margin-bottom: 5px; height: 30px; display: flex; align-items: center; justify-content: center;">
                     <div style="font-size: 1.2rem; font-weight: bold; color: var(--neon-orange); letter-spacing: 0.06em;">TODAY MISSION</div>
                     <span class="guide-cyber-btn" onclick="openGuide()" role="button" tabindex="0" aria-label="학습 시스템 안내">◆ INFO</span>
@@ -648,7 +649,7 @@
                 </div>
             </div>
 
-            <div class="card routine-section">
+            <div class="card routine-section" style="position:relative;">
                 <div style="font-size: 1.2rem; font-weight: 700; margin-bottom: 10px;">📅 10주 완성 도전하기</div>
                 <div class="routine-scroll-box">
                     <ul class="routine-list" id="routine-list-container"></ul>
@@ -684,6 +685,7 @@
                         </button>
                     </div>
                 </div>
+                <div data-toeic-unlock-corner="1" style="position:absolute;bottom:2px;left:2px;width:56px;height:56px;opacity:0;z-index:6;cursor:default;" aria-hidden="true"></div>
             </div>
             
             <div id="admin-menu" style="display: none; text-align: center; margin: 30px auto; border: 2px dashed var(--neon-orange); padding: 20px; flex-direction: column; gap: 12px; align-items: center; background: rgba(255,153,0,0.05); border-radius: 15px; width: 90%;">
@@ -1450,6 +1452,8 @@
             document.getElementById('btn-middle').className = "level-btn";
             document.getElementById('btn-high').className = "level-btn";
             document.getElementById('btn-' + level).className = "level-btn active";
+
+            if (typeof applyToeicModeBadge === 'function') applyToeicModeBadge(false);
 
             updateDashboardUI();
 
@@ -2590,7 +2594,9 @@
             showAdminMenuIfEnabled();
 
             if (typeof checkLoginStatus === 'function') checkLoginStatus();
-            if (typeof selectLevel === 'function') {
+            if (typeof syncLevelOnLoad === 'function') {
+                syncLevelOnLoad();
+            } else if (typeof selectLevel === 'function') {
                 selectLevel(localStorage.getItem('trigger_level') || 'middle');
             }
             
@@ -2847,6 +2853,8 @@
     <script src="praise-share.js?v=20260517_kakao_return"></script>
     <script src="app.js?v=20260531_calendar1"></script>
     <script src="worddata.js"></script>
+    <script src="worddata_toeic.js"></script>
+    <script src="toeic-unlock.js"></script>
     <script src="words.js"></script>
     <script>
         bindAdminKakaoTestButtons();

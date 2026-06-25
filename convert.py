@@ -41,13 +41,25 @@ def build_structure(file_path, per_day):
         
     return result
 
-# 실행 및 통합 저장
-final_data = {
-    "middle": build_structure('voca_middle.txt', 24),
-    "high": build_structure('voca_high.txt', 40)
-}
+def write_toeic_js(file_path, per_day):
+    toeic_data = build_structure(file_path, per_day)
+    with open('worddata_toeic.js', 'w', encoding='utf-8') as f:
+        f.write('(function (g) {\n')
+        f.write('  if (typeof g.wordsData === "undefined") g.wordsData = {};\n')
+        f.write(f'  g.wordsData.toeic = {json.dumps(toeic_data, ensure_ascii=False, indent=2)};\n')
+        f.write('})(typeof window !== "undefined" ? window : globalThis);\n')
 
-with open('worddata.js', 'w', encoding='utf-8') as f:
-    f.write(f"const wordsData = {json.dumps(final_data, ensure_ascii=False, indent=2)};")
 
-print("✅ [사라져 Voca] 전용 worddata.js 생성 완료!")
+if __name__ == '__main__':
+    final_data = {
+        "middle": build_structure('voca_middle.txt', 24),
+        "high": build_structure('voca_high.txt', 40)
+    }
+
+    with open('worddata.js', 'w', encoding='utf-8') as f:
+        f.write(f"const wordsData = {json.dumps(final_data, ensure_ascii=False, indent=2)};")
+
+    print("✅ [사라져 Voca] 전용 worddata.js 생성 완료!")
+
+    write_toeic_js('voca_toeic.txt', 20)
+    print("✅ [토익] worddata_toeic.js 생성 완료!")

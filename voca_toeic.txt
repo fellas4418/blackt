@@ -1,0 +1,1008 @@
+abandon|버리다
+ability|능력
+abroad|해외에
+absence|부재
+absorb|흡수하다
+abstract|추상적인
+abundant|풍부한
+academic|학문의
+accept|받아들이다
+access|접근
+accident|사고
+accommodate|수용하다
+accompany|동반하다
+accomplish|성취하다
+account|계정, 설명하다
+accurate|정확한
+accuse|고발하다
+achieve|성취하다
+acknowledge|인정하다
+acquire|얻다
+adapt|적응하다
+adequate|적절한
+adjust|조정하다
+administration|행정
+admit|인정하다
+adopt|채택하다
+advance|전진하다
+advantage|이점
+advertise|광고하다
+advice|조언
+advise|조언하다
+affect|영향을 미치다
+afford|~할 여유가 있다
+agency|대행사
+agenda|의제
+aggressive|공격적인
+agree|동의하다
+agreement|합의
+aid|돕다, 원조
+aim|목표
+aircraft|항공기
+alarm|경보
+allocate|할당하다
+allow|허락하다
+alter|바꾸다
+alternative|대안
+although|비록 ~이지만
+ambition|야망
+amend|수정하다
+amount|양
+analysis|분석
+announce|발표하다
+annual|연간의
+anticipate|예상하다
+anxiety|불안
+apologize|사과하다
+apparent|명백한
+appeal|호소하다
+appear|나타나다
+applicant|지원자
+apply|지원하다, 적용하다
+appoint|임명하다
+appreciate|감사하다
+approach|접근하다
+appropriate|적절한
+approve|승인하다
+approximate|대략의
+architect|건축가
+argue|주장하다
+arise|발생하다
+arrange|준비하다
+arrest|체포하다
+article|기사, 물품
+artificial|인공의
+aspect|측면
+assemble|조립하다
+assess|평가하다
+assign|할당하다
+assist|돕다
+associate|연관짓다
+assume|가정하다
+assure|보장하다
+attach|붙이다
+attain|달성하다
+attempt|시도하다
+attend|참석하다
+attention|주의
+attitude|태도
+attract|끌어들이다
+attribute|~의 탓으로 돌리다
+audience|청중
+authority|권위
+automatic|자동의
+available|이용 가능한
+average|평균
+avoid|피하다
+award|상, 수여하다
+aware|알고 있는
+balance|균형
+barrier|장벽
+base|기반
+basic|기본의
+behalf|이익, 대표
+behavior|행동
+benefit|이익
+besides|게다가
+bet|내기
+beyond|~너머에
+bid|입찰하다
+bill|계산서, 법안
+bind|묶다
+blame|비난하다
+blank|빈
+block|막다
+board|이사회, 탑승하다
+bond|유대, 채권
+bonus|보너스
+boost|끌어올리다
+border|국경
+borrow|빌리다
+bother|괴롭히다
+branch|지점
+brand|브랜드
+breach|위반
+breakdown|고장, 붕괴
+brief|간단한
+broad|넓은
+budget|예산
+bulk|대량
+burden|부담
+calculate|계산하다
+campaign|캠페인
+cancel|취소하다
+candidate|후보자
+capable|유능한
+capacity|용량
+capital|자본
+capture|포착하다
+career|경력
+cargo|화물
+carry|나르다
+case|경우, 사건
+cash|현금
+category|범주
+cause|원인, 야기하다
+caution|주의
+cease|중단하다
+celebrate|축하하다
+cell|세포, 작은 방
+central|중심의
+ceremony|의식
+certain|확실한
+certificate|증명서
+chain|사슬, 연쇄
+challenge|도전
+channel|채널
+character|성격, 인물
+charge|요금, 청구하다
+chart|도표
+check|확인하다
+chief|주요한
+choice|선택
+circumstance|상황
+claim|주장하다
+clarify|명확히 하다
+classic|고전의
+classify|분류하다
+clause|조항
+client|고객
+climate|기후
+closely|밀접하게
+collapse|붕괴하다
+colleague|동료
+collect|모으다
+combination|조합
+combine|결합하다
+comfort|편안함
+command|명령
+comment|논평
+commerce|상업
+commission|위원회
+commit|저지르다, 전념하다
+committee|위원회
+common|흔한
+communicate|의사소통하다
+community|공동체
+company|회사
+compare|비교하다
+compensate|보상하다
+compete|경쟁하다
+competent|유능한
+complain|불평하다
+complete|완료하다
+complex|복잡한
+complicate|복잡하게 하다
+component|구성 요소
+compose|구성하다
+compound|화합물, 복합의
+comprehensive|포괄적인
+comprise|포함하다
+compromise|타협
+concentrate|집중하다
+concept|개념
+concern|우려, 관련되다
+conclude|결론짓다
+concrete|구체적인
+condition|조건
+conduct|수행하다
+conference|회의
+confidence|자신감
+confirm|확인하다
+conflict|갈등
+conform|따르다
+confuse|혼란스럽게 하다
+connect|연결하다
+conscious|의식하는
+consent|동의
+consequence|결과
+consider|고려하다
+consist|구성되다
+consistent|일관된
+constant|끊임없는
+constitute|구성하다
+construct|건설하다
+consult|상담하다
+consume|소비하다
+contact|연락
+contain|포함하다
+content|내용, 만족한
+contest|경쟁
+context|맥락
+continue|계속하다
+contract|계약
+contrary|반대의
+contrast|대조
+contribute|기여하다
+control|통제하다
+convenient|편리한
+convention|관습, 대회
+convert|전환하다
+convince|설득하다
+cooperate|협력하다
+coordinate|조정하다
+core|핵심
+corporate|기업의
+correct|올바른
+correspond|일치하다
+cost|비용
+counsel|상담
+counter|카운터, 맞서다
+country|국가
+couple|부부, 한 쌍
+course|과정
+cover|덮다, 다루다
+craft|기술, 공예
+create|창조하다
+credit|신용, 학점
+crisis|위기
+criterion|기준
+critical|비판적인, 중요한
+criticize|비판하다
+crucial|결정적인
+culture|문화
+currency|통화
+current|현재의
+curriculum|교육 과정
+custom|관습
+customer|고객
+cycle|주기
+damage|손상
+danger|위험
+data|데이터
+debate|토론
+debt|빚
+decade|10년
+decide|결정하다
+declare|선언하다
+decline|감소하다, 거절하다
+decrease|감소하다
+dedicate|헌신하다
+defect|결함
+defend|방어하다
+define|정의하다
+definite|명확한
+delay|지연
+delegate|대표
+deliver|배달하다
+demand|수요, 요구하다
+demonstrate|증명하다
+deny|부인하다
+depend|의존하다
+deposit|보증금, 예치하다
+depress|우울하게 하다
+derive|유래하다
+describe|묘사하다
+deserve|받을 만하다
+design|설계
+desire|욕구
+despite|~에도 불구하고
+destroy|파괴하다
+detail|세부 사항
+detect|감지하다
+determine|결정하다
+develop|발전하다
+device|장치
+devote|헌신하다
+diagram|도표
+differ|다르다
+difficult|어려운
+digital|디지털의
+dimension|차원
+direct|직접적인, 안내하다
+direction|방향
+director|이사
+disagree|동의하지 않다
+disappear|사라지다
+disappoint|실망시키다
+disaster|재난
+discipline|규율
+discount|할인
+discover|발견하다
+discuss|논의하다
+disease|질병
+dismiss|해고하다
+display|전시하다
+dispose|처리하다
+distinct|뚜렷한
+distinguish|구별하다
+distribute|배포하다
+district|지역
+diverse|다양한
+divide|나누다
+division|부서, 분할
+document|문서
+domestic|국내의
+dominate|지배하다
+donate|기부하다
+draft|초안
+dramatic|극적인
+draw|끌다, 그리다
+due|예정된
+duration|기간
+duty|의무
+dynamic|역동적인
+eager|열망하는
+earn|벌다
+ease|완화
+economic|경제의
+economy|경제
+edge|가장자리
+edit|편집하다
+effect|효과
+effective|효과적인
+efficient|효율적인
+effort|노력
+elect|선출하다
+element|요소
+eliminate|제거하다
+emerge|나타나다
+emphasis|강조
+employ|고용하다
+employee|직원
+employer|고용주
+enable|가능하게 하다
+encounter|마주치다
+encourage|격려하다
+endure|견디다
+energy|에너지
+enforce|시행하다
+engage|참여하다
+enhance|향상시키다
+enormous|거대한
+ensure|보장하다
+enterprise|기업
+entire|전체의
+entitle|자격을 주다
+entry|입장, 항목
+environment|환경
+equal|동등한
+equip|갖추다
+equivalent|동등한
+error|오류
+escape|탈출하다
+especially|특히
+essential|필수적인
+establish|설립하다
+estimate|추정하다
+evaluate|평가하다
+event|사건
+eventually|결국
+evidence|증거
+evident|명백한
+evolve|진화하다
+exact|정확한
+examine|조사하다
+example|예
+exceed|초과하다
+excellent|훌륭한
+except|~을 제외하고
+exchange|교환
+excuse|변명
+execute|실행하다
+executive|경영진
+exhibit|전시하다
+exist|존재하다
+expand|확장하다
+expect|기대하다
+expense|비용
+experience|경험
+experiment|실험
+expert|전문가
+explain|설명하다
+explicit|명시적인
+explore|탐구하다
+export|수출하다
+expose|노출시키다
+express|표현하다
+extend|연장하다
+extent|정도
+external|외부의
+extra|추가의
+extract|추출하다
+extreme|극단적인
+facility|시설
+factor|요인
+fail|실패하다
+fair|공정한
+faith|신뢰
+familiar|익숙한
+feature|특징
+federal|연방의
+fee|요금
+feedback|피드백
+figure|수치, 인물
+file|파일
+fill|채우다
+final|최종의
+finance|재정
+financial|재정의
+finding|발견
+fine|벌금, 괜찮은
+firm|회사, 단단한
+fit|맞다
+fix|고치다
+flexible|유연한
+focus|집중
+follow|따르다
+force|힘, 강요하다
+forecast|예측
+foreign|외국의
+formal|공식적인
+format|형식
+former|이전의
+formula|공식
+forth|앞으로
+fortunate|운 좋은
+forward|앞으로
+foundation|기반
+frame|틀
+framework|틀
+frequent|빈번한
+fulfill|이행하다
+function|기능
+fund|자금
+fundamental|근본적인
+further|더 나아가
+gain|얻다
+gap|격차
+gather|모으다
+general|일반적인
+generate|생성하다
+generous|관대한
+genuine|진짜의
+grant|승인하다, 보조금
+graph|그래프
+grateful|감사하는
+guarantee|보장
+guideline|지침
+handle|다루다
+happen|일어나다
+hardly|거의 ~않다
+harm|해를 끼치다
+hazard|위험
+headquarters|본사
+hesitate|망설이다
+highlight|강조하다
+hire|고용하다
+historical|역사적인
+hold|잡다, 개최하다
+honor|명예
+host|주최하다
+household|가정
+identify|확인하다
+ignore|무시하다
+illustrate|설명하다
+image|이미지
+impact|영향
+implement|시행하다
+imply|암시하다
+import|수입하다
+impose|부과하다
+impress|감동시키다
+improve|개선하다
+incentive|유인
+incident|사건
+include|포함하다
+income|소득
+incorporate|통합하다
+increase|증가하다
+incredible|믿기 어려운
+indicate|나타내다
+individual|개인
+industry|산업
+inevitable|불가피한
+influence|영향
+inform|알리다
+initial|초기의
+initiative|주도권
+injure|다치게 하다
+inner|내부의
+innovation|혁신
+input|입력
+inquire|문의하다
+insert|삽입하다
+insist|주장하다
+inspect|검사하다
+inspire|영감을 주다
+install|설치하다
+instance|사례
+instead|대신에
+institute|연구소
+institution|기관
+instruction|지시
+insurance|보험
+integrate|통합하다
+intend|의도하다
+intense|강렬한
+intention|의도
+interact|상호작용하다
+interest|관심
+internal|내부의
+interpret|해석하다
+interrupt|방해하다
+interval|간격
+interview|면접
+introduce|소개하다
+invest|투자하다
+investigate|조사하다
+investment|투자
+involve|관련시키다
+issue|쟁점, 발행하다
+item|항목
+joint|공동의
+journal|저널
+judge|판단하다
+justify|정당화하다
+keen|열망하는
+keep|유지하다
+key|핵심의
+label|라벨
+labor|노동
+lack|부족
+launch|출시하다
+layer|층
+lead|이끌다
+leader|지도자
+leading|선도적인
+lean|기울이다
+learn|배우다
+lease|임대
+legal|법적인
+legislation|법률
+lend|빌려주다
+length|길이
+less|더 적은
+level|수준
+liable|책임이 있는
+license|면허
+likely|~할 것 같은
+limit|한계
+link|연결
+list|목록
+literally|문자 그대로
+loan|대출
+local|지역의
+locate|위치시키다
+logical|논리적인
+maintain|유지하다
+major|주요한
+manage|관리하다
+manner|방식
+manual|수동의, 설명서
+manufacture|제조하다
+margin|여백, 이익
+mark|표시
+market|시장
+mass|대량
+master|숙달하다
+match|맞다, 경기
+material|재료
+matter|문제, 중요하다
+maximum|최대
+means|수단
+measure|측정하다
+mechanism|메커니즘
+medical|의료의
+medium|매체
+meet|만나다
+mention|언급하다
+merge|합병하다
+method|방법
+middle|중간
+minimum|최소
+minor|사소한
+minute|분, 미세한
+mission|임무
+mix|섞다
+mode|방식
+model|모델
+modify|수정하다
+monitor|감시하다
+moral|도덕적인
+moreover|게다가
+mostly|대부분
+motivate|동기를 부여하다
+mount|오르다
+move|움직이다
+multiple|다수의
+mutual|상호의
+narrow|좁은
+nation|국가
+native|토착의
+nature|본성
+nearly|거의
+necessary|필요한
+negative|부정적인
+neglect|방치하다
+negotiate|협상하다
+network|네트워크
+nevertheless|그럼에도
+notice|알아차리다
+notify|알리다
+notion|개념
+numerous|수많은
+object|목적, 반대하다
+objective|목표
+obligation|의무
+observe|관찰하다
+obtain|얻다
+obvious|명백한
+occasion|경우
+occupy|점유하다
+occur|발생하다
+offer|제안하다
+official|공식적인
+operate|운영하다
+opinion|의견
+opportunity|기회
+oppose|반대하다
+option|선택
+order|주문, 명령
+ordinary|평범한
+organize|조직하다
+origin|기원
+original|원래의
+otherwise|그렇지 않으면
+outcome|결과
+outline|개요
+output|산출
+overall|전반적인
+overcome|극복하다
+overlap|겹치다
+overlook|간과하다
+owe|빚지다
+own|소유하다
+pace|속도
+package|패키지
+panel|패널
+paragraph|단락
+parallel|평행한
+parameter|매개변수
+participate|참여하다
+particular|특정한
+partner|파트너
+passage|통로, 지문
+passive|수동적인
+pattern|패턴
+pause|잠시 멈추다
+pay|지불하다
+peak|정점
+penalty|벌칙
+pension|연금
+perceive|인지하다
+percent|퍼센트
+perform|수행하다
+period|기간
+permanent|영구적인
+permit|허가하다
+persist|지속하다
+personal|개인의
+personnel|인사
+perspective|관점
+phase|단계
+phenomenon|현상
+physical|신체의
+policy|정책
+portion|부분
+pose|제기하다
+position|위치
+positive|긍정적인
+possess|소유하다
+potential|잠재력
+practical|실용적인
+practice|연습
+precise|정확한
+predict|예측하다
+prefer|선호하다
+prepare|준비하다
+presence|존재
+present|현재의, 제시하다
+preserve|보존하다
+pressure|압력
+prevent|막다
+previous|이전의
+primary|주요한
+prime|주요한
+principal|주요한
+principle|원칙
+prior|이전의
+priority|우선순위
+private|사적인
+procedure|절차
+proceed|진행하다
+process|과정
+produce|생산하다
+product|제품
+professional|전문적인
+profit|이익
+program|프로그램
+progress|진행
+project|프로젝트
+promote|촉진하다
+prompt|촉발하다
+proper|적절한
+property|재산
+proportion|비율
+proposal|제안
+propose|제안하다
+prospect|전망
+protect|보호하다
+provide|제공하다
+provision|조항
+publish|출판하다
+purchase|구매하다
+purpose|목적
+pursue|추구하다
+qualify|자격을 갖추다
+quality|품질
+quantity|양
+quarter|분기
+quote|인용하다
+raise|올리다
+range|범위
+rank|순위
+rapid|빠른
+rare|드문
+rate|비율
+rather|오히려
+ratio|비율
+rational|합리적인
+reach|도달하다
+react|반응하다
+readily|쉽게
+realize|깨닫다
+reason|이유
+reasonable|합리적인
+recall|기억하다
+receive|받다
+recent|최근의
+recognize|인식하다
+recommend|추천하다
+record|기록
+recover|회복하다
+reduce|줄이다
+refer|언급하다
+reflect|반영하다
+refuse|거절하다
+regard|간주하다
+region|지역
+register|등록하다
+regular|정기적인
+regulate|규제하다
+reject|거절하다
+relate|관련되다
+release|출시하다
+relevant|관련 있는
+reliable|신뢰할 수 있는
+relief|안도
+relieve|완화하다
+rely|의존하다
+remain|남다
+remark|발언
+remarkable|놀라운
+remind|상기시키다
+remove|제거하다
+replace|대체하다
+reply|답하다
+report|보고하다
+represent|대표하다
+request|요청하다
+require|요구하다
+research|연구
+reserve|예약하다
+resident|거주자
+resist|저항하다
+resolve|해결하다
+resource|자원
+respond|응답하다
+response|응답
+responsible|책임 있는
+restore|복원하다
+restrict|제한하다
+result|결과
+retain|유지하다
+retire|은퇴하다
+return|돌아오다
+reveal|드러내다
+revenue|수익
+review|검토
+revise|수정하다
+reward|보상
+risk|위험
+role|역할
+route|경로
+routine|일상
+rule|규칙
+safety|안전
+salary|급여
+sample|샘플
+satisfy|만족시키다
+scale|규모
+schedule|일정
+scheme|계획
+scope|범위
+score|점수
+section|부분
+sector|부문
+secure|안전한, 확보하다
+seek|추구하다
+select|선택하다
+senior|선임의
+sense|감각
+sensitive|민감한
+separate|분리하다
+sequence|순서
+series|연속
+serious|심각한
+serve|봉사하다
+service|서비스
+session|회기
+settle|해결하다
+severe|심각한
+shift|변화
+shortage|부족
+significant|중요한
+similar|유사한
+simple|간단한
+simulate|모의하다
+simultaneous|동시의
+site|장소
+situation|상황
+skill|기술
+slight|약간의
+smooth|매끄러운
+solution|해결책
+solve|해결하다
+source|출처
+specific|구체적인
+specify|명시하다
+stable|안정적인
+staff|직원
+stage|단계
+standard|표준
+state|상태, 진술하다
+statement|성명
+status|지위
+steady|꾸준한
+strategy|전략
+strength|강점
+stress|스트레스, 강조하다
+strict|엄격한
+strike|파업, 치다
+structure|구조
+struggle|고군분투하다
+subject|주제
+submit|제출하다
+subsequent|이후의
+substance|물질
+substantial|상당한
+substitute|대체하다
+succeed|성공하다
+success|성공
+sufficient|충분한
+suggest|제안하다
+suitable|적합한
+summary|요약
+supervise|감독하다
+supply|공급
+support|지원하다
+suppose|가정하다
+surface|표면
+surplus|잉여
+survey|설문
+survive|살아남다
+suspect|의심하다
+sustain|유지하다
+switch|전환하다
+symbol|상징
+symptom|증상
+system|체계
+target|목표
+task|과제
+tax|세금
+technical|기술적인
+technique|기법
+technology|기술
+temporary|일시적인
+tend|경향이 있다
+term|용어, 기간
+terminate|종료하다
+terms|조건
+territory|영토
+test|시험
+theme|주제
+theory|이론
+therefore|그러므로
+throughout|~전체에
+thus|따라서
+tight|꽉 조이는
+topic|주제
+total|총
+trace|추적하다
+track|추적하다
+trade|무역
+tradition|전통
+transfer|이전하다
+transform|변형하다
+transition|전환
+transmit|전송하다
+transport|운송
+trend|추세
+trigger|촉발하다
+typical|전형적인
+ultimate|궁극의
+undergo|겪다
+underlie|기반을 이루다
+undertake|착수하다
+uniform|균일한
+union|연합
+unique|독특한
+unit|단위
+unite|통합하다
+unless|~하지 않으면
+update|업데이트
+upgrade|업그레이드
+upset|속상하게 하다
+urban|도시의
+urge|촉구하다
+urgent|긴급한
+usage|사용
+useful|유용한
+utility|유틸리티
+utilize|활용하다
+vacant|비어 있는
+valid|유효한
+value|가치
+variable|변수
+variety|다양성
+various|다양한
+vary|다양하다
+vast|광대한
+vehicle|차량
+venture|벤처
+version|버전
+via|~을 통해
+violate|위반하다
+virtual|가상의
+visible|눈에 보이는
+vision|비전
+visit|방문하다
+vital|필수적인
+volume|양
+voluntary|자발적인
+vote|투표
+wage|임금
+waste|낭비
+weak|약한
+wealth|부
+welfare|복지
+whereas|반면에
+wherever|어디든
+whether|~인지
+widespread|광범위한
+withdraw|철수하다
+within|~안에
+witness|목격하다
+worth|가치 있는
+yield|산출하다
