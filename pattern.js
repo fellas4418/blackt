@@ -5,6 +5,7 @@
     var COL_ROLES = ['s', 'v', 'o'];
     var COL_COMP = { s: '주어', o: '목적어', v: '서술어' };
     var COL_MARKER = { s: '은/는/이가', o: '을/를', v: '다' };
+    var CHIPS_BY_ROLE = { s: ['은', '는', '이', '가'], o: ['을', '를'], v: ['다'] };
 
     var state = {
         data: null,
@@ -12,7 +13,7 @@
         introDone: false,
         isRepeat: false,
         progressInterval: null,
-        highlightIdx: -1
+        drillFilled: { s: false, o: false, v: false }
     };
 
     function clearProgress() {
@@ -73,6 +74,45 @@
         return '서술어 변화';
     }
 
+    function isLearnMode() {
+        return !state.introDone && state.variantIdx === 0 && !state.isRepeat;
+    }
+
+    function resetDrillFilled() {
+        state.drillFilled = { s: false, o: false, v: false };
+        if (isLearnMode()) {
+            state.drillFilled = { s: true, o: true, v: true };
+        }
+    }
+
+    function isDrillComplete() {
+        return COL_ROLES.every(function (role) {
+            return state.drillFilled[role];
+        });
+    }
+
+    function getKorParts(korSlot, role) {
+        if (!korSlot) return { word: '', particle: '' };
+        if (korSlot.particle) {
+            return { word: korSlot.word || '', particle: korSlot.particle };
+        }
+        if (role === 'v' && korSlot.word && korSlot.word.slice(-1) === '다') {
+            return { word: korSlot.word.slice(0, -1), particle: '다' };
+        }
+        return { word: korSlot.word || '', particle: '' };
+    }
+
+    function playSentenceTts(text) {
+        if (!text || !window.speechSynthesis) return;
+        try {
+            window.speechSynthesis.cancel();
+            var utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.92;
+            window.speechSynthesis.speak(utterance);
+        } catch (e) {}
+    }
+
     function updatePhaseBadge(step, prevStep) {
         var badge = document.getElementById('pattern-phase-badge');
         if (!badge) return;
@@ -88,31 +128,6 @@
             setTimeout(function () {
                 badge.classList.remove('is-switching');
             }, 620);
-        }
-    }
-
-    function fillKorEl(korEl, korSlot, role) {
-        korEl.innerHTML = '';
-        if (!korSlot) return;
-
-        var wordSpan = document.createElement('span');
-        wordSpan.className = 'pattern-kor-word';
-        var partSpan = document.createElement('span');
-        partSpan.className = 'pattern-kor-particle';
-
-        if (korSlot.particle) {
-            wordSpan.textContent = korSlot.word;
-            partSpan.textContent = korSlot.particle;
-            korEl.appendChild(wordSpan);
-            korEl.appendChild(partSpan);
-        } else if (role === 'v' && korSlot.word && korSlot.word.slice(-1) === '다') {
-            wordSpan.textContent = korSlot.word.slice(0, -1);
-            partSpan.textContent = '다';
-            korEl.appendChild(wordSpan);
-            korEl.appendChild(partSpan);
-        } else {
-            wordSpan.textContent = korSlot.word;
-            korEl.appendChild(wordSpan);
         }
     }
 
@@ -158,172 +173,231 @@
         var focus = getFocusRole(step);
         document.querySelectorAll('.pattern-col').forEach(function (el) {
             el.classList.toggle('is-focus', el.dataset.role === focus);
+            el.classList.toggle('is-dim', el.dataset.role !== focus);
         });
     }
 
-    var measureEng;
-    var measureKor;
-    var measureComp;
-    var measureMarker;
+    function renderEngHero(step, prevStep) {
+        var el = document.getElementById('pattern-eng-hero');
+        if (!el || !step) return;
 
-    function ensureMeasurer() {
-        if (measureEng) return;
-        var box = document.createElement('div');
-        box.id = 'pattern-measure';
-        box.setAttribute('aria-hidden', 'true');
-        box.style.cssText =
-            'position:fixed;left:-9999px;top:0;visibility:hidden;pointer-events:none;white-space:nowrap;';
-        measureEng = document.createElement('span');
-        measureEng.className = 'pattern-col-eng';
-        measureKor = document.createElement('span');
-        measureKor.className = 'pattern-col-kor';
-        measureComp = document.createElement('span');
-        measureComp.className = 'pattern-col-comp';
-        measureMarker = document.createElement('span');
-        measureMarker.className = 'pattern-col-marker';
-        box.appendChild(measureEng);
-        box.appendChild(measureKor);
-        box.appendChild(measureComp);
-        box.appendChild(measureMarker);
-        document.body.appendChild(box);
+        var highlightRole = prevStep ? getFlipRole(prevStep, step) : getFocusRole(step);
+        var tokens = step.eng_tokens || [];
+
+        if (tokens.length) {
+            el.innerHTML = tokens.map(function (t, i) {
+                var cls = 'pattern-hero-token';
+                if (highlightRole && roleClass(t.role) === highlightRole) {
+                    cls += ' is-changed is-snap-in';
+                } else {
+                    cls += ' is-dim';
+                }
+                var gap = i < tokens.length - 1 ? ' ' : '';
+                return '<span class="' + cls + '">' + escapeHtml(t.text) + '</span>' + gap;
+            }).join('');
+        } else {
+            el.textContent = step.eng || '';
+        }
+
+        el.classList.remove('is-enter');
+        void el.offsetWidth;
+        el.classList.add('is-enter');
+    }
+
+    function syncDrillHint() {
+        var hint = document.getElementById('pattern-drill-hint');
+        if (!hint) return;
+        if (isLearnMode()) {
+            hint.textContent = '문장 구조를 먼저 살펴보세요';
+            hint.classList.add('is-learn');
+            hint.classList.remove('is-done');
+            return;
+        }
+        hint.classList.remove('is-learn');
+        if (isDrillComplete()) {
+            hint.textContent = '완성! 다음으로 넘어가 보세요 →';
+            hint.classList.add('is-done');
+        } else {
+            hint.textContent = '조사를 골라 붙여 보세요';
+            hint.classList.remove('is-done');
+        }
+    }
+
+    function flashAllCards() {
+        document.querySelectorAll('.pattern-col-inner').forEach(function (inner) {
+            inner.classList.remove('is-complete-flash');
+            void inner.offsetWidth;
+            inner.classList.add('is-complete-flash');
+        });
+        var wrap = document.getElementById('pattern-progress-wrap');
+        if (wrap) {
+            wrap.classList.remove('is-step-complete');
+            void wrap.offsetWidth;
+            wrap.classList.add('is-step-complete');
+        }
+    }
+
+    function onDrillAllComplete() {
+        flashAllCards();
+        syncDrillHint();
+        updateNavUi();
+        updateStepProgress();
+    }
+
+    function attachParticle(role, chip, expected) {
+        var col = document.querySelector('.pattern-col[data-role="' + role + '"]');
+        if (!col || state.drillFilled[role]) return;
+
+        if (chip !== expected) {
+            col.classList.remove('is-shake');
+            void col.offsetWidth;
+            col.classList.add('is-shake');
+            return;
+        }
+
+        state.drillFilled[role] = true;
+
+        var slot = col.querySelector('.pattern-kor-slot');
+        if (slot) {
+            slot.textContent = chip;
+            slot.classList.remove('pattern-kor-slot');
+            slot.classList.add('pattern-kor-particle', 'is-snapped');
+        }
+
+        var chipRow = col.querySelector('.pattern-chip-row');
+        if (chipRow) chipRow.remove();
+
+        col.classList.add('is-filled');
+
+        if (isDrillComplete()) {
+            onDrillAllComplete();
+        } else {
+            syncDrillHint();
+            updateNavUi();
+            updateStepProgress();
+        }
+    }
+
+    function buildChipRow(role, expected) {
+        var row = document.createElement('div');
+        row.className = 'pattern-chip-row';
+        CHIPS_BY_ROLE[role].forEach(function (chip) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'pattern-chip';
+            btn.textContent = chip;
+            btn.addEventListener('click', function () {
+                attachParticle(role, chip, expected);
+            });
+            row.appendChild(btn);
+        });
+        return row;
+    }
+
+    function fillKorEl(korEl, korSlot, role, learnMode) {
+        korEl.innerHTML = '';
+        if (!korSlot) return;
+
+        var parts = getKorParts(korSlot, role);
+        var wordSpan = document.createElement('span');
+        wordSpan.className = 'pattern-kor-word';
+        wordSpan.textContent = parts.word;
+        korEl.appendChild(wordSpan);
+
+        if (learnMode || state.drillFilled[role]) {
+            var partSpan = document.createElement('span');
+            partSpan.className = 'pattern-kor-particle' + (state.drillFilled[role] && !learnMode ? ' is-snapped' : '');
+            partSpan.textContent = parts.particle;
+            korEl.appendChild(partSpan);
+        } else {
+            var slotSpan = document.createElement('span');
+            slotSpan.className = 'pattern-kor-slot';
+            slotSpan.textContent = '?';
+            korEl.appendChild(slotSpan);
+        }
+    }
+
+    function buildCardDom(col, step, role, learnMode) {
+        var korSlot = findKorByRole(step, role);
+        if (!korSlot) return;
+
+        var parts = getKorParts(korSlot, role);
+        var inner = document.createElement('div');
+        inner.className = 'pattern-col-inner';
+
+        var compEl = document.createElement('div');
+        compEl.className = 'pattern-col-comp';
+        compEl.textContent = COL_COMP[role] || '';
+
+        var korEl = document.createElement('div');
+        korEl.className = 'pattern-col-kor';
+        fillKorEl(korEl, korSlot, role, learnMode);
+
+        var markerEl = document.createElement('div');
+        markerEl.className = 'pattern-col-marker';
+        markerEl.textContent = COL_MARKER[role] || '';
+
+        inner.appendChild(compEl);
+        inner.appendChild(korEl);
+        inner.appendChild(markerEl);
+
+        if (!learnMode && !state.drillFilled[role]) {
+            inner.appendChild(buildChipRow(role, parts.particle));
+        }
+
+        col.appendChild(inner);
+        if (state.drillFilled[role]) col.classList.add('is-filled');
     }
 
     function applyColWidths() {
         var wrap = document.getElementById('pattern-cols');
-        if (!wrap || !state.data) return;
-        ensureMeasurer();
-
-        var widths = { s: 0, o: 0, v: 0 };
-        state.data.steps.forEach(function (step) {
-            COL_ROLES.forEach(function (role) {
-                var eng = findEngByRole(step, role);
-                var kor = findKorByRole(step, role);
-                if (eng) {
-                    measureEng.textContent = eng.text;
-                    widths[role] = Math.max(widths[role], measureEng.offsetWidth);
-                }
-                if (kor) {
-                    measureKor.textContent = kor.word + (kor.particle || '');
-                    widths[role] = Math.max(widths[role], measureKor.offsetWidth);
-                }
-                measureComp.textContent = COL_COMP[role] || '';
-                widths[role] = Math.max(widths[role], measureComp.offsetWidth);
-                measureMarker.textContent = COL_MARKER[role] || '';
-                widths[role] = Math.max(widths[role], measureMarker.offsetWidth);
-            });
-        });
-
-        var gap = 12;
-        var sum = widths.s + widths.o + widths.v;
-        var gaps = gap * (COL_ROLES.length - 1);
-        var stage = wrap.parentElement;
-        var avail = stage ? stage.clientWidth : wrap.clientWidth;
-        var factor = 1;
-        if (sum + gaps > avail && avail > 0 && sum > 0) {
-            factor = (avail - gaps) / sum;
-        }
-
-        wrap.style.gridTemplateColumns = COL_ROLES.map(function (role) {
-            return Math.ceil(widths[role] * factor) + 'px';
-        }).join(' ');
-        alignPhaseBadge();
+        if (!wrap) return;
+        wrap.style.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))';
     }
 
-    function alignPhaseBadge() {
-        var badge = document.getElementById('pattern-phase-badge');
-        var cols = document.getElementById('pattern-cols');
-        var center = document.querySelector('.pattern-content-center');
-        if (!badge || !cols || !center) return;
-        var offset = cols.getBoundingClientRect().left - center.getBoundingClientRect().left;
-        badge.style.paddingLeft = Math.max(0, Math.round(offset)) + 'px';
-    }
-
-    function buildColsDom(step) {
+    function buildColsDom(step, prevStep) {
         var wrap = document.getElementById('pattern-cols');
         if (!wrap) return;
+
+        resetDrillFilled();
         wrap.innerHTML = '';
 
+        var learnMode = isLearnMode();
+
         COL_ROLES.forEach(function (role) {
-            var engTok = findEngByRole(step, role);
             var korSlot = findKorByRole(step, role);
-            if (!engTok && !korSlot) return;
+            if (!korSlot) return;
 
             var col = document.createElement('div');
             col.className = 'pattern-col pattern-col--' + role;
             col.dataset.role = role;
-
-            var inner = document.createElement('div');
-            inner.className = 'pattern-col-inner';
-
-            var compEl = document.createElement('div');
-            compEl.className = 'pattern-col-comp';
-            compEl.textContent = COL_COMP[role] || '';
-
-            var engEl = document.createElement('div');
-            engEl.className = 'pattern-col-eng';
-            var engSpan = document.createElement('span');
-            engSpan.className = 'pattern-eng-token pattern-eng-token--' + role;
-            engSpan.textContent = engTok ? engTok.text : '';
-            engEl.appendChild(engSpan);
-
-            var korEl = document.createElement('div');
-            korEl.className = 'pattern-col-kor';
-            fillKorEl(korEl, korSlot, role);
-
-            var markerEl = document.createElement('div');
-            markerEl.className = 'pattern-col-marker';
-            markerEl.textContent = COL_MARKER[role] || '';
-
-            inner.appendChild(compEl);
-            inner.appendChild(engEl);
-            inner.appendChild(korEl);
-            inner.appendChild(markerEl);
-            col.appendChild(inner);
+            buildCardDom(col, step, role, learnMode);
             wrap.appendChild(col);
         });
 
+        renderEngHero(step, prevStep);
         applyFocusRole(step);
-        updatePhaseBadge(step, null);
-        requestAnimationFrame(alignPhaseBadge);
+        updatePhaseBadge(step, prevStep);
+        syncDrillHint();
+        updateStepProgress();
+        updateNavUi();
+
+        if (step.eng) {
+            playSentenceTts(step.eng);
+        }
     }
 
-    function updateColContent(step, role) {
-        var engTok = findEngByRole(step, role);
-        var korSlot = findKorByRole(step, role);
-        var col = document.querySelector('.pattern-col[data-role="' + role + '"]');
-        if (!col) return;
-
-        var engSpan = col.querySelector('.pattern-eng-token');
-        var korEl = col.querySelector('.pattern-col-kor');
-        if (engSpan && engTok) engSpan.textContent = engTok.text;
-        if (korEl && korSlot) fillKorEl(korEl, korSlot, role);
-    }
-
-    function flipColumn(role, updateFn) {
-        var col = document.querySelector('.pattern-col[data-role="' + role + '"]');
-        if (!col) {
-            updateFn();
-            return;
-        }
-        var inner = col.querySelector('.pattern-col-inner');
-        if (!inner) {
-            updateFn();
-            return;
-        }
-
-        inner.classList.remove('is-flip-out-left', 'is-flip-in-left');
-        inner.style.transform = '';
-        inner.style.opacity = '';
-        inner.classList.add('is-flip-out-left');
-
+    function animateChangedColumn(flipRole) {
+        if (!flipRole) return;
+        var col = document.querySelector('.pattern-col[data-role="' + flipRole + '"]');
+        var inner = col && col.querySelector('.pattern-col-inner');
+        if (!inner) return;
+        inner.classList.remove('is-flip-in-left');
+        void inner.offsetWidth;
+        inner.classList.add('is-flip-in-left');
         setTimeout(function () {
-            updateFn();
-            inner.classList.remove('is-flip-out-left');
-            inner.classList.add('is-flip-in-left');
-            setTimeout(function () {
-                inner.classList.remove('is-flip-in-left');
-            }, 280);
-        }, 260);
+            inner.classList.remove('is-flip-in-left');
+        }, 280);
     }
 
     function setProgress(ratio) {
@@ -331,9 +405,28 @@
         if (fill) fill.style.width = Math.min(100, Math.max(0, ratio * 100)) + '%';
     }
 
+    function updateStepProgress() {
+        var wrap = document.getElementById('pattern-progress-wrap');
+        var fill = document.getElementById('pattern-progress-fill');
+        if (!wrap || !fill || !state.data) return;
+
+        if (!state.introDone && !state.isRepeat && state.variantIdx === 0) return;
+
+        wrap.classList.remove('is-hidden', 'is-intro');
+        var total = state.data.steps.length;
+        var ratio = total > 1 ? state.variantIdx / (total - 1) : 1;
+        fill.style.width = Math.min(100, Math.max(0, ratio * 100)) + '%';
+
+        wrap.classList.toggle('is-drill-pending', !isLearnMode() && !isDrillComplete());
+        wrap.classList.toggle('is-drill-done', !isLearnMode() && isDrillComplete());
+    }
+
     function runIntroBar(onDone) {
         var wrap = document.getElementById('pattern-progress-wrap');
-        if (wrap) wrap.classList.remove('is-hidden');
+        if (wrap) {
+            wrap.classList.remove('is-hidden', 'is-drill-pending', 'is-drill-done', 'is-step-complete');
+            wrap.classList.add('is-intro');
+        }
         var start = Date.now();
         setProgress(0);
         clearProgress();
@@ -343,6 +436,7 @@
             if (elapsed >= INTRO_BAR_MS) {
                 clearProgress();
                 setProgress(1);
+                if (wrap) wrap.classList.remove('is-intro');
                 if (onDone) onDone();
             }
         }, 50);
@@ -350,8 +444,7 @@
 
     function hideIntroBar() {
         clearProgress();
-        var wrap = document.getElementById('pattern-progress-wrap');
-        if (wrap) wrap.classList.add('is-hidden');
+        updateStepProgress();
     }
 
     function updateNavUi() {
@@ -369,8 +462,11 @@
         if (nav) nav.classList.toggle('is-hidden', !showNav);
 
         if (btnPrev) btnPrev.disabled = state.variantIdx <= 0;
+
+        var canAdvance = isLearnMode() || isDrillComplete();
         if (btnNext) {
-            btnNext.disabled = false;
+            btnNext.disabled = !canAdvance;
+            btnNext.classList.toggle('is-ready', canAdvance && state.variantIdx < total - 1);
             if (state.variantIdx >= total - 1) {
                 btnNext.textContent = '✓';
                 btnNext.setAttribute('aria-label', '완료');
@@ -381,46 +477,13 @@
         }
     }
 
-    function applyStepDom(prevIdx, nextIdx) {
+    function renderVariant(prevIdx, nextIdx) {
         var prevStep = prevIdx >= 0 ? state.data.steps[prevIdx] : null;
         var nextStep = state.data.steps[nextIdx];
+        var flipRole = prevStep ? getFlipRole(prevStep, nextStep) : null;
 
-        if (prevIdx < 0 || !prevStep) {
-            buildColsDom(nextStep);
-        } else {
-            var flipRole = getFlipRole(prevStep, nextStep);
-            if (flipRole) {
-                updateColContent(nextStep, flipRole);
-            } else {
-                buildColsDom(nextStep);
-            }
-            applyFocusRole(nextStep);
-            updatePhaseBadge(nextStep, prevStep);
-        }
-
-        updateNavUi();
-    }
-
-    function renderVariant(prevIdx, nextIdx) {
-        if (prevIdx < 0) {
-            applyStepDom(prevIdx, nextIdx);
-            return;
-        }
-
-        var prevStep = state.data.steps[prevIdx];
-        var nextStep = state.data.steps[nextIdx];
-        var flipRole = getFlipRole(prevStep, nextStep);
-
-        if (flipRole) {
-            flipColumn(flipRole, function () {
-                updateColContent(nextStep, flipRole);
-                applyFocusRole(nextStep);
-                updatePhaseBadge(nextStep, prevStep);
-                updateNavUi();
-            });
-        } else {
-            applyStepDom(prevIdx, nextIdx);
-        }
+        buildColsDom(nextStep, prevStep);
+        animateChangedColumn(flipRole);
     }
 
     function goToVariant(idx) {
@@ -437,6 +500,7 @@
             goToVariant(1);
         } else {
             updateNavUi();
+            updateStepProgress();
         }
     }
 
@@ -445,7 +509,7 @@
         state.introDone = state.isRepeat;
 
         var step = currentStep();
-        buildColsDom(step);
+        buildColsDom(step, null);
         updateNavUi();
 
         if (state.isRepeat) {
@@ -458,6 +522,7 @@
     }
 
     function goNext() {
+        if (!isLearnMode() && !isDrillComplete()) return;
         if (state.variantIdx >= state.data.steps.length - 1) {
             finishPattern();
             return;
