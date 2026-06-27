@@ -369,11 +369,18 @@
 }
 
 .pattern-pool-label {
-    margin: 0 0 10px;
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: #666;
+    margin: 0 0 12px;
+    padding: 8px 12px;
+    font-size: clamp(0.98rem, 3.8vw, 1.08rem);
+    font-weight: 800;
+    color: #eee;
     text-align: center;
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+    border-radius: 10px;
+    background: rgba(255, 153, 0, 0.1);
+    border: 1px solid rgba(255, 153, 0, 0.35);
+    box-shadow: 0 0 10px rgba(255, 153, 0, 0.12);
 }
 
 .pattern-pool {
