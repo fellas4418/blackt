@@ -1064,9 +1064,7 @@ if (typeof applyAdminPersistence === 'function') applyAdminPersistence();
             dayData = wordsData[currentLevel]["week" + week][String(localDay)];
         }
 
-        const isReviewDay = vocaIsReviewDay(currentDay);
-
-        if ((!dayData && !isReviewDay) || (startDay && currentDay >= startDay + 3)) {
+        if (!dayData || (startDay && currentDay >= startDay + 3)) {
             clearStudyCheckpoint();
             if (startDay && currentDay >= startDay + 3) {
                 showSystemMessage(`뇌의 휴식이 필요합니다! 🧠<br>하루 최대 3일치까지만 학습 가능합니다.<br>내일 이어서 완주해 볼까요?`);
@@ -1076,6 +1074,8 @@ if (typeof applyAdminPersistence === 'function') applyAdminPersistence();
             setTimeout(() => { location.href = 'index.html?tab=voca'; }, 2500);
             return;
         }
+
+        const isReviewDay = vocaIsReviewDay(currentDay);
 
         if (isReviewDay) {
             todayWords = getReviewWordsForDay(currentLevel, currentDay);
