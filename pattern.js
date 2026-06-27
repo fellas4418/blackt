@@ -87,9 +87,37 @@
         return { word: korSlot.word || '', particle: '' };
     }
 
-    function getExpectedParticle(step, role) {
-        var korSlot = findKorByRole(step, role);
-        return getKorParts(korSlot, role).particle;
+    function hasBatchim(word) {
+        if (!word) return false;
+        var code = word.charCodeAt(word.length - 1);
+        if (code < 0xAC00 || code > 0xD7A3) return false;
+        return (code - 0xAC00) % 28 !== 0;
+    }
+
+    function validParticlesForRole(word, role) {
+        if (role === 'v') return ['다'];
+        if (role === 's') {
+            return hasBatchim(word) ? ['은', '이'] : ['는', '가'];
+        }
+        return hasBatchim(word) ? ['을'] : ['를'];
+    }
+
+    function isValidParticleForRole(word, role, chip) {
+        return validParticlesForRole(word, role).indexOf(chip) >= 0;
+    }
+
+    function batchimErrorMessage(role, word) {
+        if (role === 's') {
+            if (hasBatchim(word)) {
+                return '받침이 있어요. 주어에는 은·이 중 하나를 붙여요';
+            }
+            return '받침이 없어요. 주어에는 는·가 중 하나를 붙여요';
+        }
+        if (role === 'o') {
+            if (hasBatchim(word)) return '받침이 있어요. 목적어에는 을을 붙여요';
+            return '받침이 없어요. 목적어에는 를을 붙여요';
+        }
+        return '서술어는 ~다로 끝내요';
     }
 
     function playSentenceTts(text) {
@@ -223,16 +251,11 @@
             return;
         }
 
-        var expected = getExpectedParticle(step, role);
-        if (chip !== expected) {
+        var korSlot = findKorByRole(step, role);
+        var word = korSlot ? (korSlot.word || '') : '';
+        if (!isValidParticleForRole(word, role, chip)) {
             shakeCol(role);
-            if (role === 's') {
-                syncDrillHint('주어 조사 종류는 맞아요. 받침에 맞게 은/는을 골라 보세요', 'error');
-            } else if (role === 'o') {
-                syncDrillHint('목적어 조사 종류는 맞아요. 받침에 맞게 을/를 골라 보세요', 'error');
-            } else {
-                syncDrillHint('서술어는 ~다로 끝내요', 'error');
-            }
+            syncDrillHint(batchimErrorMessage(role, word), 'error');
             return;
         }
 
