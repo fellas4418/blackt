@@ -163,32 +163,7 @@
 .pattern-eng-hero.is-enter {
     opacity: 1;
     transform: translateY(0);
-}
-
-.pattern-hero-token {
-    display: inline;
-    transition: color 0.25s ease, text-shadow 0.25s ease;
-}
-
-.pattern-hero-token.is-dim {
-    color: #666;
-}
-
-.pattern-hero-token.is-changed {
     color: #fff;
-    text-shadow: 0 0 12px rgba(57, 255, 20, 0.55);
-    border-bottom: 2px solid var(--neon-green);
-    padding-bottom: 1px;
-}
-
-.pattern-hero-token.is-snap-in {
-    animation: pattern-hero-snap 0.42s cubic-bezier(0.22, 1.2, 0.36, 1) forwards;
-}
-
-@keyframes pattern-hero-snap {
-    0% { transform: translateX(-10px); opacity: 0.2; }
-    60% { transform: translateX(3px); opacity: 1; }
-    100% { transform: translateX(0); opacity: 1; }
 }
 
 .pattern-drill-hint {
@@ -211,6 +186,14 @@
     text-shadow: var(--glow-green);
 }
 
+.pattern-drill-hint.is-error {
+    color: #ff8866;
+}
+
+.pattern-drill-hint.is-ok {
+    color: var(--neon-green);
+}
+
 /* ── 3카드 그리드 ── */
 .pattern-cols {
     display: grid;
@@ -225,16 +208,17 @@
 
 .pattern-col {
     min-width: 0;
-    perspective: 700px;
     transition: opacity 0.28s ease, transform 0.28s ease;
 }
 
-.pattern-col.is-dim {
-    opacity: 0.42;
+.pattern-col.is-tappable {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.pattern-col.is-focus {
-    opacity: 1;
+.pattern-col.is-target .pattern-col-inner {
+    border-color: rgba(255, 153, 0, 0.65);
+    box-shadow: 0 0 16px rgba(255, 153, 0, 0.28);
 }
 
 .pattern-col.is-shake {
@@ -258,15 +242,9 @@
     border-radius: 14px;
     border: 1.5px solid rgba(80, 80, 80, 0.55);
     background: rgba(255, 255, 255, 0.03);
-    transform-style: preserve-3d;
     box-sizing: border-box;
     min-height: 118px;
-}
-
-.pattern-col.is-focus .pattern-col-inner {
-    border-color: rgba(57, 255, 20, 0.55);
-    background: rgba(57, 255, 20, 0.06);
-    box-shadow: 0 0 18px rgba(57, 255, 20, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .pattern-col.is-filled .pattern-col-inner {
@@ -366,47 +344,75 @@
     50% { opacity: 0.45; }
 }
 
-.pattern-col.is-focus .pattern-kor-word {
+.pattern-col.is-filled .pattern-kor-word {
     color: var(--neon-green);
 }
 
-.pattern-col.is-focus .pattern-col-comp {
+.pattern-col.is-filled .pattern-col-comp {
     color: var(--neon-blue, #00f3ff);
 }
 
-.pattern-col.is-focus .pattern-col-marker {
+.pattern-col.is-filled .pattern-col-marker {
     color: #ffcc55;
 }
 
-/* ── 조사 칩 ── */
-.pattern-chip-row {
+/* ── 공용 조사 풀 ── */
+.pattern-pool-wrap {
+    width: 100%;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.pattern-pool-wrap.is-hidden {
+    display: none;
+}
+
+.pattern-pool-label {
+    margin: 0 0 10px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #666;
+    text-align: center;
+}
+
+.pattern-pool {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 5px;
-    margin-top: 2px;
-    width: 100%;
+    gap: 8px;
 }
 
 .pattern-chip {
-    min-width: 2em;
-    padding: 5px 8px;
-    border-radius: 8px;
+    min-width: 2.4em;
+    padding: 10px 12px;
+    border-radius: 10px;
     border: 1px solid rgba(255, 153, 0, 0.45);
     background: rgba(255, 153, 0, 0.08);
     color: #fff;
-    font-size: 0.82rem;
+    font-size: 0.95rem;
     font-weight: 800;
     cursor: pointer;
     line-height: 1;
     -webkit-tap-highlight-color: transparent;
-    transition: transform 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+    transition: transform 0.12s ease, background 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
 }
 
-.pattern-chip:active {
+.pattern-chip:active:not(:disabled) {
     transform: scale(0.94);
-    background: rgba(255, 153, 0, 0.22);
-    box-shadow: 0 0 10px rgba(255, 153, 0, 0.35);
+}
+
+.pattern-chip.is-selected {
+    border-color: var(--neon-green);
+    background: rgba(57, 255, 20, 0.22);
+    box-shadow: 0 0 14px rgba(57, 255, 20, 0.4);
+    transform: scale(1.06);
+}
+
+.pattern-chip.is-used {
+    opacity: 0.22;
+    pointer-events: none;
+    transform: scale(0.92);
 }
 
 .pattern-phase-badge {

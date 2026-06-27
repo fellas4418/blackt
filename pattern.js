@@ -5,7 +5,10 @@
     var COL_ROLES = ['s', 'v', 'o'];
     var COL_COMP = { s: '주어', o: '목적어', v: '서술어' };
     var COL_MARKER = { s: '은/는/이가', o: '을/를', v: '다' };
-    var CHIPS_BY_ROLE = { s: ['은', '는', '이', '가'], o: ['을', '를'], v: ['다'] };
+    var PARTICLE_POOL = ['은', '는', '이', '가', '을', '를', '다'];
+    var SUBJECT_PARTICLES = { '은': 1, '는': 1, '이': 1, '가': 1 };
+    var OBJECT_PARTICLES = { '을': 1, '를': 1 };
+    var VERB_PARTICLES = { '다': 1 };
 
     var state = {
         data: null,
@@ -13,7 +16,9 @@
         introDone: false,
         isRepeat: false,
         progressInterval: null,
-        drillFilled: { s: false, o: false, v: false }
+        drillFilled: { s: false, o: false, v: false },
+        selectedChip: null,
+        usedChips: {}
     };
 
     function clearProgress() {
@@ -52,34 +57,14 @@
         return state.data.steps[state.variantIdx];
     }
 
-    function getFocusRole(step) {
-        if (!step) return 's';
-        if (step.focus) return step.focus;
-        var ch = step.change || '';
-        if (ch === 'o') return 'o';
-        if (ch === 'v') return 'v';
-        return 's';
-    }
-
-    function phaseChapterForRole(role) {
-        if (role === 's') return 'Ⅰ';
-        if (role === 'o') return 'Ⅱ';
-        return 'Ⅲ';
-    }
-
-    function phaseLabelForStep(step) {
-        var focus = getFocusRole(step);
-        if (focus === 's') return '주어 변화';
-        if (focus === 'o') return '목적어 변화';
-        return '서술어 변화';
-    }
-
     function isLearnMode() {
         return !state.introDone && state.variantIdx === 0 && !state.isRepeat;
     }
 
-    function resetDrillFilled() {
+    function resetDrillState() {
         state.drillFilled = { s: false, o: false, v: false };
+        state.selectedChip = null;
+        state.usedChips = {};
         if (isLearnMode()) {
             state.drillFilled = { s: true, o: true, v: true };
         }
@@ -102,6 +87,11 @@
         return { word: korSlot.word || '', particle: '' };
     }
 
+    function getExpectedParticle(step, role) {
+        var korSlot = findKorByRole(step, role);
+        return getKorParts(korSlot, role).particle;
+    }
+
     function playSentenceTts(text) {
         if (!text || !window.speechSynthesis) return;
         try {
@@ -113,90 +103,53 @@
         } catch (e) {}
     }
 
-    function updatePhaseBadge(step, prevStep) {
-        var badge = document.getElementById('pattern-phase-badge');
-        if (!badge) return;
-        var focus = getFocusRole(step);
-        badge.innerHTML = '<span class="pattern-phase-badge-core">' +
-            '<span class="pattern-phase-badge-ch">' + phaseChapterForRole(focus) + '</span>' +
-            '<span class="pattern-phase-badge-txt">' + phaseLabelForStep(step) + '</span>' +
-            '</span>';
-        if (prevStep && getFocusRole(prevStep) !== getFocusRole(step)) {
-            badge.classList.remove('is-switching');
-            void badge.offsetWidth;
-            badge.classList.add('is-switching');
-            setTimeout(function () {
-                badge.classList.remove('is-switching');
-            }, 620);
-        }
-    }
-
-    function findEngByRole(step, role) {
-        return (step.eng_tokens || []).find(function (t) {
-            return roleClass(t.role) === role;
-        });
-    }
-
     function findKorByRole(step, role) {
         return (step.kor_slots || []).find(function (s) {
             return roleClass(s.role) === role;
         });
     }
 
-    function roleContentChanged(prevStep, nextStep, role) {
-        var pe = findEngByRole(prevStep, role);
-        var ne = findEngByRole(nextStep, role);
-        var pk = findKorByRole(prevStep, role);
-        var nk = findKorByRole(nextStep, role);
-        if (pe && ne && pe.text !== ne.text) return true;
-        if (pk && nk) {
-            var pt = (pk.word || '') + (pk.particle || '');
-            var nt = (nk.word || '') + (nk.particle || '');
-            if (pt !== nt) return true;
-        }
-        return false;
+    function particleAllowedForRole(role, chip) {
+        if (role === 's') return !!SUBJECT_PARTICLES[chip];
+        if (role === 'o') return !!OBJECT_PARTICLES[chip];
+        return !!VERB_PARTICLES[chip];
     }
 
-    function getFlipRole(prevStep, nextStep) {
-        var ch = nextStep.change || '';
-        if (ch === 's' || ch === 'o' || ch === 'v') {
-            if (roleContentChanged(prevStep, nextStep, ch)) return ch;
+    function roleErrorMessage(role, chip) {
+        if (role === 's') {
+            if (OBJECT_PARTICLES[chip]) return '목적어 조사(을·를)는 주어에 붙이지 않아요';
+            if (VERB_PARTICLES[chip]) return '서술어(~다)는 주어 자리에 붙이지 않아요';
+            return '주어에는 은·는·이·가 중 하나를 붙여요';
         }
-        for (var i = 0; i < COL_ROLES.length; i++) {
-            var r = COL_ROLES[i];
-            if (roleContentChanged(prevStep, nextStep, r)) return r;
+        if (role === 'o') {
+            if (SUBJECT_PARTICLES[chip]) return '주어 조사(은·는·이·가)는 목적어에 붙이지 않아요';
+            if (VERB_PARTICLES[chip]) return '서술어(~다)는 목적어에 붙이지 않아요';
+            return '목적어에는 을·를 중 하나를 붙여요';
         }
-        return null;
+        if (SUBJECT_PARTICLES[chip]) return '주어 조사(은·는·이·가)는 서술어에 붙이지 않아요';
+        if (OBJECT_PARTICLES[chip]) return '목적어 조사(을·를)는 서술어에 붙이지 않아요';
+        return '서술어는 ~다로 끝내요';
     }
 
-    function applyFocusRole(step) {
-        var focus = getFocusRole(step);
-        document.querySelectorAll('.pattern-col').forEach(function (el) {
-            el.classList.toggle('is-focus', el.dataset.role === focus);
-            el.classList.toggle('is-dim', el.dataset.role !== focus);
-        });
+    function updatePhaseBadge() {
+        var badge = document.getElementById('pattern-phase-badge');
+        if (!badge || !state.data) return;
+        var total = state.data.steps.length;
+        badge.innerHTML = '<span class="pattern-phase-badge-core">' +
+            '<span class="pattern-phase-badge-ch">' + (state.variantIdx + 1) + '/' + total + '</span>' +
+            '<span class="pattern-phase-badge-txt">조사 붙이기</span>' +
+            '</span>';
     }
 
-    function renderEngHero(step, prevStep) {
+    function renderEngHero(step) {
         var el = document.getElementById('pattern-eng-hero');
         if (!el || !step) return;
 
-        var highlightRole = prevStep ? getFlipRole(prevStep, step) : getFocusRole(step);
-        var tokens = step.eng_tokens || [];
-
-        if (tokens.length) {
-            el.innerHTML = tokens.map(function (t, i) {
-                var cls = 'pattern-hero-token';
-                if (highlightRole && roleClass(t.role) === highlightRole) {
-                    cls += ' is-changed is-snap-in';
-                } else {
-                    cls += ' is-dim';
-                }
-                var gap = i < tokens.length - 1 ? ' ' : '';
-                return '<span class="' + cls + '">' + escapeHtml(t.text) + '</span>' + gap;
-            }).join('');
+        if (step.eng) {
+            el.textContent = step.eng;
         } else {
-            el.textContent = step.eng || '';
+            var tokens = step.eng_tokens || [];
+            el.textContent = tokens.map(function (t) { return t.text; }).join(' ');
         }
 
         el.classList.remove('is-enter');
@@ -204,22 +157,28 @@
         el.classList.add('is-enter');
     }
 
-    function syncDrillHint() {
+    function syncDrillHint(msg, kind) {
         var hint = document.getElementById('pattern-drill-hint');
         if (!hint) return;
+        hint.classList.remove('is-learn', 'is-done', 'is-error', 'is-ok');
         if (isLearnMode()) {
             hint.textContent = '문장 구조를 먼저 살펴보세요';
             hint.classList.add('is-learn');
-            hint.classList.remove('is-done');
             return;
         }
-        hint.classList.remove('is-learn');
+        if (msg) {
+            hint.textContent = msg;
+            if (kind === 'error') hint.classList.add('is-error');
+            if (kind === 'ok') hint.classList.add('is-ok');
+            return;
+        }
         if (isDrillComplete()) {
-            hint.textContent = '완성! 다음으로 넘어가 보세요 →';
+            hint.textContent = '완성! 다음 문장으로 넘어가 보세요 →';
             hint.classList.add('is-done');
+        } else if (state.selectedChip) {
+            hint.textContent = '「' + state.selectedChip + '」→ 붙일 칸(주어·목적어·서술어)을 탭하세요';
         } else {
-            hint.textContent = '조사를 골라 붙여 보세요';
-            hint.classList.remove('is-done');
+            hint.textContent = '조사를 고른 뒤, 맞는 칸에 붙이세요';
         }
     }
 
@@ -242,20 +201,44 @@
         syncDrillHint();
         updateNavUi();
         updateStepProgress();
+        renderParticlePool();
     }
 
-    function attachParticle(role, chip, expected) {
+    function shakeCol(role) {
         var col = document.querySelector('.pattern-col[data-role="' + role + '"]');
-        if (!col || state.drillFilled[role]) return;
+        if (!col) return;
+        col.classList.remove('is-shake');
+        void col.offsetWidth;
+        col.classList.add('is-shake');
+    }
 
+    function applyParticleToRole(role, chip) {
+        var step = currentStep();
+        var col = document.querySelector('.pattern-col[data-role="' + role + '"]');
+        if (!col || state.drillFilled[role] || isLearnMode()) return;
+
+        if (!particleAllowedForRole(role, chip)) {
+            shakeCol(role);
+            syncDrillHint(roleErrorMessage(role, chip), 'error');
+            return;
+        }
+
+        var expected = getExpectedParticle(step, role);
         if (chip !== expected) {
-            col.classList.remove('is-shake');
-            void col.offsetWidth;
-            col.classList.add('is-shake');
+            shakeCol(role);
+            if (role === 's') {
+                syncDrillHint('주어 조사 종류는 맞아요. 받침에 맞게 은/는을 골라 보세요', 'error');
+            } else if (role === 'o') {
+                syncDrillHint('목적어 조사 종류는 맞아요. 받침에 맞게 을/를 골라 보세요', 'error');
+            } else {
+                syncDrillHint('서술어는 ~다로 끝내요', 'error');
+            }
             return;
         }
 
         state.drillFilled[role] = true;
+        state.usedChips[chip] = true;
+        state.selectedChip = null;
 
         var slot = col.querySelector('.pattern-kor-slot');
         if (slot) {
@@ -264,34 +247,68 @@
             slot.classList.add('pattern-kor-particle', 'is-snapped');
         }
 
-        var chipRow = col.querySelector('.pattern-chip-row');
-        if (chipRow) chipRow.remove();
-
         col.classList.add('is-filled');
+        col.classList.remove('is-target');
 
         if (isDrillComplete()) {
             onDrillAllComplete();
         } else {
-            syncDrillHint();
+            syncDrillHint('잘 붙였어요!', 'ok');
+            setTimeout(function () { syncDrillHint(); }, 900);
             updateNavUi();
             updateStepProgress();
+            renderParticlePool();
         }
     }
 
-    function buildChipRow(role, expected) {
-        var row = document.createElement('div');
-        row.className = 'pattern-chip-row';
-        CHIPS_BY_ROLE[role].forEach(function (chip) {
+    function onPoolChipClick(chip) {
+        if (isLearnMode() || state.usedChips[chip]) return;
+        state.selectedChip = state.selectedChip === chip ? null : chip;
+        document.querySelectorAll('.pattern-col').forEach(function (col) {
+            col.classList.toggle('is-target', !!state.selectedChip && !state.drillFilled[col.dataset.role]);
+        });
+        renderParticlePool();
+        syncDrillHint();
+    }
+
+    function onCardClick(role) {
+        if (isLearnMode() || state.drillFilled[role]) return;
+        if (!state.selectedChip) {
+            syncDrillHint('아래에서 조사를 먼저 고르세요', 'error');
+            shakeCol(role);
+            return;
+        }
+        applyParticleToRole(role, state.selectedChip);
+    }
+
+    function renderParticlePool() {
+        var pool = document.getElementById('pattern-pool');
+        var wrap = document.getElementById('pattern-pool-wrap');
+        if (!pool || !wrap) return;
+
+        if (isLearnMode()) {
+            wrap.classList.add('is-hidden');
+            return;
+        }
+        wrap.classList.remove('is-hidden');
+
+        pool.innerHTML = '';
+        PARTICLE_POOL.forEach(function (chip) {
             var btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'pattern-chip';
             btn.textContent = chip;
+            if (state.usedChips[chip]) {
+                btn.disabled = true;
+                btn.classList.add('is-used');
+            } else if (state.selectedChip === chip) {
+                btn.classList.add('is-selected');
+            }
             btn.addEventListener('click', function () {
-                attachParticle(role, chip, expected);
+                onPoolChipClick(chip);
             });
-            row.appendChild(btn);
+            pool.appendChild(btn);
         });
-        return row;
     }
 
     function fillKorEl(korEl, korSlot, role, learnMode) {
@@ -321,7 +338,6 @@
         var korSlot = findKorByRole(step, role);
         if (!korSlot) return;
 
-        var parts = getKorParts(korSlot, role);
         var inner = document.createElement('div');
         inner.className = 'pattern-col-inner';
 
@@ -340,26 +356,23 @@
         inner.appendChild(compEl);
         inner.appendChild(korEl);
         inner.appendChild(markerEl);
+        col.appendChild(inner);
 
         if (!learnMode && !state.drillFilled[role]) {
-            inner.appendChild(buildChipRow(role, parts.particle));
+            col.classList.add('is-tappable');
+            col.addEventListener('click', function () {
+                onCardClick(role);
+            });
         }
 
-        col.appendChild(inner);
         if (state.drillFilled[role]) col.classList.add('is-filled');
     }
 
-    function applyColWidths() {
-        var wrap = document.getElementById('pattern-cols');
-        if (!wrap) return;
-        wrap.style.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))';
-    }
-
-    function buildColsDom(step, prevStep) {
+    function buildStepDom(step) {
         var wrap = document.getElementById('pattern-cols');
         if (!wrap) return;
 
-        resetDrillFilled();
+        resetDrillState();
         wrap.innerHTML = '';
 
         var learnMode = isLearnMode();
@@ -375,9 +388,9 @@
             wrap.appendChild(col);
         });
 
-        renderEngHero(step, prevStep);
-        applyFocusRole(step);
-        updatePhaseBadge(step, prevStep);
+        renderEngHero(step);
+        updatePhaseBadge();
+        renderParticlePool();
         syncDrillHint();
         updateStepProgress();
         updateNavUi();
@@ -385,19 +398,6 @@
         if (step.eng) {
             playSentenceTts(step.eng);
         }
-    }
-
-    function animateChangedColumn(flipRole) {
-        if (!flipRole) return;
-        var col = document.querySelector('.pattern-col[data-role="' + flipRole + '"]');
-        var inner = col && col.querySelector('.pattern-col-inner');
-        if (!inner) return;
-        inner.classList.remove('is-flip-in-left');
-        void inner.offsetWidth;
-        inner.classList.add('is-flip-in-left');
-        setTimeout(function () {
-            inner.classList.remove('is-flip-in-left');
-        }, 280);
     }
 
     function setProgress(ratio) {
@@ -477,40 +477,23 @@
         }
     }
 
-    function renderVariant(prevIdx, nextIdx) {
-        var prevStep = prevIdx >= 0 ? state.data.steps[prevIdx] : null;
-        var nextStep = state.data.steps[nextIdx];
-        var flipRole = prevStep ? getFlipRole(prevStep, nextStep) : null;
-
-        buildColsDom(nextStep, prevStep);
-        animateChangedColumn(flipRole);
-    }
-
     function goToVariant(idx) {
         if (!state.data || idx < 0 || idx >= state.data.steps.length) return;
-        var prevIdx = state.variantIdx;
         state.variantIdx = idx;
-        renderVariant(prevIdx, idx);
+        buildStepDom(state.data.steps[idx]);
     }
 
     function onIntroComplete() {
         state.introDone = true;
         hideIntroBar();
-        if (state.data.steps.length > 1) {
-            goToVariant(1);
-        } else {
-            updateNavUi();
-            updateStepProgress();
-        }
+        buildStepDom(currentStep());
     }
 
     function startSession() {
         state.variantIdx = 0;
         state.introDone = state.isRepeat;
 
-        var step = currentStep();
-        buildColsDom(step, null);
-        updateNavUi();
+        buildStepDom(currentStep());
 
         if (state.isRepeat) {
             hideIntroBar();
@@ -649,8 +632,6 @@
                 }
                 renderGuide();
                 bindUi();
-                applyColWidths();
-                window.addEventListener('resize', applyColWidths);
                 startSession();
             })
             .catch(function () {
