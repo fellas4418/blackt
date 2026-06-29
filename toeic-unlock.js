@@ -19,9 +19,10 @@
     }
 
     function clampToeicDayKeys() {
-        const maxDay = (typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.TOEIC_TOTAL_DAYS)
+        const totalDays = (typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.TOEIC_TOTAL_DAYS)
             ? TriggerToeicSchedule.TOEIC_TOTAL_DAYS
             : 54;
+        const maxDay = totalDays + 1;
         ['trigger_current_day_toeic', 'trigger_unlocked_day_toeic'].forEach(function (key) {
             const v = parseInt(localStorage.getItem(key), 10);
             if (v > maxDay) localStorage.setItem(key, String(maxDay));
