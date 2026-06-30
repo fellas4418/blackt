@@ -1408,10 +1408,13 @@
         function mergeVocaProgressFromServer(vocaProgress) {
             if (!vocaProgress || typeof vocaProgress !== 'object') return false;
             let changed = false;
-            ['middle', 'high'].forEach(function (lvl) {
+            ['middle', 'high', 'toeic'].forEach(function (lvl) {
                 const p = vocaProgress[lvl];
                 if (!p) return;
-                const nextDay = Math.min(71, Math.max(1, parseInt(p.next_day, 10) || 1));
+                const maxNextDay = lvl === 'toeic'
+                    ? ((typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.TOEIC_TOTAL_DAYS) ? TriggerToeicSchedule.TOEIC_TOTAL_DAYS + 1 : 55)
+                    : 71;
+                const nextDay = Math.min(maxNextDay, Math.max(1, parseInt(p.next_day, 10) || 1));
                 const cur = parseInt(localStorage.getItem('trigger_current_day_' + lvl), 10) || 1;
                 const unlocked = parseInt(localStorage.getItem('trigger_unlocked_day_' + lvl), 10) || 1;
                 if (nextDay > cur) {
