@@ -248,6 +248,35 @@ async function handlePaymentConfirm(env, request) {
   return json({ ok: true, user_id: userId, is_premium: 1 });
 }
 
+const GEMINI_EGRESS_HINT = "enam";
+
+async function geminiApiFetch(env, endpoint, payload) {
+  if (env.GEMINI_PROXY) {
+    const id = env.GEMINI_PROXY.idFromName("gemini-egress");
+    const stub = env.GEMINI_PROXY.get(id, { locationHint: GEMINI_EGRESS_HINT });
+    const res = await stub.fetch(
+      new Request("https://gemini-proxy.internal/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: endpoint, body: payload }),
+      })
+    );
+    const wrapped = await res.json().catch(() => ({}));
+    return {
+      ok: !!wrapped.ok,
+      status: Number(wrapped.status) || res.status || 500,
+      data: wrapped.data || {},
+    };
+  }
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json().catch(() => ({}));
+  return { ok: response.ok, status: response.status, data };
+}
+
 async function callGeminiChatSimple(env, fullPrompt, maxOutputTokens = 2048) {
   const model = env.GEMINI_MODEL || "gemini-2.5-flash";
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`;
@@ -255,14 +284,9 @@ async function callGeminiChatSimple(env, fullPrompt, maxOutputTokens = 2048) {
     contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
     generationConfig: { temperature: 0.35, maxOutputTokens },
   };
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  const data = await response.json();
-  if (!response.ok) {
-    return { error: data?.error?.message || data?.error || `gemini_http_${response.status}` };
+  const { ok, status, data } = await geminiApiFetch(env, endpoint, payload);
+  if (!ok) {
+    return { error: data?.error?.message || data?.error || `gemini_http_${status}` };
   }
   const parts = data?.candidates?.[0]?.content?.parts;
   let text = "";
@@ -545,13 +569,8 @@ async function handleGeminiProxy(env, request) {
   const model = env.GEMINI_MODEL || "gemini-2.5-flash";
   const endpoint =
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`;
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  const data = await response.json();
-  return json(data, response.status);
+  const { status, data } = await geminiApiFetch(env, endpoint, body);
+  return json(data, status);
 }
 
 async function callGeminiStructured(env, parts, responseMimeType = "application/json") {
@@ -562,14 +581,9 @@ async function callGeminiStructured(env, parts, responseMimeType = "application/
     contents: [{ role: "user", parts }],
     generationConfig: { temperature: 0.1, responseMimeType },
   };
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  const data = await response.json();
-  if (!response.ok) {
-    const msg = data?.error?.message || data?.error || `gemini_${response.status}`;
+  const { ok, status, data } = await geminiApiFetch(env, endpoint, payload);
+  if (!ok) {
+    const msg = data?.error?.message || data?.error || `gemini_${status}`;
     return { ok: false, error: msg, raw: data };
   }
   const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -920,6 +934,8 @@ async function handleReferralClaim(env, body) {
   }
   return json({ ok: true, count });
 }
+
+export { GeminiProxy } from "./gemini-proxy.js";
 
 export default {
   async fetch(request, env) {
