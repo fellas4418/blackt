@@ -89,6 +89,18 @@
             daySet[Number(d)] = true;
         });
         var byKey = {};
+        function upsertReviewItem(key, item) {
+            if (!key) return;
+            if (!byKey[key]) {
+                byKey[key] = item;
+                return;
+            }
+            byKey[key].isWrong = byKey[key].isWrong || !!item.isWrong;
+            byKey[key].isStarred = byKey[key].isStarred || !!item.isStarred;
+            byKey[key].wrongCount = Math.max(byKey[key].wrongCount || 0, item.wrongCount || 0);
+            if (!byKey[key].meanings && item.meanings) byKey[key].meanings = item.meanings;
+        }
+
         allWrongs.forEach(function (r) {
             if (!r || r.level !== level) return;
             if (!daySet[Number(r.day)]) return;
@@ -96,24 +108,33 @@
             var key = String(r.word || '').trim().toLowerCase();
             if (!key) return;
             var wc = getMasterWrongCount(level, r.word);
-            if (!byKey[key]) {
-                var mean = wordMeanStr(r);
-                if (!mean) mean = lookupWordMeanings(level, r.day, r.word);
-                byKey[key] = {
-                    word: r.word,
-                    meanings: mean,
-                    wrongCount: wc,
-                    isWrong: !!r.isWrong,
-                    isStarred: !!r.isStarred
-                };
-            } else {
-                byKey[key].isWrong = byKey[key].isWrong || !!r.isWrong;
-                byKey[key].isStarred = byKey[key].isStarred || !!r.isStarred;
-                byKey[key].wrongCount = Math.max(byKey[key].wrongCount, wc);
-                if (!byKey[key].meanings) {
-                    byKey[key].meanings = wordMeanStr(r) || lookupWordMeanings(level, r.day, r.word);
-                }
-            }
+            var mean = wordMeanStr(r);
+            if (!mean) mean = lookupWordMeanings(level, r.day, r.word);
+            upsertReviewItem(key, {
+                word: r.word,
+                meanings: mean,
+                wrongCount: wc,
+                isWrong: !!r.isWrong,
+                isStarred: !!r.isStarred
+            });
+        });
+
+        getMasterWrongDb().forEach(function (row) {
+            if (!row || row.level !== level) return;
+            if (!daySet[Number(row.day)]) return;
+            var wc = Math.max(0, parseInt(row.wrongCount, 10) || 0);
+            if (wc <= 0) return;
+            var key = String(row.word || '').trim().toLowerCase();
+            if (!key || byKey[key]) return;
+            var mean = wordMeanStr(row);
+            if (!mean) mean = lookupWordMeanings(level, row.day, row.word);
+            upsertReviewItem(key, {
+                word: row.word,
+                meanings: mean,
+                wrongCount: wc,
+                isWrong: true,
+                isStarred: false
+            });
         });
         var list = Object.keys(byKey).map(function (k) {
             return byKey[k];

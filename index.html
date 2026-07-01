@@ -828,7 +828,7 @@
     <div id="print-area" style="display:none; padding:20px; background:#fff; color:#000;"></div>
 
     <script src="trigger-credit.js?v=20260526"></script>
-    <script src="trigger-voca-pdf.js?v=20260531_review"></script>
+    <script src="trigger-voca-pdf.js?v=20260701_wrong1"></script>
     <script src="pattern-toc.js?v=20260625"></script>
 
     <script>
@@ -2315,6 +2315,8 @@
                     var ent = map[ymd];
                     title = ymd + ' · Day ' + (ent.day || '?');
                     if (ent.accuracy) title += ' · ' + ent.accuracy + '%';
+                    var calWrong = ent.day ? countWrongWordsForDay(level, ent.day) : 0;
+                    if (calWrong > 0) title += ' · 오답 ' + calWrong;
                     sub = ent.day ? 'D' + ent.day : '';
                 } else {
                     cls += ' study-month-day--off';
@@ -2343,6 +2345,19 @@
                 '</div>' +
                 weekBarsHtml;
             setReportModalTitle('학습 캘린더');
+        }
+
+        function countWrongWordsForDay(level, dayNum) {
+            let all = [];
+            try {
+                all = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+            } catch (e) {
+                all = [];
+            }
+            if (!Array.isArray(all)) return 0;
+            return all.filter(function (w) {
+                return w && w.level === level && Number(w.day) === Number(dayNum) && w.isWrong;
+            }).length;
         }
 
         function showWeeklyReport(requestedLevel) {
@@ -2391,11 +2406,19 @@
                     let color = accuracy >= 80 ? "var(--neon-green)" : "var(--neon-orange)";
                     const isFinished = dayStat.progress >= 100;
                     const statusText = dayStat.status || (isFinished ? "SYNC ◆" : `${dayStat.progress}% 진행 중`);
+                    const wrongCnt = isFinished
+                        ? (typeof dayStat.wrong_count === 'number'
+                            ? dayStat.wrong_count
+                            : countWrongWordsForDay(currentLevel, i))
+                        : 0;
+                    const wrongSuffix = isFinished && wrongCnt > 0
+                        ? ` · <span style="color:var(--neon-orange);">오답 ${wrongCnt}</span>`
+                        : '';
 
                     html += `<div style="margin-bottom: 18px;">
                                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
                                     <span>${dayLabel} <strong style="color:${isFinished ? 'var(--neon-green)' : 'var(--neon-blue)'};">${statusText}</strong></span>
-                                    <span style="color:${isFinished ? color : '#aaa'}; font-weight:bold; font-size:0.85rem;">${isFinished ? (isReview ? '복습 완료' : `정답률 ${accuracy}%`) : `진행률 ${dayStat.progress}%`}</span>
+                                    <span style="color:${isFinished ? color : '#aaa'}; font-weight:bold; font-size:0.85rem;">${isFinished ? (isReview ? '복습 완료' : `정답률 ${accuracy}%`) + wrongSuffix : `진행률 ${dayStat.progress}%`}</span>
                                 </div>
                                 <div class="report-bar-bg"><div class="report-bar-fill" style="width: ${dayStat.progress}%; background:${isFinished ? color : 'var(--neon-blue)'}; box-shadow: 0 0 5px ${isFinished ? color : 'var(--neon-blue)'};"></div></div>
                             </div>`;
@@ -2908,7 +2931,7 @@
     </script>
     <script src="praise-share.js?v=20260517_kakao_return"></script>
     <script src="admin-unlock.js"></script>
-    <script src="app.js?v=20260531_calendar1"></script>
+    <script src="app.js?v=20260701_wrong1"></script>
     <script src="worddata.js"></script>
     <script src="worddata_toeic.js?v=20260625_toeic54"></script>
     <script src="toeic-schedule.js"></script>

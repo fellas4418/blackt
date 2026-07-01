@@ -489,6 +489,45 @@ function isSmartStudyEligible(isReviewDay) {
     return true;
 }
 
+/** trigger_wrong_words에 기록할 테스트인지 (평일 3회차 중간 테스트는 제외, 복습일 최종 테스트는 포함) */
+function shouldPersistWrongToList(sessionRaw, isReviewDay) {
+    if (isPreReviewMode) return true;
+    if (sessionRaw === 'final') return true;
+    if (isReviewDay) return sessionRaw === '3';
+    return sessionRaw === String(DAILY_CYCLE_COUNT);
+}
+
+function persistWrongWordToList(wordData, level, dayNum) {
+    if (!wordData || !wordData.word) return;
+    let wrongWords = [];
+    try {
+        wrongWords = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+    } catch (e) {
+        wrongWords = [];
+    }
+    if (!Array.isArray(wrongWords)) wrongWords = [];
+
+    const idx = wrongWords.findIndex(w => w.word === wordData.word && w.level === level);
+    if (idx === -1) {
+        wrongWords.push({
+            ...wordData,
+            day: dayNum,
+            level: level,
+            isWrong: true
+        });
+    } else {
+        wrongWords[idx].isWrong = true;
+        if (!wrongWords[idx].day) wrongWords[idx].day = dayNum;
+    }
+    localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
+
+    const countEl = document.getElementById('wrong-word-count');
+    if (countEl) {
+        const levelWrongs = wrongWords.filter(w => w.level === level);
+        countEl.innerText = `${levelWrongs.length} 단어`;
+    }
+}
+
 function smartStudyExcludedKey() {
     const day = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`), 10) || 1;
     return `trigger_excluded_${currentLevel}_${day}`;
@@ -1244,9 +1283,10 @@ function startStudy(skipShuffle) {
             }
 
             const currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
-            const sNum = parseInt(currentSessionRaw); 
+            const sNum = parseInt(currentSessionRaw);
+            const isReviewDay = vocaIsReviewDay(parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`), 10) || 1);
 
-            if (sNum === 3 || sNum === DAILY_CYCLE_COUNT || currentSessionRaw === 'final' || isPreReviewMode) {
+            if (sNum === 3 || sNum === DAILY_CYCLE_COUNT || currentSessionRaw === 'final' || isPreReviewMode || (isReviewDay && sNum === 2)) {
                 score = 0; 
                 startCountdown("곧 테스트를 시작합니다.", beginTestPhase); 
             } else {
@@ -1551,33 +1591,14 @@ function handleAnswer(isCorrect) {
         // [오답 시 처리] 3회차 중간 테스트는 무시하고 5회/최종만 리스트에 저장
         const currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`);
 
-        if (smartStudyActive && currentSessionRaw === '3') {
+        if (smartStudyActive && currentSessionRaw === '3' && !vocaIsReviewDay(currentDay)) {
             if (!sessionTestWrongWords.some(w => w.word === currentWordData.word)) {
                 sessionTestWrongWords.push({ ...currentWordData });
             }
         }
-        
-        if (currentSessionRaw !== '3') {
-            const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);
-            if (idx === -1) {
-                // 🎯 수정: 틀려도 isStarred는 넣지 않고, isWrong만 표시하여 강제 별표 방지
-                wrongWords.push({ 
-                    ...currentWordData, 
-                    day: currentDay, 
-                    level: currentLevel, 
-                    isWrong: true 
-                });
-            } else {
-                wrongWords[idx].isWrong = true;
-            }
-            localStorage.setItem('trigger_wrong_words', JSON.stringify(wrongWords));
-            
-            // 메인 화면 숫자 즉시 업데이트
-            const countEl = document.getElementById('wrong-word-count');
-            if (countEl) {
-                const levelWrongs = wrongWords.filter(w => w.level === currentLevel);
-                countEl.innerText = `${levelWrongs.length} 단어`;
-            }
+
+        if (shouldPersistWrongToList(currentSessionRaw, vocaIsReviewDay(currentDay))) {
+            persistWrongWordToList(currentWordData, currentLevel, currentDay);
         }
 
         // 🎯 괄호 오류 수정: [원장님용] 마스터 DB에는 오답 무조건 기록되도록 정상 배치
@@ -1847,6 +1868,14 @@ function finishSession(didTest = true) {
         localStorage.setItem(`trigger_unlocked_day_${currentLevel}`, newUnlocked);
         
         stats[currentDay].accuracy = accuracy;
+        try {
+            const dayWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+            stats[currentDay].wrong_count = dayWrongs.filter(function (w) {
+                return w && w.level === currentLevel && parseInt(w.day, 10) === currentDay && w.isWrong;
+            }).length;
+        } catch (e) {
+            stats[currentDay].wrong_count = 0;
+        }
         localStorage.setItem(`trigger_stats_${currentLevel}`, JSON.stringify(stats));
 
         clearSmartStudyDayState(currentLevel, currentDay);
@@ -1974,7 +2003,7 @@ function retryOnlyWrongs() {
             sessionTag.style.color = "var(--neon-orange)";
         }
     } else {
-        let retryList = allWrongs.filter(w => w.level === currentLevel && w.day === currentDay);
+        let retryList = allWrongs.filter(w => w.level === currentLevel && Number(w.day) === currentDay);
         if (retryList.length < 1) retryList = todayWords;
         targetWords = retryList;
         const sessionTag = document.getElementById('session-tag');
