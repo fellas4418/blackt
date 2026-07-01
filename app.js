@@ -1575,7 +1575,7 @@ function handleAnswer(isCorrect) {
         
         const isReviewDay = vocaIsReviewDay(currentDay);
         let currentSessionRaw = localStorage.getItem(`trigger_session_${currentLevel}`);
-        let isFinalStep = (currentSessionRaw === String(DAILY_CYCLE_COUNT) || currentSessionRaw === 'final' || (isReviewDay && currentSessionRaw === '2'));
+        let isFinalStep = shouldPersistWrongToList(currentSessionRaw, isReviewDay);
 
         if (!isFinalStep) {
             const idx = wrongWords.findIndex(w => w.word === currentWordData.word && w.level === currentLevel);

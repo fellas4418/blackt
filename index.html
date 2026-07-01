@@ -828,7 +828,7 @@
     <div id="print-area" style="display:none; padding:20px; background:#fff; color:#000;"></div>
 
     <script src="trigger-credit.js?v=20260526"></script>
-    <script src="trigger-voca-pdf.js?v=20260701_wrong1"></script>
+    <script src="trigger-voca-pdf.js?v=20260701_wrong2"></script>
     <script src="pattern-toc.js?v=20260625"></script>
 
     <script>
@@ -1853,9 +1853,13 @@
 
             syncPdfDayLimits(lvl);
 
-            const allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
-            const levelWrongs = allWrongs.filter(w => w.level === lvl);
-            document.getElementById('wrong-word-count').innerText = `${levelWrongs.length} 단어`;
+            const cumulativeWrongs = (typeof TriggerVocaPdf !== 'undefined' && TriggerVocaPdf.getCumulativeWrongList)
+                ? TriggerVocaPdf.getCumulativeWrongList(lvl)
+                : (function () {
+                    const all = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+                    return all.filter(w => w.level === lvl);
+                })();
+            document.getElementById('wrong-word-count').innerText = `${cumulativeWrongs.length} 단어`;
 
             const endTime = parseInt(localStorage.getItem('blackt_cooldown')) || 0; 
             const startBtn = document.getElementById('start-btn-main');
@@ -2025,10 +2029,21 @@
             }
         }
 
+        function getCumulativeWrongListForLevel(level) {
+            if (typeof TriggerVocaPdf !== 'undefined' && TriggerVocaPdf.getCumulativeWrongList) {
+                return TriggerVocaPdf.getCumulativeWrongList(level);
+            }
+            try {
+                return JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]')
+                    .filter(function (w) { return w && w.level === level; });
+            } catch (e) {
+                return [];
+            }
+        }
+
         function showWrongWords() {
             const lvl = localStorage.getItem('trigger_level') || 'middle';
-            const allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
-            const levelWrongs = allWrongs.filter(w => w.level === lvl);
+            const levelWrongs = getCumulativeWrongListForLevel(lvl);
             
             let html = '';
             if (levelWrongs.length > 0) {
@@ -2048,8 +2063,11 @@
                     grouped[day].forEach(w => {
                         const safeMeanings = Array.isArray(w.meanings) ? w.meanings.join(', ') : w.meanings;
                         const starIcon = w.isStarred ? '<span style="font-size:0.85rem; margin-left:6px; vertical-align:middle;">⭐</span>' : '';
+                        const wrongBadge = (w.wrongCount > 1)
+                            ? `<span style="font-size:0.75rem; color:var(--neon-orange); margin-left:6px;">틀린 ${w.wrongCount}회</span>`
+                            : '';
                         html += `<div style="padding:12px 0; border-bottom:1px solid #333; line-height:1.4;">
-                                    <strong style="color:var(--neon-green); font-size:1.15rem;">${w.word}</strong>${starIcon} <br>
+                                    <strong style="color:var(--neon-green); font-size:1.15rem;">${w.word}</strong>${starIcon}${wrongBadge} <br>
                                     <span style="color:#ffffff; font-size:1rem; display:inline-block; margin-top:5px;">- ${safeMeanings}</span>
                                 </div>`;
                     });
@@ -2348,16 +2366,23 @@
         }
 
         function countWrongWordsForDay(level, dayNum) {
-            let all = [];
+            var dn = Number(dayNum);
+            var byKey = {};
             try {
-                all = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
-            } catch (e) {
-                all = [];
-            }
-            if (!Array.isArray(all)) return 0;
-            return all.filter(function (w) {
-                return w && w.level === level && Number(w.day) === Number(dayNum) && w.isWrong;
-            }).length;
+                JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]').forEach(function (w) {
+                    if (w && w.level === level && Number(w.day) === dn && w.isWrong) {
+                        byKey[String(w.word || '').trim().toLowerCase()] = true;
+                    }
+                });
+            } catch (e) {}
+            try {
+                JSON.parse(localStorage.getItem('trigger_master_wrong_db') || '[]').forEach(function (r) {
+                    if (r && r.level === level && Number(r.day) === dn && (parseInt(r.wrongCount, 10) || 0) > 0) {
+                        byKey[String(r.word || '').trim().toLowerCase()] = true;
+                    }
+                });
+            } catch (e) {}
+            return Object.keys(byKey).length;
         }
 
         function showWeeklyReport(requestedLevel) {
@@ -2931,7 +2956,7 @@
     </script>
     <script src="praise-share.js?v=20260517_kakao_return"></script>
     <script src="admin-unlock.js"></script>
-    <script src="app.js?v=20260701_wrong1"></script>
+    <script src="app.js?v=20260701_wrong2"></script>
     <script src="worddata.js"></script>
     <script src="worddata_toeic.js?v=20260625_toeic54"></script>
     <script src="toeic-schedule.js"></script>

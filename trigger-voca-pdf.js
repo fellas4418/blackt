@@ -71,6 +71,71 @@
         return 0;
     }
 
+    function getReviewDaysThrough(level) {
+        var last = getLastClearedDay(level);
+        var days = [];
+        for (var d = 1; d <= last; d++) days.push(d);
+        return days;
+    }
+
+    /** 오답/별표 + 누적 오답 DB — 이전 Day 포함 전체 */
+    function getCumulativeWrongList(level) {
+        var byKey = {};
+        function upsert(item) {
+            var key = String(item.word || '').trim().toLowerCase();
+            if (!key) return;
+            if (!byKey[key]) {
+                byKey[key] = item;
+                return;
+            }
+            byKey[key].isWrong = byKey[key].isWrong || !!item.isWrong;
+            byKey[key].isStarred = byKey[key].isStarred || !!item.isStarred;
+            byKey[key].wrongCount = Math.max(byKey[key].wrongCount || 0, item.wrongCount || 0);
+            if (!byKey[key].meanings && item.meanings) byKey[key].meanings = item.meanings;
+            if (!byKey[key].day && item.day) byKey[key].day = item.day;
+        }
+
+        getWrongMarks(level).forEach(function (r) {
+            if (!r || r.level !== level) return;
+            if (!r.isWrong && !r.isStarred) return;
+            upsert({
+                word: r.word,
+                meanings: wordMeanStr(r) || lookupWordMeanings(level, r.day, r.word),
+                level: level,
+                day: r.day || 1,
+                isWrong: !!r.isWrong,
+                isStarred: !!r.isStarred,
+                wrongCount: getMasterWrongCount(level, r.word)
+            });
+        });
+
+        getMasterWrongDb().forEach(function (row) {
+            if (!row || row.level !== level) return;
+            var wc = Math.max(0, parseInt(row.wrongCount, 10) || 0);
+            if (wc <= 0) return;
+            var key = String(row.word || '').trim().toLowerCase();
+            if (!key) return;
+            if (byKey[key]) {
+                byKey[key].isWrong = true;
+                byKey[key].wrongCount = Math.max(byKey[key].wrongCount || 0, wc);
+                return;
+            }
+            upsert({
+                word: row.word,
+                meanings: wordMeanStr(row) || lookupWordMeanings(level, row.day, row.word),
+                level: level,
+                day: row.day || 1,
+                isWrong: true,
+                isStarred: false,
+                wrongCount: wc
+            });
+        });
+
+        return Object.keys(byKey).map(function (k) {
+            return byKey[k];
+        });
+    }
+
     function lookupWordMeanings(level, dayNum, wordStr) {
         var key = String(wordStr || '').trim().toLowerCase();
         var words = getWordsForDay(level, dayNum);
@@ -179,7 +244,7 @@
             '<div style="page-break-inside:avoid;">' +
             '<h2 style="font-size:16pt;color:#000;border-bottom:2px solid #000;padding-bottom:8px;margin:0 0 12px;">복습 필요 단어</h2>' +
             '<p style="font-size:9.5pt;color:#555;margin:0 0 14px;line-height:1.45;">' +
-            '인쇄 범위에서 <strong>오답</strong>·<strong>★별표</strong>한 단어를 틀린 횟수 순으로 모았습니다. (별표만 한 단어는 횟수 —)' +
+            '완료한 Day 전체에서 <strong>오답</strong>·<strong>★별표</strong>한 단어를 틀린 횟수 순으로 모았습니다. (이전 Day 포함 누적)' +
             '</p>' +
             '<table style="width:100%;border-collapse:collapse;margin-bottom:20px;">' +
             '<thead><tr style="background:#f2f2f2;">' +
@@ -347,7 +412,8 @@
             });
         });
 
-        var reviewList = collectReviewWords(level, days, allWrongs);
+        var reviewDays = getReviewDaysThrough(level);
+        var reviewList = collectReviewWords(level, reviewDays, allWrongs);
         if (reviewList.length) {
             html += '<div class="page-break" style="page-break-before:always;"></div>';
             html += buildReviewSectionHtml(reviewList);
@@ -429,6 +495,8 @@
 
     global.TriggerVocaPdf = {
         getLastClearedDay: getLastClearedDay,
+        getReviewDaysThrough: getReviewDaysThrough,
+        getCumulativeWrongList: getCumulativeWrongList,
         resolveDayList: resolveDayList,
         buildPrintHtml: buildPrintHtml,
         print: print,
