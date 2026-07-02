@@ -26,7 +26,7 @@ if (!fnMatch) {
     if (fn.includes("if (isReviewDay) return sessionRaw === '2';")) {
         pass('복습일 최종 테스트 세션 2에서 오답을 저장합니다.');
     } else {
-        fail('복습일 오답 저장 조건은 sessionRaw === \\'2\\' 이어야 합니다.');
+        fail("복습일 오답 저장 조건은 sessionRaw === '2' 이어야 합니다.");
     }
     if (fn.includes("if (isReviewDay) return sessionRaw === '3';")) {
         fail('복습일 세션 3 조건이 남아 있습니다. 복습일은 총 2세션입니다.');
