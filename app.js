@@ -2179,8 +2179,12 @@ function buildVocaShareBundle() {
     }
 
     const title = `[${st.n}]님, 오늘 단어 학습을 끝냈어요!`;
+    const levelLabel =
+        typeof TriggerPraise !== 'undefined' && TriggerPraise.levelLabelFor
+            ? TriggerPraise.levelLabelFor(st)
+            : '중등단어';
     const accPart = st.a != null && !isNaN(st.a) ? ` · 정답률 ${st.a}%` : '';
-    const description = `누적: ${st.t}단어 · 오늘: Day ${st.d}${accPart}\n\n칭찬 한마디 보내주시면 힘이 됩니다.${badgeLine ? '\n\n' + badgeLine : ''}`;
+    const description = `${levelLabel} · 누적: ${st.t}단어 · 오늘: Day ${st.d}${accPart}\n\n칭찬 한마디 보내주시면 힘이 됩니다.${badgeLine ? '\n\n' + badgeLine : ''}`;
     const clipboardText = `${title}\n${description}\n\n${shareUrl}\n\n칭찬 보내기: ${praiseShareUrl}`;
 
     return {

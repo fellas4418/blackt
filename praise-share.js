@@ -76,6 +76,23 @@
         return Array.isArray(dayData) ? dayData : [];
     }
 
+    function normalizeLevel(level) {
+        var lv = String(level || 'middle').trim().toLowerCase();
+        if (lv === 'high') return 'high';
+        if (lv === 'toeic') return 'toeic';
+        return 'middle';
+    }
+
+    function levelLabelFor(levelOrCtx) {
+        var lv =
+            levelOrCtx && typeof levelOrCtx === 'object'
+                ? normalizeLevel(levelOrCtx.l)
+                : normalizeLevel(levelOrCtx);
+        if (lv === 'high') return '고등단어';
+        if (lv === 'toeic') return '토익단어';
+        return '중등단어';
+    }
+
     function statsFromStorage(kind) {
         var level = '';
         try {
@@ -113,7 +130,8 @@
             n: userName.slice(0, 48),
             d: Math.min(999, Math.max(1, displayDay)),
             t: Math.min(999999, Math.max(0, learnedTotal)),
-            k: kind === 'exam' ? 'exam' : 'voca'
+            k: kind === 'exam' ? 'exam' : 'voca',
+            l: normalizeLevel(level)
         };
         if (accuracy != null) base.a = accuracy;
         var meta = praiseMetaFromCtx(base);
@@ -157,6 +175,7 @@
             d: Math.min(999, Math.max(1, parseInt(ctx.d, 10) || 1)),
             t: Math.min(999999, Math.max(0, parseInt(ctx.t, 10) || 0)),
             k: ctx.k === 'exam' ? 'exam' : 'voca',
+            l: normalizeLevel(ctx.l),
             b: (h >>> 0) % BADGES.length,
             m: ((h >>> 13) >>> 0) % 8
         };
@@ -186,6 +205,7 @@
                 d: Math.min(999, Math.max(1, parseInt(o.d, 10) || 1)),
                 t: Math.min(999999, Math.max(0, parseInt(o.t, 10) || 0)),
                 k: o.k === 'exam' ? 'exam' : 'voca',
+                l: normalizeLevel(o.l),
                 b: Math.abs(parseInt(o.b, 10) || 0) % BADGES.length,
                 m: Math.abs(parseInt(o.m, 10) || 0) % 8,
                 a:
@@ -332,10 +352,13 @@
         /** shareKakao 전용 카톡 설명 한 줄 추가 */
         kakaoSubtitleLine: function (ctx) {
             var b = badgeFor(ctx);
+            var lv = levelLabelFor(ctx);
             if (ctx.k === 'exam') {
-                return '시험 리포트까지! 오늘의 학습 유형: ' + b.emoji + ' ' + b.title;
+                return '시험 리포트까지! ' + lv + ' · 오늘의 학습 유형: ' + b.emoji + ' ' + b.title;
             }
-            return '오늘의 학습 유형: ' + b.emoji + ' ' + b.title;
-        }
+            return lv + ' · 오늘의 학습 유형: ' + b.emoji + ' ' + b.title;
+        },
+        levelLabelFor: levelLabelFor,
+        normalizeLevel: normalizeLevel
     };
 })(typeof window !== 'undefined' ? window : this);

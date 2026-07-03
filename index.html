@@ -2725,12 +2725,16 @@
                         shareCtx = TriggerPraise.decodePc(urlParams.get('pc') || '') || null;
                     }
                     if (!shareCtx) {
-                        shareCtx = { n: '학습자', d: 1, t: 0, k: 'voca', b: 0, m: 0 };
+                        shareCtx = { n: '학습자', d: 1, t: 0, k: 'voca', l: 'middle', b: 0, m: 0 };
                     }
                     var shareBadge =
                         typeof TriggerPraise !== 'undefined' && TriggerPraise.badgeFor
                             ? TriggerPraise.badgeFor(shareCtx)
                             : { emoji: '◆', title: '몰입형', blurb: '' };
+                    var shareLevelLabel =
+                        typeof TriggerPraise !== 'undefined' && TriggerPraise.levelLabelFor
+                            ? TriggerPraise.levelLabelFor(shareCtx)
+                            : '중등단어';
                     var sEm = document.getElementById('share-result-emoji');
                     var sTitle = document.getElementById('share-result-title');
                     var sBody = document.getElementById('share-result-body');
@@ -2738,8 +2742,12 @@
                     if (sEm) sEm.textContent = shareBadge.emoji || '🔥';
                     if (sTitle) sTitle.textContent = '[' + shareCtx.n + ']님 학습 결과';
                     if (sBody) {
-                        sBody.textContent =
-                            '오늘의 진도: Day ' + shareCtx.d + '\n누적 클리어: ' + shareCtx.t + ' 단어';
+                        var shareBodyLines = ['단어 과정: ' + shareLevelLabel, '오늘의 진도: Day ' + shareCtx.d];
+                        if (shareCtx.a != null && !isNaN(shareCtx.a)) {
+                            shareBodyLines.push('정답률: ' + shareCtx.a + '%');
+                        }
+                        shareBodyLines.push('누적 클리어: ' + shareCtx.t + ' 단어');
+                        sBody.textContent = shareBodyLines.join('\n');
                     }
                     if (sBadge) {
                         sBadge.textContent =

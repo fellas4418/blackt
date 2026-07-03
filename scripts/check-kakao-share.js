@@ -112,6 +112,8 @@ function checkPraiseShare(TriggerPraise) {
     } else pass('statsFromStorage includes badge meta');
     if (st.a !== 92) fail('statsFromStorage missing accuracy (expected 92, got ' + st.a + ')');
     else pass('statsFromStorage includes accuracy');
+    if (st.l !== 'middle') fail('statsFromStorage missing level (expected middle, got ' + st.l + ')');
+    else pass('statsFromStorage includes level');
 
     let line = '';
     try {
@@ -121,6 +123,7 @@ function checkPraiseShare(TriggerPraise) {
         return;
     }
     if (!line || !line.includes('학습 유형')) fail('kakaoSubtitleLine empty or invalid');
+    else if (!line.includes('중등단어')) fail('kakaoSubtitleLine missing level label');
     else pass('kakaoSubtitleLine: ' + line.slice(0, 40) + '…');
 
     if (typeof TriggerPraise.returnToKakaoInApp !== 'function') fail('returnToKakaoInApp missing');
@@ -133,6 +136,15 @@ function checkPraiseShare(TriggerPraise) {
     const decoded = TriggerPraise.decodePc(pc);
     if (!decoded || decoded.a !== 92) fail('decodePc missing accuracy');
     else pass('decodePc roundtrip includes accuracy');
+    if (!decoded || decoded.l !== 'middle') fail('decodePc missing level');
+    else pass('decodePc roundtrip includes level');
+
+    const highPc = TriggerPraise.encodePc({ n: '테스트', d: 3, t: 10, k: 'voca', l: 'high', a: 80 });
+    const highDecoded = TriggerPraise.decodePc(highPc);
+    if (!highDecoded || highDecoded.l !== 'high') fail('decodePc high level roundtrip');
+    else pass('decodePc high level roundtrip');
+    if (TriggerPraise.levelLabelFor(highDecoded) !== '고등단어') fail('levelLabelFor high');
+    else pass('levelLabelFor high -> 고등단어');
 
     const bare = { n: '학습자', d: 1, t: 0, k: 'voca' };
     try {
