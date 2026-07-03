@@ -131,6 +131,8 @@
             if (pcParam) finalUrl.searchParams.set('pc', pcParam);
             if (zone) finalUrl.searchParams.set('zone', zone);
             if (refTrim) finalUrl.searchParams.set('ref', refTrim);
+            const erParam = params.get('er');
+            if (erParam) finalUrl.searchParams.set('er', erParam);
 
             const isVocaReceiver = praise || (isVocaPath && !!pcParam);
 

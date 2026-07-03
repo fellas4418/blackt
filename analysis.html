@@ -1850,6 +1850,15 @@
         </header>
         <div class="analysis-zone-body">
 
+    <div id="exam-rpt-shared-card" style="display:none; margin:0 0 16px; padding:16px 18px; border:1px solid rgba(0,243,255,0.4); border-radius:14px; background:rgba(0,243,255,0.06); box-shadow:0 0 12px rgba(0,243,255,0.1);">
+        <div style="font-size:0.78rem; color:var(--neon-blue); font-weight:bold; letter-spacing:0.02em;">📨 공유받은 시험 분석 리포트</div>
+        <div id="exam-rpt-shared-title" style="font-size:1.05rem; font-weight:bold; color:#fff; margin-top:4px;"></div>
+        <div id="exam-rpt-shared-meta" style="font-size:0.85rem; color:#ccc; margin-top:6px; line-height:1.55;"></div>
+        <div id="exam-rpt-shared-scores" style="font-size:0.9rem; color:#eee; margin-top:10px; padding:10px; border-radius:10px; background:rgba(0,0,0,0.35); line-height:1.7;"></div>
+        <div id="exam-rpt-shared-total" style="font-size:1.15rem; font-weight:bold; color:var(--neon-green); margin-top:10px; text-align:center;"></div>
+        <p style="margin:12px 0 0; font-size:0.75rem; color:#888; line-height:1.55;">아래 「시험 분석」 도구로 내 시험도 바로 분석해 볼 수 있어요.</p>
+    </div>
+
     <div id="exam-report-workspace" style="display:block; margin-top:0;">
         <div class="exam-rpt-plain exam-rpt-plain--photo">
             <span class="result-label">시험지 사진</span>
@@ -8425,11 +8434,52 @@
             });
         }
 
+        /** 카톡 공유 URL에 실어 보낼 시험 요약을 URL-safe base64로 인코딩 (링크만 봐도 상대방이 결과를 보게 하기 위함) */
+        function examRptEncodeShareData() {
+            try {
+                const t = examRptComputeTotals();
+                const school = (document.getElementById('exam-rpt-school') && document.getElementById('exam-rpt-school').value || '').trim();
+                const examSel = document.getElementById('exam-rpt-exam-type');
+                const examLabel = examSel && examSel.options[examSel.selectedIndex] ? examSel.options[examSel.selectedIndex].text : '';
+                const name = (localStorage.getItem('trigger_name') || '').trim();
+                const grade = ((localStorage.getItem('trigger_saved_exam_grade') || '').trim() || (typeof params !== 'undefined' && params.get('grade')) || '').trim();
+                const r1 = function (v) { return Math.round((Number(v) || 0) * 10) / 10; };
+                const payload = {
+                    n: String(name || '학생').slice(0, 24),
+                    g: String(grade || '').slice(0, 8),
+                    s: String(school || '').slice(0, 32),
+                    x: String(examLabel || '').slice(0, 24),
+                    mc: [t.mcCnt, t.mcRightCnt, r1(t.mcEarn), r1(t.mcPts)],
+                    es: [r1(t.esEarn), r1(t.esPts)],
+                    t: r1(t.totalAcc)
+                };
+                const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+                return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+            } catch (e) {
+                return '';
+            }
+        }
+
+        function examRptDecodeShareData(s) {
+            if (!s || typeof s !== 'string') return null;
+            try {
+                let b = s.replace(/-/g, '+').replace(/_/g, '/');
+                while (b.length % 4) b += '=';
+                const o = JSON.parse(decodeURIComponent(escape(atob(b))));
+                if (!o || typeof o !== 'object') return null;
+                return o;
+            } catch (e) {
+                return null;
+            }
+        }
+
         function examRptShareKakao() {
             const userName = (localStorage.getItem('trigger_name') || '').trim() || '학생';
-            const shareUrl =
+            const erEncoded = examRptEncodeShareData();
+            let shareUrl =
                 window.location.origin +
                 '/share-entry.html?path=analysis.html&zone=exam';
+            if (erEncoded) shareUrl += '&er=' + erEncoded;
             const school = (document.getElementById('exam-rpt-school') && document.getElementById('exam-rpt-school').value || '').trim() || '—';
             const examSel = document.getElementById('exam-rpt-exam-type');
             const examLabel = examSel && examSel.options[examSel.selectedIndex] ? examSel.options[examSel.selectedIndex].text : '시험';
@@ -8460,7 +8510,7 @@
                 fmt(t.esPts) +
                 '\n전체 배점 대비 ' +
                 fmt(t.totalAcc) +
-                '%\n\n앱에서 시험 분석 탭으로 이동합니다.';
+                '%\n\n링크를 열면 결과가 바로 보여요.';
 
             const alertCopied = function () {
                 alert('✅ 공유 링크를 복사했어요.\n카톡 채팅창에 붙여넣어 부모님께 보내 주세요.');
@@ -8482,7 +8532,7 @@
                     imageUrl: triggerPagesImgUrl('share-exam-report.png') + '?v=3',
                     link: { mobileWebUrl: shareUrl, webUrl: shareUrl }
                 },
-                buttons: [{ title: '시험 분석 앱에서 보기', link: { mobileWebUrl: shareUrl, webUrl: shareUrl } }]
+                buttons: [{ title: '시험 결과 바로 보기', link: { mobileWebUrl: shareUrl, webUrl: shareUrl } }]
             };
 
             const tryKakaoSend = function () {
@@ -9021,6 +9071,65 @@
             );
         }
 
+        /**
+         * 앱(PWA) 안에서 그대로 인쇄/PDF 저장을 트리거합니다.
+         * window.open('', '_blank')은 iOS PWA에서 사파리를 강제로 열어 앱이 튕겨 나가므로,
+         * 현재 페이지에 숨겨진 컨테이너를 삽입 후 @media print로만 노출시켜 window.print()를 호출합니다.
+         */
+        function triggerInAppPrint(fullHtml, docTitle) {
+            let bodyInner = fullHtml;
+            let stylesInner = '';
+            try {
+                const doc = new DOMParser().parseFromString(fullHtml, 'text/html');
+                if (doc && doc.body) bodyInner = doc.body.innerHTML || fullHtml;
+                if (doc) {
+                    stylesInner = Array.prototype.map
+                        .call(doc.querySelectorAll('style'), function (s) { return s.textContent || ''; })
+                        .join('\n');
+                }
+            } catch (e) {}
+
+            const prevRoot = document.getElementById('trigger-print-area');
+            if (prevRoot) prevRoot.remove();
+            const prevStyle = document.getElementById('trigger-print-area-style');
+            if (prevStyle) prevStyle.remove();
+
+            const container = document.createElement('div');
+            container.id = 'trigger-print-area';
+            container.innerHTML = bodyInner;
+            document.body.appendChild(container);
+
+            const style = document.createElement('style');
+            style.id = 'trigger-print-area-style';
+            style.textContent =
+                '#trigger-print-area{display:none;}' +
+                '@media print{' +
+                    'html,body{background:#fff !important;color:#111 !important;margin:0;padding:0;}' +
+                    'body > *:not(#trigger-print-area){display:none !important;}' +
+                    '#trigger-print-area{display:block !important;position:static !important;background:#fff;color:#111;padding:20px;font-family:"Pretendard",-apple-system,sans-serif;}' +
+                    stylesInner +
+                '}';
+            document.head.appendChild(style);
+
+            const originalTitle = document.title;
+            if (docTitle) document.title = String(docTitle);
+
+            setTimeout(function () {
+                try {
+                    window.print();
+                } catch (e) {
+                    alert('인쇄(PDF 저장) 창을 열지 못했어요. 브라우저 메뉴에서 「인쇄 → PDF로 저장」을 이용해 주세요.');
+                }
+                setTimeout(function () {
+                    const c = document.getElementById('trigger-print-area');
+                    const s = document.getElementById('trigger-print-area-style');
+                    if (c) c.remove();
+                    if (s) s.remove();
+                    document.title = originalTitle;
+                }, 1500);
+            }, 120);
+        }
+
         function passagePdfOpenPrintWindow(blocks, opts) {
             opts = opts || {};
             const name = (localStorage.getItem('trigger_name') || '').trim() || '학습자';
@@ -9088,16 +9197,7 @@
                 '</style></head><body>' +
                 body +
                 '</body></html>';
-            const w = window.open('', '_blank');
-            if (w) {
-                w.document.write(html);
-                w.document.close();
-                setTimeout(function () {
-                    w.print();
-                }, 400);
-            } else {
-                alert('팝업이 차단되었습니다. 브라우저에서 팝업을 허용한 뒤 다시 시도해 주세요.');
-            }
+            triggerInAppPrint(html, '지문 분석 결과');
         }
 
         async function runPassagePdfExport() {
@@ -9214,12 +9314,7 @@
                     ? '<h2>선생님 코멘트</h2><pre style="white-space:pre-wrap;font-size:12px;">' + escapeHtml(examRptTeacherComment) + '</pre>'
                     : '') +
                 '<p style="margin-top:24px;font-size:11px;color:#666;">브라우저 메뉴에서 인쇄 → PDF로 저장하세요.</p></body></html>';
-            const w = window.open('', '_blank');
-            if (w) {
-                w.document.write(html);
-                w.document.close();
-                setTimeout(function () { w.print(); }, 400);
-            }
+            triggerInAppPrint(html, '내가 본 시험 한 눈에 분석');
         }
 
         async function examRptSubmitSave() {
@@ -9770,6 +9865,72 @@
                         openExamReportWorkspace();
                     } catch (e) {}
                 }, 280);
+            } catch (e) {}
+        })();
+
+        /** 카톡으로 공유받은 시험 요약(er 파라미터)을 시험 분석 존 상단에 카드로 렌더 */
+        (function renderSharedExamReportFromUrl() {
+            try {
+                const q = new URLSearchParams(location.search);
+                const raw = (q.get('er') || '').trim();
+                if (!raw) return;
+                const data = typeof examRptDecodeShareData === 'function' ? examRptDecodeShareData(raw) : null;
+                if (!data) return;
+                const card = document.getElementById('exam-rpt-shared-card');
+                if (!card) return;
+                const escape = function (s) {
+                    return String(s == null ? '' : s)
+                        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                };
+                const fmt = function (v) {
+                    const n = Number(v) || 0;
+                    return (Math.round(n * 10) / 10).toFixed(1);
+                };
+                const titleEl = document.getElementById('exam-rpt-shared-title');
+                const metaEl = document.getElementById('exam-rpt-shared-meta');
+                const scoresEl = document.getElementById('exam-rpt-shared-scores');
+                const totalEl = document.getElementById('exam-rpt-shared-total');
+                const name = escape(data.n || '학생');
+                const grade = escape(data.g || '—');
+                const school = escape(data.s || '—');
+                const examLabel = escape(data.x || '시험');
+                if (titleEl) titleEl.innerHTML = '📊 ' + name + '님의 시험 분석 결과';
+                if (metaEl) {
+                    metaEl.innerHTML =
+                        '<strong>학교</strong> ' + school +
+                        ' &nbsp;·&nbsp; <strong>학년</strong> ' + grade +
+                        ' &nbsp;·&nbsp; <strong>시험</strong> ' + examLabel;
+                }
+                const mc = Array.isArray(data.mc) ? data.mc : [0, 0, 0, 0];
+                const es = Array.isArray(data.es) ? data.es : [0, 0];
+                const mcCnt = Number(mc[0]) || 0;
+                const mcRight = Number(mc[1]) || 0;
+                const mcEarn = Number(mc[2]) || 0;
+                const mcPts = Number(mc[3]) || 0;
+                const esEarn = Number(es[0]) || 0;
+                const esPts = Number(es[1]) || 0;
+                const mcAccByCount = mcCnt > 0 ? (mcRight / mcCnt) * 100 : 0;
+                if (scoresEl) {
+                    scoresEl.innerHTML =
+                        '<div><span style="color:var(--neon-blue);font-weight:bold;">객관식</span> ' +
+                        mcRight + ' / ' + mcCnt + ' 정답 (' + fmt(mcAccByCount) + '%) · 획득 ' +
+                        fmt(mcEarn) + ' / ' + fmt(mcPts) + '점</div>' +
+                        '<div style="margin-top:4px;"><span style="color:#ff9a5c;font-weight:bold;">서술형</span> 획득 ' +
+                        fmt(esEarn) + ' / ' + fmt(esPts) + '점</div>';
+                }
+                if (totalEl) {
+                    totalEl.innerHTML = '전체 배점 대비 ' + fmt(data.t) + '%';
+                }
+                card.style.display = 'block';
+                try {
+                    switchAnalysisMainTab('exam');
+                } catch (e) {}
+                setTimeout(function () {
+                    try {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    } catch (e) {}
+                }, 320);
             } catch (e) {}
         })();
 
