@@ -9114,19 +9114,47 @@
             const originalTitle = document.title;
             if (docTitle) document.title = String(docTitle);
 
+            let cleaned = false;
+            let cleanupTimer = null;
+            let printMql = null;
+            let mediaHandler = null;
+            function cleanupPrintArea() {
+                if (cleaned) return;
+                cleaned = true;
+                try { window.removeEventListener('afterprint', cleanupPrintArea); } catch (e) {}
+                try {
+                    if (printMql && mediaHandler) {
+                        if (printMql.removeEventListener) printMql.removeEventListener('change', mediaHandler);
+                        else if (printMql.removeListener) printMql.removeListener(mediaHandler);
+                    }
+                } catch (e) {}
+                if (cleanupTimer) clearTimeout(cleanupTimer);
+                const c = document.getElementById('trigger-print-area');
+                const s = document.getElementById('trigger-print-area-style');
+                if (c) c.remove();
+                if (s) s.remove();
+                document.title = originalTitle;
+            }
+            try { window.addEventListener('afterprint', cleanupPrintArea); } catch (e) {}
+            try {
+                printMql = window.matchMedia ? window.matchMedia('print') : null;
+                if (printMql) {
+                    mediaHandler = function (ev) {
+                        if (!ev.matches) cleanupPrintArea();
+                    };
+                    if (printMql.addEventListener) printMql.addEventListener('change', mediaHandler);
+                    else if (printMql.addListener) printMql.addListener(mediaHandler);
+                }
+            } catch (e) {}
+            cleanupTimer = setTimeout(cleanupPrintArea, 60000);
+
             setTimeout(function () {
                 try {
                     window.print();
                 } catch (e) {
+                    cleanupPrintArea();
                     alert('인쇄(PDF 저장) 창을 열지 못했어요. 브라우저 메뉴에서 「인쇄 → PDF로 저장」을 이용해 주세요.');
                 }
-                setTimeout(function () {
-                    const c = document.getElementById('trigger-print-area');
-                    const s = document.getElementById('trigger-print-area-style');
-                    if (c) c.remove();
-                    if (s) s.remove();
-                    document.title = originalTitle;
-                }, 1500);
             }, 120);
         }
 

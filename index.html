@@ -1523,10 +1523,22 @@
                 fetch(GOOGLE_SHEET_URL, { method: 'POST', body: formData });
 
                 var base = INDEX_STREAK_WORKER.replace(/\/$/, '');
-                fetch(base + '/api/signup/log', {
+                fetch(base + '/api/auth/simple', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: name, phone: phone, level: levelText, event_type: 'level' })
+                    body: JSON.stringify({ name: name, phone: phone })
+                }).then(function (res) {
+                    return res && res.ok ? res.json() : null;
+                }).then(function (authData) {
+                    if (!authData) return;
+                    var userId = String(authData.user_id || '').trim();
+                    var password = String(authData.auth_password || '').trim();
+                    if (!userId || !password) return;
+                    return fetch(base + '/api/signup/log', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id: userId, password: password, name: name, phone: phone, level: levelText })
+                    });
                 }).catch(function () {});
             }
         }

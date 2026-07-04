@@ -173,13 +173,17 @@ async function handleSimpleAuth(env, body) {
 }
 
 async function handleSignupLog(env, body) {
+  const userId = String(body.user_id || "").trim();
+  const password = String(body.password || "");
+  if (!(await verifyUser(env, userId, password))) return json({ error: "인증 실패" }, 401);
+
   const name = String(body.name || "").trim();
   const phone = normalizePhone(body.phone);
   if (!name || !phone) return json({ error: "name/phone이 필요합니다." }, 400);
   const level = String(body.level || "").trim();
   if (!level) return json({ error: "level이 필요합니다." }, 400);
-  const userId = `${phone}::${normalizeName(name)}`;
-  const eventType = String(body.event_type || body.eventType || "level").trim() || "level";
+  const expectedUserId = `${phone}::${normalizeName(name)}`;
+  if (userId !== expectedUserId) return json({ error: "인증 정보와 사용자 정보가 일치하지 않습니다." }, 403);
   try {
     await insertSignupLog(env, {
       userId,
@@ -187,7 +191,7 @@ async function handleSignupLog(env, body) {
       phone,
       level,
       referrer: String(body.referrer || "").trim(),
-      eventType,
+      eventType: "level",
     });
   } catch (e) {
     return json({ error: "signup_log_failed" }, 500);
