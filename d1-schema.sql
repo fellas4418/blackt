@@ -66,3 +66,21 @@ CREATE TABLE IF NOT EXISTS chat_history (
 
 CREATE INDEX IF NOT EXISTS idx_chat_history_user_created
 ON chat_history(user_id, datetime(created_at) DESC);
+
+-- 회원가입·레벨 변경 (관리자 조회 · 구글 시트 병행 저장)
+CREATE TABLE IF NOT EXISTS signup_logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id TEXT,
+  name TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  level TEXT,
+  referrer TEXT,
+  event_type TEXT NOT NULL DEFAULT 'signup',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_signup_logs_created
+ON signup_logs(datetime(created_at) DESC);
+
+CREATE INDEX IF NOT EXISTS idx_signup_logs_phone_name
+ON signup_logs(phone, name);

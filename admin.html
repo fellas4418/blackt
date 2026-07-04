@@ -112,6 +112,27 @@
             border-color: #444;
             color: #aaa;
         }
+        .tab-bar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .tab-btn {
+            border: 1px solid #333;
+            background: #0a0a0a;
+            color: #aaa;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-weight: 700;
+            font-size: 0.84rem;
+            cursor: pointer;
+        }
+        .tab-btn.active {
+            border-color: var(--neon-blue);
+            color: var(--neon-blue);
+            background: rgba(0, 243, 255, 0.08);
+        }
         .status-bar {
             margin-top: 10px;
             font-size: 0.82rem;
@@ -120,6 +141,12 @@
         }
         .status-bar.error { color: #ff6b6b; }
         .status-bar.ok { color: var(--neon-green); }
+        .panel-hint {
+            margin: 0 0 12px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.55;
+        }
         .table-scroll {
             overflow-x: auto;
         }
@@ -141,14 +168,14 @@
             white-space: nowrap;
         }
         td.num { font-family: var(--font-mono, monospace); }
-        tr.user-row {
+        tr.user-row, tr.exam-row {
             cursor: pointer;
             transition: background 0.12s;
         }
-        tr.user-row:hover {
+        tr.user-row:hover, tr.exam-row:hover {
             background: rgba(0, 243, 255, 0.06);
         }
-        tr.user-row.active {
+        tr.user-row.active, tr.exam-row.active {
             background: rgba(0, 243, 255, 0.1);
         }
         .detail-head {
@@ -164,6 +191,17 @@
             font-size: 0.88rem;
             color: #fff;
         }
+        .chart-wrap {
+            margin-top: 14px;
+            text-align: center;
+        }
+        .chart-wrap canvas {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 1px solid #333;
+            background: #0a0a0a;
+        }
         .hide { display: none !important; }
         .empty {
             padding: 20px 0;
@@ -171,13 +209,18 @@
             color: var(--text-muted);
             font-size: 0.86rem;
         }
+        .sheet-link {
+            color: var(--neon-orange, #ffb36b);
+            text-decoration: underline;
+            font-size: 0.82rem;
+        }
     </style>
 </head>
 <body class="admin-page">
     <div class="admin-wrap">
         <header class="admin-head">
             <h1>TRIGGER BLACK · ADMIN</h1>
-            <p>D1 daily_session 진도 조회</p>
+            <p>학습 진도 · 회원가입 · 시험 점수 추이</p>
         </header>
 
         <section class="panel" id="login-panel">
@@ -190,7 +233,13 @@
             <div id="status-bar" class="status-bar"></div>
         </section>
 
-        <section class="panel hide" id="summary-panel">
+        <nav class="tab-bar hide" id="tab-bar">
+            <button type="button" class="tab-btn active" data-tab="progress">유저별 진도</button>
+            <button type="button" class="tab-btn" data-tab="members">회원가입</button>
+            <button type="button" class="tab-btn" data-tab="exam">시험 점수 추이</button>
+        </nav>
+
+        <section class="panel hide tab-panel" id="summary-panel" data-tab="progress">
             <h2 class="panel-title">유저별 진도</h2>
             <div class="table-scroll">
                 <table>
@@ -209,7 +258,7 @@
             <div id="summary-empty" class="empty hide">저장된 daily_session 데이터가 없습니다.</div>
         </section>
 
-        <section class="panel hide" id="detail-panel">
+        <section class="panel hide tab-panel" id="detail-panel" data-tab="progress">
             <div class="detail-head">
                 <h2 class="panel-title" style="margin:0;">Day별 상세 · <span class="detail-user" id="detail-user-label"></span></h2>
                 <button type="button" id="btn-detail-close" class="btn btn-ghost">닫기</button>
@@ -230,6 +279,78 @@
             </div>
             <div id="detail-empty" class="empty hide">이 유저의 Day 기록이 없습니다.</div>
         </section>
+
+        <section class="panel hide tab-panel" id="members-panel" data-tab="members">
+            <h2 class="panel-title">회원가입 · 레벨 변경</h2>
+            <p class="panel-hint">
+                신규 가입·레벨 선택 시 D1에 자동 저장됩니다. 구글 시트에 쌓인 과거 데이터는
+                <a class="sheet-link" href="https://docs.google.com/spreadsheets/" target="_blank" rel="noopener">구글 시트</a>에서 함께 확인하세요.
+            </p>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>이름</th>
+                            <th>전화</th>
+                            <th>레벨</th>
+                            <th>추천인</th>
+                            <th>최초 가입</th>
+                            <th>최근 기록</th>
+                            <th>이벤트</th>
+                        </tr>
+                    </thead>
+                    <tbody id="members-body"></tbody>
+                </table>
+            </div>
+            <div id="members-empty" class="empty hide">회원 로그가 없습니다. (Worker 배포 후 signup_logs 테이블 적용 필요)</div>
+        </section>
+
+        <section class="panel hide tab-panel" id="exam-summary-panel" data-tab="exam">
+            <h2 class="panel-title">시험 분석 학생 목록</h2>
+            <p class="panel-hint">학생을 누르면 시험별 점수 추이를 확인할 수 있습니다.</p>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>이름</th>
+                            <th>학년</th>
+                            <th>시험 수</th>
+                            <th>최근 시험</th>
+                            <th>user_id</th>
+                        </tr>
+                    </thead>
+                    <tbody id="exam-summary-body"></tbody>
+                </table>
+            </div>
+            <div id="exam-summary-empty" class="empty hide">저장된 시험 분석이 없습니다.</div>
+        </section>
+
+        <section class="panel hide tab-panel" id="exam-detail-panel" data-tab="exam">
+            <div class="detail-head">
+                <h2 class="panel-title" style="margin:0;">점수 추이 · <span class="detail-user" id="exam-detail-label"></span></h2>
+                <button type="button" id="btn-exam-detail-close" class="btn btn-ghost">닫기</button>
+            </div>
+            <div class="chart-wrap">
+                <p style="margin:0 0 8px;font-size:0.8rem;color:#bbb;">총점 추이 (배점 대비 %)</p>
+                <canvas id="exam-trend-chart" width="360" height="140"></canvas>
+            </div>
+            <div class="table-scroll" style="margin-top:14px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>시험</th>
+                            <th>학교</th>
+                            <th>획득</th>
+                            <th>배점</th>
+                            <th>%</th>
+                            <th>기록 시각</th>
+                        </tr>
+                    </thead>
+                    <tbody id="exam-detail-body"></tbody>
+                </table>
+            </div>
+            <div id="exam-detail-empty" class="empty hide">이 학생의 시험 기록이 없습니다.</div>
+        </section>
     </div>
 
     <script>
@@ -239,6 +360,7 @@
 
             var keyEl = document.getElementById('admin-api-key');
             var statusEl = document.getElementById('status-bar');
+            var tabBar = document.getElementById('tab-bar');
             var summaryPanel = document.getElementById('summary-panel');
             var summaryBody = document.getElementById('summary-body');
             var summaryEmpty = document.getElementById('summary-empty');
@@ -246,7 +368,18 @@
             var detailBody = document.getElementById('detail-body');
             var detailEmpty = document.getElementById('detail-empty');
             var detailUserLabel = document.getElementById('detail-user-label');
+            var membersBody = document.getElementById('members-body');
+            var membersEmpty = document.getElementById('members-empty');
+            var examSummaryBody = document.getElementById('exam-summary-body');
+            var examSummaryEmpty = document.getElementById('exam-summary-empty');
+            var examDetailPanel = document.getElementById('exam-detail-panel');
+            var examDetailBody = document.getElementById('exam-detail-body');
+            var examDetailEmpty = document.getElementById('exam-detail-empty');
+            var examDetailLabel = document.getElementById('exam-detail-label');
+
             var selectedUserId = '';
+            var selectedExamUserId = '';
+            var activeTab = 'progress';
 
             keyEl.value = localStorage.getItem(STORAGE_KEY) || '';
 
@@ -287,6 +420,41 @@
                 var d = new Date(raw);
                 if (isNaN(d.getTime())) return String(raw);
                 return d.toLocaleString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+            }
+
+            function escapeHtml(s) {
+                return String(s)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;');
+            }
+
+            function fmtPhone(p) {
+                var s = String(p || '').replace(/[^0-9]/g, '');
+                if (s.length === 11) return s.slice(0, 3) + '-' + s.slice(3, 7) + '-' + s.slice(7);
+                return s || '—';
+            }
+
+            function showTab(tab) {
+                activeTab = tab;
+                tabBar.querySelectorAll('.tab-btn').forEach(function (btn) {
+                    btn.classList.toggle('active', btn.dataset.tab === tab);
+                });
+                document.querySelectorAll('.tab-panel').forEach(function (panel) {
+                    var panelTab = panel.dataset.tab;
+                    if (panelTab === tab) {
+                        panel.classList.remove('hide');
+                    } else if (panel.id === 'detail-panel' && tab === 'progress' && selectedUserId) {
+                        panel.classList.remove('hide');
+                    } else if (panel.id === 'exam-detail-panel' && tab === 'exam' && selectedExamUserId) {
+                        panel.classList.remove('hide');
+                    } else if (panel.id !== 'detail-panel' && panel.id !== 'exam-detail-panel') {
+                        panel.classList.add('hide');
+                    } else {
+                        panel.classList.add('hide');
+                    }
+                });
             }
 
             function renderSummary(items) {
@@ -332,30 +500,217 @@
                 });
             }
 
-            function escapeHtml(s) {
-                return String(s)
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;');
+            function aggregateMembers(items, users) {
+                var map = Object.create(null);
+                (items || []).forEach(function (row) {
+                    var key = String(row.phone || '') + '::' + String(row.name || '');
+                    if (!map[key]) {
+                        map[key] = {
+                            name: row.name,
+                            phone: row.phone,
+                            level: row.level || '—',
+                            referrer: row.referrer || '',
+                            first_at: row.created_at,
+                            last_at: row.created_at,
+                            last_event: row.event_type || 'signup',
+                            event_count: 0
+                        };
+                    }
+                    var m = map[key];
+                    m.event_count += 1;
+                    if (row.level) m.level = row.level;
+                    if (row.referrer && !m.referrer) m.referrer = row.referrer;
+                    if (row.created_at && (!m.first_at || row.created_at < m.first_at)) m.first_at = row.created_at;
+                    if (row.created_at && (!m.last_at || row.created_at > m.last_at)) {
+                        m.last_at = row.created_at;
+                        m.last_event = row.event_type || m.last_event;
+                        if (row.level) m.level = row.level;
+                    }
+                });
+                (users || []).forEach(function (u) {
+                    var id = String(u.id || '');
+                    var ix = id.indexOf('::');
+                    var phone = ix > 0 ? id.slice(0, ix) : id;
+                    var name = ix > 0 ? id.slice(ix + 2) : '';
+                    if (!phone) return;
+                    var key = phone + '::' + name;
+                    if (!map[key] && name) {
+                        map[key] = {
+                            name: name,
+                            phone: phone,
+                            level: '—',
+                            referrer: '',
+                            first_at: null,
+                            last_at: null,
+                            last_event: 'account',
+                            event_count: 0,
+                            from_users_only: true
+                        };
+                    }
+                });
+                return Object.keys(map).map(function (k) { return map[k]; }).sort(function (a, b) {
+                    return String(b.last_at || '').localeCompare(String(a.last_at || ''));
+                });
+            }
+
+            function renderMembers(items, users) {
+                membersBody.innerHTML = '';
+                var rows = aggregateMembers(items, users);
+                if (!rows.length) {
+                    membersEmpty.classList.remove('hide');
+                    return;
+                }
+                membersEmpty.classList.add('hide');
+                rows.forEach(function (row) {
+                    var tr = document.createElement('tr');
+                    var eventLabel = row.last_event === 'level' ? '레벨' : (row.last_event === 'signup' ? '가입' : '계정');
+                    tr.innerHTML =
+                        '<td>' + escapeHtml(row.name || '—') + '</td>' +
+                        '<td class="num">' + escapeHtml(fmtPhone(row.phone)) + '</td>' +
+                        '<td>' + escapeHtml(row.level || '—') + '</td>' +
+                        '<td>' + escapeHtml(row.referrer || '—') + '</td>' +
+                        '<td class="num">' + escapeHtml(fmtDate(row.first_at)) + '</td>' +
+                        '<td class="num">' + escapeHtml(fmtDate(row.last_at)) + '</td>' +
+                        '<td>' + escapeHtml(eventLabel) + (row.event_count > 1 ? ' (' + row.event_count + ')' : '') + '</td>';
+                    membersBody.appendChild(tr);
+                });
+            }
+
+            function renderExamSummary(items) {
+                examSummaryBody.innerHTML = '';
+                if (!items || !items.length) {
+                    examSummaryEmpty.classList.remove('hide');
+                    return;
+                }
+                examSummaryEmpty.classList.add('hide');
+                items.forEach(function (row) {
+                    var tr = document.createElement('tr');
+                    tr.className = 'exam-row' + (row.user_id === selectedExamUserId ? ' active' : '');
+                    tr.dataset.userId = row.user_id;
+                    tr.innerHTML =
+                        '<td>' + escapeHtml(row.student_name || '—') + '</td>' +
+                        '<td>' + escapeHtml(row.grade || '—') + '</td>' +
+                        '<td class="num">' + escapeHtml(String(row.exam_count != null ? row.exam_count : '—')) + '</td>' +
+                        '<td class="num">' + escapeHtml(fmtDate(row.last_exam_at)) + '</td>' +
+                        '<td class="num">' + escapeHtml(row.user_id || '—') + '</td>';
+                    tr.addEventListener('click', function () {
+                        loadExamDetail(row.user_id, row.student_name);
+                    });
+                    examSummaryBody.appendChild(tr);
+                });
+            }
+
+            function drawExamTrendChart(items) {
+                var canvas = document.getElementById('exam-trend-chart');
+                if (!canvas || !canvas.getContext) return;
+                var ctx = canvas.getContext('2d');
+                var w = canvas.width;
+                var h = canvas.height;
+                var pts = (items || []).filter(function (x) {
+                    return x && x.totalAcc != null;
+                });
+                ctx.clearRect(0, 0, w, h);
+                ctx.fillStyle = '#0a0a0a';
+                ctx.fillRect(0, 0, w, h);
+                var padL = 34, padR = 10, padT = 12, padB = 26;
+                var gw = w - padL - padR;
+                var gh = h - padT - padB;
+                if (!pts.length) {
+                    ctx.fillStyle = '#666';
+                    ctx.font = '12px sans-serif';
+                    ctx.fillText('점수 기록이 없습니다.', padL, h / 2);
+                    return;
+                }
+                var yScale = function (acc) {
+                    var v = Math.max(0, Math.min(100, Number(acc) || 0));
+                    return padT + gh - (v / 100) * gh;
+                };
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 1;
+                for (var g = 0; g <= 4; g++) {
+                    var yy = padT + (gh * g) / 4;
+                    ctx.beginPath();
+                    ctx.moveTo(padL, yy);
+                    ctx.lineTo(w - padR, yy);
+                    ctx.stroke();
+                    ctx.fillStyle = '#666';
+                    ctx.font = '10px sans-serif';
+                    ctx.fillText(String(100 - g * 25), 4, yy + 3);
+                }
+                ctx.strokeStyle = '#39ff14';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                pts.forEach(function (p, i) {
+                    var x = padL + (pts.length === 1 ? gw / 2 : (gw * i) / (pts.length - 1));
+                    var y = yScale(p.totalAcc);
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+                pts.forEach(function (p, i) {
+                    var x = padL + (pts.length === 1 ? gw / 2 : (gw * i) / (pts.length - 1));
+                    var y = yScale(p.totalAcc);
+                    ctx.fillStyle = '#39ff14';
+                    ctx.beginPath();
+                    ctx.arc(x, y, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            }
+
+            function renderExamDetail(items, label) {
+                examDetailBody.innerHTML = '';
+                examDetailLabel.textContent = label || '';
+                if (!items || !items.length) {
+                    examDetailEmpty.classList.remove('hide');
+                    drawExamTrendChart([]);
+                    return;
+                }
+                examDetailEmpty.classList.add('hide');
+                items.forEach(function (row) {
+                    var tr = document.createElement('tr');
+                    var earn = row.totalEarn != null ? row.totalEarn : '—';
+                    var pts = row.totalPts != null ? row.totalPts : '—';
+                    var acc = row.totalAcc != null ? row.totalAcc + '%' : '—';
+                    tr.innerHTML =
+                        '<td>' + escapeHtml(row.exam_type || '—') + '</td>' +
+                        '<td>' + escapeHtml(row.school_name || '—') + '</td>' +
+                        '<td class="num">' + escapeHtml(String(earn)) + '</td>' +
+                        '<td class="num">' + escapeHtml(String(pts)) + '</td>' +
+                        '<td class="num">' + escapeHtml(acc) + '</td>' +
+                        '<td class="num">' + escapeHtml(fmtDate(row.created_at)) + '</td>';
+                    examDetailBody.appendChild(tr);
+                });
+                drawExamTrendChart(items);
             }
 
             function highlightSelected() {
                 summaryBody.querySelectorAll('.user-row').forEach(function (tr) {
                     tr.classList.toggle('active', tr.dataset.userId === selectedUserId);
                 });
+                examSummaryBody.querySelectorAll('.exam-row').forEach(function (tr) {
+                    tr.classList.toggle('active', tr.dataset.userId === selectedExamUserId);
+                });
             }
 
             async function loadSummary() {
-                setStatus('불러오는 중…');
-                try {
-                    var data = await adminFetch('/api/admin/daily-session');
-                    summaryPanel.classList.remove('hide');
-                    renderSummary(data.items || []);
-                    setStatus('유저 ' + (data.items || []).length + '명 · ' + fmtDate(new Date()), 'ok');
-                } catch (err) {
-                    setStatus(err.message || String(err), 'error');
-                }
+                var data = await adminFetch('/api/admin/daily-session');
+                summaryPanel.classList.remove('hide');
+                renderSummary(data.items || []);
+                return data;
+            }
+
+            async function loadMembers() {
+                var data = await adminFetch('/api/admin/members');
+                document.getElementById('members-panel').classList.remove('hide');
+                renderMembers(data.items || [], data.users || []);
+                return data;
+            }
+
+            async function loadExamSummary() {
+                var data = await adminFetch('/api/admin/exam-trends');
+                document.getElementById('exam-summary-panel').classList.remove('hide');
+                renderExamSummary(data.items || []);
+                return data;
             }
 
             async function loadDetail(userId) {
@@ -366,18 +721,51 @@
                 detailBody.innerHTML = '';
                 detailEmpty.classList.add('hide');
                 setStatus('Day 상세 불러오는 중… (' + userId + ')');
+                var data = await adminFetch('/api/admin/daily-session?user_id=' + encodeURIComponent(userId));
+                renderDetail(data.items || []);
+                setStatus('Day ' + (data.items || []).length + '건 · ' + userId, 'ok');
+            }
+
+            async function loadExamDetail(userId, studentName) {
+                selectedExamUserId = userId;
+                highlightSelected();
+                examDetailPanel.classList.remove('hide');
+                examDetailBody.innerHTML = '';
+                examDetailEmpty.classList.add('hide');
+                setStatus('시험 추이 불러오는 중… (' + (studentName || userId) + ')');
+                var data = await adminFetch('/api/admin/exam-trends?user_id=' + encodeURIComponent(userId));
+                renderExamDetail(data.items || [], (studentName || userId) + ' · ' + (data.items || []).length + '회');
+                setStatus('시험 ' + (data.items || []).length + '건 · ' + (studentName || userId), 'ok');
+            }
+
+            async function loadAll() {
+                setStatus('불러오는 중…');
                 try {
-                    var data = await adminFetch('/api/admin/daily-session?user_id=' + encodeURIComponent(userId));
-                    renderDetail(data.items || []);
-                    setStatus('Day ' + (data.items || []).length + '건 · ' + userId, 'ok');
+                    tabBar.classList.remove('hide');
+                    var results = await Promise.all([
+                        loadSummary(),
+                        loadMembers(),
+                        loadExamSummary()
+                    ]);
+                    showTab(activeTab);
+                    var progressN = (results[0].items || []).length;
+                    var memberN = aggregateMembers(results[1].items || [], results[1].users || []).length;
+                    var examN = (results[2].items || []).length;
+                    setStatus('진도 ' + progressN + '명 · 회원 ' + memberN + '명 · 시험학생 ' + examN + '명 · ' + fmtDate(new Date()), 'ok');
                 } catch (err) {
                     setStatus(err.message || String(err), 'error');
                 }
             }
 
-            document.getElementById('btn-login').addEventListener('click', loadSummary);
+            tabBar.querySelectorAll('.tab-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    showTab(btn.dataset.tab);
+                });
+            });
+
+            document.getElementById('btn-login').addEventListener('click', loadAll);
             keyEl.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter') loadSummary();
+                if (e.key === 'Enter') loadAll();
             });
             keyEl.addEventListener('change', persistKey);
             document.getElementById('btn-detail-close').addEventListener('click', function () {
@@ -385,8 +773,13 @@
                 highlightSelected();
                 detailPanel.classList.add('hide');
             });
+            document.getElementById('btn-exam-detail-close').addEventListener('click', function () {
+                selectedExamUserId = '';
+                highlightSelected();
+                examDetailPanel.classList.add('hide');
+            });
 
-            if (getApiKey()) loadSummary();
+            if (getApiKey()) loadAll();
         })();
     </script>
 </body>

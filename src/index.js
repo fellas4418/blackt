@@ -34,6 +34,39 @@ function normalizeName(raw) {
   return String(raw || "").trim().replace(/\s+/g, " ").toLowerCase();
 }
 
+async function insertSignupLog(env, row) {
+  const name = String(row.name || "").trim();
+  const phone = normalizePhone(row.phone);
+  if (!name || !phone) return;
+  const userId = String(row.userId || row.user_id || "").trim() || `${phone}::${normalizeName(name)}`;
+  const level = String(row.level || "").trim() || null;
+  const referrer = String(row.referrer || "").trim() || null;
+  const eventType = String(row.eventType || row.event_type || "signup").trim() || "signup";
+  await env.DB.prepare(
+    `INSERT INTO signup_logs (user_id, name, phone, level, referrer, event_type, created_at)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, datetime('now'))`
+  )
+    .bind(userId, name, phone, level, referrer, eventType)
+    .run();
+}
+
+function parseExamSessionTotals(sessionJson) {
+  try {
+    const s = typeof sessionJson === "string" ? JSON.parse(sessionJson) : sessionJson;
+    const t = (s && s.totals) || {};
+    const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : null);
+    return {
+      totalAcc: num(t.totalAcc),
+      totalEarn: num(t.totalEarn),
+      totalPts: num(t.totalPts),
+      mcEarn: num(t.mcEarn),
+      esEarn: num(t.esEarn),
+    };
+  } catch {
+    return { totalAcc: null, totalEarn: null, totalPts: null, mcEarn: null, esEarn: null };
+  }
+}
+
 async function handleSignup(env, body) {
   const id = String(body.id || "").trim();
   const password = String(body.password || "");
@@ -119,6 +152,17 @@ async function handleSimpleAuth(env, body) {
     .bind(userId, passwordHash)
     .run();
 
+  try {
+    await insertSignupLog(env, {
+      userId,
+      name,
+      phone,
+      level: String(body.level || "미정(가입완료)").trim(),
+      referrer: String(body.referrer || "").trim(),
+      eventType: "signup",
+    });
+  } catch (e) {}
+
   return json({
     ok: true,
     message: "simple_auth_success",
@@ -126,6 +170,29 @@ async function handleSimpleAuth(env, body) {
     auth_password: password,
     is_new_user: true,
   });
+}
+
+async function handleSignupLog(env, body) {
+  const name = String(body.name || "").trim();
+  const phone = normalizePhone(body.phone);
+  if (!name || !phone) return json({ error: "name/phone이 필요합니다." }, 400);
+  const level = String(body.level || "").trim();
+  if (!level) return json({ error: "level이 필요합니다." }, 400);
+  const userId = `${phone}::${normalizeName(name)}`;
+  const eventType = String(body.event_type || body.eventType || "level").trim() || "level";
+  try {
+    await insertSignupLog(env, {
+      userId,
+      name,
+      phone,
+      level,
+      referrer: String(body.referrer || "").trim(),
+      eventType,
+    });
+  } catch (e) {
+    return json({ error: "signup_log_failed" }, 500);
+  }
+  return json({ ok: true });
 }
 
 async function handleSyncSave(env, body) {
@@ -864,6 +931,57 @@ async function handleExamReportAdminComment(env, request, body) {
   return json({ ok: true, id });
 }
 
+async function handleAdminMembers(env, request) {
+  if (!verifyPaymentSecret(env, request, {})) return json({ error: "unauthorized" }, 401);
+  let logRows = [];
+  try {
+    const rows = await env.DB.prepare(
+      `SELECT id, user_id, name, phone, level, referrer, event_type, created_at
+       FROM signup_logs ORDER BY datetime(created_at) DESC LIMIT 500`
+    ).all();
+    logRows = rows.results || [];
+  } catch (e) {
+    logRows = [];
+  }
+  const users = await env.DB.prepare("SELECT id, is_premium FROM users ORDER BY id ASC").all();
+  return json({ ok: true, items: logRows, users: users.results || [] });
+}
+
+async function handleAdminExamTrends(env, request, url) {
+  if (!verifyPaymentSecret(env, request, {})) return json({ error: "unauthorized" }, 401);
+  const userId = String(url.searchParams.get("user_id") || "").trim();
+  if (userId) {
+    const rows = await env.DB.prepare(
+      `SELECT id, student_name, grade, school_name, exam_type, session_json, created_at
+       FROM exam_analysis WHERE user_id = ?1 ORDER BY datetime(created_at) ASC`
+    )
+      .bind(userId)
+      .all();
+    const items = (rows.results || []).map((r) => ({
+      id: r.id,
+      student_name: r.student_name,
+      grade: r.grade,
+      school_name: r.school_name,
+      exam_type: r.exam_type,
+      created_at: r.created_at,
+      ...parseExamSessionTotals(r.session_json),
+    }));
+    return json({ ok: true, user_id: userId, items });
+  }
+  const rows = await env.DB.prepare(
+    `SELECT user_id,
+      MAX(student_name) AS student_name,
+      MAX(grade) AS grade,
+      COUNT(*) AS exam_count,
+      MAX(created_at) AS last_exam_at
+     FROM exam_analysis
+     GROUP BY user_id
+     ORDER BY datetime(MAX(created_at)) DESC
+     LIMIT 120`
+  ).all();
+  return json({ ok: true, items: rows.results || [] });
+}
+
 async function handleExamReportList(env, body) {
   const userId = String(body.user_id || "").trim();
   const password = String(body.password || "");
@@ -955,6 +1073,9 @@ export default {
       if (request.method === "POST" && path === "/api/auth/simple") {
         return handleSimpleAuth(env, await request.json());
       }
+      if (request.method === "POST" && path === "/api/signup/log") {
+        return handleSignupLog(env, await request.json());
+      }
       if (request.method === "POST" && path === "/api/sync/save") {
         return handleSyncSave(env, await request.json());
       }
@@ -1002,6 +1123,12 @@ export default {
       }
       if (request.method === "GET" && path === "/api/admin/daily-session") {
         return handleAdminDailySession(env, request, url);
+      }
+      if (request.method === "GET" && path === "/api/admin/members") {
+        return handleAdminMembers(env, request);
+      }
+      if (request.method === "GET" && path === "/api/admin/exam-trends") {
+        return handleAdminExamTrends(env, request, url);
       }
       if (request.method === "POST" && path === "/api/exam-report/admin/list") {
         return handleExamReportAdminList(env, request, await request.json());

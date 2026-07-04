@@ -1461,7 +1461,12 @@
                     const authRes = await fetch(base + '/api/auth/simple', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name: name, phone: phone })
+                        body: JSON.stringify({
+                            name: name,
+                            phone: phone,
+                            level: '미정(가입완료)',
+                            referrer: referredBy || ''
+                        })
                     });
                     const authData = await authRes.json().catch(function () { return {}; });
                     if (authRes.ok && authData.ok && authData.is_new_user === false) {
@@ -1516,6 +1521,13 @@
                 formData.append("level", levelText);
 
                 fetch(GOOGLE_SHEET_URL, { method: 'POST', body: formData });
+
+                var base = INDEX_STREAK_WORKER.replace(/\/$/, '');
+                fetch(base + '/api/signup/log', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: name, phone: phone, level: levelText, event_type: 'level' })
+                }).catch(function () {});
             }
         }
 
