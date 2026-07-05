@@ -8868,10 +8868,34 @@
             if (selectAll) selectAll.checked = true;
         }
 
+        let passagePdfChatHistoryCache = null;
+        let passagePdfChatHistoryLoading = false;
+        let passagePdfChatHistoryError = '';
+
+        function primePassagePdfChatHistory() {
+            passagePdfChatHistoryCache = null;
+            passagePdfChatHistoryError = '';
+            passagePdfChatHistoryLoading = false;
+            if (!authUserId || !authPassword) return;
+            passagePdfChatHistoryLoading = true;
+            passagePdfFetchChatHistoryAsync()
+                .then(function (items) {
+                    passagePdfChatHistoryCache = Array.isArray(items) ? items : [];
+                })
+                .catch(function (e) {
+                    passagePdfChatHistoryError = (e && e.message) || '질문 기록 불러오기 실패';
+                    passagePdfChatHistoryCache = [];
+                })
+                .finally(function () {
+                    passagePdfChatHistoryLoading = false;
+                });
+        }
+
         function openPassagePdfSelectModal() {
             const modal = document.getElementById('passage-pdf-modal');
             if (!modal) return;
             renderPassagePdfChecklist();
+            primePassagePdfChatHistory();
             modal.style.display = 'flex';
             modal.setAttribute('aria-hidden', 'false');
         }
@@ -9127,16 +9151,71 @@
             if (docTitle) document.title = String(docTitle);
             document.body.classList.add('trigger-print-active');
 
+            let cleanedPrint = false;
+            let cleanupTimer = null;
+            let fallbackTimer = null;
+            let printMedia = null;
+            let printMediaHandler = null;
+
+            const removePrintMediaListener = function () {
+                if (!printMedia || !printMediaHandler) return;
+                try {
+                    if (printMedia.removeEventListener) {
+                        printMedia.removeEventListener('change', printMediaHandler);
+                    } else if (printMedia.removeListener) {
+                        printMedia.removeListener(printMediaHandler);
+                    }
+                } catch (e) {}
+                printMedia = null;
+                printMediaHandler = null;
+            };
+
             const cleanupPrint = function () {
+                if (cleanedPrint) return;
+                cleanedPrint = true;
+                if (cleanupTimer) clearTimeout(cleanupTimer);
+                if (fallbackTimer) clearTimeout(fallbackTimer);
                 const c = document.getElementById('trigger-print-area');
                 const s = document.getElementById('trigger-print-area-style');
                 if (c) c.remove();
                 if (s) s.remove();
                 document.body.classList.remove('trigger-print-active');
                 document.title = originalTitle;
-                window.removeEventListener('afterprint', cleanupPrint);
+                window.removeEventListener('afterprint', onAfterPrint);
+                window.removeEventListener('focus', onPrintReturn);
+                document.removeEventListener('visibilitychange', onVisibilityChange);
+                removePrintMediaListener();
             };
-            window.addEventListener('afterprint', cleanupPrint);
+            const scheduleCleanupPrint = function (delay) {
+                if (cleanedPrint) return;
+                if (cleanupTimer) clearTimeout(cleanupTimer);
+                cleanupTimer = setTimeout(cleanupPrint, delay);
+            };
+            const onAfterPrint = function () {
+                scheduleCleanupPrint(60000);
+            };
+            const onPrintReturn = function () {
+                scheduleCleanupPrint(1200);
+            };
+            const onVisibilityChange = function () {
+                if (document.visibilityState !== 'hidden') onPrintReturn();
+            };
+            window.addEventListener('afterprint', onAfterPrint);
+            window.addEventListener('focus', onPrintReturn);
+            document.addEventListener('visibilitychange', onVisibilityChange);
+            try {
+                if (window.matchMedia) {
+                    printMedia = window.matchMedia('print');
+                    printMediaHandler = function (e) {
+                        if (!e.matches) onPrintReturn();
+                    };
+                    if (printMedia.addEventListener) {
+                        printMedia.addEventListener('change', printMediaHandler);
+                    } else if (printMedia.addListener) {
+                        printMedia.addListener(printMediaHandler);
+                    }
+                }
+            } catch (e) {}
 
             setTimeout(function () {
                 try {
@@ -9146,7 +9225,7 @@
                     alert('인쇄(PDF 저장) 창을 열지 못했어요. 브라우저 메뉴에서 「인쇄 → PDF로 저장」을 이용해 주세요.');
                     return;
                 }
-                setTimeout(cleanupPrint, 4000);
+                fallbackTimer = setTimeout(cleanupPrint, 120000);
             }, 120);
         }
 
@@ -9220,7 +9299,7 @@
             triggerInAppPrint(html, '지문 분석 결과');
         }
 
-        async function runPassagePdfExport() {
+        function runPassagePdfExport() {
             const checked = Array.prototype.slice
                 .call(document.querySelectorAll('.passage-pdf-item-cb:checked'))
                 .map(function (el) {
@@ -9259,12 +9338,13 @@
             if (includeChat) {
                 if (!authUserId || !authPassword) {
                     chatNote = '로그인(이름·전화번호) 후에만 질문 기록을 불러올 수 있습니다.';
+                } else if (Array.isArray(passagePdfChatHistoryCache)) {
+                    chatItems = passagePdfChatHistoryCache;
+                    chatNote = passagePdfChatHistoryError;
+                } else if (passagePdfChatHistoryLoading) {
+                    chatNote = '질문 기록을 불러오는 중이라 이번 PDF에는 포함하지 못했습니다. 잠시 후 다시 열면 포함됩니다.';
                 } else {
-                    try {
-                        chatItems = await passagePdfFetchChatHistoryAsync();
-                    } catch (e) {
-                        chatNote = (e && e.message) || '질문 기록 불러오기 실패';
-                    }
+                    chatNote = passagePdfChatHistoryError || '질문 기록을 아직 불러오지 못했습니다.';
                 }
             }
             if (runBtn) {
