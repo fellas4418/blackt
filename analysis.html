@@ -2279,8 +2279,13 @@
         const workerOverride = (params.get('worker') || '').trim();
         const WORKER_URL = (workerOverride ? workerOverride.replace(/\/$/, '') + '/' : 'https://trigger-ocr-api.ohryee.workers.dev/');
         const TRIGGER_IMG_DIR = '로고, 이미지/';
+        /** 카톡 공유 링크 고정 도메인 (다른 origin 사용 금지) */
+        const KAKAO_SHARE_ORIGIN = 'https://blackt.pages.dev';
+        const EXAM_KAKAO_SHARE_QUERY = 'path=analysis.html&zone=exam';
+        /** 카카오 feed 링크 최대 길이 (초과 시 요청 실패) */
+        const EXAM_KAKAO_MAX_LINK_LEN = 1900;
         function triggerPagesImgUrl(fileName) {
-            return 'https://blackt.pages.dev/' + encodeURI(TRIGGER_IMG_DIR + fileName);
+            return KAKAO_SHARE_ORIGIN + '/' + encodeURI(TRIGGER_IMG_DIR + fileName);
         }
         function buildAnalysisContextTrim(searchParams) {
             const parts = ['grade', 'type', 'detail'].map(function (k) {
@@ -8627,38 +8632,107 @@
             });
         }
 
+        function examRptBuildSharePayload() {
+            const t = examRptComputeTotals();
+            const school = (document.getElementById('exam-rpt-school') && document.getElementById('exam-rpt-school').value || '').trim();
+            const examSel = document.getElementById('exam-rpt-exam-type');
+            const examLabel = examSel && examSel.options[examSel.selectedIndex] ? examSel.options[examSel.selectedIndex].text : '';
+            const name = (localStorage.getItem('trigger_name') || '').trim();
+            const grade = ((localStorage.getItem('trigger_saved_exam_grade') || '').trim() || (typeof params !== 'undefined' && params.get('grade')) || '').trim();
+            const r1 = function (v) { return Math.round((Number(v) || 0) * 10) / 10; };
+            const stats = examRptCollectReasonStats();
+            const payload = {
+                n: String(name || '학생').slice(0, 24),
+                g: String(grade || '').slice(0, 8),
+                s: String(school || '').slice(0, 32),
+                x: String(examLabel || '').slice(0, 24),
+                mc: [t.mcCnt, t.mcRightCnt, r1(t.mcEarn), r1(t.mcPts)],
+                es: [r1(t.esEarn), r1(t.esPts)],
+                t: r1(t.totalAcc)
+            };
+            const diag = examRptBuildDiagnosisSharePayload();
+            if (diag) payload.d = diag;
+            if (stats.entries.length) {
+                payload.rs = stats.entries.map(function (e) {
+                    return [String(e.label || '').slice(0, 14), e.count];
+                });
+            }
+            if (stats.wrongNums && stats.wrongNums.length) {
+                payload.wq = stats.wrongNums.slice(0, 40);
+            }
+            return payload;
+        }
+
+        function examRptPayloadToEncoded(payload) {
+            const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+            return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
+
+        function examRptShareEntryUrl(erEncoded) {
+            let u = KAKAO_SHARE_ORIGIN + '/share-entry.html?' + EXAM_KAKAO_SHARE_QUERY;
+            if (erEncoded) u += '&er=' + erEncoded;
+            return u;
+        }
+
+        function examRptTrimSharePayloadForKakao(payload) {
+            const p = JSON.parse(JSON.stringify(payload));
+            if (p.d) {
+                p.d.s = String(p.d.s || '').trim().slice(0, 120);
+                p.d.p = Array.isArray(p.d.p)
+                    ? p.d.p
+                          .map(function (tip) {
+                              return String(tip || '').trim().slice(0, 80);
+                          })
+                          .filter(Boolean)
+                          .slice(0, 2)
+                    : [];
+                if (!p.d.s && !p.d.p.length) delete p.d;
+            }
+            if (p.rs) p.rs = p.rs.slice(0, 6);
+            if (p.wq) p.wq = p.wq.slice(0, 15);
+            return p;
+        }
+
+        function examRptBasicSharePayload(payload) {
+            return {
+                n: payload.n,
+                g: payload.g,
+                s: payload.s,
+                x: payload.x,
+                mc: payload.mc,
+                es: payload.es,
+                t: payload.t
+            };
+        }
+
         /** 카톡 공유 URL에 실어 보낼 시험 요약을 URL-safe base64로 인코딩 (링크만 봐도 상대방이 결과를 보게 하기 위함) */
-        function examRptEncodeShareData() {
+        function examRptEncodeShareData(opts) {
             try {
-                const t = examRptComputeTotals();
-                const school = (document.getElementById('exam-rpt-school') && document.getElementById('exam-rpt-school').value || '').trim();
-                const examSel = document.getElementById('exam-rpt-exam-type');
-                const examLabel = examSel && examSel.options[examSel.selectedIndex] ? examSel.options[examSel.selectedIndex].text : '';
-                const name = (localStorage.getItem('trigger_name') || '').trim();
-                const grade = ((localStorage.getItem('trigger_saved_exam_grade') || '').trim() || (typeof params !== 'undefined' && params.get('grade')) || '').trim();
-                const r1 = function (v) { return Math.round((Number(v) || 0) * 10) / 10; };
-                const stats = examRptCollectReasonStats();
-                const payload = {
-                    n: String(name || '학생').slice(0, 24),
-                    g: String(grade || '').slice(0, 8),
-                    s: String(school || '').slice(0, 32),
-                    x: String(examLabel || '').slice(0, 24),
-                    mc: [t.mcCnt, t.mcRightCnt, r1(t.mcEarn), r1(t.mcPts)],
-                    es: [r1(t.esEarn), r1(t.esPts)],
-                    t: r1(t.totalAcc)
-                };
-                const diag = examRptBuildDiagnosisSharePayload();
-                if (diag) payload.d = diag;
-                if (stats.entries.length) {
-                    payload.rs = stats.entries.map(function (e) {
-                        return [String(e.label || '').slice(0, 14), e.count];
-                    });
+                const forKakao = !!(opts && opts.forKakao);
+                const payload = examRptBuildSharePayload();
+                if (!forKakao) return examRptPayloadToEncoded(payload);
+
+                const variants = [
+                    payload,
+                    examRptTrimSharePayloadForKakao(payload),
+                    (function () {
+                        const p = examRptTrimSharePayloadForKakao(payload);
+                        delete p.d;
+                        return p;
+                    })(),
+                    (function () {
+                        const p = examRptTrimSharePayloadForKakao(payload);
+                        delete p.d;
+                        delete p.wq;
+                        return p;
+                    })(),
+                    examRptBasicSharePayload(payload)
+                ];
+                for (let i = 0; i < variants.length; i++) {
+                    const enc = examRptPayloadToEncoded(variants[i]);
+                    if (examRptShareEntryUrl(enc).length <= EXAM_KAKAO_MAX_LINK_LEN) return enc;
                 }
-                if (stats.wrongNums && stats.wrongNums.length) {
-                    payload.wq = stats.wrongNums.slice(0, 40);
-                }
-                const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-                return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+                return examRptPayloadToEncoded(examRptBasicSharePayload(payload));
             } catch (e) {
                 return '';
             }
@@ -8679,11 +8753,10 @@
 
         function examRptShareKakao() {
             const userName = (localStorage.getItem('trigger_name') || '').trim() || '학생';
-            const erEncoded = examRptEncodeShareData();
-            let shareUrl =
-                window.location.origin +
-                '/share-entry.html?path=analysis.html&zone=exam';
-            if (erEncoded) shareUrl += '&er=' + erEncoded;
+            const erForKakao = examRptEncodeShareData({ forKakao: true });
+            const erFull = examRptEncodeShareData();
+            const shareUrl = examRptShareEntryUrl(erForKakao);
+            const clipboardUrl = examRptShareEntryUrl(erFull) || shareUrl;
             const school = (document.getElementById('exam-rpt-school') && document.getElementById('exam-rpt-school').value || '').trim() || '—';
             const examSel = document.getElementById('exam-rpt-exam-type');
             const examLabel = examSel && examSel.options[examSel.selectedIndex] ? examSel.options[examSel.selectedIndex].text : '시험';
@@ -8691,7 +8764,7 @@
                 ((localStorage.getItem('trigger_saved_exam_grade') || '').trim() || params.get('grade') || '').trim() || '—';
             const t = examRptComputeTotals();
             const fmt = examRptFmt1;
-            const desc =
+            let desc =
                 '학교: ' +
                 school +
                 '\n학년: ' +
@@ -8715,17 +8788,30 @@
                 '\n전체 배점 대비 ' +
                 fmt(t.totalAcc) +
                 '%\n\n링크를 열면 결과가 바로 보여요.';
+            if (desc.length > 200) desc = desc.slice(0, 197) + '...';
 
             const alertCopied = function () {
                 alert('✅ 공유 링크를 복사했어요.\n카톡 채팅창에 붙여넣어 부모님께 보내 주세요.');
             };
             const alertCopyFailed = function () {
-                alert('링크를 자동으로 복사하지 못했어요. 아래 주소를 직접 복사해 주세요.\n\n' + shareUrl);
+                alert('링크를 자동으로 복사하지 못했어요. 아래 주소를 직접 복사해 주세요.\n\n' + clipboardUrl);
             };
             const runClipboardFallback = function () {
-                copyTextForShareFallback(shareUrl).then(function (ok) {
+                copyTextForShareFallback(clipboardUrl).then(function (ok) {
                     return ok ? alertCopied() : alertCopyFailed();
                 });
+            };
+            const runNativeShare = function () {
+                if (!navigator.share) return Promise.resolve(false);
+                const title = '📊 [' + userName + ']님 시험 분석 리포트';
+                return navigator
+                    .share({ title: title, text: desc + '\n\n' + clipboardUrl, url: clipboardUrl })
+                    .then(function () {
+                        return true;
+                    })
+                    .catch(function () {
+                        return false;
+                    });
             };
 
             const payload = {
@@ -8739,27 +8825,33 @@
                 buttons: [{ title: '시험 결과 바로 보기', link: { mobileWebUrl: shareUrl, webUrl: shareUrl } }]
             };
 
+            const runFallbackChain = function () {
+                runNativeShare().then(function (ok) {
+                    if (!ok) runClipboardFallback();
+                });
+            };
+
             const tryKakaoSend = function () {
                 try {
                     if (typeof Kakao === 'undefined' || !Kakao) {
-                        runClipboardFallback();
+                        runFallbackChain();
                         return;
                     }
                     if (!Kakao.isInitialized()) {
                         Kakao.init('fbb1520306ffaad0a882e993109a801c');
                     }
                     if (!Kakao.isInitialized()) {
-                        runClipboardFallback();
+                        runFallbackChain();
                         return;
                     }
                     const ret = Kakao.Share.sendDefault(payload);
                     if (ret && typeof ret.then === 'function') {
                         ret.catch(function () {
-                            runClipboardFallback();
+                            runFallbackChain();
                         });
                     }
                 } catch (e) {
-                    runClipboardFallback();
+                    runFallbackChain();
                 }
             };
 
@@ -8775,7 +8867,7 @@
                     tryKakaoSend();
                 } else {
                     inject.addEventListener('load', tryKakaoSend, { once: true });
-                    inject.addEventListener('error', runClipboardFallback, { once: true });
+                    inject.addEventListener('error', runFallbackChain, { once: true });
                 }
                 return;
             }
@@ -8787,7 +8879,7 @@
                 tryKakaoSend();
             };
             inject.onerror = function () {
-                runClipboardFallback();
+                runFallbackChain();
             };
             document.head.appendChild(inject);
         }
