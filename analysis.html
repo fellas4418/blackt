@@ -9879,10 +9879,11 @@
             try {
                 const q = new URLSearchParams(location.search);
                 if ((q.get('zone') || '').trim().toLowerCase() !== 'exam') return;
+                const hasSharedEr = !!(q.get('er') || '').trim();
                 setTimeout(function () {
                     try {
                         focusExamAnalysisSection();
-                        openExamReportWorkspace();
+                        if (!hasSharedEr) openExamReportWorkspace();
                     } catch (e) {}
                 }, 280);
             } catch (e) {}
