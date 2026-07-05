@@ -2282,8 +2282,8 @@
         /** 카톡 공유 링크 고정 도메인 (다른 origin 사용 금지) */
         const KAKAO_SHARE_ORIGIN = 'https://blackt.pages.dev';
         const EXAM_KAKAO_SHARE_QUERY = 'path=analysis.html&zone=exam';
-        /** 카카오 feed 링크 최대 길이 (초과 시 요청 실패) */
-        const EXAM_KAKAO_MAX_LINK_LEN = 1900;
+        /** 카카오 feed 링크 최대 길이 (초과 시 sharer.kakao.com 요청 실패) */
+        const EXAM_KAKAO_MAX_LINK_LEN = 480;
         function triggerPagesImgUrl(fileName) {
             return KAKAO_SHARE_ORIGIN + '/' + encodeURI(TRIGGER_IMG_DIR + fileName);
         }
@@ -8713,29 +8713,30 @@
                 if (!forKakao) return examRptPayloadToEncoded(payload);
 
                 const variants = [
-                    payload,
-                    examRptTrimSharePayloadForKakao(payload),
+                    examRptBasicSharePayload(payload),
                     (function () {
-                        const p = examRptTrimSharePayloadForKakao(payload);
-                        delete p.d;
+                        const p = examRptBasicSharePayload(payload);
+                        delete p.s;
+                        delete p.x;
                         return p;
-                    })(),
-                    (function () {
-                        const p = examRptTrimSharePayloadForKakao(payload);
-                        delete p.d;
-                        delete p.wq;
-                        return p;
-                    })(),
-                    examRptBasicSharePayload(payload)
+                    })()
                 ];
                 for (let i = 0; i < variants.length; i++) {
                     const enc = examRptPayloadToEncoded(variants[i]);
                     if (examRptShareEntryUrl(enc).length <= EXAM_KAKAO_MAX_LINK_LEN) return enc;
                 }
-                return examRptPayloadToEncoded(examRptBasicSharePayload(payload));
+                return '';
             } catch (e) {
                 return '';
             }
+        }
+
+        function examRptKakaoFeedText(value, maxLen) {
+            return String(value == null ? '' : value)
+                .replace(/[\u2014\u2013\u2212—–]/g, '-')
+                .replace(/\s+/g, ' ')
+                .trim()
+                .slice(0, maxLen || 200);
         }
 
         function examRptDecodeShareData(s) {
@@ -8752,43 +8753,46 @@
         }
 
         function examRptShareKakao() {
-            const userName = (localStorage.getItem('trigger_name') || '').trim() || '학생';
+            const userName = examRptKakaoFeedText(localStorage.getItem('trigger_name') || '학생', 24) || '학생';
             const erForKakao = examRptEncodeShareData({ forKakao: true });
             const erFull = examRptEncodeShareData();
-            const shareUrl = examRptShareEntryUrl(erForKakao);
+            let shareUrl = examRptShareEntryUrl(erForKakao);
+            if (examRptShareEntryUrl(erForKakao).length > EXAM_KAKAO_MAX_LINK_LEN) {
+                shareUrl = examRptShareEntryUrl('');
+            }
             const clipboardUrl = examRptShareEntryUrl(erFull) || shareUrl;
-            const school = (document.getElementById('exam-rpt-school') && document.getElementById('exam-rpt-school').value || '').trim() || '—';
+            const school = examRptKakaoFeedText(
+                (document.getElementById('exam-rpt-school') && document.getElementById('exam-rpt-school').value) || '',
+                32
+            ) || '-';
             const examSel = document.getElementById('exam-rpt-exam-type');
-            const examLabel = examSel && examSel.options[examSel.selectedIndex] ? examSel.options[examSel.selectedIndex].text : '시험';
-            const grade =
-                ((localStorage.getItem('trigger_saved_exam_grade') || '').trim() || params.get('grade') || '').trim() || '—';
+            const examLabel = examRptKakaoFeedText(
+                examSel && examSel.options[examSel.selectedIndex] ? examSel.options[examSel.selectedIndex].text : '시험',
+                24
+            );
+            const grade = examRptKakaoFeedText(
+                (localStorage.getItem('trigger_saved_exam_grade') || '').trim() || params.get('grade') || '',
+                8
+            ) || '-';
             const t = examRptComputeTotals();
             const fmt = examRptFmt1;
             let desc =
                 '학교: ' +
                 school +
-                '\n학년: ' +
+                ' · 학년: ' +
                 grade +
-                '\n시험: ' +
+                ' · 시험: ' +
                 examLabel +
-                '\n객관식 ' +
+                ' · 객관식 ' +
                 t.mcRightCnt +
                 '/' +
                 t.mcCnt +
-                ' 정답 (' +
+                ' 정답(' +
                 fmt(t.mcAccByCount) +
-                '%)\n획득점수 객관 ' +
-                fmt(t.mcEarn) +
-                '/' +
-                fmt(t.mcPts) +
-                ' · 서술 ' +
-                fmt(t.esEarn) +
-                '/' +
-                fmt(t.esPts) +
-                '\n전체 배점 대비 ' +
+                '%) · 전체 ' +
                 fmt(t.totalAcc) +
-                '%\n\n링크를 열면 결과가 바로 보여요.';
-            if (desc.length > 200) desc = desc.slice(0, 197) + '...';
+                '% · 링크를 열면 결과가 바로 보여요.';
+            desc = examRptKakaoFeedText(desc, 200);
 
             const alertCopied = function () {
                 alert('✅ 공유 링크를 복사했어요.\n카톡 채팅창에 붙여넣어 부모님께 보내 주세요.');
@@ -8803,7 +8807,7 @@
             };
             const runNativeShare = function () {
                 if (!navigator.share) return Promise.resolve(false);
-                const title = '📊 [' + userName + ']님 시험 분석 리포트';
+                const title = '[' + userName + ']님 시험 분석 리포트';
                 return navigator
                     .share({ title: title, text: desc + '\n\n' + clipboardUrl, url: clipboardUrl })
                     .then(function () {
@@ -8814,15 +8818,19 @@
                     });
             };
 
+            const kakaoTitle = '[' + userName + ']님 시험 분석 리포트';
+            const kakaoImageUrl = triggerPagesImgUrl('share-exam-report.png') + '?v=4';
             const payload = {
                 objectType: 'feed',
                 content: {
-                    title: '📊 [' + userName + ']님 시험 분석 리포트',
+                    title: kakaoTitle,
                     description: desc,
-                    imageUrl: triggerPagesImgUrl('share-exam-report.png') + '?v=3',
+                    imageUrl: kakaoImageUrl,
+                    imageWidth: 800,
+                    imageHeight: 400,
                     link: { mobileWebUrl: shareUrl, webUrl: shareUrl }
                 },
-                buttons: [{ title: '시험 결과 바로 보기', link: { mobileWebUrl: shareUrl, webUrl: shareUrl } }]
+                buttons: [{ title: '시험 결과 보기', link: { mobileWebUrl: shareUrl, webUrl: shareUrl } }]
             };
 
             const runFallbackChain = function () {
@@ -8830,6 +8838,8 @@
                     if (!ok) runClipboardFallback();
                 });
             };
+
+            const copiedInBg = copyTextForShareFallback(clipboardUrl);
 
             const tryKakaoSend = function () {
                 try {
@@ -8846,9 +8856,13 @@
                     }
                     const ret = Kakao.Share.sendDefault(payload);
                     if (ret && typeof ret.then === 'function') {
-                        ret.catch(function () {
-                            runFallbackChain();
-                        });
+                        ret
+                            .then(function () {
+                                copiedInBg.then(function () {});
+                            })
+                            .catch(function () {
+                                runFallbackChain();
+                            });
                     }
                 } catch (e) {
                     runFallbackChain();
