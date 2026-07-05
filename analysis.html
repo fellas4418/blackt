@@ -9071,83 +9071,101 @@
             );
         }
 
+        function triggerInAppPrintEnhanceHtml(fullHtml) {
+            const bar =
+                '<div class="trigger-print-bar no-print" style="position:fixed;bottom:0;left:0;right:0;padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px));background:rgba(17,17,17,0.96);color:#fff;text-align:center;z-index:99999;box-shadow:0 -4px 24px rgba(0,0,0,0.35);">' +
+                '<button type="button" onclick="window.print()" style="width:100%;max-width:420px;padding:14px 18px;border:none;border-radius:12px;background:#00f3ff;color:#000;font-weight:bold;font-size:1rem;cursor:pointer;">📄 PDF 저장 · 인쇄</button>' +
+                '<p style="margin:8px 0 0;font-size:0.78rem;color:#aaa;line-height:1.45;">iPhone: 인쇄 → PDF로 저장 · Android: PDF로 저장 선택</p></div>' +
+                '<style>@media print{.no-print{display:none!important;}body{padding-bottom:0!important;}}</style>';
+            if (/<\/body>/i.test(fullHtml)) return fullHtml.replace(/<\/body>/i, bar + '</body>');
+            return fullHtml + bar;
+        }
+
         /**
-         * 앱(PWA) 안에서 그대로 인쇄/PDF 저장을 트리거합니다.
-         * window.open('', '_blank')은 iOS PWA에서 사파리를 강제로 열어 앱이 튕겨 나가므로,
-         * 현재 페이지에 인쇄용 컨테이너를 삽입한 뒤 window.print()를 호출합니다.
-         * (화면에서도 본문을 전체 표시 — display:none만 쓰면 모바일 PDF 저장·공유 시 빈 페이지+썸네일만 남음)
+         * 인쇄/PDF 저장 — 본문을 독립 iframe(또는 새 창)에 넣고 그 문서에서 print() 호출.
+         * analysis.html 본문에서 직접 print()하면 모바일·PWA에서 빈 PDF만 저장되는 경우가 많음.
          */
         function triggerInAppPrint(fullHtml, docTitle) {
-            let bodyInner = fullHtml;
-            let stylesInner = '';
-            try {
-                const doc = new DOMParser().parseFromString(fullHtml, 'text/html');
-                if (doc && doc.body) bodyInner = doc.body.innerHTML || fullHtml;
-                if (doc) {
-                    stylesInner = Array.prototype.map
-                        .call(doc.querySelectorAll('style'), function (s) { return s.textContent || ''; })
-                        .join('\n');
-                }
-            } catch (e) {}
+            const html = triggerInAppPrintEnhanceHtml(fullHtml);
+            const title = docTitle ? String(docTitle) : '인쇄';
 
-            const prevRoot = document.getElementById('trigger-print-area');
-            if (prevRoot) prevRoot.remove();
-            const prevStyle = document.getElementById('trigger-print-area-style');
-            if (prevStyle) prevStyle.remove();
-            document.body.classList.remove('trigger-print-active');
-
-            const container = document.createElement('div');
-            container.id = 'trigger-print-area';
-            container.innerHTML = bodyInner;
-            document.body.appendChild(container);
-
-            const style = document.createElement('style');
-            style.id = 'trigger-print-area-style';
-            style.textContent =
-                '#trigger-print-area{display:none;}' +
-                'body.trigger-print-active{overflow:hidden;}' +
-                'body.trigger-print-active > *:not(#trigger-print-area){display:none !important;}' +
-                'body.trigger-print-active #trigger-print-area{' +
-                    'display:block !important;position:fixed;inset:0;z-index:99999;' +
-                    'overflow:auto;-webkit-overflow-scrolling:touch;' +
-                    'background:#fff;color:#111;padding:20px;' +
-                    'font-family:"Pretendard",-apple-system,sans-serif;' +
-                '}' +
-                '@media print{' +
-                    'html,body{background:#fff !important;color:#111 !important;margin:0;padding:0;}' +
-                    'body.trigger-print-active > *:not(#trigger-print-area){display:none !important;}' +
-                    '#trigger-print-area{display:block !important;position:static !important;inset:auto;z-index:auto;' +
-                    'overflow:visible;background:#fff;color:#111;padding:20px;' +
-                    'font-family:"Pretendard",-apple-system,sans-serif;}' +
-                    stylesInner +
-                '}';
-            document.head.appendChild(style);
-
-            const originalTitle = document.title;
-            if (docTitle) document.title = String(docTitle);
-            document.body.classList.add('trigger-print-active');
-
-            const cleanupPrint = function () {
-                const c = document.getElementById('trigger-print-area');
-                const s = document.getElementById('trigger-print-area-style');
-                if (c) c.remove();
-                if (s) s.remove();
-                document.body.classList.remove('trigger-print-active');
-                document.title = originalTitle;
-                window.removeEventListener('afterprint', cleanupPrint);
+            const removePrintShell = function () {
+                const wrap = document.getElementById('trigger-print-iframe-wrap');
+                if (wrap) wrap.remove();
             };
-            window.addEventListener('afterprint', cleanupPrint);
+            removePrintShell();
 
-            setTimeout(function () {
-                try {
-                    window.print();
-                } catch (e) {
-                    cleanupPrint();
-                    alert('인쇄(PDF 저장) 창을 열지 못했어요. 브라우저 메뉴에서 「인쇄 → PDF로 저장」을 이용해 주세요.');
+            const isStandalone =
+                window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent || '');
+
+            if (!isStandalone && !isMobile) {
+                const w = window.open('', '_blank');
+                if (w) {
+                    w.document.open();
+                    w.document.write(html);
+                    w.document.close();
+                    w.document.title = title;
+                    setTimeout(function () {
+                        try {
+                            w.focus();
+                            w.print();
+                        } catch (e) {}
+                    }, 400);
                     return;
                 }
-                setTimeout(cleanupPrint, 4000);
-            }, 120);
+            }
+
+            const wrap = document.createElement('div');
+            wrap.id = 'trigger-print-iframe-wrap';
+            wrap.style.cssText =
+                'position:fixed;inset:0;z-index:100000;background:#fff;display:flex;flex-direction:column;';
+
+            const headBar = document.createElement('div');
+            headBar.className = 'no-print';
+            headBar.style.cssText =
+                'flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-bottom:1px solid #ddd;background:#f8f8f8;';
+            headBar.innerHTML =
+                '<span style="font-size:0.88rem;font-weight:bold;color:#333;">' +
+                escapeHtml(title) +
+                '</span>';
+
+            const closeBtn = document.createElement('button');
+            closeBtn.type = 'button';
+            closeBtn.textContent = '닫기';
+            closeBtn.style.cssText =
+                'padding:8px 14px;border:1px solid #ccc;background:#fff;border-radius:8px;cursor:pointer;font-size:0.85rem;';
+            closeBtn.addEventListener('click', removePrintShell);
+            headBar.appendChild(closeBtn);
+
+            const iframe = document.createElement('iframe');
+            iframe.id = 'trigger-print-iframe';
+            iframe.setAttribute('title', title);
+            iframe.style.cssText = 'flex:1;width:100%;border:none;background:#fff;';
+
+            wrap.appendChild(headBar);
+            wrap.appendChild(iframe);
+            document.body.appendChild(wrap);
+
+            const iwin = iframe.contentWindow;
+            const idoc = iwin.document;
+            idoc.open();
+            idoc.write(html);
+            idoc.close();
+            try {
+                idoc.title = title;
+            } catch (e) {}
+
+            const runPrint = function () {
+                try {
+                    iwin.focus();
+                    iwin.print();
+                } catch (e) {}
+            };
+            iframe.addEventListener('load', function () {
+                setTimeout(runPrint, 350);
+            });
+            setTimeout(runPrint, 700);
         }
 
         function passagePdfOpenPrintWindow(blocks, opts) {
