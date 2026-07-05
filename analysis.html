@@ -9074,7 +9074,8 @@
         /**
          * 앱(PWA) 안에서 그대로 인쇄/PDF 저장을 트리거합니다.
          * window.open('', '_blank')은 iOS PWA에서 사파리를 강제로 열어 앱이 튕겨 나가므로,
-         * 현재 페이지에 숨겨진 컨테이너를 삽입 후 @media print로만 노출시켜 window.print()를 호출합니다.
+         * 현재 페이지에 인쇄용 컨테이너를 삽입한 뒤 window.print()를 호출합니다.
+         * (화면에서도 본문을 전체 표시 — display:none만 쓰면 모바일 PDF 저장·공유 시 빈 페이지+썸네일만 남음)
          */
         function triggerInAppPrint(fullHtml, docTitle) {
             let bodyInner = fullHtml;
@@ -9093,6 +9094,7 @@
             if (prevRoot) prevRoot.remove();
             const prevStyle = document.getElementById('trigger-print-area-style');
             if (prevStyle) prevStyle.remove();
+            document.body.classList.remove('trigger-print-active');
 
             const container = document.createElement('div');
             container.id = 'trigger-print-area';
@@ -9103,30 +9105,48 @@
             style.id = 'trigger-print-area-style';
             style.textContent =
                 '#trigger-print-area{display:none;}' +
+                'body.trigger-print-active{overflow:hidden;}' +
+                'body.trigger-print-active > *:not(#trigger-print-area){display:none !important;}' +
+                'body.trigger-print-active #trigger-print-area{' +
+                    'display:block !important;position:fixed;inset:0;z-index:99999;' +
+                    'overflow:auto;-webkit-overflow-scrolling:touch;' +
+                    'background:#fff;color:#111;padding:20px;' +
+                    'font-family:"Pretendard",-apple-system,sans-serif;' +
+                '}' +
                 '@media print{' +
                     'html,body{background:#fff !important;color:#111 !important;margin:0;padding:0;}' +
-                    'body > *:not(#trigger-print-area){display:none !important;}' +
-                    '#trigger-print-area{display:block !important;position:static !important;background:#fff;color:#111;padding:20px;font-family:"Pretendard",-apple-system,sans-serif;}' +
+                    'body.trigger-print-active > *:not(#trigger-print-area){display:none !important;}' +
+                    '#trigger-print-area{display:block !important;position:static !important;inset:auto;z-index:auto;' +
+                    'overflow:visible;background:#fff;color:#111;padding:20px;' +
+                    'font-family:"Pretendard",-apple-system,sans-serif;}' +
                     stylesInner +
                 '}';
             document.head.appendChild(style);
 
             const originalTitle = document.title;
             if (docTitle) document.title = String(docTitle);
+            document.body.classList.add('trigger-print-active');
+
+            const cleanupPrint = function () {
+                const c = document.getElementById('trigger-print-area');
+                const s = document.getElementById('trigger-print-area-style');
+                if (c) c.remove();
+                if (s) s.remove();
+                document.body.classList.remove('trigger-print-active');
+                document.title = originalTitle;
+                window.removeEventListener('afterprint', cleanupPrint);
+            };
+            window.addEventListener('afterprint', cleanupPrint);
 
             setTimeout(function () {
                 try {
                     window.print();
                 } catch (e) {
+                    cleanupPrint();
                     alert('인쇄(PDF 저장) 창을 열지 못했어요. 브라우저 메뉴에서 「인쇄 → PDF로 저장」을 이용해 주세요.');
+                    return;
                 }
-                setTimeout(function () {
-                    const c = document.getElementById('trigger-print-area');
-                    const s = document.getElementById('trigger-print-area-style');
-                    if (c) c.remove();
-                    if (s) s.remove();
-                    document.title = originalTitle;
-                }, 1500);
+                setTimeout(cleanupPrint, 4000);
             }, 120);
         }
 
