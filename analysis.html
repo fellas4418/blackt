@@ -1856,6 +1856,10 @@
         <div id="exam-rpt-shared-meta" style="font-size:0.85rem; color:#ccc; margin-top:6px; line-height:1.55;"></div>
         <div id="exam-rpt-shared-scores" style="font-size:0.9rem; color:#eee; margin-top:10px; padding:10px; border-radius:10px; background:rgba(0,0,0,0.35); line-height:1.7;"></div>
         <div id="exam-rpt-shared-total" style="font-size:1.15rem; font-weight:bold; color:var(--neon-green); margin-top:10px; text-align:center;"></div>
+        <div id="exam-rpt-shared-charts" style="margin-top:14px;"></div>
+        <div id="exam-rpt-shared-wrong" style="margin-top:10px;font-size:0.85rem;color:#ffcc80;line-height:1.55;"></div>
+        <div id="exam-rpt-shared-reasons" style="margin-top:12px;"></div>
+        <div id="exam-rpt-shared-ai" style="margin-top:12px;font-size:0.9rem;color:#ddd;line-height:1.65;text-align:justify;"></div>
         <p style="margin:12px 0 0; font-size:0.75rem; color:#888; line-height:1.55;">아래 「시험 분석」 도구로 내 시험도 바로 분석해 볼 수 있어요.</p>
     </div>
 
@@ -7829,6 +7833,229 @@
             }
         }
 
+        function examRptCollectReasonStats() {
+            const counts = {};
+            EXAM_RPT_REASON_OPTIONS.forEach(function (label) {
+                counts[label] = 0;
+            });
+            let wrongCnt = 0;
+            const wrongNums = [];
+            examRptQuestions.forEach(function (q) {
+                if (q.type === 'essay' || !examRptWrong[q.number]) return;
+                wrongCnt += 1;
+                wrongNums.push(q.number);
+                (examRptReasons[q.number] || []).forEach(function (label) {
+                    if (counts[label] != null) counts[label] += 1;
+                });
+            });
+            const entries = EXAM_RPT_REASON_OPTIONS.map(function (label) {
+                return { label: label, count: counts[label] || 0 };
+            })
+                .filter(function (e) {
+                    return e.count > 0;
+                })
+                .sort(function (a, b) {
+                    return b.count - a.count;
+                });
+            return { wrongCnt: wrongCnt, entries: entries, wrongNums: wrongNums };
+        }
+
+        function examRptBuildReasonStatsHtml(stats, opts) {
+            opts = opts || {};
+            const forPrint = !!opts.forPrint;
+            const entries = stats.entries || [];
+            const wrongCnt = stats.wrongCnt || 0;
+            if (!wrongCnt) {
+                return '<p style="font-size:0.88rem;color:#888;margin:0;">오답 문항이 없습니다.</p>';
+            }
+            if (!entries.length) {
+                return '<p style="font-size:0.88rem;color:#888;margin:0;">오답 원인을 체크하면 유형별 통계가 집계됩니다.</p>';
+            }
+            const max = entries[0].count;
+            const barBg = forPrint ? '#eee' : '#222';
+            const barFill = forPrint ? '#ff8844' : 'linear-gradient(90deg,#ff9a5c,#ff4444)';
+            let html =
+                '<p style="font-size:0.88rem;font-weight:bold;margin:0 0 8px 0;' +
+                (forPrint ? 'color:#333;' : 'color:#ffcc80;') +
+                '">오답 원인 통계 (유형별)</p>';
+            entries.forEach(function (e) {
+                const pct = max > 0 ? Math.round((e.count / max) * 100) : 0;
+                html +=
+                    '<div style="display:flex;align-items:center;gap:8px;font-size:0.8rem;margin-bottom:6px;' +
+                    (forPrint ? 'color:#333;' : 'color:#ddd;') +
+                    '">' +
+                    '<span style="min-width:96px;">' +
+                    escapeHtml(e.label) +
+                    '</span>' +
+                    '<span style="flex:1;display:block;height:10px;background:' +
+                    barBg +
+                    ';border-radius:5px;overflow:hidden;">' +
+                    '<span style="display:block;width:' +
+                    pct +
+                    '%;height:10px;background:' +
+                    barFill +
+                    ';"></span></span>' +
+                    '<span style="min-width:28px;text-align:right;font-weight:bold;">' +
+                    e.count +
+                    '회</span></div>';
+            });
+            return html;
+        }
+
+        function examRptPieChartToDataUrl(earnedRaw, maxRaw, centerLabel) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 184;
+            canvas.height = 184;
+            examRptDrawTwoPartPie(canvas, earnedRaw, maxRaw, centerLabel);
+            try {
+                return canvas.toDataURL('image/png');
+            } catch (e) {
+                return '';
+            }
+        }
+
+        function examRptBuildPieChartsHtml(t, opts) {
+            opts = opts || {};
+            const forPrint = !!opts.forPrint;
+            const fmt = examRptFmt1;
+            const te = t.totalPts > 0 ? t.totalEarn : 0;
+            const me = t.mcPts > 0 ? t.mcEarn : 0;
+            const ee = t.esPts > 0 ? t.esEarn : 0;
+            const imgs = [];
+            const totalUrl = examRptPieChartToDataUrl(te, t.totalPts, '전체');
+            if (totalUrl) imgs.push({ label: '전체 ' + fmt(te) + '/' + fmt(t.totalPts) + '점', url: totalUrl });
+            if (t.mcCnt > 0) {
+                const mcUrl = examRptPieChartToDataUrl(me, t.mcPts, '객관식');
+                if (mcUrl) imgs.push({ label: '객관식 ' + fmt(me) + '/' + fmt(t.mcPts) + '점', url: mcUrl });
+            }
+            if (t.esCnt > 0 || t.esPts > 0) {
+                const esUrl = examRptPieChartToDataUrl(ee, t.esPts, '서술형');
+                if (esUrl) imgs.push({ label: '서술형 ' + fmt(ee) + '/' + fmt(t.esPts) + '점', url: esUrl });
+            }
+            if (!imgs.length) return '';
+            let html =
+                '<div style="display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin:12px 0;">' +
+                '<p style="width:100%;text-align:center;font-size:0.78rem;margin:0 0 4px;' +
+                (forPrint ? 'color:#666;' : 'color:#ccc;') +
+                '"><span style="color:#39ff14;">■ 획득</span> · <span style="color:#ff4444;">■ 실점</span></p>';
+            imgs.forEach(function (item) {
+                html +=
+                    '<div style="text-align:center;min-width:120px;">' +
+                    '<img src="' +
+                    item.url +
+                    '" alt="' +
+                    escapeHtml(item.label) +
+                    '" style="width:140px;height:140px;display:block;margin:0 auto;">' +
+                    '<p style="font-size:0.75rem;margin:6px 0 0;' +
+                    (forPrint ? 'color:#444;' : 'color:#bbb;') +
+                    '">' +
+                    escapeHtml(item.label) +
+                    '</p></div>';
+            });
+            html += '</div>';
+            return html;
+        }
+
+        function examRptBuildDiagnosisExportHtml(forPrint) {
+            if (examRptAiDiagnosis && typeof examRptAiDiagnosis === 'object') {
+                const summary = escapeHtml(String(examRptAiDiagnosis.summary || '').trim());
+                let html = '<h2 style="font-size:1rem;margin:20px 0 10px;' + (forPrint ? 'color:#111;' : '') + '">AI 진단</h2>';
+                if (summary) {
+                    html +=
+                        '<p style="margin:0 0 12px;line-height:1.65;font-weight:600;' +
+                        (forPrint ? 'color:#222;' : 'color:#eee;') +
+                        '">' +
+                        summary +
+                        '</p>';
+                }
+                if (Array.isArray(examRptAiDiagnosis.tips) && examRptAiDiagnosis.tips.length) {
+                    html += '<ol style="margin:0;padding-left:1.35em;">';
+                    examRptAiDiagnosis.tips.forEach(function (tip) {
+                        html +=
+                            '<li style="margin:0 0 10px;line-height:1.65;' +
+                            (forPrint ? 'color:#333;' : 'color:#ccc;') +
+                            '">' +
+                            examRptFormatDiagnosisLine(tip) +
+                            '</li>';
+                    });
+                    html += '</ol>';
+                }
+                return html;
+            }
+            const aiEl = document.getElementById('exam-rpt-ai-diagnosis');
+            const inner = aiEl && aiEl.innerHTML && aiEl.innerHTML.trim();
+            if (inner) {
+                return '<h2 style="font-size:1rem;margin:20px 0 10px;">AI 진단</h2><div>' + inner + '</div>';
+            }
+            return (
+                '<h2 style="font-size:1rem;margin:20px 0 10px;">AI 진단</h2>' +
+                '<p style="color:#888;font-size:0.88rem;margin:0;">AI 진단이 아직 생성되지 않았습니다.</p>'
+            );
+        }
+
+        function examRptBuildDiagnosisSharePayload() {
+            if (!examRptAiDiagnosis || typeof examRptAiDiagnosis !== 'object') return null;
+            const s = String(examRptAiDiagnosis.summary || '')
+                .trim()
+                .slice(0, 500);
+            const tips = Array.isArray(examRptAiDiagnosis.tips)
+                ? examRptAiDiagnosis.tips
+                      .map(function (t) {
+                          return String(t || '')
+                              .trim()
+                              .slice(0, 200);
+                      })
+                      .filter(Boolean)
+                      .slice(0, 6)
+                : [];
+            if (!s && !tips.length) return null;
+            return { s: s, p: tips };
+        }
+
+        function examRptBuildDiagnosisHtmlFromShare(d, escapeFn) {
+            if (!d || typeof d !== 'object') return '';
+            const esc = escapeFn || escapeHtml;
+            const summary = esc(String(d.s || '').trim());
+            if (!summary && (!Array.isArray(d.p) || !d.p.length)) return '';
+            let html =
+                '<p style="margin:0 0 10px;font-size:0.78rem;color:var(--neon-blue);font-weight:bold;">AI 진단</p>';
+            if (summary) {
+                html += '<p style="margin:0 0 10px;color:#eee;font-weight:600;line-height:1.65;">' + summary + '</p>';
+            }
+            if (Array.isArray(d.p) && d.p.length) {
+                html += '<ol style="margin:0;padding-left:1.25em;color:#ccc;">';
+                d.p.forEach(function (tip) {
+                    html +=
+                        '<li style="margin:0 0 8px;line-height:1.6;">' +
+                        examRptFormatDiagnosisLine(String(tip || '')) +
+                        '</li>';
+                });
+                html += '</ol>';
+            }
+            return html;
+        }
+
+        function examRptTotalsFromShareData(data) {
+            const mc = Array.isArray(data.mc) ? data.mc : [0, 0, 0, 0];
+            const es = Array.isArray(data.es) ? data.es : [0, 0];
+            const mcCnt = Number(mc[0]) || 0;
+            const mcEarn = Number(mc[2]) || 0;
+            const mcPts = Number(mc[3]) || 0;
+            const esEarn = Number(es[0]) || 0;
+            const esPts = Number(es[1]) || 0;
+            return {
+                mcCnt: mcCnt,
+                mcEarn: mcEarn,
+                mcPts: mcPts,
+                esCnt: esPts > 0 ? 1 : 0,
+                esEarn: esEarn,
+                esPts: esPts,
+                totalPts: mcPts + esPts,
+                totalEarn: mcEarn + esEarn,
+                totalAcc: Number(data.t) || 0
+            };
+        }
+
         function examRptRecordTrendSnapshot(t) {
             try {
                 const ws = document.getElementById('exam-rpt-after-extract');
@@ -8038,41 +8265,7 @@
         function examRptRenderReasonStats() {
             const el = document.getElementById('exam-rpt-reason-stats');
             if (!el) return;
-            const counts = {};
-            EXAM_RPT_REASON_OPTIONS.forEach(function (label) { counts[label] = 0; });
-            let wrongCnt = 0;
-            examRptQuestions.forEach(function (q) {
-                if (q.type === 'essay' || !examRptWrong[q.number]) return;
-                wrongCnt += 1;
-                (examRptReasons[q.number] || []).forEach(function (label) {
-                    if (counts[label] != null) counts[label] += 1;
-                });
-            });
-            const entries = EXAM_RPT_REASON_OPTIONS.map(function (label) {
-                return { label: label, count: counts[label] || 0 };
-            }).filter(function (e) { return e.count > 0; })
-              .sort(function (a, b) { return b.count - a.count; });
-            if (!wrongCnt) {
-                el.innerHTML = '<span style="color:#666;font-size:0.85rem;">오답 문항을 표시하면 통계가 나타납니다.</span>';
-                return;
-            }
-            if (!entries.length) {
-                el.innerHTML = '<span style="color:#888;font-size:0.85rem;">오답 원인을 체크하면 내가 자주 틀리는 이유가 집계됩니다.</span>';
-                return;
-            }
-            const max = entries[0].count;
-            const parts = ['<p style="font-size:0.82rem;color:#ffcc80;font-weight:bold;margin:0 0 8px 0;">오답 원인 통계</p>'];
-            entries.forEach(function (e) {
-                const pct = max > 0 ? Math.round((e.count / max) * 100) : 0;
-                parts.push(
-                    '<div style="display:flex;align-items:center;gap:8px;font-size:0.8rem;color:#ddd;margin-bottom:6px;">' +
-                    '<span style="min-width:88px;">' + escapeHtml(e.label) + '</span>' +
-                    '<span style="flex:1;display:block;height:10px;background:#222;border-radius:5px;overflow:hidden;">' +
-                    '<span style="display:block;width:' + pct + '%;height:10px;background:linear-gradient(90deg,#ff9a5c,#ff4444);"></span></span>' +
-                    '<span style="min-width:24px;text-align:right;color:#ffcc80;">' + e.count + '</span></div>'
-                );
-            });
-            el.innerHTML = parts.join('');
+            el.innerHTML = examRptBuildReasonStatsHtml(examRptCollectReasonStats(), { forPrint: false });
         }
 
         function examRptRenderReasons() {
@@ -8444,6 +8637,7 @@
                 const name = (localStorage.getItem('trigger_name') || '').trim();
                 const grade = ((localStorage.getItem('trigger_saved_exam_grade') || '').trim() || (typeof params !== 'undefined' && params.get('grade')) || '').trim();
                 const r1 = function (v) { return Math.round((Number(v) || 0) * 10) / 10; };
+                const stats = examRptCollectReasonStats();
                 const payload = {
                     n: String(name || '학생').slice(0, 24),
                     g: String(grade || '').slice(0, 8),
@@ -8453,6 +8647,16 @@
                     es: [r1(t.esEarn), r1(t.esPts)],
                     t: r1(t.totalAcc)
                 };
+                const diag = examRptBuildDiagnosisSharePayload();
+                if (diag) payload.d = diag;
+                if (stats.entries.length) {
+                    payload.rs = stats.entries.map(function (e) {
+                        return [String(e.label || '').slice(0, 14), e.count];
+                    });
+                }
+                if (stats.wrongNums && stats.wrongNums.length) {
+                    payload.wq = stats.wrongNums.slice(0, 40);
+                }
                 const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
                 return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
             } catch (e) {
@@ -9330,8 +9534,7 @@
             const grade = ((localStorage.getItem('trigger_saved_exam_grade') || '').trim() || params.get('grade') || '').trim();
             const t = examRptComputeTotals();
             const fmt = examRptFmt1;
-            const aiEl = document.getElementById('exam-rpt-ai-diagnosis');
-            const aiTxt = (aiEl && (aiEl.innerText || aiEl.textContent)) || '';
+            const stats = examRptCollectReasonStats();
             const rows = examRptQuestions.map((q) => {
                 const w =
                     q.type !== 'essay' && examRptWrong[q.number]
@@ -9342,14 +9545,65 @@
                 const rs = (examRptReasons[q.number] || []).join(', ');
                 return '<tr><td>' + q.number + '</td><td>' + (q.type === 'essay' ? '서술' : '객관') + '</td><td>' + q.points + '</td><td>' + w + '</td><td>' + escapeHtml(rs) + '</td></tr>';
             }).join('');
-            const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>내가 본 시험 한 눈에 분석</title>' +
-                '<style>body{font-family:sans-serif;padding:24px;color:#111;}h1{font-size:1.2rem;}table{border-collapse:collapse;width:100%;margin-top:12px;}th,td{border:1px solid #333;padding:6px;font-size:12px;}</style></head><body>' +
-                '<h1>내가 본 시험 한 눈에 분석</h1><p><strong>이름</strong> ' + escapeHtml(name) + ' · <strong>학년</strong> ' + escapeHtml(grade || '—') + ' · <strong>학교</strong> ' + escapeHtml(school) + ' · <strong>시험</strong> ' + escapeHtml(examLabel) + '</p>' +
-                '<p>객관식 문항 ' + t.mcRightCnt + '/' + t.mcCnt + ' 정답(' + fmt(t.mcAccByCount) + '%) · 획득점수 ' + fmt(t.mcEarn) + '/' + fmt(t.mcPts) + ' (배점 대비 ' + fmt(t.mcAcc) + '%) · 서술 획득점수 ' + fmt(t.esEarn) + '/' + fmt(t.esPts) + '</p>' +
-                '<h2>문항</h2><table><thead><tr><th>번호</th><th>유형</th><th>배점</th><th>결과</th><th>오답 원인</th></tr></thead><tbody>' + rows + '</tbody></table>' +
-                '<h2>AI 진단</h2><pre style="white-space:pre-wrap;font-size:12px;">' + escapeHtml(aiTxt) + '</pre>' +
+            const wrongLine =
+                stats.wrongNums && stats.wrongNums.length
+                    ? '<p style="margin:12px 0 0;font-size:0.9rem;"><strong>오답 문항</strong> ' +
+                      escapeHtml(stats.wrongNums.join(', ')) +
+                      '번</p>'
+                    : '';
+            const html =
+                '<!DOCTYPE html><html><head><meta charset="utf-8"><title>내가 본 시험 한 눈에 분석</title>' +
+                '<style>body{font-family:"Pretendard",sans-serif;padding:24px;color:#111;line-height:1.55;}' +
+                'h1{font-size:1.2rem;margin:0 0 10px;border-bottom:2px solid #111;padding-bottom:8px;}' +
+                'h2{font-size:1rem;margin:22px 0 10px;color:#111;}' +
+                'table{border-collapse:collapse;width:100%;margin-top:8px;}th,td{border:1px solid #333;padding:6px;font-size:12px;}' +
+                'th{background:#f2f2f2;}.score-head{font-size:1.15rem;font-weight:bold;margin:14px 0 4px;}' +
+                '</style></head><body>' +
+                '<h1>내가 본 시험 한 눈에 분석</h1>' +
+                '<p><strong>이름</strong> ' +
+                escapeHtml(name) +
+                ' · <strong>학년</strong> ' +
+                escapeHtml(grade || '—') +
+                ' · <strong>학교</strong> ' +
+                escapeHtml(school) +
+                ' · <strong>시험</strong> ' +
+                escapeHtml(examLabel) +
+                '</p>' +
+                '<p class="score-head">' +
+                fmt(t.totalEarn) +
+                ' / ' +
+                fmt(t.totalPts) +
+                '점 (' +
+                fmt(t.totalAcc) +
+                '%)</p>' +
+                '<p style="margin:0;font-size:0.9rem;">객관식 ' +
+                t.mcRightCnt +
+                '/' +
+                t.mcCnt +
+                ' 정답(' +
+                fmt(t.mcAccByCount) +
+                '%) · 획득 ' +
+                fmt(t.mcEarn) +
+                '/' +
+                fmt(t.mcPts) +
+                ' · 서술 획득 ' +
+                fmt(t.esEarn) +
+                '/' +
+                fmt(t.esPts) +
+                '</p>' +
+                wrongLine +
+                '<h2>성적 요약 (원형 그래프)</h2>' +
+                examRptBuildPieChartsHtml(t, { forPrint: true }) +
+                '<h2>오답 유형 분석</h2>' +
+                examRptBuildReasonStatsHtml(stats, { forPrint: true }) +
+                examRptBuildDiagnosisExportHtml(true) +
+                '<h2>문항별 결과</h2><table><thead><tr><th>번호</th><th>유형</th><th>배점</th><th>결과</th><th>오답 원인</th></tr></thead><tbody>' +
+                rows +
+                '</tbody></table>' +
                 (examRptCanUseTeacherComment() && String(examRptTeacherComment || '').trim()
-                    ? '<h2>선생님 코멘트</h2><pre style="white-space:pre-wrap;font-size:12px;">' + escapeHtml(examRptTeacherComment) + '</pre>'
+                    ? '<h2>선생님 코멘트</h2><pre style="white-space:pre-wrap;font-size:12px;">' +
+                      escapeHtml(examRptTeacherComment) +
+                      '</pre>'
                     : '') +
                 '<p style="margin-top:24px;font-size:11px;color:#666;">브라우저 메뉴에서 인쇄 → PDF로 저장하세요.</p></body></html>';
             triggerInAppPrint(html, '내가 본 시험 한 눈에 분석');
@@ -9930,6 +10184,10 @@
                 const metaEl = document.getElementById('exam-rpt-shared-meta');
                 const scoresEl = document.getElementById('exam-rpt-shared-scores');
                 const totalEl = document.getElementById('exam-rpt-shared-total');
+                const chartsEl = document.getElementById('exam-rpt-shared-charts');
+                const wrongEl = document.getElementById('exam-rpt-shared-wrong');
+                const reasonsEl = document.getElementById('exam-rpt-shared-reasons');
+                const aiEl = document.getElementById('exam-rpt-shared-ai');
                 const name = escape(data.n || '학생');
                 const grade = escape(data.g || '—');
                 const school = escape(data.s || '—');
@@ -9960,6 +10218,32 @@
                 }
                 if (totalEl) {
                     totalEl.innerHTML = '전체 배점 대비 ' + fmt(data.t) + '%';
+                }
+                if (chartsEl) {
+                    chartsEl.innerHTML = examRptBuildPieChartsHtml(examRptTotalsFromShareData(data), { forPrint: false });
+                }
+                if (wrongEl) {
+                    const wq = Array.isArray(data.wq) ? data.wq : [];
+                    wrongEl.innerHTML = wq.length
+                        ? '<strong>오답 문항</strong> ' + escape(wq.join(', ')) + '번'
+                        : '';
+                }
+                if (reasonsEl) {
+                    const rsEntries = Array.isArray(data.rs)
+                        ? data.rs
+                              .map(function (pair) {
+                                  return { label: String(pair[0] || ''), count: Number(pair[1]) || 0 };
+                              })
+                              .filter(function (e) {
+                                  return e.count > 0;
+                              })
+                        : [];
+                    reasonsEl.innerHTML = rsEntries.length
+                        ? examRptBuildReasonStatsHtml({ wrongCnt: 1, entries: rsEntries }, { forPrint: false })
+                        : '';
+                }
+                if (aiEl) {
+                    aiEl.innerHTML = examRptBuildDiagnosisHtmlFromShare(data.d, escape);
                 }
                 card.style.display = 'block';
                 try {
