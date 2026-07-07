@@ -44,7 +44,25 @@
         return pool;
     }
 
+    function isToeicLevel(level) {
+        return level === 'toeic';
+    }
+
+    function isReviewDayForLevel(level, absoluteDay) {
+        if (global.TriggerToeicSchedule && global.TriggerToeicSchedule.isReviewDay) {
+            return global.TriggerToeicSchedule.isReviewDay(level, absoluteDay);
+        }
+        var day = parseInt(absoluteDay, 10) || 0;
+        if (isToeicLevel(level)) return day > 0 && day % 6 === 0;
+        var local = day % 7 === 0 ? 7 : day % 7;
+        return local === 6 || local === 7;
+    }
+
     function getReviewWordsForDay(level, absoluteDay) {
+        if (global.TriggerToeicSchedule && global.TriggerToeicSchedule.isToeicLevel && global.TriggerToeicSchedule.isToeicLevel(level)) {
+            if (!global.TriggerToeicSchedule.isReviewDay(level, absoluteDay)) return [];
+            return global.TriggerToeicSchedule.buildToeicReviewWords(level, absoluteDay);
+        }
         var localDay = absoluteDay % 7 === 0 ? 7 : absoluteDay % 7;
         if (localDay !== 6 && localDay !== 7) return [];
         var weekNum = Math.ceil(absoluteDay / 7);
@@ -58,6 +76,21 @@
     function getWordsForDay(level, absoluteDay) {
         var wd = global.wordsData;
         if (!wd || !wd[level]) return [];
+        if (isToeicLevel(level)) {
+            var toeicWeek = global.TriggerToeicSchedule && global.TriggerToeicSchedule.weekNumForLevel
+                ? global.TriggerToeicSchedule.weekNumForLevel(level, absoluteDay)
+                : Math.ceil(absoluteDay / 6);
+            var toeicLocal = global.TriggerToeicSchedule && global.TriggerToeicSchedule.localDayForLevel
+                ? global.TriggerToeicSchedule.localDayForLevel(level, absoluteDay)
+                : (((absoluteDay - 1) % 6) + 1);
+            if (isReviewDayForLevel(level, absoluteDay)) {
+                return getReviewWordsForDay(level, absoluteDay);
+            }
+            var toeicWeekData = wd[level]['week' + toeicWeek];
+            if (!toeicWeekData) return [];
+            var toeicDayData = toeicWeekData[String(toeicLocal)];
+            return Array.isArray(toeicDayData) ? toeicDayData : [];
+        }
         var week = Math.ceil(absoluteDay / 7);
         var localDay = absoluteDay % 7 === 0 ? 7 : absoluteDay % 7;
         if (localDay === 6 || localDay === 7) {
@@ -115,7 +148,7 @@
             unlockedDay = parseInt(global.localStorage.getItem('trigger_unlocked_day_' + level), 10) || 1;
         } catch (e4) {}
         for (var i = 1; i < unlockedDay; i++) {
-            if (i % 7 === 6 || i % 7 === 0) continue;
+            if (isReviewDayForLevel(level, i)) continue;
             learnedTotal += getWordsForDay(level, i).length;
         }
         var accuracy = null;

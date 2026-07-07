@@ -54,6 +54,61 @@ function loadPraiseShare() {
     return sandbox.TriggerPraise;
 }
 
+function makeWords(count, prefix) {
+    return Array.from({ length: count }, (_, i) => ({ word: prefix + i, mean: prefix + i }));
+}
+
+function loadToeicPraiseShare() {
+    const scheduleCode = fs.readFileSync(path.join(root, 'toeic-schedule.js'), 'utf8');
+    const praiseCode = fs.readFileSync(path.join(root, 'praise-share.js'), 'utf8');
+    const sandbox = {
+        window: {},
+        btoa: (s) => Buffer.from(s, 'binary').toString('base64'),
+        atob: (s) => Buffer.from(s, 'base64').toString('binary'),
+        encodeURIComponent,
+        decodeURIComponent,
+        escape: (s) => encodeURIComponent(s).replace(/%u([0-9A-F]{4})/gi, (_, h) =>
+            String.fromCharCode(parseInt(h, 16))
+        ),
+        unescape: (s) => decodeURIComponent(s.replace(/%([0-9A-F]{2})/gi, '%$1')),
+        localStorage: {
+            _d: {
+                trigger_level: 'toeic',
+                trigger_name: '토익',
+                trigger_current_day_toeic: '8',
+                trigger_session_toeic: '1',
+                trigger_unlocked_day_toeic: '8',
+                trigger_stats_toeic: '{"7":{"progress":100,"accuracy":88}}'
+            },
+            getItem(k) {
+                return this._d[k] ?? null;
+            },
+            setItem(k, v) {
+                this._d[k] = String(v);
+            }
+        },
+        wordsData: {
+            toeic: {
+                week1: {
+                    '1': makeWords(2, 'w1d1-'),
+                    '2': makeWords(2, 'w1d2-'),
+                    '3': makeWords(2, 'w1d3-'),
+                    '4': makeWords(2, 'w1d4-'),
+                    '5': makeWords(2, 'w1d5-')
+                },
+                week2: {
+                    '1': makeWords(3, 'w2d1-')
+                }
+            }
+        },
+        console
+    };
+    sandbox.window = sandbox;
+    vm.runInNewContext(scheduleCode, sandbox, { filename: 'toeic-schedule.js' });
+    vm.runInNewContext(praiseCode, sandbox, { filename: 'praise-share.js' });
+    return sandbox.TriggerPraise;
+}
+
 function checkAppJsSurface() {
     const app = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
     const required = [
@@ -155,6 +210,18 @@ function checkPraiseShare(TriggerPraise) {
     }
 }
 
+function checkToeicPraiseShare(TriggerPraise) {
+    if (!TriggerPraise) {
+        fail('TOEIC TriggerPraise not exported');
+        return;
+    }
+    const st = TriggerPraise.statsFromStorage('voca');
+    if (st.t !== 13) fail('TOEIC stats should count 6-day blocks (expected 13, got ' + st.t + ')');
+    else pass('TOEIC stats counts 6-day blocks');
+    if (st.d !== 7) fail('TOEIC display day should preserve completed day (expected 7, got ' + st.d + ')');
+    else pass('TOEIC display day OK');
+}
+
 function simulateBundle(TriggerPraise) {
     const st = TriggerPraise.statsFromStorage('voca');
     let badgeLine = '';
@@ -189,6 +256,8 @@ checkStudyHtml();
 console.log('');
 const TP = loadPraiseShare();
 checkPraiseShare(TP);
+console.log('');
+checkToeicPraiseShare(loadToeicPraiseShare());
 console.log('');
 simulateBundle(TP);
 console.log('');
