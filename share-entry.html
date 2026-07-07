@@ -110,22 +110,37 @@
 
             const KAKAO_SHARE_ORIGIN = 'https://blackt.pages.dev';
             const params = new URLSearchParams(location.search);
-            const path = (params.get('path') || '/index.html').trim();
+            function normalizeTargetPath(rawPath) {
+                const raw = String(rawPath || '/index.html').trim() || '/index.html';
+                if (/^[a-z][a-z0-9+.-]*:/i.test(raw) || raw.indexOf('\\') !== -1 || raw.indexOf('//') === 0) {
+                    return '/index.html';
+                }
+                try {
+                    const u = new URL(raw.charAt(0) === '/' ? raw : '/' + raw, location.origin);
+                    if (u.origin !== location.origin) return '/index.html';
+                    return u.pathname || '/index.html';
+                } catch (e) {
+                    return '/index.html';
+                }
+            }
+
+            const path = normalizeTargetPath(params.get('path'));
             const praise = params.get('praise') === '1';
             const zone = (params.get('zone') || '').trim();
             const pcParam = params.get('pc');
-            const targetPath = path.startsWith('/') ? path : '/' + path;
+            const targetPath = path;
             const isVocaPath = /index\.html/i.test(targetPath);
             const refParam = params.get('ref');
             const refTrim = refParam ? String(refParam).trim() : '';
             const isAppReferralShare = isVocaPath && !praise && !pcParam && !!refTrim;
+            const isVocaResultShare = isVocaPath && !!pcParam;
             const finalUrl = new URL(
-                isAppReferralShare ? '/index.html' : (isVocaPath || praise ? '/praise-receiver.html' : targetPath),
+                isAppReferralShare ? '/index.html' : (praise || isVocaResultShare ? '/praise-receiver.html' : targetPath),
                 isVocaPath || praise || isAppReferralShare ? KAKAO_SHARE_ORIGIN : location.origin
             );
             if (praise) {
                 finalUrl.searchParams.set('praise', 'true');
-            } else if (isVocaPath && !isAppReferralShare) {
+            } else if (isVocaResultShare) {
                 finalUrl.searchParams.set('share_result', '1');
             }
             if (pcParam) finalUrl.searchParams.set('pc', pcParam);
@@ -139,7 +154,7 @@
             try {
                 const name = String(localStorage.getItem('trigger_name') || '').trim();
                 const phone = String(localStorage.getItem('trigger_phone') || '').replace(/[^0-9]/g, '');
-                if (name && /^010\d{8}$/.test(phone)) {
+                if (name && /^010\d{8}$/.test(phone) && finalUrl.origin === KAKAO_SHARE_ORIGIN && finalUrl.pathname === '/index.html') {
                     const au = encodeAuthBundle(name, phone);
                     if (au) finalUrl.searchParams.set('au', au);
                 }
