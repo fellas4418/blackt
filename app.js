@@ -493,7 +493,7 @@ function isSmartStudyEligible(isReviewDay) {
 function shouldPersistWrongToList(sessionRaw, isReviewDay) {
     if (isPreReviewMode) return true;
     if (sessionRaw === 'final') return true;
-    if (isReviewDay) return sessionRaw === '3';
+    if (isReviewDay) return sessionRaw === '2';
     return sessionRaw === String(DAILY_CYCLE_COUNT);
 }
 
