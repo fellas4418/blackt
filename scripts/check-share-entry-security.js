@@ -94,7 +94,7 @@ function simulateShareEntry(search, opts) {
 }
 
 function decodeAuthBundle(token) {
-    const json = decodeURIComponent(escape(Buffer.from(String(token), 'base64').toString('binary')));
+    const json = Buffer.from(String(token), 'base64').toString('utf8');
     return JSON.parse(json);
 }
 
