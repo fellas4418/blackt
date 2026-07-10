@@ -67,7 +67,10 @@ function simulateShareEntry(search, opts) {
         URLSearchParams,
         btoa: (s) => Buffer.from(s, 'binary').toString('base64'),
         encodeURIComponent,
-        unescape: (s) => decodeURIComponent(s.replace(/%([0-9A-F]{2})/gi, '%$1')),
+        unescape: (s) =>
+            String(s)
+                .replace(/%u([0-9A-F]{4})/gi, (_, h) => String.fromCharCode(parseInt(h, 16)))
+                .replace(/%([0-9A-F]{2})/gi, (_, h) => String.fromCharCode(parseInt(h, 16))),
         localStorage: storage,
         location,
         navigator,
