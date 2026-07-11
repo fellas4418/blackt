@@ -179,15 +179,18 @@ async function handleSignupLog(env, body) {
   const level = String(body.level || "").trim();
   if (!level) return json({ error: "level이 필요합니다." }, 400);
   const userId = `${phone}::${normalizeName(name)}`;
-  const eventType = String(body.event_type || body.eventType || "level").trim() || "level";
+  const authUserId = String(body.user_id || "").trim();
+  const password = String(body.password || "");
+  if (authUserId !== userId || !(await verifyUser(env, authUserId, password))) {
+    return json({ error: "인증 실패" }, 401);
+  }
   try {
     await insertSignupLog(env, {
       userId,
       name,
       phone,
       level,
-      referrer: String(body.referrer || "").trim(),
-      eventType,
+      eventType: "level",
     });
   } catch (e) {
     return json({ error: "signup_log_failed" }, 500);
