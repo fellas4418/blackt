@@ -54,6 +54,8 @@ function showStudyDayCompleteScreen(accuracy, completedDay, creditEarnedHtml) {
         bar.style.backgroundColor = 'var(--neon-green)';
     }
     const dayNum = Number(completedDay) || parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`), 10) - 1 || 1;
+    const accNum = Math.min(100, Math.max(0, parseInt(accuracy, 10) || 0));
+    const canKakaoShare = accNum >= 80;
     const creditHtml = creditEarnedHtml || '';
     const creditBal =
         typeof TriggerCredit !== 'undefined'
@@ -61,13 +63,16 @@ function showStudyDayCompleteScreen(accuracy, completedDay, creditEarnedHtml) {
               TriggerCredit.getBalance() +
               '</strong></div>'
             : '';
+    const kakaoShareBtnHtml = canKakaoShare
+        ? '<button type="button" id="btn-study-kakao-share" style="width:100%; padding:16px; background:#fee500; color:#000; border-radius:6px; margin-top:12px; border:none; font-weight:bold; cursor:pointer;">◆ 카톡 공유</button>'
+        : '<p style="color:#888; font-size:0.85rem; margin-top:14px; line-height:1.5;">카톡 공유는 정답률 80% 이상일 때만 가능합니다.</p>';
     showSystemMessage(`
         <div style="text-align:center; max-width:100%;">
-            <div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold; font-family:Orbitron,Pretendard,sans-serif; letter-spacing:0.05em;">PROTOCOL COMPLETE · ${accuracy}%</div>
+            <div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold; font-family:Orbitron,Pretendard,sans-serif; letter-spacing:0.05em;">PROTOCOL COMPLETE · ${accNum}%</div>
             ${creditHtml}
             ${creditBal}
             <button type="button" id="btn-study-voca-pdf" style="width:100%; padding:14px; background:rgba(57,255,20,0.12); color:var(--neon-green); border:1px solid var(--neon-green); border-radius:6px; margin-top:16px; font-weight:bold; cursor:pointer;">📄 Day ${dayNum} 단어장 (3종)</button>
-            <button type="button" id="btn-study-kakao-share" style="width:100%; padding:16px; background:#fee500; color:#000; border-radius:6px; margin-top:12px; border:none; font-weight:bold; cursor:pointer;">◆ 카톡 공유</button>
+            ${kakaoShareBtnHtml}
             <button type="button" id="btn-study-exit-home" style="display:block; width:100%; margin-top:20px; padding:12px; background:none; border:none; color:#888; text-decoration:underline; cursor:pointer; font-size:1rem;">종료하기</button>
         </div>
     `);
