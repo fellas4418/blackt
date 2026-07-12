@@ -473,6 +473,80 @@ function vocaTotalDays(level) {
     if (typeof TriggerToeicSchedule !== 'undefined') return TriggerToeicSchedule.vocaTotalDays(level);
     return 70;
 }
+
+function vocaPassCountKey(level) {
+    return 'trigger_voca_pass_count_' + (level || 'middle');
+}
+
+function getVocaPassCount(level) {
+    const lvl = level || localStorage.getItem('trigger_level') || 'middle';
+    return Math.max(0, parseInt(localStorage.getItem(vocaPassCountKey(lvl)), 10) || 0);
+}
+
+/** 해당 레벨 전 코스 Day를 끝낸 상태 (current/unlocked > 총 Day) */
+function isVocaCourseComplete(level) {
+    const lvl = level || localStorage.getItem('trigger_level') || 'middle';
+    const total = vocaTotalDays(lvl);
+    const cur = parseInt(localStorage.getItem('trigger_current_day_' + lvl), 10) || 1;
+    const unlocked = parseInt(localStorage.getItem('trigger_unlocked_day_' + lvl), 10) || 1;
+    return cur > total || unlocked > total;
+}
+
+/** 마지막 Day 완료 시 회차 +1 (2회·3회… 무한) */
+function markVocaCoursePass(level, completedDay) {
+    const lvl = level || localStorage.getItem('trigger_level') || 'middle';
+    if (parseInt(completedDay, 10) !== vocaTotalDays(lvl)) return getVocaPassCount(lvl);
+    if (localStorage.getItem('trigger_voca_pass_pending_' + lvl) === '1') return getVocaPassCount(lvl);
+    const next = getVocaPassCount(lvl) + 1;
+    localStorage.setItem(vocaPassCountKey(lvl), String(next));
+    localStorage.setItem('trigger_voca_pass_pending_' + lvl, '1');
+    return next;
+}
+
+/**
+ * A: 같은 단어 배치로 Day 1부터 재시작 (회차 제한 없음).
+ * 오답·크레딧·누적 기록은 유지. 진도·당일 상태·Day 통계만 리셋.
+ */
+function restartVocaCourseFromDay1(level) {
+    const lvl = level || localStorage.getItem('trigger_level') || 'middle';
+    const prefixes = [
+        'trigger_progress_' + lvl + '_',
+        'trigger_review_done_' + lvl + '_',
+        'trigger_excluded_' + lvl + '_',
+        'trigger_excluded_done_' + lvl + '_',
+        'trigger_cycle4_study_' + lvl + '_',
+        'trigger_start_day_' + lvl + '_'
+    ];
+    const toRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (!k) continue;
+        for (let p = 0; p < prefixes.length; p++) {
+            if (k.indexOf(prefixes[p]) === 0) {
+                toRemove.push(k);
+                break;
+            }
+        }
+    }
+    toRemove.forEach(function (k) {
+        localStorage.removeItem(k);
+    });
+    localStorage.setItem('trigger_current_day_' + lvl, '1');
+    localStorage.setItem('trigger_unlocked_day_' + lvl, '1');
+    localStorage.setItem('trigger_session_' + lvl, '1');
+    localStorage.setItem('trigger_stats_' + lvl, '{}');
+    localStorage.removeItem('trigger_voca_pass_pending_' + lvl);
+    if (typeof clearBlacktCooldownNotifySchedule === 'function') clearBlacktCooldownNotifySchedule();
+    localStorage.removeItem('blackt_cooldown');
+    if (typeof clearStudyCheckpoint === 'function') clearStudyCheckpoint();
+    return true;
+}
+
+window.getVocaPassCount = getVocaPassCount;
+window.isVocaCourseComplete = isVocaCourseComplete;
+window.markVocaCoursePass = markVocaCoursePass;
+window.restartVocaCourseFromDay1 = restartVocaCourseFromDay1;
+
 function vocaWeekAndLocal(level, absoluteDay) {
     if (typeof TriggerToeicSchedule !== 'undefined') {
         return {
@@ -1094,8 +1168,12 @@ if (typeof applyAdminPersistence === 'function') applyAdminPersistence();
         
         if (currentDay > vocaTotalDays(currentLevel)) {
             clearStudyCheckpoint();
-            showSystemMessage(`Day ${currentDay} 데이터를<br>불러올 수 없습니다.`);
-            setTimeout(() => { location.href = 'index.html?tab=voca'; }, 2500);
+            const passN = typeof getVocaPassCount === 'function' ? getVocaPassCount(currentLevel) : 0;
+            const passLabel = passN > 0 ? `${passN}회차 완주` : '코스 완주';
+            showSystemMessage(
+                `${passLabel} ◆<br>같은 단어로 Day 1부터 다시 학습할 수 있습니다.<br><span style="color:#888;font-size:0.9rem;">메인 화면에서 「Day 1부터 다시 학습」을 눌러 주세요.</span>`
+            );
+            setTimeout(() => { location.href = 'index.html?tab=voca'; }, 2800);
             return;
         }
 
@@ -1886,6 +1964,10 @@ function finishSession(didTest = true) {
         clearSmartStudyDayState(currentLevel, currentDay);
         localStorage.setItem(`trigger_current_day_${currentLevel}`, currentDay + 1);
         localStorage.setItem(`trigger_session_${currentLevel}`, '1');
+
+        if (currentDay === vocaTotalDays(currentLevel) && typeof markVocaCoursePass === 'function') {
+            markVocaCoursePass(currentLevel, currentDay);
+        }
 
         if ((currentSessionRaw === String(DAILY_CYCLE_COUNT) || currentSessionRaw === 'final' || (isReviewDay && currentSessionRaw === '2')) && accuracy >= 80) {
             if (currentDay === vocaTotalDays(currentLevel)) {

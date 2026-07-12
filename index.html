@@ -684,7 +684,11 @@
                     <div id="week-bonus-banner" style="display:none; text-align:center; padding:12px; border-radius:8px; background:rgba(255,153,0,0.08); border:1px dashed var(--neon-orange); margin-bottom:10px;"></div>
     
                     <div id="final-gift-section" style="display: none; border-top: 1px solid #333; padding-top: 15px; margin-top: 5px;">
-                        <p style="color: var(--neon-green); font-size: 0.85rem; font-weight: bold; margin-bottom: 8px;">◆ 10주 완주 성공! 선물 도착 🎊</p>
+                        <p id="final-gift-title" style="color: var(--neon-green); font-size: 0.85rem; font-weight: bold; margin-bottom: 8px;">◆ 코스 완주 성공! 선물 도착 🎊</p>
+                        <p id="final-gift-pass-label" style="color:#888; font-size:0.8rem; margin:0 0 10px; line-height:1.4;"></p>
+                        <button type="button" id="btn-restart-voca-day1" onclick="confirmRestartVocaCourseFromDay1()" style="width: 100%; padding: 14px; background: rgba(255,153,0,0.12); border: 1px solid var(--neon-orange); color: #fff; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.92rem; margin-bottom: 10px;">
+                            🔄 Day 1부터 다시 학습
+                        </button>
                         <button onclick="printMyWrongTest()" style="width: 100%; padding: 12px; background: rgba(0, 243, 255, 0.1); border: 1px solid var(--neon-blue); color: var(--neon-blue); border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem;">
                             🖨️ 나만의 누적 오답 시험지 출력
                         </button>
@@ -1395,6 +1399,10 @@
 
         function startDayStudy(day) {
             const currentLevel = localStorage.getItem('trigger_level') || 'middle';
+            if (typeof isVocaCourseComplete === 'function' && isVocaCourseComplete(currentLevel)) {
+                confirmRestartVocaCourseFromDay1();
+                return;
+            }
             const savedDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
             const targetDay = Math.max(parseInt(day, 10) || 1, savedDay);
             if (savedDay !== targetDay) {
@@ -1404,11 +1412,33 @@
             location.href = 'study.html';
         }
 
+        function confirmRestartVocaCourseFromDay1() {
+            const lvl = localStorage.getItem('trigger_level') || 'middle';
+            if (typeof restartVocaCourseFromDay1 !== 'function') {
+                alert('재시작 기능을 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.');
+                return;
+            }
+            const passN = typeof getVocaPassCount === 'function' ? getVocaPassCount(lvl) : 0;
+            const nextRound = Math.max(1, passN) + 1;
+            if (!confirm(
+                (passN > 0 ? passN + '회차 완주 ◆\n' : '') +
+                '같은 단어 목록으로 Day 1부터 다시 시작합니다.\n' +
+                '(오답·크레딧은 유지, 진도만 리셋)\n\n' +
+                nextRound + '회차를 시작할까요?'
+            )) return;
+            restartVocaCourseFromDay1(lvl);
+            alert(nextRound + '회차 시작! Day 1부터 학습할 수 있습니다.');
+            updateDashboardUI();
+        }
+        window.confirmRestartVocaCourseFromDay1 = confirmRestartVocaCourseFromDay1;
+
         /** 서버 daily_session 기준 완료 Day — localStorage가 뒤처졌을 때만 앞으로 맞춤 */
         function mergeVocaProgressFromServer(vocaProgress) {
             if (!vocaProgress || typeof vocaProgress !== 'object') return false;
             let changed = false;
             ['middle', 'high'].forEach(function (lvl) {
+                // 1회차 이상 완주(재시작 포함) 후에는 로컬 진도가 기준 — 서버 next_day가 Day1 리셋을 덮어쓰지 않음
+                if (typeof getVocaPassCount === 'function' && getVocaPassCount(lvl) >= 1) return;
                 const p = vocaProgress[lvl];
                 if (!p) return;
                 const nextDay = Math.min(71, Math.max(1, parseInt(p.next_day, 10) || 1));
@@ -1878,9 +1908,24 @@
             
             document.getElementById('stat-session').innerText = session > 5 ? 'Clear 리스트' : `${session} / 5`;
 
+            const courseComplete = typeof isVocaCourseComplete === 'function' && isVocaCourseComplete(lvl);
+            if (courseComplete && typeof getVocaPassCount === 'function' && getVocaPassCount(lvl) < 1) {
+                localStorage.setItem('trigger_voca_pass_count_' + lvl, '1');
+                localStorage.setItem('trigger_voca_pass_pending_' + lvl, '1');
+            }
+
             if (window.cooldownInterval) clearInterval(window.cooldownInterval);
 
-            if (session > 5) {
+            if (courseComplete) {
+                const passN = typeof getVocaPassCount === 'function' ? getVocaPassCount(lvl) : 1;
+                startBtn.disabled = false;
+                startBtn.innerText = 'Day 1부터 다시 학습';
+                startBtn.style.borderColor = 'var(--neon-orange)';
+                startBtn.style.boxShadow = 'var(--glow-orange)';
+                startBtn.style.color = '#fff';
+                startBtn.onclick = function () { confirmRestartVocaCourseFromDay1(); };
+                document.getElementById('stat-session').innerText = passN + '회차 완주';
+            } else if (session > 5) {
                 startBtn.disabled = false;
                 startBtn.innerText = "자유 복습 모드";
                 startBtn.style.borderColor = "var(--neon-blue)";
@@ -1973,6 +2018,28 @@
                 }
             }
             container.innerHTML = html;
+
+            const giftSection = document.getElementById('final-gift-section');
+            if (giftSection) {
+                const courseDone = typeof isVocaCourseComplete === 'function' && isVocaCourseComplete(currentLevel);
+                giftSection.style.display = courseDone ? 'block' : 'none';
+                if (courseDone) {
+                    const isToeic = typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.isToeicLevel(currentLevel);
+                    const titleEl = document.getElementById('final-gift-title');
+                    if (titleEl) {
+                        titleEl.textContent = isToeic
+                            ? '◆ 54일 완주 성공! 선물 도착 🎊'
+                            : '◆ 10주 완주 성공! 선물 도착 🎊';
+                    }
+                    const passEl = document.getElementById('final-gift-pass-label');
+                    if (passEl) {
+                        const passN = typeof getVocaPassCount === 'function' ? getVocaPassCount(currentLevel) : 0;
+                        passEl.textContent = passN > 0
+                            ? passN + '회차 완주했습니다. 같은 단어로 Day 1부터 몇 번이든 다시 돌 수 있습니다.'
+                            : '같은 단어로 Day 1부터 몇 번이든 다시 돌 수 있습니다.';
+                    }
+                }
+            }
 
             const weekBanner = document.getElementById('week-bonus-banner');
             const completedWeeks = typeof TriggerToeicSchedule !== 'undefined'
@@ -2976,7 +3043,7 @@
     </script>
     <script src="praise-share.js?v=20260517_kakao_return"></script>
     <script src="admin-unlock.js"></script>
-    <script src="app.js?v=20260701_wrong2"></script>
+    <script src="app.js?v=20260712_restart"></script>
     <script src="worddata.js"></script>
     <script src="worddata_toeic.js?v=20260625_toeic54"></script>
     <script src="toeic-schedule.js"></script>
