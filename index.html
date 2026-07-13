@@ -1436,12 +1436,13 @@
         function mergeVocaProgressFromServer(vocaProgress) {
             if (!vocaProgress || typeof vocaProgress !== 'object') return false;
             let changed = false;
-            ['middle', 'high'].forEach(function (lvl) {
+            ['middle', 'high', 'toeic'].forEach(function (lvl) {
                 // 1회차 이상 완주(재시작 포함) 후에는 로컬 진도가 기준 — 서버 next_day가 Day1 리셋을 덮어쓰지 않음
                 if (typeof getVocaPassCount === 'function' && getVocaPassCount(lvl) >= 1) return;
                 const p = vocaProgress[lvl];
                 if (!p) return;
-                const nextDay = Math.min(71, Math.max(1, parseInt(p.next_day, 10) || 1));
+                const maxNextDay = (typeof vocaTotalDaysForLevel === 'function' ? vocaTotalDaysForLevel(lvl) : 70) + 1;
+                const nextDay = Math.min(maxNextDay, Math.max(1, parseInt(p.next_day, 10) || 1));
                 const cur = parseInt(localStorage.getItem('trigger_current_day_' + lvl), 10) || 1;
                 const unlocked = parseInt(localStorage.getItem('trigger_unlocked_day_' + lvl), 10) || 1;
                 if (nextDay > cur) {

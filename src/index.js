@@ -581,7 +581,7 @@ async function handleStreak(env, body) {
   const progressRows = await env.DB.prepare(
     `SELECT level, MAX(day_num) AS max_day
      FROM daily_session
-     WHERE user_id = ?1 AND level IN ('middle', 'high')
+     WHERE user_id = ?1 AND level IN ('middle', 'high', 'toeic')
      GROUP BY level`
   )
     .bind(userId)
