@@ -161,6 +161,7 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
     display: flex;
     justify-content: flex-end;
     align-items: center;
+    gap: 8px;
     margin-top: 26px;
     padding: 0 2px;
     box-sizing: border-box;

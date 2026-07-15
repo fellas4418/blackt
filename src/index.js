@@ -1083,11 +1083,23 @@ async function handleAdminMembers(env, request) {
   } catch (e) {
     referrals = [];
   }
+  let studyLevels = [];
+  try {
+    const sl = await env.DB.prepare(
+      `SELECT user_id, level FROM daily_session
+       WHERE level IS NOT NULL AND trim(level) != ''
+       GROUP BY user_id, level`
+    ).all();
+    studyLevels = sl.results || [];
+  } catch (e) {
+    studyLevels = [];
+  }
   return json({
     ok: true,
     items: logRows,
     users: users.results || [],
     referrals,
+    study_levels: studyLevels,
   });
 }
 
@@ -1282,6 +1294,121 @@ async function handleReferralClaim(env, body) {
   return json({ ok: true, count });
 }
 
+function maskLeaderboardName(name, isMe) {
+  const full = String(name || "").trim();
+  if (isMe) return full || "나";
+  if (!full) return "?";
+  const surname = full.charAt(0);
+  if (full.length === 1) return surname;
+  return surname + "○○";
+}
+
+function displayNameFromUserId(userId, phoneNameMap) {
+  const id = String(userId || "");
+  const ix = id.indexOf("::");
+  const phone = ix > 0 ? id.slice(0, ix) : "";
+  if (phone && phoneNameMap[phone]) return phoneNameMap[phone];
+  if (ix > 0) return id.slice(ix + 2);
+  return "";
+}
+
+async function handleLeaderboard(env, body) {
+  const myPhone = normalizePhone(body.phone);
+  const myName = String(body.name || "").trim();
+  const myUserId = myPhone && myName ? `${myPhone}::${normalizeName(myName)}` : "";
+
+  let progress = [];
+  try {
+    const rows = await env.DB.prepare(
+      `SELECT
+        user_id,
+        COUNT(*) AS completed_days,
+        ROUND(AVG(accuracy), 1) AS avg_accuracy,
+        MAX(created_at) AS last_study_at
+       FROM daily_session
+       GROUP BY user_id
+       HAVING COUNT(*) > 0
+       ORDER BY completed_days DESC, avg_accuracy DESC, datetime(last_study_at) DESC
+       LIMIT 80`
+    ).all();
+    progress = rows.results || [];
+  } catch (e) {
+    return json({ ok: true, items: [], message: "no_daily_session" });
+  }
+
+  const phoneNameMap = Object.create(null);
+  try {
+    const nameRows = await env.DB.prepare(
+      `SELECT phone, name FROM signup_logs ORDER BY datetime(created_at) DESC LIMIT 800`
+    ).all();
+    for (const r of nameRows.results || []) {
+      const p = normalizePhone(r.phone);
+      if (p && r.name && !phoneNameMap[p]) phoneNameMap[p] = String(r.name).trim();
+    }
+  } catch (e) {}
+
+  const today = kstTodayYmd();
+  const streakByUser = Object.create(null);
+  try {
+    const dateRows = await env.DB.prepare(
+      `SELECT user_id, date(created_at, '+9 hours') AS d
+       FROM daily_session
+       GROUP BY user_id, date(created_at, '+9 hours')`
+    ).all();
+    const datesByUser = Object.create(null);
+    for (const r of dateRows.results || []) {
+      const uid = String(r.user_id || "");
+      const d = String(r.d || "");
+      if (!uid || !d) continue;
+      if (!datesByUser[uid]) datesByUser[uid] = [];
+      datesByUser[uid].push(d);
+    }
+    for (const uid of Object.keys(datesByUser)) {
+      const sorted = datesByUser[uid].slice().sort().reverse();
+      streakByUser[uid] = computeStreakFromDates(sorted, today);
+    }
+  } catch (e) {}
+
+  const items = [];
+  for (const row of progress) {
+    const userId = String(row.user_id || "");
+    const ix = userId.indexOf("::");
+    const phone = ix > 0 ? normalizePhone(userId.slice(0, ix)) : normalizePhone(userId);
+    const realName =
+      displayNameFromUserId(userId, phoneNameMap) || (ix > 0 ? userId.slice(ix + 2) : "학습자");
+    const isMe =
+      !!myPhone &&
+      (phone === myPhone ||
+        userId === myUserId ||
+        (myName && normalizeName(realName) === normalizeName(myName) && phone === myPhone));
+
+    items.push({
+      user_id: userId,
+      display_name: maskLeaderboardName(realName, isMe),
+      completed_days: Number(row.completed_days) || 0,
+      avg_accuracy: row.avg_accuracy != null ? Number(row.avg_accuracy) : null,
+      streak: Number(streakByUser[userId]) || 0,
+      last_study_at: row.last_study_at || null,
+      is_me: isMe ? 1 : 0,
+    });
+  }
+
+  items.sort((a, b) => {
+    if (b.streak !== a.streak) return b.streak - a.streak;
+    if (b.completed_days !== a.completed_days) return b.completed_days - a.completed_days;
+    return (Number(b.avg_accuracy) || 0) - (Number(a.avg_accuracy) || 0);
+  });
+
+  const top = items.slice(0, 30).map((row, i) => ({ ...row, rank: i + 1 }));
+  const myRank = items.findIndex((x) => x.is_me) + 1;
+  return json({
+    ok: true,
+    items: top,
+    my_rank: myRank > 0 ? myRank : null,
+    total: items.length,
+  });
+}
+
 export { GeminiProxy } from "./gemini-proxy.js";
 
 export default {
@@ -1349,6 +1476,15 @@ export default {
       }
       if (request.method === "POST" && path === "/api/referral/claim") {
         return handleReferralClaim(env, await request.json());
+      }
+      if (request.method === "POST" && path === "/api/leaderboard") {
+        let lbBody = {};
+        try {
+          lbBody = await request.json();
+        } catch (e) {
+          lbBody = {};
+        }
+        return handleLeaderboard(env, lbBody || {});
       }
       if (request.method === "GET" && path === "/api/admin/daily-session") {
         return handleAdminDailySession(env, request, url);

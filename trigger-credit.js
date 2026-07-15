@@ -41,6 +41,9 @@
         return String(raw || '').replace(/[^0-9]/g, '');
     }
 
+    var REFERRAL_API_BASE = 'https://trigger-ocr-api.ohryee.workers.dev';
+    var REFERRAL_TTL_MS = 14 * 24 * 60 * 60 * 1000;
+
     function referralIdFromPhone(phone) {
         var p = normalizePhone(phone);
         return p && /^010\d{8}$/.test(p) ? 'r' + p : '';
@@ -57,12 +60,48 @@
         return guest;
     }
 
+    function persistReferredBy(ref) {
+        ref = String(ref || '').trim();
+        if (!ref) return;
+        try {
+            sessionStorage.setItem('trigger_referred_by', ref);
+        } catch (e) {}
+        try {
+            localStorage.setItem('trigger_referred_by', ref);
+            localStorage.setItem('trigger_referred_by_at', String(Date.now()));
+        } catch (e) {}
+    }
+
+    function clearReferredBy() {
+        try {
+            sessionStorage.removeItem('trigger_referred_by');
+        } catch (e) {}
+        try {
+            localStorage.removeItem('trigger_referred_by');
+            localStorage.removeItem('trigger_referred_by_at');
+        } catch (e) {}
+    }
+
+    function getReferredBy() {
+        try {
+            var fromSession = String(sessionStorage.getItem('trigger_referred_by') || '').trim();
+            if (fromSession) return fromSession;
+        } catch (e) {}
+        try {
+            var fromLs = String(localStorage.getItem('trigger_referred_by') || '').trim();
+            var at = parseInt(localStorage.getItem('trigger_referred_by_at') || '0', 10) || 0;
+            if (fromLs && at && Date.now() - at < REFERRAL_TTL_MS) return fromLs;
+            if (fromLs && (!at || Date.now() - at >= REFERRAL_TTL_MS)) clearReferredBy();
+        } catch (e) {}
+        return '';
+    }
+
     function captureReferralFromUrl() {
         try {
             var ref = new URLSearchParams(window.location.search).get('ref');
             ref = String(ref || '').trim();
             if (!ref) return;
-            sessionStorage.setItem('trigger_referred_by', ref);
+            persistReferredBy(ref);
             var url = new URL(window.location.href);
             url.searchParams.delete('ref');
             window.history.replaceState({}, document.title, url.pathname + (url.search || '') + url.hash);
@@ -70,7 +109,8 @@
     }
 
     function postReferralApi(path, body) {
-        return fetch(path, {
+        var base = REFERRAL_API_BASE.replace(/\/$/, '');
+        return fetch(base + path, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body || {})
@@ -88,7 +128,7 @@
         var phone = normalizePhone(refereePhone);
         if (!referrerId || !/^010\d{8}$/.test(phone)) return;
         if (referrerId === referralIdFromPhone(phone)) return;
-        sessionStorage.removeItem('trigger_referred_by');
+        clearReferredBy();
         postReferralApi('/api/referral/signup', {
             referrer_id: referrerId,
             referee_phone: phone
@@ -258,6 +298,9 @@
         closeCreditInfo: closeCreditInfo,
         getMyReferralId: getMyReferralId,
         captureReferralFromUrl: captureReferralFromUrl,
+        getReferredBy: getReferredBy,
+        persistReferredBy: persistReferredBy,
+        clearReferredBy: clearReferredBy,
         reportReferralSignup: reportReferralSignup,
         syncReferralCreditsFromServer: syncReferralCreditsFromServer,
         WEEK_BONUS: WEEK_BONUS,

@@ -130,7 +130,14 @@
             }
             if (pcParam) finalUrl.searchParams.set('pc', pcParam);
             if (zone) finalUrl.searchParams.set('zone', zone);
-            if (refTrim) finalUrl.searchParams.set('ref', refTrim);
+            if (refTrim) {
+                finalUrl.searchParams.set('ref', refTrim);
+                try {
+                    localStorage.setItem('trigger_referred_by', refTrim);
+                    localStorage.setItem('trigger_referred_by_at', String(Date.now()));
+                    sessionStorage.setItem('trigger_referred_by', refTrim);
+                } catch (e) {}
+            }
             const erParam = params.get('er');
             if (erParam) finalUrl.searchParams.set('er', erParam);
 

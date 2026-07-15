@@ -144,9 +144,17 @@
             font-size: 0.72rem;
             font-family: var(--font-mono, monospace);
         }
-        .invite-count {
+        .level-chip {
+            display: inline-block;
+            margin: 1px 3px 1px 0;
+            padding: 2px 7px;
+            border-radius: 999px;
+            border: 1px solid rgba(0, 243, 255, 0.35);
+            color: var(--neon-blue);
+            background: rgba(0, 243, 255, 0.08);
+            font-size: 0.72rem;
             font-weight: 700;
-            color: var(--neon-orange, #ff9f43);
+            white-space: nowrap;
         }
         .member-modal-backdrop {
             position: fixed;
@@ -643,6 +651,40 @@
                 });
             }
 
+            function normalizeLevelLabel(lv) {
+                var s = String(lv || '').trim();
+                if (!s || s === '—') return '';
+                var low = s.toLowerCase();
+                if (low === 'middle' || s === '중등') return '중등';
+                if (low === 'high' || s === '고등') return '고등';
+                if (low === 'toeic' || s === '토익') return '토익';
+                if (s.indexOf('미정') === 0) return '';
+                return s;
+            }
+
+            function formatLevelsHtml(levels, fallback) {
+                var order = { '중등': 1, '고등': 2, '토익': 3 };
+                var uniq = [];
+                var seen = Object.create(null);
+                (levels || []).forEach(function (lv) {
+                    var n = normalizeLevelLabel(lv);
+                    if (!n || seen[n]) return;
+                    seen[n] = true;
+                    uniq.push(n);
+                });
+                uniq.sort(function (a, b) {
+                    return (order[a] || 9) - (order[b] || 9);
+                });
+                if (!uniq.length) {
+                    var fb = normalizeLevelLabel(fallback) || String(fallback || '').trim();
+                    if (fb && fb !== '—') return escapeHtml(fb.indexOf('미정') === 0 ? '미정' : fb);
+                    return '—';
+                }
+                return uniq.map(function (lv) {
+                    return '<span class="level-chip">' + escapeHtml(lv) + '</span>';
+                }).join(' ');
+            }
+
             function phoneFromReferrerId(refId) {
                 var s = String(refId || '').trim();
                 if (/^r010\d{8}$/.test(s)) return s.slice(1);
@@ -685,9 +727,24 @@
                 return n;
             }
 
-            function aggregateMembers(items, users, referrals) {
+            function studyLevelsByPhone(studyLevels) {
+                var map = Object.create(null);
+                (studyLevels || []).forEach(function (row) {
+                    var id = String(row.user_id || '');
+                    var ix = id.indexOf('::');
+                    var phone = ix > 0 ? id.slice(0, ix) : id.replace(/[^0-9]/g, '');
+                    phone = String(phone || '').replace(/[^0-9]/g, '');
+                    if (!phone) return;
+                    if (!map[phone]) map[phone] = [];
+                    map[phone].push(row.level);
+                });
+                return map;
+            }
+
+            function aggregateMembers(items, users, referrals, studyLevels) {
                 var map = Object.create(null);
                 var refereeToReferrer = Object.create(null);
+                var phoneStudy = studyLevelsByPhone(studyLevels);
                 (referrals || []).forEach(function (r) {
                     var phone = String(r.referee_phone || '').replace(/[^0-9]/g, '');
                     if (phone && r.referrer_id && !refereeToReferrer[phone]) {
@@ -701,6 +758,7 @@
                             name: row.name,
                             phone: row.phone,
                             level: row.level || '—',
+                            levels: [],
                             referrer: row.referrer || '',
                             first_at: row.created_at,
                             last_at: row.created_at,
@@ -710,7 +768,10 @@
                     }
                     var m = map[key];
                     m.event_count += 1;
-                    if (row.level) m.level = row.level;
+                    if (row.level) {
+                        m.level = row.level;
+                        m.levels.push(row.level);
+                    }
                     if (row.referrer && !m.referrer) m.referrer = row.referrer;
                     if (row.created_at && (!m.first_at || row.created_at < m.first_at)) m.first_at = row.created_at;
                     if (row.created_at && (!m.last_at || row.created_at > m.last_at)) {
@@ -731,6 +792,7 @@
                             name: name,
                             phone: phone,
                             level: '—',
+                            levels: [],
                             referrer: '',
                             first_at: null,
                             last_at: null,
@@ -746,6 +808,9 @@
                     if (!m.referrer && dig && refereeToReferrer[dig]) {
                         m.referrer = refereeToReferrer[dig];
                     }
+                    if (dig && phoneStudy[dig]) {
+                        m.levels = (m.levels || []).concat(phoneStudy[dig]);
+                    }
                     m.invite_count = inviteCountForPhone(m.phone, referrals);
                 });
                 return Object.keys(map).map(function (k) { return map[k]; }).sort(function (a, b) {
@@ -753,9 +818,9 @@
                 });
             }
 
-            function renderMembers(items, users, referrals) {
+            function renderMembers(items, users, referrals, studyLevels) {
                 membersBody.innerHTML = '';
-                var rows = aggregateMembers(items, users, referrals);
+                var rows = aggregateMembers(items, users, referrals, studyLevels);
                 var phoneNameMap = buildPhoneNameMap(rows);
                 if (!rows.length) {
                     membersEmpty.classList.remove('hide');
@@ -771,7 +836,7 @@
                     tr.innerHTML =
                         '<td>' + escapeHtml(row.name || '—') + '</td>' +
                         '<td class="num">' + escapeHtml(fmtPhone(row.phone)) + '</td>' +
-                        '<td>' + escapeHtml(row.level || '—') + '</td>' +
+                        '<td>' + formatLevelsHtml(row.levels, row.level) + '</td>' +
                         '<td>' + formatReferrerHtml(row.referrer, phoneNameMap) + '</td>' +
                         '<td class="num">' + inviteHtml + '</td>' +
                         '<td class="num">' + escapeHtml(fmtDate(row.first_at)) + '</td>' +
@@ -1013,7 +1078,7 @@
             async function loadMembers() {
                 var data = await adminFetch('/api/admin/members');
                 document.getElementById('members-panel').classList.remove('hide');
-                renderMembers(data.items || [], data.users || [], data.referrals || []);
+                renderMembers(data.items || [], data.users || [], data.referrals || [], data.study_levels || []);
                 return data;
             }
 
@@ -1063,7 +1128,8 @@
                     var memberN = aggregateMembers(
                         results[1].items || [],
                         results[1].users || [],
-                        results[1].referrals || []
+                        results[1].referrals || [],
+                        results[1].study_levels || []
                     ).length;
                     var examN = (results[2].items || []).length;
                     setStatus('진도 ' + progressN + '명 · 회원 ' + memberN + '명 · 시험학생 ' + examN + '명 · ' + fmtDate(new Date()), 'ok');
