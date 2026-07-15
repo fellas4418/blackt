@@ -121,6 +121,16 @@
             opacity: 0.45;
             cursor: not-allowed;
         }
+        .btn-edit {
+            border-color: var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 6px 10px;
+            font-size: 0.76rem;
+            margin-right: 6px;
+        }
+        .btn-edit:hover {
+            background: rgba(0, 243, 255, 0.12);
+        }
         td.member-actions {
             white-space: nowrap;
         }
@@ -137,6 +147,66 @@
         .invite-count {
             font-weight: 700;
             color: var(--neon-orange, #ff9f43);
+        }
+        .member-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 80;
+            background: rgba(0, 0, 0, 0.72);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .member-modal-backdrop.hide { display: none; }
+        .member-modal {
+            width: 100%;
+            max-width: 420px;
+            background: #0c0c0c;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 18px 16px 16px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+        }
+        .member-modal h3 {
+            margin: 0 0 12px;
+            font-size: 1rem;
+            color: var(--neon-blue);
+        }
+        .member-modal label {
+            display: block;
+            font-size: 0.78rem;
+            color: #999;
+            margin: 10px 0 4px;
+        }
+        .member-modal input,
+        .member-modal select {
+            width: 100%;
+            box-sizing: border-box;
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 0.9rem;
+        }
+        .member-modal .modal-phone {
+            font-family: var(--font-mono, monospace);
+            color: #bbb;
+            font-size: 0.88rem;
+            margin-bottom: 4px;
+        }
+        .member-modal-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 16px;
+        }
+        .member-modal .warn {
+            margin-top: 12px;
+            font-size: 0.75rem;
+            color: #ff9f43;
+            line-height: 1.45;
         }
         .tab-bar {
             display: flex;
@@ -309,8 +379,9 @@
         <section class="panel hide tab-panel" id="members-panel" data-tab="members">
             <h2 class="panel-title">회원가입 · 레벨 변경</h2>
             <p class="panel-hint">
-                신규 가입·레벨 선택 시 D1에 자동 저장됩니다. 추천인은 공유 링크(`ref`)로 가입한 경우·추천 테이블 기준으로 표시됩니다.
-                테스트 계정은 <strong style="color:#ff6b6b;">삭제</strong>로 지울 수 있습니다. (구글 시트 과거 행은 별도)
+                <strong style="color:var(--neon-blue);">편집</strong>으로 이름·레벨을 고치고,
+                확실한 테스트 계정만 <strong style="color:#ff6b6b;">삭제</strong>하세요. (삭제 시 전화 끝 4자리 확인 · 구글 시트는 별도)
+                추천인은 공유 링크(`ref`)·추천 테이블 기준입니다.
                 <a class="sheet-link" href="https://docs.google.com/spreadsheets/" target="_blank" rel="noopener">구글 시트</a>
             </p>
             <div class="table-scroll">
@@ -333,6 +404,28 @@
             </div>
             <div id="members-empty" class="empty hide">회원 로그가 없습니다. (Worker 배포 후 signup_logs 테이블 적용 필요)</div>
         </section>
+
+        <div id="member-edit-modal" class="member-modal-backdrop hide" aria-hidden="true">
+            <div class="member-modal" role="dialog" aria-labelledby="member-edit-title">
+                <h3 id="member-edit-title">회원 편집</h3>
+                <div class="modal-phone" id="member-edit-phone">—</div>
+                <label for="member-edit-name">이름</label>
+                <input type="text" id="member-edit-name" autocomplete="off" maxlength="40">
+                <label for="member-edit-level">레벨</label>
+                <select id="member-edit-level">
+                    <option value="">(변경 안 함)</option>
+                    <option value="미정(가입완료)">미정(가입완료)</option>
+                    <option value="중등">중등</option>
+                    <option value="고등">고등</option>
+                    <option value="toeic">토익</option>
+                </select>
+                <p class="warn">진짜 학생은 편집만 하세요. 삭제는 테스트로 확인된 행만.</p>
+                <div class="member-modal-actions">
+                    <button type="button" class="btn btn-ghost" id="member-edit-cancel">취소</button>
+                    <button type="button" class="btn" id="member-edit-save">저장</button>
+                </div>
+            </div>
+        </div>
 
         <section class="panel hide tab-panel" id="exam-summary-panel" data-tab="exam">
             <h2 class="panel-title">시험 분석 학생 목록</h2>
@@ -684,9 +777,16 @@
                         '<td class="num">' + escapeHtml(fmtDate(row.first_at)) + '</td>' +
                         '<td class="num">' + escapeHtml(fmtDate(row.last_at)) + '</td>' +
                         '<td>' + escapeHtml(eventLabel) + (row.event_count > 1 ? ' (' + row.event_count + ')' : '') + '</td>' +
-                        '<td class="member-actions"><button type="button" class="btn btn-danger btn-member-delete">삭제</button></td>';
-                    var delBtn = tr.querySelector('.btn-member-delete');
-                    delBtn.addEventListener('click', function (ev) {
+                        '<td class="member-actions">' +
+                            '<button type="button" class="btn btn-edit btn-member-edit">편집</button>' +
+                            '<button type="button" class="btn btn-danger btn-member-delete">삭제</button>' +
+                        '</td>';
+                    tr.querySelector('.btn-member-edit').addEventListener('click', function (ev) {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        openMemberEdit(row);
+                    });
+                    tr.querySelector('.btn-member-delete').addEventListener('click', function (ev) {
                         ev.preventDefault();
                         ev.stopPropagation();
                         deleteMember(row);
@@ -695,10 +795,84 @@
                 });
             }
 
-            async function deleteMember(row) {
-                var label = (row.name || '') + ' / ' + fmtPhone(row.phone);
-                if (!window.confirm('정말 삭제할까요?\n\n' + label + '\n\n계정·가입로그·학습·추천 기록이 함께 지워집니다.\n(구글 시트는 자동으로 안 지워집니다)')) {
+            var editingMember = null;
+
+            function openMemberEdit(row) {
+                editingMember = row;
+                var modal = document.getElementById('member-edit-modal');
+                document.getElementById('member-edit-phone').textContent = fmtPhone(row.phone);
+                document.getElementById('member-edit-name').value = row.name || '';
+                var levelEl = document.getElementById('member-edit-level');
+                var lv = String(row.level || '').trim();
+                var found = false;
+                for (var i = 0; i < levelEl.options.length; i++) {
+                    if (levelEl.options[i].value === lv) {
+                        levelEl.value = lv;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) levelEl.value = '';
+                modal.classList.remove('hide');
+                modal.setAttribute('aria-hidden', 'false');
+                document.getElementById('member-edit-name').focus();
+            }
+
+            function closeMemberEdit() {
+                editingMember = null;
+                var modal = document.getElementById('member-edit-modal');
+                modal.classList.add('hide');
+                modal.setAttribute('aria-hidden', 'true');
+            }
+
+            async function saveMemberEdit() {
+                if (!editingMember) return;
+                var newName = String(document.getElementById('member-edit-name').value || '').trim();
+                var level = String(document.getElementById('member-edit-level').value || '').trim();
+                if (!newName) {
+                    setStatus('이름을 입력해 주세요.', 'error');
                     return;
+                }
+                if (level && level === String(editingMember.level || '').trim()) {
+                    level = '';
+                }
+                var label = newName + ' / ' + fmtPhone(editingMember.phone);
+                setStatus('저장 중… ' + label);
+                try {
+                    await adminFetchPost('/api/admin/member/update', {
+                        phone: editingMember.phone,
+                        old_name: editingMember.name,
+                        new_name: newName,
+                        level: level
+                    });
+                    closeMemberEdit();
+                    setStatus('저장 완료 · ' + label, 'ok');
+                    await loadMembers();
+                } catch (err) {
+                    setStatus(err.message || String(err), 'error');
+                }
+            }
+
+            async function deleteMember(row) {
+                var dig = String(row.phone || '').replace(/[^0-9]/g, '');
+                var last4 = dig.length >= 4 ? dig.slice(-4) : '';
+                var label = (row.name || '') + ' / ' + fmtPhone(row.phone);
+                if (!window.confirm(
+                    '⚠ 진짜 학생일 수 있습니다.\n테스트로 확인된 계정만 지우세요.\n\n' +
+                    label +
+                    '\n\n계속하면 계정·가입로그·학습·추천이 삭제됩니다.'
+                )) {
+                    return;
+                }
+                if (last4) {
+                    var typed = window.prompt(
+                        '삭제를 확정하려면 전화번호 끝 4자리를 입력하세요.\n\n' + label + '\n끝 4자리:',
+                        ''
+                    );
+                    if (String(typed || '').trim() !== last4) {
+                        setStatus('삭제 취소 · 끝 4자리가 일치하지 않습니다.', 'error');
+                        return;
+                    }
                 }
                 setStatus('삭제 중… ' + label);
                 try {
@@ -918,6 +1092,21 @@
                 selectedExamUserId = '';
                 highlightSelected();
                 examDetailPanel.classList.add('hide');
+            });
+
+            document.getElementById('member-edit-cancel').addEventListener('click', closeMemberEdit);
+            document.getElementById('member-edit-save').addEventListener('click', function () {
+                saveMemberEdit();
+            });
+            document.getElementById('member-edit-modal').addEventListener('click', function (e) {
+                if (e.target === this) closeMemberEdit();
+            });
+            document.getElementById('member-edit-name').addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    saveMemberEdit();
+                }
+                if (e.key === 'Escape') closeMemberEdit();
             });
 
             if (getApiKey()) loadAll();

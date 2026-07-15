@@ -931,6 +931,135 @@ async function handleExamReportAdminComment(env, request, body) {
   return json({ ok: true, id });
 }
 
+async function reassignUserId(env, oldId, newId) {
+  if (!oldId || !newId || oldId === newId) return { ok: true, skipped: true };
+  const clash = await env.DB.prepare("SELECT id FROM users WHERE id = ?1").bind(newId).first();
+  if (clash) {
+    const err = new Error("new_user_id_exists");
+    err.code = "new_user_id_exists";
+    throw err;
+  }
+  const old = await env.DB.prepare("SELECT id, password_hash, is_premium FROM users WHERE id = ?1")
+    .bind(oldId)
+    .first();
+  if (old) {
+    await env.DB.prepare(
+      "INSERT INTO users (id, password_hash, is_premium) VALUES (?1, ?2, ?3)"
+    )
+      .bind(newId, old.password_hash, Number(old.is_premium) || 0)
+      .run();
+    await env.DB.prepare("DELETE FROM users WHERE id = ?1").bind(oldId).run();
+  }
+  const tables = [
+    "daily_session",
+    "exam_analysis",
+    "chat_history",
+    "saved_voca",
+    "saved_grammar",
+  ];
+  for (const table of tables) {
+    try {
+      await env.DB.prepare(`UPDATE ${table} SET user_id = ?1 WHERE user_id = ?2`)
+        .bind(newId, oldId)
+        .run();
+    } catch (e) {}
+  }
+  try {
+    await env.DB.prepare("UPDATE signup_logs SET user_id = ?1 WHERE user_id = ?2")
+      .bind(newId, oldId)
+      .run();
+  } catch (e) {}
+  return { ok: true };
+}
+
+async function handleAdminMemberUpdate(env, request, body) {
+  if (!verifyPaymentSecret(env, request, body || {})) return json({ error: "unauthorized" }, 401);
+  const phone = normalizePhone(body.phone);
+  const oldName = String(body.old_name || body.name || "").trim();
+  const newName = String(body.new_name != null ? body.new_name : oldName).trim();
+  const levelRaw = body.level != null ? String(body.level).trim() : null;
+  if (!phone) return json({ error: "phone이 필요합니다." }, 400);
+  if (!newName) return json({ error: "이름이 필요합니다." }, 400);
+
+  const oldUserId = `${phone}::${normalizeName(oldName || newName)}`;
+  const newUserId = `${phone}::${normalizeName(newName)}`;
+  const nameChanged = normalizeName(oldName) !== normalizeName(newName) || oldName !== newName;
+
+  // 전화에 묶인 기존 계정 id 수집
+  const idRows = await env.DB.prepare(
+    "SELECT id FROM users WHERE id = ?1 OR id = ?2 OR id LIKE ?3"
+  )
+    .bind(oldUserId, phone, phone + "::%")
+    .all();
+  const existingIds = [...new Set((idRows.results || []).map((r) => String(r.id)).filter(Boolean))];
+
+  if (nameChanged) {
+    // 같은 전화의 다른 이름 계정과 충돌 방지: 대상만 이름 변경
+    for (const id of existingIds) {
+      if (id === newUserId) continue;
+      const ix = id.indexOf("::");
+      const idName = ix > 0 ? id.slice(ix + 2) : "";
+      // 표시 이름/정규화 이름이 기존과 일치하는 계정만 이동
+      if (
+        id === oldUserId ||
+        id === phone ||
+        (oldName && (idName === normalizeName(oldName) || idName === oldName.toLowerCase()))
+      ) {
+        try {
+          await reassignUserId(env, id, newUserId);
+        } catch (e) {
+          if (e && e.code === "new_user_id_exists") {
+            return json({ error: "같은 전화·새 이름의 계정이 이미 있습니다." }, 409);
+          }
+          throw e;
+        }
+      }
+    }
+    await env.DB.prepare("UPDATE signup_logs SET name = ?1, user_id = ?2 WHERE phone = ?3")
+      .bind(newName, newUserId, phone)
+      .run();
+  }
+
+  if (levelRaw != null && levelRaw !== "" && levelRaw !== "—") {
+    await insertSignupLog(env, {
+      userId: newUserId,
+      name: newName,
+      phone,
+      level: levelRaw,
+      referrer: "",
+      eventType: "level",
+    });
+  } else if (nameChanged) {
+    // 이름만 바꾼 경우에도 목록에 반영되도록 최근 이름 로그가 없으면 account 갱신
+    try {
+      const hasLog = await env.DB.prepare(
+        "SELECT id FROM signup_logs WHERE phone = ?1 LIMIT 1"
+      )
+        .bind(phone)
+        .first();
+      if (!hasLog) {
+        await insertSignupLog(env, {
+          userId: newUserId,
+          name: newName,
+          phone,
+          level: "미정(가입완료)",
+          referrer: "",
+          eventType: "signup",
+        });
+      }
+    } catch (e) {}
+  }
+
+  // users에 계정이 아예 없으면(로그만이거나) 이름은 DB users에 없을 수 있음 — 무시
+  return json({
+    ok: true,
+    phone,
+    name: newName,
+    user_id: newUserId,
+    level: levelRaw,
+  });
+}
+
 async function handleAdminMembers(env, request) {
   if (!verifyPaymentSecret(env, request, {})) return json({ error: "unauthorized" }, 401);
   let logRows = [];
@@ -1229,6 +1358,9 @@ export default {
       }
       if (request.method === "POST" && path === "/api/admin/member/delete") {
         return handleAdminMemberDelete(env, request, await request.json());
+      }
+      if (request.method === "POST" && path === "/api/admin/member/update") {
+        return handleAdminMemberUpdate(env, request, await request.json());
       }
       if (request.method === "GET" && path === "/api/admin/exam-trends") {
         return handleAdminExamTrends(env, request, url);
