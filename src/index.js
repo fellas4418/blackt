@@ -944,7 +944,107 @@ async function handleAdminMembers(env, request) {
     logRows = [];
   }
   const users = await env.DB.prepare("SELECT id, is_premium FROM users ORDER BY id ASC").all();
-  return json({ ok: true, items: logRows, users: users.results || [] });
+  let referrals = [];
+  try {
+    const refRows = await env.DB.prepare(
+      `SELECT referrer_id, referee_phone, credited_sharer, created_at
+       FROM referral_signups ORDER BY datetime(created_at) DESC LIMIT 500`
+    ).all();
+    referrals = refRows.results || [];
+  } catch (e) {
+    referrals = [];
+  }
+  return json({
+    ok: true,
+    items: logRows,
+    users: users.results || [],
+    referrals,
+  });
+}
+
+async function handleAdminMemberDelete(env, request, body) {
+  if (!verifyPaymentSecret(env, request, body || {})) return json({ error: "unauthorized" }, 401);
+  const phone = normalizePhone(body.phone);
+  const name = String(body.name || "").trim();
+  let userId = String(body.user_id || body.userId || "").trim();
+  if (!userId && phone && name) {
+    userId = `${phone}::${normalizeName(name)}`;
+  }
+  if (!phone && !userId) {
+    return json({ error: "phone 또는 user_id가 필요합니다." }, 400);
+  }
+
+  const userIds = new Set();
+  if (userId) userIds.add(userId);
+  if (phone) {
+    userIds.add(phone);
+    try {
+      const likeRows = await env.DB.prepare(
+        "SELECT id FROM users WHERE id = ?1 OR id LIKE ?2"
+      )
+        .bind(userId || phone, phone + "::%")
+        .all();
+      for (const r of likeRows.results || []) {
+        if (r.id) userIds.add(String(r.id));
+      }
+    } catch (e) {}
+    if (name) userIds.add(`${phone}::${normalizeName(name)}`);
+  }
+
+  const ids = [...userIds].filter(Boolean);
+  let deleted = { users: 0, signup_logs: 0, daily_session: 0, referrals: 0, other: 0 };
+
+  for (const id of ids) {
+    try {
+      const u = await env.DB.prepare("DELETE FROM users WHERE id = ?1").bind(id).run();
+      deleted.users += u.meta?.changes || 0;
+    } catch (e) {}
+    try {
+      const d = await env.DB.prepare("DELETE FROM daily_session WHERE user_id = ?1").bind(id).run();
+      deleted.daily_session += d.meta?.changes || 0;
+    } catch (e) {}
+    try {
+      const e1 = await env.DB.prepare("DELETE FROM exam_analysis WHERE user_id = ?1").bind(id).run();
+      deleted.other += e1.meta?.changes || 0;
+    } catch (e) {}
+    try {
+      const c = await env.DB.prepare("DELETE FROM chat_history WHERE user_id = ?1").bind(id).run();
+      deleted.other += c.meta?.changes || 0;
+    } catch (e) {}
+    try {
+      const v = await env.DB.prepare("DELETE FROM saved_voca WHERE user_id = ?1").bind(id).run();
+      deleted.other += v.meta?.changes || 0;
+    } catch (e) {}
+    try {
+      const g = await env.DB.prepare("DELETE FROM saved_grammar WHERE user_id = ?1").bind(id).run();
+      deleted.other += g.meta?.changes || 0;
+    } catch (e) {}
+  }
+
+  if (phone) {
+    try {
+      const sr = await env.DB.prepare("DELETE FROM signup_logs WHERE phone = ?1").bind(phone).run();
+      deleted.signup_logs += sr.meta?.changes || 0;
+    } catch (e) {}
+    try {
+      const r = await env.DB.prepare("DELETE FROM referral_signups WHERE referee_phone = ?1")
+        .bind(phone)
+        .run();
+      deleted.referrals += r.meta?.changes || 0;
+    } catch (e) {}
+    // 이 번호가 공유자(referrer)로 남긴 추천 기록도 제거 (테스트 계정용)
+    try {
+      const refId = referralIdFromPhone(phone);
+      if (refId) {
+        const r2 = await env.DB.prepare("DELETE FROM referral_signups WHERE referrer_id = ?1")
+          .bind(refId)
+          .run();
+        deleted.referrals += r2.meta?.changes || 0;
+      }
+    } catch (e) {}
+  }
+
+  return json({ ok: true, deleted, user_ids: ids, phone: phone || null });
 }
 
 async function handleAdminExamTrends(env, request, url) {
@@ -1126,6 +1226,9 @@ export default {
       }
       if (request.method === "GET" && path === "/api/admin/members") {
         return handleAdminMembers(env, request);
+      }
+      if (request.method === "POST" && path === "/api/admin/member/delete") {
+        return handleAdminMemberDelete(env, request, await request.json());
       }
       if (request.method === "GET" && path === "/api/admin/exam-trends") {
         return handleAdminExamTrends(env, request, url);

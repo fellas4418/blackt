@@ -108,9 +108,35 @@
         .btn:hover {
             background: rgba(0, 243, 255, 0.12);
         }
-        .btn-ghost {
-            border-color: #444;
-            color: #aaa;
+        .btn-danger {
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+            padding: 6px 10px;
+            font-size: 0.76rem;
+        }
+        .btn-danger:hover {
+            background: rgba(255, 107, 107, 0.12);
+        }
+        .btn-danger:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+        td.member-actions {
+            white-space: nowrap;
+        }
+        .referrer-label {
+            font-size: 0.82rem;
+            line-height: 1.35;
+        }
+        .referrer-sub {
+            display: block;
+            color: #888;
+            font-size: 0.72rem;
+            font-family: var(--font-mono, monospace);
+        }
+        .invite-count {
+            font-weight: 700;
+            color: var(--neon-orange, #ff9f43);
         }
         .tab-bar {
             display: flex;
@@ -283,8 +309,9 @@
         <section class="panel hide tab-panel" id="members-panel" data-tab="members">
             <h2 class="panel-title">회원가입 · 레벨 변경</h2>
             <p class="panel-hint">
-                신규 가입·레벨 선택 시 D1에 자동 저장됩니다. 구글 시트에 쌓인 과거 데이터는
-                <a class="sheet-link" href="https://docs.google.com/spreadsheets/" target="_blank" rel="noopener">구글 시트</a>에서 함께 확인하세요.
+                신규 가입·레벨 선택 시 D1에 자동 저장됩니다. 추천인은 공유 링크(`ref`)로 가입한 경우·추천 테이블 기준으로 표시됩니다.
+                테스트 계정은 <strong style="color:#ff6b6b;">삭제</strong>로 지울 수 있습니다. (구글 시트 과거 행은 별도)
+                <a class="sheet-link" href="https://docs.google.com/spreadsheets/" target="_blank" rel="noopener">구글 시트</a>
             </p>
             <div class="table-scroll">
                 <table>
@@ -294,9 +321,11 @@
                             <th>전화</th>
                             <th>레벨</th>
                             <th>추천인</th>
+                            <th>초대</th>
                             <th>최초 가입</th>
                             <th>최근 기록</th>
                             <th>이벤트</th>
+                            <th>관리</th>
                         </tr>
                     </thead>
                     <tbody id="members-body"></tbody>
@@ -415,6 +444,27 @@
                 return data;
             }
 
+            async function adminFetchPost(path, body) {
+                var apiKey = getApiKey();
+                if (!apiKey) {
+                    throw new Error('관리자 API 키를 입력해 주세요.');
+                }
+                var res = await fetch(WORKER_URL.replace(/\/$/, '') + path, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Secret': apiKey
+                    },
+                    body: JSON.stringify(body || {})
+                });
+                var data = {};
+                try { data = await res.json(); } catch (e) { data = {}; }
+                if (!res.ok) {
+                    throw new Error(data.error === 'unauthorized' ? 'API 키가 올바르지 않습니다.' : (data.error || '요청 실패 (' + res.status + ')'));
+                }
+                return data;
+            }
+
             function fmtDate(raw) {
                 if (!raw) return '—';
                 var d = new Date(raw);
@@ -500,8 +550,57 @@
                 });
             }
 
-            function aggregateMembers(items, users) {
+            function phoneFromReferrerId(refId) {
+                var s = String(refId || '').trim();
+                if (/^r010\d{8}$/.test(s)) return s.slice(1);
+                return '';
+            }
+
+            function buildPhoneNameMap(rows) {
                 var map = Object.create(null);
+                (rows || []).forEach(function (row) {
+                    var phone = String(row.phone || '').replace(/[^0-9]/g, '');
+                    if (!phone) return;
+                    if (!map[phone] && row.name) map[phone] = String(row.name);
+                });
+                return map;
+            }
+
+            function formatReferrerHtml(refId, phoneNameMap) {
+                var id = String(refId || '').trim();
+                if (!id) return '—';
+                var phone = phoneFromReferrerId(id);
+                if (phone) {
+                    var name = phoneNameMap[phone] || '';
+                    if (name) {
+                        return '<span class="referrer-label">' + escapeHtml(name) +
+                            '<span class="referrer-sub">' + escapeHtml(fmtPhone(phone)) + '</span></span>';
+                    }
+                    return '<span class="referrer-label">' + escapeHtml(fmtPhone(phone)) + '</span>';
+                }
+                return '<span class="referrer-label">' + escapeHtml(id) + '</span>';
+            }
+
+            function inviteCountForPhone(phone, referrals) {
+                var dig = String(phone || '').replace(/[^0-9]/g, '');
+                if (!dig) return 0;
+                var myRef = 'r' + dig;
+                var n = 0;
+                (referrals || []).forEach(function (r) {
+                    if (String(r.referrer_id || '') === myRef) n += 1;
+                });
+                return n;
+            }
+
+            function aggregateMembers(items, users, referrals) {
+                var map = Object.create(null);
+                var refereeToReferrer = Object.create(null);
+                (referrals || []).forEach(function (r) {
+                    var phone = String(r.referee_phone || '').replace(/[^0-9]/g, '');
+                    if (phone && r.referrer_id && !refereeToReferrer[phone]) {
+                        refereeToReferrer[phone] = String(r.referrer_id);
+                    }
+                });
                 (items || []).forEach(function (row) {
                     var key = String(row.phone || '') + '::' + String(row.name || '');
                     if (!map[key]) {
@@ -548,14 +647,23 @@
                         };
                     }
                 });
+                Object.keys(map).forEach(function (k) {
+                    var m = map[k];
+                    var dig = String(m.phone || '').replace(/[^0-9]/g, '');
+                    if (!m.referrer && dig && refereeToReferrer[dig]) {
+                        m.referrer = refereeToReferrer[dig];
+                    }
+                    m.invite_count = inviteCountForPhone(m.phone, referrals);
+                });
                 return Object.keys(map).map(function (k) { return map[k]; }).sort(function (a, b) {
                     return String(b.last_at || '').localeCompare(String(a.last_at || ''));
                 });
             }
 
-            function renderMembers(items, users) {
+            function renderMembers(items, users, referrals) {
                 membersBody.innerHTML = '';
-                var rows = aggregateMembers(items, users);
+                var rows = aggregateMembers(items, users, referrals);
+                var phoneNameMap = buildPhoneNameMap(rows);
                 if (!rows.length) {
                     membersEmpty.classList.remove('hide');
                     return;
@@ -564,16 +672,45 @@
                 rows.forEach(function (row) {
                     var tr = document.createElement('tr');
                     var eventLabel = row.last_event === 'level' ? '레벨' : (row.last_event === 'signup' ? '가입' : '계정');
+                    var inviteHtml = row.invite_count > 0
+                        ? '<span class="invite-count">' + row.invite_count + '</span>'
+                        : '0';
                     tr.innerHTML =
                         '<td>' + escapeHtml(row.name || '—') + '</td>' +
                         '<td class="num">' + escapeHtml(fmtPhone(row.phone)) + '</td>' +
                         '<td>' + escapeHtml(row.level || '—') + '</td>' +
-                        '<td>' + escapeHtml(row.referrer || '—') + '</td>' +
+                        '<td>' + formatReferrerHtml(row.referrer, phoneNameMap) + '</td>' +
+                        '<td class="num">' + inviteHtml + '</td>' +
                         '<td class="num">' + escapeHtml(fmtDate(row.first_at)) + '</td>' +
                         '<td class="num">' + escapeHtml(fmtDate(row.last_at)) + '</td>' +
-                        '<td>' + escapeHtml(eventLabel) + (row.event_count > 1 ? ' (' + row.event_count + ')' : '') + '</td>';
+                        '<td>' + escapeHtml(eventLabel) + (row.event_count > 1 ? ' (' + row.event_count + ')' : '') + '</td>' +
+                        '<td class="member-actions"><button type="button" class="btn btn-danger btn-member-delete">삭제</button></td>';
+                    var delBtn = tr.querySelector('.btn-member-delete');
+                    delBtn.addEventListener('click', function (ev) {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        deleteMember(row);
+                    });
                     membersBody.appendChild(tr);
                 });
+            }
+
+            async function deleteMember(row) {
+                var label = (row.name || '') + ' / ' + fmtPhone(row.phone);
+                if (!window.confirm('정말 삭제할까요?\n\n' + label + '\n\n계정·가입로그·학습·추천 기록이 함께 지워집니다.\n(구글 시트는 자동으로 안 지워집니다)')) {
+                    return;
+                }
+                setStatus('삭제 중… ' + label);
+                try {
+                    await adminFetchPost('/api/admin/member/delete', {
+                        phone: row.phone,
+                        name: row.name
+                    });
+                    setStatus('삭제 완료 · ' + label, 'ok');
+                    await loadMembers();
+                } catch (err) {
+                    setStatus(err.message || String(err), 'error');
+                }
             }
 
             function renderExamSummary(items) {
@@ -702,7 +839,7 @@
             async function loadMembers() {
                 var data = await adminFetch('/api/admin/members');
                 document.getElementById('members-panel').classList.remove('hide');
-                renderMembers(data.items || [], data.users || []);
+                renderMembers(data.items || [], data.users || [], data.referrals || []);
                 return data;
             }
 
@@ -749,7 +886,11 @@
                     ]);
                     showTab(activeTab);
                     var progressN = (results[0].items || []).length;
-                    var memberN = aggregateMembers(results[1].items || [], results[1].users || []).length;
+                    var memberN = aggregateMembers(
+                        results[1].items || [],
+                        results[1].users || [],
+                        results[1].referrals || []
+                    ).length;
                     var examN = (results[2].items || []).length;
                     setStatus('진도 ' + progressN + '명 · 회원 ' + memberN + '명 · 시험학생 ' + examN + '명 · ' + fmtDate(new Date()), 'ok');
                 } catch (err) {
