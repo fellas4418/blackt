@@ -551,9 +551,14 @@
     <div id="leaderboard-modal" style="display:none;">
         <div class="login-card" style="border-color: var(--neon-green); box-shadow: 0 0 15px rgba(57,255,20,0.25); width: 92%; max-width: 450px;">
             <div class="login-title" style="color:var(--neon-green); text-shadow: 0 0 10px rgba(57,255,20,0.35);">🏆 학습 랭킹</div>
-            <p style="margin:0 0 12px; font-size:0.82rem; color:#999; line-height:1.5; text-align:left;">
-                연속 학습 · 완료 Day 순입니다. 다른 사람은 <strong style="color:#ccc;">성○○</strong>, 내 이름만 전체가 보입니다.
+            <p style="margin:0 0 10px; font-size:0.82rem; color:#999; line-height:1.5; text-align:left;">
+                레벨별로 따로 순위를 매깁니다. 다른 사람은 <strong style="color:#ccc;">성○○</strong>, 내 이름만 전체가 보입니다. 레벨별 자세한 진도는 My 리포트에서 보세요.
             </p>
+            <div id="leaderboard-level-tabs" style="display:flex; gap:8px; margin-bottom:12px; width:100%;">
+                <button type="button" id="lb-tab-middle" class="lb-level-tab" onclick="showLeaderboard('middle')" style="flex:1; padding:10px; border-radius:10px; font-weight:bold; cursor:pointer;">중등</button>
+                <button type="button" id="lb-tab-high" class="lb-level-tab" onclick="showLeaderboard('high')" style="flex:1; padding:10px; border-radius:10px; font-weight:bold; cursor:pointer;">고등</button>
+                <button type="button" id="lb-tab-toeic" class="lb-level-tab" onclick="showLeaderboard('toeic')" style="flex:1; padding:10px; border-radius:10px; font-weight:bold; cursor:pointer;">토익</button>
+            </div>
             <div id="leaderboard-summary" style="margin-bottom:12px; font-size:0.88rem; color:var(--neon-blue); text-align:left;"></div>
             <div id="leaderboard-list" style="text-align:left; color:#fff; margin-bottom:16px; max-height: 360px; overflow-y: auto;"></div>
             <button class="login-btn" style="border-color: var(--neon-green); box-shadow: 0 0 10px rgba(57,255,20,0.3);" onclick="document.getElementById('leaderboard-modal').style.display='none'">닫기</button>
@@ -2553,15 +2558,38 @@
             document.getElementById('report-modal').style.display = 'flex';
         }
 
-        // 🚀 학습 랭킹 (성○○ / 내 이름만 전체)
-        async function showLeaderboard() {
+        // 🚀 학습 랭킹 — 중등/고등/토익 따로 (성○○ / 내 이름만 전체)
+        var leaderboardLevel = 'middle';
+        function setLeaderboardTabStyles(level) {
+            var tabs = [
+                { id: 'lb-tab-middle', key: 'middle' },
+                { id: 'lb-tab-high', key: 'high' },
+                { id: 'lb-tab-toeic', key: 'toeic' }
+            ];
+            tabs.forEach(function (t) {
+                var el = document.getElementById(t.id);
+                if (!el) return;
+                var on = t.key === level;
+                el.style.background = on ? 'var(--neon-green)' : 'transparent';
+                el.style.color = on ? '#000' : '#888';
+                el.style.border = on ? 'none' : '1px solid #444';
+            });
+        }
+        async function showLeaderboard(levelArg) {
             var modal = document.getElementById('leaderboard-modal');
             var listEl = document.getElementById('leaderboard-list');
             var sumEl = document.getElementById('leaderboard-summary');
             if (!modal || !listEl) return;
+            var stored = String(localStorage.getItem('trigger_level') || 'middle').toLowerCase();
+            if (stored !== 'middle' && stored !== 'high' && stored !== 'toeic') stored = 'middle';
+            var level = String(levelArg || leaderboardLevel || stored || 'middle').toLowerCase();
+            if (level !== 'middle' && level !== 'high' && level !== 'toeic') level = 'middle';
+            leaderboardLevel = level;
+            setLeaderboardTabStyles(level);
             modal.style.display = 'flex';
             listEl.innerHTML = '<div style="color:#888;padding:12px 0;">불러오는 중…</div>';
             if (sumEl) sumEl.textContent = '';
+            var levelLabel = level === 'high' ? '고등' : (level === 'toeic' ? '토익' : '중등');
             try {
                 var name = String(localStorage.getItem('trigger_name') || '').trim();
                 var phone = String(localStorage.getItem('trigger_phone') || '').replace(/[^0-9]/g, '');
@@ -2569,22 +2597,23 @@
                 var res = await fetch(base + '/api/leaderboard', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: name, phone: phone })
+                    body: JSON.stringify({ name: name, phone: phone, level: level })
                 });
                 var data = await res.json().catch(function () { return {}; });
+                if (leaderboardLevel !== level) return;
                 var items = (data && data.items) || [];
                 if (sumEl) {
                     if (data.my_rank) {
-                        sumEl.innerHTML = '내 순위 <strong style="color:var(--neon-green);">#' + data.my_rank + '</strong>' +
+                        sumEl.innerHTML = levelLabel + ' · 내 순위 <strong style="color:var(--neon-green);">#' + data.my_rank + '</strong>' +
                             (data.total ? ' <span style="color:#666;">/ ' + data.total + '명</span>' : '');
                     } else if (name) {
-                        sumEl.textContent = '아직 학습 기록이 없으면 랭킹에 안 올라요. Day 완료 후 다시 봐 주세요.';
+                        sumEl.textContent = levelLabel + ' 학습 기록이 없으면 이 랭킹에 안 올라요. (진도는 My 리포트에서 확인)';
                     } else {
                         sumEl.textContent = '로그인하면 내 이름·순위가 강조됩니다.';
                     }
                 }
                 if (!items.length) {
-                    listEl.innerHTML = '<div style="color:#888;padding:12px 0;">아직 랭킹 데이터가 없습니다.</div>';
+                    listEl.innerHTML = '<div style="color:#888;padding:12px 0;">' + levelLabel + ' 랭킹 데이터가 아직 없습니다.</div>';
                     return;
                 }
                 var html = '';

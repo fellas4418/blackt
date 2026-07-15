@@ -1316,6 +1316,13 @@ async function handleLeaderboard(env, body) {
   const myPhone = normalizePhone(body.phone);
   const myName = String(body.name || "").trim();
   const myUserId = myPhone && myName ? `${myPhone}::${normalizeName(myName)}` : "";
+  const levelRaw = String(body.level || "middle").trim().toLowerCase();
+  const level =
+    levelRaw === "high" || levelRaw === "고등"
+      ? "high"
+      : levelRaw === "toeic" || levelRaw === "토익"
+        ? "toeic"
+        : "middle";
 
   let progress = [];
   try {
@@ -1326,14 +1333,17 @@ async function handleLeaderboard(env, body) {
         ROUND(AVG(accuracy), 1) AS avg_accuracy,
         MAX(created_at) AS last_study_at
        FROM daily_session
+       WHERE lower(level) = ?1
        GROUP BY user_id
        HAVING COUNT(*) > 0
        ORDER BY completed_days DESC, avg_accuracy DESC, datetime(last_study_at) DESC
        LIMIT 80`
-    ).all();
+    )
+      .bind(level)
+      .all();
     progress = rows.results || [];
   } catch (e) {
-    return json({ ok: true, items: [], message: "no_daily_session" });
+    return json({ ok: true, items: [], level, message: "no_daily_session" });
   }
 
   const phoneNameMap = Object.create(null);
@@ -1353,8 +1363,11 @@ async function handleLeaderboard(env, body) {
     const dateRows = await env.DB.prepare(
       `SELECT user_id, date(created_at, '+9 hours') AS d
        FROM daily_session
+       WHERE lower(level) = ?1
        GROUP BY user_id, date(created_at, '+9 hours')`
-    ).all();
+    )
+      .bind(level)
+      .all();
     const datesByUser = Object.create(null);
     for (const r of dateRows.results || []) {
       const uid = String(r.user_id || "");
@@ -1403,6 +1416,7 @@ async function handleLeaderboard(env, body) {
   const myRank = items.findIndex((x) => x.is_me) + 1;
   return json({
     ok: true,
+    level,
     items: top,
     my_rank: myRank > 0 ? myRank : null,
     total: items.length,
