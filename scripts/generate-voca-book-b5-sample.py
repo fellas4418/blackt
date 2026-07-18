@@ -25,7 +25,7 @@ FONT_BOLD = "MalgunBold"
 FONT_IPA = "ArialIPA"
 # 브랜드 색 — 트리거 블랙: 검정 배경 + 흰 글씨, 흑백 인쇄에서도 구분되는 무채색
 NAVY = HexColor("#0A0A0A")  # 브랜드 블랙 (헤더 바·배너·표지)
-ORANGE = HexColor("#FF9900")  # 앱 --neon-orange (브라운 계열) — Day 배너 배경
+ORANGE = HexColor("#D97706")  # 앱 오렌지를 인쇄용으로 톤 다운 — 표지 포인트 전용
 SLATE = HexColor("#5C5C5C")
 PALE = HexColor("#EEF1F4")
 LIGHT = HexColor("#F7F7F7")  # 줄무늬 배경
@@ -256,6 +256,9 @@ def draw_page_footer(c: canvas.Canvas, page_no: int, level_tag: str) -> None:
     draw_text(c, str(page_no), width - 10 * mm, 7 * mm, size=6.5, color=SLATE, align="right")
 
 
+LOGO_PATH = ROOT / "로고, 이미지" / "로고 원본.png"
+
+
 def draw_cover(
     c: canvas.Canvas,
     *,
@@ -270,13 +273,26 @@ def draw_cover(
 
     c.setStrokeColor(white)
     c.roundRect(14 * mm, 32 * mm, width - 28 * mm, height - 64 * mm, 4 * mm, fill=0, stroke=1)
-    draw_text(c, "TRIGGER", width / 2, height - 58 * mm, font=FONT_BOLD, size=14, color=white, align="center")
-    draw_text(c, "VOCABULARY BOOK", width / 2, height - 72 * mm, font=FONT_BOLD, size=22, color=white, align="center")
-    draw_text(c, f"{level_en} · B5 SAMPLE", width / 2, height - 84 * mm, size=10, color=PALE, align="center")
 
-    c.setFillColor(white)
-    c.roundRect(28 * mm, height - 118 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
-    draw_text(c, day_label, width / 2, height - 112 * mm, font=FONT_BOLD, size=12, color=NAVY, align="center")
+    # 앱 로고 (네온 TRIGGER Voca · 검정 배경이라 표지와 자연스럽게 붙음)
+    logo_w = 63 * mm
+    logo_h = logo_w * 842 / 1024
+    c.drawImage(
+        str(LOGO_PATH),
+        (width - logo_w) / 2,
+        height - 34 * mm - logo_h,
+        width=logo_w,
+        height=logo_h,
+        preserveAspectRatio=True,
+        anchor="c",
+    )
+
+    draw_text(c, "VOCABULARY BOOK", width / 2, height - 95 * mm, font=FONT_BOLD, size=22, color=white, align="center")
+    draw_text(c, f"{level_en} · B5 SAMPLE", width / 2, height - 103 * mm, size=10, color=PALE, align="center")
+
+    c.setFillColor(ORANGE)
+    c.roundRect(28 * mm, height - 124 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
+    draw_text(c, day_label, width / 2, height - 118 * mm, font=FONT_BOLD, size=12, color=NAVY, align="center")
 
     info_x = 30 * mm
     info_y = height - 142 * mm
@@ -351,7 +367,7 @@ def draw_test_page(
         color=SLATE,
         align="center",
     )
-    c.setStrokeColor(ORANGE)
+    c.setStrokeColor(NAVY)
     c.setLineWidth(1.0)
     c.line(table_left, height - 24.9 * mm, table_right, height - 24.9 * mm)
 
@@ -529,7 +545,7 @@ def draw_practice_page(
         color=SLATE,
         align="center",
     )
-    c.setStrokeColor(ORANGE)
+    c.setStrokeColor(NAVY)
     c.setLineWidth(1.0)
     c.line(left, height - 28.2 * mm, right, height - 28.2 * mm)
 
