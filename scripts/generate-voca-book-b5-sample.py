@@ -176,10 +176,9 @@ def draw_status_marks(c: canvas.Canvas, x: float, y: float, width: float, row_h:
     c.circle(centers[2], cy, radius, fill=0)
 
 
-def draw_page_footer(c: canvas.Canvas, page_no: int, label: str, level_tag: str) -> None:
+def draw_page_footer(c: canvas.Canvas, page_no: int, level_tag: str) -> None:
     width, _ = B5
     draw_text(c, f"TRIGGER VOCA · {level_tag} · B5", 10 * mm, 7 * mm, size=6.5, color=SLATE)
-    draw_text(c, label, width / 2, 7 * mm, size=6.5, color=SLATE, align="center")
     draw_text(c, str(page_no), width - 10 * mm, 7 * mm, size=6.5, color=SLATE, align="right")
 
 
@@ -290,14 +289,14 @@ def draw_test_page(
     test_cols = [24 * mm, 26 * mm, test_w - 50 * mm]
 
     y_header = table_top - header_h + 2.2 * mm
-    draw_text(c, "정답", table_left + answer_cols[0] / 2, y_header, font=FONT_BOLD, size=6.8, color=SLATE, align="center")
+    draw_text(c, "정답", table_left + answer_cols[0] / 2, y_header, font=FONT_BOLD, size=10.2, color=SLATE, align="center", max_width=answer_cols[0] - 1 * mm)
     draw_text(
         c,
         "WORD",
         table_left + answer_cols[0] + answer_cols[1] / 2,
         y_header,
         font=FONT_BOLD,
-        size=6.8,
+        size=10.2,
         color=SLATE,
         align="center",
     )
@@ -307,7 +306,7 @@ def draw_test_page(
         table_left + answer_cols[0] + answer_cols[1] + answer_cols[2] / 2,
         y_header,
         font=FONT_BOLD,
-        size=6.8,
+        size=10.2,
         color=SLATE,
         align="center",
     )
@@ -317,9 +316,10 @@ def draw_test_page(
         fold_x + test_cols[0] / 2,
         y_header,
         font=FONT_BOLD,
-        size=6.0,
+        size=9.0,
         color=white,
         align="center",
+        max_width=test_cols[0] - 1.5 * mm,
     )
     draw_text(
         c,
@@ -327,7 +327,7 @@ def draw_test_page(
         fold_x + test_cols[0] + test_cols[1] / 2,
         y_header,
         font=FONT_BOLD,
-        size=6.8,
+        size=10.2,
         color=white,
         align="center",
     )
@@ -337,9 +337,10 @@ def draw_test_page(
         fold_x + test_cols[0] + test_cols[1] + test_cols[2] / 2,
         y_header,
         font=FONT_BOLD,
-        size=6.8,
+        size=10.2,
         color=white,
         align="center",
+        max_width=test_cols[2] - 2 * mm,
     )
 
     y = table_top - header_h
@@ -413,7 +414,7 @@ def draw_test_page(
     c.line(fold_x, table_bottom - 2.5 * mm, fold_x, table_top + 3 * mm)
     c.restoreState()
 
-    draw_page_footer(c, page_no, "TEST · 왼쪽 면", level_tag)
+    draw_page_footer(c, page_no, level_tag)
     c.showPage()
 
 
@@ -449,7 +450,7 @@ def draw_practice_page(
     c.rect(left, table_top - header_h, total_w, header_h, fill=1, stroke=0)
     x = left
     for label, col_w in zip(headers, col_widths):
-        header_size = 5.8 if label == "영단어 써보기" else 6.8
+        header_size = 8.7 if label == "영단어 써보기" else 10.2
         draw_text(
             c,
             label,
@@ -459,6 +460,7 @@ def draw_practice_page(
             size=header_size,
             color=white,
             align="center",
+            max_width=col_w - 1.5 * mm,
         )
         x += col_w
 
@@ -524,7 +526,7 @@ def draw_practice_page(
         cy = table_top - header_h - (i + 0.5) * row_h
         c.circle(done_center_x, cy, min(1.8 * mm, row_h * 0.24), fill=0, stroke=1)
 
-    draw_page_footer(c, page_no, "PRACTICE · 오른쪽 면", level_tag)
+    draw_page_footer(c, page_no, level_tag)
     c.showPage()
 
 
