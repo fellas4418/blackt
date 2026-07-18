@@ -524,14 +524,14 @@ def draw_practice_page(
         c,
         "영단어를 따라 쓰고, 뜻을 직접 써보세요.",
         width / 2,
-        height - 22 * mm,
+        height - 25.9 * mm,
         size=9.5,
         color=SLATE,
         align="center",
     )
     c.setStrokeColor(ORANGE)
     c.setLineWidth(1.0)
-    c.line(left, height - 24.3 * mm, right, height - 24.3 * mm)
+    c.line(left, height - 28.2 * mm, right, height - 28.2 * mm)
 
     total_w = right - left
     col_widths = [30 * mm, 46 * mm, 32 * mm, 32 * mm, total_w - 140 * mm]
