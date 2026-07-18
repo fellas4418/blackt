@@ -346,14 +346,14 @@ def draw_test_page(
         c,
         "바깥쪽 정답 면을 점선에서 뒤로 접으세요",
         width / 2,
-        height - 21.5 * mm,
+        height - 22.6 * mm,
         size=9.5,
         color=SLATE,
         align="center",
     )
     c.setStrokeColor(ORANGE)
     c.setLineWidth(1.0)
-    c.line(table_left, height - 23.8 * mm, table_right, height - 23.8 * mm)
+    c.line(table_left, height - 24.9 * mm, table_right, height - 24.9 * mm)
 
     c.setFillColor(NAVY)
     c.rect(table_left, table_top - header_h, fold_x - table_left, header_h, fill=1, stroke=0)
@@ -491,7 +491,7 @@ def draw_test_page(
     c.setStrokeColor(NAVY)
     c.setLineWidth(0.9)
     c.setDash(2.5, 1.8)
-    c.line(fold_x, table_bottom - 2.5 * mm, fold_x, table_top + 3 * mm)
+    c.line(fold_x, table_bottom - 2.5 * mm, fold_x, table_top)
     c.restoreState()
 
     draw_page_footer(c, page_no, level_tag)
