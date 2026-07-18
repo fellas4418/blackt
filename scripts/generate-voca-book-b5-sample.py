@@ -23,12 +23,11 @@ OUT_DIR = ROOT / "단어장 PDF"
 FONT_REGULAR = "Malgun"
 FONT_BOLD = "MalgunBold"
 FONT_IPA = "ArialIPA"
-# 브랜드 색 — 앱(트리거 블랙)의 검정 + 네온그린(#39FF14)을 인쇄용으로 매핑
+# 브랜드 색 — 트리거 블랙: 검정 배경 + 흰 글씨, 흑백 인쇄에서도 구분되는 무채색
 NAVY = HexColor("#0A0A0A")  # 브랜드 블랙 (헤더 바·배너·표지)
-NEON = HexColor("#39FF14")  # 네온그린 — 검정 바탕 위 강조 글씨
 SLATE = HexColor("#5C5C5C")
-PALE = HexColor("#EAF8E5")  # 연한 네온그린 틴트 (정답 면 헤더)
-LIGHT = HexColor("#F4FBF1")  # 연한 네온그린 틴트 (줄무늬 배경)
+PALE = HexColor("#EEF1F4")
+LIGHT = HexColor("#F7F7F7")  # 줄무늬 배경
 LINE = HexColor("#9AA4AE")
 INK = HexColor("#20262D")
 
@@ -236,7 +235,7 @@ def draw_status_marks(c: canvas.Canvas, x: float, y: float, width: float, row_h:
 
 
 def draw_day_banner(c: canvas.Canvas, title: str, center_y: float) -> None:
-    """페이지 상단 중앙의 Day 배너 — 크게, 테두리 박스로 눈에 띄게."""
+    """페이지 상단 중앙의 Day 배너 — 검은 배경 박스에 흰 글씨."""
     width, _ = B5
     size = 15.0
     text_w = pdfmetrics.stringWidth(title, FONT_BOLD, size)
@@ -245,10 +244,9 @@ def draw_day_banner(c: canvas.Canvas, title: str, center_y: float) -> None:
     box_h = 8.5 * mm
     box_x = (width - box_w) / 2
     box_y = center_y - box_h / 2
-    c.setStrokeColor(NAVY)
-    c.setLineWidth(1.1)
-    c.roundRect(box_x, box_y, box_w, box_h, 1.8 * mm, fill=0, stroke=1)
-    draw_text(c, title, width / 2, center_y - size * 0.36, font=FONT_BOLD, size=size, color=NAVY, align="center")
+    c.setFillColor(NAVY)
+    c.roundRect(box_x, box_y, box_w, box_h, 1.8 * mm, fill=1, stroke=0)
+    draw_text(c, title, width / 2, center_y - size * 0.36, font=FONT_BOLD, size=size, color=white, align="center")
 
 
 def draw_page_footer(c: canvas.Canvas, page_no: int, level_tag: str) -> None:
@@ -269,13 +267,13 @@ def draw_cover(
     c.setFillColor(NAVY)
     c.rect(0, 0, width, height, fill=1, stroke=0)
 
-    c.setStrokeColor(NEON)
+    c.setStrokeColor(white)
     c.roundRect(14 * mm, 32 * mm, width - 28 * mm, height - 64 * mm, 4 * mm, fill=0, stroke=1)
-    draw_text(c, "TRIGGER", width / 2, height - 58 * mm, font=FONT_BOLD, size=14, color=NEON, align="center")
+    draw_text(c, "TRIGGER", width / 2, height - 58 * mm, font=FONT_BOLD, size=14, color=white, align="center")
     draw_text(c, "VOCABULARY BOOK", width / 2, height - 72 * mm, font=FONT_BOLD, size=22, color=white, align="center")
     draw_text(c, f"{level_en} · B5 SAMPLE", width / 2, height - 84 * mm, size=10, color=PALE, align="center")
 
-    c.setFillColor(NEON)
+    c.setFillColor(white)
     c.roundRect(28 * mm, height - 118 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
     draw_text(c, day_label, width / 2, height - 112 * mm, font=FONT_BOLD, size=12, color=NAVY, align="center")
 
@@ -353,9 +351,8 @@ def draw_test_page(
         align="center",
     )
 
-    c.setFillColor(PALE)
-    c.rect(table_left, table_top - header_h, fold_x - table_left, header_h, fill=1, stroke=0)
     c.setFillColor(NAVY)
+    c.rect(table_left, table_top - header_h, fold_x - table_left, header_h, fill=1, stroke=0)
     c.rect(fold_x, table_top - header_h, table_right - fold_x, header_h, fill=1, stroke=0)
 
     answer_w = fold_x - table_left
@@ -364,7 +361,7 @@ def draw_test_page(
     test_cols = [24 * mm, 30 * mm, test_w - 54 * mm]
 
     y_header = table_top - header_h + 2.2 * mm
-    draw_text(c, "정답", table_left + answer_cols[0] / 2, y_header, font=FONT_BOLD, size=10.2, color=SLATE, align="center", max_width=answer_cols[0] - 1 * mm)
+    draw_text(c, "정답", table_left + answer_cols[0] / 2, y_header, font=FONT_BOLD, size=10.2, color=white, align="center", max_width=answer_cols[0] - 1 * mm)
     draw_text(
         c,
         "WORD",
@@ -372,7 +369,7 @@ def draw_test_page(
         y_header,
         font=FONT_BOLD,
         size=10.2,
-        color=SLATE,
+        color=white,
         align="center",
     )
     draw_text(
@@ -382,7 +379,7 @@ def draw_test_page(
         y_header,
         font=FONT_BOLD,
         size=10.2,
-        color=SLATE,
+        color=white,
         align="center",
     )
     draw_text(
@@ -392,7 +389,7 @@ def draw_test_page(
         y_header,
         font=FONT_BOLD,
         size=9.0,
-        color=NEON,
+        color=white,
         align="center",
         max_width=test_cols[0] - 1.5 * mm,
     )
@@ -403,7 +400,7 @@ def draw_test_page(
         y_header,
         font=FONT_BOLD,
         size=10.2,
-        color=NEON,
+        color=white,
         align="center",
     )
     draw_text(
@@ -413,7 +410,7 @@ def draw_test_page(
         y_header,
         font=FONT_BOLD,
         size=10.2,
-        color=NEON,
+        color=white,
         align="center",
         max_width=test_cols[2] - 2 * mm,
     )
@@ -541,7 +538,7 @@ def draw_practice_page(
             table_top - header_h + 2.5 * mm,
             font=FONT_BOLD,
             size=header_size,
-            color=NEON,
+            color=white,
             align="center",
             max_width=col_w - 1.5 * mm,
         )
