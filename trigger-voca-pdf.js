@@ -463,34 +463,60 @@
             alert('PDF 기능을 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.');
             return false;
         }
+
+        // 화면 밖(left:-10000)·음수 z-index 캡처는 iOS에서 네온/검 가로줄 아티팩트를 냄.
+        // 흰 오버레이 안·뷰포트에서 캡처해 다크 UI와 분리한다.
+        var overlay = document.createElement('div');
+        overlay.setAttribute('data-voca-pdf-overlay', '1');
+        overlay.style.cssText =
+            'position:fixed;inset:0;z-index:2147483000;background:#ffffff;overflow:auto;-webkit-overflow-scrolling:touch;';
+
         var tip = document.createElement('div');
         tip.setAttribute('role', 'status');
         tip.textContent = 'PDF 만드는 중…';
         tip.style.cssText =
-            'position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:99999;' +
+            'position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:2147483002;' +
             'background:#111;color:#39ff14;border:1px solid #39ff14;padding:12px 18px;border-radius:8px;' +
             'font-weight:bold;font-size:0.9rem;pointer-events:none;';
-        document.body.appendChild(tip);
 
         var wrap = document.createElement('div');
         wrap.setAttribute('data-voca-pdf-root', '1');
         wrap.style.cssText =
-            'position:fixed;left:-10000px;top:0;width:794px;padding:28px;box-sizing:border-box;' +
-            'background:#fff;color:#000;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;' +
-            'pointer-events:none;z-index:-9999;';
+            'position:relative;width:794px;max-width:100%;margin:0 auto;padding:28px;box-sizing:border-box;' +
+            'background:#ffffff;color:#000000;' +
+            'font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;';
         wrap.innerHTML = html;
-        document.body.appendChild(wrap);
 
+        overlay.appendChild(wrap);
+        document.body.appendChild(overlay);
+        document.body.appendChild(tip);
+
+        var ios = isIosLike();
         var opt = {
             margin: [10, 10, 10, 10],
             filename: filename,
             image: { type: 'jpeg', quality: 0.92 },
             html2canvas: {
-                scale: 2,
+                scale: ios ? 1.5 : 2,
                 useCORS: true,
                 logging: false,
                 backgroundColor: '#ffffff',
-                windowWidth: 794
+                windowWidth: 794,
+                scrollX: 0,
+                scrollY: 0,
+                allowTaint: false,
+                foreignObjectRendering: false,
+                onclone: function (clonedDoc) {
+                    var root = clonedDoc.querySelector('[data-voca-pdf-root="1"]');
+                    if (root) {
+                        root.style.background = '#ffffff';
+                        root.style.color = '#000000';
+                    }
+                    if (clonedDoc.body) {
+                        clonedDoc.body.style.background = '#ffffff';
+                        clonedDoc.body.style.color = '#000000';
+                    }
+                }
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
             pagebreak: { mode: ['css', 'legacy'], before: '.page-break' },
@@ -498,23 +524,26 @@
         };
 
         function cleanup() {
-            if (wrap.parentNode) wrap.parentNode.removeChild(wrap);
+            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
             if (tip.parentNode) tip.parentNode.removeChild(tip);
         }
 
-        html2pdf()
-            .set(opt)
-            .from(wrap)
-            .outputPdf('blob')
-            .then(function (blob) {
-                cleanup();
-                return savePdfBlob(blob, filename);
-            })
-            .catch(function (err) {
-                cleanup();
-                console.error(err);
-                alert('PDF 만들기에 실패했습니다. 다시 시도해 주세요.');
-            });
+        // 레이아웃·페인트 후 캡처 (iOS 타이밍 이슈 완화)
+        setTimeout(function () {
+            html2pdf()
+                .set(opt)
+                .from(wrap)
+                .outputPdf('blob')
+                .then(function (blob) {
+                    cleanup();
+                    return savePdfBlob(blob, filename);
+                })
+                .catch(function (err) {
+                    cleanup();
+                    console.error(err);
+                    alert('PDF 만들기에 실패했습니다. 다시 시도해 주세요.');
+                });
+        }, ios ? 200 : 50);
         return true;
     }
 
