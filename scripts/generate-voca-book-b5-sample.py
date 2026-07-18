@@ -25,6 +25,7 @@ FONT_BOLD = "MalgunBold"
 FONT_IPA = "ArialIPA"
 # 브랜드 색 — 트리거 블랙: 검정 배경 + 흰 글씨, 흑백 인쇄에서도 구분되는 무채색
 NAVY = HexColor("#0A0A0A")  # 브랜드 블랙 (헤더 바·배너·표지)
+ORANGE = HexColor("#FF9900")  # 앱 --neon-orange (브라운 계열) — Day 배너 배경
 SLATE = HexColor("#5C5C5C")
 PALE = HexColor("#EEF1F4")
 LIGHT = HexColor("#F7F7F7")  # 줄무늬 배경
@@ -235,7 +236,7 @@ def draw_status_marks(c: canvas.Canvas, x: float, y: float, width: float, row_h:
 
 
 def draw_day_banner(c: canvas.Canvas, title: str, center_y: float) -> None:
-    """페이지 상단 중앙의 Day 배너 — 검은 배경 박스에 흰 글씨."""
+    """페이지 상단 중앙의 Day 배너 — 앱 브라운(오렌지) 배경에 검정 글씨."""
     width, _ = B5
     size = 15.0
     text_w = pdfmetrics.stringWidth(title, FONT_BOLD, size)
@@ -244,9 +245,9 @@ def draw_day_banner(c: canvas.Canvas, title: str, center_y: float) -> None:
     box_h = 8.5 * mm
     box_x = (width - box_w) / 2
     box_y = center_y - box_h / 2
-    c.setFillColor(NAVY)
+    c.setFillColor(ORANGE)
     c.roundRect(box_x, box_y, box_w, box_h, 1.8 * mm, fill=1, stroke=0)
-    draw_text(c, title, width / 2, center_y - size * 0.36, font=FONT_BOLD, size=size, color=white, align="center")
+    draw_text(c, title, width / 2, center_y - size * 0.36, font=FONT_BOLD, size=size, color=NAVY, align="center")
 
 
 def draw_page_footer(c: canvas.Canvas, page_no: int, level_tag: str) -> None:
