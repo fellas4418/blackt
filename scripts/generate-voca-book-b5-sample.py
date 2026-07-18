@@ -1,7 +1,7 @@
-"""중등·고등 보카 종이책 B5 샘플 PDF (각 Day 1 하루치).
+"""중등·고등 보카 종이책 B5 샘플 PDF.
 
-중등: 24개 → TEST 1장 + PRACTICE 1장
-고등: 40개 → 20개씩 TEST+PRACTICE × 2세트
+중등: 하루 24개 → TEST 1장 + PRACTICE 1장 (Day 구분은 헤더만, 중간 표지 없음)
+고등: 하루 40개 → 20개씩 TEST+PRACTICE × 2세트
 """
 
 from __future__ import annotations
@@ -30,8 +30,9 @@ LIGHT = HexColor("#F7F8FA")
 LINE = HexColor("#9AA4AE")
 INK = HexColor("#20262D")
 
-# 중등 Day 1 발음 — (IPA, 한글) 수기 검수
+# 중등 Day 1~3 발음 — (IPA, 한글) 수기 검수
 MIDDLE_PRON = {
+    # Day 1
     "religion": ("/rɪˈlɪdʒən/", "릴리전"),
     "border": ("/ˈbɔːrdər/", "보더"),
     "spread": ("/spred/", "스프레드"),
@@ -56,6 +57,56 @@ MIDDLE_PRON = {
     "exist": ("/ɪɡˈzɪst/", "이그지스트"),
     "medicine": ("/ˈmedɪsn/", "메디슨"),
     "pack": ("/pæk/", "팩"),
+    # Day 2
+    "repeat": ("/rɪˈpiːt/", "리핏"),
+    "perform": ("/pərˈfɔːrm/", "퍼폼"),
+    "popular": ("/ˈpɑːpjələr/", "파퓰러"),
+    "regular": ("/ˈreɡjələr/", "레귤러"),
+    "seldom": ("/ˈseldəm/", "셀덤"),
+    "president": ("/ˈprezɪdənt/", "프레지던트"),
+    "international": ("/ˌɪntərˈnæʃənl/", "인터내셔널"),
+    "overcome": ("/ˌoʊvərˈkʌm/", "오버컴"),
+    "destroy": ("/dɪˈstrɔɪ/", "디스트로이"),
+    "reply": ("/rɪˈplaɪ/", "리플라이"),
+    "treasure": ("/ˈtreʒər/", "트레저"),
+    "favor": ("/ˈfeɪvər/", "페이버"),
+    "grade": ("/ɡreɪd/", "그레이드"),
+    "trust": ("/trʌst/", "트러스트"),
+    "term": ("/tɜːrm/", "텀"),
+    "spell": ("/spel/", "스펠"),
+    "regret": ("/rɪˈɡret/", "리그렛"),
+    "suggest": ("/səˈdʒest/", "석제스트"),
+    "recognize": ("/ˈrekəɡnaɪz/", "레커그나이즈"),
+    "balance": ("/ˈbæləns/", "밸런스"),
+    "notice": ("/ˈnoʊtɪs/", "노티스"),
+    "realize": ("/ˈriːəlaɪz/", "리얼라이즈"),
+    "admire": ("/ədˈmaɪər/", "어드마이어"),
+    "needle": ("/ˈniːdl/", "니들"),
+    # Day 3
+    "tray": ("/treɪ/", "트레이"),
+    "role": ("/roʊl/", "롤"),
+    "pride": ("/praɪd/", "프라이드"),
+    "tie": ("/taɪ/", "타이"),
+    "repair": ("/rɪˈper/", "리페어"),
+    "soap": ("/soʊp/", "소프"),
+    "normal": ("/ˈnɔːrml/", "노멀"),
+    "smooth": ("/smuːð/", "스무스"),
+    "trade": ("/treɪd/", "트레이드"),
+    "benefit": ("/ˈbenɪfɪt/", "베니핏"),
+    "crop": ("/krɑːp/", "크롭"),
+    "gather": ("/ˈɡæðər/", "개더"),
+    "stadium": ("/ˈsteɪdiəm/", "스테이디엄"),
+    "incredible": ("/ɪnˈkredəbl/", "인크레더블"),
+    "coach": ("/koʊtʃ/", "코치"),
+    "strike": ("/straɪk/", "스트라이크"),
+    "desire": ("/dɪˈzaɪər/", "디자이어"),
+    "effective": ("/ɪˈfektɪv/", "이펙티브"),
+    "able": ("/ˈeɪbl/", "에이블"),
+    "pain": ("/peɪn/", "페인"),
+    "spend": ("/spend/", "스펜드"),
+    "belong": ("/bɪˈlɔːŋ/", "빌롱"),
+    "usual": ("/ˈjuːʒuəl/", "유주얼"),
+    "neighbor": ("/ˈneɪbər/", "네이버"),
 }
 
 # 고등 Day 1 발음 — (IPA, 한글) 수기 검수
@@ -128,8 +179,14 @@ def load_words(path: Path, count: int) -> list[tuple[str, str]]:
         if len(words) >= count:
             break
     if len(words) < count:
-        raise ValueError(f"{path.name}에서 Day 1용 {count}개를 읽지 못했습니다. ({len(words)}개)")
+        raise ValueError(f"{path.name}에서 {count}개를 읽지 못했습니다. ({len(words)}개)")
     return words
+
+
+def chunk_days(words: list[tuple[str, str]], per_day: int) -> list[list[tuple[str, str]]]:
+    if len(words) % per_day != 0:
+        raise ValueError(f"단어 수({len(words)})가 하루치({per_day})로 나누어떨어지지 않습니다.")
+    return [words[i : i + per_day] for i in range(0, len(words), per_day)]
 
 
 def fit_font_size(text: str, font: str, max_size: float, max_width: float) -> float:
@@ -547,48 +604,54 @@ def validate_pronunciations(rows: list[tuple[str, str]], pronunciations: dict[st
     missing = [word for word, _ in rows if word not in pronunciations]
     if missing:
         raise ValueError(f"발음이 없는 단어: {missing}")
-    needed = {word for word, _ in rows}
-    extra = set(pronunciations) - needed
-    if extra:
-        raise ValueError(f"Day 1에 없는 발음 항목: {sorted(extra)}")
 
 
-def build_middle_pdf(rows: list[tuple[str, str]]) -> Path:
+def build_middle_days_pdf(days: list[list[tuple[str, str]]]) -> Path:
+    """앞표지 1장 + Day별 TEST/연습만. 중간 Day 표지 없음(헤더로만 구분)."""
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    out_path = resolve_output_path(OUT_DIR / "트리거보카_중등_Day01_B5샘플.pdf")
+    day_count = len(days)
+    out_path = resolve_output_path(OUT_DIR / f"트리거보카_중등_Day01-{day_count:02d}_B5샘플.pdf")
     c = canvas.Canvas(str(out_path), pagesize=B5, pageCompression=1)
-    c.setTitle("트리거 보카 중등 Day 01 B5 샘플")
+    c.setTitle(f"트리거 보카 중등 Day 01-{day_count:02d} B5 샘플")
     c.setAuthor("TRIGGER BLACK")
-    c.setSubject("B5 중등 단어장 하루치 샘플")
+    c.setSubject("B5 중등 단어장 샘플 (Day 헤더 구분, 중간 표지 없음)")
     c.setCreator("TRIGGER VOCA Book Generator")
 
     draw_cover(
         c,
         level_en="MIDDLE SCHOOL",
         level_ko="중등",
-        day_label="DAY 01 · 24 WORDS",
-        words_note="중등 하루치 24개를 한 세트(TEST+연습)로 구성합니다.",
+        day_label=f"DAY 01–{day_count:02d} · {day_count * 24} WORDS",
+        words_note="Day 구분은 페이지 헤더만 사용합니다. 중간 표지는 넣지 않습니다.",
     )
-    draw_test_page(
-        c,
-        level_tag="MIDDLE",
-        day_no=1,
-        part_label="",
-        rows=rows,
-        start_index=1,
-        page_no=2,
-    )
-    draw_practice_page(
-        c,
-        level_tag="MIDDLE",
-        day_no=1,
-        part_label="",
-        rows=rows,
-        pronunciations=MIDDLE_PRON,
-        page_no=3,
-    )
+    page_no = 2
+    for day_no, rows in enumerate(days, 1):
+        draw_test_page(
+            c,
+            level_tag="MIDDLE",
+            day_no=day_no,
+            part_label="",
+            rows=rows,
+            start_index=1,
+            page_no=page_no,
+        )
+        page_no += 1
+        draw_practice_page(
+            c,
+            level_tag="MIDDLE",
+            day_no=day_no,
+            part_label="",
+            rows=rows,
+            pronunciations=MIDDLE_PRON,
+            page_no=page_no,
+        )
+        page_no += 1
     c.save()
     return out_path
+
+
+def build_middle_pdf(rows: list[tuple[str, str]]) -> Path:
+    return build_middle_days_pdf([rows])
 
 
 def build_high_pdf(rows: list[tuple[str, str]]) -> Path:
@@ -641,16 +704,16 @@ def build_high_pdf(rows: list[tuple[str, str]]) -> Path:
 def main() -> None:
     register_fonts()
 
-    middle_rows = load_words(ROOT / "voca_middle.txt", 24)
-    validate_pronunciations(middle_rows, MIDDLE_PRON)
-    middle_path = build_middle_pdf(middle_rows)
-
-    high_rows = load_words(ROOT / "voca_high.txt", 40)
-    validate_pronunciations(high_rows, HIGH_PRON)
-    high_path = build_high_pdf(high_rows)
-
-    print(f"중등 B5 샘플: {middle_path} (표지+TEST+연습 = 3쪽, 24단어)")
-    print(f"고등 B5 샘플: {high_path} (표지+20×2세트 = 5쪽, 40단어)")
+    # 중등 3일 테스트: 앞표지만, Day 중간 표지 없이 헤더로만 구분
+    middle_words = load_words(ROOT / "voca_middle.txt", 72)
+    middle_days = chunk_days(middle_words, 24)
+    for day_rows in middle_days:
+        validate_pronunciations(day_rows, MIDDLE_PRON)
+    middle_path = build_middle_days_pdf(middle_days)
+    print(
+        f"중등 B5 3일 샘플: {middle_path} "
+        f"(표지 1 + Day×2쪽×3 = {1 + 2 * len(middle_days)}쪽, 중간 표지 없음)"
+    )
 
 
 if __name__ == "__main__":
