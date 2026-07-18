@@ -402,9 +402,9 @@ def draw_practice_page(c: canvas.Canvas, day_no: int, rows: list[tuple[str, str]
     draw_text(c, "오른쪽 쓰기 면", right, height - 16 * mm, font=FONT_BOLD, size=8, color=SLATE, align="right")
 
     total_w = right - left
-    # WORD | 발음(IPA+한글) | 뜻 쓰기 | 영단어 써보기 | WRITE 2 | 완료
-    col_widths = [26 * mm, 44 * mm, 36 * mm, 30 * mm, 30 * mm, total_w - 166 * mm]
-    headers = ["WORD", "발음", "뜻 쓰기", "영단어 써보기", "WRITE 2", "완료"]
+    # WORD | 발음(IPA+한글) | 뜻 쓰기 | 영단어 써보기 ×2 | 완료
+    col_widths = [26 * mm, 48 * mm, 34 * mm, 29 * mm, 29 * mm, total_w - 166 * mm]
+    headers = ["WORD", "발음", "뜻 쓰기", "영단어 써보기", "영단어 써보기", "완료"]
 
     c.setFillColor(NAVY)
     c.rect(left, table_top - header_h, total_w, header_h, fill=1, stroke=0)
@@ -426,9 +426,9 @@ def draw_practice_page(c: canvas.Canvas, day_no: int, rows: list[tuple[str, str]
         ipa, korean = PRONUNCIATIONS[word]
         draw_text(c, word, left + 2 * mm, baseline, font=FONT_BOLD, size=8.3, max_width=col_widths[0] - 4 * mm)
 
-        # 발음: 왼쪽 IPA · 오른쪽 한글
+        # 발음: 왼쪽 IPA · 오른쪽 한글 (단어와 같은 크기, 칸 초과 시 자동 축소)
         pron_left = left + col_widths[0]
-        ipa_w = col_widths[1] * 0.58
+        ipa_w = col_widths[1] * 0.56
         kor_w = col_widths[1] - ipa_w
         draw_text(
             c,
@@ -436,9 +436,9 @@ def draw_practice_page(c: canvas.Canvas, day_no: int, rows: list[tuple[str, str]
             pron_left + ipa_w / 2,
             baseline,
             font=FONT_IPA,
-            size=6.8,
+            size=8.3,
             color=INK,
-            max_width=ipa_w - 2.5 * mm,
+            max_width=ipa_w - 2 * mm,
             align="center",
         )
         draw_text(
@@ -446,9 +446,9 @@ def draw_practice_page(c: canvas.Canvas, day_no: int, rows: list[tuple[str, str]
             f"[{korean}]",
             pron_left + ipa_w + kor_w / 2,
             baseline,
-            size=6.8,
+            size=8.3,
             color=SLATE,
-            max_width=kor_w - 2 * mm,
+            max_width=kor_w - 1.5 * mm,
             align="center",
         )
 
@@ -487,9 +487,24 @@ def draw_practice_page(c: canvas.Canvas, day_no: int, rows: list[tuple[str, str]
     c.showPage()
 
 
-def build_pdf(days: list[list[tuple[str, str]]]) -> None:
+def resolve_output_path() -> Path:
+    """열려 있어 잠긴 파일은 덮어쓸 수 없으므로 번호를 붙여 저장한다."""
+    candidate = OUTPUT
+    for n in range(2, 20):
+        try:
+            with open(candidate, "ab"):
+                return candidate
+        except FileNotFoundError:
+            return candidate
+        except PermissionError:
+            candidate = OUTPUT.with_stem(f"{OUTPUT.stem}{n}")
+    raise PermissionError("PDF 저장 경로가 모두 잠겨 있습니다. 열려 있는 PDF를 닫아 주세요.")
+
+
+def build_pdf(days: list[list[tuple[str, str]]]) -> Path:
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    c = canvas.Canvas(str(OUTPUT), pagesize=A4, pageCompression=1)
+    out_path = resolve_output_path()
+    c = canvas.Canvas(str(out_path), pagesize=A4, pageCompression=1)
     c.setTitle("트리거 보카 중등 Day 01 샘플")
     c.setAuthor("TRIGGER BLACK")
     c.setSubject("접이식 테스트와 쓰기 연습용 중등 단어장")
@@ -503,6 +518,7 @@ def build_pdf(days: list[list[tuple[str, str]]]) -> None:
         draw_practice_page(c, day_no, rows, page_no)
         page_no += 1
     c.save()
+    return out_path
 
 
 def validate_pronunciations(day_rows: list[tuple[str, str]]) -> None:
@@ -518,9 +534,9 @@ def main() -> None:
     register_fonts()
     days = validate_days()[:1]
     validate_pronunciations(days[0])
-    build_pdf(days)
+    out_path = build_pdf(days)
     print(f"검증 완료: 원본 1,200개 / Day 1 24개 / 발음 24개 / 중복·누락 없음")
-    print(f"PDF 생성 완료: {OUTPUT}")
+    print(f"PDF 생성 완료: {out_path}")
 
 
 if __name__ == "__main__":
