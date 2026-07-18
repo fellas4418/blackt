@@ -23,10 +23,12 @@ OUT_DIR = ROOT / "단어장 PDF"
 FONT_REGULAR = "Malgun"
 FONT_BOLD = "MalgunBold"
 FONT_IPA = "ArialIPA"
-NAVY = HexColor("#24344A")
-SLATE = HexColor("#526273")
-PALE = HexColor("#EEF1F4")
-LIGHT = HexColor("#F7F8FA")
+# 브랜드 색 — 앱(트리거 블랙)의 검정 + 네온그린(#39FF14)을 인쇄용으로 매핑
+NAVY = HexColor("#0A0A0A")  # 브랜드 블랙 (헤더 바·배너·표지)
+NEON = HexColor("#39FF14")  # 네온그린 — 검정 바탕 위 강조 글씨
+SLATE = HexColor("#5C5C5C")
+PALE = HexColor("#EAF8E5")  # 연한 네온그린 틴트 (정답 면 헤더)
+LIGHT = HexColor("#F4FBF1")  # 연한 네온그린 틴트 (줄무늬 배경)
 LINE = HexColor("#9AA4AE")
 INK = HexColor("#20262D")
 
@@ -267,13 +269,13 @@ def draw_cover(
     c.setFillColor(NAVY)
     c.rect(0, 0, width, height, fill=1, stroke=0)
 
-    c.setFillColor(white)
+    c.setStrokeColor(NEON)
     c.roundRect(14 * mm, 32 * mm, width - 28 * mm, height - 64 * mm, 4 * mm, fill=0, stroke=1)
-    draw_text(c, "TRIGGER", width / 2, height - 58 * mm, font=FONT_BOLD, size=14, color=white, align="center")
+    draw_text(c, "TRIGGER", width / 2, height - 58 * mm, font=FONT_BOLD, size=14, color=NEON, align="center")
     draw_text(c, "VOCABULARY BOOK", width / 2, height - 72 * mm, font=FONT_BOLD, size=22, color=white, align="center")
     draw_text(c, f"{level_en} · B5 SAMPLE", width / 2, height - 84 * mm, size=10, color=PALE, align="center")
 
-    c.setFillColor(white)
+    c.setFillColor(NEON)
     c.roundRect(28 * mm, height - 118 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
     draw_text(c, day_label, width / 2, height - 112 * mm, font=FONT_BOLD, size=12, color=NAVY, align="center")
 
@@ -346,7 +348,7 @@ def draw_test_page(
         "바깥쪽 정답 면을 점선에서 뒤로 접으세요",
         width / 2,
         height - 21.5 * mm,
-        size=7.2,
+        size=9.5,
         color=SLATE,
         align="center",
     )
@@ -390,7 +392,7 @@ def draw_test_page(
         y_header,
         font=FONT_BOLD,
         size=9.0,
-        color=white,
+        color=NEON,
         align="center",
         max_width=test_cols[0] - 1.5 * mm,
     )
@@ -401,7 +403,7 @@ def draw_test_page(
         y_header,
         font=FONT_BOLD,
         size=10.2,
-        color=white,
+        color=NEON,
         align="center",
     )
     draw_text(
@@ -411,7 +413,7 @@ def draw_test_page(
         y_header,
         font=FONT_BOLD,
         size=10.2,
-        color=white,
+        color=NEON,
         align="center",
         max_width=test_cols[2] - 2 * mm,
     )
@@ -518,7 +520,7 @@ def draw_practice_page(
         "영단어를 따라 쓰고, 뜻을 직접 써보세요.",
         width / 2,
         height - 22 * mm,
-        size=7.5,
+        size=9.5,
         color=SLATE,
         align="center",
     )
@@ -539,7 +541,7 @@ def draw_practice_page(
             table_top - header_h + 2.5 * mm,
             font=FONT_BOLD,
             size=header_size,
-            color=white,
+            color=NEON,
             align="center",
             max_width=col_w - 1.5 * mm,
         )
