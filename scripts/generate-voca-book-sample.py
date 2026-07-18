@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE_TXT = ROOT / "voca_middle.txt"
 APP_DATA = ROOT / "worddata.js"
 LEGACY_DATA = ROOT / "worddata_middle.js"
-OUTPUT = ROOT / "단어장 PDF" / "트리거보카_중등_Day01_샘플.pdf"
+OUTPUT = ROOT / "단어장 PDF" / "트리거보카_중등_Day01_샘플_최종.pdf"
 
 # Day 1 발음 — (IPA, 한글) 수기 검수
 PRONUNCIATIONS = {
@@ -398,18 +398,20 @@ def draw_practice_page(c: canvas.Canvas, day_no: int, rows: list[tuple[str, str]
     row_h = (table_top - table_bottom - header_h) / len(rows)
 
     draw_text(c, f"DAY {day_no:02d} · PRACTICE", left, height - 16 * mm, font=FONT_BOLD, size=15, color=NAVY)
-    draw_text(c, "단어를 두 번씩 따라 쓰고, 뜻을 직접 써보세요.", left, height - 25 * mm, size=8.5, color=SLATE)
+    draw_text(c, "영단어를 두 번 따라 쓰고, 뜻을 직접 써보세요.", left, height - 25 * mm, size=8.5, color=SLATE)
     draw_text(c, "오른쪽 쓰기 면", right, height - 16 * mm, font=FONT_BOLD, size=8, color=SLATE, align="right")
 
     total_w = right - left
-    col_widths = [28 * mm, 34 * mm, 40 * mm, 32 * mm, 32 * mm, total_w - 166 * mm]
-    headers = ["WORD", "발음", "뜻 쓰기", "WRITE 1", "WRITE 2", "완료"]
+    # WORD | 발음(IPA+한글) | 뜻 쓰기 | 영단어 써보기 | WRITE 2 | 완료
+    col_widths = [26 * mm, 44 * mm, 36 * mm, 30 * mm, 30 * mm, total_w - 166 * mm]
+    headers = ["WORD", "발음", "뜻 쓰기", "영단어 써보기", "WRITE 2", "완료"]
 
     c.setFillColor(NAVY)
     c.rect(left, table_top - header_h, total_w, header_h, fill=1, stroke=0)
     x = left
     for label, col_w in zip(headers, col_widths):
-        draw_text(c, label, x + col_w / 2, table_top - header_h + 3 * mm, font=FONT_BOLD, size=7.5, color=white, align="center")
+        header_size = 6.6 if label == "영단어 써보기" else 7.5
+        draw_text(c, label, x + col_w / 2, table_top - header_h + 3 * mm, font=FONT_BOLD, size=header_size, color=white, align="center")
         x += col_w
 
     # 행 배경과 인쇄 내용
@@ -424,26 +426,29 @@ def draw_practice_page(c: canvas.Canvas, day_no: int, rows: list[tuple[str, str]
         ipa, korean = PRONUNCIATIONS[word]
         draw_text(c, word, left + 2 * mm, baseline, font=FONT_BOLD, size=8.3, max_width=col_widths[0] - 4 * mm)
 
-        pron_center = left + col_widths[0] + col_widths[1] / 2
+        # 발음: 왼쪽 IPA · 오른쪽 한글
+        pron_left = left + col_widths[0]
+        ipa_w = col_widths[1] * 0.58
+        kor_w = col_widths[1] - ipa_w
         draw_text(
             c,
             ipa,
-            pron_center,
-            next_y + row_h / 2 + 0.6 * mm,
+            pron_left + ipa_w / 2,
+            baseline,
             font=FONT_IPA,
-            size=7.2,
+            size=6.8,
             color=INK,
-            max_width=col_widths[1] - 3 * mm,
+            max_width=ipa_w - 2.5 * mm,
             align="center",
         )
         draw_text(
             c,
             f"[{korean}]",
-            pron_center,
-            next_y + row_h / 2 - 2.9 * mm,
+            pron_left + ipa_w + kor_w / 2,
+            baseline,
             size=6.8,
             color=SLATE,
-            max_width=col_widths[1] - 3 * mm,
+            max_width=kor_w - 2 * mm,
             align="center",
         )
 
