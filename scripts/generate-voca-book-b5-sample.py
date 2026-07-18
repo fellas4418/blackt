@@ -233,6 +233,22 @@ def draw_status_marks(c: canvas.Canvas, x: float, y: float, width: float, row_h:
     c.circle(centers[2], cy, radius, fill=0)
 
 
+def draw_day_banner(c: canvas.Canvas, title: str, center_y: float) -> None:
+    """페이지 상단 중앙의 Day 배너 — 크게, 테두리 박스로 눈에 띄게."""
+    width, _ = B5
+    size = 15.0
+    text_w = pdfmetrics.stringWidth(title, FONT_BOLD, size)
+    pad_x = 5 * mm
+    box_w = text_w + pad_x * 2
+    box_h = 8.5 * mm
+    box_x = (width - box_w) / 2
+    box_y = center_y - box_h / 2
+    c.setStrokeColor(NAVY)
+    c.setLineWidth(1.1)
+    c.roundRect(box_x, box_y, box_w, box_h, 1.8 * mm, fill=0, stroke=1)
+    draw_text(c, title, width / 2, center_y - size * 0.36, font=FONT_BOLD, size=size, color=NAVY, align="center")
+
+
 def draw_page_footer(c: canvas.Canvas, page_no: int, level_tag: str) -> None:
     width, _ = B5
     draw_text(c, f"TRIGGER VOCA · {level_tag} · B5", 10 * mm, 7 * mm, size=6.5, color=SLATE)
@@ -314,7 +330,7 @@ def draw_test_page(
     title = f"{level_tag} · DAY {day_no:02d}"
     if part_label:
         title += f" · {part_label}"
-    draw_text(c, title, margin_x, height - 13 * mm, font=FONT_BOLD, size=12, color=NAVY)
+    draw_day_banner(c, title, height - 13 * mm)
     draw_text(
         c,
         f"{len(rows)} WORDS",
@@ -329,7 +345,7 @@ def draw_test_page(
         c,
         "바깥쪽 정답 면을 점선에서 뒤로 접으세요",
         width / 2,
-        height - 20 * mm,
+        height - 21.5 * mm,
         size=7.2,
         color=SLATE,
         align="center",
@@ -496,8 +512,16 @@ def draw_practice_page(
     title = f"DAY {day_no:02d} · PRACTICE"
     if part_label:
         title += f" · {part_label}"
-    draw_text(c, title, left, height - 13 * mm, font=FONT_BOLD, size=12, color=NAVY)
-    draw_text(c, "영단어를 두 번 따라 쓰고, 뜻을 직접 써보세요.", left, height - 21 * mm, size=7.5, color=SLATE)
+    draw_day_banner(c, title, height - 13 * mm)
+    draw_text(
+        c,
+        "영단어를 두 번 따라 쓰고, 뜻을 직접 써보세요.",
+        width / 2,
+        height - 22 * mm,
+        size=7.5,
+        color=SLATE,
+        align="center",
+    )
 
     total_w = right - left
     col_widths = [22 * mm, 40 * mm, 28 * mm, 25 * mm, 25 * mm, total_w - 140 * mm]
