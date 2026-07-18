@@ -283,7 +283,7 @@ def draw_cover(
         ("1", "정답 면을 세로 점선에서 뒤로 접습니다."),
         ("2", "단어를 보고 뜻을 직접 쓴 뒤 정답과 비교합니다."),
         ("3", "결과에 따라  □ 모름   △ 애매   ○ 완료를 표시합니다."),
-        ("4", "연습 면에서 단어를 두 번 따라 쓰고 뜻을 직접 씁니다."),
+        ("4", "연습 면에서 단어를 따라 쓰고 뜻을 직접 씁니다."),
         ("5", words_note),
     ]
     for number, sentence in lines:
@@ -358,8 +358,8 @@ def draw_test_page(
 
     answer_w = fold_x - table_left
     test_w = table_right - fold_x
-    answer_cols = [7 * mm, 28 * mm, answer_w - 35 * mm]
-    test_cols = [24 * mm, 26 * mm, test_w - 50 * mm]
+    answer_cols = [7 * mm, 33 * mm, answer_w - 40 * mm]
+    test_cols = [24 * mm, 30 * mm, test_w - 54 * mm]
 
     y_header = table_top - header_h + 2.2 * mm
     draw_text(c, "정답", table_left + answer_cols[0] / 2, y_header, font=FONT_BOLD, size=10.2, color=SLATE, align="center", max_width=answer_cols[0] - 1 * mm)
@@ -424,15 +424,15 @@ def draw_test_page(
             c.setFillColor(LIGHT)
             c.rect(table_left, next_y, table_right - table_left, row_h, fill=1, stroke=0)
 
-        baseline = next_y + row_h / 2 - 2.2
-        draw_text(c, str(index), table_left + answer_cols[0] / 2, baseline, size=6.5, color=SLATE, align="center")
+        baseline = next_y + row_h / 2 - 3.0
+        draw_text(c, str(index), table_left + answer_cols[0] / 2, baseline, size=7.0, color=SLATE, align="center")
         draw_text(
             c,
             word,
             table_left + answer_cols[0] + 1.5 * mm,
             baseline,
             font=FONT_BOLD,
-            size=7.6,
+            size=10.5,
             max_width=answer_cols[1] - 3 * mm,
         )
         draw_text(
@@ -440,7 +440,7 @@ def draw_test_page(
             meaning,
             table_left + answer_cols[0] + answer_cols[1] + 1.5 * mm,
             baseline,
-            size=7.2,
+            size=8.5,
             max_width=answer_cols[2] - 3 * mm,
         )
 
@@ -451,7 +451,7 @@ def draw_test_page(
             fold_x + test_cols[0] + 1.5 * mm,
             baseline,
             font=FONT_BOLD,
-            size=7.5,
+            size=10.5,
             max_width=test_cols[1] - 3 * mm,
         )
         blank_left = fold_x + test_cols[0] + test_cols[1] + 1.5 * mm
@@ -515,7 +515,7 @@ def draw_practice_page(
     draw_day_banner(c, title, height - 13 * mm)
     draw_text(
         c,
-        "영단어를 두 번 따라 쓰고, 뜻을 직접 써보세요.",
+        "영단어를 따라 쓰고, 뜻을 직접 써보세요.",
         width / 2,
         height - 22 * mm,
         size=7.5,
@@ -524,14 +524,14 @@ def draw_practice_page(
     )
 
     total_w = right - left
-    col_widths = [22 * mm, 40 * mm, 28 * mm, 25 * mm, 25 * mm, total_w - 140 * mm]
-    headers = ["WORD", "발음", "뜻 쓰기", "영단어 써보기", "영단어 써보기", "완료"]
+    col_widths = [30 * mm, 46 * mm, 32 * mm, 32 * mm, total_w - 140 * mm]
+    headers = ["WORD", "발음", "뜻 쓰기", "영단어 써보기", "완료"]
 
     c.setFillColor(NAVY)
     c.rect(left, table_top - header_h, total_w, header_h, fill=1, stroke=0)
     x = left
     for label, col_w in zip(headers, col_widths):
-        header_size = 8.7 if label == "영단어 써보기" else 10.2
+        header_size = 10.2
         draw_text(
             c,
             label,
@@ -552,9 +552,9 @@ def draw_practice_page(
             c.setFillColor(LIGHT)
             c.rect(left, next_y, total_w, row_h, fill=1, stroke=0)
 
-        baseline = next_y + row_h / 2 - 2.2
+        baseline = next_y + row_h / 2 - 3.0
         ipa, korean = pronunciations[word]
-        draw_text(c, word, left + 1.5 * mm, baseline, font=FONT_BOLD, size=7.5, max_width=col_widths[0] - 3 * mm)
+        draw_text(c, word, left + 1.5 * mm, baseline, font=FONT_BOLD, size=10.5, max_width=col_widths[0] - 3 * mm)
 
         pron_left = left + col_widths[0]
         ipa_w = col_widths[1] * 0.56
@@ -565,7 +565,7 @@ def draw_practice_page(
             pron_left + ipa_w / 2,
             baseline,
             font=FONT_IPA,
-            size=7.4,
+            size=8.5,
             color=INK,
             max_width=ipa_w - 1.5 * mm,
             align="center",
@@ -575,7 +575,7 @@ def draw_practice_page(
             f"[{korean}]",
             pron_left + ipa_w + kor_w / 2,
             baseline,
-            size=7.4,
+            size=8.5,
             color=SLATE,
             max_width=kor_w - 1.2 * mm,
             align="center",
