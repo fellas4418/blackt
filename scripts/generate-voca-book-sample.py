@@ -20,36 +20,37 @@ APP_DATA = ROOT / "worddata.js"
 LEGACY_DATA = ROOT / "worddata_middle.js"
 OUTPUT = ROOT / "단어장 PDF" / "트리거보카_중등_Day01_샘플.pdf"
 
-# Day 1 한글 발음 (수기 검수)
+# Day 1 발음 — (IPA, 한글) 수기 검수
 PRONUNCIATIONS = {
-    "religion": "릴리전",
-    "border": "보더",
-    "spread": "스프레드",
-    "escape": "이스케입",
-    "common": "커먼",
-    "remain": "리메인",
-    "punish": "퍼니시",
-    "fee": "피",
-    "familiar": "퍼밀리어",
-    "volunteer": "발런티어",
-    "square": "스퀘어",
-    "steal": "스틸",
-    "attack": "어택",
-    "represent": "레프리젠트",
-    "arrow": "애로우",
-    "shoot": "슛",
-    "matter": "매터",
-    "shake": "셰이크",
-    "ruin": "루인",
-    "result": "리절트",
-    "bless": "블레스",
-    "exist": "이그지스트",
-    "medicine": "메디슨",
-    "pack": "팩",
+    "religion": ("/rɪˈlɪdʒən/", "릴리전"),
+    "border": ("/ˈbɔːrdər/", "보더"),
+    "spread": ("/spred/", "스프레드"),
+    "escape": ("/ɪˈskeɪp/", "이스케입"),
+    "common": ("/ˈkɑːmən/", "커먼"),
+    "remain": ("/rɪˈmeɪn/", "리메인"),
+    "punish": ("/ˈpʌnɪʃ/", "퍼니시"),
+    "fee": ("/fiː/", "피"),
+    "familiar": ("/fəˈmɪliər/", "퍼밀리어"),
+    "volunteer": ("/ˌvɑːlənˈtɪr/", "발런티어"),
+    "square": ("/skwer/", "스퀘어"),
+    "steal": ("/stiːl/", "스틸"),
+    "attack": ("/əˈtæk/", "어택"),
+    "represent": ("/ˌreprɪˈzent/", "레프리젠트"),
+    "arrow": ("/ˈæroʊ/", "애로우"),
+    "shoot": ("/ʃuːt/", "슛"),
+    "matter": ("/ˈmætər/", "매터"),
+    "shake": ("/ʃeɪk/", "셰이크"),
+    "ruin": ("/ˈruːɪn/", "루인"),
+    "result": ("/rɪˈzʌlt/", "리절트"),
+    "bless": ("/bles/", "블레스"),
+    "exist": ("/ɪɡˈzɪst/", "이그지스트"),
+    "medicine": ("/ˈmedɪsn/", "메디슨"),
+    "pack": ("/pæk/", "팩"),
 }
 
 FONT_REGULAR = "Malgun"
 FONT_BOLD = "MalgunBold"
+FONT_IPA = "ArialIPA"
 NAVY = HexColor("#24344A")
 SLATE = HexColor("#526273")
 PALE = HexColor("#EEF1F4")
@@ -62,6 +63,7 @@ def register_fonts() -> None:
     font_dir = Path("C:/Windows/Fonts")
     pdfmetrics.registerFont(TTFont(FONT_REGULAR, str(font_dir / "malgun.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_BOLD, str(font_dir / "malgunbd.ttf")))
+    pdfmetrics.registerFont(TTFont(FONT_IPA, str(font_dir / "arial.ttf")))
 
 
 def load_source_words() -> list[tuple[str, str]]:
@@ -208,7 +210,7 @@ def draw_cover(c: canvas.Canvas) -> None:
         ("1", "정답 면을 세로 점선에서 뒤로 접습니다."),
         ("2", "단어를 보고 뜻을 직접 쓴 뒤 정답과 비교합니다."),
         ("3", "결과에 따라  □ 모름   △ 애매   ○ 완료를 표시합니다."),
-        ("4", "오른쪽 연습 면에서 단어·발음을 보고 두 번씩 따라 씁니다."),
+        ("4", "오른쪽 연습 면에서 단어를 두 번 따라 쓰고 뜻을 직접 씁니다."),
     ]
     for number, sentence in lines:
         c.setFillColor(white)
@@ -396,12 +398,12 @@ def draw_practice_page(c: canvas.Canvas, day_no: int, rows: list[tuple[str, str]
     row_h = (table_top - table_bottom - header_h) / len(rows)
 
     draw_text(c, f"DAY {day_no:02d} · PRACTICE", left, height - 16 * mm, font=FONT_BOLD, size=15, color=NAVY)
-    draw_text(c, "단어와 발음을 보고 두 번씩 따라 쓰세요.", left, height - 25 * mm, size=8.5, color=SLATE)
+    draw_text(c, "단어를 두 번씩 따라 쓰고, 뜻을 직접 써보세요.", left, height - 25 * mm, size=8.5, color=SLATE)
     draw_text(c, "오른쪽 쓰기 면", right, height - 16 * mm, font=FONT_BOLD, size=8, color=SLATE, align="right")
 
     total_w = right - left
-    col_widths = [30 * mm, 26 * mm, 40 * mm, 36 * mm, 36 * mm, total_w - 168 * mm]
-    headers = ["WORD", "발음", "MEANING", "WRITE 1", "WRITE 2", "완료"]
+    col_widths = [28 * mm, 34 * mm, 40 * mm, 32 * mm, 32 * mm, total_w - 166 * mm]
+    headers = ["WORD", "발음", "뜻 쓰기", "WRITE 1", "WRITE 2", "완료"]
 
     c.setFillColor(NAVY)
     c.rect(left, table_top - header_h, total_w, header_h, fill=1, stroke=0)
@@ -419,26 +421,38 @@ def draw_practice_page(c: canvas.Canvas, day_no: int, rows: list[tuple[str, str]
             c.rect(left, next_y, total_w, row_h, fill=1, stroke=0)
 
         baseline = next_y + row_h / 2 - 2.5
-        pron = PRONUNCIATIONS.get(word, "")
+        ipa, korean = PRONUNCIATIONS[word]
         draw_text(c, word, left + 2 * mm, baseline, font=FONT_BOLD, size=8.3, max_width=col_widths[0] - 4 * mm)
+
+        pron_center = left + col_widths[0] + col_widths[1] / 2
         draw_text(
             c,
-            f"[{pron}]" if pron else "",
-            left + col_widths[0] + col_widths[1] / 2,
-            baseline,
-            size=7.6,
-            color=SLATE,
+            ipa,
+            pron_center,
+            next_y + row_h / 2 + 0.6 * mm,
+            font=FONT_IPA,
+            size=7.2,
+            color=INK,
             max_width=col_widths[1] - 3 * mm,
             align="center",
         )
         draw_text(
             c,
-            meaning,
-            left + col_widths[0] + col_widths[1] + 2 * mm,
-            baseline,
-            size=7.8,
-            max_width=col_widths[2] - 4 * mm,
+            f"[{korean}]",
+            pron_center,
+            next_y + row_h / 2 - 2.9 * mm,
+            size=6.8,
+            color=SLATE,
+            max_width=col_widths[1] - 3 * mm,
+            align="center",
         )
+
+        # 뜻 쓰기 빈칸 밑줄
+        meaning_left = left + col_widths[0] + col_widths[1] + 2 * mm
+        meaning_right = left + col_widths[0] + col_widths[1] + col_widths[2] - 2 * mm
+        c.setStrokeColor(LINE)
+        c.setLineWidth(0.45)
+        c.line(meaning_left, next_y + 2.7 * mm, meaning_right, next_y + 2.7 * mm)
         y = next_y
 
     c.setStrokeColor(LINE)
