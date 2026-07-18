@@ -1,4 +1,4 @@
-"""중등 보카 Day 1~3 종이책 샘플 PDF 생성기."""
+"""중등 보카 종이책 샘플 PDF 생성기 (Day 1 하루치)."""
 
 from __future__ import annotations
 
@@ -18,7 +18,35 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE_TXT = ROOT / "voca_middle.txt"
 APP_DATA = ROOT / "worddata.js"
 LEGACY_DATA = ROOT / "worddata_middle.js"
-OUTPUT = ROOT / "단어장 PDF" / "트리거보카_중등_Day01-03_샘플.pdf"
+OUTPUT = ROOT / "단어장 PDF" / "트리거보카_중등_Day01_샘플.pdf"
+
+# Day 1 한글 발음 (수기 검수)
+PRONUNCIATIONS = {
+    "religion": "릴리전",
+    "border": "보더",
+    "spread": "스프레드",
+    "escape": "이스케입",
+    "common": "커먼",
+    "remain": "리메인",
+    "punish": "퍼니시",
+    "fee": "피",
+    "familiar": "퍼밀리어",
+    "volunteer": "발런티어",
+    "square": "스퀘어",
+    "steal": "스틸",
+    "attack": "어택",
+    "represent": "레프리젠트",
+    "arrow": "애로우",
+    "shoot": "슛",
+    "matter": "매터",
+    "shake": "셰이크",
+    "ruin": "루인",
+    "result": "리절트",
+    "bless": "블레스",
+    "exist": "이그지스트",
+    "medicine": "메디슨",
+    "pack": "팩",
+}
 
 FONT_REGULAR = "Malgun"
 FONT_BOLD = "MalgunBold"
@@ -172,7 +200,7 @@ def draw_cover(c: canvas.Canvas) -> None:
 
     c.setFillColor(white)
     c.roundRect(33 * mm, height - 139 * mm, width - 66 * mm, 20 * mm, 3 * mm, fill=1, stroke=0)
-    draw_text(c, "DAY 01 — DAY 03", width / 2, height - 132 * mm, font=FONT_BOLD, size=14, color=NAVY, align="center")
+    draw_text(c, "DAY 01", width / 2, height - 132 * mm, font=FONT_BOLD, size=14, color=NAVY, align="center")
 
     info_x = 38 * mm
     info_y = height - 168 * mm
@@ -180,7 +208,7 @@ def draw_cover(c: canvas.Canvas) -> None:
         ("1", "정답 면을 세로 점선에서 뒤로 접습니다."),
         ("2", "단어를 보고 뜻을 직접 쓴 뒤 정답과 비교합니다."),
         ("3", "결과에 따라  □ 모름   △ 애매   ○ 완료를 표시합니다."),
-        ("4", "모름·애매 단어는 오른쪽 연습 면에 옮겨 세 번 씁니다."),
+        ("4", "오른쪽 연습 면에서 단어·발음을 보고 두 번씩 따라 씁니다."),
     ]
     for number, sentence in lines:
         c.setFillColor(white)
@@ -358,23 +386,22 @@ def draw_test_page(c: canvas.Canvas, day_no: int, rows: list[tuple[str, str]], p
     c.showPage()
 
 
-def draw_practice_page(c: canvas.Canvas, day_no: int, page_no: int) -> None:
+def draw_practice_page(c: canvas.Canvas, day_no: int, rows: list[tuple[str, str]], page_no: int) -> None:
     width, height = A4
     left = 14 * mm
     right = width - 10 * mm
     table_top = height - 38 * mm
     table_bottom = 21 * mm
     header_h = 10 * mm
-    rows = 24
-    row_h = (table_top - table_bottom - header_h) / rows
+    row_h = (table_top - table_bottom - header_h) / len(rows)
 
     draw_text(c, f"DAY {day_no:02d} · PRACTICE", left, height - 16 * mm, font=FONT_BOLD, size=15, color=NAVY)
-    draw_text(c, "모름·애매 단어만 옮겨 적고 세 번 반복하세요.", left, height - 25 * mm, size=8.5, color=SLATE)
+    draw_text(c, "단어와 발음을 보고 두 번씩 따라 쓰세요.", left, height - 25 * mm, size=8.5, color=SLATE)
     draw_text(c, "오른쪽 쓰기 면", right, height - 16 * mm, font=FONT_BOLD, size=8, color=SLATE, align="right")
 
     total_w = right - left
-    col_widths = [34 * mm, 42 * mm, 28 * mm, 28 * mm, 28 * mm, total_w - 160 * mm]
-    headers = ["WORD", "MEANING", "WRITE 1", "WRITE 2", "WRITE 3", "완료"]
+    col_widths = [30 * mm, 26 * mm, 40 * mm, 36 * mm, 36 * mm, total_w - 168 * mm]
+    headers = ["WORD", "발음", "MEANING", "WRITE 1", "WRITE 2", "완료"]
 
     c.setFillColor(NAVY)
     c.rect(left, table_top - header_h, total_w, header_h, fill=1, stroke=0)
@@ -382,6 +409,37 @@ def draw_practice_page(c: canvas.Canvas, day_no: int, page_no: int) -> None:
     for label, col_w in zip(headers, col_widths):
         draw_text(c, label, x + col_w / 2, table_top - header_h + 3 * mm, font=FONT_BOLD, size=7.5, color=white, align="center")
         x += col_w
+
+    # 행 배경과 인쇄 내용
+    y = table_top - header_h
+    for index, (word, meaning) in enumerate(rows, 1):
+        next_y = y - row_h
+        if index % 2 == 0:
+            c.setFillColor(LIGHT)
+            c.rect(left, next_y, total_w, row_h, fill=1, stroke=0)
+
+        baseline = next_y + row_h / 2 - 2.5
+        pron = PRONUNCIATIONS.get(word, "")
+        draw_text(c, word, left + 2 * mm, baseline, font=FONT_BOLD, size=8.3, max_width=col_widths[0] - 4 * mm)
+        draw_text(
+            c,
+            f"[{pron}]" if pron else "",
+            left + col_widths[0] + col_widths[1] / 2,
+            baseline,
+            size=7.6,
+            color=SLATE,
+            max_width=col_widths[1] - 3 * mm,
+            align="center",
+        )
+        draw_text(
+            c,
+            meaning,
+            left + col_widths[0] + col_widths[1] + 2 * mm,
+            baseline,
+            size=7.8,
+            max_width=col_widths[2] - 4 * mm,
+        )
+        y = next_y
 
     c.setStrokeColor(LINE)
     c.setLineWidth(0.45)
@@ -392,14 +450,14 @@ def draw_practice_page(c: canvas.Canvas, day_no: int, page_no: int) -> None:
         x_positions.append(x)
     for x in x_positions:
         c.line(x, table_bottom, x, table_top)
-    for i in range(rows + 1):
+    for i in range(len(rows) + 1):
         y = table_top - header_h - i * row_h
         c.line(left, y, right, y)
     c.rect(left, table_bottom, total_w, table_top - table_bottom, fill=0, stroke=1)
 
     # 각 행의 최종 완료 표시용 원
     done_center_x = right - col_widths[-1] / 2
-    for i in range(rows):
+    for i in range(len(rows)):
         y = table_top - header_h - (i + 0.5) * row_h
         c.circle(done_center_x, y, min(2.1 * mm, row_h * 0.26), fill=0, stroke=1)
 
@@ -413,7 +471,7 @@ def draw_practice_page(c: canvas.Canvas, day_no: int, page_no: int) -> None:
 def build_pdf(days: list[list[tuple[str, str]]]) -> None:
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     c = canvas.Canvas(str(OUTPUT), pagesize=A4, pageCompression=1)
-    c.setTitle("트리거 보카 중등 Day 01-03 샘플")
+    c.setTitle("트리거 보카 중등 Day 01 샘플")
     c.setAuthor("TRIGGER BLACK")
     c.setSubject("접이식 테스트와 쓰기 연습용 중등 단어장")
     c.setCreator("TRIGGER VOCA Book Generator")
@@ -423,16 +481,26 @@ def build_pdf(days: list[list[tuple[str, str]]]) -> None:
     for day_no, rows in enumerate(days, 1):
         draw_test_page(c, day_no, rows, page_no)
         page_no += 1
-        draw_practice_page(c, day_no, page_no)
+        draw_practice_page(c, day_no, rows, page_no)
         page_no += 1
     c.save()
 
 
+def validate_pronunciations(day_rows: list[tuple[str, str]]) -> None:
+    missing = [word for word, _ in day_rows if word not in PRONUNCIATIONS]
+    if missing:
+        raise ValueError(f"발음이 없는 단어: {missing}")
+    extra = set(PRONUNCIATIONS) - {word for word, _ in day_rows}
+    if extra:
+        raise ValueError(f"Day 1에 없는 발음 항목: {sorted(extra)}")
+
+
 def main() -> None:
     register_fonts()
-    days = validate_days()
+    days = validate_days()[:1]
+    validate_pronunciations(days[0])
     build_pdf(days)
-    print(f"검증 완료: 원본 1,200개 / 샘플 72개 / Day별 24개 / 중복·누락 없음")
+    print(f"검증 완료: 원본 1,200개 / Day 1 24개 / 발음 24개 / 중복·누락 없음")
     print(f"PDF 생성 완료: {OUTPUT}")
 
 
