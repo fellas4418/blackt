@@ -236,7 +236,7 @@ def draw_status_marks(c: canvas.Canvas, x: float, y: float, width: float, row_h:
 
 
 def draw_day_banner(c: canvas.Canvas, title: str, center_y: float) -> None:
-    """페이지 상단 중앙의 Day 배너 — 앱 브라운(오렌지) 배경에 검정 글씨."""
+    """페이지 상단 중앙의 Day 배너 — 검은 배경 박스에 흰 글씨."""
     width, _ = B5
     size = 15.0
     text_w = pdfmetrics.stringWidth(title, FONT_BOLD, size)
@@ -245,9 +245,9 @@ def draw_day_banner(c: canvas.Canvas, title: str, center_y: float) -> None:
     box_h = 8.5 * mm
     box_x = (width - box_w) / 2
     box_y = center_y - box_h / 2
-    c.setFillColor(ORANGE)
+    c.setFillColor(NAVY)
     c.roundRect(box_x, box_y, box_w, box_h, 1.8 * mm, fill=1, stroke=0)
-    draw_text(c, title, width / 2, center_y - size * 0.36, font=FONT_BOLD, size=size, color=NAVY, align="center")
+    draw_text(c, title, width / 2, center_y - size * 0.36, font=FONT_BOLD, size=size, color=white, align="center")
 
 
 def draw_page_footer(c: canvas.Canvas, page_no: int, level_tag: str) -> None:
@@ -351,6 +351,9 @@ def draw_test_page(
         color=SLATE,
         align="center",
     )
+    c.setStrokeColor(ORANGE)
+    c.setLineWidth(1.0)
+    c.line(table_left, height - 23.8 * mm, table_right, height - 23.8 * mm)
 
     c.setFillColor(NAVY)
     c.rect(table_left, table_top - header_h, fold_x - table_left, header_h, fill=1, stroke=0)
@@ -526,6 +529,9 @@ def draw_practice_page(
         color=SLATE,
         align="center",
     )
+    c.setStrokeColor(ORANGE)
+    c.setLineWidth(1.0)
+    c.line(left, height - 24.3 * mm, right, height - 24.3 * mm)
 
     total_w = right - left
     col_widths = [30 * mm, 46 * mm, 32 * mm, 32 * mm, total_w - 140 * mm]
