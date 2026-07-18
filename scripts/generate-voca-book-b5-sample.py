@@ -256,8 +256,8 @@ def draw_page_footer(c: canvas.Canvas, page_no: int, level_tag: str) -> None:
     draw_text(c, str(page_no), width - 10 * mm, 7 * mm, size=6.5, color=SLATE, align="right")
 
 
-LOGO_PATH = ROOT / "로고, 이미지" / "trigger-logo-orange.png"
-LOGO_ASPECT = 345 / 823  # 세로/가로
+LOGO_PATH = ROOT / "로고, 이미지" / "trigger-logo-v2.png"
+LOGO_ASPECT = 342 / 820  # 세로/가로
 
 
 def draw_cover(
@@ -275,7 +275,7 @@ def draw_cover(
     c.setStrokeColor(white)
     c.roundRect(14 * mm, 32 * mm, width - 28 * mm, height - 64 * mm, 4 * mm, fill=0, stroke=1)
 
-    # Trigger 워드마크 (T·속도선 오렌지 포인트 · 검정 배경이라 표지와 자연스럽게 붙음)
+    # Trigger 워드마크 (흰 글씨 · 속도선 위 네온블루/아래 주황 · 검정 배경)
     logo_w = 72 * mm
     logo_h = logo_w * LOGO_ASPECT
     c.drawImage(
