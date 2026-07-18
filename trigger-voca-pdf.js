@@ -1,5 +1,5 @@
 /**
- * 보카 단어장 인쇄/PDF — 3버전(①영단어+뜻·②영만·③한만), 범위 선택
+ * 보카 단어장 PDF 다운로드 — 3버전(①영단어+뜻·②영만·③한만), 범위 선택
  */
 (function (global) {
     function escapeHtml(s) {
@@ -422,25 +422,106 @@
         return html;
     }
 
-    function printHtml(html) {
-        var printArea = document.getElementById('print-area');
-        if (!printArea) {
-            alert('인쇄 영역을 찾지 못했습니다. 메인(보카) 화면에서 다시 시도해 주세요.');
+    function isIosLike() {
+        var ua = navigator.userAgent || '';
+        if (/iPad|iPhone|iPod/.test(ua)) return true;
+        return navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+    }
+
+    function pdfFilename(opts) {
+        var days = opts.days || [];
+        var level = opts.level || 'middle';
+        var dayPart =
+            days.length === 1 ? 'Day' + days[0] : days.length ? 'Day' + days[0] + '-' + days[days.length - 1] : 'voca';
+        return 'TRIGGER_VOCA_' + level + '_' + dayPart + '.pdf';
+    }
+
+    function anchorDownloadBlob(blob, filename) {
+        var dlBlob = isIosLike() ? new Blob([blob], { type: 'application/octet-stream' }) : blob;
+        var url = URL.createObjectURL(dlBlob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.rel = 'noopener';
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function () {
+            if (a.parentNode) a.parentNode.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 2500);
+    }
+
+    function savePdfBlob(blob, filename) {
+        // iOS는 application/pdf면 탭에서 열어버리는 경우가 있어 octet-stream으로 저장 유도
+        anchorDownloadBlob(blob, filename);
+    }
+
+    /** 화면에 인쇄 UI를 띄우지 않고 PDF 파일로 저장 (아이폰 파란줄·인쇄 시트 방지) */
+    function downloadHtmlAsPdf(html, filename) {
+        if (typeof html2pdf === 'undefined') {
+            alert('PDF 기능을 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.');
             return false;
         }
-        printArea.innerHTML = html;
-        printArea.style.display = 'block';
-        setTimeout(function () {
-            global.print();
-            printArea.style.display = 'none';
-        }, 120);
+        var tip = document.createElement('div');
+        tip.setAttribute('role', 'status');
+        tip.textContent = 'PDF 만드는 중…';
+        tip.style.cssText =
+            'position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:99999;' +
+            'background:#111;color:#39ff14;border:1px solid #39ff14;padding:12px 18px;border-radius:8px;' +
+            'font-weight:bold;font-size:0.9rem;pointer-events:none;';
+        document.body.appendChild(tip);
+
+        var wrap = document.createElement('div');
+        wrap.setAttribute('data-voca-pdf-root', '1');
+        wrap.style.cssText =
+            'position:fixed;left:-10000px;top:0;width:794px;padding:28px;box-sizing:border-box;' +
+            'background:#fff;color:#000;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;' +
+            'pointer-events:none;z-index:-9999;';
+        wrap.innerHTML = html;
+        document.body.appendChild(wrap);
+
+        var opt = {
+            margin: [10, 10, 10, 10],
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.92 },
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff',
+                windowWidth: 794
+            },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['css', 'legacy'], before: '.page-break' },
+            enableLinks: false
+        };
+
+        function cleanup() {
+            if (wrap.parentNode) wrap.parentNode.removeChild(wrap);
+            if (tip.parentNode) tip.parentNode.removeChild(tip);
+        }
+
+        html2pdf()
+            .set(opt)
+            .from(wrap)
+            .outputPdf('blob')
+            .then(function (blob) {
+                cleanup();
+                return savePdfBlob(blob, filename);
+            })
+            .catch(function (err) {
+                cleanup();
+                console.error(err);
+                alert('PDF 만들기에 실패했습니다. 다시 시도해 주세요.');
+            });
         return true;
     }
 
     function print(opts) {
         var days = opts.days || [];
         if (!days.length) {
-            alert('인쇄할 Day가 없습니다. 학습을 완료한 뒤 다시 시도해 주세요.');
+            alert('PDF로 저장할 Day가 없습니다. 학습을 완료한 뒤 다시 시도해 주세요.');
             return;
         }
         var hasWords = false;
@@ -452,7 +533,7 @@
             return;
         }
         var html = buildPrintHtml(opts);
-        printHtml(html);
+        downloadHtmlAsPdf(html, pdfFilename(opts));
     }
 
     function versionsFromSelect(val) {

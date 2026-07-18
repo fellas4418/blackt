@@ -683,7 +683,7 @@
                     <ul class="routine-list" id="routine-list-container"></ul>
                 </div>
                 <div id="pdf-download-section" style="margin-top: 15px; text-align: left; border-top: 1px dashed #555; padding-top: 15px;">
-                    <p style="color: #fff; font-size: 0.95rem; font-weight: bold; margin-bottom: 8px;">📄 단어장 (인쇄 → PDF 저장)</p>
+                    <p style="color: #fff; font-size: 0.95rem; font-weight: bold; margin-bottom: 8px;">📄 단어장 PDF 다운로드</p>
                     <label style="color:#888;font-size:0.8rem;display:block;margin-bottom:4px;">범위</label>
                     <select id="pdf-range-select" onchange="onPdfRangeChange()" style="width:100%;padding:10px;margin-bottom:10px;background:#111;border:1px solid #444;color:#fff;border-radius:8px;">
                         <option value="today">오늘(마지막 완료 Day)</option>
@@ -703,7 +703,7 @@
                         <option value="en">② 영단어만</option>
                         <option value="ko">③ 한글만</option>
                     </select>
-                    <button id="pdf-btn" onclick="printVocaWordbookFromForm()" style="background: rgba(57, 255, 20, 0.1); color: var(--neon-green); border: 1px solid var(--neon-green); padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px;">📄 단어장 인쇄 / PDF 저장</button>
+                    <button id="pdf-btn" onclick="printVocaWordbookFromForm()" style="background: rgba(57, 255, 20, 0.1); color: var(--neon-green); border: 1px solid var(--neon-green); padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px;">📄 단어장 PDF 다운로드</button>
                     <div id="week-bonus-banner" style="display:none; text-align:center; padding:12px; border-radius:8px; background:rgba(255,153,0,0.08); border:1px dashed var(--neon-orange); margin-bottom:10px;"></div>
     
                     <div id="final-gift-section" style="display: none; border-top: 1px solid #333; padding-top: 15px; margin-top: 5px;">
@@ -855,7 +855,8 @@
     <div id="print-area" style="display:none; padding:20px; background:#fff; color:#000;"></div>
 
     <script src="trigger-credit.js?v=20260715"></script>
-    <script src="trigger-voca-pdf.js?v=20260701_wrong2"></script>
+    <script src="vendor/html2pdf.bundle.min.js"></script>
+    <script src="trigger-voca-pdf.js?v=20260718_pdfdl"></script>
     <script src="pattern-toc.js?v=20260625"></script>
 
     <script>
@@ -3146,7 +3147,7 @@
     </script>
     <script src="praise-share.js?v=20260517_kakao_return"></script>
     <script src="admin-unlock.js"></script>
-    <script src="app.js?v=20260712_restart"></script>
+    <script src="app.js?v=20260718_pdfdl"></script>
     <script src="worddata.js"></script>
     <script src="worddata_toeic.js?v=20260625_toeic54"></script>
     <script src="toeic-schedule.js"></script>

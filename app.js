@@ -71,7 +71,7 @@ function showStudyDayCompleteScreen(accuracy, completedDay, creditEarnedHtml) {
             <div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold; font-family:Orbitron,Pretendard,sans-serif; letter-spacing:0.05em;">PROTOCOL COMPLETE · ${accNum}%</div>
             ${creditHtml}
             ${creditBal}
-            <button type="button" id="btn-study-voca-pdf" style="width:100%; padding:14px; background:rgba(57,255,20,0.12); color:var(--neon-green); border:1px solid var(--neon-green); border-radius:6px; margin-top:16px; font-weight:bold; cursor:pointer;">📄 Day ${dayNum} 단어장 (3종)</button>
+            <button type="button" id="btn-study-voca-pdf" style="width:100%; padding:14px; background:rgba(57,255,20,0.12); color:var(--neon-green); border:1px solid var(--neon-green); border-radius:6px; margin-top:16px; font-weight:bold; cursor:pointer;">📄 Day ${dayNum} 단어장 PDF 받기</button>
             ${kakaoShareBtnHtml}
             <button type="button" id="btn-study-exit-home" style="display:block; width:100%; margin-top:20px; padding:12px; background:none; border:none; color:#888; text-decoration:underline; cursor:pointer; font-size:1rem;">종료하기</button>
         </div>
