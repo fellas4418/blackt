@@ -440,7 +440,6 @@ def draw_practice_page(
         title += f" · {part_label}"
     draw_text(c, title, left, height - 13 * mm, font=FONT_BOLD, size=12, color=NAVY)
     draw_text(c, "영단어를 두 번 따라 쓰고, 뜻을 직접 써보세요.", left, height - 21 * mm, size=7.5, color=SLATE)
-    draw_text(c, "오른쪽 쓰기 면", right, height - 13 * mm, font=FONT_BOLD, size=7.5, color=SLATE, align="right")
 
     total_w = right - left
     col_widths = [22 * mm, 40 * mm, 28 * mm, 25 * mm, 25 * mm, total_w - 140 * mm]
@@ -525,9 +524,6 @@ def draw_practice_page(
         cy = table_top - header_h - (i + 0.5) * row_h
         c.circle(done_center_x, cy, min(1.8 * mm, row_h * 0.24), fill=0, stroke=1)
 
-    draw_text(c, "MEMO", left, 12.5 * mm, font=FONT_BOLD, size=6.5, color=SLATE)
-    c.setStrokeColor(LINE)
-    c.line(left + 11 * mm, 12.5 * mm, right, 12.5 * mm)
     draw_page_footer(c, page_no, "PRACTICE · 오른쪽 면", level_tag)
     c.showPage()
 
