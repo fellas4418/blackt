@@ -222,7 +222,7 @@ def draw_text(
 
 
 def draw_status_marks(c: canvas.Canvas, x: float, y: float, width: float, row_h: float) -> None:
-    centers = [x + width * 0.20, x + width * 0.50, x + width * 0.80]
+    centers = [x + width * 1 / 6, x + width * 3 / 6, x + width * 5 / 6]
     cy = y + row_h / 2
     radius = min(1.9 * mm, row_h * 0.24)
     c.setStrokeColor(SLATE)
@@ -361,10 +361,9 @@ def draw_test_page(
     test_cols = [24 * mm, 30 * mm, test_w - 54 * mm]
 
     y_header = table_top - header_h + 2.2 * mm
-    draw_text(c, "정답", table_left + answer_cols[0] / 2, y_header, font=FONT_BOLD, size=10.2, color=white, align="center", max_width=answer_cols[0] - 1 * mm)
     draw_text(
         c,
-        "WORD",
+        "단어",
         table_left + answer_cols[0] + answer_cols[1] / 2,
         y_header,
         font=FONT_BOLD,
@@ -374,7 +373,7 @@ def draw_test_page(
     )
     draw_text(
         c,
-        "MEANING",
+        "뜻",
         table_left + answer_cols[0] + answer_cols[1] + answer_cols[2] / 2,
         y_header,
         font=FONT_BOLD,
@@ -382,20 +381,21 @@ def draw_test_page(
         color=white,
         align="center",
     )
+    for label, ratio in (("모름", 1 / 6), ("애매", 3 / 6), ("완료", 5 / 6)):
+        draw_text(
+            c,
+            label,
+            fold_x + test_cols[0] * ratio,
+            y_header,
+            font=FONT_BOLD,
+            size=9.0,
+            color=white,
+            align="center",
+            max_width=test_cols[0] / 3 - 1 * mm,
+        )
     draw_text(
         c,
-        "모름  애매  완료",
-        fold_x + test_cols[0] / 2,
-        y_header,
-        font=FONT_BOLD,
-        size=9.0,
-        color=white,
-        align="center",
-        max_width=test_cols[0] - 1.5 * mm,
-    )
-    draw_text(
-        c,
-        "WORD",
+        "단어",
         fold_x + test_cols[0] + test_cols[1] / 2,
         y_header,
         font=FONT_BOLD,
@@ -405,7 +405,7 @@ def draw_test_page(
     )
     draw_text(
         c,
-        "뜻을 써보세요",
+        "뜻 써보기",
         fold_x + test_cols[0] + test_cols[1] + test_cols[2] / 2,
         y_header,
         font=FONT_BOLD,
@@ -474,6 +474,10 @@ def draw_test_page(
     for x in x_positions:
         if abs(x - fold_x) > 0.1:
             c.line(x, table_bottom, x, table_top)
+    # 모름/애매/완료 칸 구분 세로줄 (헤더 아래 본문만)
+    for ratio in (1 / 3, 2 / 3):
+        div_x = fold_x + test_cols[0] * ratio
+        c.line(div_x, table_bottom, div_x, table_top - header_h)
     for i in range(len(rows) + 1):
         line_y = table_top - header_h - i * row_h
         c.line(table_left, line_y, table_right, line_y)
@@ -524,7 +528,7 @@ def draw_practice_page(
 
     total_w = right - left
     col_widths = [30 * mm, 46 * mm, 32 * mm, 32 * mm, total_w - 140 * mm]
-    headers = ["WORD", "발음", "뜻 쓰기", "영단어 써보기", "완료"]
+    headers = ["단어", "발음", "뜻 쓰기", "영단어 써보기", "완료"]
 
     c.setFillColor(NAVY)
     c.rect(left, table_top - header_h, total_w, header_h, fill=1, stroke=0)
