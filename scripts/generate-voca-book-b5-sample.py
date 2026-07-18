@@ -440,7 +440,7 @@ def draw_test_page(
             meaning,
             table_left + answer_cols[0] + answer_cols[1] + 1.5 * mm,
             baseline,
-            size=8.5,
+            size=10.5,
             max_width=answer_cols[2] - 3 * mm,
         )
 
