@@ -23,6 +23,7 @@ OUT_DIR = ROOT / "단어장 PDF"
 FONT_REGULAR = "Malgun"
 FONT_BOLD = "MalgunBold"
 FONT_IPA = "ArialIPA"
+FONT_IPA_BOLD = "ArialIPABold"
 # 브랜드 색 — 트리거 블랙: 검정 배경 + 흰 글씨, 흑백 인쇄에서도 구분되는 무채색
 NAVY = HexColor("#0A0A0A")  # 브랜드 블랙 (헤더 바·배너·표지)
 ORANGE = HexColor("#D97706")  # 앱 오렌지를 인쇄용으로 톤 다운 — 표지 포인트 전용
@@ -161,6 +162,7 @@ def register_fonts() -> None:
     pdfmetrics.registerFont(TTFont(FONT_REGULAR, str(font_dir / "malgun.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_BOLD, str(font_dir / "malgunbd.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_IPA, str(font_dir / "arial.ttf")))
+    pdfmetrics.registerFont(TTFont(FONT_IPA_BOLD, str(font_dir / "arialbd.ttf")))
 
 
 def load_words(path: Path, count: int) -> list[tuple[str, str]]:
@@ -321,7 +323,7 @@ def draw_pronunciation_guide(c: canvas.Canvas, *, level_tag: str, page_no: int) 
         ("e", "에", "bed", "bed"),
         ("æ", "애", "cat", "kæt"),
         ("ɑː", "아", "father", "ˈfɑːðər"),
-        ("ɒ", "아", "hot", "hɑːt"),
+        ("ɒ", "아", "hot", "hɒt"),
         ("ɔː", "오", "saw", "sɔː"),
         ("ʊ", "우", "book", "bʊk"),
         ("uː", "우", "food", "fuːd"),
@@ -424,6 +426,26 @@ def draw_pronunciation_guide(c: canvas.Canvas, *, level_tag: str, page_no: int) 
     title_h = 7 * mm
     header_h = 8 * mm
 
+    def draw_example_ipa(text: str, target: str, x: float, y: float) -> float:
+        """예시 IPA에서 현재 행의 발음기호만 굵게 그리고 끝 x좌표를 반환."""
+        size = 9.2
+        target_index = text.find(target)
+        if target_index < 0:
+            segments = [(f"[{text}]", FONT_IPA)]
+        else:
+            segments = [
+                (f"[{text[:target_index]}", FONT_IPA),
+                (target, FONT_IPA_BOLD),
+                (f"{text[target_index + len(target):]}]", FONT_IPA),
+            ]
+        current_x = x
+        for segment, font in segments:
+            if not segment:
+                continue
+            draw_text(c, segment, current_x, y, font=font, size=size, color=SLATE)
+            current_x += pdfmetrics.stringWidth(segment, font, size)
+        return current_x
+
     def draw_group(title: str, rows: list[tuple[str, str, str, str]], left: float) -> None:
         row_h = (table_top - table_bottom - header_h) / len(rows)
         symbol_w = 12 * mm
@@ -481,23 +503,11 @@ def draw_pronunciation_guide(c: canvas.Canvas, *, level_tag: str, page_no: int) 
             ex_x = col_xs[2] + 1.2 * mm
             draw_text(c, example, ex_x, baseline, font=FONT_BOLD, size=10.0)
             word_w = pdfmetrics.stringWidth(example, FONT_BOLD, 10.0)
-            ipa_text = f"[{example_ipa}]"
             ipa_x = ex_x + word_w + 1.2 * mm
+            korean_x = draw_example_ipa(example_ipa, symbol, ipa_x, baseline) + 1.2 * mm
             draw_text(
                 c,
-                ipa_text,
-                ipa_x,
-                baseline,
-                font=FONT_IPA,
-                size=9.2,
-                color=SLATE,
-                max_width=example_w - word_w - 3.5 * mm,
-            )
-            ipa_w = pdfmetrics.stringWidth(ipa_text, FONT_IPA, 9.2)
-            korean_x = ipa_x + ipa_w + 1.2 * mm
-            draw_text(
-                c,
-                f"[{example_korean[example]}]",
+                example_korean[example],
                 korean_x,
                 baseline,
                 size=9.2,
