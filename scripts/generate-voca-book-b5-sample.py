@@ -594,23 +594,21 @@ def draw_practice_page(
         draw_text(
             c,
             ipa,
-            pron_left + ipa_w / 2,
+            pron_left + 1.5 * mm,
             baseline,
             font=FONT_IPA,
             size=10.5,
             color=INK,
             max_width=ipa_w - 1.5 * mm,
-            align="center",
         )
         draw_text(
             c,
             f"[{korean}]",
-            pron_left + ipa_w + kor_w / 2,
+            pron_left + ipa_w,
             baseline,
             size=10.5,
             color=SLATE,
             max_width=kor_w - 1.2 * mm,
-            align="center",
         )
 
         meaning_left = left + col_widths[0] + col_widths[1] + 1.5 * mm
