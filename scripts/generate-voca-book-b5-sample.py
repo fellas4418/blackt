@@ -369,18 +369,18 @@ def draw_cover(
     c.drawImage(
         str(LOGO_PATH),
         (width - logo_w) / 2,
-        height - 42 * mm - logo_h,
+        height - 60 * mm - logo_h,
         width=logo_w,
         height=logo_h,
         preserveAspectRatio=True,
         anchor="c",
     )
 
-    draw_text(c, "VOCABULARY BOOK", width / 2, height - 125 * mm, font=FONT_BOLD, size=22, color=white, align="center")
+    draw_text(c, "VOCABULARY BOOK", width / 2, height - 128 * mm, font=FONT_BOLD, size=22, color=white, align="center")
 
     c.setFillColor(ORANGE)
-    c.roundRect(28 * mm, height - 174 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
-    draw_text(c, day_label, width / 2, height - 168 * mm, font=FONT_BOLD, size=12, color=NAVY, align="center")
+    c.roundRect(28 * mm, height - 184 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
+    draw_text(c, day_label, width / 2, height - 178 * mm, font=FONT_BOLD, size=12, color=NAVY, align="center")
 
     draw_text(c, "TRIGGER BLACK", width / 2, 18 * mm, size=7, color=PALE, align="center")
     c.showPage()
