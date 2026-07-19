@@ -228,11 +228,8 @@ def draw_status_marks(c: canvas.Canvas, x: float, y: float, width: float, row_h:
     radius = min(1.9 * mm, row_h * 0.24)
     c.setStrokeColor(SLATE)
     c.setLineWidth(0.55)
-    c.rect(centers[0] - radius, cy - radius, radius * 2, radius * 2, fill=0)
-    c.line(centers[1], cy + radius, centers[1] - radius, cy - radius)
-    c.line(centers[1] - radius, cy - radius, centers[1] + radius, cy - radius)
-    c.line(centers[1] + radius, cy - radius, centers[1], cy + radius)
-    c.circle(centers[2], cy, radius, fill=0)
+    for cx in centers:
+        c.rect(cx - radius, cy - radius, radius * 2, radius * 2, fill=0)
 
 
 def draw_day_banner(c: canvas.Canvas, title: str, center_y: float) -> None:
@@ -300,7 +297,7 @@ def draw_cover(
     lines = [
         ("1", "정답 면을 세로 점선에서 뒤로 접습니다."),
         ("2", "단어를 보고 뜻을 직접 쓴 뒤 정답과 비교합니다."),
-        ("3", "1차·2차·3차 반복 결과를  □ △ ○ 칸에 표시합니다."),
+        ("3", "1차·2차·3차 반복 결과를 □ 칸에 체크합니다."),
         ("4", "연습 면에서 단어를 따라 쓰고 뜻을 직접 씁니다."),
         ("5", words_note),
     ]
@@ -493,8 +490,7 @@ def draw_test_page(
         table_right,
     ]
     for x in x_positions:
-        if abs(x - fold_x) > 0.1:
-            c.line(x, table_bottom, x, table_top)
+        c.line(x, table_bottom, x, table_top)
     # 1차/2차/3차 칸 구분 세로줄 (본문은 기본선, 헤더는 흰색)
     for ratio in (1 / 3, 2 / 3):
         div_x = fold_x + test_cols[0] * ratio
@@ -511,7 +507,7 @@ def draw_test_page(
 
     c.saveState()
     c.setStrokeColor(NAVY)
-    c.setLineWidth(0.9)
+    c.setLineWidth(0.4)
     c.setDash(2.5, 1.8)
     c.line(fold_x, table_bottom - 2.5 * mm, fold_x, table_top)
     c.restoreState()
