@@ -363,6 +363,47 @@ def draw_pronunciation_guide(c: canvas.Canvas, *, level_tag: str, page_no: int) 
         ("j", "이", "yes", "jes"),
         ("w", "우", "we", "wiː"),
     ]
+    example_korean = {
+        "see": "씨",
+        "sit": "싯",
+        "bed": "베드",
+        "cat": "캣",
+        "father": "파더",
+        "hot": "핫",
+        "saw": "소",
+        "book": "북",
+        "food": "푸드",
+        "cup": "컵",
+        "bird": "버드",
+        "about": "어바웃",
+        "day": "데이",
+        "my": "마이",
+        "boy": "보이",
+        "now": "나우",
+        "go": "고우",
+        "near": "니어",
+        "care": "케어",
+        "tour": "투어",
+        "pen": "펜",
+        "ten": "텐",
+        "fine": "파인",
+        "very": "베리",
+        "think": "씽크",
+        "this": "디스",
+        "zoo": "주",
+        "she": "쉬",
+        "vision": "비전",
+        "hat": "햇",
+        "chair": "체어",
+        "job": "잡",
+        "man": "맨",
+        "no": "노우",
+        "sing": "싱",
+        "love": "러브",
+        "red": "레드",
+        "yes": "예스",
+        "we": "위",
+    }
 
     draw_day_banner(c, "발음기호 읽는 법", height - 15 * mm)
     draw_text(
@@ -440,15 +481,28 @@ def draw_pronunciation_guide(c: canvas.Canvas, *, level_tag: str, page_no: int) 
             ex_x = col_xs[2] + 1.2 * mm
             draw_text(c, example, ex_x, baseline, font=FONT_BOLD, size=10.0)
             word_w = pdfmetrics.stringWidth(example, FONT_BOLD, 10.0)
+            ipa_text = f"[{example_ipa}]"
+            ipa_x = ex_x + word_w + 1.2 * mm
             draw_text(
                 c,
-                f"[{example_ipa}]",
-                ex_x + word_w + 1.2 * mm,
+                ipa_text,
+                ipa_x,
                 baseline,
                 font=FONT_IPA,
                 size=9.2,
                 color=SLATE,
                 max_width=example_w - word_w - 3.5 * mm,
+            )
+            ipa_w = pdfmetrics.stringWidth(ipa_text, FONT_IPA, 9.2)
+            korean_x = ipa_x + ipa_w + 1.2 * mm
+            draw_text(
+                c,
+                f"[{example_korean[example]}]",
+                korean_x,
+                baseline,
+                size=9.2,
+                color=SLATE,
+                max_width=left + group_w - korean_x - 1.2 * mm,
             )
             y = next_y
 
