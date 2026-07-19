@@ -313,6 +313,98 @@ def draw_cover(
     c.showPage()
 
 
+def draw_contents_page(
+    c: canvas.Canvas,
+    *,
+    level_tag: str,
+    entries: list[tuple[str, int, int, int]],
+    page_no: int,
+) -> None:
+    """Day별 단어 수와 시작·끝 페이지를 보여 주는 목차."""
+    width, height = B5
+    draw_day_banner(c, "CONTENTS", height - 15 * mm)
+    draw_text(
+        c,
+        f"{level_tag} · {len(entries)} DAYS · {sum(words for _, words, _, _ in entries)} WORDS",
+        width / 2,
+        height - 26 * mm,
+        font=FONT_BOLD,
+        size=9.5,
+        color=SLATE,
+        align="center",
+    )
+
+    side_margin = 15 * mm
+    gap = 8 * mm
+    column_count = 2 if len(entries) > 25 else 1
+    table_w = width - side_margin * 2
+    column_w = (table_w - gap * (column_count - 1)) / column_count
+    rows_per_column = (len(entries) + column_count - 1) // column_count
+    table_top = height - 37 * mm
+    header_h = 9 * mm
+    row_h = min(8 * mm, (table_top - 22 * mm - header_h) / max(rows_per_column, 1))
+    day_w = 25 * mm
+    words_w = 22 * mm
+
+    for column in range(column_count):
+        start = column * rows_per_column
+        column_entries = entries[start : start + rows_per_column]
+        if not column_entries:
+            continue
+        left = side_margin + column * (column_w + gap)
+        right = left + column_w
+        words_x = left + day_w
+        page_x = words_x + words_w
+        bottom = table_top - header_h - len(column_entries) * row_h
+
+        c.setFillColor(NAVY)
+        c.rect(left, table_top - header_h, column_w, header_h, fill=1, stroke=0)
+        for label, center_x in (
+            ("DAY", left + day_w / 2),
+            ("WORDS", words_x + words_w / 2),
+            ("PAGE", page_x + (right - page_x) / 2),
+        ):
+            draw_text(
+                c,
+                label,
+                center_x,
+                table_top - header_h + 2.6 * mm,
+                font=FONT_BOLD,
+                size=9.5,
+                color=white,
+                align="center",
+            )
+
+        y = table_top - header_h
+        for index, (day_label, words, start_page, end_page) in enumerate(column_entries):
+            next_y = y - row_h
+            if index % 2 == 1:
+                c.setFillColor(LIGHT)
+                c.rect(left, next_y, column_w, row_h, fill=1, stroke=0)
+            baseline = next_y + row_h / 2 - 3.2
+            draw_text(c, day_label, left + day_w / 2, baseline, font=FONT_BOLD, size=10.5, align="center")
+            draw_text(c, str(words), words_x + words_w / 2, baseline, size=9.5, color=SLATE, align="center")
+            page_text = str(start_page) if start_page == end_page else f"{start_page}–{end_page}"
+            draw_text(c, page_text, page_x + (right - page_x) / 2, baseline, font=FONT_BOLD, size=10.0, align="center")
+            y = next_y
+
+        c.setStrokeColor(LINE)
+        c.setLineWidth(0.4)
+        for x in (left, words_x, page_x, right):
+            c.line(x, bottom, x, table_top)
+        c.setStrokeColor(white)
+        for x in (words_x, page_x):
+            c.line(x, table_top - header_h, x, table_top)
+        c.setStrokeColor(LINE)
+        for index in range(len(column_entries) + 1):
+            line_y = table_top - header_h - index * row_h
+            c.line(left, line_y, right, line_y)
+        c.rect(left, bottom, column_w, table_top - bottom, fill=0, stroke=1)
+
+    draw_page_footer(c, page_no, level_tag)
+    c.showPage()
+
+
 def draw_pronunciation_guide(c: canvas.Canvas, *, level_tag: str, page_no: int) -> None:
     """단어 목록 전에 보는 영어 발음기호 읽기 안내."""
     width, height = B5
@@ -889,8 +981,13 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]]) -> Path:
         day_label=f"DAY 01–{day_count:02d} · {day_count * 24} WORDS",
         words_note="Day 구분은 페이지 헤더만 사용합니다. 중간 표지는 넣지 않습니다.",
     )
-    draw_pronunciation_guide(c, level_tag="MIDDLE", page_no=2)
-    page_no = 3
+    contents = [
+        (f"DAY {day_no:02d}", len(rows), 4 + (day_no - 1) * 2, 5 + (day_no - 1) * 2)
+        for day_no, rows in enumerate(days, 1)
+    ]
+    draw_contents_page(c, level_tag="MIDDLE", entries=contents, page_no=2)
+    draw_pronunciation_guide(c, level_tag="MIDDLE", page_no=3)
+    page_no = 4
     for day_no, rows in enumerate(days, 1):
         draw_test_page(
             c,
@@ -936,13 +1033,14 @@ def build_high_pdf(rows: list[tuple[str, str]]) -> Path:
         day_label="DAY 01 · 40 WORDS",
         words_note="고등 하루치 40개를 20개씩 두 세트(TEST+연습)로 나눕니다.",
     )
-    draw_pronunciation_guide(c, level_tag="HIGH", page_no=2)
+    draw_contents_page(c, level_tag="HIGH", entries=[("DAY 01", len(rows), 4, 7)], page_no=2)
+    draw_pronunciation_guide(c, level_tag="HIGH", page_no=3)
 
     parts = [
         ("1–20", rows[:20], 1),
         ("21–40", rows[20:], 21),
     ]
-    page_no = 3
+    page_no = 4
     for part_label, part_rows, start_index in parts:
         draw_test_page(
             c,
@@ -979,7 +1077,7 @@ def main() -> None:
     middle_path = build_middle_days_pdf(middle_days)
     print(
         f"중등 B5 3일 샘플: {middle_path} "
-        f"(표지 1 + 발음기호 1 + Day×2쪽×3 = {2 + 2 * len(middle_days)}쪽, 중간 표지 없음)"
+        f"(표지 1 + 목차 1 + 발음기호 1 + Day×2쪽×3 = {3 + 2 * len(middle_days)}쪽, 중간 표지 없음)"
     )
 
 
