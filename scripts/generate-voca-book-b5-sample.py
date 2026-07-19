@@ -821,6 +821,134 @@ def draw_pronunciation_guide(c: canvas.Canvas, *, level_tag: str, page_no: int) 
     c.showPage()
 
 
+def draw_day_divider(
+    c: canvas.Canvas,
+    *,
+    level_tag: str,
+    day_no: int,
+    rows: list[tuple[str, str]],
+    page_no: int,
+) -> None:
+    """Day 간지 앞면 — 검정 바탕에 Day 번호를 크게. 펼쳤을 때 위치 구분용."""
+    width, height = B5
+    c.setFillColor(NAVY)
+    c.rect(0, 0, width, height, fill=1, stroke=0)
+
+    center_y = height * 0.58
+    draw_text(c, "DAY", width / 2, center_y + 30 * mm, font=FONT_BOLD, size=20, color=PALE, align="center")
+    draw_text(c, f"{day_no:02d}", width / 2, center_y - 10 * mm, font=FONT_BOLD, size=96, color=white, align="center")
+    bar_w = 26 * mm
+    c.setFillColor(ORANGE)
+    c.rect((width - bar_w) / 2, center_y - 20 * mm, bar_w, 1.4 * mm, fill=1, stroke=0)
+    draw_text(c, f"{len(rows)} WORDS", width / 2, center_y - 30 * mm, font=FONT_BOLD, size=12, color=white, align="center")
+    draw_text(c, f"{rows[0][0]} – {rows[-1][0]}", width / 2, center_y - 38 * mm, size=11, color=PALE, align="center")
+
+    draw_text(c, f"TRIGGER VOCA · {level_tag}", 10 * mm, 7 * mm, size=6.5, color=PALE)
+    draw_text(c, str(page_no), width - 10 * mm, 7 * mm, size=10.4, color=PALE, align="right")
+    c.showPage()
+
+
+def draw_day_log_page(
+    c: canvas.Canvas,
+    *,
+    level_tag: str,
+    day_no: int,
+    word_count: int,
+    page_no: int,
+) -> None:
+    """Day 간지 뒷면 — 회차별 학습 기록 + 헷갈린 단어 메모 (빈 페이지 대신)."""
+    width, height = B5
+    draw_day_banner(c, f"DAY {day_no:02d} · STUDY LOG", height - 15 * mm)
+    draw_text(
+        c,
+        "회차별 테스트 날짜와 점수를 기록하고, 헷갈린 단어는 아래에 적어 두세요.",
+        width / 2,
+        height - 26 * mm,
+        size=10.5,
+        color=SLATE,
+        align="center",
+    )
+
+    left = 18 * mm
+    right = width - 18 * mm
+    total_w = right - left
+    table_top = height - 36 * mm
+    header_h = 9 * mm
+    row_h = 12 * mm
+    round_w = 24 * mm
+    score_w = 34 * mm
+    check_w = 22 * mm
+    date_w = total_w - round_w - score_w - check_w
+    col_xs = [left, left + round_w, left + round_w + date_w, left + round_w + date_w + score_w, right]
+    headers = ["회차", "날짜", "점수", "확인"]
+
+    c.setFillColor(NAVY)
+    c.rect(left, table_top - header_h, total_w, header_h, fill=1, stroke=0)
+    for label, x0, x1 in zip(headers, col_xs, col_xs[1:]):
+        draw_text(
+            c,
+            label,
+            (x0 + x1) / 2,
+            table_top - header_h + 2.6 * mm,
+            font=FONT_BOLD,
+            size=10.5,
+            color=white,
+            align="center",
+        )
+
+    rounds = ["1차", "2차", "3차"]
+    y = table_top - header_h
+    for index, round_label in enumerate(rounds):
+        next_y = y - row_h
+        if index % 2 == 1:
+            c.setFillColor(LIGHT)
+            c.rect(left, next_y, total_w, row_h, fill=1, stroke=0)
+        baseline = next_y + row_h / 2 - 3.2
+        draw_text(c, round_label, (col_xs[0] + col_xs[1]) / 2, baseline, font=FONT_BOLD, size=11.0, align="center")
+        draw_text(c, "월          일", (col_xs[1] + col_xs[2]) / 2, baseline, size=10.0, color=SLATE, align="center")
+        draw_text(c, f"/ {word_count}", col_xs[3] - 4 * mm, baseline, size=10.5, color=SLATE, align="right")
+        cy = next_y + row_h / 2
+        c.setStrokeColor(SLATE)
+        c.setLineWidth(0.55)
+        c.circle((col_xs[3] + col_xs[4]) / 2, cy, 1.9 * mm, fill=0, stroke=1)
+        y = next_y
+
+    table_bottom = table_top - header_h - len(rounds) * row_h
+    c.setStrokeColor(LINE)
+    c.setLineWidth(0.4)
+    for x in col_xs:
+        c.line(x, table_bottom, x, table_top)
+    c.setStrokeColor(white)
+    for x in col_xs[1:-1]:
+        c.line(x, table_top - header_h, x, table_top)
+    c.setStrokeColor(LINE)
+    for index in range(len(rounds) + 1):
+        line_y = table_top - header_h - index * row_h
+        c.line(left, line_y, right, line_y)
+    c.rect(left, table_bottom, total_w, table_top - table_bottom, fill=0, stroke=1)
+
+    # 헷갈린 단어 메모 — 두 칸 줄노트
+    section_title_y = table_bottom - 12 * mm
+    draw_text(c, "헷갈린 단어", left, section_title_y, font=FONT_BOLD, size=12.0)
+    draw_text(c, "테스트에서 틀렸거나 다시 볼 단어", right, section_title_y, size=9.0, color=SLATE, align="right")
+    line_gap = 11 * mm
+    column_gap = 10 * mm
+    column_w = (total_w - column_gap) / 2
+    line_top = section_title_y - 8 * mm
+    line_bottom = 18 * mm
+    c.setStrokeColor(LINE)
+    c.setLineWidth(0.4)
+    for column in range(2):
+        x0 = left + column * (column_w + column_gap)
+        line_y = line_top
+        while line_y >= line_bottom:
+            c.line(x0, line_y, x0 + column_w, line_y)
+            line_y -= line_gap
+
+    draw_page_footer(c, page_no, level_tag)
+    c.showPage()
+
+
 def draw_test_page(
     c: canvas.Canvas,
     *,
@@ -1158,7 +1286,7 @@ def validate_pronunciations(rows: list[tuple[str, str]], pronunciations: dict[st
 
 
 def build_middle_days_pdf(days: list[list[tuple[str, str]]]) -> Path:
-    """앞부분 4쪽(표지·목차·사용법·발음) + Day별 TEST/연습. 중간 Day 표지 없음(헤더로만 구분)."""
+    """앞부분 4쪽(표지·목차·사용법·발음) + Day별 간지(앞·뒤)+TEST+연습 4쪽."""
     global POS_MEANINGS
     pron, pos = load_middle_meta()
     POS_MEANINGS = pos
@@ -1169,7 +1297,7 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]]) -> Path:
     c = canvas.Canvas(str(out_path), pagesize=B5, pageCompression=1)
     c.setTitle(f"트리거 보카 중등 Day 01-{day_count:02d} B5")
     c.setAuthor("TRIGGER BLACK")
-    c.setSubject("B5 중등 단어장 (Day 헤더 구분, 중간 표지 없음)")
+    c.setSubject("B5 중등 단어장 (Day 간지 + STUDY LOG)")
     c.setCreator("TRIGGER VOCA Book Generator")
 
     draw_cover(
@@ -1180,7 +1308,7 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]]) -> Path:
         words_note="Day 구분은 페이지 헤더만 사용합니다. 중간 표지는 넣지 않습니다.",
     )
     contents = [
-        (f"DAY {day_no:02d}", len(rows), 5 + (day_no - 1) * 2, 6 + (day_no - 1) * 2)
+        (f"DAY {day_no:02d}", len(rows), 5 + (day_no - 1) * 4, 8 + (day_no - 1) * 4)
         for day_no, rows in enumerate(days, 1)
     ]
     draw_contents_page(c, level_tag="MIDDLE", entries=contents, page_no=2)
@@ -1188,6 +1316,22 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]]) -> Path:
     draw_pronunciation_guide(c, level_tag="MIDDLE", page_no=4)
     page_no = 5
     for day_no, rows in enumerate(days, 1):
+        draw_day_divider(
+            c,
+            level_tag="MIDDLE",
+            day_no=day_no,
+            rows=rows,
+            page_no=page_no,
+        )
+        page_no += 1
+        draw_day_log_page(
+            c,
+            level_tag="MIDDLE",
+            day_no=day_no,
+            word_count=len(rows),
+            page_no=page_no,
+        )
+        page_no += 1
         draw_test_page(
             c,
             level_tag="MIDDLE",
@@ -1270,17 +1414,17 @@ def build_high_pdf(rows: list[tuple[str, str]]) -> Path:
 def main() -> None:
     register_fonts()
 
-    # 중등 전체 50일(1,200단어): 앞표지·목차·사용법·발음 + Day×(TEST+PRACTICE) + 뒤표지
+    # 중등 전체 50일(1,200단어): 앞표지·목차·사용법·발음 + Day×(간지 앞·뒤+TEST+PRACTICE) + 뒤표지
     middle_words = load_words(ROOT / "voca_middle.txt")
     middle_days = chunk_days(middle_words, 24)
     pron, _ = load_middle_meta()
     for day_rows in middle_days:
         validate_pronunciations(day_rows, pron)
     middle_path = build_middle_days_pdf(middle_days)
-    body_pages = 4 + 2 * len(middle_days) + 1  # 앞 4 + Day×2 + 뒤표지
+    body_pages = 4 + 4 * len(middle_days) + 1  # 앞 4 + Day×4 + 뒤표지
     print(
         f"중등 B5 전체: {middle_path} "
-        f"(표지·목차·사용법·발음 + Day×2×{len(middle_days)} + 뒤표지 = {body_pages}쪽)"
+        f"(표지·목차·사용법·발음 + Day×4×{len(middle_days)} + 뒤표지 = {body_pages}쪽)"
     )
 
 
