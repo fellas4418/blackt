@@ -380,7 +380,7 @@ def draw_cover(
 
     c.setFillColor(ORANGE)
     c.roundRect(28 * mm, height - 184 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
-    draw_text(c, day_label, width / 2, height - 178 * mm, font=FONT_BOLD, size=12, color=NAVY, align="center")
+    draw_text(c, day_label, width / 2, height - 178 * mm, font=FONT_BOLD, size=16, color=NAVY, align="center")
 
     draw_text(c, "TRIGGER BLACK", width / 2, 18 * mm, size=7, color=PALE, align="center")
     c.showPage()
