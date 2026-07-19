@@ -276,7 +276,7 @@ def draw_cover(
     c.roundRect(14 * mm, 32 * mm, width - 28 * mm, height - 64 * mm, 4 * mm, fill=0, stroke=1)
 
     # Trigger 워드마크 (흰 글씨 · 속도선 위 네온블루/아래 주황 · 검정 배경)
-    logo_w = 72 * mm
+    logo_w = 82 * mm
     logo_h = logo_w * LOGO_ASPECT
     c.drawImage(
         str(LOGO_PATH),
@@ -292,8 +292,8 @@ def draw_cover(
     draw_text(c, level_en, width / 2, height - 134 * mm, size=10, color=PALE, align="center")
 
     c.setFillColor(ORANGE)
-    c.roundRect(28 * mm, height - 162 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
-    draw_text(c, day_label, width / 2, height - 156 * mm, font=FONT_BOLD, size=12, color=NAVY, align="center")
+    c.roundRect(28 * mm, height - 174 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
+    draw_text(c, day_label, width / 2, height - 168 * mm, font=FONT_BOLD, size=12, color=NAVY, align="center")
 
     draw_text(c, "TRIGGER BLACK", width / 2, 38 * mm, size=7, color=PALE, align="center")
     c.showPage()
