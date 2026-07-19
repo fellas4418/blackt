@@ -300,7 +300,7 @@ def draw_cover(
     lines = [
         ("1", "정답 면을 세로 점선에서 뒤로 접습니다."),
         ("2", "단어를 보고 뜻을 직접 쓴 뒤 정답과 비교합니다."),
-        ("3", "결과에 따라  □ 모름   △ 애매   ○ 완료를 표시합니다."),
+        ("3", "1차·2차·3차 반복 결과를  □ △ ○ 칸에 표시합니다."),
         ("4", "연습 면에서 단어를 따라 쓰고 뜻을 직접 씁니다."),
         ("5", words_note),
     ]
@@ -402,7 +402,7 @@ def draw_test_page(
         color=white,
         align="center",
     )
-    for label, ratio in (("모름", 1 / 6), ("애매", 3 / 6), ("완료", 5 / 6)):
+    for label, ratio in (("1차", 1 / 6), ("2차", 3 / 6), ("3차", 5 / 6)):
         draw_text(
             c,
             label,
@@ -495,10 +495,15 @@ def draw_test_page(
     for x in x_positions:
         if abs(x - fold_x) > 0.1:
             c.line(x, table_bottom, x, table_top)
-    # 모름/애매/완료 칸 구분 세로줄 (헤더 아래 본문만)
+    # 1차/2차/3차 칸 구분 세로줄 (본문은 기본선, 헤더는 흰색)
     for ratio in (1 / 3, 2 / 3):
         div_x = fold_x + test_cols[0] * ratio
         c.line(div_x, table_bottom, div_x, table_top - header_h)
+    c.setStrokeColor(white)
+    for ratio in (1 / 3, 2 / 3):
+        div_x = fold_x + test_cols[0] * ratio
+        c.line(div_x, table_top - header_h, div_x, table_top)
+    c.setStrokeColor(LINE)
     for i in range(len(rows) + 1):
         line_y = table_top - header_h - i * row_h
         c.line(table_left, line_y, table_right, line_y)
