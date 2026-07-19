@@ -251,8 +251,8 @@ def draw_day_banner(c: canvas.Canvas, title: str, center_y: float) -> None:
 
 def draw_page_footer(c: canvas.Canvas, page_no: int, level_tag: str) -> None:
     width, _ = B5
-    draw_text(c, f"TRIGGER VOCA · {level_tag} · B5", 10 * mm, 7 * mm, size=6.5, color=SLATE)
-    draw_text(c, str(page_no), width - 10 * mm, 7 * mm, size=6.5, color=SLATE, align="right")
+    draw_text(c, f"TRIGGER VOCA · {level_tag}", 10 * mm, 7 * mm, size=6.5, color=SLATE)
+    draw_text(c, str(page_no), width - 10 * mm, 7 * mm, size=10.4, color=SLATE, align="right")
 
 
 LOGO_PATH = ROOT / "로고, 이미지" / "trigger-logo-v2.png"
