@@ -295,7 +295,7 @@ def draw_cover(
     info_x = 30 * mm
     info_y = height - 142 * mm
     lines = [
-        ("1", "정답 면을 세로 점선에서 뒤로 접습니다."),
+        ("1", "정답 면을 가운데 세로선에서 뒤로 접습니다."),
         ("2", "단어를 보고 뜻을 직접 쓴 뒤 정답과 비교합니다."),
         ("3", "1차·2차·3차 반복 결과를 □ 칸에 체크합니다."),
         ("4", "연습 면에서 단어를 따라 쓰고 뜻을 직접 씁니다."),
@@ -358,7 +358,7 @@ def draw_test_page(
     )
     draw_text(
         c,
-        "바깥쪽 정답 면을 점선에서 뒤로 접으세요",
+        "바깥쪽 정답 면을 가운데 세로선에서 뒤로 접으세요",
         width / 2,
         height - 22.6 * mm,
         size=9.5,
@@ -491,26 +491,23 @@ def draw_test_page(
     ]
     for x in x_positions:
         c.line(x, table_bottom, x, table_top)
-    # 1차/2차/3차 칸 구분 세로줄 (본문은 기본선, 헤더는 흰색)
+    # 1차/2차/3차 칸 구분 세로줄 (본문)
     for ratio in (1 / 3, 2 / 3):
         div_x = fold_x + test_cols[0] * ratio
         c.line(div_x, table_bottom, div_x, table_top - header_h)
+    # 헤더(검은 배경) 구간은 내부 세로줄을 전부 같은 굵기의 흰색으로 통일
     c.setStrokeColor(white)
-    for ratio in (1 / 3, 2 / 3):
-        div_x = fold_x + test_cols[0] * ratio
+    header_div_xs = x_positions[1:-1] + [
+        fold_x + test_cols[0] * 1 / 3,
+        fold_x + test_cols[0] * 2 / 3,
+    ]
+    for div_x in header_div_xs:
         c.line(div_x, table_top - header_h, div_x, table_top)
     c.setStrokeColor(LINE)
     for i in range(len(rows) + 1):
         line_y = table_top - header_h - i * row_h
         c.line(table_left, line_y, table_right, line_y)
     c.rect(table_left, table_bottom, table_right - table_left, table_top - table_bottom, fill=0, stroke=1)
-
-    c.saveState()
-    c.setStrokeColor(NAVY)
-    c.setLineWidth(0.4)
-    c.setDash(2.5, 1.8)
-    c.line(fold_x, table_bottom - 2.5 * mm, fold_x, table_top)
-    c.restoreState()
 
     draw_page_footer(c, page_no, level_tag)
     c.showPage()
@@ -589,7 +586,7 @@ def draw_practice_page(
         kor_w = col_widths[1] - ipa_w
         draw_text(
             c,
-            ipa,
+            ipa.strip("/"),
             pron_left + 1.5 * mm,
             baseline,
             font=FONT_IPA,
