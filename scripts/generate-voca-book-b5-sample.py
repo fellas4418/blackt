@@ -275,6 +275,15 @@ def draw_cover(
     c.setStrokeColor(white)
     c.roundRect(14 * mm, 32 * mm, width - 28 * mm, height - 64 * mm, 4 * mm, fill=0, stroke=1)
 
+    # 왼쪽 위 레벨 배지 — 중등/고등 구분이 한눈에 보이게
+    badge_w = 26 * mm
+    badge_h = 12 * mm
+    badge_x = 22 * mm
+    badge_y = height - 40 * mm - badge_h
+    c.setLineWidth(1.2)
+    c.roundRect(badge_x, badge_y, badge_w, badge_h, 2 * mm, fill=0, stroke=1)
+    draw_text(c, level_ko, badge_x + badge_w / 2, badge_y + badge_h / 2 - 4.8, font=FONT_BOLD, size=13.5, color=white, align="center")
+
     # Trigger 워드마크 (흰 글씨 · 속도선 위 네온블루/아래 주황 · 검정 배경)
     logo_w = 82 * mm
     logo_h = logo_w * LOGO_ASPECT
@@ -289,7 +298,6 @@ def draw_cover(
     )
 
     draw_text(c, "VOCABULARY BOOK", width / 2, height - 125 * mm, font=FONT_BOLD, size=22, color=white, align="center")
-    draw_text(c, level_ko, width / 2, height - 134 * mm, size=12.5, color=PALE, align="center")
 
     c.setFillColor(ORANGE)
     c.roundRect(28 * mm, height - 174 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
