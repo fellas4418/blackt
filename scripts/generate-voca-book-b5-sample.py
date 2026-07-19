@@ -400,6 +400,10 @@ def draw_pronunciation_guide(c: canvas.Canvas, *, level_tag: str, page_no: int) 
         c.setStrokeColor(LINE)
         c.setLineWidth(0.4)
         c.rect(left, table_top, group_w, title_h, fill=1, stroke=1)
+        c.setStrokeColor(NAVY)
+        c.setLineWidth(1.2)
+        c.line(left, table_top + title_h, left + group_w, table_top + title_h)
+        c.setLineWidth(0.4)
         draw_text(
             c,
             title,
