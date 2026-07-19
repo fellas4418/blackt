@@ -411,7 +411,7 @@ def draw_back_cover(c: canvas.Canvas) -> None:
         anchor="c",
     )
 
-    # 슬로건 — 로고처럼 오른쪽으로 기울인 이탤릭 + 오렌지 따옴표 포인트
+    # 슬로건 — 로고처럼 오른쪽으로 기울인 이탤릭 + 끝에 오렌지 마침표 포인트
     slogan = "Just Follow"
     slogan_size = 20
     slogan_w = pdfmetrics.stringWidth(slogan, FONT_BOLD, slogan_size)
@@ -422,9 +422,7 @@ def draw_back_cover(c: canvas.Canvas) -> None:
     c.setFont(FONT_BOLD, slogan_size)
     c.drawCentredString(0, 0, slogan)
     c.setFillColor(ORANGE)
-    c.setFont(FONT_BOLD, slogan_size + 4)
-    c.drawRightString(-slogan_w / 2 - 2 * mm, 0, "\u201c")
-    c.drawString(slogan_w / 2 + 2 * mm, 0, "\u201d")
+    c.drawString(slogan_w / 2, 0, ".")
     c.restoreState()
 
     # QR — 흑백 인쇄 대비 흰 바탕 박스 안에 배치
