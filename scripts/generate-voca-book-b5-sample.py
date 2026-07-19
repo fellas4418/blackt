@@ -20,8 +20,8 @@ from reportlab.pdfgen import canvas
 ROOT = Path(__file__).resolve().parents[1]
 OUT_DIR = ROOT / "단어장 PDF"
 
-FONT_REGULAR = "Malgun"
-FONT_BOLD = "MalgunBold"
+FONT_REGULAR = "Pretendard"
+FONT_BOLD = "PretendardBold"
 FONT_IPA = "ArialIPA"
 FONT_IPA_BOLD = "ArialIPABold"
 # 브랜드 색 — 트리거 블랙: 검정 배경 + 흰 글씨, 흑백 인쇄에서도 구분되는 무채색
@@ -159,8 +159,9 @@ HIGH_PRON = {
 
 def register_fonts() -> None:
     font_dir = Path("C:/Windows/Fonts")
-    pdfmetrics.registerFont(TTFont(FONT_REGULAR, str(font_dir / "malgun.ttf")))
-    pdfmetrics.registerFont(TTFont(FONT_BOLD, str(font_dir / "malgunbd.ttf")))
+    brand_dir = ROOT / "fonts"  # 앱과 동일한 Pretendard (브랜드 통일)
+    pdfmetrics.registerFont(TTFont(FONT_REGULAR, str(brand_dir / "Pretendard-Regular.ttf")))
+    pdfmetrics.registerFont(TTFont(FONT_BOLD, str(brand_dir / "Pretendard-Bold.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_IPA, str(font_dir / "arial.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_IPA_BOLD, str(font_dir / "arialbd.ttf")))
 
