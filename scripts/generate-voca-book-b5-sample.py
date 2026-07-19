@@ -298,10 +298,10 @@ def draw_cover(
     info_x = 30 * mm
     info_y = height - 142 * mm
     lines = [
-        ("1", "Day 표지에서 오늘의 학습 범위를 확인합니다."),
-        ("2", "TEST에서 단어의 뜻을 직접 써봅니다."),
-        ("3", "다음 장의 정답과 비교하고 결과를 체크합니다."),
-        ("4", "PRACTICE에서 단어와 뜻을 다시 써봅니다."),
+        ("1", "정답 면을 가운데 세로선에서 뒤로 접습니다."),
+        ("2", "단어를 보고 뜻을 직접 쓴 뒤 정답과 비교합니다."),
+        ("3", "1차·2차·3차 반복 결과를 □ 칸에 체크합니다."),
+        ("4", "연습 면에서 단어를 따라 쓰고 뜻을 직접 씁니다."),
     ]
     for number, sentence in lines:
         c.setFillColor(white)
@@ -422,9 +422,9 @@ def draw_howto_page(c: canvas.Canvas, *, level_tag: str, page_no: int) -> None:
     )
 
     steps = [
-        ("01", "DAY START", "중간표지에서 오늘의 학습 범위와 목표를 확인합니다."),
+        ("01", "FOLD", "정답 면을 가운데 세로선에서 뒤로 접습니다."),
         ("02", "TEST", "영단어를 보고 뜻을 직접 씁니다. 모르는 단어도 끝까지 풀어봅니다."),
-        ("03", "CHECK", "바로 다음 장의 정답과 비교하고 1차·2차·3차 결과를 체크합니다."),
+        ("03", "CHECK", "접었던 정답 면과 비교하고 1차·2차·3차 결과를 체크합니다."),
         ("04", "PRACTICE", "발음을 확인하며 영단어를 따라 쓰고, 뜻을 다시 써봅니다."),
     ]
     left = 18 * mm
@@ -442,27 +442,9 @@ def draw_howto_page(c: canvas.Canvas, *, level_tag: str, page_no: int) -> None:
         c.circle(left + 11 * mm, y + box_h / 2, 6 * mm, fill=1, stroke=0)
         draw_text(c, number, left + 11 * mm, y + box_h / 2 - 3.0, font=FONT_BOLD, size=9.5, color=white, align="center")
         draw_text(c, title, left + 24 * mm, y + box_h - 12 * mm, font=FONT_BOLD, size=13.0)
-        draw_text(c, description, left + 24 * mm, y + 10 * mm, size=9.5, color=SLATE, max_width=right - left - 30 * mm)
+        draw_text(c, description, left + 24 * mm, y + 16.5 * mm, size=13.3, color=SLATE, max_width=right - left - 30 * mm)
 
     draw_page_footer(c, page_no, level_tag)
-    c.showPage()
-
-
-def draw_day_cover(c: canvas.Canvas, *, level_tag: str, day_no: int, word_count: int, page_no: int) -> None:
-    """각 Day의 시작을 분명히 나누는 중간표지."""
-    width, height = B5
-    c.setFillColor(NAVY)
-    c.rect(0, 0, width, height, fill=1, stroke=0)
-    c.setStrokeColor(white)
-    c.setLineWidth(0.8)
-    c.roundRect(18 * mm, 38 * mm, width - 36 * mm, height - 76 * mm, 4 * mm, fill=0, stroke=1)
-    draw_text(c, level_tag, width / 2, height - 72 * mm, font=FONT_BOLD, size=9.0, color=PALE, align="center")
-    draw_text(c, f"DAY {day_no:02d}", width / 2, height / 2 + 12 * mm, font=FONT_BOLD, size=34, color=white, align="center")
-    c.setFillColor(ORANGE)
-    c.roundRect(width / 2 - 26 * mm, height / 2 - 7 * mm, 52 * mm, 13 * mm, 2.5 * mm, fill=1, stroke=0)
-    draw_text(c, f"{word_count} WORDS", width / 2, height / 2 - 2.7 * mm, font=FONT_BOLD, size=11.0, color=NAVY, align="center")
-    draw_text(c, "TEST  ·  CHECK  ·  PRACTICE", width / 2, 55 * mm, size=8.0, color=PALE, align="center")
-    draw_text(c, str(page_no), width - 10 * mm, 7 * mm, size=10.4, color=PALE, align="right")
     c.showPage()
 
 
@@ -702,6 +684,7 @@ def draw_test_page(
     margin_x = 8 * mm
     table_left = margin_x
     table_right = width - margin_x
+    fold_x = width / 2
     table_top = height - 26 * mm
     table_bottom = 13 * mm
     header_h = 8 * mm
@@ -723,7 +706,7 @@ def draw_test_page(
     )
     draw_text(
         c,
-        "영단어를 보고 뜻을 쓰세요. 정답은 바로 다음 장에서 확인합니다.",
+        "바깥쪽 정답 면을 가운데 세로선에서 뒤로 접으세요",
         width / 2,
         height - 22.6 * mm,
         size=9.5,
@@ -735,25 +718,51 @@ def draw_test_page(
     c.line(table_left, height - 24.9 * mm, table_right, height - 24.9 * mm)
 
     c.setFillColor(NAVY)
-    c.rect(table_left, table_top - header_h, table_right - table_left, header_h, fill=1, stroke=0)
-    total_w = table_right - table_left
-    test_cols = [10 * mm, 34 * mm, total_w - 44 * mm]
+    c.rect(table_left, table_top - header_h, fold_x - table_left, header_h, fill=1, stroke=0)
+    c.rect(fold_x, table_top - header_h, table_right - fold_x, header_h, fill=1, stroke=0)
+
+    answer_w = fold_x - table_left
+    test_w = table_right - fold_x
+    answer_cols = [7 * mm, 33 * mm, answer_w - 40 * mm]
+    test_cols = [24 * mm, 30 * mm, test_w - 54 * mm]
 
     y_header = table_top - header_h + 2.2 * mm
     draw_text(
         c,
-        "NO.",
-        table_left + test_cols[0] / 2,
+        "단어",
+        table_left + answer_cols[0] + answer_cols[1] / 2,
         y_header,
         font=FONT_BOLD,
-        size=9.0,
+        size=10.2,
         color=white,
         align="center",
     )
     draw_text(
         c,
+        "뜻",
+        table_left + answer_cols[0] + answer_cols[1] + answer_cols[2] / 2,
+        y_header,
+        font=FONT_BOLD,
+        size=10.2,
+        color=white,
+        align="center",
+    )
+    for label, ratio in (("1차", 1 / 6), ("2차", 3 / 6), ("3차", 5 / 6)):
+        draw_text(
+            c,
+            label,
+            fold_x + test_cols[0] * ratio,
+            y_header,
+            font=FONT_BOLD,
+            size=9.0,
+            color=white,
+            align="center",
+            max_width=test_cols[0] / 3 - 1 * mm,
+        )
+    draw_text(
+        c,
         "단어",
-        table_left + test_cols[0] + test_cols[1] / 2,
+        fold_x + test_cols[0] + test_cols[1] / 2,
         y_header,
         font=FONT_BOLD,
         size=10.2,
@@ -763,7 +772,7 @@ def draw_test_page(
     draw_text(
         c,
         "뜻 써보기",
-        table_left + test_cols[0] + test_cols[1] + test_cols[2] / 2,
+        fold_x + test_cols[0] + test_cols[1] + test_cols[2] / 2,
         y_header,
         font=FONT_BOLD,
         size=10.2,
@@ -781,17 +790,36 @@ def draw_test_page(
             c.rect(table_left, next_y, table_right - table_left, row_h, fill=1, stroke=0)
 
         baseline = next_y + row_h / 2 - 3.0
-        draw_text(c, str(index), table_left + test_cols[0] / 2, baseline, size=8.0, color=SLATE, align="center")
+        draw_text(c, str(index), table_left + answer_cols[0] / 2, baseline, size=7.0, color=SLATE, align="center")
         draw_text(
             c,
             word,
-            table_left + test_cols[0] + 1.5 * mm,
+            table_left + answer_cols[0] + 1.5 * mm,
             baseline,
             font=FONT_BOLD,
-            size=11.0,
+            size=10.5,
+            max_width=answer_cols[1] - 3 * mm,
+        )
+        draw_text(
+            c,
+            meaning,
+            table_left + answer_cols[0] + answer_cols[1] + 1.5 * mm,
+            baseline,
+            size=10.5,
+            max_width=answer_cols[2] - 3 * mm,
+        )
+
+        draw_status_marks(c, fold_x, next_y, test_cols[0], row_h)
+        draw_text(
+            c,
+            word,
+            fold_x + test_cols[0] + 1.5 * mm,
+            baseline,
+            font=FONT_BOLD,
+            size=10.5,
             max_width=test_cols[1] - 3 * mm,
         )
-        blank_left = table_left + test_cols[0] + test_cols[1] + 2 * mm
+        blank_left = fold_x + test_cols[0] + test_cols[1] + 1.5 * mm
         blank_right = table_right - 1.5 * mm
         c.setStrokeColor(LINE)
         c.setLineWidth(0.4)
@@ -802,14 +830,26 @@ def draw_test_page(
     c.setLineWidth(0.4)
     x_positions = [
         table_left,
-        table_left + test_cols[0],
-        table_left + test_cols[0] + test_cols[1],
+        table_left + answer_cols[0],
+        table_left + answer_cols[0] + answer_cols[1],
+        fold_x,
+        fold_x + test_cols[0],
+        fold_x + test_cols[0] + test_cols[1],
         table_right,
     ]
     for x in x_positions:
         c.line(x, table_bottom, x, table_top)
+    # 1차/2차/3차 칸 구분 세로줄 (본문)
+    for ratio in (1 / 3, 2 / 3):
+        div_x = fold_x + test_cols[0] * ratio
+        c.line(div_x, table_bottom, div_x, table_top - header_h)
+    # 헤더(검은 배경) 구간은 내부 세로줄을 전부 같은 굵기의 흰색으로 통일
     c.setStrokeColor(white)
-    for div_x in x_positions[1:-1]:
+    header_div_xs = x_positions[1:-1] + [
+        fold_x + test_cols[0] * 1 / 3,
+        fold_x + test_cols[0] * 2 / 3,
+    ]
+    for div_x in header_div_xs:
         c.line(div_x, table_top - header_h, div_x, table_top)
     c.setStrokeColor(LINE)
     for i in range(len(rows) + 1):
@@ -817,78 +857,6 @@ def draw_test_page(
         c.line(table_left, line_y, table_right, line_y)
     c.rect(table_left, table_bottom, table_right - table_left, table_top - table_bottom, fill=0, stroke=1)
 
-    draw_page_footer(c, page_no, level_tag)
-    c.showPage()
-
-
-def draw_answer_page(
-    c: canvas.Canvas,
-    *,
-    level_tag: str,
-    day_no: int,
-    part_label: str,
-    rows: list[tuple[str, str]],
-    start_index: int,
-    page_no: int,
-) -> None:
-    """TEST 바로 다음 장에서 확인하는 단어·뜻 정답."""
-    width, height = B5
-    left = 10 * mm
-    right = width - 10 * mm
-    table_top = height - 32 * mm
-    table_bottom = 18 * mm
-    header_h = 8.5 * mm
-    row_h = (table_top - table_bottom - header_h) / len(rows)
-    title = f"DAY {day_no:02d} · ANSWER"
-    if part_label:
-        title += f" · {part_label}"
-    draw_day_banner(c, title, height - 13 * mm)
-    draw_text(c, "TEST 결과를 확인하고 틀린 단어를 반복하세요.", width / 2, height - 25.9 * mm, size=9.5, color=SLATE, align="center")
-    c.setStrokeColor(NAVY)
-    c.setLineWidth(1.0)
-    c.line(left, height - 28.2 * mm, right, height - 28.2 * mm)
-
-    total_w = right - left
-    cols = [10 * mm, 40 * mm, total_w - 80 * mm, 10 * mm, 10 * mm, 10 * mm]
-    headers = ["NO.", "단어", "뜻", "1차", "2차", "3차"]
-    c.setFillColor(NAVY)
-    c.rect(left, table_top - header_h, total_w, header_h, fill=1, stroke=0)
-    x = left
-    for label, col_w in zip(headers, cols):
-        draw_text(c, label, x + col_w / 2, table_top - header_h + 2.5 * mm, font=FONT_BOLD, size=9.5, color=white, align="center", max_width=col_w - 1 * mm)
-        x += col_w
-
-    y = table_top - header_h
-    for offset, (word, meaning) in enumerate(rows):
-        next_y = y - row_h
-        if offset % 2 == 1:
-            c.setFillColor(LIGHT)
-            c.rect(left, next_y, total_w, row_h, fill=1, stroke=0)
-        baseline = next_y + row_h / 2 - 3.0
-        draw_text(c, str(start_index + offset), left + cols[0] / 2, baseline, size=8.0, color=SLATE, align="center")
-        draw_text(c, word, left + cols[0] + 1.5 * mm, baseline, font=FONT_BOLD, size=10.5, max_width=cols[1] - 3 * mm)
-        draw_text(c, meaning, left + cols[0] + cols[1] + 1.5 * mm, baseline, size=10.5, max_width=cols[2] - 3 * mm)
-        check_x = left + sum(cols[:3])
-        draw_status_marks(c, check_x, next_y, sum(cols[3:]), row_h)
-        y = next_y
-
-    c.setStrokeColor(LINE)
-    c.setLineWidth(0.4)
-    x_positions = [left]
-    x = left
-    for col_w in cols:
-        x += col_w
-        x_positions.append(x)
-    for x in x_positions:
-        c.line(x, table_bottom, x, table_top)
-    c.setStrokeColor(white)
-    for x in x_positions[1:-1]:
-        c.line(x, table_top - header_h, x, table_top)
-    c.setStrokeColor(LINE)
-    for i in range(len(rows) + 1):
-        line_y = table_top - header_h - i * row_h
-        c.line(left, line_y, right, line_y)
-    c.rect(left, table_bottom, total_w, table_top - table_bottom, fill=0, stroke=1)
     draw_page_footer(c, page_no, level_tag)
     c.showPage()
 
@@ -1039,7 +1007,7 @@ def validate_pronunciations(rows: list[tuple[str, str]], pronunciations: dict[st
 
 
 def build_middle_days_pdf(days: list[list[tuple[str, str]]]) -> Path:
-    """앞부분 4쪽 + Day별 중간표지/TEST/정답/PRACTICE."""
+    """앞부분 4쪽(표지·목차·사용법·발음) + Day별 TEST/연습. 중간 Day 표지 없음(헤더로만 구분)."""
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     day_count = len(days)
     out_path = resolve_output_path(OUT_DIR / f"트리거보카_중등_Day01-{day_count:02d}_B5샘플.pdf")
@@ -1057,7 +1025,7 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]]) -> Path:
         words_note="Day 구분은 페이지 헤더만 사용합니다. 중간 표지는 넣지 않습니다.",
     )
     contents = [
-        (f"DAY {day_no:02d}", len(rows), 5 + (day_no - 1) * 4, 8 + (day_no - 1) * 4)
+        (f"DAY {day_no:02d}", len(rows), 5 + (day_no - 1) * 2, 6 + (day_no - 1) * 2)
         for day_no, rows in enumerate(days, 1)
     ]
     draw_contents_page(c, level_tag="MIDDLE", entries=contents, page_no=2)
@@ -1065,19 +1033,7 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]]) -> Path:
     draw_pronunciation_guide(c, level_tag="MIDDLE", page_no=4)
     page_no = 5
     for day_no, rows in enumerate(days, 1):
-        draw_day_cover(c, level_tag="MIDDLE", day_no=day_no, word_count=len(rows), page_no=page_no)
-        page_no += 1
         draw_test_page(
-            c,
-            level_tag="MIDDLE",
-            day_no=day_no,
-            part_label="",
-            rows=rows,
-            start_index=1,
-            page_no=page_no,
-        )
-        page_no += 1
-        draw_answer_page(
             c,
             level_tag="MIDDLE",
             day_no=day_no,
@@ -1157,7 +1113,7 @@ def build_high_pdf(rows: list[tuple[str, str]]) -> Path:
 def main() -> None:
     register_fonts()
 
-    # 중등 3일 테스트: 사용법 + Day별 중간표지/TEST/정답/PRACTICE
+    # 중등 3일 테스트: 앞표지·목차·사용법·발음, Day 중간 표지 없이 헤더로만 구분
     middle_words = load_words(ROOT / "voca_middle.txt", 72)
     middle_days = chunk_days(middle_words, 24)
     for day_rows in middle_days:
@@ -1165,7 +1121,7 @@ def main() -> None:
     middle_path = build_middle_days_pdf(middle_days)
     print(
         f"중등 B5 3일 샘플: {middle_path} "
-        f"(표지 1 + 목차 1 + 사용법 1 + 발음기호 1 + Day×4쪽×3 = {4 + 4 * len(middle_days)}쪽)"
+        f"(표지 1 + 목차 1 + 사용법 1 + 발음기호 1 + Day×2쪽×3 = {4 + 2 * len(middle_days)}쪽, 중간 표지 없음)"
     )
 
 
