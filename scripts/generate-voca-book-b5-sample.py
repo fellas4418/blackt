@@ -273,13 +273,13 @@ def draw_cover(
     c.rect(0, 0, width, height, fill=1, stroke=0)
 
     c.setStrokeColor(white)
-    c.roundRect(14 * mm, 32 * mm, width - 28 * mm, height - 64 * mm, 4 * mm, fill=0, stroke=1)
+    c.roundRect(10 * mm, 10 * mm, width - 20 * mm, height - 20 * mm, 4 * mm, fill=0, stroke=1)
 
     # 왼쪽 위 레벨 배지 — 중등/고등 구분이 한눈에 보이게
     badge_w = 26 * mm
     badge_h = 12 * mm
-    badge_x = 22 * mm
-    badge_y = height - 40 * mm - badge_h
+    badge_x = 18 * mm
+    badge_y = height - 18 * mm - badge_h
     c.setLineWidth(1.2)
     c.roundRect(badge_x, badge_y, badge_w, badge_h, 2 * mm, fill=0, stroke=1)
     draw_text(c, level_ko, badge_x + badge_w / 2, badge_y + badge_h / 2 - 4.8, font=FONT_BOLD, size=13.5, color=white, align="center")
@@ -303,7 +303,7 @@ def draw_cover(
     c.roundRect(28 * mm, height - 174 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
     draw_text(c, day_label, width / 2, height - 168 * mm, font=FONT_BOLD, size=12, color=NAVY, align="center")
 
-    draw_text(c, "TRIGGER BLACK", width / 2, 38 * mm, size=7, color=PALE, align="center")
+    draw_text(c, "TRIGGER BLACK", width / 2, 18 * mm, size=7, color=PALE, align="center")
     c.showPage()
 
 
