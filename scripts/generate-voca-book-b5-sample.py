@@ -386,11 +386,8 @@ def draw_cover(
     c.showPage()
 
 
-QR_PATH = ROOT / "로고, 이미지" / "qr-blackt.png"
-
-
 def draw_back_cover(c: canvas.Canvas) -> None:
-    """뒤표지 — 로고 + 앱 QR. QR은 자체 도메인이라 연결 페이지는 출판 후에도 변경 가능."""
+    """뒤표지 — 로고 + 슬로건. QR·주소는 정식 앱 등록 전이라 넣지 않음."""
     width, height = B5
     c.setFillColor(NAVY)
     c.rect(0, 0, width, height, fill=1, stroke=0)
@@ -404,27 +401,16 @@ def draw_back_cover(c: canvas.Canvas) -> None:
     c.drawImage(
         str(LOGO_PATH),
         (width - logo_w) / 2,
-        height - 48 * mm - logo_h,
+        height - 58 * mm - logo_h,
         width=logo_w,
         height=logo_h,
         preserveAspectRatio=True,
         anchor="c",
     )
 
-    draw_text(c, "10주 영어 단어 루틴", width / 2, height - 92 * mm, font=FONT_BOLD, size=15, color=white, align="center")
-    draw_text(c, "앱에서 오늘의 단어를 테스트하세요", width / 2, height - 101 * mm, size=10.5, color=PALE, align="center")
-
-    # QR — 흑백 인쇄 대비 흰 바탕 박스 안에 배치
-    qr_size = 34 * mm
-    qr_pad = 4 * mm
-    box_size = qr_size + qr_pad * 2
-    box_x = (width - box_size) / 2
-    box_y = height - 158 * mm
-    c.setFillColor(white)
-    c.roundRect(box_x, box_y, box_size, box_size, 2.5 * mm, fill=1, stroke=0)
-    c.drawImage(str(QR_PATH), box_x + qr_pad, box_y + qr_pad, width=qr_size, height=qr_size)
-
-    draw_text(c, "blackt.pages.dev", width / 2, box_y - 9 * mm, font=FONT_BOLD, size=12, color=white, align="center")
+    draw_text(c, "외웠다는 착각은 버려라.", width / 2, height - 112 * mm, font=FONT_BOLD, size=19, color=white, align="center")
+    draw_text(c, "시험이 진짜 암기를 만든다.", width / 2, height - 122 * mm, font=FONT_BOLD, size=19, color=white, align="center")
+    draw_text(c, "앱에서 오늘의 단어를 테스트하세요", width / 2, height - 140 * mm, size=14, color=PALE, align="center")
 
     draw_text(c, "TRIGGER BLACK", width / 2, 18 * mm, size=14, color=PALE, align="center")
     c.showPage()
