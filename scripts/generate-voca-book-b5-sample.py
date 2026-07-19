@@ -314,53 +314,54 @@ def draw_cover(
 def draw_pronunciation_guide(c: canvas.Canvas, *, level_tag: str, page_no: int) -> None:
     """단어 목록 전에 보는 영어 발음기호 읽기 안내."""
     width, height = B5
+    # (기호, 한글소리, 예시단어, 예시발음)
     vowels = [
-        ("iː", "이", "see"),
-        ("ɪ", "이", "sit"),
-        ("e", "에", "bed"),
-        ("æ", "애", "cat"),
-        ("ɑː", "아", "father"),
-        ("ɒ", "아", "hot"),
-        ("ɔː", "오", "saw"),
-        ("ʊ", "우", "book"),
-        ("uː", "우", "food"),
-        ("ʌ", "어", "cup"),
-        ("ɜː", "얼", "bird"),
-        ("ə", "어", "about"),
-        ("eɪ", "에이", "day"),
-        ("aɪ", "아이", "my"),
-        ("ɔɪ", "오이", "boy"),
-        ("aʊ", "아우", "now"),
-        ("oʊ", "오우", "go"),
-        ("ɪr", "이어", "near"),
-        ("er", "에어", "care"),
-        ("ʊr", "우어", "tour"),
+        ("iː", "이", "see", "siː"),
+        ("ɪ", "이", "sit", "sɪt"),
+        ("e", "에", "bed", "bed"),
+        ("æ", "애", "cat", "kæt"),
+        ("ɑː", "아", "father", "ˈfɑːðər"),
+        ("ɒ", "아", "hot", "hɑːt"),
+        ("ɔː", "오", "saw", "sɔː"),
+        ("ʊ", "우", "book", "bʊk"),
+        ("uː", "우", "food", "fuːd"),
+        ("ʌ", "어", "cup", "kʌp"),
+        ("ɜː", "얼", "bird", "bɜːrd"),
+        ("ə", "어", "about", "əˈbaʊt"),
+        ("eɪ", "에이", "day", "deɪ"),
+        ("aɪ", "아이", "my", "maɪ"),
+        ("ɔɪ", "오이", "boy", "bɔɪ"),
+        ("aʊ", "아우", "now", "naʊ"),
+        ("oʊ", "오우", "go", "ɡoʊ"),
+        ("ɪr", "이어", "near", "nɪr"),
+        ("er", "에어", "care", "ker"),
+        ("ʊr", "우어", "tour", "tʊr"),
     ]
     consonants = [
-        ("p", "ㅍ", "pen"),
-        ("b", "ㅂ", "book"),
-        ("t", "ㅌ", "ten"),
-        ("d", "ㄷ", "day"),
-        ("k", "ㅋ", "cat"),
-        ("ɡ", "ㄱ", "go"),
-        ("f", "ㅍ", "fine"),
-        ("v", "ㅂ", "very"),
-        ("θ", "ㅆ", "think"),
-        ("ð", "ㄷ", "this"),
-        ("s", "ㅅ", "see"),
-        ("z", "ㅈ", "zoo"),
-        ("ʃ", "쉬", "she"),
-        ("ʒ", "쥐", "vision"),
-        ("h", "ㅎ", "hat"),
-        ("tʃ", "취", "chair"),
-        ("dʒ", "쥐", "job"),
-        ("m", "ㅁ", "man"),
-        ("n", "ㄴ", "no"),
-        ("ŋ", "응", "sing"),
-        ("l", "ㄹ", "love"),
-        ("r", "ㄹ", "red"),
-        ("j", "이", "yes"),
-        ("w", "우", "we"),
+        ("p", "ㅍ", "pen", "pen"),
+        ("b", "ㅂ", "book", "bʊk"),
+        ("t", "ㅌ", "ten", "ten"),
+        ("d", "ㄷ", "day", "deɪ"),
+        ("k", "ㅋ", "cat", "kæt"),
+        ("ɡ", "ㄱ", "go", "ɡoʊ"),
+        ("f", "ㅍ", "fine", "faɪn"),
+        ("v", "ㅂ", "very", "ˈveri"),
+        ("θ", "ㅆ", "think", "θɪŋk"),
+        ("ð", "ㄷ", "this", "ðɪs"),
+        ("s", "ㅅ", "see", "siː"),
+        ("z", "ㅈ", "zoo", "zuː"),
+        ("ʃ", "쉬", "she", "ʃiː"),
+        ("ʒ", "쥐", "vision", "ˈvɪʒn"),
+        ("h", "ㅎ", "hat", "hæt"),
+        ("tʃ", "취", "chair", "tʃer"),
+        ("dʒ", "쥐", "job", "dʒɑːb"),
+        ("m", "ㅁ", "man", "mæn"),
+        ("n", "ㄴ", "no", "noʊ"),
+        ("ŋ", "응", "sing", "sɪŋ"),
+        ("l", "ㄹ", "love", "lʌv"),
+        ("r", "ㄹ", "red", "red"),
+        ("j", "이", "yes", "jes"),
+        ("w", "우", "we", "wiː"),
     ]
 
     draw_day_banner(c, "발음기호 읽는 법", height - 15 * mm)
@@ -374,34 +375,52 @@ def draw_pronunciation_guide(c: canvas.Canvas, *, level_tag: str, page_no: int) 
         align="center",
     )
 
-    table_top = height - 33 * mm
+    table_top = height - 36 * mm
     table_bottom = 18 * mm
     gap = 5 * mm
     side_margin = 10 * mm
     group_w = (width - side_margin * 2 - gap) / 2
     header_h = 8 * mm
 
-    def draw_group(title: str, rows: list[tuple[str, str, str]], left: float) -> None:
+    def draw_group(title: str, rows: list[tuple[str, str, str, str]], left: float) -> None:
         row_h = (table_top - table_bottom - header_h) / len(rows)
-        symbol_w = 14 * mm
-        sound_w = 18 * mm
+        symbol_w = 12 * mm
+        sound_w = 14 * mm
+        example_w = group_w - symbol_w - sound_w
         col_xs = [left, left + symbol_w, left + symbol_w + sound_w, left + group_w]
+        headers = ("기호", "소리", "예시")
+        col_centers = [
+            left + symbol_w / 2,
+            left + symbol_w + sound_w / 2,
+            left + symbol_w + sound_w + example_w / 2,
+        ]
 
-        c.setFillColor(NAVY)
-        c.rect(left, table_top - header_h, group_w, header_h, fill=1, stroke=0)
         draw_text(
             c,
-            f"{title}   기호 · 소리 · 예시",
+            title,
             left + group_w / 2,
-            table_top - header_h + 2.3 * mm,
+            table_top + 1.8 * mm,
             font=FONT_BOLD,
-            size=9.2,
-            color=white,
+            size=9.0,
+            color=INK,
             align="center",
         )
+        c.setFillColor(NAVY)
+        c.rect(left, table_top - header_h, group_w, header_h, fill=1, stroke=0)
+        for label, cx in zip(headers, col_centers):
+            draw_text(
+                c,
+                label,
+                cx,
+                table_top - header_h + 2.3 * mm,
+                font=FONT_BOLD,
+                size=9.0,
+                color=white,
+                align="center",
+            )
 
         y = table_top - header_h
-        for index, (symbol, sound, example) in enumerate(rows):
+        for index, (symbol, sound, example, example_ipa) in enumerate(rows):
             next_y = y - row_h
             if index % 2 == 1:
                 c.setFillColor(LIGHT)
@@ -409,13 +428,29 @@ def draw_pronunciation_guide(c: canvas.Canvas, *, level_tag: str, page_no: int) 
             baseline = next_y + row_h / 2 - 3.0
             draw_text(c, symbol, left + symbol_w / 2, baseline, font=FONT_IPA, size=10.2, align="center")
             draw_text(c, sound, left + symbol_w + sound_w / 2, baseline, size=9.2, align="center")
-            draw_text(c, example, col_xs[2] + 1.5 * mm, baseline, font=FONT_BOLD, size=8.8)
+            ex_x = col_xs[2] + 1.2 * mm
+            draw_text(c, example, ex_x, baseline, font=FONT_BOLD, size=8.5)
+            word_w = pdfmetrics.stringWidth(example, FONT_BOLD, 8.5)
+            draw_text(
+                c,
+                example_ipa,
+                ex_x + word_w + 1.2 * mm,
+                baseline,
+                font=FONT_IPA,
+                size=7.8,
+                color=SLATE,
+                max_width=example_w - word_w - 3.5 * mm,
+            )
             y = next_y
 
         c.setStrokeColor(LINE)
         c.setLineWidth(0.4)
         for x in col_xs:
             c.line(x, table_bottom, x, table_top)
+        c.setStrokeColor(white)
+        for x in col_xs[1:-1]:
+            c.line(x, table_top - header_h, x, table_top)
+        c.setStrokeColor(LINE)
         for index in range(len(rows) + 1):
             line_y = table_top - header_h - index * row_h
             c.line(left, line_y, left + group_w, line_y)
