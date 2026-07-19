@@ -286,7 +286,7 @@ def draw_cover(
     )
 
     draw_text(c, "VOCABULARY BOOK", width / 2, height - 95 * mm, font=FONT_BOLD, size=22, color=white, align="center")
-    draw_text(c, f"{level_en} · B5 SAMPLE", width / 2, height - 103 * mm, size=10, color=PALE, align="center")
+    draw_text(c, level_en, width / 2, height - 103 * mm, size=10, color=PALE, align="center")
 
     c.setFillColor(ORANGE)
     c.roundRect(28 * mm, height - 124 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
@@ -299,25 +299,14 @@ def draw_cover(
         ("2", "단어를 보고 뜻을 직접 쓴 뒤 정답과 비교합니다."),
         ("3", "1차·2차·3차 반복 결과를 □ 칸에 체크합니다."),
         ("4", "연습 면에서 단어를 따라 쓰고 뜻을 직접 씁니다."),
-        ("5", words_note),
     ]
     for number, sentence in lines:
         c.setFillColor(white)
-        c.circle(info_x, info_y + 1.2 * mm, 3.4 * mm, fill=0, stroke=1)
+        c.circle(info_x, info_y + 1.2 * mm, 2.6 * mm, fill=0, stroke=1)
         draw_text(c, number, info_x, info_y - 0.4 * mm, font=FONT_BOLD, size=7.5, color=white, align="center")
-        draw_text(c, sentence, info_x + 8 * mm, info_y - 0.6 * mm, size=8.2, color=white, max_width=width - 52 * mm)
+        draw_text(c, sentence, info_x + 8 * mm, info_y - 0.6 * mm, size=11.5, color=white, max_width=width - 52 * mm)
         info_y -= 13 * mm
 
-    draw_text(
-        c,
-        f"{level_ko} · 양면 인쇄 · 실제 크기(100%) · 긴 쪽 넘김 권장",
-        width / 2,
-        46 * mm,
-        font=FONT_BOLD,
-        size=8,
-        color=PALE,
-        align="center",
-    )
     draw_text(c, "TRIGGER BLACK", width / 2, 38 * mm, size=7, color=PALE, align="center")
     c.showPage()
 
