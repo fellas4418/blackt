@@ -375,11 +375,12 @@ def draw_pronunciation_guide(c: canvas.Canvas, *, level_tag: str, page_no: int) 
         align="center",
     )
 
-    table_top = height - 36 * mm
+    table_top = height - 38 * mm
     table_bottom = 18 * mm
     gap = 5 * mm
     side_margin = 10 * mm
     group_w = (width - side_margin * 2 - gap) / 2
+    title_h = 7 * mm
     header_h = 8 * mm
 
     def draw_group(title: str, rows: list[tuple[str, str, str, str]], left: float) -> None:
@@ -395,11 +396,15 @@ def draw_pronunciation_guide(c: canvas.Canvas, *, level_tag: str, page_no: int) 
             left + symbol_w + sound_w + example_w / 2,
         ]
 
+        c.setFillColor(white)
+        c.setStrokeColor(LINE)
+        c.setLineWidth(0.4)
+        c.rect(left, table_top, group_w, title_h, fill=1, stroke=1)
         draw_text(
             c,
             title,
             left + group_w / 2,
-            table_top + 1.8 * mm,
+            table_top + 2.0 * mm,
             font=FONT_BOLD,
             size=10.5,
             color=INK,
