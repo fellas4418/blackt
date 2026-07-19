@@ -311,6 +311,122 @@ def draw_cover(
     c.showPage()
 
 
+def draw_pronunciation_guide(c: canvas.Canvas, *, level_tag: str, page_no: int) -> None:
+    """단어 목록 전에 보는 영어 발음기호 읽기 안내."""
+    width, height = B5
+    vowels = [
+        ("iː", "이", "see"),
+        ("ɪ", "이", "sit"),
+        ("e", "에", "bed"),
+        ("æ", "애", "cat"),
+        ("ɑː", "아", "father"),
+        ("ɒ", "아", "hot"),
+        ("ɔː", "오", "saw"),
+        ("ʊ", "우", "book"),
+        ("uː", "우", "food"),
+        ("ʌ", "어", "cup"),
+        ("ɜː", "얼", "bird"),
+        ("ə", "어", "about"),
+        ("eɪ", "에이", "day"),
+        ("aɪ", "아이", "my"),
+        ("ɔɪ", "오이", "boy"),
+        ("aʊ", "아우", "now"),
+        ("oʊ", "오우", "go"),
+        ("ɪr", "이어", "near"),
+        ("er", "에어", "care"),
+        ("ʊr", "우어", "tour"),
+    ]
+    consonants = [
+        ("p", "ㅍ", "pen"),
+        ("b", "ㅂ", "book"),
+        ("t", "ㅌ", "ten"),
+        ("d", "ㄷ", "day"),
+        ("k", "ㅋ", "cat"),
+        ("ɡ", "ㄱ", "go"),
+        ("f", "ㅍ", "fine"),
+        ("v", "ㅂ", "very"),
+        ("θ", "ㅆ", "think"),
+        ("ð", "ㄷ", "this"),
+        ("s", "ㅅ", "see"),
+        ("z", "ㅈ", "zoo"),
+        ("ʃ", "쉬", "she"),
+        ("ʒ", "쥐", "vision"),
+        ("h", "ㅎ", "hat"),
+        ("tʃ", "취", "chair"),
+        ("dʒ", "쥐", "job"),
+        ("m", "ㅁ", "man"),
+        ("n", "ㄴ", "no"),
+        ("ŋ", "응", "sing"),
+        ("l", "ㄹ", "love"),
+        ("r", "ㄹ", "red"),
+        ("j", "이", "yes"),
+        ("w", "우", "we"),
+    ]
+
+    draw_day_banner(c, "발음기호 읽는 법", height - 15 * mm)
+    draw_text(
+        c,
+        "한글 표기는 가장 가까운 소리입니다. 예시 단어와 함께 소리 내어 읽어 보세요.",
+        width / 2,
+        height - 26 * mm,
+        size=9.5,
+        color=SLATE,
+        align="center",
+    )
+
+    table_top = height - 33 * mm
+    table_bottom = 18 * mm
+    gap = 5 * mm
+    side_margin = 10 * mm
+    group_w = (width - side_margin * 2 - gap) / 2
+    header_h = 8 * mm
+
+    def draw_group(title: str, rows: list[tuple[str, str, str]], left: float) -> None:
+        row_h = (table_top - table_bottom - header_h) / len(rows)
+        symbol_w = 14 * mm
+        sound_w = 18 * mm
+        col_xs = [left, left + symbol_w, left + symbol_w + sound_w, left + group_w]
+
+        c.setFillColor(NAVY)
+        c.rect(left, table_top - header_h, group_w, header_h, fill=1, stroke=0)
+        draw_text(
+            c,
+            f"{title}   기호 · 소리 · 예시",
+            left + group_w / 2,
+            table_top - header_h + 2.3 * mm,
+            font=FONT_BOLD,
+            size=9.2,
+            color=white,
+            align="center",
+        )
+
+        y = table_top - header_h
+        for index, (symbol, sound, example) in enumerate(rows):
+            next_y = y - row_h
+            if index % 2 == 1:
+                c.setFillColor(LIGHT)
+                c.rect(left, next_y, group_w, row_h, fill=1, stroke=0)
+            baseline = next_y + row_h / 2 - 3.0
+            draw_text(c, symbol, left + symbol_w / 2, baseline, font=FONT_IPA, size=10.2, align="center")
+            draw_text(c, sound, left + symbol_w + sound_w / 2, baseline, size=9.2, align="center")
+            draw_text(c, example, col_xs[2] + 1.5 * mm, baseline, font=FONT_BOLD, size=8.8)
+            y = next_y
+
+        c.setStrokeColor(LINE)
+        c.setLineWidth(0.4)
+        for x in col_xs:
+            c.line(x, table_bottom, x, table_top)
+        for index in range(len(rows) + 1):
+            line_y = table_top - header_h - index * row_h
+            c.line(left, line_y, left + group_w, line_y)
+        c.rect(left, table_bottom, group_w, table_top - table_bottom, fill=0, stroke=1)
+
+    draw_group("모음", vowels, side_margin)
+    draw_group("자음", consonants, side_margin + group_w + gap)
+    draw_page_footer(c, page_no, level_tag)
+    c.showPage()
+
+
 def draw_test_page(
     c: canvas.Canvas,
     *,
@@ -665,7 +781,8 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]]) -> Path:
         day_label=f"DAY 01–{day_count:02d} · {day_count * 24} WORDS",
         words_note="Day 구분은 페이지 헤더만 사용합니다. 중간 표지는 넣지 않습니다.",
     )
-    page_no = 2
+    draw_pronunciation_guide(c, level_tag="MIDDLE", page_no=2)
+    page_no = 3
     for day_no, rows in enumerate(days, 1):
         draw_test_page(
             c,
@@ -711,12 +828,13 @@ def build_high_pdf(rows: list[tuple[str, str]]) -> Path:
         day_label="DAY 01 · 40 WORDS",
         words_note="고등 하루치 40개를 20개씩 두 세트(TEST+연습)로 나눕니다.",
     )
+    draw_pronunciation_guide(c, level_tag="HIGH", page_no=2)
 
     parts = [
         ("1–20", rows[:20], 1),
         ("21–40", rows[20:], 21),
     ]
-    page_no = 2
+    page_no = 3
     for part_label, part_rows, start_index in parts:
         draw_test_page(
             c,
@@ -753,7 +871,7 @@ def main() -> None:
     middle_path = build_middle_days_pdf(middle_days)
     print(
         f"중등 B5 3일 샘플: {middle_path} "
-        f"(표지 1 + Day×2쪽×3 = {1 + 2 * len(middle_days)}쪽, 중간 표지 없음)"
+        f"(표지 1 + 발음기호 1 + Day×2쪽×3 = {2 + 2 * len(middle_days)}쪽, 중간 표지 없음)"
     )
 
 
