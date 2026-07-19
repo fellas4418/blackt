@@ -1,0 +1,7202 @@
+{
+  "religion": {
+    "ipa": "/rɪˈlɪdʒən/",
+    "ko": "릴리전",
+    "meaning_pos": "종교 (명)",
+    "source": "manual"
+  },
+  "border": {
+    "ipa": "/ˈbɔːrdər/",
+    "ko": "보더",
+    "meaning_pos": "국경 (명)",
+    "source": "manual"
+  },
+  "spread": {
+    "ipa": "/spred/",
+    "ko": "스프레드",
+    "meaning_pos": "퍼지다 (동)",
+    "source": "manual"
+  },
+  "escape": {
+    "ipa": "/ɪˈskeɪp/",
+    "ko": "이스케입",
+    "meaning_pos": "탈출하다 (동)",
+    "source": "manual"
+  },
+  "common": {
+    "ipa": "/ˈkɑːmən/",
+    "ko": "커먼",
+    "meaning_pos": "흔한, 공통의 (형)",
+    "source": "manual"
+  },
+  "remain": {
+    "ipa": "/rɪˈmeɪn/",
+    "ko": "리메인",
+    "meaning_pos": "남다 (동)",
+    "source": "manual"
+  },
+  "punish": {
+    "ipa": "/ˈpʌnɪʃ/",
+    "ko": "퍼니시",
+    "meaning_pos": "처벌하다 (동)",
+    "source": "manual"
+  },
+  "fee": {
+    "ipa": "/fiː/",
+    "ko": "피",
+    "meaning_pos": "요금 (명)",
+    "source": "manual"
+  },
+  "familiar": {
+    "ipa": "/fəˈmɪliər/",
+    "ko": "퍼밀리어",
+    "meaning_pos": "익숙한 (형)",
+    "source": "manual"
+  },
+  "volunteer": {
+    "ipa": "/ˌvɑːlənˈtɪr/",
+    "ko": "발런티어",
+    "meaning_pos": "자원봉사자 (명)",
+    "source": "manual"
+  },
+  "square": {
+    "ipa": "/skwer/",
+    "ko": "스퀘어",
+    "meaning_pos": "정사각형, 광장 (명)",
+    "source": "manual"
+  },
+  "steal": {
+    "ipa": "/stiːl/",
+    "ko": "스틸",
+    "meaning_pos": "훔치다 (동)",
+    "source": "manual"
+  },
+  "attack": {
+    "ipa": "/əˈtæk/",
+    "ko": "어택",
+    "meaning_pos": "공격하다 (동)",
+    "source": "manual"
+  },
+  "represent": {
+    "ipa": "/ˌreprɪˈzent/",
+    "ko": "레프리젠트",
+    "meaning_pos": "대표하다 (동)",
+    "source": "manual"
+  },
+  "arrow": {
+    "ipa": "/ˈæroʊ/",
+    "ko": "애로우",
+    "meaning_pos": "화살 (명)",
+    "source": "manual"
+  },
+  "shoot": {
+    "ipa": "/ʃuːt/",
+    "ko": "슛",
+    "meaning_pos": "쏘다 (동)",
+    "source": "manual"
+  },
+  "matter": {
+    "ipa": "/ˈmætər/",
+    "ko": "매터",
+    "meaning_pos": "문제 (명), 중요하다 (동)",
+    "source": "manual"
+  },
+  "shake": {
+    "ipa": "/ʃeɪk/",
+    "ko": "셰이크",
+    "meaning_pos": "흔들다 (동)",
+    "source": "manual"
+  },
+  "ruin": {
+    "ipa": "/ˈruːɪn/",
+    "ko": "루인",
+    "meaning_pos": "망치다 (동)",
+    "source": "manual"
+  },
+  "result": {
+    "ipa": "/rɪˈzʌlt/",
+    "ko": "리절트",
+    "meaning_pos": "결과 (명)",
+    "source": "manual"
+  },
+  "bless": {
+    "ipa": "/bles/",
+    "ko": "블레스",
+    "meaning_pos": "축복하다 (동)",
+    "source": "manual"
+  },
+  "exist": {
+    "ipa": "/ɪɡˈzɪst/",
+    "ko": "이그지스트",
+    "meaning_pos": "존재하다 (동)",
+    "source": "manual"
+  },
+  "medicine": {
+    "ipa": "/ˈmedɪsn/",
+    "ko": "메디슨",
+    "meaning_pos": "약 (명)",
+    "source": "manual"
+  },
+  "pack": {
+    "ipa": "/pæk/",
+    "ko": "팩",
+    "meaning_pos": "싸다, 포장하다 (동)",
+    "source": "manual"
+  },
+  "repeat": {
+    "ipa": "/rɪˈpiːt/",
+    "ko": "리핏",
+    "meaning_pos": "반복하다 (동)",
+    "source": "manual"
+  },
+  "perform": {
+    "ipa": "/pərˈfɔːrm/",
+    "ko": "퍼폼",
+    "meaning_pos": "수행하다, 공연하다 (동)",
+    "source": "manual"
+  },
+  "popular": {
+    "ipa": "/ˈpɑːpjələr/",
+    "ko": "파퓰러",
+    "meaning_pos": "인기 있는 (형)",
+    "source": "manual"
+  },
+  "regular": {
+    "ipa": "/ˈreɡjələr/",
+    "ko": "레귤러",
+    "meaning_pos": "규칙적인 (형)",
+    "source": "manual"
+  },
+  "seldom": {
+    "ipa": "/ˈseldəm/",
+    "ko": "셀덤",
+    "meaning_pos": "드물게 (부)",
+    "source": "manual"
+  },
+  "president": {
+    "ipa": "/ˈprezɪdənt/",
+    "ko": "프레지던트",
+    "meaning_pos": "대통령, 회장 (명)",
+    "source": "manual"
+  },
+  "international": {
+    "ipa": "/ˌɪntərˈnæʃənl/",
+    "ko": "인터내셔널",
+    "meaning_pos": "국제적인 (형)",
+    "source": "manual"
+  },
+  "overcome": {
+    "ipa": "/ˌoʊvərˈkʌm/",
+    "ko": "오버컴",
+    "meaning_pos": "극복하다 (동)",
+    "source": "manual"
+  },
+  "destroy": {
+    "ipa": "/dɪˈstrɔɪ/",
+    "ko": "디스트로이",
+    "meaning_pos": "파괴하다 (동)",
+    "source": "manual"
+  },
+  "reply": {
+    "ipa": "/rɪˈplaɪ/",
+    "ko": "리플라이",
+    "meaning_pos": "대답하다 (동)",
+    "source": "manual"
+  },
+  "treasure": {
+    "ipa": "/ˈtreʒər/",
+    "ko": "트레저",
+    "meaning_pos": "보물 (명)",
+    "source": "manual"
+  },
+  "favor": {
+    "ipa": "/ˈfeɪvər/",
+    "ko": "페이버",
+    "meaning_pos": "호의 (명)",
+    "source": "manual"
+  },
+  "grade": {
+    "ipa": "/ɡreɪd/",
+    "ko": "그레이드",
+    "meaning_pos": "성적, 학년 (명)",
+    "source": "manual"
+  },
+  "trust": {
+    "ipa": "/trʌst/",
+    "ko": "트러스트",
+    "meaning_pos": "신뢰하다 (동)",
+    "source": "manual"
+  },
+  "term": {
+    "ipa": "/tɜːrm/",
+    "ko": "텀",
+    "meaning_pos": "용어, 기간 (명)",
+    "source": "manual"
+  },
+  "spell": {
+    "ipa": "/spel/",
+    "ko": "스펠",
+    "meaning_pos": "철자를 쓰다 (동)",
+    "source": "manual"
+  },
+  "regret": {
+    "ipa": "/rɪˈɡret/",
+    "ko": "리그렛",
+    "meaning_pos": "후회하다 (동)",
+    "source": "manual"
+  },
+  "suggest": {
+    "ipa": "/səˈdʒest/",
+    "ko": "석제스트",
+    "meaning_pos": "제안하다 (동)",
+    "source": "manual"
+  },
+  "recognize": {
+    "ipa": "/ˈrekəɡnaɪz/",
+    "ko": "레커그나이즈",
+    "meaning_pos": "알아차리다 (동)",
+    "source": "manual"
+  },
+  "balance": {
+    "ipa": "/ˈbæləns/",
+    "ko": "밸런스",
+    "meaning_pos": "균형 (명)",
+    "source": "manual"
+  },
+  "notice": {
+    "ipa": "/ˈnoʊtɪs/",
+    "ko": "노티스",
+    "meaning_pos": "알아차리다 (동)",
+    "source": "manual"
+  },
+  "realize": {
+    "ipa": "/ˈriːəlaɪz/",
+    "ko": "리얼라이즈",
+    "meaning_pos": "깨닫다 (동)",
+    "source": "manual"
+  },
+  "admire": {
+    "ipa": "/ədˈmaɪər/",
+    "ko": "어드마이어",
+    "meaning_pos": "존경하다 (동)",
+    "source": "manual"
+  },
+  "needle": {
+    "ipa": "/ˈniːdl/",
+    "ko": "니들",
+    "meaning_pos": "바늘 (명)",
+    "source": "manual"
+  },
+  "tray": {
+    "ipa": "/treɪ/",
+    "ko": "트레이",
+    "meaning_pos": "쟁반 (명)",
+    "source": "manual"
+  },
+  "role": {
+    "ipa": "/roʊl/",
+    "ko": "롤",
+    "meaning_pos": "역할 (명)",
+    "source": "manual"
+  },
+  "pride": {
+    "ipa": "/praɪd/",
+    "ko": "프라이드",
+    "meaning_pos": "자부심 (명)",
+    "source": "manual"
+  },
+  "tie": {
+    "ipa": "/taɪ/",
+    "ko": "타이",
+    "meaning_pos": "묶다 (동)",
+    "source": "manual"
+  },
+  "repair": {
+    "ipa": "/rɪˈper/",
+    "ko": "리페어",
+    "meaning_pos": "수리하다 (동)",
+    "source": "manual"
+  },
+  "soap": {
+    "ipa": "/soʊp/",
+    "ko": "소프",
+    "meaning_pos": "비누 (명)",
+    "source": "manual"
+  },
+  "normal": {
+    "ipa": "/ˈnɔːrml/",
+    "ko": "노멀",
+    "meaning_pos": "정상적인 (형)",
+    "source": "manual"
+  },
+  "smooth": {
+    "ipa": "/smuːð/",
+    "ko": "스무스",
+    "meaning_pos": "부드러운 (형)",
+    "source": "manual"
+  },
+  "trade": {
+    "ipa": "/treɪd/",
+    "ko": "트레이드",
+    "meaning_pos": "무역 (명)",
+    "source": "manual"
+  },
+  "benefit": {
+    "ipa": "/ˈbenɪfɪt/",
+    "ko": "베니핏",
+    "meaning_pos": "이익 (명)",
+    "source": "manual"
+  },
+  "crop": {
+    "ipa": "/krɑːp/",
+    "ko": "크롭",
+    "meaning_pos": "농작물 (명)",
+    "source": "manual"
+  },
+  "gather": {
+    "ipa": "/ˈɡæðər/",
+    "ko": "개더",
+    "meaning_pos": "모으다 (동)",
+    "source": "manual"
+  },
+  "stadium": {
+    "ipa": "/ˈsteɪdiəm/",
+    "ko": "스테이디엄",
+    "meaning_pos": "경기장 (명)",
+    "source": "manual"
+  },
+  "incredible": {
+    "ipa": "/ɪnˈkredəbl/",
+    "ko": "인크레더블",
+    "meaning_pos": "믿을 수 없는 (형)",
+    "source": "manual"
+  },
+  "coach": {
+    "ipa": "/koʊtʃ/",
+    "ko": "코치",
+    "meaning_pos": "코치 (명)",
+    "source": "manual"
+  },
+  "strike": {
+    "ipa": "/straɪk/",
+    "ko": "스트라이크",
+    "meaning_pos": "치다, 파업하다 (동)",
+    "source": "manual"
+  },
+  "desire": {
+    "ipa": "/dɪˈzaɪər/",
+    "ko": "디자이어",
+    "meaning_pos": "욕망 (명)",
+    "source": "manual"
+  },
+  "effective": {
+    "ipa": "/ɪˈfektɪv/",
+    "ko": "이펙티브",
+    "meaning_pos": "효과적인 (형)",
+    "source": "manual"
+  },
+  "able": {
+    "ipa": "/ˈeɪbl/",
+    "ko": "에이블",
+    "meaning_pos": "할 수 있는 (형)",
+    "source": "manual"
+  },
+  "pain": {
+    "ipa": "/peɪn/",
+    "ko": "페인",
+    "meaning_pos": "고통 (명)",
+    "source": "manual"
+  },
+  "spend": {
+    "ipa": "/spend/",
+    "ko": "스펜드",
+    "meaning_pos": "소비하다 (동)",
+    "source": "manual"
+  },
+  "belong": {
+    "ipa": "/bɪˈlɔːŋ/",
+    "ko": "빌롱",
+    "meaning_pos": "속하다 (동)",
+    "source": "manual"
+  },
+  "usual": {
+    "ipa": "/ˈjuːʒuəl/",
+    "ko": "유주얼",
+    "meaning_pos": "평소의 (형)",
+    "source": "manual"
+  },
+  "neighbor": {
+    "ipa": "/ˈneɪbər/",
+    "ko": "네이버",
+    "meaning_pos": "이웃 (명)",
+    "source": "manual"
+  },
+  "practice": {
+    "ipa": "/ˈpræktɪs/",
+    "ko": "프래크터스",
+    "meaning_pos": "연습하다 (동)",
+    "source": "auto"
+  },
+  "false": {
+    "ipa": "/fɔls/",
+    "ko": "포르스",
+    "meaning_pos": "거짓의 (형)",
+    "source": "auto"
+  },
+  "perfect": {
+    "ipa": "/ˈpərˌfɪkt/",
+    "ko": "퍼페크트",
+    "meaning_pos": "완벽한 (형)",
+    "source": "auto"
+  },
+  "scene": {
+    "ipa": "/sin/",
+    "ko": "신",
+    "meaning_pos": "장면 (명)",
+    "source": "auto"
+  },
+  "reach": {
+    "ipa": "/riʧ/",
+    "ko": "리츠",
+    "meaning_pos": "도달하다 (동)",
+    "source": "auto"
+  },
+  "judge": {
+    "ipa": "/ʤəʤ/",
+    "ko": "저즈",
+    "meaning_pos": "판단하다 (동), 판사 (명)",
+    "source": "auto"
+  },
+  "conversation": {
+    "ipa": "/ˌkɑnvərˈseɪʃən/",
+    "ko": "카느버세이션",
+    "meaning_pos": "대화 (명)",
+    "source": "auto"
+  },
+  "shoulder": {
+    "ipa": "/ˈʃoʊldər/",
+    "ko": "소르더",
+    "meaning_pos": "어깨 (명)",
+    "source": "auto"
+  },
+  "mistake": {
+    "ipa": "/mɪˈsteɪk/",
+    "ko": "미스테이크",
+    "meaning_pos": "실수 (명)",
+    "source": "auto"
+  },
+  "enemy": {
+    "ipa": "/ˈɛnəmi/",
+    "ko": "엔엄이",
+    "meaning_pos": "적 (명)",
+    "source": "auto"
+  },
+  "cheer": {
+    "ipa": "/ʧɪr/",
+    "ko": "치르",
+    "meaning_pos": "환호하다 (동)",
+    "source": "auto"
+  },
+  "continue": {
+    "ipa": "/kənˈtɪnju/",
+    "ko": "커느티느유",
+    "meaning_pos": "계속하다 (동)",
+    "source": "auto"
+  },
+  "garbage": {
+    "ipa": "/ˈgɑrbɪʤ/",
+    "ko": "가르비즈",
+    "meaning_pos": "쓰레기 (명)",
+    "source": "auto"
+  },
+  "possible": {
+    "ipa": "/ˈpɑsəbəl/",
+    "ko": "파서벌",
+    "meaning_pos": "가능한 (형)",
+    "source": "auto"
+  },
+  "foreign": {
+    "ipa": "/ˈfɔrən/",
+    "ko": "포런",
+    "meaning_pos": "외국의 (형)",
+    "source": "auto"
+  },
+  "period": {
+    "ipa": "/ˈpɪriəd/",
+    "ko": "피리어드",
+    "meaning_pos": "기간 (명)",
+    "source": "auto"
+  },
+  "except": {
+    "ipa": "/ɪkˈsɛpt/",
+    "ko": "이크세프트",
+    "meaning_pos": "제외하고 (명)",
+    "source": "auto"
+  },
+  "laugh": {
+    "ipa": "/læf/",
+    "ko": "래프",
+    "meaning_pos": "웃다 (동)",
+    "source": "auto"
+  },
+  "instead": {
+    "ipa": "/ˌɪnˈstɛd/",
+    "ko": "이느스테드",
+    "meaning_pos": "대신에 (명)",
+    "source": "auto"
+  },
+  "major": {
+    "ipa": "/ˈmeɪʤər/",
+    "ko": "메이저",
+    "meaning_pos": "주요한 (형), 전공 (명)",
+    "source": "auto"
+  },
+  "round": {
+    "ipa": "/raʊnd/",
+    "ko": "라우느드",
+    "meaning_pos": "둥근 (명)",
+    "source": "auto"
+  },
+  "aim": {
+    "ipa": "/eɪm/",
+    "ko": "엠이",
+    "meaning_pos": "목표 (명)",
+    "source": "auto"
+  },
+  "nowadays": {
+    "ipa": "/ˈnaʊəˌdeɪz/",
+    "ko": "나우어데이즈",
+    "meaning_pos": "요즘에는 (명)",
+    "source": "auto"
+  },
+  "secret": {
+    "ipa": "/ˈsikrɪt/",
+    "ko": "시크러트",
+    "meaning_pos": "비밀 (명)",
+    "source": "auto"
+  },
+  "disease": {
+    "ipa": "/dɪˈziz/",
+    "ko": "디지즈",
+    "meaning_pos": "질병 (명)",
+    "source": "auto"
+  },
+  "miracle": {
+    "ipa": "/ˈmɪrəkəl/",
+    "ko": "미러컬",
+    "meaning_pos": "기적 (명)",
+    "source": "auto"
+  },
+  "protein": {
+    "ipa": "/ˈproʊˌtin/",
+    "ko": "프로틴",
+    "meaning_pos": "단백질 (명)",
+    "source": "auto"
+  },
+  "patient": {
+    "ipa": "/ˈpeɪʃənt/",
+    "ko": "페이셔느트",
+    "meaning_pos": "환자 (명), 인내심 있는 (형)",
+    "source": "auto"
+  },
+  "prefer": {
+    "ipa": "/prɪˈfər/",
+    "ko": "프러퍼",
+    "meaning_pos": "선호하다 (동)",
+    "source": "auto"
+  },
+  "avoid": {
+    "ipa": "/əˈvɔɪd/",
+    "ko": "어보이드",
+    "meaning_pos": "피하다 (동)",
+    "source": "auto"
+  },
+  "prevent": {
+    "ipa": "/prɪˈvɛnt/",
+    "ko": "프리베느트",
+    "meaning_pos": "예방하다 (동)",
+    "source": "auto"
+  },
+  "fault": {
+    "ipa": "/fɔlt/",
+    "ko": "포르트",
+    "meaning_pos": "잘못 (명)",
+    "source": "auto"
+  },
+  "sudden": {
+    "ipa": "/ˈsədən/",
+    "ko": "서던",
+    "meaning_pos": "갑작스러운 (형)",
+    "source": "auto"
+  },
+  "trouble": {
+    "ipa": "/ˈtrəbəl/",
+    "ko": "트러벌",
+    "meaning_pos": "문제 (명)",
+    "source": "auto"
+  },
+  "aid": {
+    "ipa": "/eɪd/",
+    "ko": "에이드",
+    "meaning_pos": "도움 (명)",
+    "source": "auto"
+  },
+  "portrait": {
+    "ipa": "/ˈpɔrtrət/",
+    "ko": "포르트러트",
+    "meaning_pos": "초상화 (명)",
+    "source": "auto"
+  },
+  "whole": {
+    "ipa": "/hoʊl/",
+    "ko": "홀",
+    "meaning_pos": "전체의 (형)",
+    "source": "auto"
+  },
+  "individual": {
+    "ipa": "/ˌɪndəˈvɪʤəwəl/",
+    "ko": "이느더비저월",
+    "meaning_pos": "개인 (형)",
+    "source": "auto"
+  },
+  "influence": {
+    "ipa": "/ˈɪnfluəns/",
+    "ko": "이느프루어느스",
+    "meaning_pos": "영향 (명)",
+    "source": "auto"
+  },
+  "master": {
+    "ipa": "/ˈmæstər/",
+    "ko": "매스터",
+    "meaning_pos": "주인 (형), 숙달하다 (동)",
+    "source": "auto"
+  },
+  "advance": {
+    "ipa": "/ədˈvæns/",
+    "ko": "어드배느스",
+    "meaning_pos": "전진, 발전 (명)",
+    "source": "auto"
+  },
+  "develop": {
+    "ipa": "/dɪˈvɛləp/",
+    "ko": "디벨어프",
+    "meaning_pos": "발달하다 (동)",
+    "source": "auto"
+  },
+  "nest": {
+    "ipa": "/nɛst/",
+    "ko": "네스트",
+    "meaning_pos": "둥지 (명)",
+    "source": "auto"
+  },
+  "match": {
+    "ipa": "/mæʧ/",
+    "ko": "매츠",
+    "meaning_pos": "성냥, 시합 (명)",
+    "source": "auto"
+  },
+  "chest": {
+    "ipa": "/ʧɛst/",
+    "ko": "체스트",
+    "meaning_pos": "가슴 (명)",
+    "source": "auto"
+  },
+  "demand": {
+    "ipa": "/dɪˈmænd/",
+    "ko": "딤애느드",
+    "meaning_pos": "요구하다 (동)",
+    "source": "auto"
+  },
+  "wealth": {
+    "ipa": "/wɛlθ/",
+    "ko": "웨르스",
+    "meaning_pos": "부 (명)",
+    "source": "auto"
+  },
+  "account": {
+    "ipa": "/əˈkaʊnt/",
+    "ko": "어카우느트",
+    "meaning_pos": "계좌, 설명 (명)",
+    "source": "auto"
+  },
+  "serve": {
+    "ipa": "/sərv/",
+    "ko": "서브",
+    "meaning_pos": "제공하다, 봉사하다 (동)",
+    "source": "auto"
+  },
+  "grave": {
+    "ipa": "/greɪv/",
+    "ko": "그레이브",
+    "meaning_pos": "무덤 (명), 심각한 (형)",
+    "source": "auto"
+  },
+  "explain": {
+    "ipa": "/ɪkˈspleɪn/",
+    "ko": "이크스프렌이",
+    "meaning_pos": "설명하다 (동)",
+    "source": "auto"
+  },
+  "achieve": {
+    "ipa": "/əˈʧiv/",
+    "ko": "어치브",
+    "meaning_pos": "성취하다 (동)",
+    "source": "auto"
+  },
+  "remove": {
+    "ipa": "/riˈmuv/",
+    "ko": "림우브",
+    "meaning_pos": "제거하다 (동)",
+    "source": "auto"
+  },
+  "dictionary": {
+    "ipa": "/ˈdɪkʃəˌnɛri/",
+    "ko": "디크션에리",
+    "meaning_pos": "사전 (명)",
+    "source": "auto"
+  },
+  "receive": {
+    "ipa": "/rɪˈsiv/",
+    "ko": "러시브",
+    "meaning_pos": "받다 (동)",
+    "source": "auto"
+  },
+  "smoke": {
+    "ipa": "/smoʊk/",
+    "ko": "스모크",
+    "meaning_pos": "연기 (명), 담배를 피우다 (동)",
+    "source": "auto"
+  },
+  "meal": {
+    "ipa": "/mil/",
+    "ko": "밀",
+    "meaning_pos": "식사 (명)",
+    "source": "auto"
+  },
+  "social": {
+    "ipa": "/ˈsoʊʃəl/",
+    "ko": "소셜",
+    "meaning_pos": "사회적인 (형)",
+    "source": "auto"
+  },
+  "bark": {
+    "ipa": "/bɑrk/",
+    "ko": "바르크",
+    "meaning_pos": "짖다 (동)",
+    "source": "auto"
+  },
+  "grammar": {
+    "ipa": "/ˈgræmər/",
+    "ko": "그램어",
+    "meaning_pos": "문법 (명)",
+    "source": "auto"
+  },
+  "trunk": {
+    "ipa": "/trəŋk/",
+    "ko": "트러응크",
+    "meaning_pos": "줄기, 몸통 (명)",
+    "source": "auto"
+  },
+  "reason": {
+    "ipa": "/ˈrizən/",
+    "ko": "리전",
+    "meaning_pos": "이유 (명)",
+    "source": "auto"
+  },
+  "health": {
+    "ipa": "/hɛlθ/",
+    "ko": "헤르스",
+    "meaning_pos": "건강 (명)",
+    "source": "auto"
+  },
+  "earn": {
+    "ipa": "/ərn/",
+    "ko": "언",
+    "meaning_pos": "벌다 (동)",
+    "source": "auto"
+  },
+  "contain": {
+    "ipa": "/kənˈteɪn/",
+    "ko": "커느텐이",
+    "meaning_pos": "포함하다 (동)",
+    "source": "auto"
+  },
+  "solve": {
+    "ipa": "/sɑlv/",
+    "ko": "사르브",
+    "meaning_pos": "해결하다 (동)",
+    "source": "auto"
+  },
+  "necessary": {
+    "ipa": "/ˈnɛsəˌsɛri/",
+    "ko": "네서세리",
+    "meaning_pos": "필수적인 (형)",
+    "source": "auto"
+  },
+  "hide": {
+    "ipa": "/haɪd/",
+    "ko": "하이드",
+    "meaning_pos": "숨기다 (동)",
+    "source": "auto"
+  },
+  "raise": {
+    "ipa": "/reɪz/",
+    "ko": "레이즈",
+    "meaning_pos": "올리다, 기르다 (동)",
+    "source": "auto"
+  },
+  "desert": {
+    "ipa": "/ˈdɛzərt/",
+    "ko": "데저트",
+    "meaning_pos": "사막 (명)",
+    "source": "auto"
+  },
+  "past": {
+    "ipa": "/pæst/",
+    "ko": "패스트",
+    "meaning_pos": "과거 (명)",
+    "source": "auto"
+  },
+  "island": {
+    "ipa": "/ˈaɪlənd/",
+    "ko": "알이어느드",
+    "meaning_pos": "섬 (명)",
+    "source": "auto"
+  },
+  "courage": {
+    "ipa": "/kərɪʤ/",
+    "ko": "커어즈",
+    "meaning_pos": "용기 (명)",
+    "source": "auto"
+  },
+  "metal": {
+    "ipa": "/ˈmɛtəl/",
+    "ko": "메털",
+    "meaning_pos": "금속 (명)",
+    "source": "auto"
+  },
+  "research": {
+    "ipa": "/ˈrisərʧ/",
+    "ko": "리서츠",
+    "meaning_pos": "연구하다 (동)",
+    "source": "auto"
+  },
+  "serious": {
+    "ipa": "/ˈsɪriəs/",
+    "ko": "시리어스",
+    "meaning_pos": "심각한 (형)",
+    "source": "auto"
+  },
+  "invent": {
+    "ipa": "/ˌɪnˈvɛnt/",
+    "ko": "이느베느트",
+    "meaning_pos": "발명하다 (동)",
+    "source": "auto"
+  },
+  "station": {
+    "ipa": "/ˈsteɪʃən/",
+    "ko": "스테이션",
+    "meaning_pos": "역 (명)",
+    "source": "auto"
+  },
+  "material": {
+    "ipa": "/məˈtɪriəl/",
+    "ko": "머티리얼",
+    "meaning_pos": "재료 (명)",
+    "source": "auto"
+  },
+  "alive": {
+    "ipa": "/əˈlaɪv/",
+    "ko": "얼아이브",
+    "meaning_pos": "살아있는 (형)",
+    "source": "auto"
+  },
+  "straw": {
+    "ipa": "/strɔ/",
+    "ko": "스트로",
+    "meaning_pos": "빨대, 짚 (명)",
+    "source": "auto"
+  },
+  "perhaps": {
+    "ipa": "/pərˈhæps/",
+    "ko": "퍼해프스",
+    "meaning_pos": "아마도 (명)",
+    "source": "auto"
+  },
+  "uniform": {
+    "ipa": "/ˈjunəˌfɔrm/",
+    "ko": "윤어포르므",
+    "meaning_pos": "유니폼 (명), 일정한 (형)",
+    "source": "auto"
+  },
+  "follow": {
+    "ipa": "/ˈfɑloʊ/",
+    "ko": "팔오",
+    "meaning_pos": "따르다 (동)",
+    "source": "auto"
+  },
+  "attend": {
+    "ipa": "/əˈtɛnd/",
+    "ko": "어테느드",
+    "meaning_pos": "참석하다 (동)",
+    "source": "auto"
+  },
+  "opportunity": {
+    "ipa": "/ˌɑpərˈtunəti/",
+    "ko": "아퍼툰어티",
+    "meaning_pos": "기회 (명)",
+    "source": "auto"
+  },
+  "astronaut": {
+    "ipa": "/ˈæstrəˌnɑt/",
+    "ko": "애스트런아트",
+    "meaning_pos": "우주비행사 (명)",
+    "source": "auto"
+  },
+  "rise": {
+    "ipa": "/raɪz/",
+    "ko": "라이즈",
+    "meaning_pos": "오르다 (동)",
+    "source": "auto"
+  },
+  "universe": {
+    "ipa": "/ˈjunəˌvərs/",
+    "ko": "윤어버스",
+    "meaning_pos": "우주 (명)",
+    "source": "auto"
+  },
+  "support": {
+    "ipa": "/səˈpɔrt/",
+    "ko": "서포르트",
+    "meaning_pos": "지원하다 (동)",
+    "source": "auto"
+  },
+  "deliver": {
+    "ipa": "/dɪˈlɪvər/",
+    "ko": "딜이버",
+    "meaning_pos": "배달하다 (동)",
+    "source": "auto"
+  },
+  "language": {
+    "ipa": "/ˈlæŋgwɪʤ/",
+    "ko": "래으그워즈",
+    "meaning_pos": "언어 (명)",
+    "source": "auto"
+  },
+  "vocabulary": {
+    "ipa": "/voʊˈkæbjəˌlɛri/",
+    "ko": "보캐브열에리",
+    "meaning_pos": "어휘 (명)",
+    "source": "auto"
+  },
+  "magazine": {
+    "ipa": "/ˈmægəˌzin/",
+    "ko": "매거진",
+    "meaning_pos": "잡지 (명)",
+    "source": "auto"
+  },
+  "article": {
+    "ipa": "/ˈɑrtɪkəl/",
+    "ko": "아르터컬",
+    "meaning_pos": "기사 (명)",
+    "source": "auto"
+  },
+  "several": {
+    "ipa": "/ˈsɛvərəl/",
+    "ko": "세브럴",
+    "meaning_pos": "몇몇의 (형)",
+    "source": "auto"
+  },
+  "village": {
+    "ipa": "/ˈvɪlɪʤ/",
+    "ko": "빌어즈",
+    "meaning_pos": "마을 (명)",
+    "source": "auto"
+  },
+  "reflect": {
+    "ipa": "/rɪˈflɛkt/",
+    "ko": "리프레크트",
+    "meaning_pos": "반사하다, 반영하다 (동)",
+    "source": "auto"
+  },
+  "source": {
+    "ipa": "/sɔrs/",
+    "ko": "소르스",
+    "meaning_pos": "원천 (명)",
+    "source": "auto"
+  },
+  "purpose": {
+    "ipa": "/ˈpərpəs/",
+    "ko": "퍼퍼스",
+    "meaning_pos": "목적 (명)",
+    "source": "auto"
+  },
+  "various": {
+    "ipa": "/ˈvɛriəs/",
+    "ko": "베리어스",
+    "meaning_pos": "다양한 (형)",
+    "source": "auto"
+  },
+  "discover": {
+    "ipa": "/dɪˈskəvər/",
+    "ko": "디스커버",
+    "meaning_pos": "발견하다 (동)",
+    "source": "auto"
+  },
+  "element": {
+    "ipa": "/ˈɛləmənt/",
+    "ko": "엘엄어느트",
+    "meaning_pos": "요소 (명)",
+    "source": "auto"
+  },
+  "steam": {
+    "ipa": "/stim/",
+    "ko": "스팀",
+    "meaning_pos": "증기 (명)",
+    "source": "auto"
+  },
+  "express": {
+    "ipa": "/ɪkˈsprɛs/",
+    "ko": "이크스프레스",
+    "meaning_pos": "표현하다 (동)",
+    "source": "auto"
+  },
+  "share": {
+    "ipa": "/ʃɛr/",
+    "ko": "세르",
+    "meaning_pos": "공유하다 (동)",
+    "source": "auto"
+  },
+  "symbol": {
+    "ipa": "/ˈsɪmbəl/",
+    "ko": "시므벌",
+    "meaning_pos": "상징 (명)",
+    "source": "auto"
+  },
+  "special": {
+    "ipa": "/ˈspɛʃəl/",
+    "ko": "스페셜",
+    "meaning_pos": "특별한 (형)",
+    "source": "auto"
+  },
+  "stomach": {
+    "ipa": "/ˈstəmək/",
+    "ko": "스텀어크",
+    "meaning_pos": "위, 배 (명)",
+    "source": "auto"
+  },
+  "blank": {
+    "ipa": "/blæŋk/",
+    "ko": "브래응크",
+    "meaning_pos": "빈칸 (명)",
+    "source": "auto"
+  },
+  "effort": {
+    "ipa": "/ˈɛfərt/",
+    "ko": "에퍼트",
+    "meaning_pos": "노력 (명)",
+    "source": "auto"
+  },
+  "empty": {
+    "ipa": "/ˈɛmti/",
+    "ko": "에므프티",
+    "meaning_pos": "비어있는 (형)",
+    "source": "auto"
+  },
+  "search": {
+    "ipa": "/sərʧ/",
+    "ko": "서츠",
+    "meaning_pos": "검색하다 (동)",
+    "source": "auto"
+  },
+  "doubt": {
+    "ipa": "/daʊt/",
+    "ko": "다우트",
+    "meaning_pos": "의심하다 (동)",
+    "source": "auto"
+  },
+  "moment": {
+    "ipa": "/ˈmoʊmənt/",
+    "ko": "몸어느트",
+    "meaning_pos": "순간 (명)",
+    "source": "auto"
+  },
+  "increase": {
+    "ipa": "/ˌɪnˈkris/",
+    "ko": "이느크리스",
+    "meaning_pos": "증가하다 (동)",
+    "source": "auto"
+  },
+  "decrease": {
+    "ipa": "/ˈdiˌkris/",
+    "ko": "디크리스",
+    "meaning_pos": "감소하다 (동)",
+    "source": "auto"
+  },
+  "valuable": {
+    "ipa": "/ˈvæljəbəl/",
+    "ko": "배르여벌",
+    "meaning_pos": "가치 있는 (형)",
+    "source": "auto"
+  },
+  "journey": {
+    "ipa": "/ˈʤərni/",
+    "ko": "전이",
+    "meaning_pos": "여행 (명)",
+    "source": "auto"
+  },
+  "formal": {
+    "ipa": "/ˈfɔrməl/",
+    "ko": "포르멀",
+    "meaning_pos": "공식적인 (형)",
+    "source": "auto"
+  },
+  "soldier": {
+    "ipa": "/ˈsoʊlʤər/",
+    "ko": "소르저",
+    "meaning_pos": "군인 (형)",
+    "source": "auto"
+  },
+  "prepare": {
+    "ipa": "/priˈpɛr/",
+    "ko": "프리페르",
+    "meaning_pos": "준비하다 (동)",
+    "source": "auto"
+  },
+  "information": {
+    "ipa": "/ˌɪnˌfɔrˈmeɪʃən/",
+    "ko": "이느펌에이션",
+    "meaning_pos": "정보 (명)",
+    "source": "auto"
+  },
+  "organize": {
+    "ipa": "/ˈɔrgəˌnaɪz/",
+    "ko": "오르건아이즈",
+    "meaning_pos": "조직하다 (동)",
+    "source": "auto"
+  },
+  "method": {
+    "ipa": "/ˈmɛθəd/",
+    "ko": "메서드",
+    "meaning_pos": "방법 (명)",
+    "source": "auto"
+  },
+  "convenient": {
+    "ipa": "/kənˈvinjənt/",
+    "ko": "커느비느여느트",
+    "meaning_pos": "편리한 (형)",
+    "source": "auto"
+  },
+  "traffic": {
+    "ipa": "/ˈtræfɪk/",
+    "ko": "트래피크",
+    "meaning_pos": "교통 (명)",
+    "source": "auto"
+  },
+  "agency": {
+    "ipa": "/ˈeɪʤənsi/",
+    "ko": "에이저느시",
+    "meaning_pos": "대리점, 기관 (명)",
+    "source": "auto"
+  },
+  "distance": {
+    "ipa": "/ˈdɪstəns/",
+    "ko": "디스터느스",
+    "meaning_pos": "거리 (명)",
+    "source": "auto"
+  },
+  "path": {
+    "ipa": "/pæθ/",
+    "ko": "패스",
+    "meaning_pos": "길 (명)",
+    "source": "auto"
+  },
+  "tunnel": {
+    "ipa": "/ˈtənəl/",
+    "ko": "턴얼",
+    "meaning_pos": "터널 (명)",
+    "source": "auto"
+  },
+  "signal": {
+    "ipa": "/ˈsɪgnəl/",
+    "ko": "시그널",
+    "meaning_pos": "신호 (명)",
+    "source": "auto"
+  },
+  "ashamed": {
+    "ipa": "/əˈʃeɪmd/",
+    "ko": "어세이므드",
+    "meaning_pos": "부끄러운 (형)",
+    "source": "auto"
+  },
+  "figure": {
+    "ipa": "/ˈfɪgjər/",
+    "ko": "피그여",
+    "meaning_pos": "수치, 인물 (명)",
+    "source": "auto"
+  },
+  "storm": {
+    "ipa": "/stɔrm/",
+    "ko": "스토르므",
+    "meaning_pos": "폭풍 (명)",
+    "source": "auto"
+  },
+  "shine": {
+    "ipa": "/ʃaɪn/",
+    "ko": "산이",
+    "meaning_pos": "빛나다 (동)",
+    "source": "auto"
+  },
+  "observe": {
+    "ipa": "/əbˈzərv/",
+    "ko": "어브저브",
+    "meaning_pos": "관찰하다 (동)",
+    "source": "auto"
+  },
+  "polite": {
+    "ipa": "/pəˈlaɪt/",
+    "ko": "펄아이트",
+    "meaning_pos": "공손한 (형)",
+    "source": "auto"
+  },
+  "label": {
+    "ipa": "/ˈleɪbəl/",
+    "ko": "레이벌",
+    "meaning_pos": "상표 (명)",
+    "source": "auto"
+  },
+  "prove": {
+    "ipa": "/pruv/",
+    "ko": "프루브",
+    "meaning_pos": "증명하다 (동)",
+    "source": "auto"
+  },
+  "confuse": {
+    "ipa": "/kənfˈjuz/",
+    "ko": "커느프유즈",
+    "meaning_pos": "혼란스럽게 하다 (동)",
+    "source": "auto"
+  },
+  "eager": {
+    "ipa": "/ˈigər/",
+    "ko": "이거",
+    "meaning_pos": "열망하는 (명)",
+    "source": "auto"
+  },
+  "amount": {
+    "ipa": "/əˈmaʊnt/",
+    "ko": "엄아우느트",
+    "meaning_pos": "양 (명)",
+    "source": "auto"
+  },
+  "modern": {
+    "ipa": "/ˈmɑdərn/",
+    "ko": "마던",
+    "meaning_pos": "현대적인 (형)",
+    "source": "auto"
+  },
+  "sail": {
+    "ipa": "/seɪl/",
+    "ko": "셀이",
+    "meaning_pos": "항해하다 (동)",
+    "source": "auto"
+  },
+  "press": {
+    "ipa": "/prɛs/",
+    "ko": "프레스",
+    "meaning_pos": "누르다 (동), 언론 (명)",
+    "source": "auto"
+  },
+  "appear": {
+    "ipa": "/əˈpɪr/",
+    "ko": "어피르",
+    "meaning_pos": "나타나다 (동)",
+    "source": "auto"
+  },
+  "complain": {
+    "ipa": "/kəmˈpleɪn/",
+    "ko": "커므프렌이",
+    "meaning_pos": "불평하다 (동)",
+    "source": "auto"
+  },
+  "purse": {
+    "ipa": "/pərs/",
+    "ko": "퍼스",
+    "meaning_pos": "지갑 (명)",
+    "source": "auto"
+  },
+  "promise": {
+    "ipa": "/ˈprɑməs/",
+    "ko": "프람어스",
+    "meaning_pos": "약속하다 (동)",
+    "source": "auto"
+  },
+  "silent": {
+    "ipa": "/ˈsaɪlənt/",
+    "ko": "살이어느트",
+    "meaning_pos": "조용한 (형)",
+    "source": "auto"
+  },
+  "happen": {
+    "ipa": "/ˈhæpən/",
+    "ko": "해펀",
+    "meaning_pos": "발생하다 (동)",
+    "source": "auto"
+  },
+  "excuse": {
+    "ipa": "/ɪkˈskjuz/",
+    "ko": "이크스크유스",
+    "meaning_pos": "변명 (명), 용서하다 (동)",
+    "source": "auto"
+  },
+  "correct": {
+    "ipa": "/kərˈɛkt/",
+    "ko": "커에크트",
+    "meaning_pos": "정확한 (형), 고치다 (동)",
+    "source": "auto"
+  },
+  "inform": {
+    "ipa": "/ˌɪnˈfɔrm/",
+    "ko": "이느포르므",
+    "meaning_pos": "알리다 (동)",
+    "source": "auto"
+  },
+  "therefore": {
+    "ipa": "/ˈðɛrˌfɔr/",
+    "ko": "데르포르",
+    "meaning_pos": "그러므로 (명)",
+    "source": "auto"
+  },
+  "shape": {
+    "ipa": "/ʃeɪp/",
+    "ko": "세이프",
+    "meaning_pos": "모양 (명)",
+    "source": "auto"
+  },
+  "leave": {
+    "ipa": "/liv/",
+    "ko": "리브",
+    "meaning_pos": "떠나다, 남기다 (동)",
+    "source": "auto"
+  },
+  "grain": {
+    "ipa": "/greɪn/",
+    "ko": "그렌이",
+    "meaning_pos": "곡물 (명)",
+    "source": "auto"
+  },
+  "produce": {
+    "ipa": "/ˈproʊdus/",
+    "ko": "프러두스",
+    "meaning_pos": "생산하다 (동)",
+    "source": "auto"
+  },
+  "loyal": {
+    "ipa": "/lɔɪəl/",
+    "ko": "로이얼",
+    "meaning_pos": "충성스러운 (형)",
+    "source": "auto"
+  },
+  "manner": {
+    "ipa": "/ˈmænər/",
+    "ko": "맨어",
+    "meaning_pos": "방식 (명), 예의 (형)",
+    "source": "auto"
+  },
+  "university": {
+    "ipa": "/ˌjunəˈvərsəti/",
+    "ko": "윤어버서티",
+    "meaning_pos": "대학교 (명)",
+    "source": "auto"
+  },
+  "experience": {
+    "ipa": "/ɪkˈspɪriəns/",
+    "ko": "이크스피리어느스",
+    "meaning_pos": "경험 (명)",
+    "source": "auto"
+  },
+  "author": {
+    "ipa": "/ˈɔθər/",
+    "ko": "오서",
+    "meaning_pos": "작가 (명)",
+    "source": "auto"
+  },
+  "report": {
+    "ipa": "/rɪˈpɔrt/",
+    "ko": "리포르트",
+    "meaning_pos": "보고하다 (동)",
+    "source": "auto"
+  },
+  "effect": {
+    "ipa": "/ˈifɛkt/",
+    "ko": "이페크트",
+    "meaning_pos": "효과 (명)",
+    "source": "auto"
+  },
+  "vacation": {
+    "ipa": "/veɪˈkeɪʃən/",
+    "ko": "베이케이션",
+    "meaning_pos": "방학 (명)",
+    "source": "auto"
+  },
+  "price": {
+    "ipa": "/praɪs/",
+    "ko": "프라이스",
+    "meaning_pos": "가격 (명)",
+    "source": "auto"
+  },
+  "poem": {
+    "ipa": "/poʊəm/",
+    "ko": "포엄",
+    "meaning_pos": "시 (명)",
+    "source": "auto"
+  },
+  "prison": {
+    "ipa": "/ˈprɪzən/",
+    "ko": "프리전",
+    "meaning_pos": "감옥 (명)",
+    "source": "auto"
+  },
+  "character": {
+    "ipa": "/ˈkɛrɪktər/",
+    "ko": "케리크터",
+    "meaning_pos": "성격, 등장인물 (명)",
+    "source": "auto"
+  },
+  "hike": {
+    "ipa": "/haɪk/",
+    "ko": "하이크",
+    "meaning_pos": "하이킹하다 (동)",
+    "source": "auto"
+  },
+  "pull": {
+    "ipa": "/pʊl/",
+    "ko": "풀",
+    "meaning_pos": "당기다 (동)",
+    "source": "auto"
+  },
+  "count": {
+    "ipa": "/kaʊnt/",
+    "ko": "카우느트",
+    "meaning_pos": "세다 (동)",
+    "source": "auto"
+  },
+  "palace": {
+    "ipa": "/ˈpæləs/",
+    "ko": "팰어스",
+    "meaning_pos": "궁전 (명)",
+    "source": "auto"
+  },
+  "hurry": {
+    "ipa": "/ˈhəri/",
+    "ko": "허이",
+    "meaning_pos": "서두르다 (동)",
+    "source": "auto"
+  },
+  "tea": {
+    "ipa": "/ti/",
+    "ko": "티",
+    "meaning_pos": "차 (명)",
+    "source": "auto"
+  },
+  "curly": {
+    "ipa": "/ˈkərli/",
+    "ko": "컬이",
+    "meaning_pos": "곱슬곱슬한 (형)",
+    "source": "auto"
+  },
+  "sale": {
+    "ipa": "/seɪl/",
+    "ko": "셀이",
+    "meaning_pos": "판매 (명)",
+    "source": "auto"
+  },
+  "wonderful": {
+    "ipa": "/ˈwəndərfəl/",
+    "ko": "워느더펄",
+    "meaning_pos": "훌륭한 (형)",
+    "source": "auto"
+  },
+  "funny": {
+    "ipa": "/ˈfəni/",
+    "ko": "펀이",
+    "meaning_pos": "웃기는 (명)",
+    "source": "auto"
+  },
+  "copy": {
+    "ipa": "/ˈkɑpi/",
+    "ko": "카피",
+    "meaning_pos": "복사하다 (동)",
+    "source": "auto"
+  },
+  "brave": {
+    "ipa": "/breɪv/",
+    "ko": "브레이브",
+    "meaning_pos": "용감한 (형)",
+    "source": "auto"
+  },
+  "country": {
+    "ipa": "/ˈkəntri/",
+    "ko": "커느트리",
+    "meaning_pos": "나라, 시골 (명)",
+    "source": "auto"
+  },
+  "subject": {
+    "ipa": "/ˈsəbʤɪkt/",
+    "ko": "서브제크트",
+    "meaning_pos": "과목, 주제 (명)",
+    "source": "auto"
+  },
+  "apply": {
+    "ipa": "/əˈplaɪ/",
+    "ko": "어프라이",
+    "meaning_pos": "지원하다, 적용하다 (동)",
+    "source": "auto"
+  },
+  "factor": {
+    "ipa": "/ˈfæktər/",
+    "ko": "패크터",
+    "meaning_pos": "요인 (형)",
+    "source": "auto"
+  },
+  "recycle": {
+    "ipa": "/riˈsaɪkəl/",
+    "ko": "리사이컬",
+    "meaning_pos": "재활용하다 (동)",
+    "source": "auto"
+  },
+  "problem": {
+    "ipa": "/ˈprɑbləm/",
+    "ko": "프라브럼",
+    "meaning_pos": "문제 (명)",
+    "source": "auto"
+  },
+  "difficult": {
+    "ipa": "/ˈdɪfəkəlt/",
+    "ko": "디퍼커르트",
+    "meaning_pos": "어려운 (형)",
+    "source": "auto"
+  },
+  "bookstore": {
+    "ipa": "/ˈbʊkˌstɔr/",
+    "ko": "부크스토르",
+    "meaning_pos": "서점 (명)",
+    "source": "auto"
+  },
+  "wash": {
+    "ipa": "/wɑʃ/",
+    "ko": "와스",
+    "meaning_pos": "씻다 (동)",
+    "source": "auto"
+  },
+  "natural": {
+    "ipa": "/ˈnæʧərəl/",
+    "ko": "내처얼",
+    "meaning_pos": "자연의 (형)",
+    "source": "auto"
+  },
+  "culture": {
+    "ipa": "/ˈkəlʧər/",
+    "ko": "커르처",
+    "meaning_pos": "문화 (명)",
+    "source": "auto"
+  },
+  "exercise": {
+    "ipa": "/ˈɛksərˌsaɪz/",
+    "ko": "에크서사이즈",
+    "meaning_pos": "운동하다 (동)",
+    "source": "auto"
+  },
+  "later": {
+    "ipa": "/ˈleɪtər/",
+    "ko": "레이터",
+    "meaning_pos": "나중에 (명)",
+    "source": "auto"
+  },
+  "wolf": {
+    "ipa": "/wʊlf/",
+    "ko": "우르프",
+    "meaning_pos": "늑대 (명)",
+    "source": "auto"
+  },
+  "slide": {
+    "ipa": "/slaɪd/",
+    "ko": "스라이드",
+    "meaning_pos": "미끄러지다 (동)",
+    "source": "auto"
+  },
+  "super": {
+    "ipa": "/ˈsupər/",
+    "ko": "수퍼",
+    "meaning_pos": "최고의 (형)",
+    "source": "auto"
+  },
+  "jewel": {
+    "ipa": "/ʤuəl/",
+    "ko": "주얼",
+    "meaning_pos": "보석 (명)",
+    "source": "auto"
+  },
+  "mild": {
+    "ipa": "/maɪld/",
+    "ko": "마이르드",
+    "meaning_pos": "온화한 (형)",
+    "source": "auto"
+  },
+  "maybe": {
+    "ipa": "/ˈmeɪbi/",
+    "ko": "메이비",
+    "meaning_pos": "아마도 (명)",
+    "source": "auto"
+  },
+  "liberty": {
+    "ipa": "/ˈlɪbərˌti/",
+    "ko": "리버티",
+    "meaning_pos": "자유 (명)",
+    "source": "auto"
+  },
+  "collect": {
+    "ipa": "/kəˈlɛkt/",
+    "ko": "컬에크트",
+    "meaning_pos": "모으다 (동)",
+    "source": "auto"
+  },
+  "proud": {
+    "ipa": "/praʊd/",
+    "ko": "프라우드",
+    "meaning_pos": "자랑스러운 (형)",
+    "source": "auto"
+  },
+  "feed": {
+    "ipa": "/fid/",
+    "ko": "피드",
+    "meaning_pos": "먹이다 (동)",
+    "source": "auto"
+  },
+  "agree": {
+    "ipa": "/əˈgri/",
+    "ko": "어그리",
+    "meaning_pos": "동의하다 (동)",
+    "source": "auto"
+  },
+  "calendar": {
+    "ipa": "/ˈkæləndər/",
+    "ko": "캘어느더",
+    "meaning_pos": "달력 (명)",
+    "source": "auto"
+  },
+  "compare": {
+    "ipa": "/kəmˈpɛr/",
+    "ko": "커므페르",
+    "meaning_pos": "비교하다 (동)",
+    "source": "auto"
+  },
+  "surf": {
+    "ipa": "/sərf/",
+    "ko": "서프",
+    "meaning_pos": "파도타기를 하다 (동)",
+    "source": "auto"
+  },
+  "playground": {
+    "ipa": "/ˈpleɪˌgraʊnd/",
+    "ko": "프레이그라우느드",
+    "meaning_pos": "놀이터 (명)",
+    "source": "auto"
+  },
+  "ride": {
+    "ipa": "/raɪd/",
+    "ko": "라이드",
+    "meaning_pos": "타다 (동)",
+    "source": "auto"
+  },
+  "outcome": {
+    "ipa": "/ˈaʊtˌkəm/",
+    "ko": "아우트컴",
+    "meaning_pos": "결과 (명)",
+    "source": "auto"
+  },
+  "favorite": {
+    "ipa": "/ˈfeɪvərɪt/",
+    "ko": "페이버이트",
+    "meaning_pos": "가장 좋아하는 (명)",
+    "source": "auto"
+  },
+  "pill": {
+    "ipa": "/pɪl/",
+    "ko": "필",
+    "meaning_pos": "알약 (명)",
+    "source": "auto"
+  },
+  "spicy": {
+    "ipa": "/ˈspaɪsi/",
+    "ko": "스파이시",
+    "meaning_pos": "매운 (형)",
+    "source": "auto"
+  },
+  "main": {
+    "ipa": "/meɪn/",
+    "ko": "멘이",
+    "meaning_pos": "주요한 (형)",
+    "source": "auto"
+  },
+  "ocean": {
+    "ipa": "/ˈoʊʃən/",
+    "ko": "오션",
+    "meaning_pos": "대양 (명)",
+    "source": "auto"
+  },
+  "wise": {
+    "ipa": "/waɪz/",
+    "ko": "와이즈",
+    "meaning_pos": "지혜로운 (형)",
+    "source": "auto"
+  },
+  "bored": {
+    "ipa": "/bɔrd/",
+    "ko": "보르드",
+    "meaning_pos": "지루해하는 (명)",
+    "source": "auto"
+  },
+  "chore": {
+    "ipa": "/ʧɔr/",
+    "ko": "초르",
+    "meaning_pos": "집안일 (명)",
+    "source": "auto"
+  },
+  "travel": {
+    "ipa": "/ˈtrævəl/",
+    "ko": "트래벌",
+    "meaning_pos": "여행하다 (동)",
+    "source": "auto"
+  },
+  "waste": {
+    "ipa": "/weɪst/",
+    "ko": "웨이스트",
+    "meaning_pos": "낭비하다 (동)",
+    "source": "auto"
+  },
+  "begin": {
+    "ipa": "/bɪˈgɪn/",
+    "ko": "비긴",
+    "meaning_pos": "시작하다 (동)",
+    "source": "auto"
+  },
+  "navy": {
+    "ipa": "/ˈneɪvi/",
+    "ko": "네이비",
+    "meaning_pos": "해군 (명)",
+    "source": "auto"
+  },
+  "boom": {
+    "ipa": "/bum/",
+    "ko": "붐",
+    "meaning_pos": "호황 (명)",
+    "source": "auto"
+  },
+  "child": {
+    "ipa": "/ʧaɪld/",
+    "ko": "차이르드",
+    "meaning_pos": "아이 (명)",
+    "source": "auto"
+  },
+  "thermometer": {
+    "ipa": "/θərˈmɑmətər/",
+    "ko": "섬암어터",
+    "meaning_pos": "온도계 (명)",
+    "source": "auto"
+  },
+  "progress": {
+    "ipa": "/ˈprɑˌgrɛs/",
+    "ko": "프라그레스",
+    "meaning_pos": "진전 (명)",
+    "source": "auto"
+  },
+  "elect": {
+    "ipa": "/ɪˈlɛkt/",
+    "ko": "일에크트",
+    "meaning_pos": "선출하다 (동)",
+    "source": "auto"
+  },
+  "improve": {
+    "ipa": "/ˌɪmˈpruv/",
+    "ko": "이므프루브",
+    "meaning_pos": "향상시키다 (동)",
+    "source": "auto"
+  },
+  "spirit": {
+    "ipa": "/ˈspɪrɪt/",
+    "ko": "스피러트",
+    "meaning_pos": "정신 (명)",
+    "source": "auto"
+  },
+  "labor": {
+    "ipa": "/ˈleɪbər/",
+    "ko": "레이버",
+    "meaning_pos": "노동 (명)",
+    "source": "auto"
+  },
+  "shadow": {
+    "ipa": "/ˈʃæˌdoʊ/",
+    "ko": "새도",
+    "meaning_pos": "그림자 (명)",
+    "source": "auto"
+  },
+  "annoy": {
+    "ipa": "/əˈnɔɪ/",
+    "ko": "언오이",
+    "meaning_pos": "짜증나게 하다 (동)",
+    "source": "auto"
+  },
+  "include": {
+    "ipa": "/ˌɪnˈklud/",
+    "ko": "이느크루드",
+    "meaning_pos": "포함하다 (동)",
+    "source": "auto"
+  },
+  "weapon": {
+    "ipa": "/ˈwɛpən/",
+    "ko": "웨펀",
+    "meaning_pos": "무기 (명)",
+    "source": "auto"
+  },
+  "immune": {
+    "ipa": "/ˌɪmˈjun/",
+    "ko": "이므윤",
+    "meaning_pos": "면역성이 있는 (형)",
+    "source": "auto"
+  },
+  "vomit": {
+    "ipa": "/ˈvɑmət/",
+    "ko": "밤어트",
+    "meaning_pos": "토하다 (동)",
+    "source": "auto"
+  },
+  "remind": {
+    "ipa": "/riˈmaɪnd/",
+    "ko": "림아이느드",
+    "meaning_pos": "상기시키다 (동)",
+    "source": "auto"
+  },
+  "wage": {
+    "ipa": "/weɪʤ/",
+    "ko": "웨이즈",
+    "meaning_pos": "임금 (명)",
+    "source": "auto"
+  },
+  "protect": {
+    "ipa": "/prəˈtɛkt/",
+    "ko": "프러테크트",
+    "meaning_pos": "보호하다 (동)",
+    "source": "auto"
+  },
+  "suffer": {
+    "ipa": "/ˈsəfər/",
+    "ko": "서퍼",
+    "meaning_pos": "고통받다 (동)",
+    "source": "auto"
+  },
+  "income": {
+    "ipa": "/ˈɪnˌkəm/",
+    "ko": "이느컴",
+    "meaning_pos": "소득 (명)",
+    "source": "auto"
+  },
+  "attempt": {
+    "ipa": "/əˈtɛmpt/",
+    "ko": "어테므프트",
+    "meaning_pos": "시도하다 (동)",
+    "source": "auto"
+  },
+  "found": {
+    "ipa": "/faʊnd/",
+    "ko": "파우느드",
+    "meaning_pos": "설립하다 (동)",
+    "source": "auto"
+  },
+  "supply": {
+    "ipa": "/səˈplaɪ/",
+    "ko": "서프라이",
+    "meaning_pos": "공급하다 (동)",
+    "source": "auto"
+  },
+  "principal": {
+    "ipa": "/ˈprɪnsəpəl/",
+    "ko": "프리느서펄",
+    "meaning_pos": "교장 (명), 주요한 (형)",
+    "source": "auto"
+  },
+  "wrinkle": {
+    "ipa": "/ˈrɪŋkəl/",
+    "ko": "리으컬",
+    "meaning_pos": "주름 (명)",
+    "source": "auto"
+  },
+  "scale": {
+    "ipa": "/skeɪl/",
+    "ko": "스켈이",
+    "meaning_pos": "규모, 저울 (명)",
+    "source": "auto"
+  },
+  "obtain": {
+    "ipa": "/əbˈteɪn/",
+    "ko": "어브텐이",
+    "meaning_pos": "얻다 (동)",
+    "source": "auto"
+  },
+  "affect": {
+    "ipa": "/əˈfɛkt/",
+    "ko": "어페크트",
+    "meaning_pos": "영향을 미치다 (동)",
+    "source": "auto"
+  },
+  "average": {
+    "ipa": "/ˈævərɪʤ/",
+    "ko": "애버이즈",
+    "meaning_pos": "평균 (명)",
+    "source": "auto"
+  },
+  "crisis": {
+    "ipa": "/ˈkraɪsəs/",
+    "ko": "크라이서스",
+    "meaning_pos": "위기 (명)",
+    "source": "auto"
+  },
+  "citizen": {
+    "ipa": "/ˈsɪtɪzən/",
+    "ko": "시터전",
+    "meaning_pos": "시민 (명)",
+    "source": "auto"
+  },
+  "fellow": {
+    "ipa": "/ˈfɛloʊ/",
+    "ko": "펠오",
+    "meaning_pos": "동료 (명)",
+    "source": "auto"
+  },
+  "suppose": {
+    "ipa": "/səˈpoʊz/",
+    "ko": "서포즈",
+    "meaning_pos": "가정하다 (동)",
+    "source": "auto"
+  },
+  "passenger": {
+    "ipa": "/ˈpæsənʤər/",
+    "ko": "패서느저",
+    "meaning_pos": "승객 (명)",
+    "source": "auto"
+  },
+  "emotion": {
+    "ipa": "/ˈiˌmoʊʃən/",
+    "ko": "임오션",
+    "meaning_pos": "감정 (명)",
+    "source": "auto"
+  },
+  "obey": {
+    "ipa": "/oʊˈbeɪ/",
+    "ko": "오베이",
+    "meaning_pos": "복종하다 (동)",
+    "source": "auto"
+  },
+  "claim": {
+    "ipa": "/kleɪm/",
+    "ko": "크렘이",
+    "meaning_pos": "주장하다 (동)",
+    "source": "auto"
+  },
+  "involve": {
+    "ipa": "/ˌɪnˈvɑlv/",
+    "ko": "이느바르브",
+    "meaning_pos": "포함하다, 관련시키다 (동)",
+    "source": "auto"
+  },
+  "quality": {
+    "ipa": "/kˈwɑləti/",
+    "ko": "크왈어티",
+    "meaning_pos": "질 (명)",
+    "source": "auto"
+  },
+  "provide": {
+    "ipa": "/prəˈvaɪd/",
+    "ko": "프러바이드",
+    "meaning_pos": "제공하다 (동)",
+    "source": "auto"
+  },
+  "physical": {
+    "ipa": "/ˈfɪzɪkəl/",
+    "ko": "피지컬",
+    "meaning_pos": "신체의, 물리적인 (형)",
+    "source": "auto"
+  },
+  "measure": {
+    "ipa": "/ˈmɛʒər/",
+    "ko": "메저",
+    "meaning_pos": "측정하다 (동)",
+    "source": "auto"
+  },
+  "overweight": {
+    "ipa": "/ˌoʊvərˈweɪt/",
+    "ko": "오버웨이트",
+    "meaning_pos": "과체중의 (형)",
+    "source": "auto"
+  },
+  "particular": {
+    "ipa": "/ˌpɑˈtɪkjələr/",
+    "ko": "퍼티크열어",
+    "meaning_pos": "특정한 (형)",
+    "source": "auto"
+  },
+  "unless": {
+    "ipa": "/ənˈlɛs/",
+    "ko": "어느레스",
+    "meaning_pos": "~하지 않으면 (명)",
+    "source": "auto"
+  },
+  "otherwise": {
+    "ipa": "/ˈəðərˌwaɪz/",
+    "ko": "어더와이즈",
+    "meaning_pos": "그렇지 않으면 (명)",
+    "source": "auto"
+  },
+  "rush": {
+    "ipa": "/rəʃ/",
+    "ko": "러스",
+    "meaning_pos": "서두르다 (동)",
+    "source": "auto"
+  },
+  "position": {
+    "ipa": "/pəˈzɪʃən/",
+    "ko": "퍼지션",
+    "meaning_pos": "위치, 직책 (명)",
+    "source": "auto"
+  },
+  "entertain": {
+    "ipa": "/ˌɛnərˈteɪn/",
+    "ko": "에느터텐이",
+    "meaning_pos": "즐겁게 하다 (동)",
+    "source": "auto"
+  },
+  "terrible": {
+    "ipa": "/ˈtɛrəbəl/",
+    "ko": "테러벌",
+    "meaning_pos": "끔찍한 (형)",
+    "source": "auto"
+  },
+  "industry": {
+    "ipa": "/ˈɪndəstri/",
+    "ko": "이느더스트리",
+    "meaning_pos": "산업 (명)",
+    "source": "auto"
+  },
+  "refrigerator": {
+    "ipa": "/rɪˈfrɪʤərˌeɪtər/",
+    "ko": "러프리저에이터",
+    "meaning_pos": "냉장고 (명)",
+    "source": "auto"
+  },
+  "crime": {
+    "ipa": "/kraɪm/",
+    "ko": "크람이",
+    "meaning_pos": "범죄 (명)",
+    "source": "auto"
+  },
+  "range": {
+    "ipa": "/reɪnʤ/",
+    "ko": "레이느즈",
+    "meaning_pos": "범위 (명)",
+    "source": "auto"
+  },
+  "mention": {
+    "ipa": "/ˈmɛnʃən/",
+    "ko": "메느션",
+    "meaning_pos": "언급하다 (동)",
+    "source": "auto"
+  },
+  "settle": {
+    "ipa": "/ˈsɛtəl/",
+    "ko": "세털",
+    "meaning_pos": "정착하다, 해결하다 (동)",
+    "source": "auto"
+  },
+  "blame": {
+    "ipa": "/bleɪm/",
+    "ko": "브렘이",
+    "meaning_pos": "비난하다 (동)",
+    "source": "auto"
+  },
+  "refuse": {
+    "ipa": "/ˈrɛfˌjuz/",
+    "ko": "러프유즈",
+    "meaning_pos": "거절하다 (동)",
+    "source": "auto"
+  },
+  "pregnant": {
+    "ipa": "/ˈprɛgnənt/",
+    "ko": "프레그너느트",
+    "meaning_pos": "임신한 (형)",
+    "source": "auto"
+  },
+  "invite": {
+    "ipa": "/ˌɪnˈvaɪt/",
+    "ko": "이느바이트",
+    "meaning_pos": "초대하다 (동)",
+    "source": "auto"
+  },
+  "require": {
+    "ipa": "/ˌrikˈwaɪər/",
+    "ko": "리크와이어",
+    "meaning_pos": "요구하다 (동)",
+    "source": "auto"
+  },
+  "edge": {
+    "ipa": "/ɛʤ/",
+    "ko": "에즈",
+    "meaning_pos": "가장자리 (명)",
+    "source": "auto"
+  },
+  "dozen": {
+    "ipa": "/ˈdəzən/",
+    "ko": "더전",
+    "meaning_pos": "1다스(12개) (명)",
+    "source": "auto"
+  },
+  "charge": {
+    "ipa": "/ʧɑrʤ/",
+    "ko": "차르즈",
+    "meaning_pos": "청구하다, 충전하다 (동)",
+    "source": "auto"
+  },
+  "symptom": {
+    "ipa": "/ˈsɪmptəm/",
+    "ko": "시므프텀",
+    "meaning_pos": "증상 (명)",
+    "source": "auto"
+  },
+  "merchant": {
+    "ipa": "/ˈmərʧənt/",
+    "ko": "머처느트",
+    "meaning_pos": "상인 (형)",
+    "source": "auto"
+  },
+  "continent": {
+    "ipa": "/ˈkɑntənənt/",
+    "ko": "카느턴어느트",
+    "meaning_pos": "대륙 (명)",
+    "source": "auto"
+  },
+  "replace": {
+    "ipa": "/ˌriˈpleɪs/",
+    "ko": "리프레이스",
+    "meaning_pos": "대체하다 (동)",
+    "source": "auto"
+  },
+  "consist": {
+    "ipa": "/kənˈsɪst/",
+    "ko": "커느시스트",
+    "meaning_pos": "구성되다 (동)",
+    "source": "auto"
+  },
+  "especially": {
+    "ipa": "/əˈspɛʃəli/",
+    "ko": "어스페스리",
+    "meaning_pos": "특히 (부)",
+    "source": "auto"
+  },
+  "command": {
+    "ipa": "/kəˈmænd/",
+    "ko": "컴애느드",
+    "meaning_pos": "명령하다 (동)",
+    "source": "auto"
+  },
+  "complete": {
+    "ipa": "/kəmˈplit/",
+    "ko": "커므프리트",
+    "meaning_pos": "완료하다 (동)",
+    "source": "auto"
+  },
+  "regard": {
+    "ipa": "/rɪˈgɑrd/",
+    "ko": "리가르드",
+    "meaning_pos": "여기다 (동)",
+    "source": "auto"
+  },
+  "climate": {
+    "ipa": "/ˈklaɪmɪt/",
+    "ko": "크람이어트",
+    "meaning_pos": "기후 (명)",
+    "source": "auto"
+  },
+  "protest": {
+    "ipa": "/ˈproʊˌtɛst/",
+    "ko": "프로테스트",
+    "meaning_pos": "항의하다 (동)",
+    "source": "auto"
+  },
+  "narrow": {
+    "ipa": "/ˈnɛroʊ/",
+    "ko": "네로",
+    "meaning_pos": "좁은 (형)",
+    "source": "auto"
+  },
+  "target": {
+    "ipa": "/ˈtərgət/",
+    "ko": "타르거트",
+    "meaning_pos": "목표 (명)",
+    "source": "auto"
+  },
+  "imitate": {
+    "ipa": "/ˈɪməˌteɪt/",
+    "ko": "임어테이트",
+    "meaning_pos": "모방하다 (동)",
+    "source": "auto"
+  },
+  "whether": {
+    "ipa": "/ˈwɛðər/",
+    "ko": "웨더",
+    "meaning_pos": "~인지 아닌지 (명)",
+    "source": "auto"
+  },
+  "swallow": {
+    "ipa": "/sˈwɔloʊ/",
+    "ko": "스왈오",
+    "meaning_pos": "삼키다 (동)",
+    "source": "auto"
+  },
+  "flame": {
+    "ipa": "/fleɪm/",
+    "ko": "프렘이",
+    "meaning_pos": "불꽃 (명)",
+    "source": "auto"
+  },
+  "concern": {
+    "ipa": "/kənˈsərn/",
+    "ko": "커느선",
+    "meaning_pos": "걱정, 관심 (명)",
+    "source": "auto"
+  },
+  "estimate": {
+    "ipa": "/ˈɛstəˌmeɪt/",
+    "ko": "에스텀어트",
+    "meaning_pos": "추정하다 (동)",
+    "source": "auto"
+  },
+  "anxious": {
+    "ipa": "/ˈæŋʃəs/",
+    "ko": "애으크셔스",
+    "meaning_pos": "불안한 (형), 열망하는 (명)",
+    "source": "auto"
+  },
+  "miserable": {
+    "ipa": "/ˈmɪzərəbəl/",
+    "ko": "미저어벌",
+    "meaning_pos": "비참한 (형)",
+    "source": "auto"
+  },
+  "divide": {
+    "ipa": "/dɪˈvaɪd/",
+    "ko": "디바이드",
+    "meaning_pos": "나누다 (동)",
+    "source": "auto"
+  },
+  "exceed": {
+    "ipa": "/ɪkˈsid/",
+    "ko": "이크시드",
+    "meaning_pos": "초과하다 (동)",
+    "source": "auto"
+  },
+  "depressed": {
+    "ipa": "/dɪˈprɛst/",
+    "ko": "디프레스트",
+    "meaning_pos": "우울한 (형)",
+    "source": "auto"
+  },
+  "therapy": {
+    "ipa": "/ˈθɛrəpi/",
+    "ko": "세러피",
+    "meaning_pos": "치료 (명)",
+    "source": "auto"
+  },
+  "adjust": {
+    "ipa": "/əˈʤəst/",
+    "ko": "어저스트",
+    "meaning_pos": "조절하다, 적응하다 (동)",
+    "source": "auto"
+  },
+  "senior": {
+    "ipa": "/ˈsinjər/",
+    "ko": "시느여",
+    "meaning_pos": "연상의, 선배의 (형)",
+    "source": "auto"
+  },
+  "joint": {
+    "ipa": "/ʤɔɪnt/",
+    "ko": "조이느트",
+    "meaning_pos": "관절 (명), 공동의 (형)",
+    "source": "auto"
+  },
+  "whatever": {
+    "ipa": "/ˌwəˈtɛvər/",
+    "ko": "워테버",
+    "meaning_pos": "무엇이든지 (명)",
+    "source": "auto"
+  },
+  "snore": {
+    "ipa": "/snɔr/",
+    "ko": "스노르",
+    "meaning_pos": "코를 골다 (동)",
+    "source": "auto"
+  },
+  "breath": {
+    "ipa": "/brɛθ/",
+    "ko": "브레스",
+    "meaning_pos": "숨 (명)",
+    "source": "auto"
+  },
+  "vision": {
+    "ipa": "/ˈvɪʒən/",
+    "ko": "비전",
+    "meaning_pos": "시력, 비전 (명)",
+    "source": "auto"
+  },
+  "altogether": {
+    "ipa": "/ˌɔltəˈgɛðər/",
+    "ko": "오르터게더",
+    "meaning_pos": "완전히 (부)",
+    "source": "auto"
+  },
+  "shut": {
+    "ipa": "/ʃət/",
+    "ko": "셔트",
+    "meaning_pos": "닫다 (동)",
+    "source": "auto"
+  },
+  "wander": {
+    "ipa": "/ˈwɑndər/",
+    "ko": "와느더",
+    "meaning_pos": "돌아다니다 (동)",
+    "source": "auto"
+  },
+  "random": {
+    "ipa": "/ˈrændəm/",
+    "ko": "래느덤",
+    "meaning_pos": "무작위의 (형)",
+    "source": "auto"
+  },
+  "shore": {
+    "ipa": "/ʃɔr/",
+    "ko": "소르",
+    "meaning_pos": "물가, 해안 (명)",
+    "source": "auto"
+  },
+  "sincere": {
+    "ipa": "/sɪnˈsɪr/",
+    "ko": "시느시르",
+    "meaning_pos": "진실된 (명)",
+    "source": "auto"
+  },
+  "salary": {
+    "ipa": "/ˈsæləri/",
+    "ko": "샐어이",
+    "meaning_pos": "급여 (명)",
+    "source": "auto"
+  },
+  "passive": {
+    "ipa": "/ˈpæsɪv/",
+    "ko": "패시브",
+    "meaning_pos": "수동적인 (형)",
+    "source": "auto"
+  },
+  "system": {
+    "ipa": "/ˈsɪstəm/",
+    "ko": "시스텀",
+    "meaning_pos": "체계 (명)",
+    "source": "auto"
+  },
+  "assume": {
+    "ipa": "/əˈsum/",
+    "ko": "어숨",
+    "meaning_pos": "추정하다 (동)",
+    "source": "auto"
+  },
+  "delicate": {
+    "ipa": "/ˈdɛləkət/",
+    "ko": "델어커트",
+    "meaning_pos": "섬세한 (형)",
+    "source": "auto"
+  },
+  "worth": {
+    "ipa": "/wərθ/",
+    "ko": "워스",
+    "meaning_pos": "가치 (명)",
+    "source": "auto"
+  },
+  "though": {
+    "ipa": "/ðoʊ/",
+    "ko": "도",
+    "meaning_pos": "비록 ~일지라도 (명)",
+    "source": "auto"
+  },
+  "paste": {
+    "ipa": "/peɪst/",
+    "ko": "페이스트",
+    "meaning_pos": "풀 (명), 붙이다 (동)",
+    "source": "auto"
+  },
+  "calculate": {
+    "ipa": "/ˈkælkjəˌleɪt/",
+    "ko": "캐르크열에이트",
+    "meaning_pos": "계산하다 (동)",
+    "source": "auto"
+  },
+  "grateful": {
+    "ipa": "/ˈgreɪtfəl/",
+    "ko": "그레이트펄",
+    "meaning_pos": "감사하는 (명)",
+    "source": "auto"
+  },
+  "honest": {
+    "ipa": "/ˈɑnəst/",
+    "ko": "안어스트",
+    "meaning_pos": "정직한 (형)",
+    "source": "auto"
+  },
+  "multiple": {
+    "ipa": "/ˈməltəpəl/",
+    "ko": "머르터펄",
+    "meaning_pos": "다수의 (형)",
+    "source": "auto"
+  },
+  "thrill": {
+    "ipa": "/θrɪl/",
+    "ko": "스릴",
+    "meaning_pos": "스릴, 흥분 (명)",
+    "source": "auto"
+  },
+  "commercial": {
+    "ipa": "/kəˈmərʃəl/",
+    "ko": "컴어셜",
+    "meaning_pos": "상업의 (형), 광고 (명)",
+    "source": "auto"
+  },
+  "nature": {
+    "ipa": "/ˈneɪʧər/",
+    "ko": "네이처",
+    "meaning_pos": "자연, 본성 (명)",
+    "source": "auto"
+  },
+  "quantity": {
+    "ipa": "/kˈwɑntəti/",
+    "ko": "크와느터티",
+    "meaning_pos": "양 (명)",
+    "source": "auto"
+  },
+  "microwave": {
+    "ipa": "/ˈmaɪkrəˌweɪv/",
+    "ko": "마이크러웨이브",
+    "meaning_pos": "전자레인지 (명)",
+    "source": "auto"
+  },
+  "worship": {
+    "ipa": "/ˈwərʃɪp/",
+    "ko": "워셔프",
+    "meaning_pos": "숭배하다 (동)",
+    "source": "auto"
+  },
+  "negative": {
+    "ipa": "/ˈnɛgətɪv/",
+    "ko": "네거티브",
+    "meaning_pos": "부정적인 (형)",
+    "source": "auto"
+  },
+  "domestic": {
+    "ipa": "/dəˈmɛstɪk/",
+    "ko": "덤에스티크",
+    "meaning_pos": "국내의, 가정의 (형)",
+    "source": "auto"
+  },
+  "pioneer": {
+    "ipa": "/ˌpaɪəˈnɪr/",
+    "ko": "파이언이르",
+    "meaning_pos": "개척자 (명)",
+    "source": "auto"
+  },
+  "defeat": {
+    "ipa": "/dɪˈfit/",
+    "ko": "디피트",
+    "meaning_pos": "패배시키다 (동)",
+    "source": "auto"
+  },
+  "explode": {
+    "ipa": "/ɪkˈsploʊd/",
+    "ko": "이크스프로드",
+    "meaning_pos": "폭발하다 (동)",
+    "source": "auto"
+  },
+  "burst": {
+    "ipa": "/bərst/",
+    "ko": "버스트",
+    "meaning_pos": "터지다 (동)",
+    "source": "auto"
+  },
+  "agent": {
+    "ipa": "/ˈeɪʤənt/",
+    "ko": "에이저느트",
+    "meaning_pos": "대리인 (형)",
+    "source": "auto"
+  },
+  "potential": {
+    "ipa": "/pəˈtɛnʃəl/",
+    "ko": "퍼테느셜",
+    "meaning_pos": "잠재적인 (형)",
+    "source": "auto"
+  },
+  "inspect": {
+    "ipa": "/ˌɪnˈspɛkt/",
+    "ko": "이느스페크트",
+    "meaning_pos": "검사하다 (동)",
+    "source": "auto"
+  },
+  "disturb": {
+    "ipa": "/dɪˈstərb/",
+    "ko": "디스터브",
+    "meaning_pos": "방해하다 (동)",
+    "source": "auto"
+  },
+  "leak": {
+    "ipa": "/lik/",
+    "ko": "리크",
+    "meaning_pos": "새다 (동)",
+    "source": "auto"
+  },
+  "standard": {
+    "ipa": "/ˈstændərd/",
+    "ko": "스태느더드",
+    "meaning_pos": "표준 (명)",
+    "source": "auto"
+  },
+  "preserve": {
+    "ipa": "/prɪˈzərv/",
+    "ko": "프러저브",
+    "meaning_pos": "보존하다 (동)",
+    "source": "auto"
+  },
+  "index": {
+    "ipa": "/ˈɪndɛks/",
+    "ko": "이느데크스",
+    "meaning_pos": "색인 (형), 지수 (명)",
+    "source": "auto"
+  },
+  "biography": {
+    "ipa": "/baɪˈɑgrəfi/",
+    "ko": "바이아그러피",
+    "meaning_pos": "전기(일대기) (명)",
+    "source": "auto"
+  },
+  "laboratory": {
+    "ipa": "/ˈlæbrəˌtɔri/",
+    "ko": "래브러토리",
+    "meaning_pos": "실험실 (명)",
+    "source": "auto"
+  },
+  "acid": {
+    "ipa": "/ˈæsəd/",
+    "ko": "애서드",
+    "meaning_pos": "산 (명), 산성의 (형)",
+    "source": "auto"
+  },
+  "peel": {
+    "ipa": "/pil/",
+    "ko": "필",
+    "meaning_pos": "껍질을 벗기다 (동)",
+    "source": "auto"
+  },
+  "statue": {
+    "ipa": "/ˈstæˌʧu/",
+    "ko": "스태추",
+    "meaning_pos": "조각상 (명)",
+    "source": "auto"
+  },
+  "tragedy": {
+    "ipa": "/ˈtræʤədi/",
+    "ko": "트래저디",
+    "meaning_pos": "비극 (명)",
+    "source": "auto"
+  },
+  "prime": {
+    "ipa": "/praɪm/",
+    "ko": "프람이",
+    "meaning_pos": "주요한, 최고의 (형)",
+    "source": "auto"
+  },
+  "pray": {
+    "ipa": "/preɪ/",
+    "ko": "프레이",
+    "meaning_pos": "기도하다 (동)",
+    "source": "auto"
+  },
+  "arrange": {
+    "ipa": "/əreɪnʤ/",
+    "ko": "어에이느즈",
+    "meaning_pos": "배열하다, 마련하다 (동)",
+    "source": "auto"
+  },
+  "contrast": {
+    "ipa": "/ˈkɑntræst/",
+    "ko": "카느트래스트",
+    "meaning_pos": "대조하다 (동)",
+    "source": "auto"
+  },
+  "defect": {
+    "ipa": "/ˈdifɛkt/",
+    "ko": "디페크트",
+    "meaning_pos": "결함 (명)",
+    "source": "auto"
+  },
+  "harmony": {
+    "ipa": "/ˈhɑrməni/",
+    "ko": "하르먼이",
+    "meaning_pos": "조화 (명)",
+    "source": "auto"
+  },
+  "pale": {
+    "ipa": "/peɪl/",
+    "ko": "펠이",
+    "meaning_pos": "창백한 (형)",
+    "source": "auto"
+  },
+  "despite": {
+    "ipa": "/dɪˈspaɪt/",
+    "ko": "디스파이트",
+    "meaning_pos": "~에도 불구하고 (명)",
+    "source": "auto"
+  },
+  "rival": {
+    "ipa": "/ˈraɪvəl/",
+    "ko": "라이벌",
+    "meaning_pos": "경쟁자 (명)",
+    "source": "auto"
+  },
+  "faint": {
+    "ipa": "/feɪnt/",
+    "ko": "페이느트",
+    "meaning_pos": "희미한 (형), 기절하다 (동)",
+    "source": "auto"
+  },
+  "fever": {
+    "ipa": "/ˈfivər/",
+    "ko": "피버",
+    "meaning_pos": "열 (명)",
+    "source": "auto"
+  },
+  "classify": {
+    "ipa": "/ˈklæsəˌfaɪ/",
+    "ko": "크래서파이",
+    "meaning_pos": "분류하다 (동)",
+    "source": "auto"
+  },
+  "relieve": {
+    "ipa": "/rɪˈliv/",
+    "ko": "릴이브",
+    "meaning_pos": "덜어주다 (동)",
+    "source": "auto"
+  },
+  "format": {
+    "ipa": "/ˈfɔrˌmæt/",
+    "ko": "포르매트",
+    "meaning_pos": "체제, 형태 (명)",
+    "source": "auto"
+  },
+  "faith": {
+    "ipa": "/feɪθ/",
+    "ko": "페이스",
+    "meaning_pos": "믿음 (명)",
+    "source": "auto"
+  },
+  "holy": {
+    "ipa": "/ˈhoʊli/",
+    "ko": "홀이",
+    "meaning_pos": "신성한 (형)",
+    "source": "auto"
+  },
+  "sacred": {
+    "ipa": "/ˈseɪkrɪd/",
+    "ko": "세이크러드",
+    "meaning_pos": "신성한 (형)",
+    "source": "auto"
+  },
+  "wire": {
+    "ipa": "/waɪər/",
+    "ko": "와이어",
+    "meaning_pos": "철사, 전선 (명)",
+    "source": "auto"
+  },
+  "million": {
+    "ipa": "/ˈmɪljən/",
+    "ko": "미르연",
+    "meaning_pos": "100만 (명)",
+    "source": "auto"
+  },
+  "classic": {
+    "ipa": "/ˈklæsɪk/",
+    "ko": "크래시크",
+    "meaning_pos": "고전적인 (형)",
+    "source": "auto"
+  },
+  "capture": {
+    "ipa": "/ˈkæpʧər/",
+    "ko": "캐프처",
+    "meaning_pos": "포획하다 (동)",
+    "source": "auto"
+  },
+  "miss": {
+    "ipa": "/mɪs/",
+    "ko": "미스",
+    "meaning_pos": "놓치다, 그리워하다 (동)",
+    "source": "auto"
+  },
+  "humor": {
+    "ipa": "/ˈhjumər/",
+    "ko": "흐윰어",
+    "meaning_pos": "유머 (명)",
+    "source": "auto"
+  },
+  "approve": {
+    "ipa": "/əˈpruv/",
+    "ko": "어프루브",
+    "meaning_pos": "찬성하다, 승인하다 (동)",
+    "source": "auto"
+  },
+  "lecture": {
+    "ipa": "/ˈlɛkʧər/",
+    "ko": "레크처",
+    "meaning_pos": "강의 (형)",
+    "source": "auto"
+  },
+  "bottom": {
+    "ipa": "/ˈbɑtəm/",
+    "ko": "바텀",
+    "meaning_pos": "바닥 (명)",
+    "source": "auto"
+  },
+  "attention": {
+    "ipa": "/əˈtɛnʃən/",
+    "ko": "어테느션",
+    "meaning_pos": "주의 (형)",
+    "source": "auto"
+  },
+  "terminal": {
+    "ipa": "/ˈtərmənəl/",
+    "ko": "텀언얼",
+    "meaning_pos": "터미널 (명), 말기의 (형)",
+    "source": "auto"
+  },
+  "breeze": {
+    "ipa": "/briz/",
+    "ko": "브리즈",
+    "meaning_pos": "산들바람 (명)",
+    "source": "auto"
+  },
+  "assess": {
+    "ipa": "/əˈsɛs/",
+    "ko": "어세스",
+    "meaning_pos": "평가하다 (동)",
+    "source": "auto"
+  },
+  "monitor": {
+    "ipa": "/ˈmɑnətər/",
+    "ko": "만어터",
+    "meaning_pos": "화면 (명), 감시하다 (동)",
+    "source": "auto"
+  },
+  "fountain": {
+    "ipa": "/ˈfaʊntən/",
+    "ko": "파우느턴",
+    "meaning_pos": "분수 (명)",
+    "source": "auto"
+  },
+  "evaluate": {
+    "ipa": "/ɪˈvæljuˌeɪt/",
+    "ko": "이배르유에이트",
+    "meaning_pos": "평가하다 (동)",
+    "source": "auto"
+  },
+  "consult": {
+    "ipa": "/kənˈsəlt/",
+    "ko": "커느서르트",
+    "meaning_pos": "상담하다 (동)",
+    "source": "auto"
+  },
+  "counsel": {
+    "ipa": "/ˈkaʊnsəl/",
+    "ko": "카우느설",
+    "meaning_pos": "조언하다 (동)",
+    "source": "auto"
+  },
+  "discipline": {
+    "ipa": "/ˈdɪsəplən/",
+    "ko": "디서프런",
+    "meaning_pos": "규율 (명), 훈련하다 (동)",
+    "source": "auto"
+  },
+  "suitable": {
+    "ipa": "/ˈsutəbəl/",
+    "ko": "수터벌",
+    "meaning_pos": "적합한 (형)",
+    "source": "auto"
+  },
+  "appetite": {
+    "ipa": "/ˈæpəˌtaɪt/",
+    "ko": "애퍼타이트",
+    "meaning_pos": "식욕 (명)",
+    "source": "auto"
+  },
+  "sum": {
+    "ipa": "/səm/",
+    "ko": "섬",
+    "meaning_pos": "합계 (명)",
+    "source": "auto"
+  },
+  "harbor": {
+    "ipa": "/ˈhɑrbər/",
+    "ko": "하르버",
+    "meaning_pos": "항구 (명)",
+    "source": "auto"
+  },
+  "superb": {
+    "ipa": "/sʊˈpərb/",
+    "ko": "수퍼브",
+    "meaning_pos": "훌륭한 (형)",
+    "source": "auto"
+  },
+  "dismiss": {
+    "ipa": "/dɪsˈmɪs/",
+    "ko": "디스미스",
+    "meaning_pos": "해고하다, 묵살하다 (동)",
+    "source": "auto"
+  },
+  "retire": {
+    "ipa": "/ˌriˈtaɪər/",
+    "ko": "리타이르",
+    "meaning_pos": "은퇴하다 (동)",
+    "source": "auto"
+  },
+  "beyond": {
+    "ipa": "/bɪɔnd/",
+    "ko": "비아느드",
+    "meaning_pos": "~을 넘어서 (명)",
+    "source": "auto"
+  },
+  "mercy": {
+    "ipa": "/ˈmərsi/",
+    "ko": "머시",
+    "meaning_pos": "자비 (명)",
+    "source": "auto"
+  },
+  "educate": {
+    "ipa": "/ˈɛʤəˌkeɪt/",
+    "ko": "에저케이트",
+    "meaning_pos": "교육하다 (동)",
+    "source": "auto"
+  },
+  "tidy": {
+    "ipa": "/ˈtaɪdi/",
+    "ko": "타이디",
+    "meaning_pos": "단정한 (형), 정돈하다 (동)",
+    "source": "auto"
+  },
+  "aisle": {
+    "ipa": "/aɪəl/",
+    "ko": "알이",
+    "meaning_pos": "통로 (명)",
+    "source": "auto"
+  },
+  "fashion": {
+    "ipa": "/ˈfæʃən/",
+    "ko": "패션",
+    "meaning_pos": "유행, 방식 (명)",
+    "source": "auto"
+  },
+  "beat": {
+    "ipa": "/bit/",
+    "ko": "비트",
+    "meaning_pos": "이기다, 치다 (동)",
+    "source": "auto"
+  },
+  "due": {
+    "ipa": "/du/",
+    "ko": "두",
+    "meaning_pos": "~하기로 되어 있는, 만기의 (형)",
+    "source": "auto"
+  },
+  "toast": {
+    "ipa": "/toʊst/",
+    "ko": "토스트",
+    "meaning_pos": "토스트, 건배 (명)",
+    "source": "auto"
+  },
+  "insult": {
+    "ipa": "/ˌɪnˈsəlt/",
+    "ko": "이느서르트",
+    "meaning_pos": "모욕하다 (동)",
+    "source": "auto"
+  },
+  "cell": {
+    "ipa": "/sɛl/",
+    "ko": "셀",
+    "meaning_pos": "세포, 독방 (명)",
+    "source": "auto"
+  },
+  "instruction": {
+    "ipa": "/ˌɪnˈstrəkʃən/",
+    "ko": "이느스트러크션",
+    "meaning_pos": "지시, 교육 (명)",
+    "source": "auto"
+  },
+  "assign": {
+    "ipa": "/əˈsaɪn/",
+    "ko": "어산이",
+    "meaning_pos": "할당하다 (동)",
+    "source": "auto"
+  },
+  "semester": {
+    "ipa": "/səˈmɛstər/",
+    "ko": "섬에스터",
+    "meaning_pos": "학기 (명)",
+    "source": "auto"
+  },
+  "scramble": {
+    "ipa": "/ˈskræmbəl/",
+    "ko": "스크래므벌",
+    "meaning_pos": "뒤섞다, 기어오르다 (동)",
+    "source": "auto"
+  },
+  "fiber": {
+    "ipa": "/ˈfaɪbər/",
+    "ko": "파이버",
+    "meaning_pos": "섬유 (명)",
+    "source": "auto"
+  },
+  "phenomenon": {
+    "ipa": "/fəˈnɑməˌnɑn/",
+    "ko": "펀암언안",
+    "meaning_pos": "현상 (명)",
+    "source": "auto"
+  },
+  "steel": {
+    "ipa": "/stil/",
+    "ko": "스틸",
+    "meaning_pos": "강철 (명)",
+    "source": "auto"
+  },
+  "diverse": {
+    "ipa": "/dɪˈvərs/",
+    "ko": "다이버스",
+    "meaning_pos": "다양한 (형)",
+    "source": "auto"
+  },
+  "shallow": {
+    "ipa": "/ˈʃæloʊ/",
+    "ko": "샐오",
+    "meaning_pos": "얕은 (형)",
+    "source": "auto"
+  },
+  "positive": {
+    "ipa": "/ˈpɑzətɪv/",
+    "ko": "파저티브",
+    "meaning_pos": "긍정적인 (형)",
+    "source": "auto"
+  },
+  "shift": {
+    "ipa": "/ʃɪft/",
+    "ko": "시프트",
+    "meaning_pos": "변화 (명), 이동하다 (동)",
+    "source": "auto"
+  },
+  "thorough": {
+    "ipa": "/θəroʊ/",
+    "ko": "서오",
+    "meaning_pos": "철저한 (형)",
+    "source": "auto"
+  },
+  "embarrass": {
+    "ipa": "/ɪmˈbɛrəs/",
+    "ko": "이므베러스",
+    "meaning_pos": "당황하게 하다 (동)",
+    "source": "auto"
+  },
+  "amuse": {
+    "ipa": "/əmˈjuz/",
+    "ko": "어므유즈",
+    "meaning_pos": "즐겁게 하다 (동)",
+    "source": "auto"
+  },
+  "raw": {
+    "ipa": "/rɑ/",
+    "ko": "라",
+    "meaning_pos": "날것의 (형)",
+    "source": "auto"
+  },
+  "astonish": {
+    "ipa": "/əˈstɑnɪʃ/",
+    "ko": "어스탄이스",
+    "meaning_pos": "놀라게 하다 (동)",
+    "source": "auto"
+  },
+  "interact": {
+    "ipa": "/ˌɪnərˈækt/",
+    "ko": "이느터애크트",
+    "meaning_pos": "상호작용하다 (동)",
+    "source": "auto"
+  },
+  "gap": {
+    "ipa": "/gæp/",
+    "ko": "개프",
+    "meaning_pos": "격차, 틈 (명)",
+    "source": "auto"
+  },
+  "entry": {
+    "ipa": "/ˈɛntri/",
+    "ko": "에느트리",
+    "meaning_pos": "입장, 출품작 (명)",
+    "source": "auto"
+  },
+  "boast": {
+    "ipa": "/boʊst/",
+    "ko": "보스트",
+    "meaning_pos": "자랑하다 (동)",
+    "source": "auto"
+  },
+  "select": {
+    "ipa": "/səˈlɛkt/",
+    "ko": "설에크트",
+    "meaning_pos": "선택하다 (동)",
+    "source": "auto"
+  },
+  "plenty": {
+    "ipa": "/ˈplɛnti/",
+    "ko": "프레느티",
+    "meaning_pos": "풍부함 (명)",
+    "source": "auto"
+  },
+  "display": {
+    "ipa": "/dɪˈspleɪ/",
+    "ko": "디스프레이",
+    "meaning_pos": "전시하다 (동)",
+    "source": "auto"
+  },
+  "broad": {
+    "ipa": "/brɔd/",
+    "ko": "브로드",
+    "meaning_pos": "넓은 (형)",
+    "source": "auto"
+  },
+  "ambitious": {
+    "ipa": "/æmˈbɪʃəs/",
+    "ko": "애므비셔스",
+    "meaning_pos": "야심 찬 (명)",
+    "source": "auto"
+  },
+  "confident": {
+    "ipa": "/ˈkɑnfədənt/",
+    "ko": "카느퍼더느트",
+    "meaning_pos": "자신감 있는 (형)",
+    "source": "auto"
+  },
+  "modest": {
+    "ipa": "/ˈmɑdəst/",
+    "ko": "마더스트",
+    "meaning_pos": "겸손한 (형)",
+    "source": "auto"
+  },
+  "privacy": {
+    "ipa": "/ˈpraɪvəsi/",
+    "ko": "프라이버시",
+    "meaning_pos": "사생활 (명)",
+    "source": "auto"
+  },
+  "logic": {
+    "ipa": "/ˈlɑʤɪk/",
+    "ko": "라지크",
+    "meaning_pos": "논리 (명)",
+    "source": "auto"
+  },
+  "crush": {
+    "ipa": "/krəʃ/",
+    "ko": "크러스",
+    "meaning_pos": "으깨다 (동)",
+    "source": "auto"
+  },
+  "tender": {
+    "ipa": "/ˈtɛndər/",
+    "ko": "테느더",
+    "meaning_pos": "부드러운, 다정한 (형)",
+    "source": "auto"
+  },
+  "illustrate": {
+    "ipa": "/ˈɪləˌstreɪt/",
+    "ko": "일어스트레이트",
+    "meaning_pos": "설명하다, 삽화를 넣다 (동)",
+    "source": "auto"
+  },
+  "confirm": {
+    "ipa": "/kənˈfərm/",
+    "ko": "커느펌",
+    "meaning_pos": "확인하다 (동)",
+    "source": "auto"
+  },
+  "accompany": {
+    "ipa": "/əˈkəmpəni/",
+    "ko": "어커므펀이",
+    "meaning_pos": "동행하다 (동)",
+    "source": "auto"
+  },
+  "baggage": {
+    "ipa": "/ˈbægɪʤ/",
+    "ko": "배거즈",
+    "meaning_pos": "수하물 (명)",
+    "source": "auto"
+  },
+  "departure": {
+    "ipa": "/dɪˈpɑrʧər/",
+    "ko": "디파르처",
+    "meaning_pos": "출발 (명)",
+    "source": "auto"
+  },
+  "destination": {
+    "ipa": "/ˌdɛstɪˈneɪʃən/",
+    "ko": "데스턴에이션",
+    "meaning_pos": "목적지 (명)",
+    "source": "auto"
+  },
+  "chief": {
+    "ipa": "/ʧif/",
+    "ko": "치프",
+    "meaning_pos": "주요한 (형), 우두머리 (명)",
+    "source": "auto"
+  },
+  "column": {
+    "ipa": "/ˈkɑləm/",
+    "ko": "칼엄",
+    "meaning_pos": "기둥, 칼럼 (명)",
+    "source": "auto"
+  },
+  "aggressive": {
+    "ipa": "/əˈgrɛsɪv/",
+    "ko": "어그레시브",
+    "meaning_pos": "공격적인 (형)",
+    "source": "auto"
+  },
+  "greedy": {
+    "ipa": "/ˈgridi/",
+    "ko": "그리디",
+    "meaning_pos": "탐욕스러운 (형)",
+    "source": "auto"
+  },
+  "bay": {
+    "ipa": "/beɪ/",
+    "ko": "베이",
+    "meaning_pos": "만 (명)",
+    "source": "auto"
+  },
+  "oxygen": {
+    "ipa": "/ˈɑksɪʤən/",
+    "ko": "아크서전",
+    "meaning_pos": "산소 (명)",
+    "source": "auto"
+  },
+  "submarine": {
+    "ipa": "/ˌsəbmərˈin/",
+    "ko": "서브머인",
+    "meaning_pos": "잠수함 (명)",
+    "source": "auto"
+  },
+  "accurate": {
+    "ipa": "/ˈækjərət/",
+    "ko": "애크여어트",
+    "meaning_pos": "정확한 (형)",
+    "source": "auto"
+  },
+  "borrow": {
+    "ipa": "/ˈbɑˌroʊ/",
+    "ko": "바로",
+    "meaning_pos": "빌리다 (동)",
+    "source": "auto"
+  },
+  "dynamic": {
+    "ipa": "/daɪˈnæmɪk/",
+    "ko": "단이앰이크",
+    "meaning_pos": "역동적인 (형)",
+    "source": "auto"
+  },
+  "muscle": {
+    "ipa": "/ˈməsəl/",
+    "ko": "머설",
+    "meaning_pos": "근육 (명)",
+    "source": "auto"
+  },
+  "cancer": {
+    "ipa": "/ˈkænsər/",
+    "ko": "캐느서",
+    "meaning_pos": "암 (명)",
+    "source": "auto"
+  },
+  "trace": {
+    "ipa": "/treɪs/",
+    "ko": "트레이스",
+    "meaning_pos": "추적하다 (동), 흔적 (명)",
+    "source": "auto"
+  },
+  "justify": {
+    "ipa": "/ˈʤəstəˌfaɪ/",
+    "ko": "저스터파이",
+    "meaning_pos": "정당화하다 (동)",
+    "source": "auto"
+  },
+  "pace": {
+    "ipa": "/peɪs/",
+    "ko": "페이스",
+    "meaning_pos": "속도 (명)",
+    "source": "auto"
+  },
+  "compete": {
+    "ipa": "/kəmˈpit/",
+    "ko": "커므피트",
+    "meaning_pos": "경쟁하다 (동)",
+    "source": "auto"
+  },
+  "scratch": {
+    "ipa": "/skræʧ/",
+    "ko": "스크래츠",
+    "meaning_pos": "긁다 (동)",
+    "source": "auto"
+  },
+  "athlete": {
+    "ipa": "/ˈæθˌlit/",
+    "ko": "애스리트",
+    "meaning_pos": "운동선수 (명)",
+    "source": "auto"
+  },
+  "register": {
+    "ipa": "/ˈrɛʤɪstər/",
+    "ko": "레지스터",
+    "meaning_pos": "등록하다 (동)",
+    "source": "auto"
+  },
+  "rotten": {
+    "ipa": "/ˈrɑtən/",
+    "ko": "라턴",
+    "meaning_pos": "썩은 (형)",
+    "source": "auto"
+  },
+  "security": {
+    "ipa": "/sɪˈkjʊrəti/",
+    "ko": "시크유러티",
+    "meaning_pos": "보안 (명)",
+    "source": "auto"
+  },
+  "paralyze": {
+    "ipa": "/ˈpɛrəˌlaɪz/",
+    "ko": "페럴아이즈",
+    "meaning_pos": "마비시키다 (동)",
+    "source": "auto"
+  },
+  "wound": {
+    "ipa": "/wund/",
+    "ko": "우아우느드",
+    "meaning_pos": "상처 (명), 상처를 입히다 (동)",
+    "source": "auto"
+  },
+  "generation": {
+    "ipa": "/ˌʤɛnərˈeɪʃən/",
+    "ko": "젠어에이션",
+    "meaning_pos": "세대 (명)",
+    "source": "auto"
+  },
+  "circumstance": {
+    "ipa": "/ˈsərkəmˌstæns/",
+    "ko": "서커므스태느스",
+    "meaning_pos": "상황 (명)",
+    "source": "auto"
+  },
+  "infect": {
+    "ipa": "/ˌɪnˈfɛkt/",
+    "ko": "이느페크트",
+    "meaning_pos": "감염시키다 (동)",
+    "source": "auto"
+  },
+  "rescue": {
+    "ipa": "/ˈrɛskju/",
+    "ko": "레스크유",
+    "meaning_pos": "구조하다 (동)",
+    "source": "auto"
+  },
+  "expand": {
+    "ipa": "/ɪkˈspænd/",
+    "ko": "이크스패느드",
+    "meaning_pos": "확장하다 (동)",
+    "source": "auto"
+  },
+  "disaster": {
+    "ipa": "/dɪˈzæstər/",
+    "ko": "디재스터",
+    "meaning_pos": "재난 (명)",
+    "source": "auto"
+  },
+  "access": {
+    "ipa": "/ˈækˌsɛs/",
+    "ko": "애크세스",
+    "meaning_pos": "접근하다 (동)",
+    "source": "auto"
+  },
+  "efficient": {
+    "ipa": "/ɪˈfɪʃənt/",
+    "ko": "이피셔느트",
+    "meaning_pos": "효율적인 (형)",
+    "source": "auto"
+  },
+  "temporary": {
+    "ipa": "/ˈtɛmpərˌɛri/",
+    "ko": "테므퍼에리",
+    "meaning_pos": "일시적인 (형)",
+    "source": "auto"
+  },
+  "reduce": {
+    "ipa": "/rɪˈdus/",
+    "ko": "러두스",
+    "meaning_pos": "줄이다 (동)",
+    "source": "auto"
+  },
+  "strategy": {
+    "ipa": "/ˈstrætəʤi/",
+    "ko": "스트래터지",
+    "meaning_pos": "전략 (명)",
+    "source": "auto"
+  },
+  "pause": {
+    "ipa": "/pɔz/",
+    "ko": "포즈",
+    "meaning_pos": "일시 정지하다 (동)",
+    "source": "auto"
+  },
+  "caution": {
+    "ipa": "/ˈkɔʃən/",
+    "ko": "카션",
+    "meaning_pos": "주의 (형)",
+    "source": "auto"
+  },
+  "establish": {
+    "ipa": "/ɪˈstæblɪʃ/",
+    "ko": "이스태브리스",
+    "meaning_pos": "설립하다 (동)",
+    "source": "auto"
+  },
+  "recover": {
+    "ipa": "/rɪˈkəvər/",
+    "ko": "리커버",
+    "meaning_pos": "회복하다 (동)",
+    "source": "auto"
+  },
+  "identity": {
+    "ipa": "/aɪˈdɛntəˌti/",
+    "ko": "아이데느티티",
+    "meaning_pos": "정체성 (명)",
+    "source": "auto"
+  },
+  "rural": {
+    "ipa": "/ˈrʊrəl/",
+    "ko": "루럴",
+    "meaning_pos": "시골의 (형)",
+    "source": "auto"
+  },
+  "urban": {
+    "ipa": "/ˈərbən/",
+    "ko": "어번",
+    "meaning_pos": "도시의 (형)",
+    "source": "auto"
+  },
+  "cooperate": {
+    "ipa": "/kˈwɑpərˌeɪt/",
+    "ko": "코아퍼에이트",
+    "meaning_pos": "협력하다 (동)",
+    "source": "auto"
+  },
+  "contribute": {
+    "ipa": "/kənˈtrɪbjut/",
+    "ko": "커느트리브유트",
+    "meaning_pos": "기여하다 (동)",
+    "source": "auto"
+  },
+  "approach": {
+    "ipa": "/əˈproʊʧ/",
+    "ko": "어프로츠",
+    "meaning_pos": "접근하다 (동)",
+    "source": "auto"
+  },
+  "maintain": {
+    "ipa": "/meɪnˈteɪn/",
+    "ko": "메이느텐이",
+    "meaning_pos": "유지하다 (동)",
+    "source": "auto"
+  },
+  "severe": {
+    "ipa": "/səˈvɪr/",
+    "ko": "서비르",
+    "meaning_pos": "심각한 (형)",
+    "source": "auto"
+  },
+  "absorb": {
+    "ipa": "/əbˈzɔrb/",
+    "ko": "어브조르브",
+    "meaning_pos": "흡수하다 (동)",
+    "source": "auto"
+  },
+  "define": {
+    "ipa": "/dɪˈfaɪn/",
+    "ko": "디판이",
+    "meaning_pos": "정의하다 (동)",
+    "source": "auto"
+  },
+  "penalty": {
+    "ipa": "/ˈpɛnəlti/",
+    "ko": "펜어르티",
+    "meaning_pos": "형벌, 벌금 (명)",
+    "source": "auto"
+  },
+  "property": {
+    "ipa": "/ˈprɑpərti/",
+    "ko": "프라퍼티",
+    "meaning_pos": "재산, 부동산 (명)",
+    "source": "auto"
+  },
+  "credit": {
+    "ipa": "/ˈkrɛdɪt/",
+    "ko": "크레더트",
+    "meaning_pos": "신용, 학점 (명)",
+    "source": "auto"
+  },
+  "fund": {
+    "ipa": "/fənd/",
+    "ko": "퍼느드",
+    "meaning_pos": "자금 (명)",
+    "source": "auto"
+  },
+  "faucet": {
+    "ipa": "/ˈfɔsət/",
+    "ko": "포서트",
+    "meaning_pos": "수도꼭지 (명)",
+    "source": "auto"
+  },
+  "forecast": {
+    "ipa": "/ˈfɔrˌkæst/",
+    "ko": "포르캐스트",
+    "meaning_pos": "예측하다 (동)",
+    "source": "auto"
+  },
+  "loan": {
+    "ipa": "/loʊn/",
+    "ko": "론",
+    "meaning_pos": "대출 (명)",
+    "source": "auto"
+  },
+  "abandon": {
+    "ipa": "/əˈbændən/",
+    "ko": "어배느던",
+    "meaning_pos": "버리다 (동)",
+    "source": "auto"
+  },
+  "stock": {
+    "ipa": "/stɑk/",
+    "ko": "스타크",
+    "meaning_pos": "주식, 재고 (명)",
+    "source": "auto"
+  },
+  "relate": {
+    "ipa": "/rɪˈleɪt/",
+    "ko": "릴에이트",
+    "meaning_pos": "관련시키다 (동)",
+    "source": "auto"
+  },
+  "import": {
+    "ipa": "/ˌɪmˈpɔrt/",
+    "ko": "이므포르트",
+    "meaning_pos": "수입하다 (동)",
+    "source": "auto"
+  },
+  "export": {
+    "ipa": "/ˈɛkspɔrt/",
+    "ko": "에크스포르트",
+    "meaning_pos": "수출하다 (동)",
+    "source": "auto"
+  },
+  "commerce": {
+    "ipa": "/ˈkɑmərs/",
+    "ko": "캄어스",
+    "meaning_pos": "상업 (명)",
+    "source": "auto"
+  },
+  "profit": {
+    "ipa": "/ˈprɑfɪt/",
+    "ko": "프라퍼트",
+    "meaning_pos": "이익 (명)",
+    "source": "auto"
+  },
+  "stable": {
+    "ipa": "/ˈsteɪbəl/",
+    "ko": "스테이벌",
+    "meaning_pos": "안정적인 (형)",
+    "source": "auto"
+  },
+  "poverty": {
+    "ipa": "/ˈpɑvərti/",
+    "ko": "파버티",
+    "meaning_pos": "빈곤 (명)",
+    "source": "auto"
+  },
+  "finance": {
+    "ipa": "/ˈfaɪˌnæns/",
+    "ko": "펀애느스",
+    "meaning_pos": "재정 (명)",
+    "source": "auto"
+  },
+  "asset": {
+    "ipa": "/ˈæˌsɛt/",
+    "ko": "애세트",
+    "meaning_pos": "자산 (명)",
+    "source": "auto"
+  },
+  "desperate": {
+    "ipa": "/ˈdɛspərɪt/",
+    "ko": "데스프리트",
+    "meaning_pos": "절망적인, 필사적인 (형)",
+    "source": "auto"
+  },
+  "congress": {
+    "ipa": "/ˈkɑŋgrəs/",
+    "ko": "카으그러스",
+    "meaning_pos": "의회 (명)",
+    "source": "auto"
+  },
+  "council": {
+    "ipa": "/ˈkaʊnsəl/",
+    "ko": "카우느설",
+    "meaning_pos": "의회, 위원회 (명)",
+    "source": "auto"
+  },
+  "decay": {
+    "ipa": "/dɪˈkeɪ/",
+    "ko": "디케이",
+    "meaning_pos": "부패하다 (동)",
+    "source": "auto"
+  },
+  "motion": {
+    "ipa": "/ˈmoʊʃən/",
+    "ko": "모션",
+    "meaning_pos": "움직임 (명)",
+    "source": "auto"
+  },
+  "committee": {
+    "ipa": "/kəˈmɪti/",
+    "ko": "컴이티",
+    "meaning_pos": "위원회 (명)",
+    "source": "auto"
+  },
+  "candidate": {
+    "ipa": "/ˈkænədɪt/",
+    "ko": "캐느더데이트",
+    "meaning_pos": "후보자 (명)",
+    "source": "auto"
+  },
+  "democracy": {
+    "ipa": "/dɪˈmɑkrəsi/",
+    "ko": "딤아크러시",
+    "meaning_pos": "민주주의 (형)",
+    "source": "auto"
+  },
+  "reform": {
+    "ipa": "/rɪˈfɔrm/",
+    "ko": "러포르므",
+    "meaning_pos": "개혁하다 (동)",
+    "source": "auto"
+  },
+  "leap": {
+    "ipa": "/lip/",
+    "ko": "리프",
+    "meaning_pos": "도약하다 (동)",
+    "source": "auto"
+  },
+  "appeal": {
+    "ipa": "/əˈpil/",
+    "ko": "어필",
+    "meaning_pos": "호소하다 (동), 매력 (명)",
+    "source": "auto"
+  },
+  "venture": {
+    "ipa": "/ˈvɛnʧər/",
+    "ko": "베느처",
+    "meaning_pos": "모험 (명)",
+    "source": "auto"
+  },
+  "advantage": {
+    "ipa": "/ædˈvæntɪʤ/",
+    "ko": "애드배느티즈",
+    "meaning_pos": "이점 (명)",
+    "source": "auto"
+  },
+  "demonstrate": {
+    "ipa": "/ˈdɛmənˌstreɪt/",
+    "ko": "뎀어느스트레이트",
+    "meaning_pos": "증명하다, 시위하다 (동)",
+    "source": "auto"
+  },
+  "criticize": {
+    "ipa": "/ˈkrɪtɪˌsaɪz/",
+    "ko": "크리티사이즈",
+    "meaning_pos": "비판하다 (동)",
+    "source": "auto"
+  },
+  "release": {
+    "ipa": "/riˈlis/",
+    "ko": "릴이스",
+    "meaning_pos": "풀어주다, 출시하다 (동)",
+    "source": "auto"
+  },
+  "conflict": {
+    "ipa": "/ˈkɑnflɪkt/",
+    "ko": "카느프리크트",
+    "meaning_pos": "갈등 (명)",
+    "source": "auto"
+  },
+  "engage": {
+    "ipa": "/ɪnˈgeɪʤ/",
+    "ko": "에느게이즈",
+    "meaning_pos": "참여하다 (동)",
+    "source": "auto"
+  },
+  "ultimate": {
+    "ipa": "/ˈəltəmət/",
+    "ko": "어르텀어트",
+    "meaning_pos": "궁극적인 (형)",
+    "source": "auto"
+  },
+  "distribute": {
+    "ipa": "/dɪˈstrɪbjut/",
+    "ko": "디스트리브유트",
+    "meaning_pos": "분배하다 (동)",
+    "source": "auto"
+  },
+  "principle": {
+    "ipa": "/ˈprɪnsəpəl/",
+    "ko": "프리느서펄",
+    "meaning_pos": "원칙 (명)",
+    "source": "auto"
+  },
+  "racial": {
+    "ipa": "/ˈreɪʃəl/",
+    "ko": "레이셜",
+    "meaning_pos": "인종의 (형)",
+    "source": "auto"
+  },
+  "province": {
+    "ipa": "/ˈprɑvɪns/",
+    "ko": "프라버느스",
+    "meaning_pos": "지방 (명)",
+    "source": "auto"
+  },
+  "although": {
+    "ipa": "/ˌɔlˈðoʊ/",
+    "ko": "오르도",
+    "meaning_pos": "비록 ~일지라도 (명)",
+    "source": "auto"
+  },
+  "legal": {
+    "ipa": "/ˈligəl/",
+    "ko": "리걸",
+    "meaning_pos": "합법적인 (형)",
+    "source": "auto"
+  },
+  "deceive": {
+    "ipa": "/dɪˈsiv/",
+    "ko": "디시브",
+    "meaning_pos": "속이다 (동)",
+    "source": "auto"
+  },
+  "inspire": {
+    "ipa": "/ˌɪnˈspaɪr/",
+    "ko": "이느스파이르",
+    "meaning_pos": "영감을 주다 (동)",
+    "source": "auto"
+  },
+  "definite": {
+    "ipa": "/ˈdɛfənət/",
+    "ko": "데펀어트",
+    "meaning_pos": "확실한 (형)",
+    "source": "auto"
+  },
+  "unite": {
+    "ipa": "/ˈjuˌnaɪt/",
+    "ko": "윤아이트",
+    "meaning_pos": "연합하다 (동)",
+    "source": "auto"
+  },
+  "civil": {
+    "ipa": "/ˈsɪvəl/",
+    "ko": "시벌",
+    "meaning_pos": "시민의 (형)",
+    "source": "auto"
+  },
+  "promote": {
+    "ipa": "/prəˈmoʊt/",
+    "ko": "프럼오트",
+    "meaning_pos": "촉진하다, 승진시키다 (동)",
+    "source": "auto"
+  },
+  "murder": {
+    "ipa": "/ˈmərdər/",
+    "ko": "머더",
+    "meaning_pos": "살인 (형)",
+    "source": "auto"
+  },
+  "copyright": {
+    "ipa": "/ˈkɑpiˌraɪt/",
+    "ko": "카피라이트",
+    "meaning_pos": "저작권 (명)",
+    "source": "auto"
+  },
+  "forbid": {
+    "ipa": "/fərˈbɪd/",
+    "ko": "퍼비드",
+    "meaning_pos": "금지하다 (동)",
+    "source": "auto"
+  },
+  "conscience": {
+    "ipa": "/ˈkɑnʃəns/",
+    "ko": "카느셔느스",
+    "meaning_pos": "양심 (명)",
+    "source": "auto"
+  },
+  "pretend": {
+    "ipa": "/priˈtɛnd/",
+    "ko": "프리테느드",
+    "meaning_pos": "~인 척하다 (동)",
+    "source": "auto"
+  },
+  "troop": {
+    "ipa": "/trup/",
+    "ko": "트루프",
+    "meaning_pos": "군대 (명)",
+    "source": "auto"
+  },
+  "territory": {
+    "ipa": "/ˈtɛrɪˌtɔri/",
+    "ko": "테리토리",
+    "meaning_pos": "영토 (명)",
+    "source": "auto"
+  },
+  "reveal": {
+    "ipa": "/rɪˈvil/",
+    "ko": "리빌",
+    "meaning_pos": "드러내다 (동)",
+    "source": "auto"
+  },
+  "faithful": {
+    "ipa": "/ˈfeɪθfəl/",
+    "ko": "페이스펄",
+    "meaning_pos": "충실한 (형)",
+    "source": "auto"
+  },
+  "interpret": {
+    "ipa": "/ˌɪnˈtərprət/",
+    "ko": "이느터프러트",
+    "meaning_pos": "통역하다, 해석하다 (동)",
+    "source": "auto"
+  },
+  "declare": {
+    "ipa": "/dɪˈklɛr/",
+    "ko": "디크레르",
+    "meaning_pos": "선언하다 (동)",
+    "source": "auto"
+  },
+  "manufacture": {
+    "ipa": "/ˌmænjəˈfækʧər/",
+    "ko": "매느여패크처",
+    "meaning_pos": "제조하다 (동)",
+    "source": "auto"
+  },
+  "product": {
+    "ipa": "/ˈprɑdəkt/",
+    "ko": "프라더크트",
+    "meaning_pos": "제품 (명)",
+    "source": "auto"
+  },
+  "output": {
+    "ipa": "/ˈaʊtˌpʊt/",
+    "ko": "아우트푸트",
+    "meaning_pos": "생산량 (명)",
+    "source": "auto"
+  },
+  "theory": {
+    "ipa": "/ˈθɪri/",
+    "ko": "시리",
+    "meaning_pos": "이론 (명)",
+    "source": "auto"
+  },
+  "district": {
+    "ipa": "/ˈdɪstrɪkt/",
+    "ko": "디스트리크트",
+    "meaning_pos": "구역 (명)",
+    "source": "auto"
+  },
+  "outstanding": {
+    "ipa": "/ˌaʊtˈstændɪŋ/",
+    "ko": "아우트스태느딩",
+    "meaning_pos": "뛰어난 (명)",
+    "source": "auto"
+  },
+  "genuine": {
+    "ipa": "/ˈʤɛnjuˌaɪn/",
+    "ko": "제느여원",
+    "meaning_pos": "진짜의 (형)",
+    "source": "auto"
+  },
+  "extend": {
+    "ipa": "/ɪkˈstɛnd/",
+    "ko": "이크스테느드",
+    "meaning_pos": "연장하다 (동)",
+    "source": "auto"
+  },
+  "complement": {
+    "ipa": "/ˈkɑmpləmənt/",
+    "ko": "카므프럼어느트",
+    "meaning_pos": "보완하다 (동)",
+    "source": "auto"
+  },
+  "revolution": {
+    "ipa": "/ˌrɛvəˈluʃən/",
+    "ko": "레벌우션",
+    "meaning_pos": "혁명 (명)",
+    "source": "auto"
+  },
+  "automatic": {
+    "ipa": "/ˌɔtəˈmætɪk/",
+    "ko": "오텀애티크",
+    "meaning_pos": "자동의 (형)",
+    "source": "auto"
+  },
+  "mineral": {
+    "ipa": "/ˈmɪnərəl/",
+    "ko": "민어얼",
+    "meaning_pos": "광물 (명)",
+    "source": "auto"
+  },
+  "gene": {
+    "ipa": "/ʤin/",
+    "ko": "진",
+    "meaning_pos": "유전자 (명)",
+    "source": "auto"
+  },
+  "cultivate": {
+    "ipa": "/ˈkəltəˌveɪt/",
+    "ko": "커르터베이트",
+    "meaning_pos": "경작하다 (동)",
+    "source": "auto"
+  },
+  "remark": {
+    "ipa": "/rɪˈmɑrk/",
+    "ko": "림아르크",
+    "meaning_pos": "언급하다 (동)",
+    "source": "auto"
+  },
+  "nuclear": {
+    "ipa": "/ˈnukliər/",
+    "ko": "누크리어",
+    "meaning_pos": "핵의 (형)",
+    "source": "auto"
+  },
+  "conquer": {
+    "ipa": "/ˈkɑŋkər/",
+    "ko": "카으커",
+    "meaning_pos": "정복하다 (동)",
+    "source": "auto"
+  },
+  "assemble": {
+    "ipa": "/əˈsɛmbəl/",
+    "ko": "어세므벌",
+    "meaning_pos": "모으다, 조립하다 (동)",
+    "source": "auto"
+  },
+  "heritage": {
+    "ipa": "/ˈhɛrɪtɪʤ/",
+    "ko": "헤러터즈",
+    "meaning_pos": "유산 (명)",
+    "source": "auto"
+  },
+  "species": {
+    "ipa": "/ˈspiʃiz/",
+    "ko": "스피시즈",
+    "meaning_pos": "종(생물) (명)",
+    "source": "auto"
+  },
+  "exhaust": {
+    "ipa": "/ɪgˈzɔst/",
+    "ko": "이그조스트",
+    "meaning_pos": "지치게 하다 (동), 배기가스 (명)",
+    "source": "auto"
+  },
+  "shortage": {
+    "ipa": "/ˈʃɔrtɪʤ/",
+    "ko": "소르터즈",
+    "meaning_pos": "부족 (명)",
+    "source": "auto"
+  },
+  "restrict": {
+    "ipa": "/riˈstrɪkt/",
+    "ko": "리스트리크트",
+    "meaning_pos": "제한하다 (동)",
+    "source": "auto"
+  },
+  "fossil": {
+    "ipa": "/ˈfɑsəl/",
+    "ko": "파설",
+    "meaning_pos": "화석 (명)",
+    "source": "auto"
+  },
+  "volcano": {
+    "ipa": "/vɑlˈkeɪnoʊ/",
+    "ko": "바르켄이오",
+    "meaning_pos": "화산 (명)",
+    "source": "auto"
+  },
+  "summit": {
+    "ipa": "/ˈsəmɪt/",
+    "ko": "섬어트",
+    "meaning_pos": "정상 (명)",
+    "source": "auto"
+  },
+  "facility": {
+    "ipa": "/fəˈsɪlɪti/",
+    "ko": "퍼실이티",
+    "meaning_pos": "시설 (명)",
+    "source": "auto"
+  },
+  "occupy": {
+    "ipa": "/ˈɑkjəˌpaɪ/",
+    "ko": "아크여파이",
+    "meaning_pos": "차지하다 (동)",
+    "source": "auto"
+  },
+  "lightning": {
+    "ipa": "/ˈlaɪtnɪŋ/",
+    "ko": "라이트닝",
+    "meaning_pos": "번개 (명)",
+    "source": "auto"
+  },
+  "horizon": {
+    "ipa": "/hərˈaɪzən/",
+    "ko": "허아이전",
+    "meaning_pos": "지평선 (명)",
+    "source": "auto"
+  },
+  "marine": {
+    "ipa": "/mərˈin/",
+    "ko": "머인",
+    "meaning_pos": "바다의 (형)",
+    "source": "auto"
+  },
+  "cliff": {
+    "ipa": "/klɪf/",
+    "ko": "크리프",
+    "meaning_pos": "절벽 (명)",
+    "source": "auto"
+  },
+  "artificial": {
+    "ipa": "/ˌɑrtəˈfɪʃəl/",
+    "ko": "아르터피셜",
+    "meaning_pos": "인공적인 (형)",
+    "source": "auto"
+  },
+  "emerge": {
+    "ipa": "/ˈimərʤ/",
+    "ko": "임어즈",
+    "meaning_pos": "나타나다 (동)",
+    "source": "auto"
+  },
+  "dispose": {
+    "ipa": "/dɪˈspoʊz/",
+    "ko": "디스포즈",
+    "meaning_pos": "배치하다, 처분하다 (동)",
+    "source": "auto"
+  },
+  "conserve": {
+    "ipa": "/kənˈsərv/",
+    "ko": "커느서브",
+    "meaning_pos": "보존하다 (동)",
+    "source": "auto"
+  },
+  "atmosphere": {
+    "ipa": "/ˈætməsˌfɪr/",
+    "ko": "애트머스피르",
+    "meaning_pos": "대기, 분위기 (명)",
+    "source": "auto"
+  },
+  "melt": {
+    "ipa": "/mɛlt/",
+    "ko": "메르트",
+    "meaning_pos": "녹다 (동)",
+    "source": "auto"
+  },
+  "layer": {
+    "ipa": "/leɪər/",
+    "ko": "레이어",
+    "meaning_pos": "층 (명)",
+    "source": "auto"
+  },
+  "confess": {
+    "ipa": "/kənˈfɛs/",
+    "ko": "커느페스",
+    "meaning_pos": "고백하다 (동)",
+    "source": "auto"
+  },
+  "suspect": {
+    "ipa": "/ˈsəˌspɛkt/",
+    "ko": "서스페크트",
+    "meaning_pos": "의심하다 (동), 용의자 (명)",
+    "source": "auto"
+  },
+  "commit": {
+    "ipa": "/kəˈmɪt/",
+    "ko": "컴이트",
+    "meaning_pos": "저지르다, 전념하다 (동)",
+    "source": "auto"
+  },
+  "guilty": {
+    "ipa": "/ˈgɪlti/",
+    "ko": "기르티",
+    "meaning_pos": "유죄의 (형), 죄책감이 드는 (명)",
+    "source": "auto"
+  },
+  "trial": {
+    "ipa": "/traɪəl/",
+    "ko": "트라이얼",
+    "meaning_pos": "재판, 시도 (명)",
+    "source": "auto"
+  },
+  "threat": {
+    "ipa": "/θrɛt/",
+    "ko": "스레트",
+    "meaning_pos": "위협 (명)",
+    "source": "auto"
+  },
+  "violent": {
+    "ipa": "/ˈvaɪələnt/",
+    "ko": "바이얼어느트",
+    "meaning_pos": "폭력적인 (형)",
+    "source": "auto"
+  },
+  "accuse": {
+    "ipa": "/əˈkjuz/",
+    "ko": "어크유즈",
+    "meaning_pos": "고발하다 (동)",
+    "source": "auto"
+  },
+  "agriculture": {
+    "ipa": "/ˈægrɪˌkəlʧər/",
+    "ko": "애그리커르처",
+    "meaning_pos": "농업 (명)",
+    "source": "auto"
+  },
+  "harvest": {
+    "ipa": "/ˈhɑrvəst/",
+    "ko": "하르버스트",
+    "meaning_pos": "수확하다 (동)",
+    "source": "auto"
+  },
+  "pollute": {
+    "ipa": "/pəˈlut/",
+    "ko": "펄우트",
+    "meaning_pos": "오염시키다 (동)",
+    "source": "auto"
+  },
+  "philosophy": {
+    "ipa": "/fəˈlɑsəfi/",
+    "ko": "펄아서피",
+    "meaning_pos": "철학 (명)",
+    "source": "auto"
+  },
+  "combine": {
+    "ipa": "/ˈkɑmbaɪn/",
+    "ko": "카므반이",
+    "meaning_pos": "결합하다 (동)",
+    "source": "auto"
+  },
+  "extreme": {
+    "ipa": "/ɪkˈstrim/",
+    "ko": "에크스트림",
+    "meaning_pos": "극단적인 (형)",
+    "source": "auto"
+  },
+  "resolve": {
+    "ipa": "/riˈzɑlv/",
+    "ko": "리자르브",
+    "meaning_pos": "해결하다, 결심하다 (동)",
+    "source": "auto"
+  },
+  "control": {
+    "ipa": "/kənˈtroʊl/",
+    "ko": "커느트롤",
+    "meaning_pos": "통제하다 (동)",
+    "source": "auto"
+  },
+  "noble": {
+    "ipa": "/ˈnoʊbəl/",
+    "ko": "노벌",
+    "meaning_pos": "고귀한 (형)",
+    "source": "auto"
+  },
+  "colleague": {
+    "ipa": "/ˈkɑlig/",
+    "ko": "칼이그",
+    "meaning_pos": "동료 (명)",
+    "source": "auto"
+  },
+  "swear": {
+    "ipa": "/swɛr/",
+    "ko": "스웨르",
+    "meaning_pos": "맹세하다, 욕하다 (동)",
+    "source": "auto"
+  },
+  "adapt": {
+    "ipa": "/əˈdæpt/",
+    "ko": "어대프트",
+    "meaning_pos": "적응하다, 각색하다 (동)",
+    "source": "auto"
+  },
+  "architect": {
+    "ipa": "/ˈɑrkəˌtɛkt/",
+    "ko": "아르커테크트",
+    "meaning_pos": "건축가 (명)",
+    "source": "auto"
+  },
+  "structure": {
+    "ipa": "/ˈstrəkʧər/",
+    "ko": "스트러크처",
+    "meaning_pos": "구조 (명)",
+    "source": "auto"
+  },
+  "garage": {
+    "ipa": "/gərɑʒ/",
+    "ko": "거아즈",
+    "meaning_pos": "차고 (명)",
+    "source": "auto"
+  },
+  "overseas": {
+    "ipa": "/ˈoʊvərˈsiz/",
+    "ko": "오버시즈",
+    "meaning_pos": "해외의 (형)",
+    "source": "auto"
+  },
+  "guess": {
+    "ipa": "/gɛs/",
+    "ko": "게스",
+    "meaning_pos": "추측하다 (동)",
+    "source": "auto"
+  },
+  "colony": {
+    "ipa": "/ˈkɑləni/",
+    "ko": "칼언이",
+    "meaning_pos": "식민지 (명)",
+    "source": "auto"
+  },
+  "urgent": {
+    "ipa": "/ˈərʤənt/",
+    "ko": "어저느트",
+    "meaning_pos": "긴급한 (형)",
+    "source": "auto"
+  },
+  "pronunciation": {
+    "ipa": "/prəˌnənsiˈeɪʃən/",
+    "ko": "프론어느시에이션",
+    "meaning_pos": "발음 (명)",
+    "source": "auto"
+  },
+  "license": {
+    "ipa": "/ˈlaɪsəns/",
+    "ko": "라이서느스",
+    "meaning_pos": "면허 (명)",
+    "source": "auto"
+  },
+  "resist": {
+    "ipa": "/rɪˈzɪst/",
+    "ko": "리지스트",
+    "meaning_pos": "저항하다 (동)",
+    "source": "auto"
+  },
+  "vehicle": {
+    "ipa": "/ˈviɪkəl/",
+    "ko": "비히컬",
+    "meaning_pos": "차량 (명)",
+    "source": "auto"
+  },
+  "operate": {
+    "ipa": "/ˈɔpərˌeɪt/",
+    "ko": "아퍼에이트",
+    "meaning_pos": "작동하다, 수술하다 (동)",
+    "source": "auto"
+  },
+  "tense": {
+    "ipa": "/tɛns/",
+    "ko": "테느스",
+    "meaning_pos": "긴장한 (형)",
+    "source": "auto"
+  },
+  "significant": {
+    "ipa": "/sɪgˈnɪfɪkənt/",
+    "ko": "서그니피커느트",
+    "meaning_pos": "중요한 (형)",
+    "source": "auto"
+  },
+  "motivate": {
+    "ipa": "/ˈmoʊtəˌveɪt/",
+    "ko": "모터베이트",
+    "meaning_pos": "동기를 부여하다 (동)",
+    "source": "auto"
+  },
+  "contract": {
+    "ipa": "/ˈkɑnˌtrækt/",
+    "ko": "카느트래크트",
+    "meaning_pos": "계약 (명), 수축하다 (동)",
+    "source": "auto"
+  },
+  "frighten": {
+    "ipa": "/ˈfraɪtən/",
+    "ko": "프라이턴",
+    "meaning_pos": "겁주다 (동)",
+    "source": "auto"
+  },
+  "routine": {
+    "ipa": "/ruˈtin/",
+    "ko": "루틴",
+    "meaning_pos": "일상, 일과 (명)",
+    "source": "auto"
+  },
+  "impact": {
+    "ipa": "/ˌɪmˈpækt/",
+    "ko": "이므패크트",
+    "meaning_pos": "영향, 충격 (명)",
+    "source": "auto"
+  },
+  "instance": {
+    "ipa": "/ˈɪnstəns/",
+    "ko": "이느스터느스",
+    "meaning_pos": "사례 (명)",
+    "source": "auto"
+  },
+  "concrete": {
+    "ipa": "/ˈkɑnkrit/",
+    "ko": "커느크리트",
+    "meaning_pos": "구체적인 (형), 콘크리트 (명)",
+    "source": "auto"
+  },
+  "insert": {
+    "ipa": "/ˌɪnˈsərt/",
+    "ko": "이느서트",
+    "meaning_pos": "삽입하다 (동)",
+    "source": "auto"
+  },
+  "beneath": {
+    "ipa": "/bɪˈniθ/",
+    "ko": "빈이스",
+    "meaning_pos": "~아래에 (명)",
+    "source": "auto"
+  },
+  "visual": {
+    "ipa": "/ˈvɪʒəwəl/",
+    "ko": "비저월",
+    "meaning_pos": "시각적인 (형)",
+    "source": "auto"
+  },
+  "grant": {
+    "ipa": "/grænt/",
+    "ko": "그래느트",
+    "meaning_pos": "부여하다 (동), 보조금 (명)",
+    "source": "auto"
+  },
+  "bundle": {
+    "ipa": "/ˈbəndəl/",
+    "ko": "버느덜",
+    "meaning_pos": "다발, 묶음 (명)",
+    "source": "auto"
+  },
+  "adopt": {
+    "ipa": "/əˈdɑpt/",
+    "ko": "어다프트",
+    "meaning_pos": "채택하다, 입양하다 (동)",
+    "source": "auto"
+  },
+  "string": {
+    "ipa": "/strɪŋ/",
+    "ko": "스트링",
+    "meaning_pos": "끈 (명)",
+    "source": "auto"
+  },
+  "leftover": {
+    "ipa": "/ˈlɛfˌtoʊvər/",
+    "ko": "레프토버",
+    "meaning_pos": "남은 음식 (명)",
+    "source": "auto"
+  },
+  "lack": {
+    "ipa": "/læk/",
+    "ko": "래크",
+    "meaning_pos": "부족 (명)",
+    "source": "auto"
+  },
+  "attitude": {
+    "ipa": "/ˈætəˌtud/",
+    "ko": "애터투드",
+    "meaning_pos": "태도 (명)",
+    "source": "auto"
+  },
+  "code": {
+    "ipa": "/koʊd/",
+    "ko": "코드",
+    "meaning_pos": "암호, 규범 (명)",
+    "source": "auto"
+  },
+  "gradually": {
+    "ipa": "/ˈgræʤuəli/",
+    "ko": "그래주얼이",
+    "meaning_pos": "점차 (명)",
+    "source": "auto"
+  },
+  "overall": {
+    "ipa": "/ˈoʊvərˌɔl/",
+    "ko": "오버올",
+    "meaning_pos": "전반적인 (형)",
+    "source": "auto"
+  },
+  "construct": {
+    "ipa": "/ˈkɑnstrəkt/",
+    "ko": "커느스트러크트",
+    "meaning_pos": "건설하다 (동)",
+    "source": "auto"
+  },
+  "deny": {
+    "ipa": "/dɪˈnaɪ/",
+    "ko": "딘아이",
+    "meaning_pos": "부인하다 (동)",
+    "source": "auto"
+  },
+  "specific": {
+    "ipa": "/spɪˈsɪfɪk/",
+    "ko": "스퍼시피크",
+    "meaning_pos": "구체적인 (형)",
+    "source": "auto"
+  },
+  "grab": {
+    "ipa": "/græb/",
+    "ko": "그래브",
+    "meaning_pos": "움켜잡다 (동)",
+    "source": "auto"
+  },
+  "mirror": {
+    "ipa": "/ˈmɪrər/",
+    "ko": "미러",
+    "meaning_pos": "거울 (명)",
+    "source": "auto"
+  },
+  "frequent": {
+    "ipa": "/ˈfrikˌwɛnt/",
+    "ko": "프리크워느트",
+    "meaning_pos": "빈번한 (형)",
+    "source": "auto"
+  },
+  "logical": {
+    "ipa": "/ˈlɑʤɪkəl/",
+    "ko": "라지컬",
+    "meaning_pos": "논리적인 (형)",
+    "source": "auto"
+  },
+  "battle": {
+    "ipa": "/ˈbætəl/",
+    "ko": "배털",
+    "meaning_pos": "전투 (명)",
+    "source": "auto"
+  },
+  "scatter": {
+    "ipa": "/ˈskætər/",
+    "ko": "스캐터",
+    "meaning_pos": "흩뿌리다 (동)",
+    "source": "auto"
+  },
+  "visible": {
+    "ipa": "/ˈvɪzəbəl/",
+    "ko": "비저벌",
+    "meaning_pos": "눈에 보이는 (명)",
+    "source": "auto"
+  },
+  "barrier": {
+    "ipa": "/ˈbɛriər/",
+    "ko": "배리어",
+    "meaning_pos": "장벽 (명)",
+    "source": "auto"
+  },
+  "ingredient": {
+    "ipa": "/ˌɪnˈgridiənt/",
+    "ko": "이느그리디어느트",
+    "meaning_pos": "재료 (명)",
+    "source": "auto"
+  },
+  "till": {
+    "ipa": "/tɪl/",
+    "ko": "틸",
+    "meaning_pos": "~할 때까지 (명)",
+    "source": "auto"
+  },
+  "practical": {
+    "ipa": "/ˈpræktɪkəl/",
+    "ko": "프래크터컬",
+    "meaning_pos": "실용적인 (형)",
+    "source": "auto"
+  },
+  "junk": {
+    "ipa": "/ʤəŋk/",
+    "ko": "저응크",
+    "meaning_pos": "쓰레기 (명)",
+    "source": "auto"
+  },
+  "insight": {
+    "ipa": "/ˈɪnˌsaɪt/",
+    "ko": "이느사이트",
+    "meaning_pos": "통찰력 (명)",
+    "source": "auto"
+  },
+  "beverage": {
+    "ipa": "/ˈbɛvərɪʤ/",
+    "ko": "베버이즈",
+    "meaning_pos": "음료 (명)",
+    "source": "auto"
+  },
+  "cottage": {
+    "ipa": "/ˈkɑtɪʤ/",
+    "ko": "카터즈",
+    "meaning_pos": "오두막 (명)",
+    "source": "auto"
+  },
+  "spill": {
+    "ipa": "/spɪl/",
+    "ko": "스필",
+    "meaning_pos": "엎질러지다 (동)",
+    "source": "auto"
+  },
+  "chill": {
+    "ipa": "/ʧɪl/",
+    "ko": "칠",
+    "meaning_pos": "냉기 (명)",
+    "source": "auto"
+  },
+  "sigh": {
+    "ipa": "/saɪ/",
+    "ko": "사이",
+    "meaning_pos": "한숨 쉬다 (동)",
+    "source": "auto"
+  },
+  "portable": {
+    "ipa": "/ˈpɔrtəbəl/",
+    "ko": "포르터벌",
+    "meaning_pos": "휴대용의 (형)",
+    "source": "auto"
+  },
+  "apart": {
+    "ipa": "/əˈpɑrt/",
+    "ko": "어파르트",
+    "meaning_pos": "떨어져 (명)",
+    "source": "auto"
+  },
+  "persuade": {
+    "ipa": "/pərsˈweɪd/",
+    "ko": "퍼스웨이드",
+    "meaning_pos": "설득하다 (동)",
+    "source": "auto"
+  },
+  "postpone": {
+    "ipa": "/poʊstˈpoʊn/",
+    "ko": "포스트폰",
+    "meaning_pos": "연기하다 (동)",
+    "source": "auto"
+  },
+  "squeeze": {
+    "ipa": "/skwiz/",
+    "ko": "스크위즈",
+    "meaning_pos": "짜내다 (동)",
+    "source": "auto"
+  },
+  "insist": {
+    "ipa": "/ˌɪnˈsɪst/",
+    "ko": "이느시스트",
+    "meaning_pos": "주장하다 (동)",
+    "source": "auto"
+  },
+  "aboard": {
+    "ipa": "/əˈbɔrd/",
+    "ko": "어보르드",
+    "meaning_pos": "탑승한 (형)",
+    "source": "auto"
+  },
+  "transfer": {
+    "ipa": "/ˈtrænsfər/",
+    "ko": "트래느스퍼",
+    "meaning_pos": "이동하다, 환승하다 (동)",
+    "source": "auto"
+  },
+  "transport": {
+    "ipa": "/ˈtrænspɔrt/",
+    "ko": "트래느스포르트",
+    "meaning_pos": "운송하다 (동)",
+    "source": "auto"
+  },
+  "virtual": {
+    "ipa": "/ˈvərʧuəl/",
+    "ko": "버추얼",
+    "meaning_pos": "가상의 (형)",
+    "source": "auto"
+  },
+  "motive": {
+    "ipa": "/ˈmoʊtɪv/",
+    "ko": "모티브",
+    "meaning_pos": "동기 (명)",
+    "source": "auto"
+  },
+  "alter": {
+    "ipa": "/ˈɔltər/",
+    "ko": "오르터",
+    "meaning_pos": "변경하다 (동)",
+    "source": "auto"
+  },
+  "intellectual": {
+    "ipa": "/ˌɪnəˈlɛkʧuəl/",
+    "ko": "이느털에크추얼",
+    "meaning_pos": "지적인 (형)",
+    "source": "auto"
+  },
+  "growth": {
+    "ipa": "/groʊθ/",
+    "ko": "그로스",
+    "meaning_pos": "성장 (명)",
+    "source": "auto"
+  },
+  "route": {
+    "ipa": "/rut/",
+    "ko": "루트",
+    "meaning_pos": "경로 (명)",
+    "source": "auto"
+  },
+  "immediate": {
+    "ipa": "/ˌɪˈmiˌdiət/",
+    "ko": "임이디어트",
+    "meaning_pos": "즉각적인 (형)",
+    "source": "auto"
+  },
+  "popularity": {
+    "ipa": "/ˌpɑpjəˈlɛrəti/",
+    "ko": "파프열에러티",
+    "meaning_pos": "인기 (명)",
+    "source": "auto"
+  },
+  "slight": {
+    "ipa": "/slaɪt/",
+    "ko": "스라이트",
+    "meaning_pos": "약간의 (형)",
+    "source": "auto"
+  },
+  "private": {
+    "ipa": "/ˈpraɪvət/",
+    "ko": "프라이버트",
+    "meaning_pos": "사적인 (형)",
+    "source": "auto"
+  },
+  "wheat": {
+    "ipa": "/wit/",
+    "ko": "위트",
+    "meaning_pos": "밀 (명)",
+    "source": "auto"
+  },
+  "landscape": {
+    "ipa": "/ˈlænˌskeɪp/",
+    "ko": "래느드스케이프",
+    "meaning_pos": "풍경 (명)",
+    "source": "auto"
+  },
+  "feature": {
+    "ipa": "/ˈfiʧər/",
+    "ko": "피처",
+    "meaning_pos": "특징 (명)",
+    "source": "auto"
+  },
+  "internal": {
+    "ipa": "/ˌɪnˈtərnəl/",
+    "ko": "이느턴얼",
+    "meaning_pos": "내부의 (형)",
+    "source": "auto"
+  },
+  "loss": {
+    "ipa": "/lɔs/",
+    "ko": "로스",
+    "meaning_pos": "손실 (명)",
+    "source": "auto"
+  },
+  "appropriate": {
+    "ipa": "/əˈproʊpriˌeɪt/",
+    "ko": "어프로프리어트",
+    "meaning_pos": "적절한 (형)",
+    "source": "auto"
+  },
+  "restore": {
+    "ipa": "/rɪˈstɔr/",
+    "ko": "리스토르",
+    "meaning_pos": "복구하다 (동)",
+    "source": "auto"
+  },
+  "struggle": {
+    "ipa": "/ˈstrəgəl/",
+    "ko": "스트러걸",
+    "meaning_pos": "고군분투하다 (동)",
+    "source": "auto"
+  },
+  "critic": {
+    "ipa": "/ˈkrɪtɪk/",
+    "ko": "크리티크",
+    "meaning_pos": "비평가 (명)",
+    "source": "auto"
+  },
+  "moral": {
+    "ipa": "/ˈmɔrəl/",
+    "ko": "모럴",
+    "meaning_pos": "도덕적인 (형)",
+    "source": "auto"
+  },
+  "capable": {
+    "ipa": "/ˈkeɪpəbəl/",
+    "ko": "케이퍼벌",
+    "meaning_pos": "유능한 (형)",
+    "source": "auto"
+  },
+  "junior": {
+    "ipa": "/ˈʤunjər/",
+    "ko": "주느여",
+    "meaning_pos": "후배의 (형)",
+    "source": "auto"
+  },
+  "absent": {
+    "ipa": "/ˈæbsənt/",
+    "ko": "애브서느트",
+    "meaning_pos": "결석한 (형)",
+    "source": "auto"
+  },
+  "ambassador": {
+    "ipa": "/æmˈbæsədər/",
+    "ko": "애므배서더",
+    "meaning_pos": "대사 (명)",
+    "source": "auto"
+  },
+  "ideal": {
+    "ipa": "/aɪˈdil/",
+    "ko": "아이딜",
+    "meaning_pos": "이상적인 (형)",
+    "source": "auto"
+  },
+  "encounter": {
+    "ipa": "/ɪnˈkaʊnər/",
+    "ko": "이느카우느터",
+    "meaning_pos": "우연히 만나다 (동)",
+    "source": "auto"
+  },
+  "ceremony": {
+    "ipa": "/ˈsɛrəˌmoʊni/",
+    "ko": "세럼온이",
+    "meaning_pos": "의식 (명)",
+    "source": "auto"
+  },
+  "occasion": {
+    "ipa": "/əˈkeɪʒən/",
+    "ko": "어케이전",
+    "meaning_pos": "때, 행사 (명)",
+    "source": "auto"
+  },
+  "tone": {
+    "ipa": "/toʊn/",
+    "ko": "톤",
+    "meaning_pos": "어조 (명)",
+    "source": "auto"
+  },
+  "frankly": {
+    "ipa": "/ˈfræŋkli/",
+    "ko": "프래으크리",
+    "meaning_pos": "솔직히 (부)",
+    "source": "auto"
+  },
+  "mount": {
+    "ipa": "/maʊnt/",
+    "ko": "마우느트",
+    "meaning_pos": "오르다 (동), 산 (명)",
+    "source": "auto"
+  },
+  "burden": {
+    "ipa": "/ˈbərdən/",
+    "ko": "버던",
+    "meaning_pos": "부담 (명)",
+    "source": "auto"
+  },
+  "enormous": {
+    "ipa": "/ɪˈnɔrmɪs/",
+    "ko": "인오르머스",
+    "meaning_pos": "거대한 (형)",
+    "source": "auto"
+  },
+  "external": {
+    "ipa": "/ɪkˈstərnəl/",
+    "ko": "이크스턴얼",
+    "meaning_pos": "외부의 (형)",
+    "source": "auto"
+  },
+  "lifetime": {
+    "ipa": "/ˈlaɪfˌtaɪm/",
+    "ko": "라이프탐이",
+    "meaning_pos": "일생 (명)",
+    "source": "auto"
+  },
+  "arrive": {
+    "ipa": "/əraɪv/",
+    "ko": "어아이브",
+    "meaning_pos": "도착하다 (동)",
+    "source": "auto"
+  },
+  "terrific": {
+    "ipa": "/tərˈɪfɪk/",
+    "ko": "터이피크",
+    "meaning_pos": "훌륭한 (형)",
+    "source": "auto"
+  },
+  "bump": {
+    "ipa": "/bəmp/",
+    "ko": "버므프",
+    "meaning_pos": "부딪치다 (동)",
+    "source": "auto"
+  },
+  "glory": {
+    "ipa": "/ˈglɔri/",
+    "ko": "그로리",
+    "meaning_pos": "영광 (명)",
+    "source": "auto"
+  },
+  "instrument": {
+    "ipa": "/ˈɪnstrəmənt/",
+    "ko": "이느스트럼어느트",
+    "meaning_pos": "도구, 악기 (명)",
+    "source": "auto"
+  },
+  "associate": {
+    "ipa": "/əˈsoʊʃiˌeɪt/",
+    "ko": "어소시어트",
+    "meaning_pos": "연관시키다 (동)",
+    "source": "auto"
+  },
+  "rate": {
+    "ipa": "/reɪt/",
+    "ko": "레이트",
+    "meaning_pos": "비율 (명), 평가하다 (동)",
+    "source": "auto"
+  },
+  "personality": {
+    "ipa": "/ˌpərsəˈnælɪti/",
+    "ko": "퍼선앨이티",
+    "meaning_pos": "성격 (명)",
+    "source": "auto"
+  },
+  "brief": {
+    "ipa": "/brif/",
+    "ko": "브리프",
+    "meaning_pos": "짧은 (형)",
+    "source": "auto"
+  },
+  "reward": {
+    "ipa": "/rɪˈwɔrd/",
+    "ko": "리워르드",
+    "meaning_pos": "보상 (명)",
+    "source": "auto"
+  },
+  "creature": {
+    "ipa": "/ˈkriʧər/",
+    "ko": "크리처",
+    "meaning_pos": "생물 (명)",
+    "source": "auto"
+  },
+  "policy": {
+    "ipa": "/ˈpɑləsi/",
+    "ko": "팔어시",
+    "meaning_pos": "정책 (명)",
+    "source": "auto"
+  },
+  "aspect": {
+    "ipa": "/ˈæˌspɛkt/",
+    "ko": "애스페크트",
+    "meaning_pos": "측면 (명)",
+    "source": "auto"
+  },
+  "scold": {
+    "ipa": "/skoʊld/",
+    "ko": "스코르드",
+    "meaning_pos": "꾸짖다 (동)",
+    "source": "auto"
+  },
+  "proper": {
+    "ipa": "/ˈprɑpər/",
+    "ko": "프라퍼",
+    "meaning_pos": "적절한 (형)",
+    "source": "auto"
+  },
+  "typical": {
+    "ipa": "/ˈtɪpɪkəl/",
+    "ko": "티퍼컬",
+    "meaning_pos": "전형적인 (형)",
+    "source": "auto"
+  },
+  "entrance": {
+    "ipa": "/ˈɛntrəns/",
+    "ko": "에느트러느스",
+    "meaning_pos": "입구 (명)",
+    "source": "auto"
+  },
+  "possess": {
+    "ipa": "/pəˈzɛs/",
+    "ko": "퍼제스",
+    "meaning_pos": "소유하다 (동)",
+    "source": "auto"
+  },
+  "inn": {
+    "ipa": "/ɪn/",
+    "ko": "인",
+    "meaning_pos": "여관 (명)",
+    "source": "auto"
+  },
+  "acquire": {
+    "ipa": "/əkˈwaɪər/",
+    "ko": "어크와이어",
+    "meaning_pos": "얻다 (동)",
+    "source": "auto"
+  },
+  "unlike": {
+    "ipa": "/ənˈlaɪk/",
+    "ko": "어느라이크",
+    "meaning_pos": "~와 달리 (명)",
+    "source": "auto"
+  },
+  "envelope": {
+    "ipa": "/ˈɛnvəˌloʊp/",
+    "ko": "에느벌오프",
+    "meaning_pos": "봉투 (명)",
+    "source": "auto"
+  },
+  "celebrate": {
+    "ipa": "/ˈsɛləˌbreɪt/",
+    "ko": "셀어브레이트",
+    "meaning_pos": "기념하다 (동)",
+    "source": "auto"
+  },
+  "digest": {
+    "ipa": "/ˈdaɪʤɛst/",
+    "ko": "다이제스트",
+    "meaning_pos": "소화하다 (동)",
+    "source": "auto"
+  },
+  "devote": {
+    "ipa": "/dɪˈvoʊt/",
+    "ko": "디보트",
+    "meaning_pos": "바치다 (동)",
+    "source": "auto"
+  },
+  "voyage": {
+    "ipa": "/vɔɪəʤ/",
+    "ko": "보이어즈",
+    "meaning_pos": "항해 (명)",
+    "source": "auto"
+  },
+  "negotiate": {
+    "ipa": "/nɪˈgoʊʃiˌeɪt/",
+    "ko": "너고시에이트",
+    "meaning_pos": "협상하다 (동)",
+    "source": "auto"
+  },
+  "complicated": {
+    "ipa": "/ˈkɑmpləˌkeɪtəd/",
+    "ko": "카므프러케이터드",
+    "meaning_pos": "복잡한 (형)",
+    "source": "auto"
+  },
+  "reservation": {
+    "ipa": "/ˌrɛzərˈveɪʃən/",
+    "ko": "레저베이션",
+    "meaning_pos": "예약 (명)",
+    "source": "auto"
+  },
+  "surround": {
+    "ipa": "/səraʊnd/",
+    "ko": "서아우느드",
+    "meaning_pos": "둘러싸다 (동)",
+    "source": "auto"
+  },
+  "millionaire": {
+    "ipa": "/ˌmɪljəˈnɛr/",
+    "ko": "미르연에르",
+    "meaning_pos": "백만장자 (명)",
+    "source": "auto"
+  },
+  "stain": {
+    "ipa": "/steɪn/",
+    "ko": "스텐이",
+    "meaning_pos": "얼룩 (명)",
+    "source": "auto"
+  },
+  "indicate": {
+    "ipa": "/ˈɪndəˌkeɪt/",
+    "ko": "이느더케이트",
+    "meaning_pos": "나타내다 (동)",
+    "source": "auto"
+  },
+  "regulate": {
+    "ipa": "/ˈrɛgjəˌleɪt/",
+    "ko": "레그열에이트",
+    "meaning_pos": "규제하다 (동)",
+    "source": "auto"
+  },
+  "sprinkle": {
+    "ipa": "/ˈsprɪŋkəl/",
+    "ko": "스프리으컬",
+    "meaning_pos": "뿌리다 (동)",
+    "source": "auto"
+  },
+  "twist": {
+    "ipa": "/twɪst/",
+    "ko": "트위스트",
+    "meaning_pos": "비틀다 (동)",
+    "source": "auto"
+  },
+  "applaud": {
+    "ipa": "/əˈplɔd/",
+    "ko": "어프로드",
+    "meaning_pos": "박수갈채를 보내다 (동)",
+    "source": "auto"
+  },
+  "graze": {
+    "ipa": "/greɪz/",
+    "ko": "그레이즈",
+    "meaning_pos": "풀을 뜯다 (동)",
+    "source": "auto"
+  },
+  "core": {
+    "ipa": "/kɔr/",
+    "ko": "코르",
+    "meaning_pos": "핵심 (명)",
+    "source": "auto"
+  },
+  "comfort": {
+    "ipa": "/ˈkəmfərt/",
+    "ko": "커므퍼트",
+    "meaning_pos": "편안함 (명)",
+    "source": "auto"
+  },
+  "assist": {
+    "ipa": "/əˈsɪst/",
+    "ko": "어시스트",
+    "meaning_pos": "돕다 (동)",
+    "source": "auto"
+  },
+  "empire": {
+    "ipa": "/ˈɛmpaɪər/",
+    "ko": "에므파이어",
+    "meaning_pos": "제국 (명)",
+    "source": "auto"
+  },
+  "beam": {
+    "ipa": "/bim/",
+    "ko": "빔",
+    "meaning_pos": "빛줄기 (명)",
+    "source": "auto"
+  },
+  "steep": {
+    "ipa": "/stip/",
+    "ko": "스티프",
+    "meaning_pos": "가파른 (명)",
+    "source": "auto"
+  },
+  "crack": {
+    "ipa": "/kræk/",
+    "ko": "크래크",
+    "meaning_pos": "갈라지다 (동)",
+    "source": "auto"
+  },
+  "incident": {
+    "ipa": "/ˈɪnsədənt/",
+    "ko": "이느서더느트",
+    "meaning_pos": "사건 (명)",
+    "source": "auto"
+  },
+  "content": {
+    "ipa": "/ˈkɑntɛnt/",
+    "ko": "카느테느트",
+    "meaning_pos": "내용, 만족하는 (명)",
+    "source": "auto"
+  },
+  "career": {
+    "ipa": "/kərɪr/",
+    "ko": "커이르",
+    "meaning_pos": "직업, 경력 (명)",
+    "source": "auto"
+  },
+  "function": {
+    "ipa": "/ˈfəŋkʃən/",
+    "ko": "퍼으크션",
+    "meaning_pos": "기능 (명)",
+    "source": "auto"
+  },
+  "port": {
+    "ipa": "/pɔrt/",
+    "ko": "포르트",
+    "meaning_pos": "항구 (명)",
+    "source": "auto"
+  },
+  "tropical": {
+    "ipa": "/ˈtrɑpɪkəl/",
+    "ko": "트라피컬",
+    "meaning_pos": "열대의 (형)",
+    "source": "auto"
+  },
+  "clown": {
+    "ipa": "/klaʊn/",
+    "ko": "크란우",
+    "meaning_pos": "광대 (명)",
+    "source": "auto"
+  },
+  "informal": {
+    "ipa": "/ˌɪnˈfɔrməl/",
+    "ko": "이느포르멀",
+    "meaning_pos": "비공식적인 (형)",
+    "source": "auto"
+  },
+  "annual": {
+    "ipa": "/ˈænjuəl/",
+    "ko": "애느유얼",
+    "meaning_pos": "연례의 (형)",
+    "source": "auto"
+  },
+  "complex": {
+    "ipa": "/ˈkɑmplɛks/",
+    "ko": "카므프레크스",
+    "meaning_pos": "복잡한 (형), 단지 (명)",
+    "source": "auto"
+  },
+  "temperature": {
+    "ipa": "/ˈtɛmpərəʧər/",
+    "ko": "테므프러처",
+    "meaning_pos": "온도 (명)",
+    "source": "auto"
+  },
+  "proof": {
+    "ipa": "/pruf/",
+    "ko": "프루프",
+    "meaning_pos": "증거 (명)",
+    "source": "auto"
+  },
+  "client": {
+    "ipa": "/klaɪənt/",
+    "ko": "크라이어느트",
+    "meaning_pos": "고객 (명)",
+    "source": "auto"
+  },
+  "frustrate": {
+    "ipa": "/ˈfrəˌstreɪt/",
+    "ko": "프러스트레이트",
+    "meaning_pos": "좌절시키다 (동)",
+    "source": "auto"
+  },
+  "within": {
+    "ipa": "/wɪˈθɪn/",
+    "ko": "위딘",
+    "meaning_pos": "~이내에 (명)",
+    "source": "auto"
+  },
+  "grocery": {
+    "ipa": "/ˈgroʊsəri/",
+    "ko": "그로서이",
+    "meaning_pos": "식료품 (명)",
+    "source": "auto"
+  },
+  "ceiling": {
+    "ipa": "/ˈsilɪŋ/",
+    "ko": "실잉",
+    "meaning_pos": "천장 (명)",
+    "source": "auto"
+  },
+  "disappear": {
+    "ipa": "/ˌdɪsəˈpɪr/",
+    "ko": "디서피르",
+    "meaning_pos": "사라지다 (동)",
+    "source": "auto"
+  },
+  "cope": {
+    "ipa": "/koʊp/",
+    "ko": "코프",
+    "meaning_pos": "대처하다 (동)",
+    "source": "auto"
+  },
+  "fate": {
+    "ipa": "/feɪt/",
+    "ko": "페이트",
+    "meaning_pos": "운명 (명)",
+    "source": "auto"
+  },
+  "accomplish": {
+    "ipa": "/əˈkɑmplɪʃ/",
+    "ko": "어카므프리스",
+    "meaning_pos": "성취하다 (동)",
+    "source": "auto"
+  },
+  "convince": {
+    "ipa": "/kənˈvɪns/",
+    "ko": "커느비느스",
+    "meaning_pos": "설득하다 (동)",
+    "source": "auto"
+  },
+  "quarrel": {
+    "ipa": "/kˈwɔrəl/",
+    "ko": "크워럴",
+    "meaning_pos": "다투다 (동)",
+    "source": "auto"
+  },
+  "stir": {
+    "ipa": "/stər/",
+    "ko": "스터",
+    "meaning_pos": "젓다 (동)",
+    "source": "auto"
+  },
+  "museum": {
+    "ipa": "/mˈjuziəm/",
+    "ko": "므유지엄",
+    "meaning_pos": "박물관 (명)",
+    "source": "auto"
+  },
+  "attain": {
+    "ipa": "/əˈteɪn/",
+    "ko": "어텐이",
+    "meaning_pos": "달성하다 (동)",
+    "source": "auto"
+  },
+  "funeral": {
+    "ipa": "/fˈjunərəl/",
+    "ko": "프윤어얼",
+    "meaning_pos": "장례식 (명)",
+    "source": "auto"
+  },
+  "attract": {
+    "ipa": "/əˈtrækt/",
+    "ko": "어트래크트",
+    "meaning_pos": "끌어들이다 (동)",
+    "source": "auto"
+  },
+  "recipe": {
+    "ipa": "/ˈrɛsəpi/",
+    "ko": "레서피",
+    "meaning_pos": "조리법 (명)",
+    "source": "auto"
+  },
+  "companion": {
+    "ipa": "/kəmˈpænjən/",
+    "ko": "커므패느연",
+    "meaning_pos": "동반자 (명)",
+    "source": "auto"
+  },
+  "please": {
+    "ipa": "/pliz/",
+    "ko": "프리즈",
+    "meaning_pos": "기쁘게 하다 (동)",
+    "source": "auto"
+  },
+  "glue": {
+    "ipa": "/glu/",
+    "ko": "그루",
+    "meaning_pos": "접착제 (명)",
+    "source": "auto"
+  },
+  "haste": {
+    "ipa": "/heɪst/",
+    "ko": "헤이스트",
+    "meaning_pos": "서두름 (명)",
+    "source": "auto"
+  },
+  "germ": {
+    "ipa": "/ʤərm/",
+    "ko": "점",
+    "meaning_pos": "세균 (명)",
+    "source": "auto"
+  },
+  "indeed": {
+    "ipa": "/ˌɪnˈdid/",
+    "ko": "이느디드",
+    "meaning_pos": "정말로 (명)",
+    "source": "auto"
+  },
+  "quarter": {
+    "ipa": "/kˈwɔrtər/",
+    "ko": "크워르터",
+    "meaning_pos": "4분의 1 (명)",
+    "source": "auto"
+  },
+  "plain": {
+    "ipa": "/pleɪn/",
+    "ko": "프렌이",
+    "meaning_pos": "평범한 (형), 평야 (명)",
+    "source": "auto"
+  },
+  "gradual": {
+    "ipa": "/ˈgræʤuəl/",
+    "ko": "그래주얼",
+    "meaning_pos": "점진적인 (형)",
+    "source": "auto"
+  },
+  "permanent": {
+    "ipa": "/ˈpərmɑˌnɛnt/",
+    "ko": "펌언어느트",
+    "meaning_pos": "영구적인 (형)",
+    "source": "auto"
+  },
+  "sort": {
+    "ipa": "/sɔrt/",
+    "ko": "소르트",
+    "meaning_pos": "종류 (명)",
+    "source": "auto"
+  },
+  "anchor": {
+    "ipa": "/ˈæŋkər/",
+    "ko": "애으커",
+    "meaning_pos": "닻 (명)",
+    "source": "auto"
+  },
+  "jealous": {
+    "ipa": "/ˈʤɛləs/",
+    "ko": "젤어스",
+    "meaning_pos": "질투하는 (명)",
+    "source": "auto"
+  },
+  "confidence": {
+    "ipa": "/ˈkɑnfədɛns/",
+    "ko": "카느퍼더느스",
+    "meaning_pos": "자신감 (명)",
+    "source": "auto"
+  },
+  "factory": {
+    "ipa": "/ˈfæktəri/",
+    "ko": "패크터이",
+    "meaning_pos": "공장 (명)",
+    "source": "auto"
+  },
+  "mature": {
+    "ipa": "/məˈʧʊr/",
+    "ko": "머추르",
+    "meaning_pos": "성숙한 (형)",
+    "source": "auto"
+  },
+  "propose": {
+    "ipa": "/prəˈpoʊz/",
+    "ko": "프러포즈",
+    "meaning_pos": "제안하다 (동)",
+    "source": "auto"
+  },
+  "pursue": {
+    "ipa": "/pərˈsu/",
+    "ko": "퍼수",
+    "meaning_pos": "추구하다 (동)",
+    "source": "auto"
+  },
+  "calm": {
+    "ipa": "/kɑm/",
+    "ko": "캄",
+    "meaning_pos": "차분한 (형)",
+    "source": "auto"
+  },
+  "distinguish": {
+    "ipa": "/dɪˈstɪŋgwɪʃ/",
+    "ko": "디스티으그위스",
+    "meaning_pos": "구별하다 (동)",
+    "source": "auto"
+  },
+  "encourage": {
+    "ipa": "/ɪnˈkərəʤ/",
+    "ko": "에느커이즈",
+    "meaning_pos": "격려하다 (동)",
+    "source": "auto"
+  },
+  "responsible": {
+    "ipa": "/riˈspɑnsəbəl/",
+    "ko": "리스파느서벌",
+    "meaning_pos": "책임감 있는 (형)",
+    "source": "auto"
+  },
+  "announce": {
+    "ipa": "/əˈnaʊns/",
+    "ko": "언아우느스",
+    "meaning_pos": "발표하다 (동)",
+    "source": "auto"
+  },
+  "rely": {
+    "ipa": "/rɪˈlaɪ/",
+    "ko": "릴아이",
+    "meaning_pos": "의지하다 (동)",
+    "source": "auto"
+  },
+  "firm": {
+    "ipa": "/fərm/",
+    "ko": "펌",
+    "meaning_pos": "확고한 (형), 회사 (명)",
+    "source": "auto"
+  },
+  "sheet": {
+    "ipa": "/ʃit/",
+    "ko": "시트",
+    "meaning_pos": "시트, 종이 한 장 (명)",
+    "source": "auto"
+  },
+  "brilliant": {
+    "ipa": "/ˈbrɪljənt/",
+    "ko": "브리르여느트",
+    "meaning_pos": "훌륭한 (형), 눈부신 (명)",
+    "source": "auto"
+  },
+  "chapter": {
+    "ipa": "/ˈʧæptər/",
+    "ko": "채프터",
+    "meaning_pos": "장 (명)",
+    "source": "auto"
+  },
+  "exclude": {
+    "ipa": "/ɪkˈsklud/",
+    "ko": "이크스크루드",
+    "meaning_pos": "제외하다 (동)",
+    "source": "auto"
+  },
+  "survey": {
+    "ipa": "/ˈsərˌveɪ/",
+    "ko": "서베이",
+    "meaning_pos": "설문조사 (명)",
+    "source": "auto"
+  },
+  "concentrate": {
+    "ipa": "/ˈkɑnsənˌtreɪt/",
+    "ko": "카느서느트레이트",
+    "meaning_pos": "집중하다 (동)",
+    "source": "auto"
+  },
+  "debt": {
+    "ipa": "/dɛt/",
+    "ko": "데트",
+    "meaning_pos": "빚 (명)",
+    "source": "auto"
+  },
+  "gently": {
+    "ipa": "/ˈʤɛntli/",
+    "ko": "제느트리",
+    "meaning_pos": "부드럽게 (부)",
+    "source": "auto"
+  },
+  "engineer": {
+    "ipa": "/ˈɛnʤəˈnɪr/",
+    "ko": "에느전이르",
+    "meaning_pos": "엔지니어 (명)",
+    "source": "auto"
+  },
+  "button": {
+    "ipa": "/ˈbətən/",
+    "ko": "버턴",
+    "meaning_pos": "버튼 (명)",
+    "source": "auto"
+  },
+  "wizard": {
+    "ipa": "/ˈwɪzərd/",
+    "ko": "위저드",
+    "meaning_pos": "마법사 (명)",
+    "source": "auto"
+  },
+  "announcer": {
+    "ipa": "/əˈnaʊnsər/",
+    "ko": "언아우느서",
+    "meaning_pos": "아나운서 (명)",
+    "source": "auto"
+  },
+  "adventure": {
+    "ipa": "/ədˈvɛnʧər/",
+    "ko": "애드베느처",
+    "meaning_pos": "모험 (명)",
+    "source": "auto"
+  },
+  "carefully": {
+    "ipa": "/ˈkɛrfəli/",
+    "ko": "케르펄이",
+    "meaning_pos": "주의 깊게 (부)",
+    "source": "auto"
+  },
+  "sensitive": {
+    "ipa": "/ˈsɛnsɪtɪv/",
+    "ko": "세느서티브",
+    "meaning_pos": "민감한 (형)",
+    "source": "auto"
+  },
+  "translation": {
+    "ipa": "/trænzˈleɪʃən/",
+    "ko": "트래느즈레이션",
+    "meaning_pos": "번역 (명)",
+    "source": "auto"
+  },
+  "campaign": {
+    "ipa": "/kæmˈpeɪn/",
+    "ko": "캐므펜이",
+    "meaning_pos": "캠페인 (형)",
+    "source": "auto"
+  },
+  "globe": {
+    "ipa": "/gloʊb/",
+    "ko": "그로브",
+    "meaning_pos": "지구 (명)",
+    "source": "auto"
+  },
+  "traditional": {
+    "ipa": "/trəˈdɪʃənəl/",
+    "ko": "트러디션얼",
+    "meaning_pos": "전통적인 (형)",
+    "source": "auto"
+  },
+  "oppose": {
+    "ipa": "/əˈpoʊz/",
+    "ko": "어포즈",
+    "meaning_pos": "반대하다 (동)",
+    "source": "auto"
+  },
+  "discussion": {
+    "ipa": "/dɪˈskəʃən/",
+    "ko": "디스커션",
+    "meaning_pos": "토론 (명)",
+    "source": "auto"
+  },
+  "pollution": {
+    "ipa": "/pəˈluʃən/",
+    "ko": "펄우션",
+    "meaning_pos": "오염 (명)",
+    "source": "auto"
+  },
+  "secure": {
+    "ipa": "/sɪˈkjʊr/",
+    "ko": "시크유르",
+    "meaning_pos": "안전한 (형), 확보하다 (동)",
+    "source": "auto"
+  },
+  "inquiry": {
+    "ipa": "/ˌɪnkˈwaɪˌri/",
+    "ko": "이느크와이리",
+    "meaning_pos": "조사 (명), 문의 (형)",
+    "source": "auto"
+  },
+  "signature": {
+    "ipa": "/ˈsɪgnəʧər/",
+    "ko": "시그너처",
+    "meaning_pos": "서명 (명)",
+    "source": "auto"
+  },
+  "etiquette": {
+    "ipa": "/ˈɛtəkət/",
+    "ko": "에터커트",
+    "meaning_pos": "예의 (형)",
+    "source": "auto"
+  },
+  "exclusive": {
+    "ipa": "/ɪkˈsklusɪv/",
+    "ko": "이크스크루시브",
+    "meaning_pos": "독점적인 (형)",
+    "source": "auto"
+  },
+  "prohibit": {
+    "ipa": "/proʊˈhɪbət/",
+    "ko": "프로히버트",
+    "meaning_pos": "금지하다 (동)",
+    "source": "auto"
+  },
+  "catalogue": {
+    "ipa": "/ˈkætəˌlɔg/",
+    "ko": "캐털오그",
+    "meaning_pos": "카탈로그 (명)",
+    "source": "auto"
+  },
+  "stress": {
+    "ipa": "/strɛs/",
+    "ko": "스트레스",
+    "meaning_pos": "스트레스 (명), 강조하다 (동)",
+    "source": "auto"
+  },
+  "champion": {
+    "ipa": "/ˈʧæmpiən/",
+    "ko": "채므피언",
+    "meaning_pos": "챔피언 (명)",
+    "source": "auto"
+  },
+  "disappoint": {
+    "ipa": "/ˌdɪsəˈpɔɪnt/",
+    "ko": "디서포이느트",
+    "meaning_pos": "실망시키다 (동)",
+    "source": "auto"
+  },
+  "jewelry": {
+    "ipa": "/ˈʤuəlri/",
+    "ko": "주어르리",
+    "meaning_pos": "보석 (명)",
+    "source": "auto"
+  },
+  "absolutely": {
+    "ipa": "/ˌæbsəˈlutli/",
+    "ko": "애브설우트리",
+    "meaning_pos": "절대적으로 (명)",
+    "source": "auto"
+  },
+  "seaweed": {
+    "ipa": "/ˈsiˌwid/",
+    "ko": "시위드",
+    "meaning_pos": "해초 (명)",
+    "source": "auto"
+  },
+  "grace": {
+    "ipa": "/greɪs/",
+    "ko": "그레이스",
+    "meaning_pos": "우아함 (명)",
+    "source": "auto"
+  },
+  "extracurricular": {
+    "ipa": "/ˌɛkstrəkərˈɪkjələr/",
+    "ko": "에크스트러커이크열어",
+    "meaning_pos": "과외의 (형)",
+    "source": "auto"
+  },
+  "intense": {
+    "ipa": "/ˌɪnˈtɛns/",
+    "ko": "이느테느스",
+    "meaning_pos": "강렬한 (형)",
+    "source": "auto"
+  },
+  "probability": {
+    "ipa": "/ˌprɑbəˈbɪləˌti/",
+    "ko": "프라버빌어티",
+    "meaning_pos": "확률 (명)",
+    "source": "auto"
+  },
+  "kneel": {
+    "ipa": "/nil/",
+    "ko": "닐",
+    "meaning_pos": "무릎을 꿇다 (동)",
+    "source": "auto"
+  },
+  "missionary": {
+    "ipa": "/ˈmɪʃəˌnɛri/",
+    "ko": "미션에리",
+    "meaning_pos": "선교사 (명)",
+    "source": "auto"
+  },
+  "creep": {
+    "ipa": "/krip/",
+    "ko": "크리프",
+    "meaning_pos": "기어가다 (동)",
+    "source": "auto"
+  },
+  "oppression": {
+    "ipa": "/əˈprɛʃən/",
+    "ko": "어프레션",
+    "meaning_pos": "억압 (명)",
+    "source": "auto"
+  },
+  "dove": {
+    "ipa": "/dəv/",
+    "ko": "더브",
+    "meaning_pos": "비둘기 (명)",
+    "source": "auto"
+  },
+  "manager": {
+    "ipa": "/ˈmænɪʤər/",
+    "ko": "맨어저",
+    "meaning_pos": "매니저 (명)",
+    "source": "auto"
+  },
+  "undergo": {
+    "ipa": "/ˌəndərˈgoʊ/",
+    "ko": "어느더고",
+    "meaning_pos": "겪다 (동)",
+    "source": "auto"
+  },
+  "despair": {
+    "ipa": "/dɪˈspɛr/",
+    "ko": "디스페르",
+    "meaning_pos": "절망 (명)",
+    "source": "auto"
+  },
+  "erase": {
+    "ipa": "/ɪˈreɪs/",
+    "ko": "이레이스",
+    "meaning_pos": "지우다 (동)",
+    "source": "auto"
+  },
+  "massive": {
+    "ipa": "/ˈmæsɪv/",
+    "ko": "매시브",
+    "meaning_pos": "거대한 (형)",
+    "source": "auto"
+  },
+  "respectful": {
+    "ipa": "/rɪˈspɛktfəl/",
+    "ko": "리스페크트펄",
+    "meaning_pos": "존경하는 (명)",
+    "source": "auto"
+  },
+  "extraordinary": {
+    "ipa": "/ˌɛkstrəˈɔrdəˌnɛri/",
+    "ko": "에크스트러오르던에리",
+    "meaning_pos": "비범한 (형)",
+    "source": "auto"
+  },
+  "pave": {
+    "ipa": "/peɪv/",
+    "ko": "페이브",
+    "meaning_pos": "길을 포장하다 (동)",
+    "source": "auto"
+  },
+  "depth": {
+    "ipa": "/dɛpθ/",
+    "ko": "데프스",
+    "meaning_pos": "깊이 (명)",
+    "source": "auto"
+  },
+  "ethnic": {
+    "ipa": "/ˈɛθnɪk/",
+    "ko": "에스니크",
+    "meaning_pos": "민족의 (형)",
+    "source": "auto"
+  },
+  "marriage": {
+    "ipa": "/ˈmɛrɪʤ/",
+    "ko": "메리즈",
+    "meaning_pos": "결혼 (명)",
+    "source": "auto"
+  },
+  "treatment": {
+    "ipa": "/ˈtritmənt/",
+    "ko": "트리트머느트",
+    "meaning_pos": "치료, 대우 (명)",
+    "source": "auto"
+  },
+  "resident": {
+    "ipa": "/ˈrɛzɪdənt/",
+    "ko": "레지더느트",
+    "meaning_pos": "거주자 (명)",
+    "source": "auto"
+  },
+  "thrilling": {
+    "ipa": "/θˈrɪlɪŋ/",
+    "ko": "스릴잉",
+    "meaning_pos": "스릴 있는 (형)",
+    "source": "auto"
+  },
+  "concerned": {
+    "ipa": "/kənˈsərnd/",
+    "ko": "커느서느드",
+    "meaning_pos": "걱정하는 (명)",
+    "source": "auto"
+  },
+  "instruct": {
+    "ipa": "/ˌɪnˈstrəkt/",
+    "ko": "이느스트러크트",
+    "meaning_pos": "지시하다 (동)",
+    "source": "auto"
+  },
+  "loosen": {
+    "ipa": "/ˈlusən/",
+    "ko": "루선",
+    "meaning_pos": "느슨하게 하다 (동)",
+    "source": "auto"
+  },
+  "tension": {
+    "ipa": "/ˈtɛnʃən/",
+    "ko": "테느션",
+    "meaning_pos": "긴장 (명)",
+    "source": "auto"
+  },
+  "throughout": {
+    "ipa": "/θruaʊt/",
+    "ko": "스루아우트",
+    "meaning_pos": "도처에, 내내 (명)",
+    "source": "auto"
+  },
+  "consequence": {
+    "ipa": "/ˈkɑnsəkwəns/",
+    "ko": "카느서크워느스",
+    "meaning_pos": "결과 (명)",
+    "source": "auto"
+  },
+  "absence": {
+    "ipa": "/ˈæbsəns/",
+    "ko": "애브서느스",
+    "meaning_pos": "결석, 부재 (명)",
+    "source": "auto"
+  },
+  "foresee": {
+    "ipa": "/fɔrˈsi/",
+    "ko": "포르시",
+    "meaning_pos": "예견하다 (동)",
+    "source": "auto"
+  },
+  "excitement": {
+    "ipa": "/ɪkˈsaɪtmənt/",
+    "ko": "이크사이트머느트",
+    "meaning_pos": "흥분 (명)",
+    "source": "auto"
+  },
+  "container": {
+    "ipa": "/kənˈteɪnər/",
+    "ko": "커느텐이어",
+    "meaning_pos": "용기, 그릇 (명)",
+    "source": "auto"
+  },
+  "imply": {
+    "ipa": "/ˌɪmˈplaɪ/",
+    "ko": "이므프라이",
+    "meaning_pos": "암시하다 (동)",
+    "source": "auto"
+  },
+  "portion": {
+    "ipa": "/ˈpɔrʃən/",
+    "ko": "포르션",
+    "meaning_pos": "부분 (명)",
+    "source": "auto"
+  },
+  "punctual": {
+    "ipa": "/ˈpəŋkʧuəl/",
+    "ko": "퍼으크추얼",
+    "meaning_pos": "시간을 엄수하는 (명)",
+    "source": "auto"
+  },
+  "detect": {
+    "ipa": "/dɪˈtɛkt/",
+    "ko": "디테크트",
+    "meaning_pos": "발견하다 (동)",
+    "source": "auto"
+  },
+  "technical": {
+    "ipa": "/ˈtɛknɪkəl/",
+    "ko": "테크니컬",
+    "meaning_pos": "기술적인 (형)",
+    "source": "auto"
+  },
+  "anxiety": {
+    "ipa": "/æŋˈzaɪəti/",
+    "ko": "애으자이어티",
+    "meaning_pos": "불안 (명)",
+    "source": "auto"
+  },
+  "threaten": {
+    "ipa": "/θˈrɛtən/",
+    "ko": "스레턴",
+    "meaning_pos": "위협하다 (동)",
+    "source": "auto"
+  },
+  "barely": {
+    "ipa": "/ˈbɛrli/",
+    "ko": "베르리",
+    "meaning_pos": "거의 ~않다 (동)",
+    "source": "auto"
+  },
+  "omit": {
+    "ipa": "/oʊˈmɪt/",
+    "ko": "옴이트",
+    "meaning_pos": "생력하다 (동)",
+    "source": "auto"
+  },
+  "addicted": {
+    "ipa": "/əˈdɪktɪd/",
+    "ko": "어디크티드",
+    "meaning_pos": "중독된 (명)",
+    "source": "auto"
+  },
+  "antique": {
+    "ipa": "/ænˈtik/",
+    "ko": "애느티크",
+    "meaning_pos": "골동품 (명)",
+    "source": "auto"
+  },
+  "secondhand": {
+    "ipa": "/ˈsɛkənˌdhænd/",
+    "ko": "세커느드해느드",
+    "meaning_pos": "중고의 (형)",
+    "source": "auto"
+  },
+  "competitive": {
+    "ipa": "/kəmˈpɛtɪtɪv/",
+    "ko": "커므페터티브",
+    "meaning_pos": "경쟁적인 (형)",
+    "source": "auto"
+  },
+  "robber": {
+    "ipa": "/ˈrɑbər/",
+    "ko": "라버",
+    "meaning_pos": "강도 (명)",
+    "source": "auto"
+  },
+  "exhausted": {
+    "ipa": "/ɪgˈzɔstɪd/",
+    "ko": "이그조스티드",
+    "meaning_pos": "기진맥진한 (형)",
+    "source": "auto"
+  },
+  "architecture": {
+    "ipa": "/ˈɑrkəˌtɛkʧər/",
+    "ko": "아르커테크처",
+    "meaning_pos": "건축 (명)",
+    "source": "auto"
+  },
+  "royalty": {
+    "ipa": "/ˈrɔɪəlti/",
+    "ko": "로이어르티",
+    "meaning_pos": "왕족 (명)",
+    "source": "auto"
+  },
+  "lighten": {
+    "ipa": "/ˈlaɪtən/",
+    "ko": "라이턴",
+    "meaning_pos": "가볍게 하다 (동)",
+    "source": "auto"
+  },
+  "homeless": {
+    "ipa": "/ˈhoʊmləs/",
+    "ko": "호므러스",
+    "meaning_pos": "노숙자의 (형)",
+    "source": "auto"
+  },
+  "go through": {
+    "ipa": "/goʊ θru/",
+    "ko": "고 스루",
+    "meaning_pos": "겪다 (동)",
+    "source": "auto"
+  },
+  "crowd": {
+    "ipa": "/kraʊd/",
+    "ko": "크라우드",
+    "meaning_pos": "군중 (명)",
+    "source": "auto"
+  },
+  "seminar": {
+    "ipa": "/ˈsɛməˌnɑr/",
+    "ko": "셈언아르",
+    "meaning_pos": "세미나 (명)",
+    "source": "auto"
+  },
+  "lung": {
+    "ipa": "/ləŋ/",
+    "ko": "렁",
+    "meaning_pos": "폐 (명)",
+    "source": "auto"
+  },
+  "relative": {
+    "ipa": "/ˈrɛlətɪv/",
+    "ko": "렐어티브",
+    "meaning_pos": "친척 (명), 상대적인 (형)",
+    "source": "auto"
+  },
+  "harmful": {
+    "ipa": "/ˈhɑrmfəl/",
+    "ko": "하르므펄",
+    "meaning_pos": "해로운 (형)",
+    "source": "auto"
+  },
+  "excite": {
+    "ipa": "/ɪkˈsaɪt/",
+    "ko": "이크사이트",
+    "meaning_pos": "흥분시키다 (동)",
+    "source": "auto"
+  },
+  "reality": {
+    "ipa": "/ˌriˈæləˌti/",
+    "ko": "리앨어티",
+    "meaning_pos": "현실 (명)",
+    "source": "auto"
+  },
+  "pitcher": {
+    "ipa": "/ˈpɪʧər/",
+    "ko": "피처",
+    "meaning_pos": "투수, 물주전자 (명)",
+    "source": "auto"
+  },
+  "classical": {
+    "ipa": "/ˈklæsɪkəl/",
+    "ko": "크래시컬",
+    "meaning_pos": "고전적인 (형)",
+    "source": "auto"
+  },
+  "energetic": {
+    "ipa": "/ˌɛnərˈʤɛtɪk/",
+    "ko": "엔어제티크",
+    "meaning_pos": "활동적인 (형)",
+    "source": "auto"
+  },
+  "cotton": {
+    "ipa": "/ˈkɔtən/",
+    "ko": "카턴",
+    "meaning_pos": "면 (명)",
+    "source": "auto"
+  },
+  "activity": {
+    "ipa": "/ækˈtɪvɪti/",
+    "ko": "애크티버티",
+    "meaning_pos": "활동 (명)",
+    "source": "auto"
+  },
+  "focus": {
+    "ipa": "/ˈfoʊkɪs/",
+    "ko": "포커스",
+    "meaning_pos": "초점 (명), 집중하다 (동)",
+    "source": "auto"
+  },
+  "definitely": {
+    "ipa": "/ˈdɛfənətli/",
+    "ko": "데펀어트리",
+    "meaning_pos": "분명히 (부)",
+    "source": "auto"
+  },
+  "academy": {
+    "ipa": "/əˈkædəmi/",
+    "ko": "어캐덤이",
+    "meaning_pos": "학원, 학술원 (명)",
+    "source": "auto"
+  },
+  "space": {
+    "ipa": "/speɪs/",
+    "ko": "스페이스",
+    "meaning_pos": "우주, 공간 (명)",
+    "source": "auto"
+  },
+  "politic": {
+    "ipa": "/ˈpɑləˌtɪk/",
+    "ko": "팔어티크",
+    "meaning_pos": "정치적인 (형)",
+    "source": "auto"
+  },
+  "independence": {
+    "ipa": "/ˌɪndɪˈpɛndəns/",
+    "ko": "이느디페느더느스",
+    "meaning_pos": "독립 (명)",
+    "source": "auto"
+  },
+  "immediately": {
+    "ipa": "/ˌɪˈmiˌdiətli/",
+    "ko": "임이디어트리",
+    "meaning_pos": "즉시 (명)",
+    "source": "auto"
+  },
+  "reasonable": {
+    "ipa": "/ˈrizənəbəl/",
+    "ko": "리전어벌",
+    "meaning_pos": "합리적인 (형)",
+    "source": "auto"
+  },
+  "meadow": {
+    "ipa": "/ˈmɛˌdoʊ/",
+    "ko": "메도",
+    "meaning_pos": "목초지 (명)",
+    "source": "auto"
+  },
+  "snack": {
+    "ipa": "/snæk/",
+    "ko": "스내크",
+    "meaning_pos": "간식 (명)",
+    "source": "auto"
+  },
+  "fiction": {
+    "ipa": "/ˈfɪkʃən/",
+    "ko": "피크션",
+    "meaning_pos": "소설 (명)",
+    "source": "auto"
+  },
+  "transportation": {
+    "ipa": "/ˌtrænspərˈteɪʃən/",
+    "ko": "트래느스퍼테이션",
+    "meaning_pos": "교통수단 (명)",
+    "source": "auto"
+  },
+  "underneath": {
+    "ipa": "/ˌəndərˈniθ/",
+    "ko": "어느던이스",
+    "meaning_pos": "~의 아래에 (명)",
+    "source": "auto"
+  },
+  "fantastic": {
+    "ipa": "/fænˈtæstɪk/",
+    "ko": "패느태스티크",
+    "meaning_pos": "환상적인 (형)",
+    "source": "auto"
+  },
+  "technique": {
+    "ipa": "/tɛkˈnik/",
+    "ko": "테크니크",
+    "meaning_pos": "기술 (명)",
+    "source": "auto"
+  },
+  "starve": {
+    "ipa": "/stɑrv/",
+    "ko": "스타르브",
+    "meaning_pos": "굶주리다 (동)",
+    "source": "auto"
+  },
+  "prior": {
+    "ipa": "/praɪər/",
+    "ko": "프라이어",
+    "meaning_pos": "이전의 (형)",
+    "source": "auto"
+  },
+  "cradle": {
+    "ipa": "/ˈkreɪdəl/",
+    "ko": "크레이덜",
+    "meaning_pos": "요람 (명)",
+    "source": "auto"
+  },
+  "iceberg": {
+    "ipa": "/ˈaɪsbərg/",
+    "ko": "아이스버그",
+    "meaning_pos": "빙산 (명)",
+    "source": "auto"
+  },
+  "business": {
+    "ipa": "/ˈbɪznɪs/",
+    "ko": "비즈너스",
+    "meaning_pos": "사업 (명)",
+    "source": "auto"
+  },
+  "adult": {
+    "ipa": "/ˈædəlt/",
+    "ko": "어더르트",
+    "meaning_pos": "어른 (명)",
+    "source": "auto"
+  },
+  "mere": {
+    "ipa": "/mɪr/",
+    "ko": "미르",
+    "meaning_pos": "단지 ~에 불과한 (형)",
+    "source": "auto"
+  },
+  "personal": {
+    "ipa": "/ˈpərsɪnəl/",
+    "ko": "퍼신얼",
+    "meaning_pos": "개인의 (형)",
+    "source": "auto"
+  },
+  "addition": {
+    "ipa": "/əˈdɪʃən/",
+    "ko": "어디션",
+    "meaning_pos": "추가 (명)",
+    "source": "auto"
+  },
+  "appearance": {
+    "ipa": "/əˈpɪrəns/",
+    "ko": "어피러느스",
+    "meaning_pos": "외모, 출현 (명)",
+    "source": "auto"
+  },
+  "against": {
+    "ipa": "/əˈgɛnst/",
+    "ko": "어게느스트",
+    "meaning_pos": "~에 반대하여 (명)",
+    "source": "auto"
+  },
+  "pacific": {
+    "ipa": "/pəˈsɪfɪk/",
+    "ko": "퍼시피크",
+    "meaning_pos": "태평양의, 평화로운 (형)",
+    "source": "auto"
+  },
+  "resume": {
+    "ipa": "/ˈrɛzəˌmeɪ/",
+    "ko": "리줌",
+    "meaning_pos": "이력서 (명), 재개하다 (동)",
+    "source": "auto"
+  },
+  "permission": {
+    "ipa": "/pərˈmɪʃən/",
+    "ko": "펌이션",
+    "meaning_pos": "허락 (명)",
+    "source": "auto"
+  },
+  "organization": {
+    "ipa": "/ˌɔrgənəˈzeɪʃən/",
+    "ko": "오르건어제이션",
+    "meaning_pos": "조직 (명)",
+    "source": "auto"
+  },
+  "academic": {
+    "ipa": "/ˌækəˈdɛmɪk/",
+    "ko": "애커뎀이크",
+    "meaning_pos": "학술적인 (형)",
+    "source": "auto"
+  },
+  "marble": {
+    "ipa": "/ˈmɑrbəl/",
+    "ko": "마르벌",
+    "meaning_pos": "대리석, 구슬 (명)",
+    "source": "auto"
+  },
+  "injury": {
+    "ipa": "/ˈɪnʤəri/",
+    "ko": "이느저이",
+    "meaning_pos": "부상 (명)",
+    "source": "auto"
+  },
+  "idiom": {
+    "ipa": "/ˈɪdiəm/",
+    "ko": "이디엄",
+    "meaning_pos": "관용구 (명)",
+    "source": "auto"
+  },
+  "unfortunately": {
+    "ipa": "/ənˈfɔrʧənətli/",
+    "ko": "어느포르천어트리",
+    "meaning_pos": "불행하게도 (명)",
+    "source": "auto"
+  },
+  "parade": {
+    "ipa": "/pəreɪd/",
+    "ko": "퍼에이드",
+    "meaning_pos": "퍼레이드 (명)",
+    "source": "auto"
+  },
+  "humanity": {
+    "ipa": "/juˈmænɪti/",
+    "ko": "흐윰앤이티",
+    "meaning_pos": "인류 (명)",
+    "source": "auto"
+  },
+  "optimistic": {
+    "ipa": "/ˌɑptɪˈmɪstɪk/",
+    "ko": "아프텀이스티크",
+    "meaning_pos": "낙관적인 (형)",
+    "source": "auto"
+  },
+  "garlic": {
+    "ipa": "/ˈgɑrlɪk/",
+    "ko": "가르리크",
+    "meaning_pos": "마늘 (명)",
+    "source": "auto"
+  },
+  "selfish": {
+    "ipa": "/ˈsɛlfɪʃ/",
+    "ko": "세르피스",
+    "meaning_pos": "이기적인 (형)",
+    "source": "auto"
+  },
+  "moisture": {
+    "ipa": "/ˈmɔɪsʧər/",
+    "ko": "모이스처",
+    "meaning_pos": "수분 (명)",
+    "source": "auto"
+  },
+  "wagon": {
+    "ipa": "/ˈwægən/",
+    "ko": "우애건",
+    "meaning_pos": "마차 (명)",
+    "source": "auto"
+  },
+  "glitter": {
+    "ipa": "/ˈglɪtər/",
+    "ko": "그리터",
+    "meaning_pos": "반짝이다 (동)",
+    "source": "auto"
+  },
+  "interview": {
+    "ipa": "/ˈɪntərvˌju/",
+    "ko": "이느터브유",
+    "meaning_pos": "면접 (명)",
+    "source": "auto"
+  },
+  "fright": {
+    "ipa": "/fraɪt/",
+    "ko": "프라이트",
+    "meaning_pos": "공포 (명)",
+    "source": "auto"
+  },
+  "seatbelt": {
+    "ipa": "/ˈsitˌbɛlt/",
+    "ko": "시트베르트",
+    "meaning_pos": "안전벨트 (명)",
+    "source": "auto"
+  },
+  "microscope": {
+    "ipa": "/ˈmaɪkrəˌskoʊp/",
+    "ko": "마이크러스코프",
+    "meaning_pos": "현미경 (명)",
+    "source": "auto"
+  },
+  "patent": {
+    "ipa": "/ˈpætənt/",
+    "ko": "패터느트",
+    "meaning_pos": "특허 (명)",
+    "source": "auto"
+  },
+  "distinct": {
+    "ipa": "/dɪˈstɪŋkt/",
+    "ko": "디스티응크트",
+    "meaning_pos": "뚜렷한 (형)",
+    "source": "auto"
+  },
+  "exit": {
+    "ipa": "/ˈɛksət/",
+    "ko": "에그지트",
+    "meaning_pos": "출구 (명)",
+    "source": "auto"
+  },
+  "convert": {
+    "ipa": "/ˈkɑnvərt/",
+    "ko": "카느버트",
+    "meaning_pos": "변환하다 (동)",
+    "source": "auto"
+  },
+  "oyster": {
+    "ipa": "/ˈɔɪstər/",
+    "ko": "오이스터",
+    "meaning_pos": "굴 (명)",
+    "source": "auto"
+  },
+  "illusion": {
+    "ipa": "/ˌɪˈluʒən/",
+    "ko": "일우전",
+    "meaning_pos": "환상 (명)",
+    "source": "auto"
+  },
+  "scary": {
+    "ipa": "/ˈskɛri/",
+    "ko": "스케리",
+    "meaning_pos": "무서운 (형)",
+    "source": "auto"
+  },
+  "expedition": {
+    "ipa": "/ˌɛkspəˈdɪʃən/",
+    "ko": "에크스퍼디션",
+    "meaning_pos": "탐험 (명)",
+    "source": "auto"
+  },
+  "sauce": {
+    "ipa": "/sɔs/",
+    "ko": "소스",
+    "meaning_pos": "소스 (명)",
+    "source": "auto"
+  },
+  "magic": {
+    "ipa": "/ˈmæʤɪk/",
+    "ko": "매지크",
+    "meaning_pos": "마술 (명)",
+    "source": "auto"
+  },
+  "pressure": {
+    "ipa": "/ˈprɛʃər/",
+    "ko": "프레셔",
+    "meaning_pos": "압력 (명)",
+    "source": "auto"
+  },
+  "curious": {
+    "ipa": "/ˈkjʊriəs/",
+    "ko": "크유리어스",
+    "meaning_pos": "호기심이 많은 (형)",
+    "source": "auto"
+  },
+  "subtle": {
+    "ipa": "/ˈsətəl/",
+    "ko": "서털",
+    "meaning_pos": "미묘한 (형)",
+    "source": "auto"
+  },
+  "apologize": {
+    "ipa": "/əˈpɑləˌʤaɪz/",
+    "ko": "어팔어자이즈",
+    "meaning_pos": "사과하다 (동)",
+    "source": "auto"
+  },
+  "solution": {
+    "ipa": "/səˈluʃən/",
+    "ko": "설우션",
+    "meaning_pos": "해결책 (명)",
+    "source": "auto"
+  },
+  "luckily": {
+    "ipa": "/ˈləkəli/",
+    "ko": "러컬이",
+    "meaning_pos": "운 좋게도 (명)",
+    "source": "auto"
+  },
+  "wreck": {
+    "ipa": "/rɛk/",
+    "ko": "레크",
+    "meaning_pos": "난파선 (명), 망가뜨리다 (동)",
+    "source": "auto"
+  },
+  "shark": {
+    "ipa": "/ʃɑrk/",
+    "ko": "사르크",
+    "meaning_pos": "상어 (명)",
+    "source": "auto"
+  },
+  "hold on to": {
+    "ipa": "/hoʊld ɔn tɪ/",
+    "ko": "호르드 안 투",
+    "meaning_pos": "~을 꽉 잡다 (동)",
+    "source": "auto"
+  },
+  "go over": {
+    "ipa": "/goʊ ˈoʊvər/",
+    "ko": "고 오버",
+    "meaning_pos": "검토하다 (동)",
+    "source": "auto"
+  },
+  "throne": {
+    "ipa": "/θroʊn/",
+    "ko": "스론",
+    "meaning_pos": "왕좌 (명)",
+    "source": "auto"
+  },
+  "sting": {
+    "ipa": "/stɪŋ/",
+    "ko": "스팅",
+    "meaning_pos": "찌르다 (동)",
+    "source": "auto"
+  },
+  "genetic": {
+    "ipa": "/ʤəˈnɛtɪk/",
+    "ko": "전에티크",
+    "meaning_pos": "유전의 (형)",
+    "source": "auto"
+  },
+  "relief": {
+    "ipa": "/rɪˈlif/",
+    "ko": "릴이프",
+    "meaning_pos": "안도 (명)",
+    "source": "auto"
+  },
+  "temper": {
+    "ipa": "/ˈtɛmpər/",
+    "ko": "테므퍼",
+    "meaning_pos": "성질 (명)",
+    "source": "auto"
+  },
+  "loop": {
+    "ipa": "/lup/",
+    "ko": "루프",
+    "meaning_pos": "고리 (명)",
+    "source": "auto"
+  },
+  "appliance": {
+    "ipa": "/əˈplaɪəns/",
+    "ko": "어프라이어느스",
+    "meaning_pos": "가전제품 (명)",
+    "source": "auto"
+  },
+  "trait": {
+    "ipa": "/treɪt/",
+    "ko": "트레이트",
+    "meaning_pos": "특성 (명)",
+    "source": "auto"
+  },
+  "moderate": {
+    "ipa": "/ˈmɑdərˌeɪt/",
+    "ko": "마더어트",
+    "meaning_pos": "적당한 (형)",
+    "source": "auto"
+  },
+  "plural": {
+    "ipa": "/ˈplʊrəl/",
+    "ko": "프루럴",
+    "meaning_pos": "복수의 (형)",
+    "source": "auto"
+  },
+  "imagination": {
+    "ipa": "/ˌɪˌmæʤəˈneɪʃən/",
+    "ko": "임애전에이션",
+    "meaning_pos": "상상력 (명)",
+    "source": "auto"
+  },
+  "sparkle": {
+    "ipa": "/ˈspɑrkəl/",
+    "ko": "스파르컬",
+    "meaning_pos": "반짝이다 (동)",
+    "source": "auto"
+  },
+  "vowel": {
+    "ipa": "/vaʊəl/",
+    "ko": "바우얼",
+    "meaning_pos": "모음 (명)",
+    "source": "auto"
+  },
+  "ethic": {
+    "ipa": "/ˈɛθɪk/",
+    "ko": "에시크",
+    "meaning_pos": "윤리 (명)",
+    "source": "auto"
+  },
+  "tame": {
+    "ipa": "/teɪm/",
+    "ko": "템이",
+    "meaning_pos": "길들이다 (동)",
+    "source": "auto"
+  },
+  "argument": {
+    "ipa": "/ˈɑrgjəmənt/",
+    "ko": "아르그염어느트",
+    "meaning_pos": "주장, 논쟁 (명)",
+    "source": "auto"
+  },
+  "enroll": {
+    "ipa": "/ɪnˈroʊl/",
+    "ko": "에느롤",
+    "meaning_pos": "등록하다 (동)",
+    "source": "auto"
+  },
+  "rid": {
+    "ipa": "/rɪd/",
+    "ko": "리드",
+    "meaning_pos": "없애다 (동)",
+    "source": "auto"
+  },
+  "vertical": {
+    "ipa": "/ˈvərtɪkəl/",
+    "ko": "버티컬",
+    "meaning_pos": "수직의 (형)",
+    "source": "auto"
+  },
+  "communication": {
+    "ipa": "/kəmˌjunəˈkeɪʃən/",
+    "ko": "커므윤어케이션",
+    "meaning_pos": "의사소통 (명)",
+    "source": "auto"
+  },
+  "comet": {
+    "ipa": "/ˈkɑmət/",
+    "ko": "캄어트",
+    "meaning_pos": "혜성 (명)",
+    "source": "auto"
+  },
+  "conclusion": {
+    "ipa": "/kənˈkluʒən/",
+    "ko": "커느크루전",
+    "meaning_pos": "결론 (명)",
+    "source": "auto"
+  },
+  "impressive": {
+    "ipa": "/ˌɪmˈprɛsɪv/",
+    "ko": "이므프레시브",
+    "meaning_pos": "인상적인 (형)",
+    "source": "auto"
+  },
+  "resign": {
+    "ipa": "/rɪˈzaɪn/",
+    "ko": "리잔이",
+    "meaning_pos": "사임하다 (동)",
+    "source": "auto"
+  },
+  "interior": {
+    "ipa": "/ˌɪnˈtɪriər/",
+    "ko": "이느티리어",
+    "meaning_pos": "내부 (명)",
+    "source": "auto"
+  },
+  "spacecraft": {
+    "ipa": "/ˈspeɪˌskræft/",
+    "ko": "스페이스크래프트",
+    "meaning_pos": "우주선 (명)",
+    "source": "auto"
+  },
+  "recite": {
+    "ipa": "/rəˈsaɪt/",
+    "ko": "러사이트",
+    "meaning_pos": "암송하다 (동)",
+    "source": "auto"
+  },
+  "development": {
+    "ipa": "/dɪˈvɛləpmənt/",
+    "ko": "디벨어프머느트",
+    "meaning_pos": "발달 (명)",
+    "source": "auto"
+  },
+  "intelligence": {
+    "ipa": "/ˌɪnˈtɛləʤəns/",
+    "ko": "이느텔어저느스",
+    "meaning_pos": "지능 (명)",
+    "source": "auto"
+  },
+  "economic": {
+    "ipa": "/ˌɛkəˈnɑmɪk/",
+    "ko": "에컨암이크",
+    "meaning_pos": "경제의 (형)",
+    "source": "auto"
+  },
+  "revenge": {
+    "ipa": "/riˈvɛnʤ/",
+    "ko": "리베느즈",
+    "meaning_pos": "복수 (명)",
+    "source": "auto"
+  },
+  "literal": {
+    "ipa": "/ˈlɪtərəl/",
+    "ko": "리터얼",
+    "meaning_pos": "문자 그대로의 (형)",
+    "source": "auto"
+  },
+  "valid": {
+    "ipa": "/ˈvælɪd/",
+    "ko": "밸이드",
+    "meaning_pos": "유효한 (형)",
+    "source": "auto"
+  },
+  "assignment": {
+    "ipa": "/əˈsaɪnmənt/",
+    "ko": "어사이느머느트",
+    "meaning_pos": "과제 (명)",
+    "source": "auto"
+  },
+  "tempt": {
+    "ipa": "/tɛmpt/",
+    "ko": "테므프트",
+    "meaning_pos": "유혹하다 (동)",
+    "source": "auto"
+  },
+  "modify": {
+    "ipa": "/ˈmɑdəˌfaɪ/",
+    "ko": "마더파이",
+    "meaning_pos": "수정하다 (동)",
+    "source": "auto"
+  },
+  "miner": {
+    "ipa": "/ˈmaɪnər/",
+    "ko": "만이어",
+    "meaning_pos": "광부 (명)",
+    "source": "auto"
+  },
+  "breast": {
+    "ipa": "/brɛst/",
+    "ko": "브레스트",
+    "meaning_pos": "가슴 (명)",
+    "source": "auto"
+  },
+  "federal": {
+    "ipa": "/ˈfɛdərəl/",
+    "ko": "페더얼",
+    "meaning_pos": "연방의 (형)",
+    "source": "auto"
+  },
+  "basement": {
+    "ipa": "/ˈbeɪsmənt/",
+    "ko": "베이스머느트",
+    "meaning_pos": "지하실 (명)",
+    "source": "auto"
+  },
+  "fertilizer": {
+    "ipa": "/ˈfərtəˌlaɪzər/",
+    "ko": "퍼털아이저",
+    "meaning_pos": "비료 (명)",
+    "source": "auto"
+  },
+  "splendid": {
+    "ipa": "/ˈsplɛndɪd/",
+    "ko": "스프레느디드",
+    "meaning_pos": "훌륭한 (형)",
+    "source": "auto"
+  },
+  "copper": {
+    "ipa": "/ˈkɑpər/",
+    "ko": "카퍼",
+    "meaning_pos": "구리 (명)",
+    "source": "auto"
+  },
+  "infection": {
+    "ipa": "/ˌɪnˈfɛkʃən/",
+    "ko": "이느페크션",
+    "meaning_pos": "감염 (명)",
+    "source": "auto"
+  },
+  "twisted": {
+    "ipa": "/tˈwɪstɪd/",
+    "ko": "트위스티드",
+    "meaning_pos": "꼬인 (형)",
+    "source": "auto"
+  },
+  "professional": {
+    "ipa": "/prəˈfɛʃənəl/",
+    "ko": "프러페션얼",
+    "meaning_pos": "전문적인 (형)",
+    "source": "auto"
+  },
+  "wavy": {
+    "ipa": "/ˈweɪvi/",
+    "ko": "웨이비",
+    "meaning_pos": "물결 모양의 (형)",
+    "source": "auto"
+  },
+  "dedication": {
+    "ipa": "/ˌdɛdəˈkeɪʃən/",
+    "ko": "데더케이션",
+    "meaning_pos": "헌신 (명)",
+    "source": "auto"
+  },
+  "patience": {
+    "ipa": "/ˈpeɪʃəns/",
+    "ko": "페이셔느스",
+    "meaning_pos": "인내심 (명)",
+    "source": "auto"
+  },
+  "counselor": {
+    "ipa": "/ˈkaʊnsələr/",
+    "ko": "카우느설어",
+    "meaning_pos": "상담사 (명)",
+    "source": "auto"
+  },
+  "escalate": {
+    "ipa": "/ˈɛskəˌleɪt/",
+    "ko": "에스컬에이트",
+    "meaning_pos": "악화되다, 상승하다 (동)",
+    "source": "auto"
+  },
+  "explanation": {
+    "ipa": "/ˌɛkspləˈneɪʃən/",
+    "ko": "에크스프런에이션",
+    "meaning_pos": "설명 (명)",
+    "source": "auto"
+  },
+  "parliament": {
+    "ipa": "/ˈpɑrləmɛnt/",
+    "ko": "파르럼어느트",
+    "meaning_pos": "의회 (명)",
+    "source": "auto"
+  },
+  "factual": {
+    "ipa": "/ˈfækʧuəl/",
+    "ko": "패크추얼",
+    "meaning_pos": "사실의 (형)",
+    "source": "auto"
+  },
+  "channel": {
+    "ipa": "/ˈʧænəl/",
+    "ko": "챈얼",
+    "meaning_pos": "채널 (명)",
+    "source": "auto"
+  },
+  "span": {
+    "ipa": "/spæn/",
+    "ko": "스팬",
+    "meaning_pos": "기간 (명), 걸치다 (동)",
+    "source": "auto"
+  },
+  "unbelievable": {
+    "ipa": "/ˌənbəˈlivəbəl/",
+    "ko": "어느벌이버벌",
+    "meaning_pos": "믿을 수 없는 (형)",
+    "source": "auto"
+  },
+  "nutrient": {
+    "ipa": "/ˈnutriənt/",
+    "ko": "누트리어느트",
+    "meaning_pos": "영양소 (명)",
+    "source": "auto"
+  },
+  "freezer": {
+    "ipa": "/ˈfrizər/",
+    "ko": "프리저",
+    "meaning_pos": "냉동고 (명)",
+    "source": "auto"
+  },
+  "arrogant": {
+    "ipa": "/ˈɛrəgənt/",
+    "ko": "에러거느트",
+    "meaning_pos": "오만한 (형)",
+    "source": "auto"
+  },
+  "inference": {
+    "ipa": "/ˈɪnfərəns/",
+    "ko": "이느퍼느스",
+    "meaning_pos": "추론 (명)",
+    "source": "auto"
+  },
+  "landmark": {
+    "ipa": "/ˈlændˌmɑrk/",
+    "ko": "래느드마르크",
+    "meaning_pos": "주요 지형물 (명)",
+    "source": "auto"
+  },
+  "mechanical": {
+    "ipa": "/məˈkænɪkəl/",
+    "ko": "머캔이컬",
+    "meaning_pos": "기계의 (형)",
+    "source": "auto"
+  },
+  "geography": {
+    "ipa": "/ʤiˈɑgrəfi/",
+    "ko": "지아그러피",
+    "meaning_pos": "지리학 (명)",
+    "source": "auto"
+  },
+  "contestant": {
+    "ipa": "/kənˈtɛstənt/",
+    "ko": "커느테스터느트",
+    "meaning_pos": "참가자 (명)",
+    "source": "auto"
+  },
+  "ape": {
+    "ipa": "/eɪp/",
+    "ko": "에이프",
+    "meaning_pos": "유인원 (명)",
+    "source": "auto"
+  },
+  "ecosystem": {
+    "ipa": "/ˈikoʊˌsɪstəm/",
+    "ko": "이코시스텀",
+    "meaning_pos": "생태계 (명)",
+    "source": "auto"
+  },
+  "superstition": {
+    "ipa": "/ˌsupərˈstɪʃən/",
+    "ko": "수퍼스티션",
+    "meaning_pos": "미신 (명)",
+    "source": "auto"
+  },
+  "operator": {
+    "ipa": "/ˈɑpərˌeɪtər/",
+    "ko": "아퍼에이터",
+    "meaning_pos": "조작자 (명)",
+    "source": "auto"
+  },
+  "wildlife": {
+    "ipa": "/ˈwaɪlˌdlaɪf/",
+    "ko": "와이르드라이프",
+    "meaning_pos": "야생동물 (명)",
+    "source": "auto"
+  },
+  "cemetery": {
+    "ipa": "/ˈsɛmɪˌtɛri/",
+    "ko": "셈어테리",
+    "meaning_pos": "묘지 (명)",
+    "source": "auto"
+  },
+  "conference": {
+    "ipa": "/ˈkɑnfərəns/",
+    "ko": "카느퍼느스",
+    "meaning_pos": "회의 (형)",
+    "source": "auto"
+  },
+  "shed": {
+    "ipa": "/ʃɛd/",
+    "ko": "세드",
+    "meaning_pos": "창고 (명), (눈물 등을) 흘리다 (동)",
+    "source": "auto"
+  },
+  "unexpected": {
+    "ipa": "/ˌənɪkˈspɛktɪd/",
+    "ko": "언이크스페크티드",
+    "meaning_pos": "예기치 못한 (형)",
+    "source": "auto"
+  },
+  "satisfied": {
+    "ipa": "/ˈsætɪsˌfaɪd/",
+    "ko": "새터스파이드",
+    "meaning_pos": "만족하는 (명)",
+    "source": "auto"
+  },
+  "ray": {
+    "ipa": "/reɪ/",
+    "ko": "레이",
+    "meaning_pos": "광선 (명)",
+    "source": "auto"
+  },
+  "adolescence": {
+    "ipa": "/ˌædəˈlɛsəns/",
+    "ko": "애덜에서느스",
+    "meaning_pos": "청소년기 (명)",
+    "source": "auto"
+  },
+  "underwater": {
+    "ipa": "/ˈəndərˌwɔtər/",
+    "ko": "어느더워터",
+    "meaning_pos": "수중의 (형)",
+    "source": "auto"
+  },
+  "construction": {
+    "ipa": "/kənˈstrəkʃən/",
+    "ko": "커느스트러크션",
+    "meaning_pos": "건설 (명)",
+    "source": "auto"
+  },
+  "discourage": {
+    "ipa": "/dɪˈskərɪʤ/",
+    "ko": "디스커이즈",
+    "meaning_pos": "낙담시키다 (동)",
+    "source": "auto"
+  },
+  "get along with": {
+    "ipa": "/gɪt əˈlɔŋ wɪθ/",
+    "ko": "게트 얼옹 위드",
+    "meaning_pos": "~와 잘 지내다 (동)",
+    "source": "auto"
+  },
+  "pay off": {
+    "ipa": "/peɪ ɔf/",
+    "ko": "페이 오프",
+    "meaning_pos": "성과를 올리다, 청산하다 (동)",
+    "source": "auto"
+  },
+  "sign up for": {
+    "ipa": "/saɪn əp fər/",
+    "ko": "산이 어프 포르",
+    "meaning_pos": "~에 등록하다 (동)",
+    "source": "auto"
+  },
+  "show off": {
+    "ipa": "/ʃoʊ ɔf/",
+    "ko": "소 오프",
+    "meaning_pos": "자랑하다 (동)",
+    "source": "auto"
+  },
+  "run out": {
+    "ipa": "/rən aʊt/",
+    "ko": "런 아우트",
+    "meaning_pos": "다 쓰다 (동)",
+    "source": "auto"
+  },
+  "keep in touch": {
+    "ipa": "/kip ɪn təʧ/",
+    "ko": "키프 인 터츠",
+    "meaning_pos": "~와 연락하고 지내다 (동)",
+    "source": "auto"
+  },
+  "regardless of": {
+    "ipa": "/rəˈgɑrdləs əv/",
+    "ko": "러가르드러스 어브",
+    "meaning_pos": "~에 상관없이 (명)",
+    "source": "auto"
+  },
+  "put off": {
+    "ipa": "/pʊt ɔf/",
+    "ko": "푸트 오프",
+    "meaning_pos": "미루다 (동)",
+    "source": "auto"
+  },
+  "play a role in": {
+    "ipa": "/pleɪ ə roʊl ɪn/",
+    "ko": "프레이 어 롤 인",
+    "meaning_pos": "~에서 역할을 하다 (동)",
+    "source": "auto"
+  },
+  "pay attention to": {
+    "ipa": "/peɪ əˈtɛnʃən tɪ/",
+    "ko": "페이 어테느션 투",
+    "meaning_pos": "~에 주의를 기울이다 (동)",
+    "source": "auto"
+  },
+  "stand out": {
+    "ipa": "/stænd aʊt/",
+    "ko": "스태느드 아우트",
+    "meaning_pos": "눈에 띄다 (동)",
+    "source": "auto"
+  },
+  "on purpose": {
+    "ipa": "/ɔn ˈpərpəs/",
+    "ko": "안 퍼퍼스",
+    "meaning_pos": "고의로 (명)",
+    "source": "auto"
+  },
+  "make up for": {
+    "ipa": "/meɪk əp fər/",
+    "ko": "메이크 어프 포르",
+    "meaning_pos": "보충하다, 만회하다 (동)",
+    "source": "auto"
+  },
+  "make sure": {
+    "ipa": "/meɪk ʃʊr/",
+    "ko": "메이크 수르",
+    "meaning_pos": "확실히 하다 (동)",
+    "source": "auto"
+  },
+  "look up": {
+    "ipa": "/lʊk əp/",
+    "ko": "루크 어프",
+    "meaning_pos": "찾아보다 (동)",
+    "source": "auto"
+  },
+  "put up with": {
+    "ipa": "/pʊt əp wɪθ/",
+    "ko": "푸트 어프 위드",
+    "meaning_pos": "참다 (동)",
+    "source": "auto"
+  },
+  "break down": {
+    "ipa": "/breɪk daʊn/",
+    "ko": "브레이크 단우",
+    "meaning_pos": "고장 나다, 붕괴되다 (동)",
+    "source": "auto"
+  },
+  "belong to": {
+    "ipa": "/bɪˈlɔŋ tɪ/",
+    "ko": "빌옹 투",
+    "meaning_pos": "~에 속하다 (동)",
+    "source": "auto"
+  },
+  "stand for": {
+    "ipa": "/stænd fər/",
+    "ko": "스태느드 포르",
+    "meaning_pos": "상징하다 (동)",
+    "source": "auto"
+  },
+  "stay away from": {
+    "ipa": "/steɪ əˈweɪ frəm/",
+    "ko": "스테이 어웨이 프럼",
+    "meaning_pos": "~을 멀리하다 (동)",
+    "source": "auto"
+  },
+  "meanwhile": {
+    "ipa": "/ˈminˌwaɪl/",
+    "ko": "미느왈이",
+    "meaning_pos": "그동안에 (명)",
+    "source": "auto"
+  },
+  "come to mind": {
+    "ipa": "/kəm tɪ maɪnd/",
+    "ko": "컴 투 마이느드",
+    "meaning_pos": "생각이 떠오르다 (동)",
+    "source": "auto"
+  },
+  "from now on": {
+    "ipa": "/frəm naʊ ɔn/",
+    "ko": "프럼 나우 안",
+    "meaning_pos": "이제부터 (명)",
+    "source": "auto"
+  },
+  "focus on": {
+    "ipa": "/ˈfoʊkɪs ɔn/",
+    "ko": "포커스 안",
+    "meaning_pos": "~에 집중하다 (동)",
+    "source": "auto"
+  },
+  "figure out": {
+    "ipa": "/ˈfɪgjər aʊt/",
+    "ko": "피그여 아우트",
+    "meaning_pos": "알아내다 (동)",
+    "source": "auto"
+  },
+  "in need": {
+    "ipa": "/ɪn nid/",
+    "ko": "인 니드",
+    "meaning_pos": "어려움에 처한 (형)",
+    "source": "auto"
+  },
+  "cut off": {
+    "ipa": "/kət ɔf/",
+    "ko": "커트 오프",
+    "meaning_pos": "잘라내다 (동)",
+    "source": "auto"
+  },
+  "cut down on": {
+    "ipa": "/kət daʊn ɔn/",
+    "ko": "커트 단우 안",
+    "meaning_pos": "~을 줄이다 (동)",
+    "source": "auto"
+  },
+  "come up with": {
+    "ipa": "/kəm əp wɪθ/",
+    "ko": "컴 어프 위드",
+    "meaning_pos": "생각해 내다 (동)",
+    "source": "auto"
+  },
+  "come across": {
+    "ipa": "/kəm əˈkrɔs/",
+    "ko": "컴 어크로스",
+    "meaning_pos": "우연히 마주치다 (동)",
+    "source": "auto"
+  },
+  "stick to": {
+    "ipa": "/stɪk tɪ/",
+    "ko": "스티크 투",
+    "meaning_pos": "~을 고수하다 (동)",
+    "source": "auto"
+  },
+  "carry out": {
+    "ipa": "/ˈkɛri aʊt/",
+    "ko": "캐리 아우트",
+    "meaning_pos": "수행하다 (동)",
+    "source": "auto"
+  },
+  "bring about": {
+    "ipa": "/brɪŋ əˈbaʊt/",
+    "ko": "브링 어바우트",
+    "meaning_pos": "야기하다 (동)",
+    "source": "auto"
+  },
+  "deal with": {
+    "ipa": "/dil wɪθ/",
+    "ko": "딜 위드",
+    "meaning_pos": "다루다 (동)",
+    "source": "auto"
+  },
+  "break out": {
+    "ipa": "/breɪk aʊt/",
+    "ko": "브레이크 아우트",
+    "meaning_pos": "발발하다 (동)",
+    "source": "auto"
+  },
+  "in the middle of": {
+    "ipa": "/ɪn ðə ˈmɪdəl əv/",
+    "ko": "인 더 미덜 어브",
+    "meaning_pos": "~의 한가운데 (명)",
+    "source": "auto"
+  },
+  "lead to": {
+    "ipa": "/lɛd tɪ/",
+    "ko": "레드 투",
+    "meaning_pos": "~로 이끌다 (동)",
+    "source": "auto"
+  },
+  "turn a into b": {
+    "ipa": "/tərn ə ˈɪntu bi/",
+    "ko": "턴 어 이느투 비",
+    "meaning_pos": "A를 B로 바꾸다 (동)",
+    "source": "auto"
+  },
+  "slope": {
+    "ipa": "/sloʊp/",
+    "ko": "스로프",
+    "meaning_pos": "경사 (명)",
+    "source": "auto"
+  },
+  "essence": {
+    "ipa": "/ˈɛsəns/",
+    "ko": "에서느스",
+    "meaning_pos": "본질 (명)",
+    "source": "auto"
+  },
+  "peninsula": {
+    "ipa": "/pəˈnɪnsələ/",
+    "ko": "펀이느설어",
+    "meaning_pos": "반도 (명)",
+    "source": "auto"
+  },
+  "impressed": {
+    "ipa": "/ˌɪmˈprɛst/",
+    "ko": "이므프레스트",
+    "meaning_pos": "감명받은 (형)",
+    "source": "auto"
+  },
+  "neighborhood": {
+    "ipa": "/ˈneɪbərˌhʊd/",
+    "ko": "네이버후드",
+    "meaning_pos": "이웃 (명)",
+    "source": "auto"
+  },
+  "orbit": {
+    "ipa": "/ˈɔrbət/",
+    "ko": "오르버트",
+    "meaning_pos": "궤도 (명)",
+    "source": "auto"
+  },
+  "punctuation": {
+    "ipa": "/ˌpəŋkʧuˈeɪʃən/",
+    "ko": "퍼으크추에이션",
+    "meaning_pos": "구두점 (명)",
+    "source": "auto"
+  },
+  "optical": {
+    "ipa": "/ˈɑptɪkəl/",
+    "ko": "아프티컬",
+    "meaning_pos": "시각적인 (형)",
+    "source": "auto"
+  },
+  "prejudice": {
+    "ipa": "/ˈprɛʤədɪs/",
+    "ko": "프레저디스",
+    "meaning_pos": "편견 (명)",
+    "source": "auto"
+  },
+  "defense": {
+    "ipa": "/dɪˈfɛns/",
+    "ko": "디페느스",
+    "meaning_pos": "방어 (명)",
+    "source": "auto"
+  },
+  "nutrition": {
+    "ipa": "/nuˈtrɪʃən/",
+    "ko": "누트리션",
+    "meaning_pos": "영양 (명)",
+    "source": "auto"
+  },
+  "complaint": {
+    "ipa": "/kəmˈpleɪnt/",
+    "ko": "커므프레이느트",
+    "meaning_pos": "불평 (명)",
+    "source": "auto"
+  },
+  "political": {
+    "ipa": "/pəˈlɪtɪkəl/",
+    "ko": "펄이터컬",
+    "meaning_pos": "정치적인 (형)",
+    "source": "auto"
+  },
+  "habitat": {
+    "ipa": "/ˈhæbəˌtæt/",
+    "ko": "해버태트",
+    "meaning_pos": "서식지 (명)",
+    "source": "auto"
+  },
+  "substitute": {
+    "ipa": "/ˈsəbstəˌtut/",
+    "ko": "서브스터투트",
+    "meaning_pos": "대체하다 (동)",
+    "source": "auto"
+  },
+  "immigrate": {
+    "ipa": "/ˈɪməˌgreɪt/",
+    "ko": "임어그레이트",
+    "meaning_pos": "이민 오다 (동)",
+    "source": "auto"
+  },
+  "bridge": {
+    "ipa": "/brɪʤ/",
+    "ko": "브리즈",
+    "meaning_pos": "다리 (명)",
+    "source": "auto"
+  },
+  "impossible": {
+    "ipa": "/ˌɪmˈpɑsəbəl/",
+    "ko": "이므파서벌",
+    "meaning_pos": "불가능한 (형)",
+    "source": "auto"
+  },
+  "attraction": {
+    "ipa": "/əˈtrækʃən/",
+    "ko": "어트래크션",
+    "meaning_pos": "매력, 명소 (명)",
+    "source": "auto"
+  },
+  "evaporate": {
+    "ipa": "/ɪˈvæpərˌeɪt/",
+    "ko": "이배퍼에이트",
+    "meaning_pos": "증발하다 (동)",
+    "source": "auto"
+  },
+  "drip": {
+    "ipa": "/drɪp/",
+    "ko": "드리프",
+    "meaning_pos": "방울 (명), 뚝뚝 떨어지다 (동)",
+    "source": "auto"
+  },
+  "variety": {
+    "ipa": "/vərˈaɪəti/",
+    "ko": "버아이어티",
+    "meaning_pos": "다양성 (명)",
+    "source": "auto"
+  }
+}

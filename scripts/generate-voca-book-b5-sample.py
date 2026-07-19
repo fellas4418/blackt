@@ -33,7 +33,7 @@ LIGHT = HexColor("#F7F7F7")  # 줄무늬 배경
 LINE = HexColor("#9AA4AE")
 INK = HexColor("#20262D")
 
-# 중등 Day 1~3 발음 — (IPA, 한글) 수기 검수
+# 중등 Day 1~3 발음 — (IPA, 한글) 수기 검수. 전체 1,200개는 data/middle_book_meta.json 이 우선.
 MIDDLE_PRON = {
     # Day 1
     "religion": ("/rɪˈlɪdʒən/", "릴리전"),
@@ -245,7 +245,23 @@ def register_fonts() -> None:
     pdfmetrics.registerFont(TTFont(FONT_IPA_BOLD, str(font_dir / "arialbd.ttf")))
 
 
-def load_words(path: Path, count: int) -> list[tuple[str, str]]:
+def load_middle_meta() -> tuple[dict[str, tuple[str, str]], dict[str, str]]:
+    """data/middle_book_meta.json → (발음 dict, 품사뜻 dict). 수기 폴백 포함."""
+    meta_path = ROOT / "data" / "middle_book_meta.json"
+    pron: dict[str, tuple[str, str]] = dict(MIDDLE_PRON)
+    pos: dict[str, str] = dict(POS_MEANINGS)
+    if not meta_path.exists():
+        return pron, pos
+    import json
+
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    for word, row in meta.items():
+        pron[word] = (row["ipa"], row["ko"])
+        pos[word] = row["meaning_pos"]
+    return pron, pos
+
+
+def load_words(path: Path, count: int | None = None) -> list[tuple[str, str]]:
     words: list[tuple[str, str]] = []
     for line_no, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
         line = raw.strip()
@@ -260,9 +276,9 @@ def load_words(path: Path, count: int) -> list[tuple[str, str]]:
         if not re.fullmatch(r"[A-Za-z][A-Za-z .,'’()/-]*", word):
             raise ValueError(f"{path.name} {line_no}행의 영단어 형식을 확인하세요: {word}")
         words.append((word, meaning))
-        if len(words) >= count:
+        if count is not None and len(words) >= count:
             break
-    if len(words) < count:
+    if count is not None and len(words) < count:
         raise ValueError(f"{path.name}에서 {count}개를 읽지 못했습니다. ({len(words)}개)")
     return words
 
@@ -1143,13 +1159,17 @@ def validate_pronunciations(rows: list[tuple[str, str]], pronunciations: dict[st
 
 def build_middle_days_pdf(days: list[list[tuple[str, str]]]) -> Path:
     """앞부분 4쪽(표지·목차·사용법·발음) + Day별 TEST/연습. 중간 Day 표지 없음(헤더로만 구분)."""
+    global POS_MEANINGS
+    pron, pos = load_middle_meta()
+    POS_MEANINGS = pos
+
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     day_count = len(days)
-    out_path = resolve_output_path(OUT_DIR / f"트리거보카_중등_Day01-{day_count:02d}_B5샘플.pdf")
+    out_path = resolve_output_path(OUT_DIR / f"트리거보카_중등_Day01-{day_count:02d}_B5.pdf")
     c = canvas.Canvas(str(out_path), pagesize=B5, pageCompression=1)
-    c.setTitle(f"트리거 보카 중등 Day 01-{day_count:02d} B5 샘플")
+    c.setTitle(f"트리거 보카 중등 Day 01-{day_count:02d} B5")
     c.setAuthor("TRIGGER BLACK")
-    c.setSubject("B5 중등 단어장 샘플 (Day 헤더 구분, 중간 표지 없음)")
+    c.setSubject("B5 중등 단어장 (Day 헤더 구분, 중간 표지 없음)")
     c.setCreator("TRIGGER VOCA Book Generator")
 
     draw_cover(
@@ -1184,7 +1204,7 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]]) -> Path:
             day_no=day_no,
             part_label="",
             rows=rows,
-            pronunciations=MIDDLE_PRON,
+            pronunciations=pron,
             page_no=page_no,
         )
         page_no += 1
@@ -1250,15 +1270,17 @@ def build_high_pdf(rows: list[tuple[str, str]]) -> Path:
 def main() -> None:
     register_fonts()
 
-    # 중등 3일 테스트: 앞표지·목차·사용법·발음, Day 중간 표지 없이 헤더로만 구분
-    middle_words = load_words(ROOT / "voca_middle.txt", 72)
+    # 중등 전체 50일(1,200단어): 앞표지·목차·사용법·발음 + Day×(TEST+PRACTICE) + 뒤표지
+    middle_words = load_words(ROOT / "voca_middle.txt")
     middle_days = chunk_days(middle_words, 24)
+    pron, _ = load_middle_meta()
     for day_rows in middle_days:
-        validate_pronunciations(day_rows, MIDDLE_PRON)
+        validate_pronunciations(day_rows, pron)
     middle_path = build_middle_days_pdf(middle_days)
+    body_pages = 4 + 2 * len(middle_days) + 1  # 앞 4 + Day×2 + 뒤표지
     print(
-        f"중등 B5 3일 샘플: {middle_path} "
-        f"(표지 1 + 목차 1 + 사용법 1 + 발음기호 1 + Day×2쪽×3 = {4 + 2 * len(middle_days)}쪽, 중간 표지 없음)"
+        f"중등 B5 전체: {middle_path} "
+        f"(표지·목차·사용법·발음 + Day×2×{len(middle_days)} + 뒤표지 = {body_pages}쪽)"
     )
 
 
