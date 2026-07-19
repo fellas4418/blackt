@@ -420,6 +420,15 @@ def draw_howto_page(c: canvas.Canvas, *, level_tag: str, page_no: int) -> None:
         color=SLATE,
         align="center",
     )
+    draw_text(
+        c,
+        "단어 구성은 트리거보카 앱의 Day 구성과 동일합니다.",
+        width / 2,
+        height - 35 * mm,
+        size=10.0,
+        color=SLATE,
+        align="center",
+    )
 
     steps = [
         ("01", "FOLD", "정답 면을 가운데 세로선에서 뒤로 접습니다."),
@@ -441,8 +450,8 @@ def draw_howto_page(c: canvas.Canvas, *, level_tag: str, page_no: int) -> None:
         c.setFillColor(NAVY)
         c.circle(left + 11 * mm, y + box_h / 2, 6 * mm, fill=1, stroke=0)
         draw_text(c, number, left + 11 * mm, y + box_h / 2 - 3.0, font=FONT_BOLD, size=9.5, color=white, align="center")
-        draw_text(c, title, left + 24 * mm, y + box_h - 12 * mm, font=FONT_BOLD, size=13.0)
-        draw_text(c, description, left + 24 * mm, y + 16.5 * mm, size=13.3, color=SLATE, max_width=right - left - 30 * mm)
+        draw_text(c, title, left + 24 * mm, y + box_h / 2 + 2.2 * mm, font=FONT_BOLD, size=13.0)
+        draw_text(c, description, left + 24 * mm, y + box_h / 2 - 4.3 * mm, size=13.3, color=SLATE, max_width=right - left - 30 * mm)
 
     draw_page_footer(c, page_no, level_tag)
     c.showPage()
