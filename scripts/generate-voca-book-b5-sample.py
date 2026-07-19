@@ -620,6 +620,11 @@ def draw_practice_page(
         x_positions.append(x)
     for x in x_positions:
         c.line(x, table_bottom, x, table_top)
+    # 헤더(검은 배경) 구간은 내부 세로줄을 테스트 면과 동일하게 흰색으로
+    c.setStrokeColor(white)
+    for x in x_positions[1:-1]:
+        c.line(x, table_top - header_h, x, table_top)
+    c.setStrokeColor(LINE)
     for i in range(len(rows) + 1):
         line_y = table_top - header_h - i * row_h
         c.line(left, line_y, right, line_y)
