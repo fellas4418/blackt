@@ -289,7 +289,7 @@ def draw_cover(
     )
 
     draw_text(c, "VOCABULARY BOOK", width / 2, height - 125 * mm, font=FONT_BOLD, size=22, color=white, align="center")
-    draw_text(c, level_en, width / 2, height - 134 * mm, size=10, color=PALE, align="center")
+    draw_text(c, level_ko, width / 2, height - 134 * mm, size=12.5, color=PALE, align="center")
 
     c.setFillColor(ORANGE)
     c.roundRect(28 * mm, height - 174 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
