@@ -370,7 +370,7 @@ def draw_pronunciation_guide(c: canvas.Canvas, *, level_tag: str, page_no: int) 
         "한글 표기는 가장 가까운 소리입니다. 예시 단어와 함께 소리 내어 읽어 보세요.",
         width / 2,
         height - 26 * mm,
-        size=9.5,
+        size=11.0,
         color=SLATE,
         align="center",
     )
@@ -401,7 +401,7 @@ def draw_pronunciation_guide(c: canvas.Canvas, *, level_tag: str, page_no: int) 
             left + group_w / 2,
             table_top + 1.8 * mm,
             font=FONT_BOLD,
-            size=9.0,
+            size=10.5,
             color=INK,
             align="center",
         )
@@ -414,7 +414,7 @@ def draw_pronunciation_guide(c: canvas.Canvas, *, level_tag: str, page_no: int) 
                 cx,
                 table_top - header_h + 2.3 * mm,
                 font=FONT_BOLD,
-                size=9.0,
+                size=10.5,
                 color=white,
                 align="center",
             )
@@ -426,18 +426,18 @@ def draw_pronunciation_guide(c: canvas.Canvas, *, level_tag: str, page_no: int) 
                 c.setFillColor(LIGHT)
                 c.rect(left, next_y, group_w, row_h, fill=1, stroke=0)
             baseline = next_y + row_h / 2 - 3.0
-            draw_text(c, symbol, left + symbol_w / 2, baseline, font=FONT_IPA, size=10.2, align="center")
-            draw_text(c, sound, left + symbol_w + sound_w / 2, baseline, size=9.2, align="center")
+            draw_text(c, symbol, left + symbol_w / 2, baseline, font=FONT_IPA, size=11.8, align="center")
+            draw_text(c, sound, left + symbol_w + sound_w / 2, baseline, size=10.8, align="center")
             ex_x = col_xs[2] + 1.2 * mm
-            draw_text(c, example, ex_x, baseline, font=FONT_BOLD, size=8.5)
-            word_w = pdfmetrics.stringWidth(example, FONT_BOLD, 8.5)
+            draw_text(c, example, ex_x, baseline, font=FONT_BOLD, size=10.0)
+            word_w = pdfmetrics.stringWidth(example, FONT_BOLD, 10.0)
             draw_text(
                 c,
-                example_ipa,
+                f"[{example_ipa}]",
                 ex_x + word_w + 1.2 * mm,
                 baseline,
                 font=FONT_IPA,
-                size=7.8,
+                size=9.2,
                 color=SLATE,
                 max_width=example_w - word_w - 3.5 * mm,
             )
