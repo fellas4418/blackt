@@ -476,51 +476,48 @@ def draw_cover(
         anchor="c",
     )
 
-    # 메인 타이포: 트리거(50%) · VOCA(좌우 여백 맞춤) · 위로
-    side_pad = 24 * mm
+    # A안 심플 히어로: VOCA 중심 · 트리거/레벨 작게 · DAY 하단
+    side_pad = 26 * mm
     max_title_w = width - 2 * side_pad
     voca_size = fit_title_size("VOCA", max_title_w, COVER_TITLE_SIZE)
-    trigger_size = fit_title_size("트리거", max_title_w, voca_size * 0.5)
-    baseline_gap = 36 * mm
-    block_mid_y = height / 2 + 28 * mm
-    trigger_y = block_mid_y + baseline_gap / 2
-    voca_y = block_mid_y - baseline_gap / 2
-    title_x = width / 2 - 1.5 * mm
+    trigger_size = fit_title_size("트리거", max_title_w, max(voca_size * 0.32, 28))
+    title_x = width / 2 - 1.2 * mm
+    voca_y = height * 0.50
+    trigger_y = voca_y + voca_size * 0.42 + 6 * mm
     draw_cover_title(c, "트리거", title_x, trigger_y, size=trigger_size)
     draw_cover_title(c, "VOCA", title_x, voca_y, size=voca_size)
 
-    # 레벨 배지 — VOCA와 DAY 사이 (중등=오렌지 / 고등=네온블루)
-    badge_w, badge_h = 34 * mm, 15 * mm
+    badge_w, badge_h = 30 * mm, 13 * mm
     badge_x = (width - badge_w) / 2
-    badge_y = voca_y - 28 * mm
+    badge_y = voca_y - 26 * mm
     badge_stroke = ORANGE if level_ko == "중등" else NEON_BLUE
     c.setStrokeColor(badge_stroke)
-    c.setLineWidth(1.4)
-    c.roundRect(badge_x, badge_y, badge_w, badge_h, 2.5 * mm, fill=0, stroke=1)
+    c.setLineWidth(1.3)
+    c.roundRect(badge_x, badge_y, badge_w, badge_h, 2.2 * mm, fill=0, stroke=1)
     draw_text(
         c,
         level_ko,
         badge_x + badge_w / 2,
-        badge_y + badge_h / 2 - 5.5,
+        badge_y + badge_h / 2 - 4.8,
         font=FONT_BOLD,
-        size=16,
+        size=14,
         color=white,
         align="center",
     )
 
-    day_bar_y = badge_y - 28 * mm
+    day_bar_y = 34 * mm
     c.setFillColor(NEON_BLUE)
-    c.roundRect(28 * mm, day_bar_y, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
+    c.roundRect(28 * mm, day_bar_y, width - 56 * mm, 14 * mm, 2.5 * mm, fill=1, stroke=0)
     c.saveState()
-    c.translate(width / 2, day_bar_y + 5.5 * mm)
-    c.skew(0, 10)
+    c.translate(width / 2, day_bar_y + 4.6 * mm)
+    c.skew(0, 8)
     c.setFillColor(NAVY)
-    c.setFont(FONT_BOLD, 17.5)
-    for dx, dy in ((0, 0), (0.45, 0), (0, 0.35), (0.45, 0.35)):
+    c.setFont(FONT_BOLD, 15)
+    for dx, dy in ((0, 0), (0.4, 0), (0, 0.3), (0.4, 0.3)):
         c.drawCentredString(dx, dy, day_label)
     c.restoreState()
 
-    draw_text(c, "TRIGGER BLACK", width / 2, 18 * mm, size=14, color=PALE, align="center")
+    draw_text(c, "TRIGGER BLACK", width / 2, 18 * mm, size=12, color=PALE, align="center")
     c.showPage()
 
 

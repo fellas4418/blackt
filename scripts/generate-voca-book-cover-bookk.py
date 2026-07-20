@@ -72,7 +72,7 @@ def bookk_spine_mm(pages: int) -> float:
 
 
 def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float) -> None:
-    """앞표지 패널 (재단 영역 기준 좌표)."""
+    """앞표지 패널 — A안 심플 히어로 (VOCA 중심)."""
     c.saveState()
     c.translate(x0, y0)
     c.setFillColor(NAVY)
@@ -95,45 +95,43 @@ def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float)
         anchor="c",
     )
 
-    # 메인 타이포: 트리거(50%) · VOCA(좌우 여백 맞춤) · 위로
-    side_pad = 24 * mm  # 테두리 안쪽 좌우 동일 여백
+    # 히어로: VOCA 크게 · 위/아래는 트리거·중등 작게 · DAY는 하단
+    side_pad = 26 * mm
     max_title_w = w - 2 * side_pad
     voca_size = fit_title_size("VOCA", max_title_w, COVER_TITLE_SIZE)
-    trigger_size = fit_title_size("트리거", max_title_w, voca_size * 0.5)
-    baseline_gap = 36 * mm
-    block_mid_y = h / 2 + 28 * mm
-    trigger_y = block_mid_y + baseline_gap / 2
-    voca_y = block_mid_y - baseline_gap / 2
-    # 기울임으로 오른쪽이 빡빡해 보이므로 살짝 왼쪽으로 광학 보정
-    title_x = w / 2 - 1.5 * mm
+    trigger_size = fit_title_size("트리거", max_title_w, max(voca_size * 0.32, 28))
+    title_x = w / 2 - 1.2 * mm
+    voca_y = h * 0.50
+    trigger_y = voca_y + voca_size * 0.42 + 6 * mm
     draw_cover_title(c, "트리거", title_x, trigger_y, size=trigger_size)
     draw_cover_title(c, "VOCA", title_x, voca_y, size=voca_size)
 
-    badge_w, badge_h = 34 * mm, 15 * mm
+    badge_w, badge_h = 30 * mm, 13 * mm
     badge_x = (w - badge_w) / 2
-    badge_y = voca_y - 28 * mm
+    badge_y = voca_y - 26 * mm
     c.setStrokeColor(ORANGE)
-    c.setLineWidth(1.4)
-    c.roundRect(badge_x, badge_y, badge_w, badge_h, 2.5 * mm, fill=0, stroke=1)
+    c.setLineWidth(1.3)
+    c.roundRect(badge_x, badge_y, badge_w, badge_h, 2.2 * mm, fill=0, stroke=1)
     c.setFillColor(white)
-    c.setFont(FONT_BOLD, 16)
-    c.drawCentredString(badge_x + badge_w / 2, badge_y + badge_h / 2 - 5.5, "중등")
+    c.setFont(FONT_BOLD, 14)
+    c.drawCentredString(badge_x + badge_w / 2, badge_y + badge_h / 2 - 4.8, "중등")
 
-    day_bar_y = badge_y - 28 * mm
+    # DAY 바 — 하단
+    day_bar_y = 34 * mm
     c.setFillColor(NEON_BLUE)
-    c.roundRect(28 * mm, day_bar_y, w - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
+    c.roundRect(28 * mm, day_bar_y, w - 56 * mm, 14 * mm, 2.5 * mm, fill=1, stroke=0)
     c.saveState()
-    c.translate(w / 2, day_bar_y + 5.5 * mm)
-    c.skew(0, 10)
+    c.translate(w / 2, day_bar_y + 4.6 * mm)
+    c.skew(0, 8)
     c.setFillColor(NAVY)
-    c.setFont(FONT_BOLD, 17.5)
+    c.setFont(FONT_BOLD, 15)
     label = "DAY 01–50 · 1200 WORDS"
-    for dx, dy in ((0, 0), (0.45, 0), (0, 0.35), (0.45, 0.35)):
+    for dx, dy in ((0, 0), (0.4, 0), (0, 0.3), (0.4, 0.3)):
         c.drawCentredString(dx, dy, label)
     c.restoreState()
 
     c.setFillColor(PALE)
-    c.setFont(FONT_REGULAR, 14)
+    c.setFont(FONT_REGULAR, 12)
     c.drawCentredString(w / 2, 18 * mm, "TRIGGER BLACK")
     c.restoreState()
 
@@ -274,7 +272,7 @@ def build_cover_pdf(*, pages: int, spine_mm: float | None) -> Path:
                 "  (1회독 + 랜덤 1회독 내지 기준. 부크크 100쪽=7.1mm 비율)",
                 "  (화면에 다른 두께가 나오면 --spine 으로 재생성)",
                 "",
-                "앞표지: 로고(우상단 소) + 트리거(50%)/VOCA(Pretendard Black · 기울임) + 중등 + DAY 바",
+                "앞표지: A안 심플 히어로 — VOCA 중심 · 트리거/중등 작게 · DAY 하단",
                 "뒷표지: Just Follow(40pt) + QR · 로고 없음",
                 "책등: TRIGGER VOCA · 중등 (책등 폭·길이에 맞춤)",
                 "",
