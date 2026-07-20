@@ -25,6 +25,7 @@ LOGO_ASPECT = 342 / 820
 
 FONT_BOLD = "PretendardBold"
 FONT_REGULAR = "Pretendard"
+FONT_DISPLAY = "BlackHanSans"
 
 NAVY = HexColor("#0A0A0A")
 NEON_BLUE = HexColor("#00F3FF")
@@ -35,12 +36,26 @@ PALE = HexColor("#EEF1F4")
 PAGE_W = 182 * mm
 PAGE_H = 257 * mm
 BLEED = 3 * mm
+COVER_TITLE_SIZE = 82 * 1.6  # 기존 VOCA(82pt) 대비 1.6배 · 트리거와 동일
 
 
 def register_fonts() -> None:
     brand_dir = ROOT / "fonts"
     pdfmetrics.registerFont(TTFont(FONT_REGULAR, str(brand_dir / "Pretendard-Regular.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_BOLD, str(brand_dir / "Pretendard-Bold.ttf")))
+    pdfmetrics.registerFont(TTFont(FONT_DISPLAY, str(brand_dir / "BlackHanSans-Regular.ttf")))
+
+
+def draw_cover_title(c: canvas.Canvas, text: str, x: float, y: float, size: float = COVER_TITLE_SIZE) -> None:
+    """표지 메인 타이포 — 강한 디스플레이 서체 + 기울임."""
+    c.saveState()
+    c.translate(x, y)
+    c.skew(0, 20)
+    c.setFillColor(white)
+    c.setFont(FONT_DISPLAY, size)
+    for dx, dy in ((0, 0), (0.7, 0), (0, 0.55), (0.7, 0.55)):
+        c.drawCentredString(dx, dy, text)
+    c.restoreState()
 
 
 def bookk_spine_mm(pages: int) -> float:
@@ -72,17 +87,13 @@ def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float)
         anchor="c",
     )
 
-    # 메인 타이포: 트리거(한글) → VOCA(초대형) → 중등 → DAY
-    c.setFillColor(white)
-    c.setFont(FONT_BOLD, 52)
-    c.drawCentredString(w / 2, h - 88 * mm, "트리거")
-
-    c.setFont(FONT_BOLD, 82)
-    c.drawCentredString(w / 2, h - 128 * mm, "VOCA")
+    # 메인 타이포: 트리거 = VOCA (동일 크기 · 기울임 · Black Han Sans)
+    draw_cover_title(c, "트리거", w / 2, h - 95 * mm)
+    draw_cover_title(c, "VOCA", w / 2, h - 152 * mm)
 
     badge_w, badge_h = 34 * mm, 15 * mm
     badge_x = (w - badge_w) / 2
-    badge_y = h - 162 * mm
+    badge_y = h - 178 * mm
     c.setStrokeColor(ORANGE)
     c.setLineWidth(1.4)
     c.roundRect(badge_x, badge_y, badge_w, badge_h, 2.5 * mm, fill=0, stroke=1)
@@ -91,9 +102,9 @@ def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float)
     c.drawCentredString(badge_x + badge_w / 2, badge_y + badge_h / 2 - 5.5, "중등")
 
     c.setFillColor(NEON_BLUE)
-    c.roundRect(28 * mm, h - 198 * mm, w - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
+    c.roundRect(28 * mm, h - 210 * mm, w - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
     c.saveState()
-    c.translate(w / 2, h - 192.5 * mm)
+    c.translate(w / 2, h - 204.5 * mm)
     c.skew(0, 10)
     c.setFillColor(NAVY)
     c.setFont(FONT_BOLD, 17.5)
@@ -233,7 +244,7 @@ def build_cover_pdf(*, pages: int, spine_mm: float | None) -> Path:
                 "  (1회독 + 랜덤 1회독 내지 기준. 부크크 100쪽=7.1mm 비율)",
                 "  (화면에 다른 두께가 나오면 --spine 으로 재생성)",
                 "",
-                "앞표지: 로고(우상단 소) + 트리거 + VOCA(초대형) + 중등 + DAY 바",
+                "앞표지: 로고(우상단 소) + 트리거/VOCA(Black Han Sans · 131pt · 기울임) + 중등 + DAY 바",
                 "뒷표지: Just Follow(40pt) + QR · 로고 없음",
                 "책등: TRIGGER VOCA · 중등 / VOCA",
                 "",

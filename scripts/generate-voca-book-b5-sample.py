@@ -56,6 +56,8 @@ FONT_REGULAR = "Pretendard"
 FONT_BOLD = "PretendardBold"
 FONT_IPA = "ArialIPA"
 FONT_IPA_BOLD = "ArialIPABold"
+FONT_DISPLAY = "BlackHanSans"
+COVER_TITLE_SIZE = 82 * 1.6  # 기존 VOCA(82pt) 대비 1.6배 · 트리거와 동일
 # 브랜드 색 — 트리거 블랙: 검정 배경 + 흰 글씨, 흑백 인쇄에서도 구분되는 무채색
 NAVY = HexColor("#0A0A0A")  # 브랜드 블랙 (헤더 바·배너·표지)
 NEON_BLUE = HexColor("#00F3FF")  # 앱 네온블루 — 표지·간지 포인트 전용
@@ -274,8 +276,21 @@ def register_fonts() -> None:
     brand_dir = ROOT / "fonts"  # 앱과 동일한 Pretendard (브랜드 통일)
     pdfmetrics.registerFont(TTFont(FONT_REGULAR, str(brand_dir / "Pretendard-Regular.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_BOLD, str(brand_dir / "Pretendard-Bold.ttf")))
+    pdfmetrics.registerFont(TTFont(FONT_DISPLAY, str(brand_dir / "BlackHanSans-Regular.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_IPA, str(font_dir / "arial.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_IPA_BOLD, str(font_dir / "arialbd.ttf")))
+
+
+def draw_cover_title(c: canvas.Canvas, text: str, x: float, y: float, size: float = COVER_TITLE_SIZE) -> None:
+    """표지 메인 타이포 — 강한 디스플레이 서체 + 기울임."""
+    c.saveState()
+    c.translate(x, y)
+    c.skew(0, 20)
+    c.setFillColor(white)
+    c.setFont(FONT_DISPLAY, size)
+    for dx, dy in ((0, 0), (0.7, 0), (0, 0.55), (0.7, 0.55)):
+        c.drawCentredString(dx, dy, text)
+    c.restoreState()
 
 
 def load_middle_meta() -> tuple[dict[str, tuple[str, str]], dict[str, str]]:
@@ -453,13 +468,13 @@ def draw_cover(
         anchor="c",
     )
 
-    draw_text(c, "트리거", width / 2, height - 88 * mm, font=FONT_BOLD, size=52, color=white, align="center")
-    draw_text(c, "VOCA", width / 2, height - 128 * mm, font=FONT_BOLD, size=82, color=white, align="center")
+    draw_cover_title(c, "트리거", width / 2, height - 95 * mm)
+    draw_cover_title(c, "VOCA", width / 2, height - 152 * mm)
 
     # 레벨 배지 — VOCA와 DAY 사이 (중등=오렌지 / 고등=네온블루)
     badge_w, badge_h = 34 * mm, 15 * mm
     badge_x = (width - badge_w) / 2
-    badge_y = height - 162 * mm
+    badge_y = height - 178 * mm
     badge_stroke = ORANGE if level_ko == "중등" else NEON_BLUE
     c.setStrokeColor(badge_stroke)
     c.setLineWidth(1.4)
@@ -476,9 +491,9 @@ def draw_cover(
     )
 
     c.setFillColor(NEON_BLUE)
-    c.roundRect(28 * mm, height - 198 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
+    c.roundRect(28 * mm, height - 210 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
     c.saveState()
-    c.translate(width / 2, height - 192.5 * mm)
+    c.translate(width / 2, height - 204.5 * mm)
     c.skew(0, 10)
     c.setFillColor(NAVY)
     c.setFont(FONT_BOLD, 17.5)
