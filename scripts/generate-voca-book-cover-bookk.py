@@ -68,9 +68,9 @@ def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float)
     c.setFont(FONT_BOLD, 13.5)
     c.drawCentredString(badge_x + badge_w / 2, badge_y + badge_h / 2 - 4.8, "중등")
 
-    logo_w = 95 * mm
+    logo_w = 72 * mm
     logo_h = logo_w * LOGO_ASPECT
-    logo_top = h - 58 * mm
+    logo_top = h - 52 * mm
     c.drawImage(
         str(LOGO_PATH),
         (w - logo_w) / 2,
@@ -82,8 +82,8 @@ def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float)
     )
 
     c.setFillColor(white)
-    c.setFont(FONT_BOLD, 20)
-    c.drawCentredString(w / 2, logo_top - logo_h - 14 * mm, "VOCA")
+    c.setFont(FONT_BOLD, 40)
+    c.drawCentredString(w / 2, logo_top - logo_h - 18 * mm, "VOCA")
 
     c.setFillColor(NEON_BLUE)
     c.roundRect(28 * mm, h - 184 * mm, w - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)

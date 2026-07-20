@@ -5,7 +5,7 @@
   (1회독 + 랜덤 1회독 내지 기준. 부크크 100쪽=7.1mm 비율)
   (화면에 다른 두께가 나오면 --spine 으로 재생성)
 
-앞표지: TRIGGER 로고(95mm) + VOCA(20pt) · DAY 바 · 중등 배지
+앞표지: TRIGGER 로고(72mm) + VOCA(40pt · 큼) · DAY 바 · 중등 배지
 책등: TRIGGER VOCA · 중등 / VOCA
 
 표지 PDF 크기(도련 3mm 포함):

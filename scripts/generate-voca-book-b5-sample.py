@@ -450,10 +450,10 @@ def draw_cover(
     c.roundRect(badge_x, badge_y, badge_w, badge_h, 2 * mm, fill=0, stroke=1)
     draw_text(c, level_ko, badge_x + badge_w / 2, badge_y + badge_h / 2 - 4.8, font=FONT_BOLD, size=13.5, color=white, align="center")
 
-    # Trigger 워드마크 (로고 살짝 축소) + 제품 라벨 VOCA
-    logo_w = 95 * mm
+    # Trigger 로고(축소) + VOCA(제품명 · 크게)
+    logo_w = 72 * mm
     logo_h = logo_w * LOGO_ASPECT
-    logo_top = height - 58 * mm
+    logo_top = height - 52 * mm
     c.drawImage(
         str(LOGO_PATH),
         (width - logo_w) / 2,
@@ -463,7 +463,7 @@ def draw_cover(
         preserveAspectRatio=True,
         anchor="c",
     )
-    draw_text(c, "VOCA", width / 2, logo_top - logo_h - 14 * mm, font=FONT_BOLD, size=20, color=white, align="center")
+    draw_text(c, "VOCA", width / 2, logo_top - logo_h - 18 * mm, font=FONT_BOLD, size=40, color=white, align="center")
 
     c.setFillColor(NEON_BLUE)
     c.roundRect(28 * mm, height - 184 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
