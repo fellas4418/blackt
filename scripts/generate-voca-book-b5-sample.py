@@ -56,8 +56,6 @@ FONT_REGULAR = "Pretendard"
 FONT_BOLD = "PretendardBold"
 FONT_IPA = "ArialIPA"
 FONT_IPA_BOLD = "ArialIPABold"
-FONT_DISPLAY = "PretendardBlack"
-COVER_TITLE_SIZE = 82 * 1.6  # 기존 VOCA(82pt) 대비 1.6배
 # 브랜드 색 — 트리거 블랙: 검정 배경 + 흰 글씨, 흑백 인쇄에서도 구분되는 무채색
 NAVY = HexColor("#0A0A0A")  # 브랜드 블랙 (헤더 바·배너·표지)
 NEON_BLUE = HexColor("#00F3FF")  # 앱 네온블루 — 표지·간지 포인트 전용
@@ -276,51 +274,8 @@ def register_fonts() -> None:
     brand_dir = ROOT / "fonts"  # 앱과 동일한 Pretendard (브랜드 통일)
     pdfmetrics.registerFont(TTFont(FONT_REGULAR, str(brand_dir / "Pretendard-Regular.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_BOLD, str(brand_dir / "Pretendard-Bold.ttf")))
-    pdfmetrics.registerFont(TTFont(FONT_DISPLAY, str(brand_dir / "Pretendard-Black.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_IPA, str(font_dir / "arial.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_IPA_BOLD, str(font_dir / "arialbd.ttf")))
-
-
-def draw_cover_title(
-    c: canvas.Canvas,
-    text: str,
-    x: float,
-    y: float,
-    size: float = COVER_TITLE_SIZE,
-    *,
-    tracking: float = 0.0,
-    heavy: bool = True,
-) -> None:
-    """표지 메인 타이포 — 디스플레이 서체 + 기울임. tracking으로 자간 확보."""
-    c.saveState()
-    c.translate(x, y)
-    c.skew(0, 12)
-    c.setFillColor(white)
-    c.setFont(FONT_DISPLAY, size)
-    offsets = ((0, 0), (0.55, 0), (0, 0.4), (0.55, 0.4)) if heavy else ((0, 0),)
-
-    def paint(ox: float, oy: float) -> None:
-        if tracking <= 0 or len(text) < 2:
-            c.drawCentredString(ox, oy, text)
-            return
-        widths = [pdfmetrics.stringWidth(ch, FONT_DISPLAY, size) for ch in text]
-        total = sum(widths) + tracking * (len(text) - 1)
-        cursor = ox - total / 2
-        for ch, tw in zip(text, widths):
-            c.drawString(cursor, oy, ch)
-            cursor += tw + tracking
-
-    for dx, dy in offsets:
-        paint(dx, dy)
-    c.restoreState()
-
-
-def fit_title_size(text: str, max_width: float, preferred: float) -> float:
-    """좌우 여백이 맞도록 글씨 크기를 max_width 안으로 맞춤."""
-    size = preferred
-    while size > 36 and pdfmetrics.stringWidth(text, FONT_DISPLAY, size) > max_width:
-        size -= 0.5
-    return size
 
 
 def load_middle_meta() -> tuple[dict[str, tuple[str, str]], dict[str, str]]:
@@ -485,58 +440,59 @@ def draw_cover(
     c.setLineWidth(1)
     c.roundRect(10 * mm, 10 * mm, width - 20 * mm, height - 20 * mm, 4 * mm, fill=0, stroke=1)
 
-    # 로고 — 오른쪽 위 작게
-    logo_w = 28 * mm
-    logo_h = logo_w * LOGO_ASPECT
-    c.drawImage(
-        str(LOGO_PATH),
-        width - 18 * mm - logo_w,
-        height - 18 * mm - logo_h,
-        width=logo_w,
-        height=logo_h,
-        preserveAspectRatio=True,
-        anchor="c",
-    )
-
-    # A안 심플 히어로: VOCA 중심 · 레벨 배지 · DAY 하단 (브랜드명은 로고·TRIGGER BLACK)
-    side_pad = 26 * mm
-    max_title_w = width - 2 * side_pad
-    voca_size = fit_title_size("VOCA", max_title_w, COVER_TITLE_SIZE)
-    title_x = width / 2 - 1.2 * mm
-    voca_y = height * 0.58
-    draw_cover_title(c, "VOCA", title_x, voca_y, size=voca_size)
-
-    badge_w, badge_h = 36 * mm, 15 * mm
-    badge_x = (width - badge_w) / 2
-    badge_y = voca_y - 36 * mm  # 조금 내림
+    badge_w, badge_h = 26 * mm, 12 * mm
+    badge_x, badge_y = 18 * mm, height - 18 * mm - badge_h
     badge_stroke = ORANGE if level_ko == "중등" else NEON_BLUE
     c.setStrokeColor(badge_stroke)
-    c.setLineWidth(1.3)
-    c.roundRect(badge_x, badge_y, badge_w, badge_h, 2.2 * mm, fill=0, stroke=1)
+    c.setLineWidth(1.2)
+    c.roundRect(badge_x, badge_y, badge_w, badge_h, 2 * mm, fill=0, stroke=1)
     draw_text(
         c,
         level_ko,
         badge_x + badge_w / 2,
-        badge_y + badge_h / 2 - 5.5,
+        badge_y + badge_h / 2 - 4.8,
         font=FONT_BOLD,
-        size=16,
+        size=13.5,
         color=white,
         align="center",
     )
 
-    day_bar_y = 34 * mm
+    logo_w = 114.8 * mm
+    logo_h = logo_w * LOGO_ASPECT
+    c.drawImage(
+        str(LOGO_PATH),
+        (width - logo_w) / 2,
+        height - 60 * mm - logo_h,
+        width=logo_w,
+        height=logo_h,
+        preserveAspectRatio=True,
+        anchor="c",
+        mask="auto",
+    )
+
+    draw_text(
+        c,
+        "VOCABULARY BOOK",
+        width / 2,
+        height - 128 * mm,
+        font=FONT_BOLD,
+        size=22,
+        color=white,
+        align="center",
+    )
+
     c.setFillColor(NEON_BLUE)
-    c.roundRect(28 * mm, day_bar_y, width - 56 * mm, 14 * mm, 2.5 * mm, fill=1, stroke=0)
+    c.roundRect(28 * mm, height - 184 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
     c.saveState()
-    c.translate(width / 2, day_bar_y + 4.6 * mm)
-    c.skew(0, 8)
+    c.translate(width / 2, height - 178.5 * mm)
+    c.skew(0, 10)
     c.setFillColor(NAVY)
-    c.setFont(FONT_BOLD, 15)
-    for dx, dy in ((0, 0), (0.4, 0), (0, 0.3), (0.4, 0.3)):
+    c.setFont(FONT_BOLD, 17.5)
+    for dx, dy in ((0, 0), (0.45, 0), (0, 0.35), (0.45, 0.35)):
         c.drawCentredString(dx, dy, day_label)
     c.restoreState()
 
-    draw_text(c, "TRIGGER BLACK", width / 2, 18 * mm, size=12, color=PALE, align="center")
+    draw_text(c, "TRIGGER BLACK", width / 2, 18 * mm, size=14, color=PALE, align="center")
     c.showPage()
 
 

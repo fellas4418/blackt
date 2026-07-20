@@ -25,7 +25,6 @@ LOGO_ASPECT = 342 / 820
 
 FONT_BOLD = "PretendardBold"
 FONT_REGULAR = "Pretendard"
-FONT_DISPLAY = "PretendardBlack"
 
 NAVY = HexColor("#0A0A0A")
 NEON_BLUE = HexColor("#00F3FF")
@@ -36,56 +35,12 @@ PALE = HexColor("#EEF1F4")
 PAGE_W = 182 * mm
 PAGE_H = 257 * mm
 BLEED = 3 * mm
-COVER_TITLE_SIZE = 82 * 1.6  # 기존 VOCA(82pt) 대비 1.6배
 
 
 def register_fonts() -> None:
     brand_dir = ROOT / "fonts"
     pdfmetrics.registerFont(TTFont(FONT_REGULAR, str(brand_dir / "Pretendard-Regular.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_BOLD, str(brand_dir / "Pretendard-Bold.ttf")))
-    pdfmetrics.registerFont(TTFont(FONT_DISPLAY, str(brand_dir / "Pretendard-Black.ttf")))
-
-
-def draw_cover_title(
-    c: canvas.Canvas,
-    text: str,
-    x: float,
-    y: float,
-    size: float = COVER_TITLE_SIZE,
-    *,
-    tracking: float = 0.0,
-    heavy: bool = True,
-) -> None:
-    """표지 메인 타이포 — 디스플레이 서체 + 기울임. tracking으로 자간 확보."""
-    c.saveState()
-    c.translate(x, y)
-    c.skew(0, 12)
-    c.setFillColor(white)
-    c.setFont(FONT_DISPLAY, size)
-    offsets = ((0, 0), (0.55, 0), (0, 0.4), (0.55, 0.4)) if heavy else ((0, 0),)
-
-    def paint(ox: float, oy: float) -> None:
-        if tracking <= 0 or len(text) < 2:
-            c.drawCentredString(ox, oy, text)
-            return
-        widths = [pdfmetrics.stringWidth(ch, FONT_DISPLAY, size) for ch in text]
-        total = sum(widths) + tracking * (len(text) - 1)
-        cursor = ox - total / 2
-        for ch, tw in zip(text, widths):
-            c.drawString(cursor, oy, ch)
-            cursor += tw + tracking
-
-    for dx, dy in offsets:
-        paint(dx, dy)
-    c.restoreState()
-
-
-def fit_title_size(text: str, max_width: float, preferred: float) -> float:
-    """좌우 여백이 맞도록 글씨 크기를 max_width 안으로 맞춤."""
-    size = preferred
-    while size > 36 and pdfmetrics.stringWidth(text, FONT_DISPLAY, size) > max_width:
-        size -= 0.5
-    return size
 
 
 def bookk_spine_mm(pages: int) -> float:
@@ -94,7 +49,7 @@ def bookk_spine_mm(pages: int) -> float:
 
 
 def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float) -> None:
-    """앞표지 패널 — A안 심플 히어로 (VOCA 중심)."""
+    """앞표지 — Trigger 로고 + VOCABULARY BOOK (초기 배치)."""
     c.saveState()
     c.translate(x0, y0)
     c.setFillColor(NAVY)
@@ -104,53 +59,46 @@ def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float)
     c.setLineWidth(1)
     c.roundRect(10 * mm, 10 * mm, w - 20 * mm, h - 20 * mm, 4 * mm, fill=0, stroke=1)
 
-    # 로고 — 오른쪽 위 작게
-    logo_w = 28 * mm
+    badge_w, badge_h = 26 * mm, 12 * mm
+    badge_x, badge_y = 18 * mm, h - 18 * mm - badge_h
+    c.setStrokeColor(ORANGE)
+    c.setLineWidth(1.2)
+    c.roundRect(badge_x, badge_y, badge_w, badge_h, 2 * mm, fill=0, stroke=1)
+    c.setFillColor(white)
+    c.setFont(FONT_BOLD, 13.5)
+    c.drawCentredString(badge_x + badge_w / 2, badge_y + badge_h / 2 - 4.8, "중등")
+
+    logo_w = 114.8 * mm
     logo_h = logo_w * LOGO_ASPECT
     c.drawImage(
         str(LOGO_PATH),
-        w - 18 * mm - logo_w,
-        h - 18 * mm - logo_h,
+        (w - logo_w) / 2,
+        h - 60 * mm - logo_h,
         width=logo_w,
         height=logo_h,
         preserveAspectRatio=True,
         anchor="c",
+        mask="auto",
     )
 
-    # 히어로: VOCA 크게 · 중등 배지 · DAY 하단 (브랜드명은 로고·TRIGGER BLACK)
-    side_pad = 26 * mm
-    max_title_w = w - 2 * side_pad
-    voca_size = fit_title_size("VOCA", max_title_w, COVER_TITLE_SIZE)
-    title_x = w / 2 - 1.2 * mm
-    voca_y = h * 0.58
-    draw_cover_title(c, "VOCA", title_x, voca_y, size=voca_size)
-
-    badge_w, badge_h = 36 * mm, 15 * mm
-    badge_x = (w - badge_w) / 2
-    badge_y = voca_y - 36 * mm  # 조금 내림
-    c.setStrokeColor(ORANGE)
-    c.setLineWidth(1.3)
-    c.roundRect(badge_x, badge_y, badge_w, badge_h, 2.2 * mm, fill=0, stroke=1)
     c.setFillColor(white)
-    c.setFont(FONT_BOLD, 16)
-    c.drawCentredString(badge_x + badge_w / 2, badge_y + badge_h / 2 - 5.5, "중등")
+    c.setFont(FONT_BOLD, 22)
+    c.drawCentredString(w / 2, h - 128 * mm, "VOCABULARY BOOK")
 
-    # DAY 바 — 하단
-    day_bar_y = 34 * mm
     c.setFillColor(NEON_BLUE)
-    c.roundRect(28 * mm, day_bar_y, w - 56 * mm, 14 * mm, 2.5 * mm, fill=1, stroke=0)
+    c.roundRect(28 * mm, h - 184 * mm, w - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
     c.saveState()
-    c.translate(w / 2, day_bar_y + 4.6 * mm)
-    c.skew(0, 8)
+    c.translate(w / 2, h - 178.5 * mm)
+    c.skew(0, 10)
     c.setFillColor(NAVY)
-    c.setFont(FONT_BOLD, 15)
+    c.setFont(FONT_BOLD, 17.5)
     label = "DAY 01–50 · 1200 WORDS"
-    for dx, dy in ((0, 0), (0.4, 0), (0, 0.3), (0.4, 0.3)):
+    for dx, dy in ((0, 0), (0.45, 0), (0, 0.35), (0.45, 0.35)):
         c.drawCentredString(dx, dy, label)
     c.restoreState()
 
     c.setFillColor(PALE)
-    c.setFont(FONT_REGULAR, 12)
+    c.setFont(FONT_REGULAR, 14)
     c.drawCentredString(w / 2, 18 * mm, "TRIGGER BLACK")
     c.restoreState()
 
@@ -206,31 +154,24 @@ def draw_back_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float) 
 
 
 def draw_spine(c: canvas.Canvas, x0: float, y0: float, spine_w: float, h: float) -> None:
-    """책등 — 제목이 책등 폭·길이에 꽉 차게."""
+    """책등 — 네온 라인 + 고정 크기 세로 제목 (얇은 타이포, 폭은 spine_w)."""
     c.saveState()
     c.setFillColor(NAVY)
     c.rect(x0, y0, spine_w, h, fill=1, stroke=0)
 
-    title = "TRIGGER VOCA · 중등"
-    margin_end = 8 * mm
-    avail_len = h - margin_end * 2
-    target_len = avail_len * 0.5  # 책등 가로(길이) 절반
-    size = spine_w * 0.273
-    text_w = pdfmetrics.stringWidth(title, FONT_DISPLAY, size)
-    if text_w > target_len:
-        size *= target_len / text_w
-        text_w = pdfmetrics.stringWidth(title, FONT_DISPLAY, size)
-        stretch = 1.0
-    else:
-        stretch = target_len / text_w
+    c.setStrokeColor(NEON_BLUE)
+    c.setLineWidth(1.2)
+    inset = max(1.5 * mm, spine_w * 0.18)
+    c.line(x0 + inset, y0 + 18 * mm, x0 + inset, y0 + h - 18 * mm)
 
     c.translate(x0 + spine_w / 2, y0 + h / 2)
     c.rotate(90)
-    c.scale(stretch, 1)
     c.setFillColor(white)
-    c.setFont(FONT_DISPLAY, size)
-    for dx, dy in ((0, 0), (0.45, 0), (0, 0.35), (0.45, 0.35)):
-        c.drawCentredString(dx, dy, title)
+    c.setFont(FONT_BOLD, 11)
+    c.drawCentredString(0, -3.2, "TRIGGER VOCA  ·  중등")
+    c.setFillColor(NEON_BLUE)
+    c.setFont(FONT_BOLD, 10)
+    c.drawCentredString(0, -14, "VOCABULARY BOOK")
     c.restoreState()
 
 
@@ -291,9 +232,9 @@ def build_cover_pdf(*, pages: int, spine_mm: float | None) -> Path:
                 "  (1회독 + 랜덤 1회독 내지 기준. 부크크 100쪽=7.1mm 비율)",
                 "  (화면에 다른 두께가 나오면 --spine 으로 재생성)",
                 "",
-                "앞표지: A안 심플 히어로 — VOCA 중심 · 중등 배지 · DAY 하단",
+                "앞표지: Trigger 로고 + VOCABULARY BOOK · 중등 배지(좌상) · DAY 바",
                 "뒷표지: Just Follow(40pt) + QR · 로고 없음",
-                "책등: TRIGGER VOCA · 중등 (책등 폭·길이에 맞춤)",
+                "책등: 네온 라인 + TRIGGER VOCA · 중등 / VOCABULARY BOOK (얇은 타이포, 폭 19mm)",
                 "",
                 f"표지 PDF 크기(도련 3mm 포함):",
                 f"  가로 {total_w / mm:.1f} mm = 3 + 182 + {spine} + 182 + 3",
