@@ -26,7 +26,7 @@ FONT_IPA = "ArialIPA"
 FONT_IPA_BOLD = "ArialIPABold"
 # 브랜드 색 — 트리거 블랙: 검정 배경 + 흰 글씨, 흑백 인쇄에서도 구분되는 무채색
 NAVY = HexColor("#0A0A0A")  # 브랜드 블랙 (헤더 바·배너·표지)
-ORANGE = HexColor("#D97706")  # 앱 오렌지를 인쇄용으로 톤 다운 — 표지 포인트 전용
+NEON_BLUE = HexColor("#00F3FF")  # 앱 네온블루 — 표지·간지 포인트 전용
 SLATE = HexColor("#5C5C5C")
 PALE = HexColor("#EEF1F4")
 LIGHT = HexColor("#F7F7F7")  # 줄무늬 배경
@@ -394,7 +394,7 @@ def draw_cover(
 
     draw_text(c, "VOCABULARY BOOK", width / 2, height - 128 * mm, font=FONT_BOLD, size=22, color=white, align="center")
 
-    c.setFillColor(ORANGE)
+    c.setFillColor(NEON_BLUE)
     c.roundRect(28 * mm, height - 184 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
     draw_text(c, day_label, width / 2, height - 178 * mm, font=FONT_BOLD, size=16, color=NAVY, align="center")
 
@@ -427,7 +427,7 @@ def draw_back_cover(c: canvas.Canvas) -> None:
         anchor="c",
     )
 
-    # 슬로건 — 로고처럼 오른쪽으로 기울인 이탤릭 + 끝에 오렌지 마침표 포인트
+    # 슬로건 — 로고처럼 오른쪽으로 기울인 이탤릭 + 끝에 네온블루 마침표 포인트
     slogan = "Just Follow"
     slogan_size = 20
     slogan_w = pdfmetrics.stringWidth(slogan, FONT_BOLD, slogan_size)
@@ -437,7 +437,7 @@ def draw_back_cover(c: canvas.Canvas) -> None:
     c.setFillColor(white)
     c.setFont(FONT_BOLD, slogan_size)
     c.drawCentredString(0, 0, slogan)
-    c.setFillColor(ORANGE)
+    c.setFillColor(NEON_BLUE)
     c.drawString(slogan_w / 2, 0, ".")
     c.restoreState()
 
@@ -838,7 +838,7 @@ def draw_day_divider(
     draw_text(c, "DAY", width / 2, center_y + 30 * mm, font=FONT_BOLD, size=20, color=PALE, align="center")
     draw_text(c, f"{day_no:02d}", width / 2, center_y - 10 * mm, font=FONT_BOLD, size=96, color=white, align="center")
     bar_w = 26 * mm
-    c.setFillColor(ORANGE)
+    c.setFillColor(NEON_BLUE)
     c.rect((width - bar_w) / 2, center_y - 20 * mm, bar_w, 1.4 * mm, fill=1, stroke=0)
     draw_text(c, f"{len(rows)} WORDS", width / 2, center_y - 30 * mm, font=FONT_BOLD, size=12, color=white, align="center")
     draw_text(c, f"{rows[0][0]} – {rows[-1][0]}", width / 2, center_y - 38 * mm, size=11, color=PALE, align="center")
