@@ -351,8 +351,37 @@ def draw_page_footer(c: canvas.Canvas, page_no: int, level_tag: str) -> None:
     draw_text(c, str(page_no), width - 10 * mm, 7 * mm, size=10.4, color=SLATE, align="right")
 
 
-LOGO_PATH = ROOT / "로고, 이미지" / "trigger-logo-v2.png"
-LOGO_ASPECT = 342 / 820  # 세로/가로
+def draw_trigger_wordmark(
+    c: canvas.Canvas,
+    cx: float,
+    baseline_y: float,
+    *,
+    size: float,
+    skew_deg: float = 14,
+) -> None:
+    """Trigger 워드마크 — 굵은 기울임 흰 글씨 + 속도선 둘 다 네온블루."""
+    word = "Trigger"
+    word_w = pdfmetrics.stringWidth(word, FONT_BOLD, size)
+    t_w = pdfmetrics.stringWidth("T", FONT_BOLD, size)
+    c.saveState()
+    c.translate(cx, baseline_y)
+    c.skew(0, skew_deg)
+    # 그림자
+    c.setFillColor(HexColor("#3A3A3A"))
+    c.setFont(FONT_BOLD, size)
+    c.drawCentredString(size * 0.035, -size * 0.04, word)
+    # 본문
+    c.setFillColor(white)
+    c.drawCentredString(0, 0, word)
+    # 속도선 2줄 (둘 다 네온블루) — T 줄기 뒤부터
+    line_left = -word_w / 2 + t_w * 0.72
+    line_right = word_w / 2 - size * 0.02
+    c.setStrokeColor(NEON_BLUE)
+    c.setLineWidth(max(1.6, size * 0.055))
+    c.line(line_left, size * 0.78, line_right, size * 0.78)
+    c.setLineWidth(max(1.3, size * 0.042))
+    c.line(line_left, size * 0.62, line_right, size * 0.62)
+    c.restoreState()
 
 
 def draw_cover(
@@ -379,24 +408,21 @@ def draw_cover(
     c.roundRect(badge_x, badge_y, badge_w, badge_h, 2 * mm, fill=0, stroke=1)
     draw_text(c, level_ko, badge_x + badge_w / 2, badge_y + badge_h / 2 - 4.8, font=FONT_BOLD, size=13.5, color=white, align="center")
 
-    # Trigger 워드마크 (흰 글씨 · 속도선 위 네온블루/아래 주황 · 검정 배경)
-    logo_w = 114.8 * mm  # 82mm × 1.4
-    logo_h = logo_w * LOGO_ASPECT
-    c.drawImage(
-        str(LOGO_PATH),
-        (width - logo_w) / 2,
-        height - 60 * mm - logo_h,
-        width=logo_w,
-        height=logo_h,
-        preserveAspectRatio=True,
-        anchor="c",
-    )
+    # Trigger 워드마크 — 크게 + 속도선 네온블루 2줄
+    draw_trigger_wordmark(c, width / 2, height - 88 * mm, size=54)
 
     draw_text(c, "VOCABULARY BOOK", width / 2, height - 128 * mm, font=FONT_BOLD, size=22, color=white, align="center")
 
     c.setFillColor(NEON_BLUE)
     c.roundRect(28 * mm, height - 184 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
-    draw_text(c, day_label, width / 2, height - 178 * mm, font=FONT_BOLD, size=16, color=NAVY, align="center")
+    # Day 라벨 — 굵은 기울임
+    c.saveState()
+    c.translate(width / 2, height - 178.5 * mm)
+    c.skew(0, 10)
+    c.setFillColor(NAVY)
+    c.setFont(FONT_BOLD, 17)
+    c.drawCentredString(0, 0, day_label)
+    c.restoreState()
 
     draw_text(c, "TRIGGER BLACK", width / 2, 18 * mm, size=14, color=PALE, align="center")
     c.showPage()
@@ -415,17 +441,7 @@ def draw_back_cover(c: canvas.Canvas) -> None:
     c.setLineWidth(1)
     c.roundRect(10 * mm, 10 * mm, width - 20 * mm, height - 20 * mm, 4 * mm, fill=0, stroke=1)
 
-    logo_w = 62 * mm
-    logo_h = logo_w * LOGO_ASPECT
-    c.drawImage(
-        str(LOGO_PATH),
-        (width - logo_w) / 2,
-        height - 48 * mm - logo_h,
-        width=logo_w,
-        height=logo_h,
-        preserveAspectRatio=True,
-        anchor="c",
-    )
+    draw_trigger_wordmark(c, width / 2, height - 72 * mm, size=36)
 
     # 슬로건 — 로고처럼 오른쪽으로 기울인 이탤릭 + 끝에 네온블루 마침표 포인트
     slogan = "Just Follow"
