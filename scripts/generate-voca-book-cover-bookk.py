@@ -70,7 +70,18 @@ def draw_tracked_centred(
         cursor += tw + tracking
 
 
-def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float) -> None:
+def draw_front_panel(
+    c: canvas.Canvas,
+    x0: float,
+    y0: float,
+    w: float,
+    h: float,
+    *,
+    logo_w: float = 106 * mm,
+    voca_size: float = 60,
+    logo_top: float | None = None,
+    voca_y: float | None = None,
+) -> None:
     """앞표지 — Trigger 로고 + VOCA (초기 배치)."""
     c.saveState()
     c.translate(x0, y0)
@@ -90,12 +101,12 @@ def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float)
     c.setFont(FONT_BOLD, 13.5)
     c.drawCentredString(badge_x + badge_w / 2, badge_y + badge_h / 2 - 4.8, "중등")
 
-    logo_w = 106 * mm  # Trigger 살짝 축소
     logo_h = logo_w * LOGO_ASPECT
+    top = h - 60 * mm if logo_top is None else logo_top
     c.drawImage(
         str(LOGO_PATH),
         (w - logo_w) / 2,
-        h - 60 * mm - logo_h,
+        top - logo_h,
         width=logo_w,
         height=logo_h,
         preserveAspectRatio=True,
@@ -104,13 +115,12 @@ def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float)
     )
 
     # VOCA — Trigger와 맞춘 서체·우하 압출 그림자, 자간 살짝 확보
-    voca_size = 60
-    voca_y = h - 128 * mm
+    vy = h - 128 * mm if voca_y is None else voca_y
     tracking = voca_size * 0.08
     shadow_dx = voca_size * 0.081
     shadow_dy = -voca_size * 0.063
     c.saveState()
-    c.translate(w / 2, voca_y)
+    c.translate(w / 2, vy)
     c.skew(0, 18)
     c.setFont(FONT_LOGO, voca_size)
     c.setFillColor(LOGO_SHADOW)
@@ -228,7 +238,17 @@ def resolve_output_path(base: Path) -> Path:
     raise PermissionError("표지 PDF 저장 경로가 모두 잠겨 있습니다. 열려 있는 PDF를 닫아 주세요.")
 
 
-def build_cover_pdf(*, pages: int, spine_mm: float | None) -> Path:
+def build_cover_pdf(
+    *,
+    pages: int,
+    spine_mm: float | None,
+    name_suffix: str = "",
+    logo_w: float = 106 * mm,
+    voca_size: float = 60,
+    logo_top: float | None = None,
+    voca_y: float | None = None,
+    write_note: bool = True,
+) -> Path:
     register_fonts()
     spine = spine_mm if spine_mm is not None else bookk_spine_mm(pages)
     spine_w = spine * mm
@@ -238,7 +258,7 @@ def build_cover_pdf(*, pages: int, spine_mm: float | None) -> Path:
     total_h = BLEED + PAGE_H + BLEED
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    out = resolve_output_path(OUT_DIR / f"트리거보카_중등_표지_부크크_B5_등{spine}mm.pdf")
+    out = resolve_output_path(OUT_DIR / f"트리거보카_중등_표지_부크크_B5_등{spine}mm{name_suffix}.pdf")
     c = canvas.Canvas(str(out), pagesize=(total_w, total_h))
     c.setTitle(f"트리거 보카 중등 표지 (책등 {spine}mm)")
     c.setAuthor("플레이온")
@@ -255,41 +275,52 @@ def build_cover_pdf(*, pages: int, spine_mm: float | None) -> Path:
 
     draw_back_panel(c, back_x, y0, PAGE_W, PAGE_H)
     draw_spine(c, spine_x, y0, spine_w, PAGE_H)
-    draw_front_panel(c, front_x, y0, PAGE_W, PAGE_H)
+    draw_front_panel(
+        c,
+        front_x,
+        y0,
+        PAGE_W,
+        PAGE_H,
+        logo_w=logo_w,
+        voca_size=voca_size,
+        logo_top=logo_top,
+        voca_y=voca_y,
+    )
 
     # 재단·등 가이드 (인쇄용으로는 연하게 — 실제 인쇄 전 가이드 없는 버전도 가능)
     # 부크크 업로드용: 가이드 선 없이 순수 디자인만 (가이드는 콘솔/파일명으로 안내)
     c.save()
 
-    note = OUT_DIR / "트리거보카_중등_표지_부크크_안내.txt"
-    note.write_text(
-        "\n".join(
-            [
-                "부크크 표지 등록 안내",
-                "",
-                f"파일: {out.name}",
-                f"내지 페이지: {pages}쪽 → 추정 책등 {spine}mm",
-                "  (1회독 + 랜덤 1회독 내지 기준. 부크크 100쪽=7.1mm 비율)",
-                "  (화면에 다른 두께가 나오면 --spine 으로 재생성)",
-                "",
-                "앞표지: Trigger 로고 + VOCA(Black Han Sans·우하 압출 그림자) · 중등 배지 · DAY 바",
-                "뒷표지: Just Follow(40pt) + QR · 로고 없음",
-                "책등: 네온 라인 + TRIGGER VOCA · 중등 / VOCA (얇은 타이포, 폭 19mm)",
-                "",
-                f"표지 PDF 크기(도련 3mm 포함):",
-                f"  가로 {total_w / mm:.1f} mm = 3 + 182 + {spine} + 182 + 3",
-                f"  세로 {total_h / mm:.1f} mm = 3 + 257 + 3",
-                "",
-                "레이아웃: [뒤표지] [책등] [앞표지]  ← 왼쪽→오른쪽",
-                "날개: 없음",
-                "",
-                "재생성 예:",
-                f"  python scripts/generate-voca-book-cover-bookk.py --pages {pages} --spine {spine}",
-                "",
-            ]
-        ),
-        encoding="utf-8",
-    )
+    if write_note:
+        note = OUT_DIR / "트리거보카_중등_표지_부크크_안내.txt"
+        note.write_text(
+            "\n".join(
+                [
+                    "부크크 표지 등록 안내",
+                    "",
+                    f"파일: {out.name}",
+                    f"내지 페이지: {pages}쪽 → 추정 책등 {spine}mm",
+                    "  (1회독 + 랜덤 1회독 내지 기준. 부크크 100쪽=7.1mm 비율)",
+                    "  (화면에 다른 두께가 나오면 --spine 으로 재생성)",
+                    "",
+                    "앞표지: Trigger 로고 + VOCA(Black Han Sans·우하 압출 그림자) · 중등 배지 · DAY 바",
+                    "뒷표지: Just Follow(40pt) + QR · 로고 없음",
+                    "책등: 네온 라인 + TRIGGER VOCA · 중등 / VOCA (얇은 타이포, 폭 19mm)",
+                    "",
+                    f"표지 PDF 크기(도련 3mm 포함):",
+                    f"  가로 {total_w / mm:.1f} mm = 3 + 182 + {spine} + 182 + 3",
+                    f"  세로 {total_h / mm:.1f} mm = 3 + 257 + 3",
+                    "",
+                    "레이아웃: [뒤표지] [책등] [앞표지]  ← 왼쪽→오른쪽",
+                    "날개: 없음",
+                    "",
+                    "재생성 예:",
+                    f"  python scripts/generate-voca-book-cover-bookk.py --pages {pages} --spine {spine}",
+                    "",
+                ]
+            ),
+            encoding="utf-8",
+        )
     return out
 
 
@@ -297,12 +328,34 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--pages", type=int, default=267, help="내지 쪽수 (기본 267 · 1회독+랜덤)")
     parser.add_argument("--spine", type=float, default=None, help="책등 mm (미입력 시 부크크 비율 추정)")
+    parser.add_argument(
+        "--variant",
+        choices=["logo-half-voca2x"],
+        default=None,
+        help="비교용 변형. logo-half-voca2x = 로고 1/2 · VOCA 2배 (별도 파일, 기존 유지)",
+    )
     args = parser.parse_args()
-    path = build_cover_pdf(pages=args.pages, spine_mm=args.spine)
     spine = args.spine if args.spine is not None else bookk_spine_mm(args.pages)
+
+    if args.variant == "logo-half-voca2x":
+        # 기존 기본 표지는 건드리지 않고 별도 파일만 생성
+        path = build_cover_pdf(
+            pages=args.pages,
+            spine_mm=spine,
+            name_suffix="_로고반_VOCA배",
+            logo_w=53 * mm,
+            voca_size=120,
+            logo_top=PAGE_H - 48 * mm,
+            voca_y=PAGE_H - 148 * mm,
+            write_note=False,
+        )
+    else:
+        path = build_cover_pdf(pages=args.pages, spine_mm=args.spine)
+
     print(f"표지: {path}")
     print(f"책등(추정): {spine} mm  ·  내지 {args.pages}쪽")
-    print(f"안내: {OUT_DIR / '트리거보카_중등_표지_부크크_안내.txt'}")
+    if args.variant is None:
+        print(f"안내: {OUT_DIR / '트리거보카_중등_표지_부크크_안내.txt'}")
 
 
 if __name__ == "__main__":
