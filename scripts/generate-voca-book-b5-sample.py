@@ -352,7 +352,7 @@ def draw_page_footer(c: canvas.Canvas, page_no: int, level_tag: str) -> None:
     draw_text(c, str(page_no), width - 10 * mm, 7 * mm, size=10.4, color=SLATE, align="right")
 
 
-LOGO_PATH = ROOT / "로고, 이미지" / "trigger-logo-v2-blue.png"
+LOGO_PATH = ROOT / "로고, 이미지" / "trigger-logo-v2.png"
 LOGO_ASPECT = 342 / 820  # 세로/가로
 
 
@@ -371,12 +371,13 @@ def draw_cover(
     c.setStrokeColor(white)
     c.roundRect(10 * mm, 10 * mm, width - 20 * mm, height - 20 * mm, 4 * mm, fill=0, stroke=1)
 
-    # 왼쪽 위 레벨 배지 — 중등/고등 구분이 한눈에 보이게 (테두리만 오렌지)
+    # 왼쪽 위 레벨 배지 — 중등=오렌지 / 고등=네온블루 테두리
     badge_w = 26 * mm
     badge_h = 12 * mm
     badge_x = 18 * mm
     badge_y = height - 18 * mm - badge_h
-    c.setStrokeColor(ORANGE)
+    badge_stroke = ORANGE if level_ko == "중등" else NEON_BLUE
+    c.setStrokeColor(badge_stroke)
     c.setLineWidth(1.2)
     c.roundRect(badge_x, badge_y, badge_w, badge_h, 2 * mm, fill=0, stroke=1)
     draw_text(c, level_ko, badge_x + badge_w / 2, badge_y + badge_h / 2 - 4.8, font=FONT_BOLD, size=13.5, color=white, align="center")
@@ -1436,6 +1437,12 @@ def main() -> None:
         f"중등 B5 전체: {middle_path} "
         f"(표지·목차·사용법·발음 + Day×4×{len(middle_days)} + 뒤표지 = {body_pages}쪽)"
     )
+
+    # 고등 Day01 샘플 (40단어) — 전체 고등은 발음 메타 준비 후
+    high_rows = load_words(ROOT / "voca_high.txt", count=40)
+    validate_pronunciations(high_rows, HIGH_PRON)
+    high_path = build_high_pdf(high_rows)
+    print(f"고등 B5 Day01 샘플: {high_path}")
 
 
 if __name__ == "__main__":

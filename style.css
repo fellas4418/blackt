@@ -506,7 +506,10 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 /* === 수준별 버튼 & 학습 섹션 === */
 .level-buttons { display: flex; gap: 12px; margin-top: 15px; }
 .level-btn { flex: 1; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; padding: 14px; color: #666; font-weight: 600; cursor: pointer; transition: 0.3s; }
-.level-btn.active { border-color: var(--neon-blue); color: #fff; box-shadow: 0 0 10px rgba(0,243,255,0.2); background: rgba(0,243,255,0.05); }
+.level-btn.active { color: #fff; }
+#btn-middle.level-btn.active { border-color: var(--neon-orange); box-shadow: 0 0 10px rgba(255,153,0,0.25); background: rgba(255,153,0,0.08); }
+#btn-high.level-btn.active { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0,243,255,0.2); background: rgba(0,243,255,0.05); }
+#btn-toeic.level-btn.active { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0,243,255,0.2); background: rgba(0,243,255,0.05); }
 
 .study-section { text-align: center; }
 .study-title { font-size: 1.4rem; font-weight: 700; margin: 12px 0; color: #fff; }

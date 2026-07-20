@@ -2632,7 +2632,7 @@
                 ? "flex:1; padding:10px; border-radius:10px; background:var(--neon-orange); color:#000; font-weight:bold; border:none; cursor:pointer;"
                 : "flex:1; padding:10px; border-radius:10px; background:transparent; border:1px solid #444; color:#888; font-weight:bold; cursor:pointer;";
             document.getElementById('tab-report-high').style.cssText = currentLevel === 'high'
-                ? "flex:1; padding:10px; border-radius:10px; background:var(--neon-orange); color:#000; font-weight:bold; border:none; cursor:pointer;"
+                ? "flex:1; padding:10px; border-radius:10px; background:var(--neon-blue); color:#000; font-weight:bold; border:none; cursor:pointer;"
                 : "flex:1; padding:10px; border-radius:10px; background:transparent; border:1px solid #444; color:#888; font-weight:bold; cursor:pointer;";
         }
 
@@ -2806,14 +2806,14 @@
         var leaderboardLevel = 'middle';
         function setLeaderboardTabStyles(level) {
             var tabs = [
-                { id: 'lb-tab-middle', key: 'middle' },
-                { id: 'lb-tab-high', key: 'high' }
+                { id: 'lb-tab-middle', key: 'middle', onBg: 'var(--neon-orange)' },
+                { id: 'lb-tab-high', key: 'high', onBg: 'var(--neon-blue)' }
             ];
             tabs.forEach(function (t) {
                 var el = document.getElementById(t.id);
                 if (!el) return;
                 var on = t.key === level;
-                el.style.background = on ? 'var(--neon-green)' : 'transparent';
+                el.style.background = on ? t.onBg : 'transparent';
                 el.style.color = on ? '#000' : '#888';
                 el.style.border = on ? 'none' : '1px solid #444';
             });
