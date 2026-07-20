@@ -22,8 +22,7 @@ OUT_HIGH = ROOT / "단어장 PDF" / "고등"
 
 # 부크크 JIS B5 (182×257mm) — 권장 여백 안전 구역
 B5 = (182 * mm, 257 * mm)
-MARGIN_OUTER = 12 * mm
-MARGIN_GUTTER = 18 * mm
+MARGIN_X = 14 * mm
 MARGIN_BOTTOM = 14 * mm
 TABLE_BOTTOM = 24 * mm
 BANNER_Y = 22 * mm
@@ -33,23 +32,15 @@ TABLE_TOP_TIGHT = 40 * mm
 TABLE_TOP_LOOSE = 46 * mm
 
 
-def page_margins_x(page_no: int) -> tuple[float, float]:
-    """거울 여백 (left, right). 짝수=왼쪽 페이지(제본 오른쪽), 홀수=오른쪽 페이지(제본 왼쪽)."""
-    if page_no % 2 == 0:
-        return MARGIN_OUTER, MARGIN_GUTTER
-    return MARGIN_GUTTER, MARGIN_OUTER
-
-
 def draw_page_footer(c: canvas.Canvas, page_no: int, level_tag: str) -> None:
     width, _ = B5
-    margin_left, margin_right = page_margins_x(page_no)
     label = f"TRIGGER VOCA · {level_tag}"
     if page_no % 2 == 0:
-        draw_text(c, str(page_no), margin_left, MARGIN_BOTTOM, size=10.4, color=SLATE)
-        draw_text(c, label, width - margin_right, MARGIN_BOTTOM, size=6.5, color=SLATE, align="right")
+        draw_text(c, str(page_no), MARGIN_X, MARGIN_BOTTOM, size=10.4, color=SLATE)
+        draw_text(c, label, width - MARGIN_X, MARGIN_BOTTOM, size=6.5, color=SLATE, align="right")
     else:
-        draw_text(c, label, margin_left, MARGIN_BOTTOM, size=6.5, color=SLATE)
-        draw_text(c, str(page_no), width - margin_right, MARGIN_BOTTOM, size=10.4, color=SLATE, align="right")
+        draw_text(c, label, MARGIN_X, MARGIN_BOTTOM, size=6.5, color=SLATE)
+        draw_text(c, str(page_no), width - MARGIN_X, MARGIN_BOTTOM, size=10.4, color=SLATE, align="right")
 
 FONT_REGULAR = "Pretendard"
 FONT_BOLD = "PretendardBold"
@@ -513,7 +504,8 @@ def draw_contents_page(
         align="center",
     )
 
-    margin_left, margin_right = page_margins_x(page_no)
+    margin_left = MARGIN_X
+    margin_right = MARGIN_X
     gap = 8 * mm
     column_count = 2 if len(entries) > 25 else 1
     table_w = width - margin_left - margin_right
@@ -616,7 +608,7 @@ def draw_index_pages(
     top = height - TABLE_TOP_LOOSE + 4 * mm
     bottom = TABLE_BOTTOM
     row_h = 5.2 * mm
-    content_w = width - MARGIN_OUTER - MARGIN_GUTTER
+    content_w = width - MARGIN_X * 2
     col_w = (content_w - gap * (cols - 1)) / cols
     rows_per_col = int((top - bottom) / row_h)
 
@@ -664,7 +656,7 @@ def draw_index_pages(
                 align="center",
             )
 
-        margin_left, _margin_right = page_margins_x(page_no)
+        margin_left = MARGIN_X
         for col in range(cols):
             col_items = chunk[col * rows_per_col : (col + 1) * rows_per_col]
             if not col_items:
@@ -742,9 +734,8 @@ def draw_howto_page(c: canvas.Canvas, *, level_tag: str, page_no: int) -> None:
         ("03", "CHECK", "접었던 정답 면과 비교하고 1차·2차·3차 결과를 체크합니다."),
         ("04", "PRACTICE", "발음을 확인하며 영단어를 따라 쓰고, 뜻을 다시 써봅니다."),
     ]
-    margin_left, margin_right = page_margins_x(page_no)
-    left = margin_left
-    right = width - margin_right
+    left = MARGIN_X
+    right = width - MARGIN_X
     top = height - SUBTITLE_Y - 18 * mm
     box_h = 35 * mm
     gap = 8 * mm
@@ -869,7 +860,8 @@ def draw_pronunciation_guide(c: canvas.Canvas, *, level_tag: str, page_no: int) 
         align="center",
     )
 
-    margin_left, margin_right = page_margins_x(page_no)
+    margin_left = MARGIN_X
+    margin_right = MARGIN_X
     table_top = height - TABLE_TOP_LOOSE
     table_bottom = TABLE_BOTTOM
     gap = 5 * mm
@@ -1033,9 +1025,8 @@ def draw_day_log_page(
         align="center",
     )
 
-    margin_left, margin_right = page_margins_x(page_no)
-    left = margin_left
-    right = width - margin_right
+    left = MARGIN_X
+    right = width - MARGIN_X
     total_w = right - left
     table_top = height - TABLE_TOP_LOOSE
     header_h = 9 * mm
@@ -1125,9 +1116,8 @@ def draw_test_page(
     page_no: int,
 ) -> None:
     width, height = B5
-    margin_left, margin_right = page_margins_x(page_no)
-    table_left = margin_left
-    table_right = width - margin_right
+    table_left = MARGIN_X
+    table_right = width - MARGIN_X
     fold_x = width / 2
     table_top = height - TABLE_TOP_TIGHT
     table_bottom = TABLE_BOTTOM
@@ -1316,9 +1306,8 @@ def draw_practice_page(
     page_no: int,
 ) -> None:
     width, height = B5
-    margin_left, margin_right = page_margins_x(page_no)
-    left = margin_left
-    right = width - margin_right
+    left = MARGIN_X
+    right = width - MARGIN_X
     table_top = height - TABLE_TOP_TIGHT - 2 * mm
     table_bottom = TABLE_BOTTOM
     header_h = 8.5 * mm
