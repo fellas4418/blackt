@@ -437,39 +437,48 @@ def draw_cover(
     c.rect(0, 0, width, height, fill=1, stroke=0)
 
     c.setStrokeColor(white)
+    c.setLineWidth(1)
     c.roundRect(10 * mm, 10 * mm, width - 20 * mm, height - 20 * mm, 4 * mm, fill=0, stroke=1)
 
-    # 왼쪽 위 레벨 배지 — 중등=오렌지 / 고등=네온블루 테두리
-    badge_w = 26 * mm
-    badge_h = 12 * mm
-    badge_x = 18 * mm
-    badge_y = height - 18 * mm - badge_h
-    badge_stroke = ORANGE if level_ko == "중등" else NEON_BLUE
-    c.setStrokeColor(badge_stroke)
-    c.setLineWidth(1.2)
-    c.roundRect(badge_x, badge_y, badge_w, badge_h, 2 * mm, fill=0, stroke=1)
-    draw_text(c, level_ko, badge_x + badge_w / 2, badge_y + badge_h / 2 - 4.8, font=FONT_BOLD, size=13.5, color=white, align="center")
-
-    # Trigger 로고(축소) + VOCA(제품명 · 크게)
-    logo_w = 72 * mm
+    # 로고 — 오른쪽 위 작게
+    logo_w = 28 * mm
     logo_h = logo_w * LOGO_ASPECT
-    logo_top = height - 52 * mm
     c.drawImage(
         str(LOGO_PATH),
-        (width - logo_w) / 2,
-        logo_top - logo_h,
+        width - 18 * mm - logo_w,
+        height - 18 * mm - logo_h,
         width=logo_w,
         height=logo_h,
         preserveAspectRatio=True,
         anchor="c",
     )
-    draw_text(c, "VOCA", width / 2, logo_top - logo_h - 18 * mm, font=FONT_BOLD, size=40, color=white, align="center")
+
+    draw_text(c, "트리거", width / 2, height - 88 * mm, font=FONT_BOLD, size=52, color=white, align="center")
+    draw_text(c, "VOCA", width / 2, height - 128 * mm, font=FONT_BOLD, size=82, color=white, align="center")
+
+    # 레벨 배지 — VOCA와 DAY 사이 (중등=오렌지 / 고등=네온블루)
+    badge_w, badge_h = 34 * mm, 15 * mm
+    badge_x = (width - badge_w) / 2
+    badge_y = height - 162 * mm
+    badge_stroke = ORANGE if level_ko == "중등" else NEON_BLUE
+    c.setStrokeColor(badge_stroke)
+    c.setLineWidth(1.4)
+    c.roundRect(badge_x, badge_y, badge_w, badge_h, 2.5 * mm, fill=0, stroke=1)
+    draw_text(
+        c,
+        level_ko,
+        badge_x + badge_w / 2,
+        badge_y + badge_h / 2 - 5.5,
+        font=FONT_BOLD,
+        size=16,
+        color=white,
+        align="center",
+    )
 
     c.setFillColor(NEON_BLUE)
-    c.roundRect(28 * mm, height - 184 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
-    # Day 라벨 — Bold + 살짝 기울임 (오프셋으로 더 굵게)
+    c.roundRect(28 * mm, height - 198 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
     c.saveState()
-    c.translate(width / 2, height - 178.5 * mm)
+    c.translate(width / 2, height - 192.5 * mm)
     c.skew(0, 10)
     c.setFillColor(NAVY)
     c.setFont(FONT_BOLD, 17.5)
@@ -485,7 +494,7 @@ QR_PATH = ROOT / "로고, 이미지" / "qr-blackt.png"
 
 
 def draw_back_cover(c: canvas.Canvas) -> None:
-    """뒤표지 — 로고 + 슬로건 + 앱 QR."""
+    """뒤표지 — 슬로건 + 앱 QR (로고 없음)."""
     width, height = B5
     c.setFillColor(NAVY)
     c.rect(0, 0, width, height, fill=1, stroke=0)
@@ -494,24 +503,12 @@ def draw_back_cover(c: canvas.Canvas) -> None:
     c.setLineWidth(1)
     c.roundRect(10 * mm, 10 * mm, width - 20 * mm, height - 20 * mm, 4 * mm, fill=0, stroke=1)
 
-    logo_w = 62 * mm
-    logo_h = logo_w * LOGO_ASPECT
-    c.drawImage(
-        str(LOGO_PATH),
-        (width - logo_w) / 2,
-        height - 48 * mm - logo_h,
-        width=logo_w,
-        height=logo_h,
-        preserveAspectRatio=True,
-        anchor="c",
-    )
-
-    # 슬로건 — 로고처럼 오른쪽으로 기울인 이탤릭 + 끝에 오렌지 마침표 포인트
+    # 슬로건 — 크게 + 약간 위 / 끝에 오렌지 마침표
     slogan = "Just Follow"
-    slogan_size = 20
+    slogan_size = 40
     slogan_w = pdfmetrics.stringWidth(slogan, FONT_BOLD, slogan_size)
     c.saveState()
-    c.translate(width / 2, height - 96 * mm)
+    c.translate(width / 2, height - 72 * mm)
     c.skew(0, 12)
     c.setFillColor(white)
     c.setFont(FONT_BOLD, slogan_size)

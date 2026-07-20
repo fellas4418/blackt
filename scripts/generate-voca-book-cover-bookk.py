@@ -59,36 +59,41 @@ def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float)
     c.setLineWidth(1)
     c.roundRect(10 * mm, 10 * mm, w - 20 * mm, h - 20 * mm, 4 * mm, fill=0, stroke=1)
 
-    badge_w, badge_h = 26 * mm, 12 * mm
-    badge_x, badge_y = 18 * mm, h - 18 * mm - badge_h
-    c.setStrokeColor(ORANGE)
-    c.setLineWidth(1.2)
-    c.roundRect(badge_x, badge_y, badge_w, badge_h, 2 * mm, fill=0, stroke=1)
-    c.setFillColor(white)
-    c.setFont(FONT_BOLD, 13.5)
-    c.drawCentredString(badge_x + badge_w / 2, badge_y + badge_h / 2 - 4.8, "중등")
-
-    logo_w = 72 * mm
+    # 로고 — 오른쪽 위 작게
+    logo_w = 28 * mm
     logo_h = logo_w * LOGO_ASPECT
-    logo_top = h - 52 * mm
     c.drawImage(
         str(LOGO_PATH),
-        (w - logo_w) / 2,
-        logo_top - logo_h,
+        w - 18 * mm - logo_w,
+        h - 18 * mm - logo_h,
         width=logo_w,
         height=logo_h,
         preserveAspectRatio=True,
         anchor="c",
     )
 
+    # 메인 타이포: 트리거(한글) → VOCA(초대형) → 중등 → DAY
     c.setFillColor(white)
-    c.setFont(FONT_BOLD, 40)
-    c.drawCentredString(w / 2, logo_top - logo_h - 18 * mm, "VOCA")
+    c.setFont(FONT_BOLD, 52)
+    c.drawCentredString(w / 2, h - 88 * mm, "트리거")
+
+    c.setFont(FONT_BOLD, 82)
+    c.drawCentredString(w / 2, h - 128 * mm, "VOCA")
+
+    badge_w, badge_h = 34 * mm, 15 * mm
+    badge_x = (w - badge_w) / 2
+    badge_y = h - 162 * mm
+    c.setStrokeColor(ORANGE)
+    c.setLineWidth(1.4)
+    c.roundRect(badge_x, badge_y, badge_w, badge_h, 2.5 * mm, fill=0, stroke=1)
+    c.setFillColor(white)
+    c.setFont(FONT_BOLD, 16)
+    c.drawCentredString(badge_x + badge_w / 2, badge_y + badge_h / 2 - 5.5, "중등")
 
     c.setFillColor(NEON_BLUE)
-    c.roundRect(28 * mm, h - 184 * mm, w - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
+    c.roundRect(28 * mm, h - 198 * mm, w - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
     c.saveState()
-    c.translate(w / 2, h - 178.5 * mm)
+    c.translate(w / 2, h - 192.5 * mm)
     c.skew(0, 10)
     c.setFillColor(NAVY)
     c.setFont(FONT_BOLD, 17.5)
@@ -114,23 +119,11 @@ def draw_back_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float) 
     c.setLineWidth(1)
     c.roundRect(10 * mm, 10 * mm, w - 20 * mm, h - 20 * mm, 4 * mm, fill=0, stroke=1)
 
-    logo_w = 62 * mm
-    logo_h = logo_w * LOGO_ASPECT
-    c.drawImage(
-        str(LOGO_PATH),
-        (w - logo_w) / 2,
-        h - 48 * mm - logo_h,
-        width=logo_w,
-        height=logo_h,
-        preserveAspectRatio=True,
-        anchor="c",
-    )
-
     slogan = "Just Follow"
-    slogan_size = 20
+    slogan_size = 40
     slogan_w = pdfmetrics.stringWidth(slogan, FONT_BOLD, slogan_size)
     c.saveState()
-    c.translate(w / 2, h - 96 * mm)
+    c.translate(w / 2, h - 72 * mm)
     c.skew(0, 12)
     c.setFillColor(white)
     c.setFont(FONT_BOLD, slogan_size)
@@ -240,7 +233,8 @@ def build_cover_pdf(*, pages: int, spine_mm: float | None) -> Path:
                 "  (1회독 + 랜덤 1회독 내지 기준. 부크크 100쪽=7.1mm 비율)",
                 "  (화면에 다른 두께가 나오면 --spine 으로 재생성)",
                 "",
-                "앞표지: TRIGGER 로고(72mm) + VOCA(40pt · 큼) · DAY 바 · 중등 배지",
+                "앞표지: 로고(우상단 소) + 트리거 + VOCA(초대형) + 중등 + DAY 바",
+                "뒷표지: Just Follow(40pt) + QR · 로고 없음",
                 "책등: TRIGGER VOCA · 중등 / VOCA",
                 "",
                 f"표지 PDF 크기(도련 3mm 포함):",
