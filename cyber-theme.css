@@ -365,6 +365,103 @@ body.splash-active .main-tab-swipe-hint {
     letter-spacing: 0.04em !important;
 }
 
+/* ── 학습 완료 (PROTOCOL COMPLETE) ── */
+body.study-bg.study-complete-active::before {
+    background-image: repeating-linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0) 0,
+        rgba(0, 0, 0, 0) 5px,
+        rgba(0, 243, 255, 0.028) 5px,
+        rgba(0, 243, 255, 0.028) 6px
+    );
+    background-size: auto;
+}
+
+body.study-bg.study-complete-active::after {
+    content: none;
+    display: none;
+}
+
+.study-complete-panel {
+    text-align: center;
+    max-width: 100%;
+}
+
+.study-complete-title {
+    font-size: 1.45rem;
+    color: var(--neon-blue, #00f3ff);
+    font-weight: bold;
+    font-family: var(--font-display);
+    letter-spacing: 0.06em;
+    text-shadow: 0 0 14px rgba(0, 243, 255, 0.35);
+    line-height: 1.35;
+}
+
+.study-complete-credit-earn {
+    color: var(--neon-blue, #00f3ff);
+    font-size: 0.95rem;
+    margin-top: 14px;
+    line-height: 1.5;
+}
+
+.study-complete-credit-earn strong {
+    color: #fff;
+}
+
+.study-complete-credit-parts {
+    color: #aaa;
+    font-size: 0.85rem;
+}
+
+.study-complete-credit-bal {
+    margin-top: 12px;
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.study-complete-credit-bal strong {
+    color: var(--neon-blue, #00f3ff);
+}
+
+.study-complete-pdf-btn {
+    width: 100%;
+    padding: 14px;
+    margin-top: 16px;
+    background: rgba(0, 243, 255, 0.1);
+    color: var(--neon-blue, #00f3ff);
+    border: 1px solid var(--neon-blue, #00f3ff);
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: var(--font-display);
+    letter-spacing: 0.04em;
+    box-shadow: 0 0 12px rgba(0, 243, 255, 0.18);
+}
+
+.study-complete-pdf-btn:active {
+    background: rgba(0, 243, 255, 0.16);
+}
+
+.study-complete-kakao-hint {
+    color: #888;
+    font-size: 0.85rem;
+    margin-top: 14px;
+    line-height: 1.5;
+}
+
+.study-complete-exit-btn {
+    display: block;
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+    background: none;
+    border: none;
+    color: #888;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
 /* ── 칭찬 팝업 ── */
 #praise-emoji,
 #share-result-emoji {

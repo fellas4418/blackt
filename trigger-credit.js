@@ -219,10 +219,10 @@
         var totalEarn = (dailyResult && dailyResult.total) || 0;
         totalEarn += (weekResult && weekResult.total) || 0;
         return (
-            '<p style="color:var(--neon-orange);font-size:0.95rem;margin-top:14px;line-height:1.5;">' +
-            '◆ 트리거 크레딧 <strong style="color:#fff;">+' +
+            '<p class="study-complete-credit-earn">' +
+            '◆ 트리거 크레딧 <strong>+' +
             totalEarn +
-            '</strong><br><span style="color:#aaa;font-size:0.85rem;">' +
+            '</strong><br><span class="study-complete-credit-parts">' +
             lines.join(' · ') +
             '</span></p>'
         );

@@ -43,15 +43,16 @@ function stopStudyTimersAndSpeech() {
 
 function showStudyDayCompleteScreen(accuracy, completedDay, creditEarnedHtml) {
     stopStudyTimersAndSpeech();
+    document.body.classList.add('study-complete-active');
     const sessionTag = document.getElementById('session-tag');
     if (sessionTag) {
         sessionTag.innerText = 'SYNC COMPLETE ◆';
-        sessionTag.style.color = 'var(--neon-green)';
+        sessionTag.style.color = 'var(--neon-blue)';
     }
     const bar = document.getElementById('bar');
     if (bar) {
         bar.style.width = '100%';
-        bar.style.backgroundColor = 'var(--neon-green)';
+        bar.style.backgroundColor = 'var(--neon-blue)';
     }
     const dayNum = Number(completedDay) || parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`), 10) - 1 || 1;
     const accNum = Math.min(100, Math.max(0, parseInt(accuracy, 10) || 0));
@@ -59,21 +60,21 @@ function showStudyDayCompleteScreen(accuracy, completedDay, creditEarnedHtml) {
     const creditHtml = creditEarnedHtml || '';
     const creditBal =
         typeof TriggerCredit !== 'undefined'
-            ? '<div style="margin-top:12px;font-size:0.85rem;color:#888;">보유 크레딧 <strong style="color:var(--neon-orange);">' +
+            ? '<div class="study-complete-credit-bal">보유 크레딧 <strong>' +
               TriggerCredit.getBalance() +
               '</strong></div>'
             : '';
     const kakaoShareBtnHtml = canKakaoShare
         ? '<button type="button" id="btn-study-kakao-share" style="width:100%; padding:16px; background:#fee500; color:#000; border-radius:6px; margin-top:12px; border:none; font-weight:bold; cursor:pointer;">◆ 카톡 공유</button>'
-        : '<p style="color:#888; font-size:0.85rem; margin-top:14px; line-height:1.5;">카톡 공유는 정답률 80% 이상일 때만 가능합니다.</p>';
+        : '<p class="study-complete-kakao-hint">카톡 공유는 정답률 80% 이상일 때만 가능합니다.</p>';
     showSystemMessage(`
-        <div style="text-align:center; max-width:100%;">
-            <div style="font-size:1.5rem; color:var(--neon-green); font-weight:bold; font-family:Orbitron,Pretendard,sans-serif; letter-spacing:0.05em;">PROTOCOL COMPLETE · ${accNum}%</div>
+        <div class="study-complete-panel">
+            <div class="study-complete-title">PROTOCOL COMPLETE · ${accNum}%</div>
             ${creditHtml}
             ${creditBal}
-            <button type="button" id="btn-study-voca-pdf" style="width:100%; padding:14px; background:rgba(57,255,20,0.12); color:var(--neon-green); border:1px solid var(--neon-green); border-radius:6px; margin-top:16px; font-weight:bold; cursor:pointer;">📄 Day ${dayNum} 단어장 PDF 받기</button>
+            <button type="button" id="btn-study-voca-pdf" class="study-complete-pdf-btn">◆ Day ${dayNum} 단어장 PDF 받기</button>
             ${kakaoShareBtnHtml}
-            <button type="button" id="btn-study-exit-home" style="display:block; width:100%; margin-top:20px; padding:12px; background:none; border:none; color:#888; text-decoration:underline; cursor:pointer; font-size:1rem;">종료하기</button>
+            <button type="button" id="btn-study-exit-home" class="study-complete-exit-btn">종료하기</button>
         </div>
     `);
     setTimeout(function () {
@@ -1074,12 +1075,12 @@ if (typeof applyAdminPersistence === 'function') applyAdminPersistence();
             } catch (e) {}
             if (sessionTag) {
                 sessionTag.innerText = 'SYNC COMPLETE ◆ (관리자 미리보기)';
-                sessionTag.style.color = 'var(--neon-green)';
+                sessionTag.style.color = 'var(--neon-blue)';
             }
             const bar = document.getElementById('bar');
             if (bar) {
                 bar.style.width = '100%';
-                bar.style.backgroundColor = 'var(--neon-green)';
+                bar.style.backgroundColor = 'var(--neon-blue)';
             }
             showStudyDayCompleteScreen(100);
             return;
