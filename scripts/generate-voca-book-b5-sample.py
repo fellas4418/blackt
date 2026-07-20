@@ -1423,28 +1423,34 @@ def validate_pronunciations(rows: list[tuple[str, str]], pronunciations: dict[st
         raise ValueError(f"발음이 없는 단어: {missing}")
 
 
-def build_middle_days_pdf(days: list[list[tuple[str, str]]]) -> Path:
-    """앞부분 4쪽(표지·목차·사용법·발음) + Day×4 + 색인 + 뒤표지."""
+def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: bool = True) -> Path:
+    """앞부분(목차·사용법·발음) + Day×4 + 색인. include_covers=True면 앞·뒤표지 포함."""
     global POS_MEANINGS
     pron, pos = load_middle_meta()
     POS_MEANINGS = pos
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     day_count = len(days)
-    out_path = resolve_output_path(OUT_DIR / f"트리거보카_중등_Day01-{day_count:02d}_B5.pdf")
+    name_suffix = "" if include_covers else "_내지"
+    out_path = resolve_output_path(OUT_DIR / f"트리거보카_중등_Day01-{day_count:02d}_B5{name_suffix}.pdf")
     c = canvas.Canvas(str(out_path), pagesize=B5, pageCompression=1)
     c.setTitle(f"트리거 보카 중등 Day 01-{day_count:02d} B5")
     c.setAuthor("TRIGGER BLACK")
-    c.setSubject("B5 중등 단어장 (Day 간지 + STUDY LOG)")
+    c.setSubject(
+        "B5 중등 단어장 (Day 간지 + STUDY LOG)"
+        if include_covers
+        else "B5 중등 단어장 내지 (부크크 업로드용 · 표지 제외)"
+    )
     c.setCreator("TRIGGER VOCA Book Generator")
 
-    draw_cover(
-        c,
-        level_en="MIDDLE SCHOOL",
-        level_ko="중등",
-        day_label=f"DAY 01–{day_count:02d} · {day_count * 24} WORDS",
-        words_note="Day 구분은 페이지 헤더만 사용합니다. 중간 표지는 넣지 않습니다.",
-    )
+    if include_covers:
+        draw_cover(
+            c,
+            level_en="MIDDLE SCHOOL",
+            level_ko="중등",
+            day_label=f"DAY 01–{day_count:02d} · {day_count * 24} WORDS",
+            words_note="Day 구분은 페이지 헤더만 사용합니다. 중간 표지는 넣지 않습니다.",
+        )
     contents = [
         (f"DAY {day_no:02d}", len(rows), 5 + (day_no - 1) * 4, 8 + (day_no - 1) * 4)
         for day_no, rows in enumerate(days, 1)
@@ -1497,7 +1503,8 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]]) -> Path:
         entries=index_entries,
         start_page_no=page_no,
     )
-    draw_back_cover(c)
+    if include_covers:
+        draw_back_cover(c)
     c.save()
     return out_path
 
@@ -1557,16 +1564,32 @@ def build_high_pdf(rows: list[tuple[str, str]]) -> Path:
 
 
 def main() -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--interior-only",
+        action="store_true",
+        help="부크크용 내지 PDF만 생성 (앞·뒤표지 제외)",
+    )
+    args = parser.parse_args()
     register_fonts()
 
-    # 중등 전체 50일(1,200단어): 앞표지·목차·사용법·발음 + Day×(간지 앞·뒤+TEST+PRACTICE) + 뒤표지
+    # 중등 전체 50일(1,200단어): 목차·사용법·발음 + Day×(간지 앞·뒤+TEST+PRACTICE) [+ 표지]
     middle_words = load_words(ROOT / "voca_middle.txt")
     middle_days = chunk_days(middle_words, 24)
     pron, _ = load_middle_meta()
     for day_rows in middle_days:
         validate_pronunciations(day_rows, pron)
+    if args.interior_only:
+        interior_path = build_middle_days_pdf(middle_days, include_covers=False)
+        print(f"중등 B5 내지: {interior_path}")
+        return
+
     middle_path = build_middle_days_pdf(middle_days)
     print(f"중등 B5 전체: {middle_path}")
+    interior_path = build_middle_days_pdf(middle_days, include_covers=False)
+    print(f"중등 B5 내지: {interior_path}")
 
     # 고등 Day01 샘플 (40단어) — 전체 고등은 발음 메타 준비 후
     high_rows = load_words(ROOT / "voca_high.txt", count=40)
