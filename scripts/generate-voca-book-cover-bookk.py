@@ -51,6 +51,25 @@ def bookk_spine_mm(pages: int) -> float:
     return round(7.1 * (pages / 100.0), 1)
 
 
+def draw_tracked_centred(
+    c: canvas.Canvas,
+    text: str,
+    ox: float,
+    oy: float,
+    *,
+    font: str,
+    size: float,
+    tracking: float,
+) -> None:
+    """자간을 넣은 가운데 정렬 텍스트."""
+    widths = [pdfmetrics.stringWidth(ch, font, size) for ch in text]
+    total = sum(widths) + tracking * max(len(text) - 1, 0)
+    cursor = ox - total / 2
+    for ch, tw in zip(text, widths):
+        c.drawString(cursor, oy, ch)
+        cursor += tw + tracking
+
+
 def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float) -> None:
     """앞표지 — Trigger 로고 + VOCA (초기 배치)."""
     c.saveState()
@@ -71,7 +90,7 @@ def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float)
     c.setFont(FONT_BOLD, 13.5)
     c.drawCentredString(badge_x + badge_w / 2, badge_y + badge_h / 2 - 4.8, "중등")
 
-    logo_w = 114.8 * mm
+    logo_w = 106 * mm  # Trigger 살짝 축소
     logo_h = logo_w * LOGO_ASPECT
     c.drawImage(
         str(LOGO_PATH),
@@ -84,10 +103,10 @@ def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float)
         mask="auto",
     )
 
-    # VOCA — Trigger 로고와 같은 서체·기울임, 같은 방향(우하)/깊이 압출 그림자
-    voca_size = 54
+    # VOCA — Trigger와 맞춘 서체·우하 압출 그림자, 자간 살짝 확보
+    voca_size = 60
     voca_y = h - 128 * mm
-    # logo 실측: 그림자 ≈ 글자높이의 +8.1% x, +6.3% y(이미지↓) → PDF는 y 반전
+    tracking = voca_size * 0.08
     shadow_dx = voca_size * 0.081
     shadow_dy = -voca_size * 0.063
     c.saveState()
@@ -98,10 +117,12 @@ def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float)
     steps = 14
     for i in range(steps, 0, -1):
         t = i / steps
-        c.drawCentredString(shadow_dx * t, shadow_dy * t, "VOCA")
+        draw_tracked_centred(
+            c, "VOCA", shadow_dx * t, shadow_dy * t, font=FONT_LOGO, size=voca_size, tracking=tracking
+        )
     c.setFillColor(white)
     for dx, dy in ((0, 0), (0.5, 0), (0, 0.4), (0.5, 0.4)):
-        c.drawCentredString(dx, dy, "VOCA")
+        draw_tracked_centred(c, "VOCA", dx, dy, font=FONT_LOGO, size=voca_size, tracking=tracking)
     c.restoreState()
 
     c.setFillColor(NEON_BLUE)

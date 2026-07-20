@@ -460,7 +460,7 @@ def draw_cover(
         align="center",
     )
 
-    logo_w = 114.8 * mm
+    logo_w = 106 * mm  # Trigger 살짝 축소
     logo_h = logo_w * LOGO_ASPECT
     c.drawImage(
         str(LOGO_PATH),
@@ -473,10 +473,20 @@ def draw_cover(
         mask="auto",
     )
 
-    voca_size = 54
+    voca_size = 60
     voca_y = height - 128 * mm
+    tracking = voca_size * 0.08
     shadow_dx = voca_size * 0.081
     shadow_dy = -voca_size * 0.063
+
+    def draw_tracked(ox: float, oy: float) -> None:
+        widths = [pdfmetrics.stringWidth(ch, FONT_LOGO, voca_size) for ch in "VOCA"]
+        total = sum(widths) + tracking * 3
+        cursor = ox - total / 2
+        for ch, tw in zip("VOCA", widths):
+            c.drawString(cursor, oy, ch)
+            cursor += tw + tracking
+
     c.saveState()
     c.translate(width / 2, voca_y)
     c.skew(0, 18)
@@ -485,10 +495,10 @@ def draw_cover(
     steps = 14
     for i in range(steps, 0, -1):
         t = i / steps
-        c.drawCentredString(shadow_dx * t, shadow_dy * t, "VOCA")
+        draw_tracked(shadow_dx * t, shadow_dy * t)
     c.setFillColor(white)
     for dx, dy in ((0, 0), (0.5, 0), (0, 0.4), (0.5, 0.4)):
-        c.drawCentredString(dx, dy, "VOCA")
+        draw_tracked(dx, dy)
     c.restoreState()
 
     c.setFillColor(NEON_BLUE)
