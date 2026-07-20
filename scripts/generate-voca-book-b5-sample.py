@@ -1,11 +1,12 @@
 """중등·고등 보카 종이책 B5 샘플 PDF.
 
-중등: 하루 24개 → TEST 1장 + PRACTICE 1장 (Day 구분은 헤더만, 중간 표지 없음)
+중등: 하루 24개 → 1회독(간지·STUDY LOG·TEST·PRACTICE) + 랜덤 1회독(TEST만)
 고등: 하루 40개 → 20개씩 TEST+PRACTICE × 2세트
 """
 
 from __future__ import annotations
 
+import random
 import re
 from pathlib import Path
 
@@ -321,6 +322,48 @@ def chunk_days(words: list[tuple[str, str]], per_day: int) -> list[list[tuple[st
     return [words[i : i + per_day] for i in range(0, len(words), per_day)]
 
 
+MIDDLE_WORDS_PER_DAY = 24
+MIDDLE_PAGES_PER_DAY_ROUND1 = 4  # 간지 · STUDY LOG · TEST · PRACTICE
+MIDDLE_RANDOM_SEED = 20260720
+
+
+def middle_first_day_page(*, include_covers: bool) -> int:
+    """1회독 Day 01 간지가 시작하는 페이지 번호."""
+    return 5 if include_covers else 4
+
+
+def shuffle_days_for_random_review(
+    days: list[list[tuple[str, str]]],
+    *,
+    seed: int = MIDDLE_RANDOM_SEED,
+) -> list[list[tuple[str, str]]]:
+    """1회독 Day 구성과 다른 순서로 Day를 재구성 (고정 시드)."""
+    per_day = len(days[0])
+    flat = [row for day in days for row in day]
+    shuffled = flat[:]
+    random.Random(seed).shuffle(shuffled)
+    if {word for word, _ in shuffled} != {word for word, _ in flat}:
+        raise ValueError("랜덤 1회독 셔플 후 단어 누락·중복이 있습니다.")
+    return chunk_days(shuffled, per_day)
+
+
+def build_middle_round1_contents_entries(
+    days: list[list[tuple[str, str]]],
+    *,
+    include_covers: bool,
+) -> list[tuple[str, int, int, int]]:
+    first = middle_first_day_page(include_covers=include_covers)
+    return [
+        (
+            f"DAY {day_no:02d}",
+            len(rows),
+            first + (day_no - 1) * MIDDLE_PAGES_PER_DAY_ROUND1,
+            first + (day_no - 1) * MIDDLE_PAGES_PER_DAY_ROUND1 + MIDDLE_PAGES_PER_DAY_ROUND1 - 1,
+        )
+        for day_no, rows in enumerate(days, 1)
+    ]
+
+
 def fit_font_size(text: str, font: str, max_size: float, max_width: float) -> float:
     size = max_size
     while size > 5.8 and pdfmetrics.stringWidth(text, font, size) > max_width:
@@ -498,6 +541,7 @@ def draw_contents_page(
     level_tag: str,
     entries: list[tuple[str, int, int, int]],
     page_no: int,
+    footer_note: str | None = None,
 ) -> None:
     """Day별 단어 수와 시작·끝 페이지를 보여 주는 목차."""
     width, height = B5
@@ -579,6 +623,18 @@ def draw_contents_page(
             line_y = table_top - header_h - index * row_h
             c.line(left, line_y, right, line_y)
         c.rect(left, bottom, column_w, table_top - bottom, fill=0, stroke=1)
+
+    if footer_note:
+        draw_text(
+            c,
+            footer_note,
+            width / 2,
+            TABLE_BOTTOM + 6 * mm,
+            font=FONT_BOLD,
+            size=10.0,
+            color=SLATE,
+            align="center",
+        )
 
     draw_page_footer(c, page_no, level_tag)
     c.showPage()
@@ -759,6 +815,18 @@ def draw_howto_page(c: canvas.Canvas, *, level_tag: str, page_no: int) -> None:
         draw_text(c, number, left + 11 * mm, y + box_h / 2 - 3.0, font=FONT_BOLD, size=9.5, color=white, align="center")
         draw_text(c, title, left + 24 * mm, y + box_h / 2 + 2.2 * mm, font=FONT_BOLD, size=13.0)
         draw_text(c, description, left + 24 * mm, y + box_h / 2 - 4.3 * mm, size=13.3, color=SLATE, max_width=right - left - 30 * mm)
+
+    draw_text(
+        c,
+        "1회독을 모두 마친 뒤, 뒤쪽 「랜덤 1회독」 구간(TEST만)으로 이어집니다.",
+        width / 2,
+        top - 4 * (box_h + gap) - 14 * mm,
+        font=FONT_BOLD,
+        size=10.5,
+        color=SLATE,
+        align="center",
+        max_width=right - left,
+    )
 
     draw_page_footer(c, page_no, level_tag)
     c.showPage()
@@ -1007,6 +1075,77 @@ def draw_day_divider(
     c.rect((width - bar_w) / 2, center_y - 20 * mm, bar_w, 1.4 * mm, fill=1, stroke=0)
     draw_text(c, f"{len(rows)} WORDS", width / 2, center_y - 30 * mm, font=FONT_BOLD, size=12, color=white, align="center")
     draw_text(c, f"{rows[0][0]} – {rows[-1][0]}", width / 2, center_y - 38 * mm, size=11, color=PALE, align="center")
+
+    draw_page_footer(c, page_no, level_tag)
+    c.showPage()
+
+
+def draw_random_review_divider(
+    c: canvas.Canvas,
+    *,
+    level_tag: str,
+    day_count: int,
+    word_count: int,
+    random_first_test_page: int,
+    page_no: int,
+) -> None:
+    """1회독과 랜덤 1회독 구간을 구분하는 표지 + 짧은 안내."""
+    width, height = B5
+    c.setFillColor(NAVY)
+    c.rect(0, 0, width, height, fill=1, stroke=0)
+
+    center_y = height * 0.62
+    draw_text(c, "RANDOM", width / 2, center_y + 34 * mm, font=FONT_BOLD, size=22, color=PALE, align="center")
+    draw_text(c, "REVIEW", width / 2, center_y + 6 * mm, font=FONT_BOLD, size=56, color=white, align="center")
+    draw_text(c, "랜덤 1회독", width / 2, center_y - 22 * mm, font=FONT_BOLD, size=16, color=white, align="center")
+
+    bar_w = 36 * mm
+    c.setFillColor(NEON_BLUE)
+    c.rect((width - bar_w) / 2, center_y - 30 * mm, bar_w, 1.4 * mm, fill=1, stroke=0)
+    draw_text(
+        c,
+        f"{word_count} WORDS · SHUFFLED · {day_count} DAYS",
+        width / 2,
+        center_y - 40 * mm,
+        font=FONT_BOLD,
+        size=11,
+        color=white,
+        align="center",
+    )
+
+    margin_left, margin_right = page_margins_x(page_no)
+    left = margin_left
+    right = width - margin_right
+    notes = [
+        "1회독을 모두 마친 뒤, 이 구간부터 시작하세요.",
+        "전체 단어 순서가 무작위로 섞여 Day 01~{:02d}으로 다시 구성되어 있습니다.".format(day_count),
+        "TEST만 있습니다. 연습(PRACTICE) 페이지는 없습니다.",
+        "Day 번호는 1부터이지만, 단어 구성은 1회독과 다릅니다.",
+        "순서를 외우지 않았는지 확인하는 복습입니다.",
+    ]
+    note_top = center_y - 58 * mm
+    for index, line in enumerate(notes):
+        draw_text(
+            c,
+            line,
+            width / 2,
+            note_top - index * 7.5 * mm,
+            size=10.5,
+            color=PALE,
+            align="center",
+            max_width=right - left,
+        )
+
+    draw_text(
+        c,
+        f"다음 페이지(p.{random_first_test_page})부터 Day 01 TEST",
+        width / 2,
+        28 * mm,
+        font=FONT_BOLD,
+        size=10.0,
+        color=PALE,
+        align="center",
+    )
 
     draw_page_footer(c, page_no, level_tag)
     c.showPage()
@@ -1452,41 +1591,55 @@ def validate_pronunciations(rows: list[tuple[str, str]], pronunciations: dict[st
 
 
 def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: bool = True) -> Path:
-    """앞부분(목차·사용법·발음) + Day×4 + 색인. include_covers=True면 앞·뒤표지 포함."""
+    """앞부분 + 1회독(Day×4) + 랜덤 표지 + 랜덤 1회독(TEST) + 색인."""
     global POS_MEANINGS
     pron, pos = load_middle_meta()
     POS_MEANINGS = pos
 
     OUT_MIDDLE.mkdir(parents=True, exist_ok=True)
     day_count = len(days)
+    word_count = sum(len(rows) for rows in days)
+    random_days = shuffle_days_for_random_review(days)
+    first_day_page = middle_first_day_page(include_covers=include_covers)
+    random_divider_page = first_day_page + day_count * MIDDLE_PAGES_PER_DAY_ROUND1
+    random_first_test_page = random_divider_page + 1
+    random_last_test_page = random_first_test_page + day_count - 1
+
     name_suffix = "" if include_covers else "_내지"
     out_path = resolve_output_path(OUT_MIDDLE / f"트리거보카_중등_Day01-{day_count:02d}_B5{name_suffix}.pdf")
     c = canvas.Canvas(str(out_path), pagesize=B5, pageCompression=1)
     c.setTitle(f"트리거 보카 중등 Day 01-{day_count:02d} B5")
     c.setAuthor("TRIGGER BLACK")
     c.setSubject(
-        "B5 중등 단어장 (Day 간지 + STUDY LOG)"
+        "B5 중등 단어장 (1회독 + 랜덤 1회독)"
         if include_covers
-        else "B5 중등 단어장 내지 (부크크 업로드용 · 표지 제외)"
+        else "B5 중등 단어장 내지 (1회독 + 랜덤 1회독 · 표지 제외)"
     )
     c.setCreator("TRIGGER VOCA Book Generator")
 
+    contents_page_no = 2 if include_covers else 1
     if include_covers:
         draw_cover(
             c,
             level_en="MIDDLE SCHOOL",
             level_ko="중등",
-            day_label=f"DAY 01–{day_count:02d} · {day_count * 24} WORDS",
-            words_note="Day 구분은 페이지 헤더만 사용합니다. 중간 표지는 넣지 않습니다.",
+            day_label=f"DAY 01–{day_count:02d} · {word_count} WORDS",
+            words_note="1회독 + 랜덤 1회독 · Day 구분은 페이지 헤더만 사용합니다.",
         )
-    contents = [
-        (f"DAY {day_no:02d}", len(rows), 5 + (day_no - 1) * 4, 8 + (day_no - 1) * 4)
-        for day_no, rows in enumerate(days, 1)
-    ]
-    draw_contents_page(c, level_tag="MIDDLE", entries=contents, page_no=2)
-    draw_howto_page(c, level_tag="MIDDLE", page_no=3)
-    draw_pronunciation_guide(c, level_tag="MIDDLE", page_no=4)
-    page_no = 5
+    contents = build_middle_round1_contents_entries(days, include_covers=include_covers)
+    draw_contents_page(
+        c,
+        level_tag="MIDDLE",
+        entries=contents,
+        page_no=contents_page_no,
+        footer_note=(
+            f"랜덤 1회독 · p.{random_divider_page}(안내) · "
+            f"p.{random_first_test_page}–{random_last_test_page}(TEST)"
+        ),
+    )
+    draw_howto_page(c, level_tag="MIDDLE", page_no=contents_page_no + 1)
+    draw_pronunciation_guide(c, level_tag="MIDDLE", page_no=contents_page_no + 2)
+    page_no = first_day_page
     for day_no, rows in enumerate(days, 1):
         draw_day_divider(
             c,
@@ -1524,7 +1677,33 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: 
             page_no=page_no,
         )
         page_no += 1
-    index_entries = build_word_index_entries(days)
+
+    draw_random_review_divider(
+        c,
+        level_tag="MIDDLE",
+        day_count=day_count,
+        word_count=word_count,
+        random_first_test_page=random_first_test_page,
+        page_no=page_no,
+    )
+    page_no += 1
+    for day_no, rows in enumerate(random_days, 1):
+        draw_test_page(
+            c,
+            level_tag="MIDDLE",
+            day_no=day_no,
+            part_label="RANDOM",
+            rows=rows,
+            start_index=1,
+            page_no=page_no,
+        )
+        page_no += 1
+
+    index_entries = build_word_index_entries(
+        days,
+        first_day_page=first_day_page,
+        pages_per_day=MIDDLE_PAGES_PER_DAY_ROUND1,
+    )
     page_no = draw_index_pages(
         c,
         level_tag="MIDDLE",
