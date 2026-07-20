@@ -25,7 +25,7 @@ LOGO_ASPECT = 342 / 820
 
 FONT_BOLD = "PretendardBold"
 FONT_REGULAR = "Pretendard"
-FONT_DISPLAY = "BlackHanSans"
+FONT_DISPLAY = "PretendardBlack"
 
 NAVY = HexColor("#0A0A0A")
 NEON_BLUE = HexColor("#00F3FF")
@@ -36,14 +36,14 @@ PALE = HexColor("#EEF1F4")
 PAGE_W = 182 * mm
 PAGE_H = 257 * mm
 BLEED = 3 * mm
-COVER_TITLE_SIZE = 82 * 1.6  # 기존 VOCA(82pt) 대비 1.6배 · 트리거와 동일
+COVER_TITLE_SIZE = 82 * 1.6  # 기존 VOCA(82pt) 대비 1.6배
 
 
 def register_fonts() -> None:
     brand_dir = ROOT / "fonts"
     pdfmetrics.registerFont(TTFont(FONT_REGULAR, str(brand_dir / "Pretendard-Regular.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_BOLD, str(brand_dir / "Pretendard-Bold.ttf")))
-    pdfmetrics.registerFont(TTFont(FONT_DISPLAY, str(brand_dir / "BlackHanSans-Regular.ttf")))
+    pdfmetrics.registerFont(TTFont(FONT_DISPLAY, str(brand_dir / "Pretendard-Black.ttf")))
 
 
 def draw_cover_title(c: canvas.Canvas, text: str, x: float, y: float, size: float = COVER_TITLE_SIZE) -> None:
@@ -87,11 +87,11 @@ def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float)
         anchor="c",
     )
 
-    # 메인 타이포: 트리거(80%) · VOCA(100%) · 가로·세로 중앙 정렬
-    trigger_size = COVER_TITLE_SIZE * 0.8
+    # 메인 타이포: 트리거(50%) · VOCA · 위로 · 가로 중앙
+    trigger_size = COVER_TITLE_SIZE * 0.5
     voca_size = COVER_TITLE_SIZE
-    baseline_gap = 50 * mm
-    block_mid_y = h / 2 + 8 * mm  # 광학적 중앙 (살짝 위)
+    baseline_gap = 40 * mm
+    block_mid_y = h / 2 + 28 * mm  # 위로
     trigger_y = block_mid_y + baseline_gap / 2
     voca_y = block_mid_y - baseline_gap / 2
     draw_cover_title(c, "트리거", w / 2, trigger_y, size=trigger_size)
@@ -177,25 +177,31 @@ def draw_back_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float) 
 
 
 def draw_spine(c: canvas.Canvas, x0: float, y0: float, spine_w: float, h: float) -> None:
-    """책등 — 세로 제목."""
+    """책등 — 제목이 책등 폭·길이에 꽉 차게."""
     c.saveState()
     c.setFillColor(NAVY)
     c.rect(x0, y0, spine_w, h, fill=1, stroke=0)
 
-    # 네온 세로 포인트 라인
-    c.setStrokeColor(NEON_BLUE)
-    c.setLineWidth(1.2)
-    inset = max(1.5 * mm, spine_w * 0.18)
-    c.line(x0 + inset, y0 + 18 * mm, x0 + inset, y0 + h - 18 * mm)
+    title = "TRIGGER VOCA · 중등"
+    margin_end = 8 * mm
+    avail_len = h - margin_end * 2
+    # 폭에 맞춰 글씨 크기 최대화 후, 길이는 가로 스케일로 책등 전체에 맞춤
+    size = spine_w * 0.78
+    text_w = pdfmetrics.stringWidth(title, FONT_DISPLAY, size)
+    if text_w > avail_len:
+        size *= avail_len / text_w
+        text_w = pdfmetrics.stringWidth(title, FONT_DISPLAY, size)
+        stretch = 1.0
+    else:
+        stretch = avail_len / text_w
 
     c.translate(x0 + spine_w / 2, y0 + h / 2)
     c.rotate(90)
+    c.scale(stretch, 1)
     c.setFillColor(white)
-    c.setFont(FONT_BOLD, 11)
-    c.drawCentredString(0, -3.2, "TRIGGER VOCA  ·  중등")
-    c.setFillColor(NEON_BLUE)
-    c.setFont(FONT_BOLD, 10)
-    c.drawCentredString(0, -14, "VOCA")
+    c.setFont(FONT_DISPLAY, size)
+    for dx, dy in ((0, 0), (0.45, 0), (0, 0.35), (0.45, 0.35)):
+        c.drawCentredString(dx, dy, title)
     c.restoreState()
 
 
@@ -256,9 +262,9 @@ def build_cover_pdf(*, pages: int, spine_mm: float | None) -> Path:
                 "  (1회독 + 랜덤 1회독 내지 기준. 부크크 100쪽=7.1mm 비율)",
                 "  (화면에 다른 두께가 나오면 --spine 으로 재생성)",
                 "",
-                "앞표지: 로고(우상단 소) + 트리거/VOCA(Black Han Sans · 131pt · 기울임) + 중등 + DAY 바",
+                "앞표지: 로고(우상단 소) + 트리거(50%)/VOCA(Pretendard Black · 기울임) + 중등 + DAY 바",
                 "뒷표지: Just Follow(40pt) + QR · 로고 없음",
-                "책등: TRIGGER VOCA · 중등 / VOCA",
+                "책등: TRIGGER VOCA · 중등 (책등 폭·길이에 맞춤)",
                 "",
                 f"표지 PDF 크기(도련 3mm 포함):",
                 f"  가로 {total_w / mm:.1f} mm = 3 + 182 + {spine} + 182 + 3",

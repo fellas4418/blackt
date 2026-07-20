@@ -56,8 +56,8 @@ FONT_REGULAR = "Pretendard"
 FONT_BOLD = "PretendardBold"
 FONT_IPA = "ArialIPA"
 FONT_IPA_BOLD = "ArialIPABold"
-FONT_DISPLAY = "BlackHanSans"
-COVER_TITLE_SIZE = 82 * 1.6  # 기존 VOCA(82pt) 대비 1.6배 · 트리거와 동일
+FONT_DISPLAY = "PretendardBlack"
+COVER_TITLE_SIZE = 82 * 1.6  # 기존 VOCA(82pt) 대비 1.6배
 # 브랜드 색 — 트리거 블랙: 검정 배경 + 흰 글씨, 흑백 인쇄에서도 구분되는 무채색
 NAVY = HexColor("#0A0A0A")  # 브랜드 블랙 (헤더 바·배너·표지)
 NEON_BLUE = HexColor("#00F3FF")  # 앱 네온블루 — 표지·간지 포인트 전용
@@ -276,7 +276,7 @@ def register_fonts() -> None:
     brand_dir = ROOT / "fonts"  # 앱과 동일한 Pretendard (브랜드 통일)
     pdfmetrics.registerFont(TTFont(FONT_REGULAR, str(brand_dir / "Pretendard-Regular.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_BOLD, str(brand_dir / "Pretendard-Bold.ttf")))
-    pdfmetrics.registerFont(TTFont(FONT_DISPLAY, str(brand_dir / "BlackHanSans-Regular.ttf")))
+    pdfmetrics.registerFont(TTFont(FONT_DISPLAY, str(brand_dir / "Pretendard-Black.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_IPA, str(font_dir / "arial.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_IPA_BOLD, str(font_dir / "arialbd.ttf")))
 
@@ -468,11 +468,11 @@ def draw_cover(
         anchor="c",
     )
 
-    # 메인 타이포: 트리거(80%) · VOCA(100%) · 가로·세로 중앙 정렬
-    trigger_size = COVER_TITLE_SIZE * 0.8
+    # 메인 타이포: 트리거(50%) · VOCA · 위로 · 가로 중앙
+    trigger_size = COVER_TITLE_SIZE * 0.5
     voca_size = COVER_TITLE_SIZE
-    baseline_gap = 50 * mm
-    block_mid_y = height / 2 + 8 * mm
+    baseline_gap = 40 * mm
+    block_mid_y = height / 2 + 28 * mm
     trigger_y = block_mid_y + baseline_gap / 2
     voca_y = block_mid_y - baseline_gap / 2
     draw_cover_title(c, "트리거", width / 2, trigger_y, size=trigger_size)
