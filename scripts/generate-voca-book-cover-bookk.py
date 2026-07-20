@@ -49,7 +49,7 @@ def bookk_spine_mm(pages: int) -> float:
 
 
 def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float) -> None:
-    """앞표지 — Trigger 로고 + VOCABULARY BOOK (초기 배치)."""
+    """앞표지 — Trigger 로고 + VOCA (초기 배치)."""
     c.saveState()
     c.translate(x0, y0)
     c.setFillColor(NAVY)
@@ -81,9 +81,25 @@ def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float)
         mask="auto",
     )
 
+    # VOCA — 같은 위치, 크게. 사각 테두리 대신 네온 이중 밑줄로 로고와 구분
+    voca_size = 48
+    voca_y = h - 128 * mm
+    voca_w = pdfmetrics.stringWidth("VOCA", FONT_BOLD, voca_size)
+    c.saveState()
+    c.translate(w / 2, voca_y)
+    c.skew(0, 8)
     c.setFillColor(white)
-    c.setFont(FONT_BOLD, 22)
-    c.drawCentredString(w / 2, h - 128 * mm, "VOCABULARY BOOK")
+    c.setFont(FONT_BOLD, voca_size)
+    for dx, dy in ((0, 0), (0.45, 0), (0, 0.35), (0.45, 0.35)):
+        c.drawCentredString(dx, dy, "VOCA")
+    c.restoreState()
+    c.setStrokeColor(NEON_BLUE)
+    c.setLineWidth(1.3)
+    line_half = voca_w * 0.42
+    line_y1 = voca_y - 3.2 * mm
+    line_y2 = voca_y - 4.6 * mm
+    c.line(w / 2 - line_half, line_y1, w / 2 + line_half, line_y1)
+    c.line(w / 2 - line_half, line_y2, w / 2 + line_half, line_y2)
 
     c.setFillColor(NEON_BLUE)
     c.roundRect(28 * mm, h - 184 * mm, w - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
@@ -171,7 +187,7 @@ def draw_spine(c: canvas.Canvas, x0: float, y0: float, spine_w: float, h: float)
     c.drawCentredString(0, -3.2, "TRIGGER VOCA  ·  중등")
     c.setFillColor(NEON_BLUE)
     c.setFont(FONT_BOLD, 10)
-    c.drawCentredString(0, -14, "VOCABULARY BOOK")
+    c.drawCentredString(0, -14, "VOCA")
     c.restoreState()
 
 
@@ -232,9 +248,9 @@ def build_cover_pdf(*, pages: int, spine_mm: float | None) -> Path:
                 "  (1회독 + 랜덤 1회독 내지 기준. 부크크 100쪽=7.1mm 비율)",
                 "  (화면에 다른 두께가 나오면 --spine 으로 재생성)",
                 "",
-                "앞표지: Trigger 로고 + VOCABULARY BOOK · 중등 배지(좌상) · DAY 바",
+                "앞표지: Trigger 로고 + VOCA(크게·네온 밑줄) · 중등 배지(좌상) · DAY 바",
                 "뒷표지: Just Follow(40pt) + QR · 로고 없음",
-                "책등: 네온 라인 + TRIGGER VOCA · 중등 / VOCABULARY BOOK (얇은 타이포, 폭 19mm)",
+                "책등: 네온 라인 + TRIGGER VOCA · 중등 / VOCA (얇은 타이포, 폭 19mm)",
                 "",
                 f"표지 PDF 크기(도련 3mm 포함):",
                 f"  가로 {total_w / mm:.1f} mm = 3 + 182 + {spine} + 182 + 3",

@@ -470,16 +470,24 @@ def draw_cover(
         mask="auto",
     )
 
-    draw_text(
-        c,
-        "VOCABULARY BOOK",
-        width / 2,
-        height - 128 * mm,
-        font=FONT_BOLD,
-        size=22,
-        color=white,
-        align="center",
-    )
+    voca_size = 48
+    voca_y = height - 128 * mm
+    voca_w = pdfmetrics.stringWidth("VOCA", FONT_BOLD, voca_size)
+    c.saveState()
+    c.translate(width / 2, voca_y)
+    c.skew(0, 8)
+    c.setFillColor(white)
+    c.setFont(FONT_BOLD, voca_size)
+    for dx, dy in ((0, 0), (0.45, 0), (0, 0.35), (0.45, 0.35)):
+        c.drawCentredString(dx, dy, "VOCA")
+    c.restoreState()
+    c.setStrokeColor(NEON_BLUE)
+    c.setLineWidth(1.3)
+    line_half = voca_w * 0.42
+    line_y1 = voca_y - 3.2 * mm
+    line_y2 = voca_y - 4.6 * mm
+    c.line(width / 2 - line_half, line_y1, width / 2 + line_half, line_y1)
+    c.line(width / 2 - line_half, line_y2, width / 2 + line_half, line_y2)
 
     c.setFillColor(NEON_BLUE)
     c.roundRect(28 * mm, height - 184 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
