@@ -10,7 +10,6 @@ import re
 from pathlib import Path
 
 from reportlab.lib.colors import Color, HexColor, white
-from reportlab.lib.pagesizes import B5
 from reportlab.lib.units import mm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
@@ -18,7 +17,19 @@ from reportlab.pdfgen import canvas
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT_DIR = ROOT / "단어장 PDF"
+OUT_MIDDLE = ROOT / "단어장 PDF" / "중등"
+OUT_HIGH = ROOT / "단어장 PDF" / "고등"
+
+# 부크크 JIS B5 (182×257mm) — 권장 여백 안전 구역
+B5 = (182 * mm, 257 * mm)
+MARGIN_X = 14 * mm
+MARGIN_BOTTOM = 14 * mm
+TABLE_BOTTOM = 24 * mm
+BANNER_Y = 22 * mm
+SUBTITLE_Y = 34 * mm
+RULE_Y = 38 * mm
+TABLE_TOP_TIGHT = 40 * mm
+TABLE_TOP_LOOSE = 46 * mm
 
 FONT_REGULAR = "Pretendard"
 FONT_BOLD = "PretendardBold"
@@ -348,8 +359,8 @@ def draw_day_banner(c: canvas.Canvas, title: str, center_y: float) -> None:
 
 def draw_page_footer(c: canvas.Canvas, page_no: int, level_tag: str) -> None:
     width, _ = B5
-    draw_text(c, f"TRIGGER VOCA · {level_tag}", 10 * mm, 7 * mm, size=6.5, color=SLATE)
-    draw_text(c, str(page_no), width - 10 * mm, 7 * mm, size=10.4, color=SLATE, align="right")
+    draw_text(c, f"TRIGGER VOCA · {level_tag}", MARGIN_X, MARGIN_BOTTOM, size=6.5, color=SLATE)
+    draw_text(c, str(page_no), width - MARGIN_X, MARGIN_BOTTOM, size=10.4, color=SLATE, align="right")
 
 
 LOGO_PATH = ROOT / "로고, 이미지" / "trigger-logo-v2.png"
@@ -476,27 +487,27 @@ def draw_contents_page(
 ) -> None:
     """Day별 단어 수와 시작·끝 페이지를 보여 주는 목차."""
     width, height = B5
-    draw_day_banner(c, "CONTENTS", height - 15 * mm)
+    draw_day_banner(c, "CONTENTS", height - BANNER_Y)
     draw_text(
         c,
         f"{level_tag} · {len(entries)} DAYS · {sum(words for _, words, _, _ in entries)} WORDS",
         width / 2,
-        height - 26 * mm,
+        height - SUBTITLE_Y,
         font=FONT_BOLD,
         size=9.5,
         color=SLATE,
         align="center",
     )
 
-    side_margin = 15 * mm
+    side_margin = MARGIN_X
     gap = 8 * mm
     column_count = 2 if len(entries) > 25 else 1
     table_w = width - side_margin * 2
     column_w = (table_w - gap * (column_count - 1)) / column_count
     rows_per_column = (len(entries) + column_count - 1) // column_count
-    table_top = height - 37 * mm
+    table_top = height - TABLE_TOP_LOOSE
     header_h = 9 * mm
-    row_h = min(8 * mm, (table_top - 22 * mm - header_h) / max(rows_per_column, 1))
+    row_h = min(8 * mm, (table_top - TABLE_BOTTOM - header_h) / max(rows_per_column, 1))
     day_w = 25 * mm
     words_w = 22 * mm
 
@@ -586,12 +597,12 @@ def draw_index_pages(
     """알파벳 색인 — 단어 · Day · TEST 페이지. 여러 쪽."""
     width, height = B5
     page_no = start_page_no
-    side = 12 * mm
+    side = MARGIN_X
     cols = 3
     gap = 4 * mm
     col_w = (width - side * 2 - gap * (cols - 1)) / cols
-    top = height - 32 * mm
-    bottom = 16 * mm
+    top = height - TABLE_TOP_LOOSE + 4 * mm
+    bottom = TABLE_BOTTOM
     row_h = 5.2 * mm
     rows_per_col = int((top - bottom) / row_h)
 
@@ -615,12 +626,12 @@ def draw_index_pages(
         offset += len(chunk)
 
         if first_index_page:
-            draw_day_banner(c, "INDEX", height - 15 * mm)
+            draw_day_banner(c, "INDEX", height - BANNER_Y)
             draw_text(
                 c,
                 f"{level_tag} · A–Z · {len(entries)} WORDS",
                 width / 2,
-                height - 26 * mm,
+                height - SUBTITLE_Y,
                 font=FONT_BOLD,
                 size=9.5,
                 color=SLATE,
@@ -628,12 +639,12 @@ def draw_index_pages(
             )
             first_index_page = False
         else:
-            draw_day_banner(c, "INDEX (cont.)", height - 15 * mm)
+            draw_day_banner(c, "INDEX (cont.)", height - BANNER_Y)
             draw_text(
                 c,
                 f"{level_tag} · A–Z",
                 width / 2,
-                height - 26 * mm,
+                height - SUBTITLE_Y,
                 size=9.0,
                 color=SLATE,
                 align="center",
@@ -689,12 +700,12 @@ def draw_index_pages(
 def draw_howto_page(c: canvas.Canvas, *, level_tag: str, page_no: int) -> None:
     """TEST부터 복습까지 하루 학습 순서를 안내."""
     width, height = B5
-    draw_day_banner(c, "HOW TO STUDY", height - 15 * mm)
+    draw_day_banner(c, "HOW TO STUDY", height - BANNER_Y)
     draw_text(
         c,
         "하루 24단어를 네 단계로 반복하세요.",
         width / 2,
-        height - 28 * mm,
+        height - SUBTITLE_Y,
         font=FONT_BOLD,
         size=11.5,
         color=SLATE,
@@ -704,7 +715,7 @@ def draw_howto_page(c: canvas.Canvas, *, level_tag: str, page_no: int) -> None:
         c,
         "단어 구성은 트리거보카 앱의 Day 구성과 동일합니다.",
         width / 2,
-        height - 35 * mm,
+        height - SUBTITLE_Y - 7 * mm,
         size=10.0,
         color=SLATE,
         align="center",
@@ -716,9 +727,9 @@ def draw_howto_page(c: canvas.Canvas, *, level_tag: str, page_no: int) -> None:
         ("03", "CHECK", "접었던 정답 면과 비교하고 1차·2차·3차 결과를 체크합니다."),
         ("04", "PRACTICE", "발음을 확인하며 영단어를 따라 쓰고, 뜻을 다시 써봅니다."),
     ]
-    left = 18 * mm
-    right = width - 18 * mm
-    top = height - 45 * mm
+    left = MARGIN_X
+    right = width - MARGIN_X
+    top = height - SUBTITLE_Y - 18 * mm
     box_h = 35 * mm
     gap = 8 * mm
     for index, (number, title, description) in enumerate(steps):
@@ -831,21 +842,21 @@ def draw_pronunciation_guide(c: canvas.Canvas, *, level_tag: str, page_no: int) 
         "we": "위",
     }
 
-    draw_day_banner(c, "발음기호 읽는 법", height - 15 * mm)
+    draw_day_banner(c, "발음기호 읽는 법", height - BANNER_Y)
     draw_text(
         c,
         "한글 표기는 가장 가까운 소리입니다. 예시 단어와 함께 소리 내어 읽어 보세요.",
         width / 2,
-        height - 26 * mm,
+        height - SUBTITLE_Y,
         size=11.0,
         color=SLATE,
         align="center",
     )
 
-    table_top = height - 38 * mm
-    table_bottom = 18 * mm
+    table_top = height - TABLE_TOP_LOOSE
+    table_bottom = TABLE_BOTTOM
     gap = 5 * mm
-    side_margin = 10 * mm
+    side_margin = MARGIN_X
     group_w = (width - side_margin * 2 - gap) / 2
     title_h = 7 * mm
     header_h = 8 * mm
@@ -981,8 +992,8 @@ def draw_day_divider(
     draw_text(c, f"{len(rows)} WORDS", width / 2, center_y - 30 * mm, font=FONT_BOLD, size=12, color=white, align="center")
     draw_text(c, f"{rows[0][0]} – {rows[-1][0]}", width / 2, center_y - 38 * mm, size=11, color=PALE, align="center")
 
-    draw_text(c, f"TRIGGER VOCA · {level_tag}", 10 * mm, 7 * mm, size=6.5, color=PALE)
-    draw_text(c, str(page_no), width - 10 * mm, 7 * mm, size=10.4, color=PALE, align="right")
+    draw_text(c, f"TRIGGER VOCA · {level_tag}", MARGIN_X, MARGIN_BOTTOM, size=6.5, color=PALE)
+    draw_text(c, str(page_no), width - MARGIN_X, MARGIN_BOTTOM, size=10.4, color=PALE, align="right")
     c.showPage()
 
 
@@ -996,21 +1007,21 @@ def draw_day_log_page(
 ) -> None:
     """Day 간지 뒷면 — 회차별 학습 기록 + 헷갈린 단어 메모 (빈 페이지 대신)."""
     width, height = B5
-    draw_day_banner(c, f"DAY {day_no:02d} · STUDY LOG", height - 15 * mm)
+    draw_day_banner(c, f"DAY {day_no:02d} · STUDY LOG", height - BANNER_Y)
     draw_text(
         c,
         "회차별 테스트 날짜와 점수를 기록하고, 헷갈린 단어는 아래에 적어 두세요.",
         width / 2,
-        height - 26 * mm,
+        height - SUBTITLE_Y,
         size=10.5,
         color=SLATE,
         align="center",
     )
 
-    left = 18 * mm
-    right = width - 18 * mm
+    left = MARGIN_X
+    right = width - MARGIN_X
     total_w = right - left
-    table_top = height - 36 * mm
+    table_top = height - TABLE_TOP_LOOSE
     header_h = 9 * mm
     row_h = 12 * mm
     round_w = 24 * mm
@@ -1073,7 +1084,7 @@ def draw_day_log_page(
     column_gap = 10 * mm
     column_w = (total_w - column_gap) / 2
     line_top = section_title_y - 8 * mm
-    line_bottom = 18 * mm
+    line_bottom = TABLE_BOTTOM
     c.setStrokeColor(LINE)
     c.setLineWidth(0.4)
     for column in range(2):
@@ -1098,24 +1109,23 @@ def draw_test_page(
     page_no: int,
 ) -> None:
     width, height = B5
-    margin_x = 8 * mm
-    table_left = margin_x
-    table_right = width - margin_x
+    table_left = MARGIN_X
+    table_right = width - MARGIN_X
     fold_x = width / 2
-    table_top = height - 26 * mm
-    table_bottom = 13 * mm
+    table_top = height - TABLE_TOP_TIGHT
+    table_bottom = TABLE_BOTTOM
     header_h = 8 * mm
     row_h = (table_top - table_bottom - header_h) / len(rows)
 
     title = f"{level_tag} · DAY {day_no:02d}"
     if part_label:
         title += f" · {part_label}"
-    draw_day_banner(c, title, height - 13 * mm)
+    draw_day_banner(c, title, height - BANNER_Y)
     draw_text(
         c,
         f"{len(rows)} WORDS",
         table_right,
-        height - 13 * mm,
+        height - BANNER_Y,
         font=FONT_BOLD,
         size=7.5,
         color=SLATE,
@@ -1125,14 +1135,14 @@ def draw_test_page(
         c,
         "바깥쪽 정답 면을 가운데 세로선에서 뒤로 접으세요",
         width / 2,
-        height - 22.6 * mm,
+        height - SUBTITLE_Y,
         size=9.5,
         color=SLATE,
         align="center",
     )
     c.setStrokeColor(NAVY)
     c.setLineWidth(1.0)
-    c.line(table_left, height - 24.9 * mm, table_right, height - 24.9 * mm)
+    c.line(table_left, height - RULE_Y, table_right, height - RULE_Y)
 
     c.setFillColor(NAVY)
     c.rect(table_left, table_top - header_h, fold_x - table_left, header_h, fill=1, stroke=0)
@@ -1289,29 +1299,29 @@ def draw_practice_page(
     page_no: int,
 ) -> None:
     width, height = B5
-    left = 10 * mm
-    right = width - 8 * mm
-    table_top = height - 32 * mm
-    table_bottom = 18 * mm
+    left = MARGIN_X
+    right = width - MARGIN_X
+    table_top = height - TABLE_TOP_TIGHT - 2 * mm
+    table_bottom = TABLE_BOTTOM
     header_h = 8.5 * mm
     row_h = (table_top - table_bottom - header_h) / len(rows)
 
     title = f"DAY {day_no:02d} · PRACTICE"
     if part_label:
         title += f" · {part_label}"
-    draw_day_banner(c, title, height - 13 * mm)
+    draw_day_banner(c, title, height - BANNER_Y)
     draw_text(
         c,
         "영단어를 따라 쓰고, 뜻을 직접 써보세요.",
         width / 2,
-        height - 25.9 * mm,
+        height - SUBTITLE_Y,
         size=9.5,
         color=SLATE,
         align="center",
     )
     c.setStrokeColor(NAVY)
     c.setLineWidth(1.0)
-    c.line(left, height - 28.2 * mm, right, height - 28.2 * mm)
+    c.line(left, height - RULE_Y, right, height - RULE_Y)
 
     total_w = right - left
     col_widths = [30 * mm, 46 * mm, 32 * mm, 32 * mm, total_w - 140 * mm]
@@ -1429,10 +1439,10 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: 
     pron, pos = load_middle_meta()
     POS_MEANINGS = pos
 
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    OUT_MIDDLE.mkdir(parents=True, exist_ok=True)
     day_count = len(days)
     name_suffix = "" if include_covers else "_내지"
-    out_path = resolve_output_path(OUT_DIR / f"트리거보카_중등_Day01-{day_count:02d}_B5{name_suffix}.pdf")
+    out_path = resolve_output_path(OUT_MIDDLE / f"트리거보카_중등_Day01-{day_count:02d}_B5{name_suffix}.pdf")
     c = canvas.Canvas(str(out_path), pagesize=B5, pageCompression=1)
     c.setTitle(f"트리거 보카 중등 Day 01-{day_count:02d} B5")
     c.setAuthor("TRIGGER BLACK")
@@ -1514,8 +1524,8 @@ def build_middle_pdf(rows: list[tuple[str, str]]) -> Path:
 
 
 def build_high_pdf(rows: list[tuple[str, str]]) -> Path:
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    out_path = resolve_output_path(OUT_DIR / "트리거보카_고등_Day01_B5샘플.pdf")
+    OUT_HIGH.mkdir(parents=True, exist_ok=True)
+    out_path = resolve_output_path(OUT_HIGH / "트리거보카_고등_Day01_B5샘플.pdf")
     c = canvas.Canvas(str(out_path), pagesize=B5, pageCompression=1)
     c.setTitle("트리거 보카 고등 Day 01 B5 샘플")
     c.setAuthor("TRIGGER BLACK")

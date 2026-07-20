@@ -18,7 +18,7 @@ from reportlab.pdfgen import canvas
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT_DIR = ROOT / "단어장 PDF"
+OUT_DIR = ROOT / "단어장 PDF" / "중등"
 LOGO_PATH = ROOT / "로고, 이미지" / "trigger-logo-v2.png"
 QR_PATH = ROOT / "로고, 이미지" / "qr-blackt.png"
 LOGO_ASPECT = 342 / 820
