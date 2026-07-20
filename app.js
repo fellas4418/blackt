@@ -469,7 +469,7 @@ const DAILY_REMINDER_MSGS = {
     ],
     evening: [
         'PROTOCOL OPEN · 오늘의 사이클이 닫히기 전입니다',
-        'STREAK RISK · 오늘 아직 SYNC 안 됐습니다',
+        'STREAK RISK · 오늘 SYNC를 완료해주세요',
         'MISSION PENDING · 3분이면 CLEAR',
         'EVENING CALL · Day 미션이 열려 있습니다',
         'LAST WINDOW · 오늘 트리거를 당길 시간',
