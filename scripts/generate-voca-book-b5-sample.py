@@ -56,6 +56,7 @@ FONT_REGULAR = "Pretendard"
 FONT_BOLD = "PretendardBold"
 FONT_IPA = "ArialIPA"
 FONT_IPA_BOLD = "ArialIPABold"
+FONT_LOGO = "BlackHanSans"  # Trigger 워드마크와 맞춘 디스플레이 서체
 # 브랜드 색 — 트리거 블랙: 검정 배경 + 흰 글씨, 흑백 인쇄에서도 구분되는 무채색
 NAVY = HexColor("#0A0A0A")  # 브랜드 블랙 (헤더 바·배너·표지)
 NEON_BLUE = HexColor("#00F3FF")  # 앱 네온블루 — 표지·간지 포인트 전용
@@ -65,6 +66,7 @@ PALE = HexColor("#EEF1F4")
 LIGHT = HexColor("#F7F7F7")  # 줄무늬 배경
 LINE = HexColor("#9AA4AE")
 INK = HexColor("#20262D")
+LOGO_SHADOW = HexColor("#636262")  # trigger-logo-v2 그림자 샘플
 
 # 중등 Day 1~3 발음 — (IPA, 한글) 수기 검수. 전체 1,200개는 data/middle_book_meta.json 이 우선.
 MIDDLE_PRON = {
@@ -274,6 +276,7 @@ def register_fonts() -> None:
     brand_dir = ROOT / "fonts"  # 앱과 동일한 Pretendard (브랜드 통일)
     pdfmetrics.registerFont(TTFont(FONT_REGULAR, str(brand_dir / "Pretendard-Regular.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_BOLD, str(brand_dir / "Pretendard-Bold.ttf")))
+    pdfmetrics.registerFont(TTFont(FONT_LOGO, str(brand_dir / "BlackHanSans-Regular.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_IPA, str(font_dir / "arial.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_IPA_BOLD, str(font_dir / "arialbd.ttf")))
 
@@ -472,16 +475,19 @@ def draw_cover(
 
     voca_size = 54
     voca_y = height - 128 * mm
-    shadow = HexColor("#4A4A4A")
+    shadow_dx = voca_size * 0.081
+    shadow_dy = -voca_size * 0.063
     c.saveState()
     c.translate(width / 2, voca_y)
-    c.skew(0, 8)
-    c.setFont(FONT_BOLD, voca_size)
-    c.setFillColor(shadow)
-    for dx, dy in ((-1.6, -1.8), (-1.2, -1.4), (-0.8, -1.0)):
-        c.drawCentredString(dx, dy, "VOCA")
+    c.skew(0, 18)
+    c.setFont(FONT_LOGO, voca_size)
+    c.setFillColor(LOGO_SHADOW)
+    steps = 14
+    for i in range(steps, 0, -1):
+        t = i / steps
+        c.drawCentredString(shadow_dx * t, shadow_dy * t, "VOCA")
     c.setFillColor(white)
-    for dx, dy in ((0, 0), (0.45, 0), (0, 0.35), (0.45, 0.35)):
+    for dx, dy in ((0, 0), (0.5, 0), (0, 0.4), (0.5, 0.4)):
         c.drawCentredString(dx, dy, "VOCA")
     c.restoreState()
 

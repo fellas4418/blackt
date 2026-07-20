@@ -25,11 +25,13 @@ LOGO_ASPECT = 342 / 820
 
 FONT_BOLD = "PretendardBold"
 FONT_REGULAR = "Pretendard"
+FONT_LOGO = "BlackHanSans"  # Trigger 워드마크와 맞춘 디스플레이 서체
 
 NAVY = HexColor("#0A0A0A")
 NEON_BLUE = HexColor("#00F3FF")
 ORANGE = HexColor("#FF9900")
 PALE = HexColor("#EEF1F4")
+LOGO_SHADOW = HexColor("#636262")  # trigger-logo-v2 그림자 실플
 
 # B5 재단 사이즈 (부크크)
 PAGE_W = 182 * mm
@@ -41,6 +43,7 @@ def register_fonts() -> None:
     brand_dir = ROOT / "fonts"
     pdfmetrics.registerFont(TTFont(FONT_REGULAR, str(brand_dir / "Pretendard-Regular.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_BOLD, str(brand_dir / "Pretendard-Bold.ttf")))
+    pdfmetrics.registerFont(TTFont(FONT_LOGO, str(brand_dir / "BlackHanSans-Regular.ttf")))
 
 
 def bookk_spine_mm(pages: int) -> float:
@@ -81,19 +84,23 @@ def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float)
         mask="auto",
     )
 
-    # VOCA — 같은 위치, 크게. Trigger 로고와 맞춘 그림자(오프셋 복제)
+    # VOCA — Trigger 로고와 같은 서체·기울임, 같은 방향(우하)/깊이 압출 그림자
     voca_size = 54
     voca_y = h - 128 * mm
-    shadow = HexColor("#4A4A4A")
+    # logo 실측: 그림자 ≈ 글자높이의 +8.1% x, +6.3% y(이미지↓) → PDF는 y 반전
+    shadow_dx = voca_size * 0.081
+    shadow_dy = -voca_size * 0.063
     c.saveState()
     c.translate(w / 2, voca_y)
-    c.skew(0, 8)
-    c.setFont(FONT_BOLD, voca_size)
-    c.setFillColor(shadow)
-    for dx, dy in ((-1.6, -1.8), (-1.2, -1.4), (-0.8, -1.0)):
-        c.drawCentredString(dx, dy, "VOCA")
+    c.skew(0, 18)
+    c.setFont(FONT_LOGO, voca_size)
+    c.setFillColor(LOGO_SHADOW)
+    steps = 14
+    for i in range(steps, 0, -1):
+        t = i / steps
+        c.drawCentredString(shadow_dx * t, shadow_dy * t, "VOCA")
     c.setFillColor(white)
-    for dx, dy in ((0, 0), (0.45, 0), (0, 0.35), (0.45, 0.35)):
+    for dx, dy in ((0, 0), (0.5, 0), (0, 0.4), (0.5, 0.4)):
         c.drawCentredString(dx, dy, "VOCA")
     c.restoreState()
 
@@ -244,7 +251,7 @@ def build_cover_pdf(*, pages: int, spine_mm: float | None) -> Path:
                 "  (1회독 + 랜덤 1회독 내지 기준. 부크크 100쪽=7.1mm 비율)",
                 "  (화면에 다른 두께가 나오면 --spine 으로 재생성)",
                 "",
-                "앞표지: Trigger 로고 + VOCA(크게·그림자) · 중등 배지(좌상) · DAY 바",
+                "앞표지: Trigger 로고 + VOCA(Black Han Sans·우하 압출 그림자) · 중등 배지 · DAY 바",
                 "뒷표지: Just Follow(40pt) + QR · 로고 없음",
                 "책등: 네온 라인 + TRIGGER VOCA · 중등 / VOCA (얇은 타이포, 폭 19mm)",
                 "",
