@@ -27,7 +27,7 @@ FONT_IPA_BOLD = "ArialIPABold"
 # 브랜드 색 — 트리거 블랙: 검정 배경 + 흰 글씨, 흑백 인쇄에서도 구분되는 무채색
 NAVY = HexColor("#0A0A0A")  # 브랜드 블랙 (헤더 바·배너·표지)
 NEON_BLUE = HexColor("#00F3FF")  # 앱 네온블루 — 표지·간지 포인트 전용
-ORANGE = HexColor("#FF9900")  # 표지 레벨 배지 테두리 전용
+ORANGE = HexColor("#FF9900")  # 부가 포인트 — 레벨 배지 테두리·슬로건 마침표
 SLATE = HexColor("#5C5C5C")
 PALE = HexColor("#EEF1F4")
 LIGHT = HexColor("#F7F7F7")  # 줄무늬 배경
@@ -437,7 +437,7 @@ def draw_back_cover(c: canvas.Canvas) -> None:
         anchor="c",
     )
 
-    # 슬로건 — 로고처럼 오른쪽으로 기울인 이탤릭 + 끝에 네온블루 마침표 포인트
+    # 슬로건 — 로고처럼 오른쪽으로 기울인 이탤릭 + 끝에 오렌지 마침표 포인트
     slogan = "Just Follow"
     slogan_size = 20
     slogan_w = pdfmetrics.stringWidth(slogan, FONT_BOLD, slogan_size)
@@ -447,7 +447,7 @@ def draw_back_cover(c: canvas.Canvas) -> None:
     c.setFillColor(white)
     c.setFont(FONT_BOLD, slogan_size)
     c.drawCentredString(0, 0, slogan)
-    c.setFillColor(NEON_BLUE)
+    c.setFillColor(ORANGE)
     c.drawString(slogan_w / 2, 0, ".")
     c.restoreState()
 
