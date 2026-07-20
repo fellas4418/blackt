@@ -281,15 +281,37 @@ def register_fonts() -> None:
     pdfmetrics.registerFont(TTFont(FONT_IPA_BOLD, str(font_dir / "arialbd.ttf")))
 
 
-def draw_cover_title(c: canvas.Canvas, text: str, x: float, y: float, size: float = COVER_TITLE_SIZE) -> None:
-    """표지 메인 타이포 — 강한 디스플레이 서체 + 기울임."""
+def draw_cover_title(
+    c: canvas.Canvas,
+    text: str,
+    x: float,
+    y: float,
+    size: float = COVER_TITLE_SIZE,
+    *,
+    tracking: float = 0.0,
+    heavy: bool = True,
+) -> None:
+    """표지 메인 타이포 — 디스플레이 서체 + 기울임. tracking으로 자간 확보."""
     c.saveState()
     c.translate(x, y)
-    c.skew(0, 14)
+    c.skew(0, 12)
     c.setFillColor(white)
     c.setFont(FONT_DISPLAY, size)
-    for dx, dy in ((0, 0), (0.7, 0), (0, 0.55), (0.7, 0.55)):
-        c.drawCentredString(dx, dy, text)
+    offsets = ((0, 0), (0.55, 0), (0, 0.4), (0.55, 0.4)) if heavy else ((0, 0),)
+
+    def paint(ox: float, oy: float) -> None:
+        if tracking <= 0 or len(text) < 2:
+            c.drawCentredString(ox, oy, text)
+            return
+        widths = [pdfmetrics.stringWidth(ch, FONT_DISPLAY, size) for ch in text]
+        total = sum(widths) + tracking * (len(text) - 1)
+        cursor = ox - total / 2
+        for ch, tw in zip(text, widths):
+            c.drawString(cursor, oy, ch)
+            cursor += tw + tracking
+
+    for dx, dy in offsets:
+        paint(dx, dy)
     c.restoreState()
 
 
@@ -483,8 +505,10 @@ def draw_cover(
     trigger_size = fit_title_size("트리거", max_title_w, max(voca_size * 0.32, 28))
     title_x = width / 2 - 1.2 * mm
     voca_y = height * 0.58
-    trigger_y = voca_y + voca_size * 0.425 + 7 * mm  # 간격 절반
-    draw_cover_title(c, "트리거", title_x, trigger_y, size=trigger_size)
+    trigger_y = voca_y + voca_size * 0.5 + 10 * mm
+    draw_cover_title(
+        c, "트리거", title_x, trigger_y, size=trigger_size, tracking=trigger_size * 0.14, heavy=False
+    )
     draw_cover_title(c, "VOCA", title_x, voca_y, size=voca_size)
 
     badge_w, badge_h = 36 * mm, 15 * mm
