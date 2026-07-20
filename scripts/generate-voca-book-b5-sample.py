@@ -653,7 +653,7 @@ def draw_index_pages(
             )
             first_index_page = False
         else:
-            draw_day_banner(c, "INDEX (cont.)", height - BANNER_Y)
+            draw_day_banner(c, "INDEX", height - BANNER_Y)
             draw_text(
                 c,
                 f"{level_tag} · A–Z",
