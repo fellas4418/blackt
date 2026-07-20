@@ -102,7 +102,7 @@ def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float)
     trigger_size = fit_title_size("트리거", max_title_w, max(voca_size * 0.32, 28))
     title_x = w / 2 - 1.2 * mm
     voca_y = h * 0.50
-    trigger_y = voca_y + voca_size * 0.42 + 6 * mm
+    trigger_y = voca_y + voca_size * 0.58 + 8 * mm
     draw_cover_title(c, "트리거", title_x, trigger_y, size=trigger_size)
     draw_cover_title(c, "VOCA", title_x, voca_y, size=voca_size)
 
