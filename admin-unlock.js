@@ -16,16 +16,8 @@
 
   reconcileAdminModeOnLoad();
 
-  /** 관리자 모드 — 코드 추가·변경은 여기만 수정 */
-  const ADMIN_UNLOCK_CODES = {
-    blacktadmin: true,
-  };
   const TAP_COUNT = 5;
   const TAP_WINDOW_MS = 2500;
-
-  function normalizeCode(raw) {
-    return String(raw || '').trim().replace(/\s+/g, '').toLowerCase();
-  }
 
   function markAdminSession() {
     try {
@@ -51,17 +43,6 @@
     alert('🛠️ 관리자 모드 활성화!\n선생님 메모·학생 의뢰 목록을 사용할 수 있습니다.\n(새로고침하면 해제됩니다)');
   }
 
-  function tryUnlockAdmin() {
-    const raw = prompt('관리자 코드를 입력하세요.');
-    if (raw === null) return;
-    const code = normalizeCode(raw);
-    if (!code || !ADMIN_UNLOCK_CODES[code]) {
-      alert('코드를 확인해 주세요.');
-      return;
-    }
-    applyAdminUnlock();
-  }
-
   function initAdminSecretUnlock() {
     syncAdminUi();
     let taps = 0;
@@ -76,7 +57,7 @@
       tapTimer = setTimeout(function () { taps = 0; }, TAP_WINDOW_MS);
       if (taps < TAP_COUNT) return;
       taps = 0;
-      tryUnlockAdmin();
+      applyAdminUnlock();
     }, true);
   }
 
