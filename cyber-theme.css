@@ -291,44 +291,77 @@ body.splash-active .main-tab-swipe-hint {
 }
 
 #splash-screen.cyber-splash {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     background: #000 !important;
     overflow: hidden;
+    transition: opacity 0.35s ease;
 }
 
+/* 세로줄 시그니처 */
+#splash-screen.cyber-splash::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0) 0,
+        rgba(0, 0, 0, 0) 5px,
+        rgba(0, 243, 255, 0.035) 5px,
+        rgba(0, 243, 255, 0.035) 6px
+    );
+}
+
+/* 살짝 HUD 스캔라인 */
 #splash-screen.cyber-splash::after {
     content: '';
     position: absolute;
     left: 0;
     right: 0;
     height: 2px;
+    z-index: 1;
     background: linear-gradient(90deg, transparent, var(--neon-blue, #00f3ff), transparent);
     animation: cyberScanLine 2.2s linear infinite;
-    opacity: 0.35;
+    opacity: 0.28;
     pointer-events: none;
 }
 
 .cyber-splash-logo {
-    border-radius: var(--cyber-radius-md) !important;
-    box-shadow: 0 0 40px rgba(0, 243, 255, 0.35), 0 0 80px rgba(0, 243, 255, 0.12);
+    position: relative;
+    z-index: 2;
+    width: 160px;
+    height: 160px;
+    border-radius: 8px !important;
+    box-shadow: 0 0 36px rgba(0, 243, 255, 0.32), 0 0 72px rgba(0, 243, 255, 0.1);
     animation: cyberBoot 0.6s ease-out;
 }
 
 .cyber-splash-boot {
+    position: relative;
+    z-index: 2;
     margin-top: 28px;
     text-align: center;
     color: var(--neon-blue, #00f3ff);
     font-size: 0.72rem;
-    letter-spacing: 0.2em;
-    text-shadow: 0 0 12px rgba(0, 243, 255, 0.5);
-    animation: cyberBoot 0.8s ease-out 0.2s both;
+    letter-spacing: 0.22em;
+    text-shadow: 0 0 12px rgba(0, 243, 255, 0.45);
+    animation: cyberBoot 0.8s ease-out 0.15s both;
 }
 
 .cyber-splash-line {
     display: block;
-    margin-top: 8px;
-    font-size: 0.85rem;
+    margin-top: 10px;
+    font-size: 1rem;
     color: #fff;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.18em;
+    text-shadow: 0 0 10px rgba(0, 243, 255, 0.25);
 }
 
 /* ── 학습 화면 ── */

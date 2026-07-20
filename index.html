@@ -288,7 +288,69 @@
         }
     </style>
 </head>
-<body class="dashboard-bg">
+<body class="dashboard-bg splash-active">
+
+    <div id="splash-screen" class="cyber-splash" aria-hidden="true">
+        <img src="로고, 이미지/icon-512.png" alt="TRIGGER BLACK" class="cyber-splash-logo" width="160" height="160">
+        <div class="cyber-splash-boot">
+            <span>SYSTEM BOOT</span>
+            <span class="cyber-splash-line">TRIGGER BLACK</span>
+        </div>
+    </div>
+    <script>
+        (function () {
+            var MIN_MS = 1000;
+            var started = Date.now();
+            var pageReady = false;
+            var timedOk = false;
+            var forceNow = false;
+
+            function hideSplash() {
+                var el = document.getElementById('splash-screen');
+                if (!el || el.getAttribute('data-dismissed') === '1') return;
+                el.setAttribute('data-dismissed', '1');
+                el.style.transition = 'opacity 0.35s ease';
+                el.style.opacity = '0';
+                el.style.pointerEvents = 'none';
+                document.body.classList.remove('splash-active');
+                setTimeout(function () {
+                    el.style.display = 'none';
+                }, 400);
+            }
+
+            function tryDismiss() {
+                if (forceNow || (pageReady && timedOk)) hideSplash();
+            }
+
+            window.dismissTriggerSplash = function (immediate) {
+                if (immediate) {
+                    forceNow = true;
+                    hideSplash();
+                    return;
+                }
+                tryDismiss();
+            };
+
+            try {
+                var q = new URLSearchParams(window.location.search);
+                if (q.get('praise') === 'true' || q.get('share_result') === '1') {
+                    forceNow = true;
+                    hideSplash();
+                    return;
+                }
+            } catch (e) {}
+
+            setTimeout(function () {
+                timedOk = true;
+                tryDismiss();
+            }, MIN_MS);
+
+            window.addEventListener('load', function () {
+                pageReady = true;
+                tryDismiss();
+            });
+        })();
+    </script>
 
     <div class="cyber-stars" id="cyber-stars" aria-hidden="true"></div>
     <script>
@@ -2769,7 +2831,11 @@
         function handleKakaoAndInstall() {
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('praise') === 'true' || urlParams.get('share_result') === '1') {
+                if (typeof window.dismissTriggerSplash === 'function') window.dismissTriggerSplash(true);
                 return;
+            }
+            if (typeof window.dismissTriggerSplash === 'function') {
+                window.dismissTriggerSplash();
             }
             const savedName = localStorage.getItem('trigger_name');
             const isKakao = /KAKAO/i.test(navigator.userAgent);
@@ -2878,6 +2944,10 @@
 });
 
         window.addEventListener('load', () => {
+            if (typeof window.dismissTriggerSplash === 'function') {
+                window.dismissTriggerSplash();
+            }
+
             showAdminMenuIfEnabled();
 
             if (typeof checkLoginStatus === 'function') checkLoginStatus();
