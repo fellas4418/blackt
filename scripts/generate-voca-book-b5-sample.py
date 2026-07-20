@@ -27,6 +27,7 @@ FONT_IPA_BOLD = "ArialIPABold"
 # 브랜드 색 — 트리거 블랙: 검정 배경 + 흰 글씨, 흑백 인쇄에서도 구분되는 무채색
 NAVY = HexColor("#0A0A0A")  # 브랜드 블랙 (헤더 바·배너·표지)
 NEON_BLUE = HexColor("#00F3FF")  # 앱 네온블루 — 표지·간지 포인트 전용
+ORANGE = HexColor("#FF9900")  # 표지 레벨 배지 테두리 전용
 SLATE = HexColor("#5C5C5C")
 PALE = HexColor("#EEF1F4")
 LIGHT = HexColor("#F7F7F7")  # 줄무늬 배경
@@ -370,11 +371,12 @@ def draw_cover(
     c.setStrokeColor(white)
     c.roundRect(10 * mm, 10 * mm, width - 20 * mm, height - 20 * mm, 4 * mm, fill=0, stroke=1)
 
-    # 왼쪽 위 레벨 배지 — 중등/고등 구분이 한눈에 보이게
+    # 왼쪽 위 레벨 배지 — 중등/고등 구분이 한눈에 보이게 (테두리만 오렌지)
     badge_w = 26 * mm
     badge_h = 12 * mm
     badge_x = 18 * mm
     badge_y = height - 18 * mm - badge_h
+    c.setStrokeColor(ORANGE)
     c.setLineWidth(1.2)
     c.roundRect(badge_x, badge_y, badge_w, badge_h, 2 * mm, fill=0, stroke=1)
     draw_text(c, level_ko, badge_x + badge_w / 2, badge_y + badge_h / 2 - 4.8, font=FONT_BOLD, size=13.5, color=white, align="center")
