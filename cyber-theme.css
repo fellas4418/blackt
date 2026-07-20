@@ -286,8 +286,8 @@ body.analysis-page::after {
 }
 
 @keyframes splashBootLabelIn {
-    0% { opacity: 0; letter-spacing: 0.42em; transform: translateY(10px); }
-    100% { opacity: 1; letter-spacing: 0.24em; transform: translateY(0); }
+    0% { opacity: 0; transform: translateY(8px); }
+    100% { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes splashTitleImpact {
@@ -394,7 +394,7 @@ body.splash-active .main-tab-swipe-hint {
     pointer-events: none;
     background: radial-gradient(ellipse at center, rgba(0, 243, 255, 0.55) 0%, transparent 62%);
     opacity: 0;
-    animation: splashFlashBurst 0.4s ease-out 0.68s forwards;
+    animation: splashFlashBurst 0.4s ease-out 1.25s forwards;
 }
 
 .cyber-splash-boot {
@@ -408,10 +408,10 @@ body.splash-active .main-tab-swipe-hint {
 .cyber-splash-boot-label {
     display: block;
     font-size: 0.78rem;
-    letter-spacing: 0.24em;
+    letter-spacing: 0.4em;
     text-shadow: 0 0 12px rgba(0, 243, 255, 0.45);
     opacity: 0;
-    animation: splashBootLabelIn 0.45s ease-out 0.35s forwards;
+    animation: splashBootLabelIn 0.45s ease-out 0.3s forwards;
 }
 
 .cyber-splash-line {
@@ -421,7 +421,7 @@ body.splash-active .main-tab-swipe-hint {
     color: #fff;
     letter-spacing: 0.2em;
     opacity: 0;
-    animation: splashTitleImpact 0.65s ease-out 0.65s forwards;
+    animation: splashTitleImpact 0.65s ease-out 1.25s forwards;
 }
 
 /* ── 학습 화면 ── */
