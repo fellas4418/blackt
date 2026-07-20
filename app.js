@@ -456,7 +456,7 @@ window.clearBlacktCooldownNotifySchedule = clearBlacktCooldownNotifySchedule;
 window.handleCooldownExpiredUi = handleCooldownExpiredUi;
 
 /* ── 일일 미션 알림 (로컬 · 기본 저녁 1회 / 아침 옵션) ── */
-const DAILY_REMINDER_KEY = 'trigger_daily_reminder_v2';
+const DAILY_REMINDER_KEY = 'trigger_daily_reminder_v3';
 const DAILY_REMINDER_SENT_PREFIX = 'trigger_daily_remind_sent_';
 
 const DAILY_REMINDER_MSGS = {
@@ -617,28 +617,31 @@ function scheduleDailyMissionReminders() {
 
 async function enableDailyMissionReminders(opts) {
     const options = opts || {};
+    const nextCfg = {
+        enabled: true,
+        morning: options.morning !== false,
+        eveningHour: options.eveningHour != null ? options.eveningHour : 21,
+        eveningMin: options.eveningMin != null ? options.eveningMin : 0,
+        morningHour: options.morningHour != null ? options.morningHour : 7,
+        morningMin: options.morningMin != null ? options.morningMin : 30
+    };
+    // 선호 설정은 권한과 무관하게 먼저 저장 (UI 체크 유지)
+    const cfg = saveDailyReminderConfig(Object.assign(loadDailyReminderConfig(), nextCfg));
+
     if (!('Notification' in window)) {
-        return { ok: false, reason: 'unsupported' };
+        return { ok: false, reason: 'unsupported', cfg: cfg };
     }
     let perm = Notification.permission;
     if (perm === 'default') {
         try {
             perm = await Notification.requestPermission();
         } catch (e) {
-            return { ok: false, reason: 'denied' };
+            return { ok: false, reason: 'denied', cfg: cfg };
         }
     }
     if (perm !== 'granted') {
-        return { ok: false, reason: 'denied' };
+        return { ok: false, reason: 'denied', cfg: cfg };
     }
-    const cfg = saveDailyReminderConfig({
-        enabled: true,
-        morning: !!options.morning,
-        eveningHour: options.eveningHour != null ? options.eveningHour : 21,
-        eveningMin: options.eveningMin != null ? options.eveningMin : 0,
-        morningHour: options.morningHour != null ? options.morningHour : 7,
-        morningMin: options.morningMin != null ? options.morningMin : 30
-    });
     scheduleDailyMissionReminders();
     return { ok: true, cfg: cfg };
 }
@@ -654,15 +657,26 @@ function setDailyReminderMorning(on) {
     return cfg;
 }
 
+function ensureDailyReminderDefaults() {
+    try {
+        if (!localStorage.getItem(DAILY_REMINDER_KEY)) {
+            saveDailyReminderConfig(defaultDailyReminderConfig());
+        }
+    } catch (e) {}
+    return loadDailyReminderConfig();
+}
+
 window.loadDailyReminderConfig = loadDailyReminderConfig;
 window.saveDailyReminderConfig = saveDailyReminderConfig;
 window.scheduleDailyMissionReminders = scheduleDailyMissionReminders;
 window.enableDailyMissionReminders = enableDailyMissionReminders;
 window.disableDailyMissionReminders = disableDailyMissionReminders;
 window.setDailyReminderMorning = setDailyReminderMorning;
+window.ensureDailyReminderDefaults = ensureDailyReminderDefaults;
 window.isTodayStudyCompleteAny = isTodayStudyCompleteAny;
 
 try {
+    ensureDailyReminderDefaults();
     scheduleDailyMissionReminders();
 } catch (e) {}
 window.addEventListener('pageshow', function () {

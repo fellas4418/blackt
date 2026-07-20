@@ -30,6 +30,63 @@
 
         body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: 'Pretendard', sans-serif; -webkit-font-smoothing: antialiased; padding-bottom: 90px; }
 
+        .daily-remind-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .daily-remind-row--sub {
+            color: #ddd;
+            font-size: 0.9rem;
+            font-weight: normal;
+            margin-top: 12px;
+        }
+        .daily-remind-row.is-disabled {
+            opacity: 0.45;
+            pointer-events: none;
+        }
+        .daily-remind-check {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+            margin: 0;
+            box-sizing: border-box;
+            border: 2px solid rgba(0, 243, 255, 0.65);
+            border-radius: 6px;
+            background: #0a0a0a;
+            cursor: pointer;
+            position: relative;
+        }
+        .daily-remind-check:checked {
+            background: var(--neon-blue);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.45);
+        }
+        .daily-remind-check:checked::after {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 3px;
+            width: 6px;
+            height: 11px;
+            border: solid #000;
+            border-width: 0 2.5px 2.5px 0;
+            transform: rotate(45deg);
+        }
+        .daily-remind-check:disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
+
         #login-modal, #wrong-modal, #all-words-modal, #report-modal, #guide-modal, #credit-modal, #account-modal, #app-settings-modal, #praise-popup { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 30000; transition: opacity 0.5s; padding: 20px; box-sizing: border-box; }
 
         .login-card { background: var(--card-bg-color); border: 1px solid rgba(0, 243, 255, 0.3); box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); border-radius: 20px; padding: 25px; width: 90%; max-width: 400px; text-align: center; max-height: 80vh; overflow-y: auto; box-sizing: border-box; max-height: 90vh; }
@@ -536,13 +593,13 @@
 
             <p style="margin:0 0 10px;color:#888;font-size:0.78rem;letter-spacing:0.06em;">일일 미션 알림</p>
             <div style="border:1px solid rgba(0,243,255,0.22);border-radius:10px;padding:14px 14px 12px;margin-bottom:16px;background:rgba(0,243,255,0.04);">
-                <label style="display:flex;align-items:center;justify-content:space-between;gap:12px;color:#fff;font-size:0.95rem;font-weight:bold;cursor:pointer;">
+                <label class="daily-remind-row" for="daily-remind-enabled">
                     <span>저녁 알림 (21:00)</span>
-                    <input type="checkbox" id="daily-remind-enabled" checked onchange="appSettingsToggleDailyReminder(this.checked)" style="width:20px;height:20px;accent-color:var(--neon-blue);">
+                    <input type="checkbox" id="daily-remind-enabled" class="daily-remind-check" checked>
                 </label>
-                <label style="display:flex;align-items:center;justify-content:space-between;gap:12px;color:#ddd;font-size:0.9rem;margin-top:12px;cursor:pointer;">
+                <label class="daily-remind-row daily-remind-row--sub" for="daily-remind-morning">
                     <span>아침 알림도 받기 (07:30)</span>
-                    <input type="checkbox" id="daily-remind-morning" checked onchange="appSettingsToggleMorningReminder(this.checked)" style="width:20px;height:20px;accent-color:var(--neon-blue);">
+                    <input type="checkbox" id="daily-remind-morning" class="daily-remind-check" checked>
                 </label>
                 <p id="daily-remind-status" style="margin:12px 0 0;color:#888;font-size:0.78rem;line-height:1.45;">당일 미완료(복습만·중도포기 포함)면 21:00에 알림 · 완료 시 그날 침묵</p>
             </div>
@@ -1711,6 +1768,10 @@
                     st.display !== 'none' && st.visibility !== 'hidden' && parseFloat(st.opacity || '1') > 0.01;
                 installSettingsBtn.style.display = show ? '' : 'none';
             }
+            if (typeof window.ensureDailyReminderDefaults === 'function') {
+                window.ensureDailyReminderDefaults();
+            }
+            bindDailyReminderSettingsControls();
             refreshDailyReminderSettingsUi();
             if (modal) modal.style.display = 'flex';
         }
@@ -1718,14 +1779,18 @@
         function refreshDailyReminderSettingsUi() {
             const enabledEl = document.getElementById('daily-remind-enabled');
             const morningEl = document.getElementById('daily-remind-morning');
+            const morningRow = morningEl ? morningEl.closest('.daily-remind-row') : null;
             const statusEl = document.getElementById('daily-remind-status');
             const cfg = typeof window.loadDailyReminderConfig === 'function'
                 ? window.loadDailyReminderConfig()
-                : { enabled: false, morning: false };
-            if (enabledEl) enabledEl.checked = !!cfg.enabled;
+                : { enabled: true, morning: true };
+            if (enabledEl) enabledEl.checked = cfg.enabled !== false;
             if (morningEl) {
-                morningEl.checked = !!cfg.morning;
-                morningEl.disabled = !cfg.enabled;
+                morningEl.checked = cfg.morning !== false;
+                morningEl.disabled = cfg.enabled === false;
+            }
+            if (morningRow) {
+                morningRow.classList.toggle('is-disabled', cfg.enabled === false);
             }
             if (!statusEl) return;
             let perm = ('Notification' in window) ? Notification.permission : 'unsupported';
@@ -1733,29 +1798,30 @@
                 statusEl.textContent = '이 브라우저는 알림을 지원하지 않습니다.';
             } else if (perm === 'denied') {
                 statusEl.textContent = '알림이 차단되어 있습니다. 브라우저/OS 설정에서 허용해 주세요.';
-            } else if (cfg.enabled) {
-                statusEl.textContent = cfg.morning
+            } else if (perm !== 'granted' && cfg.enabled !== false) {
+                statusEl.textContent = '알림 권한 허용이 필요합니다. 체크를 유지한 채 허용을 눌러 주세요.';
+            } else if (cfg.enabled !== false) {
+                statusEl.textContent = cfg.morning !== false
                     ? 'ON · 아침 07:30 / 저녁 21:00 · 당일 미완료면 알림 · 완료 시 침묵'
                     : 'ON · 저녁 21:00 · 당일 미완료면 알림 · 완료 시 침묵';
             } else {
-                statusEl.textContent = '당일 미완료(복습만·중도포기 포함)면 21:00에 알림 · 완료 시 그날 침묵';
+                statusEl.textContent = '알림 꺼짐 · 필요하면 다시 체크하세요';
             }
         }
 
         async function appSettingsToggleDailyReminder(on) {
+            const morningEl = document.getElementById('daily-remind-morning');
+            const morningOn = !!(morningEl && morningEl.checked);
             if (on) {
-                if (typeof window.enableDailyMissionReminders !== 'function') {
-                    refreshDailyReminderSettingsUi();
-                    return;
-                }
-                const morningEl = document.getElementById('daily-remind-morning');
-                const result = await window.enableDailyMissionReminders({
-                    morning: !!(morningEl && morningEl.checked)
-                });
-                if (!result || !result.ok) {
-                    alert(result && result.reason === 'unsupported'
-                        ? '이 브라우저는 알림을 지원하지 않습니다.'
-                        : '알림 권한이 필요합니다. 허용 후 다시 켜 주세요.');
+                if (typeof window.enableDailyMissionReminders === 'function') {
+                    const result = await window.enableDailyMissionReminders({ morning: morningOn });
+                    if (result && result.reason === 'unsupported') {
+                        alert('이 브라우저는 알림을 지원하지 않습니다.');
+                    } else if (result && result.reason === 'denied') {
+                        alert('알림 권한이 필요합니다. 허용해야 실제로 알림이 옵니다.');
+                    }
+                } else if (typeof window.saveDailyReminderConfig === 'function') {
+                    window.saveDailyReminderConfig({ enabled: true, morning: morningOn });
                 }
             } else if (typeof window.disableDailyMissionReminders === 'function') {
                 window.disableDailyMissionReminders();
@@ -1766,8 +1832,30 @@
         function appSettingsToggleMorningReminder(on) {
             if (typeof window.setDailyReminderMorning === 'function') {
                 window.setDailyReminderMorning(!!on);
+            } else if (typeof window.saveDailyReminderConfig === 'function') {
+                const cfg = typeof window.loadDailyReminderConfig === 'function'
+                    ? window.loadDailyReminderConfig()
+                    : { enabled: true };
+                window.saveDailyReminderConfig(Object.assign({}, cfg, { morning: !!on }));
             }
             refreshDailyReminderSettingsUi();
+        }
+
+        function bindDailyReminderSettingsControls() {
+            const enabledEl = document.getElementById('daily-remind-enabled');
+            const morningEl = document.getElementById('daily-remind-morning');
+            if (enabledEl && !enabledEl._dailyBound) {
+                enabledEl._dailyBound = true;
+                enabledEl.addEventListener('change', function () {
+                    appSettingsToggleDailyReminder(!!enabledEl.checked);
+                });
+            }
+            if (morningEl && !morningEl._dailyBound) {
+                morningEl._dailyBound = true;
+                morningEl.addEventListener('change', function () {
+                    appSettingsToggleMorningReminder(!!morningEl.checked);
+                });
+            }
         }
 
         function closeAppSettingsModal() {
@@ -3005,6 +3093,7 @@
     tryRestoreLoginState();
     if ((localStorage.getItem('trigger_name') || '').trim()) fetchAndPaintIndexStreak();
     handleKakaoAndInstall();
+    bindDailyReminderSettingsControls();
 
     // 🔥 저장된 학년 불러와서 자동 세팅 (예전 "중등" → 중2로 이전)
     const gradeSelect = document.getElementById('exam-grade');
@@ -3293,7 +3382,7 @@
     </script>
     <script src="praise-share.js?v=20260517_kakao_return"></script>
     <script src="admin-unlock.js"></script>
-    <script src="app.js?v=20260720_daily2"></script>
+    <script src="app.js?v=20260720_daily3"></script>
     <script src="worddata.js"></script>
     <script src="worddata_toeic.js?v=20260625_toeic54"></script>
     <script src="toeic-schedule.js"></script>
