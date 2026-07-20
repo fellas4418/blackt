@@ -177,8 +177,8 @@ def draw_spine(c: canvas.Canvas, x0: float, y0: float, spine_w: float, h: float)
     c.setFont(FONT_BOLD, 11)
     c.drawCentredString(0, -3.2, "TRIGGER VOCA  ·  중등")
     c.setFillColor(NEON_BLUE)
-    c.setFont(FONT_BOLD, 8)
-    c.drawCentredString(0, -14, "DAY 01–50")
+    c.setFont(FONT_BOLD, 10)
+    c.drawCentredString(0, -14, "VOCABULARY BOOK")
     c.restoreState()
 
 
