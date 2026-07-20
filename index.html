@@ -291,15 +291,16 @@
 <body class="dashboard-bg splash-active">
 
     <div id="splash-screen" class="cyber-splash" aria-hidden="true">
+        <div class="cyber-splash-scan" aria-hidden="true"></div>
+        <div class="cyber-splash-flash" aria-hidden="true"></div>
         <div class="cyber-splash-boot">
-            <span>SYSTEM BOOT</span>
+            <span class="cyber-splash-boot-label">SYSTEM BOOT</span>
             <span class="cyber-splash-line">TRIGGER BLACK</span>
         </div>
     </div>
     <script>
         (function () {
-            var MIN_MS = 1000;
-            var started = Date.now();
+            var MIN_MS = 2200;
             var pageReady = false;
             var timedOk = false;
             var forceNow = false;
@@ -308,13 +309,12 @@
                 var el = document.getElementById('splash-screen');
                 if (!el || el.getAttribute('data-dismissed') === '1') return;
                 el.setAttribute('data-dismissed', '1');
-                el.style.transition = 'opacity 0.35s ease';
-                el.style.opacity = '0';
+                el.classList.add('cyber-splash--out');
                 el.style.pointerEvents = 'none';
                 document.body.classList.remove('splash-active');
                 setTimeout(function () {
                     el.style.display = 'none';
-                }, 400);
+                }, 420);
             }
 
             function tryDismiss() {
