@@ -1,7 +1,7 @@
 """부크크용 B5 표지 PDF (뒷표지 + 책등 + 앞표지, 도련 3mm).
 
 책등 두께: 부크크 화면에서 100p = 7.1mm 였던 비율로
-  216p → 7.1 × (216/100) = 15.336 ≈ 15.3mm
+  267p → 7.1 × (267/100) = 18.957 ≈ 19.0mm
 부크크에 다른 두께가 뜨면 --spine 으로 다시 생성하세요.
 """
 
@@ -68,12 +68,13 @@ def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float)
     c.setFont(FONT_BOLD, 13.5)
     c.drawCentredString(badge_x + badge_w / 2, badge_y + badge_h / 2 - 4.8, "중등")
 
-    logo_w = 114.8 * mm
+    logo_w = 95 * mm
     logo_h = logo_w * LOGO_ASPECT
+    logo_top = h - 58 * mm
     c.drawImage(
         str(LOGO_PATH),
         (w - logo_w) / 2,
-        h - 60 * mm - logo_h,
+        logo_top - logo_h,
         width=logo_w,
         height=logo_h,
         preserveAspectRatio=True,
@@ -81,8 +82,8 @@ def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float)
     )
 
     c.setFillColor(white)
-    c.setFont(FONT_BOLD, 22)
-    c.drawCentredString(w / 2, h - 128 * mm, "VOCABULARY BOOK")
+    c.setFont(FONT_BOLD, 20)
+    c.drawCentredString(w / 2, logo_top - logo_h - 14 * mm, "VOCA")
 
     c.setFillColor(NEON_BLUE)
     c.roundRect(28 * mm, h - 184 * mm, w - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
@@ -178,7 +179,7 @@ def draw_spine(c: canvas.Canvas, x0: float, y0: float, spine_w: float, h: float)
     c.drawCentredString(0, -3.2, "TRIGGER VOCA  ·  중등")
     c.setFillColor(NEON_BLUE)
     c.setFont(FONT_BOLD, 10)
-    c.drawCentredString(0, -14, "VOCABULARY BOOK")
+    c.drawCentredString(0, -14, "VOCA")
     c.restoreState()
 
 
@@ -233,7 +234,7 @@ def build_cover_pdf(*, pages: int, spine_mm: float | None) -> Path:
                 "날개: 없음",
                 "",
                 "재생성 예:",
-                f"  python scripts/generate-voca-book-cover-bookk.py --pages {pages} --spine 15.5",
+                f"  python scripts/generate-voca-book-cover-bookk.py --pages {pages} --spine {spine}",
                 "",
             ]
         ),
@@ -244,7 +245,7 @@ def build_cover_pdf(*, pages: int, spine_mm: float | None) -> Path:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--pages", type=int, default=216)
+    parser.add_argument("--pages", type=int, default=267, help="내지 쪽수 (기본 267 · 1회독+랜덤)")
     parser.add_argument("--spine", type=float, default=None, help="책등 mm (미입력 시 부크크 비율 추정)")
     args = parser.parse_args()
     path = build_cover_pdf(pages=args.pages, spine_mm=args.spine)
