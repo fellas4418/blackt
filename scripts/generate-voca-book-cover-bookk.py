@@ -87,13 +87,19 @@ def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float)
         anchor="c",
     )
 
-    # 메인 타이포: 트리거 = VOCA (동일 크기 · 기울임 · Black Han Sans)
-    draw_cover_title(c, "트리거", w / 2, h - 95 * mm)
-    draw_cover_title(c, "VOCA", w / 2, h - 152 * mm)
+    # 메인 타이포: 트리거(80%) · VOCA(100%) · 가로·세로 중앙 정렬
+    trigger_size = COVER_TITLE_SIZE * 0.8
+    voca_size = COVER_TITLE_SIZE
+    baseline_gap = 50 * mm
+    block_mid_y = h / 2 + 8 * mm  # 광학적 중앙 (살짝 위)
+    trigger_y = block_mid_y + baseline_gap / 2
+    voca_y = block_mid_y - baseline_gap / 2
+    draw_cover_title(c, "트리거", w / 2, trigger_y, size=trigger_size)
+    draw_cover_title(c, "VOCA", w / 2, voca_y, size=voca_size)
 
     badge_w, badge_h = 34 * mm, 15 * mm
     badge_x = (w - badge_w) / 2
-    badge_y = h - 178 * mm
+    badge_y = voca_y - 28 * mm
     c.setStrokeColor(ORANGE)
     c.setLineWidth(1.4)
     c.roundRect(badge_x, badge_y, badge_w, badge_h, 2.5 * mm, fill=0, stroke=1)
@@ -101,10 +107,11 @@ def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float)
     c.setFont(FONT_BOLD, 16)
     c.drawCentredString(badge_x + badge_w / 2, badge_y + badge_h / 2 - 5.5, "중등")
 
+    day_bar_y = badge_y - 28 * mm
     c.setFillColor(NEON_BLUE)
-    c.roundRect(28 * mm, h - 210 * mm, w - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
+    c.roundRect(28 * mm, day_bar_y, w - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
     c.saveState()
-    c.translate(w / 2, h - 204.5 * mm)
+    c.translate(w / 2, day_bar_y + 5.5 * mm)
     c.skew(0, 10)
     c.setFillColor(NAVY)
     c.setFont(FONT_BOLD, 17.5)
@@ -133,8 +140,18 @@ def draw_back_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float) 
     slogan = "Just Follow"
     slogan_size = 40
     slogan_w = pdfmetrics.stringWidth(slogan, FONT_BOLD, slogan_size)
+
+    qr_size = 34 * mm
+    qr_pad = 4 * mm
+    box_size = qr_size + qr_pad * 2
+    box_x = (w - box_size) / 2
+    box_y = h - 158 * mm
+    caption_y = box_y + box_size + 7 * mm
+    # Just Follow ↓ · 아래 문장과 간격 절반
+    slogan_y = caption_y + 18.5 * mm
+
     c.saveState()
-    c.translate(w / 2, h - 72 * mm)
+    c.translate(w / 2, slogan_y)
     c.skew(0, 12)
     c.setFillColor(white)
     c.setFont(FONT_BOLD, slogan_size)
@@ -143,14 +160,9 @@ def draw_back_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float) 
     c.drawString(slogan_w / 2, 0, ".")
     c.restoreState()
 
-    qr_size = 34 * mm
-    qr_pad = 4 * mm
-    box_size = qr_size + qr_pad * 2
-    box_x = (w - box_size) / 2
-    box_y = h - 158 * mm
     c.setFillColor(PALE)
     c.setFont(FONT_REGULAR, 14)
-    c.drawCentredString(w / 2, box_y + box_size + 7 * mm, "앱에서 오늘의 단어를 테스트하세요")
+    c.drawCentredString(w / 2, caption_y, "앱에서 오늘의 단어를 테스트하세요")
     c.setFillColor(white)
     c.roundRect(box_x, box_y, box_size, box_size, 2.5 * mm, fill=1, stroke=0)
     if QR_PATH.exists():
