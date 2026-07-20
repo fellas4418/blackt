@@ -183,6 +183,19 @@ def draw_spine(c: canvas.Canvas, x0: float, y0: float, spine_w: float, h: float)
     c.restoreState()
 
 
+def resolve_output_path(base: Path) -> Path:
+    candidate = base
+    for n in range(2, 20):
+        try:
+            with open(candidate, "ab"):
+                return candidate
+        except FileNotFoundError:
+            return candidate
+        except PermissionError:
+            candidate = base.with_stem(f"{base.stem}_{n}")
+    raise PermissionError("표지 PDF 저장 경로가 모두 잠겨 있습니다. 열려 있는 PDF를 닫아 주세요.")
+
+
 def build_cover_pdf(*, pages: int, spine_mm: float | None) -> Path:
     register_fonts()
     spine = spine_mm if spine_mm is not None else bookk_spine_mm(pages)
@@ -192,8 +205,8 @@ def build_cover_pdf(*, pages: int, spine_mm: float | None) -> Path:
     total_w = BLEED + PAGE_W + spine_w + PAGE_W + BLEED
     total_h = BLEED + PAGE_H + BLEED
 
-    out = OUT_DIR / f"트리거보카_중등_표지_부크크_B5_등{spine}mm.pdf"
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    out = resolve_output_path(OUT_DIR / f"트리거보카_중등_표지_부크크_B5_등{spine}mm.pdf")
     c = canvas.Canvas(str(out), pagesize=(total_w, total_h))
     c.setTitle(f"트리거 보카 중등 표지 (책등 {spine}mm)")
     c.setAuthor("플레이온")
@@ -224,7 +237,11 @@ def build_cover_pdf(*, pages: int, spine_mm: float | None) -> Path:
                 "",
                 f"파일: {out.name}",
                 f"내지 페이지: {pages}쪽 → 추정 책등 {spine}mm",
-                "  (부크크 100쪽=7.1mm 비율. 화면에 다른 두께가 나오면 --spine 으로 재생성)",
+                "  (1회독 + 랜덤 1회독 내지 기준. 부크크 100쪽=7.1mm 비율)",
+                "  (화면에 다른 두께가 나오면 --spine 으로 재생성)",
+                "",
+                "앞표지: TRIGGER 로고(72mm) + VOCA(40pt · 큼) · DAY 바 · 중등 배지",
+                "책등: TRIGGER VOCA · 중등 / VOCA",
                 "",
                 f"표지 PDF 크기(도련 3mm 포함):",
                 f"  가로 {total_w / mm:.1f} mm = 3 + 182 + {spine} + 182 + 3",
