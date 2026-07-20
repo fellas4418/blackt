@@ -14,7 +14,7 @@
     --cyber-scan: rgba(0, 243, 255, 0.025);
 }
 
-/* ── 배경: 그리드 + 스캔라인 ── */
+/* ── 배경: 홈=세로줄 시그니처 / 학습·분석=그리드 유지 ── */
 body.dashboard-bg,
 body.study-bg,
 body.analysis-page {
@@ -22,7 +22,28 @@ body.analysis-page {
     background-color: var(--bg-color, #050505) !important;
 }
 
-body.dashboard-bg::before,
+/* 홈: 세로 핀스트ripe (브랜드 시그니처) */
+body.dashboard-bg::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0) 0,
+        rgba(0, 0, 0, 0) 5px,
+        rgba(0, 243, 255, 0.028) 5px,
+        rgba(0, 243, 255, 0.028) 6px
+    );
+    opacity: 1;
+}
+
+body.dashboard-bg::after {
+    content: none;
+    display: none;
+}
+
 body.study-bg::before,
 body.analysis-page::before {
     content: '';
@@ -36,7 +57,6 @@ body.analysis-page::before {
     background-size: 28px 28px;
 }
 
-body.dashboard-bg::after,
 body.study-bg::after,
 body.analysis-page::after {
     content: '';
@@ -131,10 +151,12 @@ body.analysis-page::after {
     pointer-events: none;
 }
 
-.module-scan-card::before { border-color: var(--neon-orange, #ff9900); }
-.module-scan-card::after { border-color: var(--neon-orange, #ff9900); }
-.module-grammar-card::before { border-color: var(--neon-purple, #bc13fe); }
-.module-grammar-card::after { border-color: var(--neon-purple, #bc13fe); }
+.module-scan-card::before,
+.module-scan-card::after,
+.module-grammar-card::before,
+.module-grammar-card::after {
+    border-color: var(--neon-blue, #00f3ff);
+}
 
 /* ── 버튼·입력: 각진 HUD ── */
 .neon-input,
@@ -413,60 +435,11 @@ body.splash-active .main-tab-swipe-hint {
     font-family: var(--font-display) !important;
 }
 
-/* ── 메인 대시보드: 코너 브래킷 제거 (모달 login-card 제외) ── */
-body.dashboard-bg .dashboard-container .card::before,
-body.dashboard-bg .dashboard-container .card::after,
-body.dashboard-bg .dashboard-container .info-card::before,
-body.dashboard-bg .dashboard-container .info-card::after,
-body.dashboard-bg .dashboard-container .stats-row::before,
-body.dashboard-bg .dashboard-container .stats-row::after,
-body.dashboard-bg .dashboard-container .module-scan-card::before,
-body.dashboard-bg .dashboard-container .module-scan-card::after,
-body.dashboard-bg .dashboard-container .module-grammar-card::before,
-body.dashboard-bg .dashboard-container .module-grammar-card::after,
-body.dashboard-bg .dashboard-container .routine-scroll-box::before,
-body.dashboard-bg .dashboard-container .routine-scroll-box::after {
-    display: none !important;
-}
+/* ── 메인 대시보드: 살짝 HUD (코너 브래킷 유지) ── */
 
-/* ── 메인: 별빛 (레이어 + 개별 별) ── */
+/* ── 메인: 별빛 비활성 (세로줄 시그니처로 대체) ── */
 body.dashboard-bg .cyber-stars {
-    position: fixed;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    overflow: hidden;
-}
-
-body.dashboard-bg .cyber-star {
-    position: absolute;
-    width: 3px;
-    height: 3px;
-    margin: -1.5px 0 0 -1.5px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.55);
-    box-shadow: 0 0 4px rgba(255, 255, 255, 0.35), 0 0 8px rgba(0, 243, 255, 0.2);
-    animation: cyberStarBlink ease-in-out infinite;
-    opacity: 0.22;
-}
-
-body.dashboard-bg .cyber-star:nth-child(3n) {
-    background: rgba(0, 243, 255, 0.5);
-    box-shadow: 0 0 5px rgba(0, 243, 255, 0.4), 0 0 10px rgba(0, 243, 255, 0.18);
-}
-
-body.dashboard-bg .cyber-star:nth-child(5n) {
-    background: rgba(200, 160, 255, 0.45);
-    box-shadow: 0 0 4px rgba(188, 19, 254, 0.35), 0 0 8px rgba(188, 19, 254, 0.15);
-    width: 2px;
-    height: 2px;
-    margin: -1px 0 0 -1px;
-}
-
-@keyframes cyberStarBlink {
-    0%, 100% { opacity: 0.08; transform: scale(0.65); }
-    45% { opacity: 0.5; transform: scale(1.1); }
-    55% { opacity: 0.4; transform: scale(1); }
+    display: none !important;
 }
 
 /* ── 메인: 좌우 스와이프 힌트 화살표 ── */
@@ -555,4 +528,48 @@ body.dashboard-bg .main-tab-track.is-sliding .tab-content:not(.active) {
     overflow: visible;
     visibility: visible;
     pointer-events: none;
+}
+
+/* ── 홈 브랜드 v1: 네온블루 단일 · 살짝 HUD · 세로줄 ── */
+body.dashboard-bg .home-mission-label {
+    font-family: var(--font-display);
+    letter-spacing: 0.14em !important;
+    text-shadow: 0 0 12px rgba(0, 243, 255, 0.35);
+}
+
+body.dashboard-bg .main-header-divider {
+    border-top-color: rgba(0, 243, 255, 0.22);
+}
+
+body.dashboard-bg .logo {
+    letter-spacing: 0.04em !important;
+}
+
+body.dashboard-bg .dashboard-container .card,
+body.dashboard-bg .dashboard-container .info-card,
+body.dashboard-bg .dashboard-container .stats-row {
+    border-radius: 8px !important;
+}
+
+body.dashboard-bg .dashboard-container .card::before,
+body.dashboard-bg .dashboard-container .card::after,
+body.dashboard-bg .dashboard-container .info-card::before,
+body.dashboard-bg .dashboard-container .info-card::after,
+body.dashboard-bg .dashboard-container .stats-row::before,
+body.dashboard-bg .dashboard-container .stats-row::after,
+body.dashboard-bg .dashboard-container .module-scan-card::before,
+body.dashboard-bg .dashboard-container .module-scan-card::after,
+body.dashboard-bg .dashboard-container .module-grammar-card::before,
+body.dashboard-bg .dashboard-container .module-grammar-card::after {
+    opacity: 0.7;
+}
+
+body.dashboard-bg .level-btn {
+    border-radius: 6px !important;
+}
+
+body.dashboard-bg .routine-action-btn.active {
+    border-color: var(--neon-blue) !important;
+    box-shadow: 0 0 8px rgba(0, 243, 255, 0.25) !important;
+    background: rgba(0, 243, 255, 0.06) !important;
 }

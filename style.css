@@ -31,14 +31,18 @@
 .brand-tab-module {
     font-weight: 800;
 }
-.brand-tab-module--voca { color: var(--neon-blue); text-shadow: var(--glow-blue); }
-.brand-tab-module--scan { color: var(--neon-orange); text-shadow: var(--glow-orange); }
-.brand-tab-module--grammar { color: var(--neon-purple); text-shadow: var(--glow-purple); }
-.brand-tab-module--reading { color: var(--neon-green); text-shadow: var(--glow-green); }
+/* 브랜드 악센트: 네온블루 단일 (모듈 구분은 라벨 텍스트로) */
+.brand-tab-module--voca,
+.brand-tab-module--scan,
+.brand-tab-module--grammar,
+.brand-tab-module--reading {
+    color: var(--neon-blue);
+    text-shadow: var(--glow-blue);
+}
 
 .module-scan-card {
-    border: 1px solid rgba(255, 153, 0, 0.35);
-    background: rgba(255, 153, 0, 0.05);
+    border: 1px solid rgba(0, 243, 255, 0.35);
+    background: rgba(0, 243, 255, 0.05);
 }
 .module-scan-title {
     font-size: 1.3rem;
@@ -48,14 +52,14 @@
 }
 
 .module-grammar-card {
-    border: 1px solid rgba(188, 19, 254, 0.45);
-    background: rgba(188, 19, 254, 0.06);
+    border: 1px solid rgba(0, 243, 255, 0.4);
+    background: rgba(0, 243, 255, 0.05);
     text-align: center;
     padding: 32px 20px;
-    box-shadow: 0 0 24px rgba(188, 19, 254, 0.1);
+    box-shadow: 0 0 24px rgba(0, 243, 255, 0.08);
 }
 .module-grammar-badge {
-    color: var(--neon-purple);
+    color: var(--neon-blue);
     font-size: 0.78rem;
     font-weight: 800;
     letter-spacing: 2px;
@@ -84,14 +88,14 @@
 .module-grammar-btn {
     width: 100%;
     padding: 15px;
-    background: var(--neon-purple);
-    border: none;
+    background: transparent;
+    border: 1.5px solid var(--neon-blue);
     color: #fff;
     font-size: 1.05rem;
     font-weight: bold;
-    border-radius: 12px;
+    border-radius: 8px;
     cursor: pointer;
-    box-shadow: var(--glow-purple);
+    box-shadow: var(--glow-blue);
 }
 
 body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: 'Pretendard', sans-serif; -webkit-font-smoothing: antialiased; }
@@ -506,8 +510,8 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 
 .study-section { text-align: center; }
 .study-title { font-size: 1.4rem; font-weight: 700; margin: 12px 0; color: #fff; }
-.start-btn { width: 100%; background: transparent; border: 2px solid var(--neon-orange); color: #fff; font-size: 1.2rem; font-weight: 700; padding: 20px; border-radius: 16px; cursor: pointer; margin-top: 10px; box-shadow: var(--glow-orange); transition: 0.2s; }
-.start-btn:active { transform: scale(0.98); background: rgba(255,153,0,0.1); }
+.start-btn { width: 100%; background: rgba(0, 243, 255, 0.08); border: 1.5px solid var(--neon-blue); color: #fff; font-size: 1.2rem; font-weight: 700; padding: 20px; border-radius: 8px; cursor: pointer; margin-top: 10px; box-shadow: var(--glow-blue); transition: 0.2s; }
+.start-btn:active { transform: scale(0.98); background: rgba(0, 243, 255, 0.16); }
 
 /* === 단어장/오답 카드 === */
 .info-row { display: flex; gap: 15px; margin-bottom: 10px; }
@@ -546,8 +550,8 @@ body { margin: 0; background-color: var(--bg-color); color: #fff; font-family: '
 .nav-icon { font-size: 1.4rem; }
 .nav-item.active { color: #fff; }
 .nav-item.active:nth-child(1) { color: var(--neon-blue); }
-.nav-item.active:nth-child(2) { color: var(--neon-orange); }
-.nav-item.active:nth-child(3) { color: var(--neon-purple); }            
+.nav-item.active:nth-child(2) { color: var(--neon-blue); }
+.nav-item.active:nth-child(3) { color: var(--neon-blue); }            
 
 /* 🚀 훈련장 화면 깨짐 방지: study.html 전용 코드를 100% 원래 코드로 완전 복구 (절대 건드리지 않음) */
 .study-bg { overflow: hidden; }
