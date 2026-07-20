@@ -470,24 +470,20 @@ def draw_cover(
         mask="auto",
     )
 
-    voca_size = 48
+    voca_size = 54
     voca_y = height - 128 * mm
-    voca_w = pdfmetrics.stringWidth("VOCA", FONT_BOLD, voca_size)
+    shadow = HexColor("#4A4A4A")
     c.saveState()
     c.translate(width / 2, voca_y)
     c.skew(0, 8)
-    c.setFillColor(white)
     c.setFont(FONT_BOLD, voca_size)
+    c.setFillColor(shadow)
+    for dx, dy in ((-1.6, -1.8), (-1.2, -1.4), (-0.8, -1.0)):
+        c.drawCentredString(dx, dy, "VOCA")
+    c.setFillColor(white)
     for dx, dy in ((0, 0), (0.45, 0), (0, 0.35), (0.45, 0.35)):
         c.drawCentredString(dx, dy, "VOCA")
     c.restoreState()
-    c.setStrokeColor(NEON_BLUE)
-    c.setLineWidth(1.3)
-    line_half = voca_w * 0.42
-    line_y1 = voca_y - 3.2 * mm
-    line_y2 = voca_y - 4.6 * mm
-    c.line(width / 2 - line_half, line_y1, width / 2 + line_half, line_y1)
-    c.line(width / 2 - line_half, line_y2, width / 2 + line_half, line_y2)
 
     c.setFillColor(NEON_BLUE)
     c.roundRect(28 * mm, height - 184 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
