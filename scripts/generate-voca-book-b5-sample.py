@@ -1063,6 +1063,9 @@ def draw_day_divider(
     width, height = B5
     c.setFillColor(NAVY)
     c.rect(0, 0, width, height, fill=1, stroke=0)
+    c.setStrokeColor(white)
+    c.setLineWidth(1)
+    c.roundRect(10 * mm, 10 * mm, width - 20 * mm, height - 20 * mm, 4 * mm, fill=0, stroke=1)
 
     center_y = height * 0.58
     draw_text(c, "DAY", width / 2, center_y + 30 * mm, font=FONT_BOLD, size=20, color=PALE, align="center")
@@ -1090,6 +1093,9 @@ def draw_random_review_divider(
     width, height = B5
     c.setFillColor(NAVY)
     c.rect(0, 0, width, height, fill=1, stroke=0)
+    c.setStrokeColor(white)
+    c.setLineWidth(1)
+    c.roundRect(10 * mm, 10 * mm, width - 20 * mm, height - 20 * mm, 4 * mm, fill=0, stroke=1)
 
     center_y = height * 0.62
     draw_text(c, "RANDOM", width / 2, center_y + 34 * mm, font=FONT_BOLD, size=22, color=PALE, align="center")
