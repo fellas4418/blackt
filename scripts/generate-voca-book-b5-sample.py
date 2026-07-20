@@ -39,6 +39,18 @@ def page_margins_x(page_no: int) -> tuple[float, float]:
         return MARGIN_OUTER, MARGIN_GUTTER
     return MARGIN_GUTTER, MARGIN_OUTER
 
+
+def draw_page_footer(c: canvas.Canvas, page_no: int, level_tag: str) -> None:
+    width, _ = B5
+    margin_left, margin_right = page_margins_x(page_no)
+    label = f"TRIGGER VOCA · {level_tag}"
+    if page_no % 2 == 0:
+        draw_text(c, str(page_no), margin_left, MARGIN_BOTTOM, size=10.4, color=SLATE)
+        draw_text(c, label, width - margin_right, MARGIN_BOTTOM, size=6.5, color=SLATE, align="right")
+    else:
+        draw_text(c, label, margin_left, MARGIN_BOTTOM, size=6.5, color=SLATE)
+        draw_text(c, str(page_no), width - margin_right, MARGIN_BOTTOM, size=10.4, color=SLATE, align="right")
+
 FONT_REGULAR = "Pretendard"
 FONT_BOLD = "PretendardBold"
 FONT_IPA = "ArialIPA"
@@ -363,13 +375,6 @@ def draw_day_banner(c: canvas.Canvas, title: str, center_y: float) -> None:
     c.setFillColor(NAVY)
     c.roundRect(box_x, box_y, box_w, box_h, 1.8 * mm, fill=1, stroke=0)
     draw_text(c, title, width / 2, center_y - size * 0.36, font=FONT_BOLD, size=size, color=white, align="center")
-
-
-def draw_page_footer(c: canvas.Canvas, page_no: int, level_tag: str) -> None:
-    width, _ = B5
-    margin_left, margin_right = page_margins_x(page_no)
-    draw_text(c, f"TRIGGER VOCA · {level_tag}", margin_left, MARGIN_BOTTOM, size=6.5, color=SLATE)
-    draw_text(c, str(page_no), width - margin_right, MARGIN_BOTTOM, size=10.4, color=SLATE, align="right")
 
 
 LOGO_PATH = ROOT / "로고, 이미지" / "trigger-logo-v2.png"
@@ -1003,9 +1008,7 @@ def draw_day_divider(
     draw_text(c, f"{len(rows)} WORDS", width / 2, center_y - 30 * mm, font=FONT_BOLD, size=12, color=white, align="center")
     draw_text(c, f"{rows[0][0]} – {rows[-1][0]}", width / 2, center_y - 38 * mm, size=11, color=PALE, align="center")
 
-    margin_left, margin_right = page_margins_x(page_no)
-    draw_text(c, f"TRIGGER VOCA · {level_tag}", margin_left, MARGIN_BOTTOM, size=6.5, color=PALE)
-    draw_text(c, str(page_no), width - margin_right, MARGIN_BOTTOM, size=10.4, color=PALE, align="right")
+    draw_page_footer(c, page_no, level_tag)
     c.showPage()
 
 
