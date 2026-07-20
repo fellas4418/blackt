@@ -14,7 +14,7 @@
     --cyber-scan: rgba(0, 243, 255, 0.025);
 }
 
-/* ── 배경: 홈=세로줄 시그니처 / 학습·분석=그리드 유지 ── */
+/* ── 배경: 홈·학습=세로줄 시그니처 / 분석=그리드 ── */
 body.dashboard-bg,
 body.study-bg,
 body.analysis-page {
@@ -22,8 +22,9 @@ body.analysis-page {
     background-color: var(--bg-color, #050505) !important;
 }
 
-/* 홈: 세로 핀스트ripe (브랜드 시그니처) */
-body.dashboard-bg::before {
+/* 홈·학습: 세로 핀스트ripe (브랜드 시그니처) */
+body.dashboard-bg::before,
+body.study-bg::before {
     content: '';
     position: fixed;
     inset: 0;
@@ -39,12 +40,12 @@ body.dashboard-bg::before {
     opacity: 1;
 }
 
-body.dashboard-bg::after {
+body.dashboard-bg::after,
+body.study-bg::after {
     content: none;
     display: none;
 }
 
-body.study-bg::before,
 body.analysis-page::before {
     content: '';
     position: fixed;
@@ -57,7 +58,6 @@ body.analysis-page::before {
     background-size: 28px 28px;
 }
 
-body.study-bg::after,
 body.analysis-page::after {
     content: '';
     position: fixed;
@@ -433,6 +433,23 @@ body.splash-active .main-tab-swipe-hint {
     border: 1px solid rgba(0, 243, 255, 0.3);
     padding: 6px 10px;
     border-radius: var(--cyber-radius);
+}
+
+.study-bg .choice-btn {
+    border: 1px solid rgba(0, 243, 255, 0.22) !important;
+    background-image: linear-gradient(135deg, rgba(0, 243, 255, 0.04) 0%, transparent 55%) !important;
+}
+
+.study-bg .choice-btn:active {
+    border-color: rgba(0, 243, 255, 0.65) !important;
+    box-shadow: 0 0 14px rgba(0, 243, 255, 0.28) !important;
+}
+
+.study-bg #pause-btn,
+.study-bg #exit-btn {
+    border-radius: var(--cyber-radius) !important;
+    font-family: var(--font-mono);
+    letter-spacing: 0.02em;
 }
 
 #target:not(.system-msg) {

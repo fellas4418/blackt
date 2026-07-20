@@ -1,4 +1,4 @@
-const CACHE_NAME = 'trigger-voca-v23'; // 버전업 (강제 갱신용)
+const CACHE_NAME = 'trigger-voca-v24'; // 버전업 (강제 갱신용)
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -34,6 +34,19 @@ self.addEventListener('activate', (e) => {
         })
     );
     self.clients.claim();
+});
+
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+            for (let i = 0; i < clientList.length; i++) {
+                const client = clientList[i];
+                if (client.url && 'focus' in client) return client.focus();
+            }
+            if (clients.openWindow) return clients.openWindow('./index.html');
+        })
+    );
 });
 
 // 핵심 수정: 네트워크 우선 (Network-First) 전략 — 같은 출처 GET(정적 파일)만 처리

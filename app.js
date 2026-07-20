@@ -238,6 +238,9 @@ function markStudyCalendarComplete(level, dayNum, accuracy) {
     try {
         localStorage.setItem(STUDY_CALENDAR_KEY, JSON.stringify(data));
     } catch (e) {}
+    try {
+        if (typeof scheduleDailyMissionReminders === 'function') scheduleDailyMissionReminders();
+    } catch (e) {}
 }
 
 window.markStudyCalendarComplete = markStudyCalendarComplete;
@@ -451,6 +454,225 @@ function handleCooldownExpiredUi() {
 window.scheduleBlacktCooldownEndNotification = scheduleBlacktCooldownEndNotification;
 window.clearBlacktCooldownNotifySchedule = clearBlacktCooldownNotifySchedule;
 window.handleCooldownExpiredUi = handleCooldownExpiredUi;
+
+/* ── 일일 미션 알림 (로컬 · 기본 저녁 1회 / 아침 옵션) ── */
+const DAILY_REMINDER_KEY = 'trigger_daily_reminder_v1';
+const DAILY_REMINDER_SENT_PREFIX = 'trigger_daily_remind_sent_';
+
+const DAILY_REMINDER_MSGS = {
+    morning: [
+        'SYSTEM CHECK · Day 미션이 대기 중입니다',
+        'CHARGE 부족 · 트리거를 당겨 주세요',
+        'BOOT READY · 오늘 단어 장전할 시간',
+        'WAKE PROTOCOL · 3분이면 SYNC 시작',
+        'AM SIGNAL · 아직 장전 전입니다'
+    ],
+    evening: [
+        'PROTOCOL OPEN · 오늘의 사이클이 닫히기 전입니다',
+        'STREAK RISK · 오늘 아직 SYNC 안 됐습니다',
+        'MISSION PENDING · 3분이면 CLEAR',
+        'EVENING CALL · Day 미션이 열려 있습니다',
+        'LAST WINDOW · 오늘 트리거를 당길 시간',
+        'SYNC GAP · 오늘의 기록이 비어 있습니다'
+    ]
+};
+
+let __dailyReminderTimers = [];
+
+function defaultDailyReminderConfig() {
+    return {
+        enabled: false,
+        morning: false,
+        eveningHour: 19,
+        eveningMin: 0,
+        morningHour: 7,
+        morningMin: 30
+    };
+}
+
+function loadDailyReminderConfig() {
+    const base = defaultDailyReminderConfig();
+    try {
+        const raw = localStorage.getItem(DAILY_REMINDER_KEY);
+        if (!raw) return base;
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== 'object') return base;
+        return {
+            enabled: !!parsed.enabled,
+            morning: !!parsed.morning,
+            eveningHour: Math.min(23, Math.max(0, parseInt(parsed.eveningHour, 10) || 19)),
+            eveningMin: Math.min(59, Math.max(0, parseInt(parsed.eveningMin, 10) || 0)),
+            morningHour: Math.min(23, Math.max(0, parseInt(parsed.morningHour, 10) || 7)),
+            morningMin: Math.min(59, Math.max(0, parseInt(parsed.morningMin, 10) || 30))
+        };
+    } catch (e) {
+        return base;
+    }
+}
+
+function saveDailyReminderConfig(cfg) {
+    const next = Object.assign(defaultDailyReminderConfig(), cfg || {});
+    try {
+        localStorage.setItem(DAILY_REMINDER_KEY, JSON.stringify(next));
+    } catch (e) {}
+    return next;
+}
+
+function clearDailyReminderTimers() {
+    __dailyReminderTimers.forEach(function (id) {
+        clearTimeout(id);
+    });
+    __dailyReminderTimers = [];
+}
+
+function isTodayStudyCompleteAny() {
+    const ymd = typeof kstYmd === 'function' ? kstYmd() : null;
+    if (!ymd) return false;
+    try {
+        const data = JSON.parse(localStorage.getItem(STUDY_CALENDAR_KEY) || '{}');
+        if (data.middle && data.middle[ymd]) return true;
+        if (data.high && data.high[ymd]) return true;
+    } catch (e) {}
+    return false;
+}
+
+function msUntilLocalClock(hour, minute) {
+    const now = new Date();
+    const next = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute, 0, 0);
+    if (next.getTime() <= now.getTime()) next.setDate(next.getDate() + 1);
+    return Math.max(1000, next.getTime() - now.getTime());
+}
+
+function pickDailyReminderMessage(slot) {
+    const list = DAILY_REMINDER_MSGS[slot] || DAILY_REMINDER_MSGS.evening;
+    const ymd = typeof kstYmd === 'function' ? kstYmd() : String(Date.now());
+    let hash = 0;
+    const seed = ymd + ':' + slot;
+    for (let i = 0; i < seed.length; i++) hash = ((hash << 5) - hash + seed.charCodeAt(i)) | 0;
+    const idx = Math.abs(hash) % list.length;
+    return list[idx];
+}
+
+function triggerShowDailyMissionNotification(slot) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    const body = pickDailyReminderMessage(slot === 'morning' ? 'morning' : 'evening');
+    const title = 'TRIGGER BLACK · VOCA';
+    const options = {
+        body: body,
+        icon: TRIGGER_IMG_DIR + 'icon-192.png',
+        tag: 'blackt-daily-' + (slot || 'evening'),
+        renotify: true,
+        vibrate: [160, 80, 160]
+    };
+    try {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistration().then(function (reg) {
+                if (reg && typeof reg.showNotification === 'function') {
+                    reg.showNotification(title, options);
+                } else {
+                    new Notification(title, options);
+                }
+            }).catch(function () {
+                try { new Notification(title, options); } catch (e) {}
+            });
+        } else {
+            new Notification(title, options);
+        }
+    } catch (e) {}
+}
+
+function fireDailyMissionReminder(slot) {
+    const cfg = loadDailyReminderConfig();
+    if (!cfg.enabled) return;
+    if (isTodayStudyCompleteAny()) return;
+    const ymd = typeof kstYmd === 'function' ? kstYmd() : '';
+    const sentKey = DAILY_REMINDER_SENT_PREFIX + ymd + '_' + slot;
+    try {
+        if (localStorage.getItem(sentKey) === '1') return;
+        localStorage.setItem(sentKey, '1');
+    } catch (e) {}
+    triggerShowDailyMissionNotification(slot);
+}
+
+function scheduleDailyMissionReminders() {
+    clearDailyReminderTimers();
+    const cfg = loadDailyReminderConfig();
+    if (!cfg.enabled) return;
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+    const slots = [{ slot: 'evening', hour: cfg.eveningHour, min: cfg.eveningMin }];
+    if (cfg.morning) {
+        slots.unshift({ slot: 'morning', hour: cfg.morningHour, min: cfg.morningMin });
+    }
+
+    slots.forEach(function (item) {
+        const delay = msUntilLocalClock(item.hour, item.min);
+        const id = setTimeout(function () {
+            fireDailyMissionReminder(item.slot);
+            scheduleDailyMissionReminders();
+        }, delay);
+        __dailyReminderTimers.push(id);
+    });
+}
+
+async function enableDailyMissionReminders(opts) {
+    const options = opts || {};
+    if (!('Notification' in window)) {
+        return { ok: false, reason: 'unsupported' };
+    }
+    let perm = Notification.permission;
+    if (perm === 'default') {
+        try {
+            perm = await Notification.requestPermission();
+        } catch (e) {
+            return { ok: false, reason: 'denied' };
+        }
+    }
+    if (perm !== 'granted') {
+        return { ok: false, reason: 'denied' };
+    }
+    const cfg = saveDailyReminderConfig({
+        enabled: true,
+        morning: !!options.morning,
+        eveningHour: options.eveningHour != null ? options.eveningHour : 19,
+        eveningMin: options.eveningMin != null ? options.eveningMin : 0,
+        morningHour: options.morningHour != null ? options.morningHour : 7,
+        morningMin: options.morningMin != null ? options.morningMin : 30
+    });
+    scheduleDailyMissionReminders();
+    return { ok: true, cfg: cfg };
+}
+
+function disableDailyMissionReminders() {
+    saveDailyReminderConfig(Object.assign(loadDailyReminderConfig(), { enabled: false }));
+    clearDailyReminderTimers();
+}
+
+function setDailyReminderMorning(on) {
+    const cfg = saveDailyReminderConfig(Object.assign(loadDailyReminderConfig(), { morning: !!on }));
+    if (cfg.enabled) scheduleDailyMissionReminders();
+    return cfg;
+}
+
+window.loadDailyReminderConfig = loadDailyReminderConfig;
+window.saveDailyReminderConfig = saveDailyReminderConfig;
+window.scheduleDailyMissionReminders = scheduleDailyMissionReminders;
+window.enableDailyMissionReminders = enableDailyMissionReminders;
+window.disableDailyMissionReminders = disableDailyMissionReminders;
+window.setDailyReminderMorning = setDailyReminderMorning;
+window.isTodayStudyCompleteAny = isTodayStudyCompleteAny;
+
+try {
+    scheduleDailyMissionReminders();
+} catch (e) {}
+window.addEventListener('pageshow', function () {
+    try { scheduleDailyMissionReminders(); } catch (e) {}
+});
+document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') {
+        try { scheduleDailyMissionReminders(); } catch (e) {}
+    }
+});
 
 let isPreReviewMode = false;
 let todayWords = [];
@@ -823,7 +1045,7 @@ function startCountdown(message, callback) {
     const renderHtml = (c) => `
         <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:160px;">
             <div style="font-size:0.9rem; color:#888; margin-bottom:15px; text-shadow:none;">${message}</div>
-            <div style="font-size:5.5rem; font-weight:900; color:var(--neon-orange); text-shadow: 0 0 20px var(--neon-orange); line-height:1;">${c}</div>
+            <div style="font-size:5.5rem; font-weight:900; color:var(--neon-blue); text-shadow: 0 0 20px var(--neon-blue); line-height:1;">${c}</div>
         </div>
     `;
     
@@ -1001,7 +1223,7 @@ function runStudyHtmlEntryTail(sessionTag, currentSession, isReviewDay, restored
 
             if (currentSessionVal === 'final') {
                 sessionTag.innerText = `최종 테스트 사이클 🔥`;
-                sessionTag.style.color = "var(--neon-orange)";
+                sessionTag.style.color = "var(--neon-blue)";
             } else if (isReviewDay) {
                 let sNum = parseInt(currentSessionVal) || 1;
                 let displaySession = sNum >= 6 ? 2 : 1;
@@ -1246,7 +1468,7 @@ if (typeof applyAdminPersistence === 'function') applyAdminPersistence();
                 if (restorePre) {
                     if (sessionTag) {
                         sessionTag.innerText = "🚨 망각 차단 복습 진행 중";
-                        sessionTag.style.color = "var(--neon-orange)";
+                        sessionTag.style.color = "var(--neon-blue)";
                     }
                     runStudyHtmlEntryTail(sessionTag, currentSession, isReviewDay, restorePre);
                     return;
@@ -1254,9 +1476,9 @@ if (typeof applyAdminPersistence === 'function') applyAdminPersistence();
 
                 showSystemMessage(`
                     <div style="text-align:center; padding:10px;">
-                        <div style="font-size:1.3rem; color:var(--neon-orange); font-weight:bold; margin-bottom:15px;">망각 차단 1단계</div>
+                        <div style="font-size:1.3rem; color:var(--neon-blue); font-weight:bold; margin-bottom:15px;">망각 차단 1단계</div>
                         <p style="color:#ddd; font-size:1rem; margin-bottom:20px; line-height:1.5;">어제와 그저께 틀린 단어 <strong>${targetWords.length}개</strong>를<br>먼저 복습합니다.</p>
-                        <button id="pre-review-start-btn" style="width:100%; padding:15px; background:var(--neon-orange); color:#000; font-weight:bold; border-radius:10px; border:none; cursor:pointer;">복습 시작하기</button>
+                        <button id="pre-review-start-btn" style="width:100%; padding:15px; background:var(--neon-blue); color:#000; font-weight:bold; border-radius:8px; border:none; cursor:pointer; box-shadow:0 0 12px rgba(0,243,255,0.25);">복습 시작하기</button>
                     </div>
                 `);
 
@@ -1264,7 +1486,7 @@ if (typeof applyAdminPersistence === 'function') applyAdminPersistence();
                     
                     if (sessionTag) {
                         sessionTag.innerText = "🚨 망각 차단 복습 진행 중";
-                        sessionTag.style.color = "var(--neon-orange)";
+                        sessionTag.style.color = "var(--neon-blue)";
                     }
                     startStudy();
                 };
@@ -1415,7 +1637,7 @@ function startStudy(skipShuffle) {
 
         if (time <= 5000 && time > 2000) {
             items.forEach(item => item.style.opacity = "0"); 
-            if (bar) bar.style.backgroundColor = "var(--neon-orange)";
+            if (bar) bar.style.backgroundColor = "var(--neon-blue)";
         } 
         else if (time <= 2000) {
             items.forEach(item => item.style.opacity = "1"); 
@@ -2088,7 +2310,7 @@ function retryOnlyWrongs() {
         const sessionTag = document.getElementById('session-tag');
         if (sessionTag) {
             sessionTag.innerText = `망각 차단 복습 재도전`;
-            sessionTag.style.color = "var(--neon-orange)";
+            sessionTag.style.color = "var(--neon-blue)";
         }
     } else {
         let retryList = allWrongs.filter(w => w.level === currentLevel && Number(w.day) === currentDay);
@@ -2097,7 +2319,7 @@ function retryOnlyWrongs() {
         const sessionTag = document.getElementById('session-tag');
         if (sessionTag) {
             sessionTag.innerText = `최후의 사이클 1 / 1`;
-            sessionTag.style.color = "var(--neon-orange)";
+            sessionTag.style.color = "var(--neon-blue)";
         }
     }
     
