@@ -65,6 +65,7 @@
             background: #0a0a0a;
             cursor: pointer;
             position: relative;
+            pointer-events: none;
         }
         .daily-remind-check:checked {
             background: var(--neon-blue);
@@ -593,14 +594,14 @@
 
             <p style="margin:0 0 10px;color:#888;font-size:0.78rem;letter-spacing:0.06em;">일일 미션 알림</p>
             <div style="border:1px solid rgba(0,243,255,0.22);border-radius:10px;padding:14px 14px 12px;margin-bottom:16px;background:rgba(0,243,255,0.04);">
-                <label class="daily-remind-row" for="daily-remind-enabled">
+                <div class="daily-remind-row" id="daily-remind-enabled-row" role="checkbox" aria-checked="true" tabindex="0">
                     <span>저녁 알림 (21:00)</span>
-                    <input type="checkbox" id="daily-remind-enabled" class="daily-remind-check" checked>
-                </label>
-                <label class="daily-remind-row daily-remind-row--sub" for="daily-remind-morning">
+                    <input type="checkbox" id="daily-remind-enabled" class="daily-remind-check" checked tabindex="-1" aria-hidden="true">
+                </div>
+                <div class="daily-remind-row daily-remind-row--sub" id="daily-remind-morning-row" role="checkbox" aria-checked="true" tabindex="0">
                     <span>아침 알림도 받기 (07:30)</span>
-                    <input type="checkbox" id="daily-remind-morning" class="daily-remind-check" checked>
-                </label>
+                    <input type="checkbox" id="daily-remind-morning" class="daily-remind-check" checked tabindex="-1" aria-hidden="true">
+                </div>
                 <p id="daily-remind-status" style="margin:12px 0 0;color:#888;font-size:0.78rem;line-height:1.45;">당일 미완료(복습만·중도포기 포함)면 21:00에 알림 · 완료 시 그날 침묵</p>
             </div>
 
@@ -1779,18 +1780,24 @@
         function refreshDailyReminderSettingsUi() {
             const enabledEl = document.getElementById('daily-remind-enabled');
             const morningEl = document.getElementById('daily-remind-morning');
-            const morningRow = morningEl ? morningEl.closest('.daily-remind-row') : null;
+            const enabledRow = document.getElementById('daily-remind-enabled-row');
+            const morningRow = document.getElementById('daily-remind-morning-row');
             const statusEl = document.getElementById('daily-remind-status');
             const cfg = typeof window.loadDailyReminderConfig === 'function'
                 ? window.loadDailyReminderConfig()
                 : { enabled: true, morning: true };
-            if (enabledEl) enabledEl.checked = cfg.enabled !== false;
+            const eveningOn = cfg.enabled !== false;
+            const morningOn = cfg.morning !== false;
+            if (enabledEl) enabledEl.checked = eveningOn;
             if (morningEl) {
-                morningEl.checked = cfg.morning !== false;
-                morningEl.disabled = cfg.enabled === false;
+                morningEl.checked = morningOn;
+                morningEl.disabled = !eveningOn;
             }
+            if (enabledRow) enabledRow.setAttribute('aria-checked', eveningOn ? 'true' : 'false');
             if (morningRow) {
-                morningRow.classList.toggle('is-disabled', cfg.enabled === false);
+                morningRow.classList.toggle('is-disabled', !eveningOn);
+                morningRow.setAttribute('aria-checked', morningOn ? 'true' : 'false');
+                morningRow.setAttribute('tabindex', eveningOn ? '0' : '-1');
             }
             if (!statusEl) return;
             let perm = ('Notification' in window) ? Notification.permission : 'unsupported';
@@ -1798,10 +1805,10 @@
                 statusEl.textContent = '이 브라우저는 알림을 지원하지 않습니다.';
             } else if (perm === 'denied') {
                 statusEl.textContent = '알림이 차단되어 있습니다. 브라우저/OS 설정에서 허용해 주세요.';
-            } else if (perm !== 'granted' && cfg.enabled !== false) {
+            } else if (perm !== 'granted' && eveningOn) {
                 statusEl.textContent = '알림 권한 허용이 필요합니다. 체크를 유지한 채 허용을 눌러 주세요.';
-            } else if (cfg.enabled !== false) {
-                statusEl.textContent = cfg.morning !== false
+            } else if (eveningOn) {
+                statusEl.textContent = morningOn
                     ? 'ON · 아침 07:30 / 저녁 21:00 · 당일 미완료면 알림 · 완료 시 침묵'
                     : 'ON · 저녁 21:00 · 당일 미완료면 알림 · 완료 시 침묵';
             } else {
@@ -1842,20 +1849,31 @@
         }
 
         function bindDailyReminderSettingsControls() {
+            const enabledRow = document.getElementById('daily-remind-enabled-row');
+            const morningRow = document.getElementById('daily-remind-morning-row');
             const enabledEl = document.getElementById('daily-remind-enabled');
             const morningEl = document.getElementById('daily-remind-morning');
-            if (enabledEl && !enabledEl._dailyBound) {
-                enabledEl._dailyBound = true;
-                enabledEl.addEventListener('change', function () {
-                    appSettingsToggleDailyReminder(!!enabledEl.checked);
+
+            function wireRow(row, input, toggleFn) {
+                if (!row || row._dailyBound) return;
+                row._dailyBound = true;
+                row.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    if (row.classList.contains('is-disabled')) return;
+                    const next = !(input && input.checked);
+                    if (input) input.checked = next;
+                    row.setAttribute('aria-checked', next ? 'true' : 'false');
+                    toggleFn(next);
+                });
+                row.addEventListener('keydown', function (e) {
+                    if (e.key !== 'Enter' && e.key !== ' ') return;
+                    e.preventDefault();
+                    row.click();
                 });
             }
-            if (morningEl && !morningEl._dailyBound) {
-                morningEl._dailyBound = true;
-                morningEl.addEventListener('change', function () {
-                    appSettingsToggleMorningReminder(!!morningEl.checked);
-                });
-            }
+
+            wireRow(enabledRow, enabledEl, appSettingsToggleDailyReminder);
+            wireRow(morningRow, morningEl, appSettingsToggleMorningReminder);
         }
 
         function closeAppSettingsModal() {
