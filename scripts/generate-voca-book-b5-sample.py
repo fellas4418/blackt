@@ -559,6 +559,133 @@ def draw_contents_page(
     c.showPage()
 
 
+def build_word_index_entries(
+    days: list[list[tuple[str, str]]],
+    *,
+    first_day_page: int = 5,
+    pages_per_day: int = 4,
+) -> list[tuple[str, str, int, int]]:
+    """(word, meaning, day_no, test_page) 알파벳 순."""
+    entries: list[tuple[str, str, int, int]] = []
+    for day_no, rows in enumerate(days, 1):
+        # Day: 간지·로그·TEST·PRACTICE → TEST는 +2
+        test_page = first_day_page + (day_no - 1) * pages_per_day + 2
+        for word, meaning in rows:
+            entries.append((word, meaning, day_no, test_page))
+    entries.sort(key=lambda row: row[0].lower())
+    return entries
+
+
+def draw_index_pages(
+    c: canvas.Canvas,
+    *,
+    level_tag: str,
+    entries: list[tuple[str, str, int, int]],
+    start_page_no: int,
+) -> int:
+    """알파벳 색인 — 단어 · Day · TEST 페이지. 여러 쪽."""
+    width, height = B5
+    page_no = start_page_no
+    side = 12 * mm
+    cols = 3
+    gap = 4 * mm
+    col_w = (width - side * 2 - gap * (cols - 1)) / cols
+    top = height - 32 * mm
+    bottom = 16 * mm
+    row_h = 5.2 * mm
+    rows_per_col = int((top - bottom) / row_h)
+
+    # 레터 헤더는 한 칸 사용
+    items: list[tuple[str, object]] = []
+    prev_letter = ""
+    for idx, (word, _meaning, day_no, test_page) in enumerate(entries):
+        letter = word[0].upper() if word else "#"
+        if not letter.isalpha():
+            letter = "#"
+        if letter != prev_letter:
+            items.append(("letter", letter))
+            prev_letter = letter
+        items.append(("word", idx))
+
+    per_page = rows_per_col * cols
+    offset = 0
+    first_index_page = True
+    while offset < len(items):
+        chunk = items[offset : offset + per_page]
+        offset += len(chunk)
+
+        if first_index_page:
+            draw_day_banner(c, "INDEX", height - 15 * mm)
+            draw_text(
+                c,
+                f"{level_tag} · A–Z · {len(entries)} WORDS",
+                width / 2,
+                height - 26 * mm,
+                font=FONT_BOLD,
+                size=9.5,
+                color=SLATE,
+                align="center",
+            )
+            first_index_page = False
+        else:
+            draw_day_banner(c, "INDEX (cont.)", height - 15 * mm)
+            draw_text(
+                c,
+                f"{level_tag} · A–Z",
+                width / 2,
+                height - 26 * mm,
+                size=9.0,
+                color=SLATE,
+                align="center",
+            )
+
+        for col in range(cols):
+            col_items = chunk[col * rows_per_col : (col + 1) * rows_per_col]
+            if not col_items:
+                continue
+            left = side + col * (col_w + gap)
+            y = top
+            for kind, payload in col_items:
+                next_y = y - row_h
+                if kind == "letter":
+                    c.setFillColor(NAVY)
+                    c.rect(left, next_y + 0.4 * mm, col_w, row_h - 0.8 * mm, fill=1, stroke=0)
+                    draw_text(
+                        c,
+                        str(payload),
+                        left + 2 * mm,
+                        next_y + row_h / 2 - 2.8,
+                        font=FONT_BOLD,
+                        size=9.5,
+                        color=white,
+                    )
+                else:
+                    word, _meaning, day_no, test_page = entries[int(payload)]  # type: ignore[arg-type]
+                    baseline = next_y + row_h / 2 - 2.6
+                    day_label = f"D{day_no:02d}"
+                    page_label = str(test_page)
+                    meta = f"{day_label} · {page_label}"
+                    meta_w = pdfmetrics.stringWidth(meta, FONT_REGULAR, 7.5)
+                    word_max = col_w - meta_w - 3 * mm
+                    draw_text(c, word, left + 1.2 * mm, baseline, font=FONT_BOLD, size=8.0, max_width=word_max)
+                    draw_text(
+                        c,
+                        meta,
+                        left + col_w - 1.2 * mm,
+                        baseline,
+                        size=7.5,
+                        color=SLATE,
+                        align="right",
+                    )
+                y = next_y
+
+        draw_page_footer(c, page_no, level_tag)
+        c.showPage()
+        page_no += 1
+
+    return page_no
+
+
 def draw_howto_page(c: canvas.Canvas, *, level_tag: str, page_no: int) -> None:
     """TEST부터 복습까지 하루 학습 순서를 안내."""
     width, height = B5
@@ -1297,7 +1424,7 @@ def validate_pronunciations(rows: list[tuple[str, str]], pronunciations: dict[st
 
 
 def build_middle_days_pdf(days: list[list[tuple[str, str]]]) -> Path:
-    """앞부분 4쪽(표지·목차·사용법·발음) + Day별 간지(앞·뒤)+TEST+연습 4쪽."""
+    """앞부분 4쪽(표지·목차·사용법·발음) + Day×4 + 색인 + 뒤표지."""
     global POS_MEANINGS
     pron, pos = load_middle_meta()
     POS_MEANINGS = pos
@@ -1363,6 +1490,13 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]]) -> Path:
             page_no=page_no,
         )
         page_no += 1
+    index_entries = build_word_index_entries(days)
+    page_no = draw_index_pages(
+        c,
+        level_tag="MIDDLE",
+        entries=index_entries,
+        start_page_no=page_no,
+    )
     draw_back_cover(c)
     c.save()
     return out_path
@@ -1432,11 +1566,7 @@ def main() -> None:
     for day_rows in middle_days:
         validate_pronunciations(day_rows, pron)
     middle_path = build_middle_days_pdf(middle_days)
-    body_pages = 4 + 4 * len(middle_days) + 1  # 앞 4 + Day×4 + 뒤표지
-    print(
-        f"중등 B5 전체: {middle_path} "
-        f"(표지·목차·사용법·발음 + Day×4×{len(middle_days)} + 뒤표지 = {body_pages}쪽)"
-    )
+    print(f"중등 B5 전체: {middle_path}")
 
     # 고등 Day01 샘플 (40단어) — 전체 고등은 발음 메타 준비 후
     high_rows = load_words(ROOT / "voca_high.txt", count=40)
