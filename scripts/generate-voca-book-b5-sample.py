@@ -285,12 +285,20 @@ def draw_cover_title(c: canvas.Canvas, text: str, x: float, y: float, size: floa
     """표지 메인 타이포 — 강한 디스플레이 서체 + 기울임."""
     c.saveState()
     c.translate(x, y)
-    c.skew(0, 20)
+    c.skew(0, 14)
     c.setFillColor(white)
     c.setFont(FONT_DISPLAY, size)
     for dx, dy in ((0, 0), (0.7, 0), (0, 0.55), (0.7, 0.55)):
         c.drawCentredString(dx, dy, text)
     c.restoreState()
+
+
+def fit_title_size(text: str, max_width: float, preferred: float) -> float:
+    """좌우 여백이 맞도록 글씨 크기를 max_width 안으로 맞춤."""
+    size = preferred
+    while size > 36 and pdfmetrics.stringWidth(text, FONT_DISPLAY, size) > max_width:
+        size -= 0.5
+    return size
 
 
 def load_middle_meta() -> tuple[dict[str, tuple[str, str]], dict[str, str]]:
@@ -468,15 +476,18 @@ def draw_cover(
         anchor="c",
     )
 
-    # 메인 타이포: 트리거(50%) · VOCA · 위로 · 가로 중앙
-    trigger_size = COVER_TITLE_SIZE * 0.5
-    voca_size = COVER_TITLE_SIZE
-    baseline_gap = 40 * mm
+    # 메인 타이포: 트리거(50%) · VOCA(좌우 여백 맞춤) · 위로
+    side_pad = 24 * mm
+    max_title_w = width - 2 * side_pad
+    voca_size = fit_title_size("VOCA", max_title_w, COVER_TITLE_SIZE)
+    trigger_size = fit_title_size("트리거", max_title_w, voca_size * 0.5)
+    baseline_gap = 36 * mm
     block_mid_y = height / 2 + 28 * mm
     trigger_y = block_mid_y + baseline_gap / 2
     voca_y = block_mid_y - baseline_gap / 2
-    draw_cover_title(c, "트리거", width / 2, trigger_y, size=trigger_size)
-    draw_cover_title(c, "VOCA", width / 2, voca_y, size=voca_size)
+    title_x = width / 2 - 1.5 * mm
+    draw_cover_title(c, "트리거", title_x, trigger_y, size=trigger_size)
+    draw_cover_title(c, "VOCA", title_x, voca_y, size=voca_size)
 
     # 레벨 배지 — VOCA와 DAY 사이 (중등=오렌지 / 고등=네온블루)
     badge_w, badge_h = 34 * mm, 15 * mm

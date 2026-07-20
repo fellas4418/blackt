@@ -50,12 +50,20 @@ def draw_cover_title(c: canvas.Canvas, text: str, x: float, y: float, size: floa
     """표지 메인 타이포 — 강한 디스플레이 서체 + 기울임."""
     c.saveState()
     c.translate(x, y)
-    c.skew(0, 20)
+    c.skew(0, 14)
     c.setFillColor(white)
     c.setFont(FONT_DISPLAY, size)
     for dx, dy in ((0, 0), (0.7, 0), (0, 0.55), (0.7, 0.55)):
         c.drawCentredString(dx, dy, text)
     c.restoreState()
+
+
+def fit_title_size(text: str, max_width: float, preferred: float) -> float:
+    """좌우 여백이 맞도록 글씨 크기를 max_width 안으로 맞춤."""
+    size = preferred
+    while size > 36 and pdfmetrics.stringWidth(text, FONT_DISPLAY, size) > max_width:
+        size -= 0.5
+    return size
 
 
 def bookk_spine_mm(pages: int) -> float:
@@ -87,15 +95,19 @@ def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float)
         anchor="c",
     )
 
-    # 메인 타이포: 트리거(50%) · VOCA · 위로 · 가로 중앙
-    trigger_size = COVER_TITLE_SIZE * 0.5
-    voca_size = COVER_TITLE_SIZE
-    baseline_gap = 40 * mm
-    block_mid_y = h / 2 + 28 * mm  # 위로
+    # 메인 타이포: 트리거(50%) · VOCA(좌우 여백 맞춤) · 위로
+    side_pad = 24 * mm  # 테두리 안쪽 좌우 동일 여백
+    max_title_w = w - 2 * side_pad
+    voca_size = fit_title_size("VOCA", max_title_w, COVER_TITLE_SIZE)
+    trigger_size = fit_title_size("트리거", max_title_w, voca_size * 0.5)
+    baseline_gap = 36 * mm
+    block_mid_y = h / 2 + 28 * mm
     trigger_y = block_mid_y + baseline_gap / 2
     voca_y = block_mid_y - baseline_gap / 2
-    draw_cover_title(c, "트리거", w / 2, trigger_y, size=trigger_size)
-    draw_cover_title(c, "VOCA", w / 2, voca_y, size=voca_size)
+    # 기울임으로 오른쪽이 빡빡해 보이므로 살짝 왼쪽으로 광학 보정
+    title_x = w / 2 - 1.5 * mm
+    draw_cover_title(c, "트리거", title_x, trigger_y, size=trigger_size)
+    draw_cover_title(c, "VOCA", title_x, voca_y, size=voca_size)
 
     badge_w, badge_h = 34 * mm, 15 * mm
     badge_x = (w - badge_w) / 2
@@ -185,8 +197,8 @@ def draw_spine(c: canvas.Canvas, x0: float, y0: float, spine_w: float, h: float)
     title = "TRIGGER VOCA · 중등"
     margin_end = 8 * mm
     avail_len = h - margin_end * 2
-    # 폭에 맞춰 글씨 크기 최대화 후, 길이는 가로 스케일로 책등 전체에 맞춤
-    size = spine_w * 0.78
+    # 폭의 약 55% (기존 대비 약 30% 축소) · 길이는 가로 스케일로 맞춤
+    size = spine_w * 0.546
     text_w = pdfmetrics.stringWidth(title, FONT_DISPLAY, size)
     if text_w > avail_len:
         size *= avail_len / text_w
