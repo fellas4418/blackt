@@ -498,17 +498,12 @@ def draw_cover(
         anchor="c",
     )
 
-    # A안 심플 히어로: VOCA 중심 · 트리거/레벨 작게 · DAY 하단
+    # A안 심플 히어로: VOCA 중심 · 레벨 배지 · DAY 하단 (브랜드명은 로고·TRIGGER BLACK)
     side_pad = 26 * mm
     max_title_w = width - 2 * side_pad
     voca_size = fit_title_size("VOCA", max_title_w, COVER_TITLE_SIZE)
-    trigger_size = fit_title_size("트리거", max_title_w, max(voca_size * 0.32, 28))
     title_x = width / 2 - 1.2 * mm
     voca_y = height * 0.58
-    trigger_y = voca_y + voca_size * 0.72 + trigger_size * 0.5
-    draw_cover_title(
-        c, "트리거", title_x, trigger_y, size=trigger_size, tracking=trigger_size * 0.14, heavy=False
-    )
     draw_cover_title(c, "VOCA", title_x, voca_y, size=voca_size)
 
     badge_w, badge_h = 36 * mm, 15 * mm

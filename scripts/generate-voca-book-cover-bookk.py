@@ -117,17 +117,12 @@ def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float)
         anchor="c",
     )
 
-    # 히어로: VOCA 크게 · 위/아래는 트리거·중등 작게 · DAY는 하단
+    # 히어로: VOCA 크게 · 중등 배지 · DAY 하단 (브랜드명은 로고·TRIGGER BLACK)
     side_pad = 26 * mm
     max_title_w = w - 2 * side_pad
     voca_size = fit_title_size("VOCA", max_title_w, COVER_TITLE_SIZE)
-    trigger_size = fit_title_size("트리거", max_title_w, max(voca_size * 0.32, 28))
     title_x = w / 2 - 1.2 * mm
     voca_y = h * 0.58
-    trigger_y = voca_y + voca_size * 0.72 + trigger_size * 0.5
-    draw_cover_title(
-        c, "트리거", title_x, trigger_y, size=trigger_size, tracking=trigger_size * 0.14, heavy=False
-    )
     draw_cover_title(c, "VOCA", title_x, voca_y, size=voca_size)
 
     badge_w, badge_h = 36 * mm, 15 * mm
@@ -296,7 +291,7 @@ def build_cover_pdf(*, pages: int, spine_mm: float | None) -> Path:
                 "  (1회독 + 랜덤 1회독 내지 기준. 부크크 100쪽=7.1mm 비율)",
                 "  (화면에 다른 두께가 나오면 --spine 으로 재생성)",
                 "",
-                "앞표지: A안 심플 히어로 — VOCA 중심 · 트리거/중등 작게 · DAY 하단",
+                "앞표지: A안 심플 히어로 — VOCA 중심 · 중등 배지 · DAY 하단",
                 "뒷표지: Just Follow(40pt) + QR · 로고 없음",
                 "책등: TRIGGER VOCA · 중등 (책등 폭·길이에 맞춤)",
                 "",
