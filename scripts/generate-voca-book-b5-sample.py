@@ -483,13 +483,13 @@ def draw_cover(
     trigger_size = fit_title_size("트리거", max_title_w, max(voca_size * 0.32, 28))
     title_x = width / 2 - 1.2 * mm
     voca_y = height * 0.58
-    trigger_y = voca_y + voca_size * 0.85 + 14 * mm
+    trigger_y = voca_y + voca_size * 0.425 + 7 * mm  # 간격 절반
     draw_cover_title(c, "트리거", title_x, trigger_y, size=trigger_size)
     draw_cover_title(c, "VOCA", title_x, voca_y, size=voca_size)
 
-    badge_w, badge_h = 30 * mm, 13 * mm
+    badge_w, badge_h = 36 * mm, 15 * mm
     badge_x = (width - badge_w) / 2
-    badge_y = voca_y - 28 * mm
+    badge_y = voca_y - 36 * mm  # 조금 내림
     badge_stroke = ORANGE if level_ko == "중등" else NEON_BLUE
     c.setStrokeColor(badge_stroke)
     c.setLineWidth(1.3)
@@ -498,9 +498,9 @@ def draw_cover(
         c,
         level_ko,
         badge_x + badge_w / 2,
-        badge_y + badge_h / 2 - 4.8,
+        badge_y + badge_h / 2 - 5.5,
         font=FONT_BOLD,
-        size=14,
+        size=16,
         color=white,
         align="center",
     )

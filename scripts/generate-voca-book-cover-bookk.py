@@ -102,19 +102,19 @@ def draw_front_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float)
     trigger_size = fit_title_size("트리거", max_title_w, max(voca_size * 0.32, 28))
     title_x = w / 2 - 1.2 * mm
     voca_y = h * 0.58
-    trigger_y = voca_y + voca_size * 0.85 + 14 * mm
+    trigger_y = voca_y + voca_size * 0.425 + 7 * mm  # 간격 절반
     draw_cover_title(c, "트리거", title_x, trigger_y, size=trigger_size)
     draw_cover_title(c, "VOCA", title_x, voca_y, size=voca_size)
 
-    badge_w, badge_h = 30 * mm, 13 * mm
+    badge_w, badge_h = 36 * mm, 15 * mm
     badge_x = (w - badge_w) / 2
-    badge_y = voca_y - 28 * mm
+    badge_y = voca_y - 36 * mm  # 조금 내림
     c.setStrokeColor(ORANGE)
     c.setLineWidth(1.3)
     c.roundRect(badge_x, badge_y, badge_w, badge_h, 2.2 * mm, fill=0, stroke=1)
     c.setFillColor(white)
-    c.setFont(FONT_BOLD, 14)
-    c.drawCentredString(badge_x + badge_w / 2, badge_y + badge_h / 2 - 4.8, "중등")
+    c.setFont(FONT_BOLD, 16)
+    c.drawCentredString(badge_x + badge_w / 2, badge_y + badge_h / 2 - 5.5, "중등")
 
     # DAY 바 — 하단
     day_bar_y = 34 * mm
@@ -195,15 +195,15 @@ def draw_spine(c: canvas.Canvas, x0: float, y0: float, spine_w: float, h: float)
     title = "TRIGGER VOCA · 중등"
     margin_end = 8 * mm
     avail_len = h - margin_end * 2
-    # 폭의 약 55% (기존 대비 약 30% 축소) · 길이는 가로 스케일로 맞춤
-    size = spine_w * 0.273  # 이전 대비 절반
+    target_len = avail_len * 0.5  # 책등 가로(길이) 절반
+    size = spine_w * 0.273
     text_w = pdfmetrics.stringWidth(title, FONT_DISPLAY, size)
-    if text_w > avail_len:
-        size *= avail_len / text_w
+    if text_w > target_len:
+        size *= target_len / text_w
         text_w = pdfmetrics.stringWidth(title, FONT_DISPLAY, size)
         stretch = 1.0
     else:
-        stretch = avail_len / text_w
+        stretch = target_len / text_w
 
     c.translate(x0 + spine_w / 2, y0 + h / 2)
     c.rotate(90)
