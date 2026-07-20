@@ -22,7 +22,8 @@ OUT_HIGH = ROOT / "단어장 PDF" / "고등"
 
 # 부크크 JIS B5 (182×257mm) — 권장 여백 안전 구역
 B5 = (182 * mm, 257 * mm)
-MARGIN_X = 14 * mm
+MARGIN_OUTER = 12 * mm
+MARGIN_GUTTER = 18 * mm
 MARGIN_BOTTOM = 14 * mm
 TABLE_BOTTOM = 24 * mm
 BANNER_Y = 22 * mm
@@ -30,6 +31,13 @@ SUBTITLE_Y = 34 * mm
 RULE_Y = 38 * mm
 TABLE_TOP_TIGHT = 40 * mm
 TABLE_TOP_LOOSE = 46 * mm
+
+
+def page_margins_x(page_no: int) -> tuple[float, float]:
+    """거울 여백 (left, right). 짝수=왼쪽 페이지(제본 오른쪽), 홀수=오른쪽 페이지(제본 왼쪽)."""
+    if page_no % 2 == 0:
+        return MARGIN_OUTER, MARGIN_GUTTER
+    return MARGIN_GUTTER, MARGIN_OUTER
 
 FONT_REGULAR = "Pretendard"
 FONT_BOLD = "PretendardBold"
@@ -359,8 +367,9 @@ def draw_day_banner(c: canvas.Canvas, title: str, center_y: float) -> None:
 
 def draw_page_footer(c: canvas.Canvas, page_no: int, level_tag: str) -> None:
     width, _ = B5
-    draw_text(c, f"TRIGGER VOCA · {level_tag}", MARGIN_X, MARGIN_BOTTOM, size=6.5, color=SLATE)
-    draw_text(c, str(page_no), width - MARGIN_X, MARGIN_BOTTOM, size=10.4, color=SLATE, align="right")
+    margin_left, margin_right = page_margins_x(page_no)
+    draw_text(c, f"TRIGGER VOCA · {level_tag}", margin_left, MARGIN_BOTTOM, size=6.5, color=SLATE)
+    draw_text(c, str(page_no), width - margin_right, MARGIN_BOTTOM, size=10.4, color=SLATE, align="right")
 
 
 LOGO_PATH = ROOT / "로고, 이미지" / "trigger-logo-v2.png"
@@ -499,10 +508,10 @@ def draw_contents_page(
         align="center",
     )
 
-    side_margin = MARGIN_X
+    margin_left, margin_right = page_margins_x(page_no)
     gap = 8 * mm
     column_count = 2 if len(entries) > 25 else 1
-    table_w = width - side_margin * 2
+    table_w = width - margin_left - margin_right
     column_w = (table_w - gap * (column_count - 1)) / column_count
     rows_per_column = (len(entries) + column_count - 1) // column_count
     table_top = height - TABLE_TOP_LOOSE
@@ -516,7 +525,7 @@ def draw_contents_page(
         column_entries = entries[start : start + rows_per_column]
         if not column_entries:
             continue
-        left = side_margin + column * (column_w + gap)
+        left = margin_left + column * (column_w + gap)
         right = left + column_w
         words_x = left + day_w
         page_x = words_x + words_w
@@ -597,13 +606,13 @@ def draw_index_pages(
     """알파벳 색인 — 단어 · Day · TEST 페이지. 여러 쪽."""
     width, height = B5
     page_no = start_page_no
-    side = MARGIN_X
     cols = 3
     gap = 4 * mm
-    col_w = (width - side * 2 - gap * (cols - 1)) / cols
     top = height - TABLE_TOP_LOOSE + 4 * mm
     bottom = TABLE_BOTTOM
     row_h = 5.2 * mm
+    content_w = width - MARGIN_OUTER - MARGIN_GUTTER
+    col_w = (content_w - gap * (cols - 1)) / cols
     rows_per_col = int((top - bottom) / row_h)
 
     # 레터 헤더는 한 칸 사용
@@ -650,11 +659,12 @@ def draw_index_pages(
                 align="center",
             )
 
+        margin_left, _margin_right = page_margins_x(page_no)
         for col in range(cols):
             col_items = chunk[col * rows_per_col : (col + 1) * rows_per_col]
             if not col_items:
                 continue
-            left = side + col * (col_w + gap)
+            left = margin_left + col * (col_w + gap)
             y = top
             for kind, payload in col_items:
                 next_y = y - row_h
@@ -727,8 +737,9 @@ def draw_howto_page(c: canvas.Canvas, *, level_tag: str, page_no: int) -> None:
         ("03", "CHECK", "접었던 정답 면과 비교하고 1차·2차·3차 결과를 체크합니다."),
         ("04", "PRACTICE", "발음을 확인하며 영단어를 따라 쓰고, 뜻을 다시 써봅니다."),
     ]
-    left = MARGIN_X
-    right = width - MARGIN_X
+    margin_left, margin_right = page_margins_x(page_no)
+    left = margin_left
+    right = width - margin_right
     top = height - SUBTITLE_Y - 18 * mm
     box_h = 35 * mm
     gap = 8 * mm
@@ -853,11 +864,11 @@ def draw_pronunciation_guide(c: canvas.Canvas, *, level_tag: str, page_no: int) 
         align="center",
     )
 
+    margin_left, margin_right = page_margins_x(page_no)
     table_top = height - TABLE_TOP_LOOSE
     table_bottom = TABLE_BOTTOM
     gap = 5 * mm
-    side_margin = MARGIN_X
-    group_w = (width - side_margin * 2 - gap) / 2
+    group_w = (width - margin_left - margin_right - gap) / 2
     title_h = 7 * mm
     header_h = 8 * mm
 
@@ -964,8 +975,8 @@ def draw_pronunciation_guide(c: canvas.Canvas, *, level_tag: str, page_no: int) 
             c.line(left, line_y, left + group_w, line_y)
         c.rect(left, table_bottom, group_w, table_top - table_bottom, fill=0, stroke=1)
 
-    draw_group("모음", vowels, side_margin)
-    draw_group("자음", consonants, side_margin + group_w + gap)
+    draw_group("모음", vowels, margin_left)
+    draw_group("자음", consonants, margin_left + group_w + gap)
     draw_page_footer(c, page_no, level_tag)
     c.showPage()
 
@@ -992,8 +1003,9 @@ def draw_day_divider(
     draw_text(c, f"{len(rows)} WORDS", width / 2, center_y - 30 * mm, font=FONT_BOLD, size=12, color=white, align="center")
     draw_text(c, f"{rows[0][0]} – {rows[-1][0]}", width / 2, center_y - 38 * mm, size=11, color=PALE, align="center")
 
-    draw_text(c, f"TRIGGER VOCA · {level_tag}", MARGIN_X, MARGIN_BOTTOM, size=6.5, color=PALE)
-    draw_text(c, str(page_no), width - MARGIN_X, MARGIN_BOTTOM, size=10.4, color=PALE, align="right")
+    margin_left, margin_right = page_margins_x(page_no)
+    draw_text(c, f"TRIGGER VOCA · {level_tag}", margin_left, MARGIN_BOTTOM, size=6.5, color=PALE)
+    draw_text(c, str(page_no), width - margin_right, MARGIN_BOTTOM, size=10.4, color=PALE, align="right")
     c.showPage()
 
 
@@ -1018,8 +1030,9 @@ def draw_day_log_page(
         align="center",
     )
 
-    left = MARGIN_X
-    right = width - MARGIN_X
+    margin_left, margin_right = page_margins_x(page_no)
+    left = margin_left
+    right = width - margin_right
     total_w = right - left
     table_top = height - TABLE_TOP_LOOSE
     header_h = 9 * mm
@@ -1109,8 +1122,9 @@ def draw_test_page(
     page_no: int,
 ) -> None:
     width, height = B5
-    table_left = MARGIN_X
-    table_right = width - MARGIN_X
+    margin_left, margin_right = page_margins_x(page_no)
+    table_left = margin_left
+    table_right = width - margin_right
     fold_x = width / 2
     table_top = height - TABLE_TOP_TIGHT
     table_bottom = TABLE_BOTTOM
@@ -1299,8 +1313,9 @@ def draw_practice_page(
     page_no: int,
 ) -> None:
     width, height = B5
-    left = MARGIN_X
-    right = width - MARGIN_X
+    margin_left, margin_right = page_margins_x(page_no)
+    left = margin_left
+    right = width - margin_right
     table_top = height - TABLE_TOP_TIGHT - 2 * mm
     table_bottom = TABLE_BOTTOM
     header_h = 8.5 * mm
