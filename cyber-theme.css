@@ -104,7 +104,7 @@ body.analysis-page::after {
     letter-spacing: 0.04em;
 }
 
-/* ── HUD 카드 (코너 브래킷) ── */
+/* ── HUD 카드 (코너 꺽쇠 없음) ── */
 .card,
 .login-card,
 .info-card,
@@ -117,45 +117,6 @@ body.analysis-page::after {
     border-radius: var(--cyber-radius-lg) !important;
     position: relative;
     background-image: linear-gradient(135deg, rgba(0, 243, 255, 0.02) 0%, transparent 50%) !important;
-}
-
-.card::before,
-.login-card::before,
-.info-card::before,
-.stats-row::before {
-    content: '';
-    position: absolute;
-    top: -1px;
-    left: -1px;
-    width: 12px;
-    height: 12px;
-    border-top: 2px solid var(--neon-blue, #00f3ff);
-    border-left: 2px solid var(--neon-blue, #00f3ff);
-    opacity: 0.55;
-    pointer-events: none;
-}
-
-.card::after,
-.login-card::after,
-.info-card::after,
-.stats-row::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    right: -1px;
-    width: 12px;
-    height: 12px;
-    border-bottom: 2px solid var(--neon-blue, #00f3ff);
-    border-right: 2px solid var(--neon-blue, #00f3ff);
-    opacity: 0.55;
-    pointer-events: none;
-}
-
-.module-scan-card::before,
-.module-scan-card::after,
-.module-grammar-card::before,
-.module-grammar-card::after {
-    border-color: var(--neon-blue, #00f3ff);
 }
 
 /* ── 버튼·입력: 각진 HUD ── */
@@ -435,8 +396,6 @@ body.splash-active .main-tab-swipe-hint {
     font-family: var(--font-display) !important;
 }
 
-/* ── 메인 대시보드: 살짝 HUD (코너 브래킷 유지) ── */
-
 /* ── 메인: 별빛 비활성 (세로줄 시그니처로 대체) ── */
 body.dashboard-bg .cyber-stars {
     display: none !important;
@@ -533,8 +492,27 @@ body.dashboard-bg .main-tab-track.is-sliding .tab-content:not(.active) {
 /* ── 홈 브랜드 v1: 네온블루 단일 · 살짝 HUD · 세로줄 ── */
 body.dashboard-bg .home-mission-label {
     font-family: var(--font-display);
-    letter-spacing: 0.14em !important;
+    letter-spacing: 0.08em !important;
     text-shadow: 0 0 12px rgba(0, 243, 255, 0.35);
+}
+
+body.dashboard-bg .home-mission-head {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
+    min-height: 30px;
+    padding: 0 4.75rem;
+    box-sizing: border-box;
+}
+
+body.dashboard-bg .home-mission-head .guide-cyber-btn {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
 }
 
 body.dashboard-bg .main-header-divider {
@@ -549,19 +527,6 @@ body.dashboard-bg .dashboard-container .card,
 body.dashboard-bg .dashboard-container .info-card,
 body.dashboard-bg .dashboard-container .stats-row {
     border-radius: 8px !important;
-}
-
-body.dashboard-bg .dashboard-container .card::before,
-body.dashboard-bg .dashboard-container .card::after,
-body.dashboard-bg .dashboard-container .info-card::before,
-body.dashboard-bg .dashboard-container .info-card::after,
-body.dashboard-bg .dashboard-container .stats-row::before,
-body.dashboard-bg .dashboard-container .stats-row::after,
-body.dashboard-bg .dashboard-container .module-scan-card::before,
-body.dashboard-bg .dashboard-container .module-scan-card::after,
-body.dashboard-bg .dashboard-container .module-grammar-card::before,
-body.dashboard-bg .dashboard-container .module-grammar-card::after {
-    opacity: 0.7;
 }
 
 body.dashboard-bg .level-btn {
