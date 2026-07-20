@@ -456,7 +456,7 @@ window.clearBlacktCooldownNotifySchedule = clearBlacktCooldownNotifySchedule;
 window.handleCooldownExpiredUi = handleCooldownExpiredUi;
 
 /* ── 일일 미션 알림 (로컬 · 기본 저녁 1회 / 아침 옵션) ── */
-const DAILY_REMINDER_KEY = 'trigger_daily_reminder_v1';
+const DAILY_REMINDER_KEY = 'trigger_daily_reminder_v2';
 const DAILY_REMINDER_SENT_PREFIX = 'trigger_daily_remind_sent_';
 
 const DAILY_REMINDER_MSGS = {
@@ -481,9 +481,9 @@ let __dailyReminderTimers = [];
 
 function defaultDailyReminderConfig() {
     return {
-        enabled: false,
-        morning: false,
-        eveningHour: 19,
+        enabled: true,
+        morning: true,
+        eveningHour: 21,
         eveningMin: 0,
         morningHour: 7,
         morningMin: 30
@@ -498,9 +498,9 @@ function loadDailyReminderConfig() {
         const parsed = JSON.parse(raw);
         if (!parsed || typeof parsed !== 'object') return base;
         return {
-            enabled: !!parsed.enabled,
-            morning: !!parsed.morning,
-            eveningHour: Math.min(23, Math.max(0, parseInt(parsed.eveningHour, 10) || 19)),
+            enabled: parsed.enabled !== false,
+            morning: parsed.morning !== false,
+            eveningHour: Math.min(23, Math.max(0, parseInt(parsed.eveningHour, 10) || 21)),
             eveningMin: Math.min(59, Math.max(0, parseInt(parsed.eveningMin, 10) || 0)),
             morningHour: Math.min(23, Math.max(0, parseInt(parsed.morningHour, 10) || 7)),
             morningMin: Math.min(59, Math.max(0, parseInt(parsed.morningMin, 10) || 30))
@@ -634,7 +634,7 @@ async function enableDailyMissionReminders(opts) {
     const cfg = saveDailyReminderConfig({
         enabled: true,
         morning: !!options.morning,
-        eveningHour: options.eveningHour != null ? options.eveningHour : 19,
+        eveningHour: options.eveningHour != null ? options.eveningHour : 21,
         eveningMin: options.eveningMin != null ? options.eveningMin : 0,
         morningHour: options.morningHour != null ? options.morningHour : 7,
         morningMin: options.morningMin != null ? options.morningMin : 30

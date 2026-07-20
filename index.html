@@ -337,6 +337,13 @@
                     hideSplash();
                     return;
                 }
+                // 학습→홈 등 앱 안 이동: 스플래시(스캔) 생략. 콜드스타트(첫 진입)만 재생.
+                if (q.get('tab') || sessionStorage.getItem('trigger_splash_seen') === '1') {
+                    forceNow = true;
+                    hideSplash();
+                    return;
+                }
+                sessionStorage.setItem('trigger_splash_seen', '1');
             } catch (e) {}
 
             setTimeout(function () {
@@ -530,14 +537,14 @@
             <p style="margin:0 0 10px;color:#888;font-size:0.78rem;letter-spacing:0.06em;">일일 미션 알림</p>
             <div style="border:1px solid rgba(0,243,255,0.22);border-radius:10px;padding:14px 14px 12px;margin-bottom:16px;background:rgba(0,243,255,0.04);">
                 <label style="display:flex;align-items:center;justify-content:space-between;gap:12px;color:#fff;font-size:0.95rem;font-weight:bold;cursor:pointer;">
-                    <span>저녁 알림 (19:00)</span>
-                    <input type="checkbox" id="daily-remind-enabled" onchange="appSettingsToggleDailyReminder(this.checked)" style="width:20px;height:20px;accent-color:var(--neon-blue);">
+                    <span>저녁 알림 (21:00)</span>
+                    <input type="checkbox" id="daily-remind-enabled" checked onchange="appSettingsToggleDailyReminder(this.checked)" style="width:20px;height:20px;accent-color:var(--neon-blue);">
                 </label>
                 <label style="display:flex;align-items:center;justify-content:space-between;gap:12px;color:#ddd;font-size:0.9rem;margin-top:12px;cursor:pointer;">
                     <span>아침 알림도 받기 (07:30)</span>
-                    <input type="checkbox" id="daily-remind-morning" onchange="appSettingsToggleMorningReminder(this.checked)" style="width:20px;height:20px;accent-color:var(--neon-blue);">
+                    <input type="checkbox" id="daily-remind-morning" checked onchange="appSettingsToggleMorningReminder(this.checked)" style="width:20px;height:20px;accent-color:var(--neon-blue);">
                 </label>
-                <p id="daily-remind-status" style="margin:12px 0 0;color:#888;font-size:0.78rem;line-height:1.45;">오늘 Day 완료 시 그날 알림은 보내지 않습니다.</p>
+                <p id="daily-remind-status" style="margin:12px 0 0;color:#888;font-size:0.78rem;line-height:1.45;">당일 미완료(복습만·중도포기 포함)면 21:00에 알림 · 완료 시 그날 침묵</p>
             </div>
 
             <p style="margin:0 0 10px;color:#888;font-size:0.78rem;letter-spacing:0.06em;">개인정보</p>
@@ -1728,10 +1735,10 @@
                 statusEl.textContent = '알림이 차단되어 있습니다. 브라우저/OS 설정에서 허용해 주세요.';
             } else if (cfg.enabled) {
                 statusEl.textContent = cfg.morning
-                    ? 'ON · 아침 07:30 / 저녁 19:00 · 오늘 완료 시 그날 침묵'
-                    : 'ON · 저녁 19:00 · 오늘 완료 시 그날 침묵';
+                    ? 'ON · 아침 07:30 / 저녁 21:00 · 당일 미완료면 알림 · 완료 시 침묵'
+                    : 'ON · 저녁 21:00 · 당일 미완료면 알림 · 완료 시 침묵';
             } else {
-                statusEl.textContent = '오늘 Day 완료 시 그날 알림은 보내지 않습니다.';
+                statusEl.textContent = '당일 미완료(복습만·중도포기 포함)면 21:00에 알림 · 완료 시 그날 침묵';
             }
         }
 
@@ -3286,7 +3293,7 @@
     </script>
     <script src="praise-share.js?v=20260517_kakao_return"></script>
     <script src="admin-unlock.js"></script>
-    <script src="app.js?v=20260720_daily"></script>
+    <script src="app.js?v=20260720_daily2"></script>
     <script src="worddata.js"></script>
     <script src="worddata_toeic.js?v=20260625_toeic54"></script>
     <script src="toeic-schedule.js"></script>

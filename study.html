@@ -114,7 +114,7 @@
 </head>
 <body class="study-bg">
     <div id="app">
-        <button id="main-back-btn" class="back-btn" onclick="location.href='index.html'">← 메인으로</button>
+        <button id="main-back-btn" class="back-btn" onclick="location.href='index.html?tab=voca'">← 메인으로</button>
         
         <div style="position: absolute; top: 65px; left: 20px; display: flex; flex-direction: column; gap: 5px; align-items: center; z-index: 100;">
             <div class="charge-label" style="font-size: 0.65rem; color: #666; font-weight: bold; margin-bottom: 2px;">CHARGE</div>
@@ -123,8 +123,8 @@
         </div>
 
         <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 8px; align-items: center; z-index: 100;">
-            <button id="pause-btn" onclick="togglePause()" style="background: transparent; border: 1px solid var(--neon-blue); color: #fff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">⏸ 일시중지</button>
-            <button id="exit-btn" onclick="location.href='index.html'" style="display: none; background: transparent; border: 1px solid var(--neon-blue); color: #ffffff; width: 80px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">나가기</button>
+            <button id="pause-btn" onclick="togglePause()" style="background: transparent; border: 1px solid var(--neon-blue); color: #fff; min-width: 102px; height: 32px; padding: 0 10px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem; white-space: nowrap;">⏸ 일시중지</button>
+            <button id="exit-btn" onclick="location.href='index.html?tab=voca'" style="display: none; background: transparent; border: 1px solid var(--neon-blue); color: #ffffff; min-width: 72px; height: 32px; padding: 0 10px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem; white-space: nowrap;">나가기</button>
             <button id="mute-toggle-btn" onclick="toggleMute()" style="background: transparent; border: none; font-size: 1.1rem; cursor: pointer; margin-left: 3px;">🔊</button>
         </div>
         
@@ -154,7 +154,7 @@
     <script src="trigger-credit.js?v=20260715"></script>
     <script src="trigger-voca-pdf.js?v=20260718_pdfstripe"></script>
     <script src="praise-share.js?v=20260531_acc"></script>
-    <script src="app.js?v=20260720_daily"></script> 
+    <script src="app.js?v=20260720_daily2"></script> 
     
     <script>
         if ('serviceWorker' in navigator) {
