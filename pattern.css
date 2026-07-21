@@ -104,11 +104,11 @@
 }
 
 .pattern-docent-role {
-    margin: 0 0 16px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.18em;
-    color: rgba(0, 243, 255, 0.75);
+    margin: 0 0 18px;
+    font-size: clamp(1.05rem, 4.2vw, 1.22rem);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: #e8b4ff;
     text-shadow: none;
     opacity: 0;
     transform: translateY(4px);
@@ -185,6 +185,13 @@
     box-shadow: none;
 }
 
+.pattern-docent-mark--term {
+    color: #f0b8ff;
+    background: rgba(220, 140, 255, 0.14);
+    box-shadow: none;
+    font-weight: 700;
+}
+
 .pattern-docent-text {
     margin: 0;
     font-size: clamp(0.98rem, 3.8vw, 1.12rem);
@@ -200,9 +207,9 @@
 
 .pattern-docent-step {
     margin: 20px 0 0;
-    font-size: 0.68rem;
+    font-size: 0.72rem;
     font-weight: 500;
-    color: #444;
+    color: #888;
     letter-spacing: 0.06em;
     opacity: 0;
     transition: opacity 0.6s ease;
@@ -233,9 +240,9 @@
 
 .pattern-docent-tap {
     margin: 32px 0 0;
-    font-size: 0.72rem;
+    font-size: 0.8rem;
     font-weight: 500;
-    color: #555;
+    color: #999;
     letter-spacing: 0.04em;
 }
 
