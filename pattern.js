@@ -5,6 +5,7 @@
     var DOCENT_LINE_MS = 10000;
     var DOCENT_EXAMPLE_MS = 11000;
     var DOCENT_BRIDGE_MS = 6500;
+    var AUTO_NEXT_MS = 850;
     var COL_COMP = { s: '주어', o: '목적어', c: '보어', v: '서술어' };
     var PARTICLE_POOL = ['은', '는', '이', '가', '을', '를', '다'];
     var SUBJECT_PARTICLES = { '은': 1, '는': 1, '이': 1, '가': 1 };
@@ -26,7 +27,10 @@
         docentTimer: null,
         docentIdx: 0,
         docentPhase: null,
-        skipDocent: false
+        skipDocent: false,
+        guideBeatActive: false,
+        guideBeatDone: false,
+        autoNextTimer: null
     };
 
     function activeRoles() {
@@ -68,6 +72,108 @@
             clearInterval(state.progressInterval);
             state.progressInterval = null;
         }
+    }
+
+    function clearAutoNext() {
+        if (state.autoNextTimer) {
+            clearTimeout(state.autoNextTimer);
+            state.autoNextTimer = null;
+        }
+    }
+
+    function resolveGuidePoints() {
+        if (!state.data) return [];
+        var raw = state.data.guide_points;
+        if (Array.isArray(raw) && raw.length) {
+            return raw
+                .map(function (p) {
+                    if (!p) return null;
+                    if (typeof p === 'string') {
+                        return { mark: guessGuideMark(p), text: p };
+                    }
+                    return {
+                        mark: p.mark || guessGuideMark(p.text || ''),
+                        text: p.text || ''
+                    };
+                })
+                .filter(function (p) {
+                    return p && p.text;
+                });
+        }
+        return (state.data.guide || [])
+            .map(function (text) {
+                return { mark: guessGuideMark(text), text: text };
+            })
+            .filter(function (p) {
+                return p.text;
+            });
+    }
+
+    function guessGuideMark(text) {
+        var t = String(text || '');
+        if (/주어/.test(t)) return 's';
+        if (/목적어/.test(t)) return 'o';
+        if (/보어/.test(t)) return 'c';
+        if (/동사|서술/.test(t)) return 'v';
+        return '';
+    }
+
+    function shouldShowGuideBeat() {
+        return !state.guideBeatDone && !state.skipDocent && resolveGuidePoints().length > 0;
+    }
+
+    function collapseTopGuide() {
+        var body = document.getElementById('pattern-guide-body');
+        if (!body || !state.data) return;
+        body.classList.add('is-collapsed');
+        syncGuideExpanded();
+        localStorage.setItem('pattern_guide_collapsed_' + state.data.id, '1');
+    }
+
+    function renderGuideBeat() {
+        var beat = document.getElementById('pattern-guide-beat');
+        var list = document.getElementById('pattern-guide-beat-list');
+        if (!beat || !list) return;
+
+        if (!state.guideBeatActive) {
+            beat.classList.add('is-hidden');
+            list.innerHTML = '';
+            return;
+        }
+
+        list.innerHTML = resolveGuidePoints()
+            .map(function (p) {
+                var mark = p.mark ? ' pattern-guide-beat-mark--' + escapeHtml(p.mark) : '';
+                return (
+                    '<li><span class="pattern-guide-beat-mark' +
+                    mark +
+                    '">' +
+                    escapeHtml(p.text) +
+                    '</span></li>'
+                );
+            })
+            .join('');
+        beat.classList.remove('is-hidden');
+    }
+
+    function startGuideBeat() {
+        state.guideBeatActive = true;
+        state.introDone = true;
+        collapseTopGuide();
+        buildStepDom(currentStep());
+        var stage = document.getElementById('pattern-stage');
+        if (stage) {
+            stage.classList.remove('is-enter');
+            void stage.offsetWidth;
+            stage.classList.add('is-enter');
+        }
+    }
+
+    function endGuideBeat() {
+        if (!state.guideBeatActive) return;
+        state.guideBeatActive = false;
+        state.guideBeatDone = true;
+        buildStepDom(currentStep());
     }
 
     function getPatternId() {
@@ -225,9 +331,10 @@
         var badge = document.getElementById('pattern-phase-badge');
         if (!badge || !state.data) return;
         var total = state.data.steps.length;
+        var label = state.guideBeatActive ? '해석 포인트' : '자리 표시하기';
         badge.innerHTML = '<span class="pattern-phase-badge-core">' +
             '<span class="pattern-phase-badge-ch">' + (state.variantIdx + 1) + '/' + total + '</span>' +
-            '<span class="pattern-phase-badge-txt">자리 표시하기</span>' +
+            '<span class="pattern-phase-badge-txt">' + label + '</span>' +
             '</span>';
     }
 
@@ -237,11 +344,11 @@
         tokens.forEach(function (tok) {
             var role = tok.dataset.role;
             var filled = !!state.drillFilled[role];
-            var done = filled && !learn;
-            var lit = state.hoverRole === role;
+            var done = filled && !learn && !state.guideBeatActive;
+            var lit = state.guideBeatActive || state.hoverRole === role;
             tok.classList.toggle('is-done', done);
             tok.classList.toggle('is-lit', lit && !done);
-            tok.classList.toggle('is-await', !!state.selectedChip && !filled && !learn);
+            tok.classList.toggle('is-await', !!state.selectedChip && !filled && !learn && !state.guideBeatActive);
         });
 
         document.querySelectorAll('.pattern-col').forEach(function (col) {
@@ -256,6 +363,10 @@
     }
 
     function onEngTokenClick(role) {
+        if (state.guideBeatActive) {
+            endGuideBeat();
+            return;
+        }
         if (!role) return;
         setHoverRole(role);
         if (isLearnMode()) return;
@@ -311,6 +422,11 @@
         var hint = document.getElementById('pattern-drill-hint');
         if (!hint) return;
         hint.classList.remove('is-learn', 'is-done', 'is-error', 'is-ok');
+        if (state.guideBeatActive) {
+            hint.textContent = '자리 규칙을 확인한 뒤, 탭하면 연습이 시작됩니다';
+            hint.classList.add('is-learn');
+            return;
+        }
         if (isLearnMode()) {
             hint.textContent = '문장 구조를 먼저 살펴보세요';
             hint.classList.add('is-learn');
@@ -323,7 +439,7 @@
             return;
         }
         if (isDrillComplete()) {
-            hint.textContent = '잘 표시했습니다. 다음 문장으로 가 보세요 →';
+            hint.textContent = '잘 표시했습니다';
             hint.classList.add('is-done');
         } else if (state.selectedChip) {
             hint.textContent =
@@ -353,6 +469,16 @@
         updateNavUi();
         updateStepProgress();
         renderParticlePool();
+        clearAutoNext();
+        state.autoNextTimer = setTimeout(function () {
+            state.autoNextTimer = null;
+            if (!state.data) return;
+            if (state.variantIdx >= state.data.steps.length - 1) {
+                finishPattern();
+            } else {
+                goToVariant(state.variantIdx + 1);
+            }
+        }, AUTO_NEXT_MS);
     }
 
     function shakeCol(role) {
@@ -366,7 +492,7 @@
     function applyParticleToRole(role, chip) {
         var step = currentStep();
         var col = document.querySelector('.pattern-col[data-role="' + role + '"]');
-        if (!col || state.drillFilled[role] || isLearnMode()) return;
+        if (!col || state.drillFilled[role] || isLearnMode() || state.guideBeatActive) return;
 
         if (!particleAllowedForRole(role, chip)) {
             shakeCol(role);
@@ -409,7 +535,7 @@
     }
 
     function onPoolChipClick(chip) {
-        if (isLearnMode() || state.usedChips[chip]) return;
+        if (isLearnMode() || state.guideBeatActive || state.usedChips[chip]) return;
         state.selectedChip = state.selectedChip === chip ? null : chip;
         document.querySelectorAll('.pattern-col').forEach(function (col) {
             col.classList.toggle('is-target', !!state.selectedChip && !state.drillFilled[col.dataset.role]);
@@ -420,7 +546,7 @@
     }
 
     function onCardClick(role) {
-        if (isLearnMode() || state.drillFilled[role]) return;
+        if (isLearnMode() || state.guideBeatActive || state.drillFilled[role]) return;
         if (!state.selectedChip) {
             syncDrillHint('아래에서 조사를 먼저 고르세요', 'error');
             shakeCol(role);
@@ -434,7 +560,7 @@
         var wrap = document.getElementById('pattern-pool-wrap');
         if (!pool || !wrap) return;
 
-        if (isLearnMode()) {
+        if (isLearnMode() || state.guideBeatActive) {
             wrap.classList.add('is-hidden');
             return;
         }
@@ -513,7 +639,7 @@
             if (state.hoverRole === role) setHoverRole(null);
         });
 
-        if (!learnMode && !state.drillFilled[role]) {
+        if (!learnMode && !state.guideBeatActive && !state.drillFilled[role]) {
             col.classList.add('is-tappable');
             col.addEventListener('click', function () {
                 onCardClick(role);
@@ -527,23 +653,28 @@
         var wrap = document.getElementById('pattern-cols');
         if (!wrap) return;
 
+        clearAutoNext();
         resetDrillState();
         wrap.innerHTML = '';
 
         var learnMode = isLearnMode();
 
-        activeRoles().forEach(function (role) {
-            var korSlot = findKorByRole(step, role);
-            if (!korSlot) return;
+        if (!state.guideBeatActive) {
+            activeRoles().forEach(function (role) {
+                var korSlot = findKorByRole(step, role);
+                if (!korSlot) return;
 
-            var col = document.createElement('div');
-            col.className = 'pattern-col pattern-col--' + role;
-            col.dataset.role = role;
-            buildCardDom(col, step, role, learnMode);
-            wrap.appendChild(col);
-        });
+                var col = document.createElement('div');
+                col.className = 'pattern-col pattern-col--' + role;
+                col.dataset.role = role;
+                buildCardDom(col, step, role, learnMode);
+                wrap.appendChild(col);
+            });
+        }
 
+        wrap.classList.toggle('is-hidden', !!state.guideBeatActive);
         renderEngHero(step);
+        renderGuideBeat();
         updatePhaseBadge();
         renderParticlePool();
         syncDrillHint();
@@ -609,7 +740,7 @@
             counter.textContent = state.variantIdx + 1 + ' / ' + total;
         }
 
-        var showNav = state.introDone;
+        var showNav = state.introDone && !state.guideBeatActive;
         if (nav) nav.classList.toggle('is-hidden', !showNav);
 
         if (btnPrev) btnPrev.disabled = state.variantIdx <= 0;
@@ -630,7 +761,9 @@
 
     function goToVariant(idx) {
         if (!state.data || idx < 0 || idx >= state.data.steps.length) return;
+        clearAutoNext();
         state.variantIdx = idx;
+        state.guideBeatActive = false;
         buildStepDom(state.data.steps[idx]);
     }
 
@@ -638,6 +771,12 @@
         state.introDone = true;
         hideDocentOverlay();
         hideIntroBar();
+        if (shouldShowGuideBeat()) {
+            startGuideBeat();
+            return;
+        }
+        state.guideBeatDone = true;
+        state.guideBeatActive = false;
         buildStepDom(currentStep());
         var stage = document.getElementById('pattern-stage');
         if (stage) {
@@ -817,7 +956,10 @@
     }
 
     function startSession() {
+        clearAutoNext();
         state.variantIdx = 0;
+        state.guideBeatActive = false;
+        state.guideBeatDone = false;
 
         // 도슨트 있는 패턴: 목차 「연습」 진입 시 항상 설명부터 (완료 여부 무관)
         // 「한 번 더」만 skipDocent로 스킵
@@ -833,6 +975,7 @@
 
         if (hasDocent() || state.isRepeat) {
             state.introDone = true;
+            state.guideBeatDone = true;
             hideDocentOverlay();
             buildStepDom(currentStep());
             hideIntroBar();
@@ -849,7 +992,9 @@
     }
 
     function goNext() {
+        if (state.guideBeatActive) return;
         if (!isLearnMode() && !isDrillComplete()) return;
+        clearAutoNext();
         if (state.variantIdx >= state.data.steps.length - 1) {
             finishPattern();
             return;
@@ -858,7 +1003,9 @@
     }
 
     function goPrev() {
+        if (state.guideBeatActive) return;
         if (state.variantIdx <= 0) return;
+        clearAutoNext();
         goToVariant(state.variantIdx - 1);
     }
 
@@ -944,6 +1091,20 @@
             });
         }
 
+        var guideBeat = document.getElementById('pattern-guide-beat');
+        if (guideBeat) {
+            guideBeat.addEventListener('click', function () {
+                endGuideBeat();
+            });
+        }
+
+        var engHero = document.getElementById('pattern-eng-hero');
+        if (engHero) {
+            engHero.addEventListener('click', function () {
+                if (state.guideBeatActive) endGuideBeat();
+            });
+        }
+
         document.getElementById('pattern-back').addEventListener('click', function () {
             location.href = 'index.html?tab=reading';
         });
@@ -974,7 +1135,7 @@
         state.isRepeat = isDoneBefore(id);
         state.skipDocent = false;
 
-        fetch('data/patterns/' + id + '.json?v=20260722k')
+        fetch('data/patterns/' + id + '.json?v=20260722l')
             .then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
