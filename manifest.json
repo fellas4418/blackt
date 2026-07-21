@@ -1,7 +1,7 @@
 {
     "id": "/",
-    "name": "Trigger Black",
-    "short_name": "Trigger",
+    "name": "트리거",
+    "short_name": "트리거",
     "start_url": "./index.html",
     "scope": "/",
     "display": "standalone",
