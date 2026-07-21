@@ -3,1497 +3,645 @@
   "week1": {
     "1": [
       {
-        "word": "achieve one's goal",
+        "word": "preparing",
         "meanings": [
-          "목표를 달성하다"
+          "준비하다"
         ]
       },
       {
-        "word": "apprentice",
+        "word": "hint",
         "meanings": [
-          "견습생, 도제"
+          "기미, 약간"
         ]
       },
       {
-        "word": "dress formally",
+        "word": "addition",
         "meanings": [
-          "정장을 입다"
+          "추가, 보탬"
         ]
       },
       {
-        "word": "dressed in suit",
+        "word": "get in touch with",
         "meanings": [
-          "정장을 입은"
+          "~에게 연락하다"
         ]
       },
       {
-        "word": "figure out",
+        "word": "Supplier",
         "meanings": [
-          "~을 알아내다"
+          "공급업체"
         ]
       },
       {
-        "word": "full time work",
+        "word": "regular",
         "meanings": [
-          "정규직"
+          "정기적인"
         ]
       },
       {
-        "word": "job opportunity",
+        "word": "inquire",
         "meanings": [
-          "취업 기회"
+          "문의하다"
         ]
       },
       {
-        "word": "job search",
+        "word": "Consult",
         "meanings": [
-          "구직"
+          "상의하다, 참고하다"
         ]
       },
       {
-        "word": "job seeker",
+        "word": "Spend",
         "meanings": [
-          "구직자"
+          "쓰다"
         ]
       },
       {
-        "word": "lay out",
+        "word": "Subscription",
         "meanings": [
-          "펼치다, 늘어놓다"
+          "구독"
         ]
       },
       {
-        "word": "letter of recommendation",
+        "word": "expert",
         "meanings": [
-          "추천서"
+          "전문가, 전문가의"
         ]
       },
       {
-        "word": "pay raise",
+        "word": "Summary",
         "meanings": [
-          "임금 인상"
+          "요약(본)"
         ]
       },
       {
-        "word": "practical experience",
+        "word": "useful",
         "meanings": [
-          "실무 경험"
+          "유용한"
         ]
       },
       {
-        "word": "proof of employment",
+        "word": "clinical practice Work",
         "meanings": [
-          "재직 증명서"
+          "임상실무"
         ]
       },
       {
-        "word": "reapply",
+        "word": "accounting",
         "meanings": [
-          "재신청하다"
+          "회계"
         ]
       },
       {
-        "word": "recommendation letter",
+        "word": "development",
         "meanings": [
-          "추천서"
+          "발달"
         ]
       },
       {
-        "word": "reference letter",
+        "word": "Convenient",
         "meanings": [
-          "추천서"
+          "편리한"
         ]
       },
       {
-        "word": "send off to",
+        "word": "ancient",
         "meanings": [
-          "~로 보내다"
+          "고대의"
         ]
       },
       {
-        "word": "set up an interview",
+        "word": "Civilization",
         "meanings": [
-          "면접 약속을 잡다"
+          "문명"
         ]
       },
       {
-        "word": "take an examination",
+        "word": "accurate",
         "meanings": [
-          "시험을 치르다"
+          "정확한"
         ]
       },
       {
-        "word": "training center",
+        "word": "registered",
         "meanings": [
-          "훈련소"
+          "등록하다"
         ]
       },
       {
-        "word": "waiting room",
+        "word": "Convention",
         "meanings": [
-          "대기실"
+          "관습, 대회"
         ]
       },
       {
-        "word": "well-educated",
+        "word": "fund-raising",
         "meanings": [
-          "잘 교육된, 교양 있는"
+          "모금"
         ]
       },
       {
-        "word": "workstation",
+        "word": "merger",
         "meanings": [
-          "작업대, (사무실의)자리"
+          "합병"
         ]
       },
       {
-        "word": "zealous",
+        "word": "launch",
         "meanings": [
-          "열심인, 열광적인"
+          "출시, 공개"
         ]
       },
       {
-        "word": "cover letter",
+        "word": "Promote",
         "meanings": [
-          "자기소개서"
+          "승진시키다, 홍보하다"
         ]
       },
       {
-        "word": "devoted",
+        "word": "Opportunity",
         "meanings": [
-          "헌신적인"
+          "기회"
         ]
       },
       {
-        "word": "energetic",
+        "word": "advertising",
         "meanings": [
-          "활동적인"
+          "광고"
         ]
       },
       {
-        "word": "enthusiastic",
+        "word": "article",
         "meanings": [
-          "열렬한"
+          "기사"
         ]
       },
       {
-        "word": "excel",
+        "word": "Come up with",
         "meanings": [
-          "(남을)능가하다, ~보다 낫다"
+          "~을 만들어내다, ~을 제안하다"
         ]
       },
       {
-        "word": "exclude",
+        "word": "Suggestion",
         "meanings": [
-          "제외하다, 배제하다"
+          "의견, 제안"
         ]
       },
       {
-        "word": "fluently",
+        "word": "Immediately",
         "meanings": [
-          "유창하게"
+          "즉시"
         ]
       },
       {
-        "word": "get through",
+        "word": "finalize",
         "meanings": [
-          "(시험 등에) 합격하다, 통과하다"
+          "확정하다, 마무리하다"
         ]
       },
       {
-        "word": "match",
+        "word": "trail",
         "meanings": [
-          "~에 어울리다, 조화되다"
+          "산책로, 코스"
         ]
       },
       {
-        "word": "necessity",
+        "word": "Run out of",
         "meanings": [
-          "필요"
+          "~이 다 떨어지다, ~을 다 쓰다"
         ]
       },
       {
-        "word": "qualification",
+        "word": "Concerned",
         "meanings": [
-          "자격, 자격증"
+          "걱정하는"
         ]
       },
       {
-        "word": "relevant",
+        "word": "reserve",
         "meanings": [
-          "관련된"
+          "예약하다"
         ]
       },
       {
-        "word": "sign up for",
+        "word": "Possible",
         "meanings": [
-          "~에 등록하다, 신청하다"
+          "가능성"
         ]
       },
       {
-        "word": "talented",
+        "word": "Motivate",
         "meanings": [
-          "유능한, 재능이 있는"
+          "동기를 부여하다"
         ]
       },
       {
-        "word": "visiting",
+        "word": "Announcement",
         "meanings": [
-          "방문, 객원의, 방문하는"
-        ]
-      },
-      {
-        "word": "workforce",
-        "meanings": [
-          "노동 인구, 직원 수"
-        ]
-      },
-      {
-        "word": "address the audience",
-        "meanings": [
-          "청중에게 연설하다"
-        ]
-      },
-      {
-        "word": "be influenced by appearance",
-        "meanings": [
-          "겉모습에 영향을 받다"
-        ]
-      },
-      {
-        "word": "bilingual",
-        "meanings": [
-          "2개 국어를 구사하는"
-        ]
-      },
-      {
-        "word": "curriculum vitae",
-        "meanings": [
-          "이력서"
-        ]
-      },
-      {
-        "word": "diploma",
-        "meanings": [
-          "졸업 증서"
-        ]
-      },
-      {
-        "word": "endurance",
-        "meanings": [
-          "인내력"
-        ]
-      },
-      {
-        "word": "fluency",
-        "meanings": [
-          "유창함"
-        ]
-      },
-      {
-        "word": "fluent in",
-        "meanings": [
-          "~에 능숙한"
-        ]
-      },
-      {
-        "word": "go with",
-        "meanings": [
-          "(계획·제의 등을)받아들이다"
-        ]
-      },
-      {
-        "word": "human resources",
-        "meanings": [
-          "인적 자원, 인사 관리"
-        ]
-      },
-      {
-        "word": "improperly",
-        "meanings": [
-          "부적절하게"
-        ]
-      },
-      {
-        "word": "in a positive manner",
-        "meanings": [
-          "긍정적으로"
-        ]
-      },
-      {
-        "word": "in the field of",
-        "meanings": [
-          "~의 분야에서"
-        ]
-      },
-      {
-        "word": "inexperience",
-        "meanings": [
-          "무경험, 미숙"
-        ]
-      },
-      {
-        "word": "lack confidence",
-        "meanings": [
-          "자신감이 결여되다"
-        ]
-      },
-      {
-        "word": "make A a regular habit",
-        "meanings": [
-          "A하는 습관을 들이다"
-        ]
-      },
-      {
-        "word": "make a commitment to",
-        "meanings": [
-          "~에 헌신하다, 전념하다"
-        ]
-      },
-      {
-        "word": "make a point of -ing",
-        "meanings": [
-          "반드시 -하다"
-        ]
-      },
-      {
-        "word": "manpower",
-        "meanings": [
-          "인력"
-        ]
-      },
-      {
-        "word": "master's degree",
-        "meanings": [
-          "석사 학위"
-        ]
-      },
-      {
-        "word": "novice",
-        "meanings": [
-          "풋내기, 무경험자"
+          "안내, 공지"
         ]
       }
     ],
     "2": [
       {
-        "word": "paycheck",
+        "word": "Specific",
         "meanings": [
-          "급료, 급료 지불 수표"
+          "특정한, 구체적인"
         ]
       },
       {
-        "word": "self-motivation",
+        "word": "as opposed to",
         "meanings": [
-          "자기 동기부여"
+          "~와 달리, ~와 대비하여"
         ]
       },
       {
-        "word": "send a notification",
+        "word": "lab",
         "meanings": [
-          "통지서를 보내다"
+          "실험실"
         ]
       },
       {
-        "word": "vacancy",
+        "word": "Practical",
         "meanings": [
-          "공석, 결원"
+          "실무의"
         ]
       },
       {
-        "word": "wanted",
+        "word": "analyze",
         "meanings": [
-          "~을 구하는, ~을 모집하는"
+          "분석하다"
         ]
       },
       {
-        "word": "work history",
+        "word": "Instead",
         "meanings": [
-          "이력, 경력"
+          "대신에"
         ]
       },
       {
-        "word": "against the law",
+        "word": "Vendor",
         "meanings": [
-          "법에 위반되는"
+          "노점상, 판매업체"
         ]
       },
       {
-        "word": "by all means",
+        "word": "According to",
         "meanings": [
-          "반드시, 무슨 일이 있어도, 물론이지"
-        ]
-      },
-      {
-        "word": "by mistake",
-        "meanings": [
-          "실수로"
-        ]
-      },
-      {
-        "word": "come to an end",
-        "meanings": [
-          "끝나다"
-        ]
-      },
-      {
-        "word": "company regulations",
-        "meanings": [
-          "회사 규정"
-        ]
-      },
-      {
-        "word": "give directions",
-        "meanings": [
-          "일을 지시하다, 방향을 알려주다"
-        ]
-      },
-      {
-        "word": "hold up",
-        "meanings": [
-          "견디다, 떠받치다"
-        ]
-      },
-      {
-        "word": "if I'm not mistaken",
-        "meanings": [
-          "제 기억이 옳다면"
-        ]
-      },
-      {
-        "word": "in progress",
-        "meanings": [
-          "진행 중인"
-        ]
-      },
-      {
-        "word": "keep in mind",
-        "meanings": [
-          "명심하다"
-        ]
-      },
-      {
-        "word": "legal counsel",
-        "meanings": [
-          "법률 상담"
-        ]
-      },
-      {
-        "word": "self-defense",
-        "meanings": [
-          "자기방어, 정당방위"
-        ]
-      },
-      {
-        "word": "suspect",
-        "meanings": [
-          "용의자, 의심하다"
-        ]
-      },
-      {
-        "word": "take one's advice",
-        "meanings": [
-          "~의 충고를 따르다"
-        ]
-      },
-      {
-        "word": "to one's advantage",
-        "meanings": [
-          "~에게 유리하게"
-        ]
-      },
-      {
-        "word": "under control",
-        "meanings": [
-          "관리하에 있는"
-        ]
-      },
-      {
-        "word": "under the supervision of",
-        "meanings": [
-          "~의 감독하에"
-        ]
-      },
-      {
-        "word": "abuse",
-        "meanings": [
-          "남용, 남용하다"
-        ]
-      },
-      {
-        "word": "alert",
-        "meanings": [
-          "경고하다, 주의하는"
-        ]
-      },
-      {
-        "word": "assessment",
-        "meanings": [
-          "평가"
-        ]
-      },
-      {
-        "word": "at all times",
-        "meanings": [
-          "항상, 언제나"
-        ]
-      },
-      {
-        "word": "authorization",
-        "meanings": [
-          "권한 부여, 위임"
-        ]
-      },
-      {
-        "word": "concerning",
-        "meanings": [
-          "~에 관하여"
-        ]
-      },
-      {
-        "word": "consideration",
-        "meanings": [
-          "고려, 숙고"
-        ]
-      },
-      {
-        "word": "defensive",
-        "meanings": [
-          "방어적인"
-        ]
-      },
-      {
-        "word": "depiction",
-        "meanings": [
-          "묘사, 서술"
-        ]
-      },
-      {
-        "word": "disobedient",
-        "meanings": [
-          "반항하는, 거역하는"
-        ]
-      },
-      {
-        "word": "endure",
-        "meanings": [
-          "견디다, 참다"
-        ]
-      },
-      {
-        "word": "exemplary",
-        "meanings": [
-          "모범적인, 대표적인"
-        ]
-      },
-      {
-        "word": "ignore",
-        "meanings": [
-          "무시하다"
-        ]
-      },
-      {
-        "word": "illegal",
-        "meanings": [
-          "불법의"
-        ]
-      },
-      {
-        "word": "in accordance with",
-        "meanings": [
-          "~에 따라서, ~과 일치하여"
-        ]
-      },
-      {
-        "word": "indecisive",
-        "meanings": [
-          "결말이 안 난, 우유부단한"
-        ]
-      },
-      {
-        "word": "justly",
-        "meanings": [
-          "정당하게, 당연히"
-        ]
-      },
-      {
-        "word": "obey",
-        "meanings": [
-          "복종하다"
-        ]
-      },
-      {
-        "word": "observance",
-        "meanings": [
-          "준수"
-        ]
-      },
-      {
-        "word": "on-site",
-        "meanings": [
-          "현장의, 현지의, 현장에서, 현지에서"
-        ]
-      },
-      {
-        "word": "penalty",
-        "meanings": [
-          "벌금"
-        ]
-      },
-      {
-        "word": "pointed",
-        "meanings": [
-          "(말·표현 등이) 예리한, 날카로운, 적절한"
-        ]
-      },
-      {
-        "word": "precious",
-        "meanings": [
-          "귀중한"
-        ]
-      },
-      {
-        "word": "principle",
-        "meanings": [
-          "원리, 원칙"
-        ]
-      },
-      {
-        "word": "punishment",
-        "meanings": [
-          "형벌, 처벌"
-        ]
-      },
-      {
-        "word": "regulate",
-        "meanings": [
-          "규제하다, 조절하다"
-        ]
-      },
-      {
-        "word": "restricted area",
-        "meanings": [
-          "제한 구역"
-        ]
-      },
-      {
-        "word": "restriction",
-        "meanings": [
-          "제한, 한정"
-        ]
-      },
-      {
-        "word": "safety inspection",
-        "meanings": [
-          "안전 점검"
-        ]
-      },
-      {
-        "word": "suppress",
-        "meanings": [
-          "억누르다, 금지하다"
-        ]
-      },
-      {
-        "word": "tensely",
-        "meanings": [
-          "긴장하여, 딱딱하게"
-        ]
-      },
-      {
-        "word": "unauthorized",
-        "meanings": [
-          "인가받지 않은"
-        ]
-      },
-      {
-        "word": "with respect to",
-        "meanings": [
-          "~에 관해서"
-        ]
-      },
-      {
-        "word": "accuse",
-        "meanings": [
-          "비난하다, 고소하다"
-        ]
-      },
-      {
-        "word": "assess",
-        "meanings": [
-          "평가하다"
-        ]
-      },
-      {
-        "word": "attorney",
-        "meanings": [
-          "변호사"
-        ]
-      },
-      {
-        "word": "be absent from",
-        "meanings": [
-          "~에 결석하다"
-        ]
-      },
-      {
-        "word": "be allowed to do",
-        "meanings": [
-          "~하도록 허락받다"
-        ]
-      },
-      {
-        "word": "by way of",
-        "meanings": [
-          "~의 방법으로, ~에 의해서"
+          "~에 따르면"
         ]
       }
     ],
     "3": [
       {
-        "word": "distrust",
+        "word": "Shift",
         "meanings": [
-          "의심하다, 불신"
+          "교대근무"
         ]
       },
       {
-        "word": "from this day onward",
+        "word": "Close down",
         "meanings": [
-          "오늘부터"
+          "중단하다, 폐쇄하다"
         ]
       },
       {
-        "word": "have permission to do",
+        "word": "management",
         "meanings": [
-          "~할 허가를 받다"
+          "경영진"
         ]
       },
       {
-        "word": "in a strict way(=strictly)",
+        "word": "assembly",
         "meanings": [
-          "엄격하게"
+          "조립"
         ]
       },
       {
-        "word": "make clear",
+        "word": "automatically",
         "meanings": [
-          "분명히 하다"
+          "자동으로"
         ]
       },
       {
-        "word": "ministry",
+        "word": "operation",
         "meanings": [
-          "(정부의)부서"
+          "작동, 가동"
         ]
       },
       {
-        "word": "newly established",
+        "word": "respond to",
         "meanings": [
-          "신설된"
+          "~에 답변하다"
         ]
       },
       {
-        "word": "put into effect",
+        "word": "distribute",
         "meanings": [
-          "~을 시행하다"
+          "배부하다, 나눠주다"
         ]
       },
       {
-        "word": "registration confirmation",
+        "word": "authorize",
         "meanings": [
-          "등록 확인"
+          "승인하다, 권한을 부여하다"
         ]
       },
       {
-        "word": "stand over",
+        "word": "Conduct",
         "meanings": [
-          "옆에서 지켜보다"
+          "실시하다"
         ]
       },
       {
-        "word": "warn",
+        "word": "upcoming",
         "meanings": [
-          "경고하다"
+          "다가오는, 곧 있을"
         ]
       },
       {
-        "word": "without respect to",
+        "word": "Choreograph",
         "meanings": [
-          "~을 고려하지 않고, ~을 무시하고"
+          "안무를 짜다"
         ]
       },
       {
-        "word": "adjust the mirror",
+        "word": "piece",
         "meanings": [
-          "거울을 똑바로 맞추다"
+          "작품"
         ]
       },
       {
-        "word": "advance reservation",
+        "word": "re Cover",
         "meanings": [
-          "사전 예약"
+          "회복하다"
         ]
       },
       {
-        "word": "arrange an appointment",
+        "word": "in charge of",
         "meanings": [
-          "약속을 잡다"
+          "~을 담당하는"
         ]
       },
       {
-        "word": "bulletin board",
+        "word": "last-minute",
         "meanings": [
-          "게시판"
+          "최후의, 막바지의"
         ]
       },
       {
-        "word": "call back",
+        "word": "alteration",
         "meanings": [
-          "회신 전화하다"
+          "수정, 변경"
         ]
       },
       {
-        "word": "confused",
+        "word": "Compliment ~ on",
         "meanings": [
-          "혼란스러운, 당황한"
+          "~에 대해 ~을 칭찬하다"
         ]
       },
       {
-        "word": "errand",
+        "word": "margin",
         "meanings": [
-          "심부름"
+          "여유, 여지"
         ]
       },
       {
-        "word": "extend an invitation",
+        "word": "adjustment",
         "meanings": [
-          "초대하다"
+          "조정"
         ]
       },
       {
-        "word": "get a permit",
+        "word": "high-profile",
         "meanings": [
-          "허가를 받다"
+          "세간의 이목을 끄는"
         ]
       },
       {
-        "word": "hand in",
+        "word": "broad cast",
         "meanings": [
-          "제출하다"
+          "방송하다"
         ]
       },
       {
-        "word": "have a day off",
+        "word": "be bound to",
         "meanings": [
-          "하루 쉬다"
+          "틀림없이 ~하게 될 것이다"
         ]
       },
       {
-        "word": "have a long day",
+        "word": "in demand",
         "meanings": [
-          "힘든 하루를 보내다"
+          "수요가 많은"
         ]
       },
       {
-        "word": "head up",
+        "word": "renovation",
         "meanings": [
-          "이끌다, 책임지다"
+          "개조, 보수"
         ]
       },
       {
-        "word": "in a hurry",
+        "word": "approve",
         "meanings": [
-          "서둘러, 급히"
+          "승인하다"
         ]
       },
       {
-        "word": "in alphabetical order",
+        "word": "extend",
         "meanings": [
-          "알파벳 순으로"
+          "(환영, 감사 등을) 전하다"
         ]
       },
       {
-        "word": "in luck",
+        "word": "onboarding",
         "meanings": [
-          "운이 좋은"
+          "신규 입사자 교육"
         ]
       },
       {
-        "word": "leave A up to B",
+        "word": "present",
         "meanings": [
-          "A를 B에게 맡기다"
+          "현재의"
         ]
       },
       {
-        "word": "leave A with B",
+        "word": "certainly",
         "meanings": [
-          "A를 B에게 맡기다"
+          "분명히"
         ]
       },
       {
-        "word": "listing",
+        "word": "achievement",
         "meanings": [
-          "목록"
-        ]
-      },
-      {
-        "word": "make a call",
-        "meanings": [
-          "전화를 걸다"
-        ]
-      },
-      {
-        "word": "make a correction",
-        "meanings": [
-          "정정하다, 수정하다"
-        ]
-      },
-      {
-        "word": "make a final change",
-        "meanings": [
-          "최종 수정을 하다"
-        ]
-      },
-      {
-        "word": "make a note of",
-        "meanings": [
-          "~을 적어두다"
-        ]
-      },
-      {
-        "word": "make an impression",
-        "meanings": [
-          "인상을 주다, 감동시키다"
-        ]
-      },
-      {
-        "word": "move ahead with",
-        "meanings": [
-          "~을 순조롭게 진행시키다"
-        ]
-      },
-      {
-        "word": "on a business trip",
-        "meanings": [
-          "출장 중인"
-        ]
-      },
-      {
-        "word": "on a weekly basis",
-        "meanings": [
-          "주 단위로"
-        ]
-      },
-      {
-        "word": "on business",
-        "meanings": [
-          "업무로"
-        ]
-      },
-      {
-        "word": "on duty",
-        "meanings": [
-          "근무 중인"
-        ]
-      },
-      {
-        "word": "pick up the phone",
-        "meanings": [
-          "전화를 받다"
-        ]
-      },
-      {
-        "word": "scrub",
-        "meanings": [
-          "문질러 씻다"
-        ]
-      },
-      {
-        "word": "seal",
-        "meanings": [
-          "인장, 봉합, 밀봉하다"
-        ]
-      },
-      {
-        "word": "speak into the microphone",
-        "meanings": [
-          "마이크에 대고 말하다"
-        ]
-      },
-      {
-        "word": "speak on the phone",
-        "meanings": [
-          "통화하다"
-        ]
-      },
-      {
-        "word": "stand in a line",
-        "meanings": [
-          "줄을 서 있다"
-        ]
-      },
-      {
-        "word": "take a message",
-        "meanings": [
-          "메시지를 남겨주다"
-        ]
-      },
-      {
-        "word": "take apart",
-        "meanings": [
-          "분해하다, 해체하다"
-        ]
-      },
-      {
-        "word": "utility provider",
-        "meanings": [
-          "공공 설비 공급자"
-        ]
-      },
-      {
-        "word": "acquired",
-        "meanings": [
-          "획득한"
-        ]
-      },
-      {
-        "word": "adapt",
-        "meanings": [
-          "적응하다"
-        ]
-      },
-      {
-        "word": "administer",
-        "meanings": [
-          "관리하다"
-        ]
-      },
-      {
-        "word": "clerical",
-        "meanings": [
-          "사무원의, 서기의"
-        ]
-      },
-      {
-        "word": "conclusive",
-        "meanings": [
-          "결정적인, 단호한"
-        ]
-      },
-      {
-        "word": "delete",
-        "meanings": [
-          "삭제하다"
-        ]
-      },
-      {
-        "word": "editorial",
-        "meanings": [
-          "편집자의, 사설의"
-        ]
-      },
-      {
-        "word": "endless",
-        "meanings": [
-          "끝이 없는, 영원히 계속하는"
-        ]
-      },
-      {
-        "word": "furthermore",
-        "meanings": [
-          "더욱이, 게다가"
-        ]
-      },
-      {
-        "word": "in one's absence",
-        "meanings": [
-          "~의 부재시에"
-        ]
-      },
-      {
-        "word": "on purpose",
-        "meanings": [
-          "고의로, 일부러"
-        ]
-      },
-      {
-        "word": "overseas",
-        "meanings": [
-          "해외의, 해외로"
-        ]
-      }
-    ],
-    "4": [
-      {
-        "word": "perceive",
-        "meanings": [
-          "지각하다, 인지하다"
-        ]
-      },
-      {
-        "word": "reminder",
-        "meanings": [
-          "생각나게 하는 것"
-        ]
-      },
-      {
-        "word": "roughly",
-        "meanings": [
-          "대략, 거의"
-        ]
-      },
-      {
-        "word": "strive",
-        "meanings": [
-          "분투하다"
-        ]
-      },
-      {
-        "word": "translate",
-        "meanings": [
-          "번역하다, 통역하다"
-        ]
-      },
-      {
-        "word": "boardroom",
-        "meanings": [
-          "회의실"
-        ]
-      },
-      {
-        "word": "in person",
-        "meanings": [
-          "몸소, 직접"
-        ]
-      },
-      {
-        "word": "including",
-        "meanings": [
-          "~을 포함하여"
-        ]
-      },
-      {
-        "word": "on time",
-        "meanings": [
-          "정각에"
-        ]
-      },
-      {
-        "word": "panic",
-        "meanings": [
-          "당황, 공황"
-        ]
-      },
-      {
-        "word": "past due",
-        "meanings": [
-          "연체된, 미납된"
-        ]
-      },
-      {
-        "word": "put forward",
-        "meanings": [
-          "앞당기다"
-        ]
-      },
-      {
-        "word": "regard A as B",
-        "meanings": [
-          "A를 B로 여기다"
-        ]
-      },
-      {
-        "word": "return one's call",
-        "meanings": [
-          "~에게 답신 전화를 하다"
-        ]
-      },
-      {
-        "word": "secretarial",
-        "meanings": [
-          "비서의"
-        ]
-      },
-      {
-        "word": "take charge of",
-        "meanings": [
-          "~을 담당하다"
-        ]
-      },
-      {
-        "word": "take on responsibility",
-        "meanings": [
-          "책임을 지다"
-        ]
-      },
-      {
-        "word": "throw one's effort into",
-        "meanings": [
-          "~에 온 힘을 쏟다"
-        ]
-      },
-      {
-        "word": "be satisfied with",
-        "meanings": [
-          "~에 만족하다"
-        ]
-      },
-      {
-        "word": "be seated",
-        "meanings": [
-          "앉다, 앉아 있다"
-        ]
-      },
-      {
-        "word": "be surrounded by",
-        "meanings": [
-          "~에 둘러싸이다"
-        ]
-      },
-      {
-        "word": "business contacts",
-        "meanings": [
-          "사업상 아는 사람 또는 회사"
-        ]
-      },
-      {
-        "word": "chairperson",
-        "meanings": [
-          "의장"
-        ]
-      },
-      {
-        "word": "copy editor",
-        "meanings": [
-          "원고 정리 편집자"
-        ]
-      },
-      {
-        "word": "deep end",
-        "meanings": [
-          "수심이 깊은 쪽"
-        ]
-      },
-      {
-        "word": "double-sided",
-        "meanings": [
-          "양면의"
-        ]
-      },
-      {
-        "word": "drawer",
-        "meanings": [
-          "서랍"
-        ]
-      },
-      {
-        "word": "get one's approval",
-        "meanings": [
-          "~의 승인을 받다"
-        ]
-      },
-      {
-        "word": "halfway",
-        "meanings": [
-          "중간에, 중간의"
-        ]
-      },
-      {
-        "word": "hand over",
-        "meanings": [
-          "~을 건네주다"
-        ]
-      },
-      {
-        "word": "in a pile",
-        "meanings": [
-          "수북이 쌓인"
-        ]
-      },
-      {
-        "word": "it could have been worse.",
-        "meanings": [
-          "이만하니 다행이다."
-        ]
-      },
-      {
-        "word": "just in time",
-        "meanings": [
-          "겨우 시간에 맞춰"
-        ]
-      },
-      {
-        "word": "literacy",
-        "meanings": [
-          "읽고 쓰는 능력"
-        ]
-      },
-      {
-        "word": "litter",
-        "meanings": [
-          "쓰레기, 어지르다, 흐트러뜨리다"
-        ]
-      },
-      {
-        "word": "make a selection",
-        "meanings": [
-          "선정하다"
-        ]
-      },
-      {
-        "word": "make room for",
-        "meanings": [
-          "~을 위해 공간을 마련하다"
-        ]
-      },
-      {
-        "word": "out of paper",
-        "meanings": [
-          "종이가 다 떨어진"
-        ]
-      },
-      {
-        "word": "raise one's hand",
-        "meanings": [
-          "손을 들다"
-        ]
-      },
-      {
-        "word": "report a problem",
-        "meanings": [
-          "문제점을 보고하다"
-        ]
-      },
-      {
-        "word": "sort",
-        "meanings": [
-          "종류, 분류하다"
-        ]
-      },
-      {
-        "word": "stationery",
-        "meanings": [
-          "문구류"
-        ]
-      },
-      {
-        "word": "take another look",
-        "meanings": [
-          "다시 한번 보다"
-        ]
-      },
-      {
-        "word": "take A out",
-        "meanings": [
-          "A를 꺼내다"
-        ]
-      },
-      {
-        "word": "typewriter",
-        "meanings": [
-          "타자기"
-        ]
-      },
-      {
-        "word": "work in groups",
-        "meanings": [
-          "여러 명이 작업하다"
-        ]
-      },
-      {
-        "word": "writing pad",
-        "meanings": [
-          "(한 장씩 떼어 쓰는 노트)"
-        ]
-      },
-      {
-        "word": "anticipation",
-        "meanings": [
-          "예상, 기대"
-        ]
-      },
-      {
-        "word": "automobile",
-        "meanings": [
-          "자동차"
-        ]
-      },
-      {
-        "word": "be asked to do",
-        "meanings": [
-          "~하도록 요청받다"
-        ]
-      },
-      {
-        "word": "be paid for",
-        "meanings": [
-          "~에 대해 보수를 받다"
-        ]
-      },
-      {
-        "word": "be qualified for",
-        "meanings": [
-          "~을 위한 자격을 갖추다"
-        ]
-      },
-      {
-        "word": "casual",
-        "meanings": [
-          "격식을 차리지 않는, 평상복의"
-        ]
-      },
-      {
-        "word": "draft",
-        "meanings": [
-          "초안을 작성하다, 초안"
-        ]
-      },
-      {
-        "word": "draw on",
-        "meanings": [
-          "~을 이용하다, ~에 의지하다"
+          "업적, 성취, 달성"
         ]
       },
       {
         "word": "excuse",
         "meanings": [
-          "변명, 이유, 용서하다"
+          "핑계, 변명"
         ]
       },
       {
-        "word": "head office",
+        "word": "renowned",
         "meanings": [
-          "(회사의) 본사"
+          "명성 있는, 유명한"
         ]
       },
       {
-        "word": "in anticipation of",
+        "word": "get Situated",
         "meanings": [
-          "~을 예상하고"
+          "준비하다, 자리를 잡다"
         ]
       },
       {
-        "word": "in light of",
+        "word": "inconvenience",
         "meanings": [
-          "~을 고려하여, ~에 비추어"
+          "불편함"
         ]
       },
       {
-        "word": "instrument",
+        "word": "Significance",
         "meanings": [
-          "도구, 기계, 악기"
+          "의의, 중요성"
         ]
       },
       {
-        "word": "popularly",
+        "word": "Conductor",
         "meanings": [
-          "일반적으로"
+          "(버스, 기차의) 승무원"
         ]
       },
       {
-        "word": "regarding",
+        "word": "refrain from -ing",
         "meanings": [
-          "~에 관하여"
+          "~하는 것을 삼가하다"
+        ]
+      },
+      {
+        "word": "resource",
+        "meanings": [
+          "자원, 자산"
+        ]
+      },
+      {
+        "word": "Conservation",
+        "meanings": [
+          "보존, 보호"
+        ]
+      }
+    ],
+    "4": [
+      {
+        "word": "priority",
+        "meanings": [
+          "우선순위"
+        ]
+      },
+      {
+        "word": "Currently",
+        "meanings": [
+          "현재의"
+        ]
+      },
+      {
+        "word": "urban",
+        "meanings": [
+          "도시의"
+        ]
+      },
+      {
+        "word": "Join forces",
+        "meanings": [
+          "제휴하다, 협력하다"
+        ]
+      },
+      {
+        "word": "Suburban",
+        "meanings": [
+          "교외의"
+        ]
+      },
+      {
+        "word": "accommodate",
+        "meanings": [
+          "수용하다, 공간을 제공하다"
+        ]
+      },
+      {
+        "word": "environmentally friendly",
+        "meanings": [
+          "친환경적인"
+        ]
+      },
+      {
+        "word": "renovate",
+        "meanings": [
+          "개조하다, 보수하다"
+        ]
+      },
+      {
+        "word": "Certification",
+        "meanings": [
+          "자격증"
+        ]
+      },
+      {
+        "word": "Publish",
+        "meanings": [
+          "발표하다, 출판하다"
+        ]
+      },
+      {
+        "word": "attract",
+        "meanings": [
+          "끌어들이다"
+        ]
+      },
+      {
+        "word": "promotion",
+        "meanings": [
+          "판촉(행사), 홍보"
+        ]
+      },
+      {
+        "word": "propose",
+        "meanings": [
+          "제안하다"
+        ]
+      },
+      {
+        "word": "merger",
+        "meanings": [
+          "합병, 통합"
+        ]
+      },
+      {
+        "word": "Committee",
+        "meanings": [
+          "위원회"
+        ]
+      },
+      {
+        "word": "award Winner",
+        "meanings": [
+          "수상자"
+        ]
+      },
+      {
+        "word": "organization",
+        "meanings": [
+          "단체, 기관"
+        ]
+      },
+      {
+        "word": "advertise",
+        "meanings": [
+          "광고하다"
         ]
       }
     ],
