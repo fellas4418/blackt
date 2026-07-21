@@ -781,10 +781,6 @@
 
             <div id="welcome-msg"></div>
 
-            <div id="extra-word-top-hint" style="display:none; font-size:0.78rem; color:#888; text-align:center; margin-bottom:10px; line-height:1.45;">
-                노트에 적은 단어 Day 추가
-            </div>
-
             <div class="card level-section">
                 <div class="level-buttons">
                     <button class="level-btn active" id="btn-middle" onclick="selectLevel('middle')" style="line-height: 1.4;">
@@ -833,6 +829,10 @@
                 <div id="toeic-note-import-preview" style="max-height:180px; overflow-y:auto; margin-bottom:8px;"></div>
                 <button type="button" id="toeic-note-import-save" class="start-btn" style="display:none; padding:12px; font-size:0.92rem; border-color:var(--neon-green); color:#fff;">Day에 추가 ✓</button>
                 <div id="toeic-note-import-status" style="font-size:0.78rem; color:#aaa; margin-top:6px; line-height:1.4;"></div>
+            </div>
+
+            <div id="extra-word-top-hint" style="display:none; font-size:0.95rem; font-weight:bold; color:var(--neon-green); text-align:center; margin:0 0 10px; line-height:1.45; letter-spacing:0.02em; text-shadow:0 0 12px rgba(57,255,20,0.35);">
+                📝 노트에 적은 단어 Day 추가
             </div>
 
             <div id="extra-word-import-section" class="card" style="display:none; padding: 14px 16px; margin-bottom: 12px; border: 1px dashed rgba(57, 255, 20, 0.45); background: rgba(0, 0, 0, 0.2);">
@@ -1761,10 +1761,8 @@
             var toeicUnlocked = typeof isToeicUnlocked === 'function' && isToeicUnlocked();
             var btnToeic = document.getElementById('btn-toeic');
             var btnExtra = document.getElementById('btn-extra-word');
-            var topHint = document.getElementById('extra-word-top-hint');
             if (btnToeic) btnToeic.style.display = toeicUnlocked ? '' : 'none';
             if (btnExtra) btnExtra.style.display = '';
-            if (topHint) topHint.style.display = 'block';
         }
 
         function selectExtraWordTrack() {
@@ -1784,6 +1782,8 @@
         }
 
         function updateExtraWordUi(level) {
+            var topHint = document.getElementById('extra-word-top-hint');
+            if (topHint) topHint.style.display = isExtraWordLevel(level) ? 'block' : 'none';
             if (typeof TriggerVocaExtraOcr !== 'undefined') TriggerVocaExtraOcr.syncUi(level);
         }
 

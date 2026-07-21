@@ -5,15 +5,17 @@
     var IMAGE_MAX_LONG = 1600;
     var JPEG_QUALITY = 0.88;
 
+    var WORDS_PER_DAY = 30;
+
     var LEVELS = {
         middle_note: {
             storageKey: 'trigger_middle_note_user_days',
-            wordsPerDay: 24,
+            wordsPerDay: WORDS_PER_DAY,
             baseDays: 0
         },
         high_note: {
             storageKey: 'trigger_high_note_user_days',
-            wordsPerDay: 40,
+            wordsPerDay: WORDS_PER_DAY,
             baseDays: 0
         }
     };
@@ -76,7 +78,7 @@
 
     function wordsPerDayFor(level) {
         var c = cfg(level);
-        return c ? c.wordsPerDay : 40;
+        return c ? c.wordsPerDay : WORDS_PER_DAY;
     }
 
     function initProgressIfNeeded(level) {
@@ -104,7 +106,7 @@
 
     function chunkWords(list, size) {
         var chunks = [];
-        var n = parseInt(size, 10) || 40;
+        var n = parseInt(size, 10) || WORDS_PER_DAY;
         for (var i = 0; i < list.length; i += n) {
             chunks.push(list.slice(i, i + n));
         }
