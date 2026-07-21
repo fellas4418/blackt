@@ -12,6 +12,11 @@
         return level === 'toeic_note';
     }
 
+    function isExtraWordLevel(level) {
+        return typeof g.TriggerVocaExtraOcr !== 'undefined' &&
+            g.TriggerVocaExtraOcr.isExtraWordLevel(level);
+    }
+
     function isToeicFamily(level) {
         return isToeicLevel(level) || isToeicNoteLevel(level);
     }
@@ -24,13 +29,16 @@
             }
             return base;
         }
+        if (isExtraWordLevel(level)) {
+            return g.TriggerVocaExtraOcr.getTotalDays(level);
+        }
         if (isToeicLevel(level)) return TOEIC_TOTAL_DAYS;
         return MIDDLE_HIGH_TOTAL_DAYS;
     }
 
     function isReviewDay(level, absoluteDay) {
         const day = parseInt(absoluteDay, 10) || 0;
-        if (isToeicNoteLevel(level)) return false;
+        if (isToeicNoteLevel(level) || isExtraWordLevel(level)) return false;
         if (isToeicLevel(level)) return day > 0 && day <= TOEIC_TOTAL_DAYS && day % 6 === 0;
         const local = day % 7 === 0 ? 7 : day % 7;
         return local === 6 || local === 7;
@@ -45,13 +53,13 @@
     }
 
     function weekNumForLevel(level, absoluteDay) {
-        if (isToeicNoteLevel(level)) return 1;
+        if (isToeicNoteLevel(level) || isExtraWordLevel(level)) return 1;
         if (isToeicLevel(level)) return toeicBlockAndLocal(absoluteDay).block;
         return Math.ceil(absoluteDay / 7);
     }
 
     function localDayForLevel(level, absoluteDay) {
-        if (isToeicNoteLevel(level)) return parseInt(absoluteDay, 10) || 1;
+        if (isToeicNoteLevel(level) || isExtraWordLevel(level)) return parseInt(absoluteDay, 10) || 1;
         if (isToeicLevel(level)) return toeicBlockAndLocal(absoluteDay).localDay;
         return absoluteDay % 7 === 0 ? 7 : absoluteDay % 7;
     }
@@ -119,7 +127,7 @@
 
     function completedBlocks(level, unlockedDay) {
         const ud = parseInt(unlockedDay, 10) || 1;
-        if (isToeicNoteLevel(level)) return 0;
+        if (isToeicNoteLevel(level) || isExtraWordLevel(level)) return 0;
         if (!isToeicLevel(level)) return Math.floor((ud - 1) / 7);
         return Math.floor((ud - 1) / 6);
     }
@@ -128,6 +136,11 @@
         if (isToeicNoteLevel(level)) {
             var total = vocaTotalDays(level);
             return '📅 LC 오답노트 (' + total + '일)';
+        }
+        if (isExtraWordLevel(level)) {
+            var extraTotal = vocaTotalDays(level);
+            var extraLabel = level === 'high_note' ? '고등 추가 단어' : '중등 추가 단어';
+            return '📅 ' + extraLabel + (extraTotal ? ' (' + extraTotal + '일)' : '');
         }
         if (isToeicLevel(level)) return '📅 54일 완성 도전하기';
         return '📅 10주 완성 도전하기';
@@ -139,6 +152,7 @@
         TOEIC_REVIEW_CAP: TOEIC_REVIEW_CAP,
         isToeicLevel: isToeicLevel,
         isToeicNoteLevel: isToeicNoteLevel,
+        isExtraWordLevel: isExtraWordLevel,
         isToeicFamily: isToeicFamily,
         vocaTotalDays: vocaTotalDays,
         isReviewDay: isReviewDay,

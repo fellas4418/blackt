@@ -724,6 +724,7 @@ function getVocaPassCount(level) {
 function isVocaCourseComplete(level) {
     const lvl = level || localStorage.getItem('trigger_level') || 'middle';
     const total = vocaTotalDays(lvl);
+    if (total < 1) return false;
     const cur = parseInt(localStorage.getItem('trigger_current_day_' + lvl), 10) || 1;
     const unlocked = parseInt(localStorage.getItem('trigger_unlocked_day_' + lvl), 10) || 1;
     return cur > total || unlocked > total;
@@ -1402,7 +1403,16 @@ if (typeof applyAdminPersistence === 'function') applyAdminPersistence();
         if (!localStorage.getItem('trigger_date')) localStorage.setItem('trigger_date', today);      
         let currentSession = localStorage.getItem(`trigger_session_${currentLevel}`) || '1';
         const currentDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
+        const isExtraWordTrack = typeof TriggerVocaExtraOcr !== 'undefined' &&
+            TriggerVocaExtraOcr.isExtraWordLevel(currentLevel);
         
+        if (isExtraWordTrack && vocaTotalDays(currentLevel) < 1) {
+            clearStudyCheckpoint();
+            showSystemMessage('추가할 Day가 없습니다.<br>메인에서 노트 사진으로 Day를 추가해 주세요.');
+            setTimeout(() => { location.href = 'index.html?tab=voca'; }, 2500);
+            return;
+        }
+
         if (currentDay > vocaTotalDays(currentLevel)) {
             clearStudyCheckpoint();
             const passN = typeof getVocaPassCount === 'function' ? getVocaPassCount(currentLevel) : 0;
@@ -1411,6 +1421,62 @@ if (typeof applyAdminPersistence === 'function') applyAdminPersistence();
                 `${passLabel} ◆<br>같은 단어로 Day 1부터 다시 학습할 수 있습니다.<br><span style="color:#888;font-size:0.9rem;">메인 화면에서 「Day 1부터 다시 학습」을 눌러 주세요.</span>`
             );
             setTimeout(() => { location.href = 'index.html?tab=voca'; }, 2800);
+            return;
+        }
+
+        if (isExtraWordTrack) {
+            const isReviewDay = false;
+            todayWords = getWordsForDay(currentLevel, currentDay);
+            if (!todayWords.length) {
+                clearStudyCheckpoint();
+                showSystemMessage(`Day ${currentDay}에 단어가 없습니다.<br>메인에서 노트 사진으로 Day를 추가해 주세요.`);
+                setTimeout(() => { location.href = 'index.html?tab=voca'; }, 2500);
+                return;
+            }
+            if (currentDay > 1) {
+                let allWrongs = JSON.parse(localStorage.getItem('trigger_wrong_words') || '[]');
+                let preReviewWords = allWrongs.filter(w =>
+                    w.level === currentLevel &&
+                    (parseInt(w.day) < currentDay) &&
+                    (w.isWrong === true || w.isStarred === true)
+                );
+                const reviewStatusKey = `trigger_review_done_${currentLevel}_${currentDay}`;
+                if (preReviewWords.length > 0 && localStorage.getItem(reviewStatusKey) !== 'true') {
+                    isPreReviewMode = true;
+                    targetWords = preReviewWords;
+                    const restorePre = tryRestoreStudyCheckpoint({
+                        isPreReviewMode: true,
+                        customSavedVoca: false
+                    });
+                    if (restorePre) {
+                        if (sessionTag) {
+                            sessionTag.innerText = "🚨 망각 차단 복습 진행 중";
+                            sessionTag.style.color = "var(--neon-blue)";
+                        }
+                        runStudyHtmlEntryTail(sessionTag, currentSession, isReviewDay, restorePre);
+                        return;
+                    }
+                    showSystemMessage(`
+                    <div style="text-align:center; padding:10px;">
+                        <div style="font-size:1.3rem; color:var(--neon-blue); font-weight:bold; margin-bottom:15px;">망각 차단 1단계</div>
+                        <p style="color:#ddd; font-size:1rem; margin-bottom:20px; line-height:1.5;">어제와 그저께 틀린 단어 <strong>${targetWords.length}개</strong>를<br>먼저 복습합니다.</p>
+                        <button id="pre-review-start-btn" style="width:100%; padding:15px; background:var(--neon-blue); color:#000; font-weight:bold; border-radius:8px; border:none; cursor:pointer; box-shadow:0 0 12px rgba(0,243,255,0.25);">복습 시작하기</button>
+                    </div>
+                `);
+                    document.getElementById('pre-review-start-btn').onclick = () => {
+                        if (sessionTag) {
+                            sessionTag.innerText = "🚨 망각 차단 복습 진행 중";
+                            sessionTag.style.color = "var(--neon-blue)";
+                        }
+                        startStudy();
+                    };
+                    return;
+                }
+            }
+            applySmartStudyWordSets(false);
+            isPreReviewMode = false;
+            const restoreMain = tryRestoreStudyCheckpoint({ isPreReviewMode: false, customSavedVoca: false });
+            runStudyHtmlEntryTail(sessionTag, currentSession, false, restoreMain);
             return;
         }
 
@@ -2380,6 +2446,9 @@ function getReviewWordsForDay(level, absoluteDay) {
 }
 
 function getWordsForDay(level, absoluteDay) {
+    if (typeof TriggerVocaExtraOcr !== 'undefined' && TriggerVocaExtraOcr.isExtraWordLevel(level)) {
+        return TriggerVocaExtraOcr.getDayWords(level, absoluteDay) || [];
+    }
     if (typeof wordsData === 'undefined' || !wordsData[level]) return [];
     if (typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.isToeicFamily(level)) {
         const wl = vocaWeekAndLocal(level, absoluteDay);

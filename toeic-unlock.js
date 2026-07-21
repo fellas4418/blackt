@@ -58,6 +58,7 @@
         const btn = document.getElementById('btn-toeic');
         if (!btn) return;
         btn.style.display = window.isToeicUnlocked() ? '' : 'none';
+        if (typeof applyThirdLevelSlot === 'function') applyThirdLevelSlot();
     };
 
     function enableToeicMode() {

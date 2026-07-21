@@ -781,6 +781,10 @@
 
             <div id="welcome-msg"></div>
 
+            <div id="extra-word-top-hint" style="display:none; font-size:0.78rem; color:#888; text-align:center; margin-bottom:10px; line-height:1.45;">
+                노트에 적은 단어 Day 추가
+            </div>
+
             <div class="card level-section">
                 <div class="level-buttons">
                     <button class="level-btn active" id="btn-middle" onclick="selectLevel('middle')" style="line-height: 1.4;">
@@ -790,6 +794,10 @@
                     <button class="level-btn" id="btn-high" onclick="selectLevel('high')" style="line-height: 1.4;">
                         고등단어<br>
                         <span style="font-size: 0.9rem; color: var(--neon-blue); font-weight: normal; opacity: 0.9;">2,000</span>
+                    </button>
+                    <button class="level-btn" id="btn-extra-word" onclick="selectExtraWordTrack()" style="display:none; line-height: 1.4;">
+                        ➕ 추가 단어<br>
+                        <span id="extra-word-btn-sub" style="font-size: 0.78rem; color: var(--neon-green); font-weight: normal; opacity: 0.9;">노트 Day</span>
                     </button>
                     <button class="level-btn" id="btn-toeic" onclick="selectLevel(localStorage.getItem('trigger_toeic_last_track') || 'toeic')" style="display:none; line-height: 1.4;">
                         토익단어<br>
@@ -825,6 +833,22 @@
                 <div id="toeic-note-import-preview" style="max-height:180px; overflow-y:auto; margin-bottom:8px;"></div>
                 <button type="button" id="toeic-note-import-save" class="start-btn" style="display:none; padding:12px; font-size:0.92rem; border-color:var(--neon-green); color:#fff;">Day에 추가 ✓</button>
                 <div id="toeic-note-import-status" style="font-size:0.78rem; color:#aaa; margin-top:6px; line-height:1.4;"></div>
+            </div>
+
+            <div id="extra-word-import-section" class="card" style="display:none; padding: 14px 16px; margin-bottom: 12px; border: 1px dashed rgba(57, 255, 20, 0.45); background: rgba(0, 0, 0, 0.2);">
+                <div style="font-size:0.88rem; color:var(--neon-green); font-weight:bold; margin-bottom:6px;">📷 노트 사진 → Day 추가</div>
+                <div id="extra-word-import-day-hint" style="font-size:0.78rem; color:#888; margin-bottom:4px;">다음 추가 Day: 1</div>
+                <div id="extra-word-level-hint" style="font-size:0.75rem; color:#666; margin-bottom:10px;"></div>
+                <input type="file" id="extra-word-photo-input" accept="image/*" style="display:none">
+                <div style="display:flex; gap:8px; margin-bottom:10px;">
+                    <button type="button" id="extra-word-import-camera" class="level-btn" style="flex:1; padding:10px 6px; font-size:0.85rem;">📸 촬영</button>
+                    <button type="button" id="extra-word-import-gallery" class="level-btn" style="flex:1; padding:10px 6px; font-size:0.85rem;">🖼️ 앨범</button>
+                </div>
+                <img id="extra-word-import-thumb" alt="" style="display:none; max-width:100%; max-height:160px; border-radius:8px; margin-bottom:10px; border:1px solid #444;">
+                <button type="button" id="extra-word-import-run" class="start-btn" style="display:none; margin-bottom:8px; padding:12px; font-size:0.92rem;">단어 추출하기</button>
+                <div id="extra-word-import-preview" style="max-height:180px; overflow-y:auto; margin-bottom:8px;"></div>
+                <button type="button" id="extra-word-import-save" class="start-btn" style="display:none; padding:12px; font-size:0.92rem; border-color:var(--neon-green); color:#fff;">Day에 추가 ✓</button>
+                <div id="extra-word-import-status" style="font-size:0.78rem; color:#aaa; margin-top:6px; line-height:1.4;"></div>
             </div>
 
             <div class="card home-mission-card" style="padding: 25px 20px; border: 1px solid rgba(0, 243, 255, 0.45); background: rgba(0, 243, 255, 0.05); text-align: center;">
@@ -1088,6 +1112,9 @@
         }
 
         function getWordsForDay(level, absoluteDay) {
+            if (typeof TriggerVocaExtraOcr !== 'undefined' && TriggerVocaExtraOcr.isExtraWordLevel(level)) {
+                return TriggerVocaExtraOcr.getDayWords(level, absoluteDay) || [];
+            }
             if (typeof wordsData === 'undefined' || !wordsData[level]) return [];
             if (typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.isToeicFamily(level)) {
                 var wl = {
@@ -1726,11 +1753,38 @@
             return level === 'toeic' || level === 'toeic_note';
         }
 
+        function isExtraWordLevel(level) {
+            return typeof TriggerVocaExtraOcr !== 'undefined' && TriggerVocaExtraOcr.isExtraWordLevel(level);
+        }
+
+        function applyThirdLevelSlot() {
+            var toeicUnlocked = typeof isToeicUnlocked === 'function' && isToeicUnlocked();
+            var btnToeic = document.getElementById('btn-toeic');
+            var btnExtra = document.getElementById('btn-extra-word');
+            var topHint = document.getElementById('extra-word-top-hint');
+            if (btnToeic) btnToeic.style.display = toeicUnlocked ? '' : 'none';
+            if (btnExtra) btnExtra.style.display = toeicUnlocked ? 'none' : '';
+            if (topHint) topHint.style.display = toeicUnlocked ? 'none' : 'block';
+        }
+
+        function selectExtraWordTrack() {
+            var lvl = localStorage.getItem('trigger_level') || 'middle';
+            var base = (lvl === 'high' || lvl === 'high_note') ? 'high' : 'middle';
+            localStorage.setItem('trigger_extra_word_base', base);
+            selectLevel(base === 'high' ? 'high_note' : 'middle_note');
+        }
+
         function vocaLevelLabel(lvl) {
             if (lvl === 'high') return '고등';
+            if (lvl === 'high_note') return '고등추가';
+            if (lvl === 'middle_note') return '중등추가';
             if (lvl === 'toeic') return '토익';
             if (lvl === 'toeic_note') return 'LC노트';
             return '중등';
+        }
+
+        function updateExtraWordUi(level) {
+            if (typeof TriggerVocaExtraOcr !== 'undefined') TriggerVocaExtraOcr.syncUi(level);
         }
 
         function selectToeicTrack(track) {
@@ -1748,24 +1802,30 @@
             if (btnOfficial) btnOfficial.className = 'level-btn' + (level === 'toeic' ? ' active' : '');
             if (btnNote) btnNote.className = 'level-btn' + (level === 'toeic_note' ? ' active' : '');
             if (typeof TriggerToeicNoteOcr !== 'undefined') TriggerToeicNoteOcr.syncUi(level);
+            updateExtraWordUi(level);
         }
 
         function selectLevel(level) {
             localStorage.setItem('trigger_level', level);
+            if (level === 'middle' || level === 'high') {
+                localStorage.setItem('trigger_extra_word_base', level);
+            }
             if (isToeicFamilyLevel(level)) {
                 localStorage.setItem('trigger_toeic_last_track', level);
             }
-            
-            document.getElementById('btn-middle').className = "level-btn";
-            document.getElementById('btn-high').className = "level-btn";
-            const btnToeic = document.getElementById('btn-toeic');
-            if (btnToeic) btnToeic.className = isToeicFamilyLevel(level) ? "level-btn active" : "level-btn";
-            if (!isToeicFamilyLevel(level)) {
-                const activeBtn = document.getElementById('btn-' + level);
-                if (activeBtn) activeBtn.className = "level-btn active";
+            if (isExtraWordLevel(level) && typeof TriggerVocaExtraOcr !== 'undefined') {
+                TriggerVocaExtraOcr.initProgressIfNeeded(level);
             }
+            
+            document.getElementById('btn-middle').className = "level-btn" + (level === 'middle' ? ' active' : '');
+            document.getElementById('btn-high').className = "level-btn" + (level === 'high' ? ' active' : '');
+            const btnToeic = document.getElementById('btn-toeic');
+            const btnExtra = document.getElementById('btn-extra-word');
+            if (btnToeic) btnToeic.className = isToeicFamilyLevel(level) ? "level-btn active" : "level-btn";
+            if (btnExtra) btnExtra.className = isExtraWordLevel(level) ? "level-btn active" : "level-btn";
 
             updateToeicTrackUi(level);
+            applyThirdLevelSlot();
 
             if (typeof applyToeicModeBadge === 'function') applyToeicModeBadge(isToeicFamilyLevel(level));
 
@@ -2209,8 +2269,10 @@
             const resumeDay = Math.max(unlockedDay, day);
 
             const maxDay = vocaTotalDaysForLevel(lvl);
-            const displayDay = day > maxDay ? maxDay : day;
-            document.getElementById('stat-current-day').innerText = `Day ${displayDay}`;
+            const displayDay = maxDay < 1 ? 1 : (day > maxDay ? maxDay : day);
+            document.getElementById('stat-current-day').innerText = maxDay < 1 && isExtraWordLevel(lvl)
+                ? 'Day —'
+                : ('Day ' + displayDay);
 
             updateHeaderProfile();
             renderVocaDoneMsg(session);
@@ -2266,6 +2328,13 @@
                 startBtn.style.color = '#fff';
                 startBtn.onclick = function () { confirmRestartVocaCourseFromDay1(); };
                 document.getElementById('stat-session').innerText = passN + '회차 완주';
+            } else if (isExtraWordLevel(lvl) && displayCount < 1) {
+                startBtn.disabled = true;
+                startBtn.innerText = '노트 사진으로 Day 추가';
+                startBtn.style.borderColor = '#444';
+                startBtn.style.boxShadow = 'none';
+                startBtn.style.color = '#888';
+                startBtn.onclick = null;
             } else if (session > 5) {
                 startBtn.disabled = false;
                 startBtn.innerText = "자유 복습 모드";
@@ -2330,6 +2399,9 @@
             const totalDays = vocaTotalDaysForLevel(currentLevel);
             
             let html = '';
+            if (totalDays < 1 && isExtraWordLevel(currentLevel)) {
+                html = '<li class="routine-item" style="opacity:0.85;"><span class="day-label" style="color:#aaa;">노트 사진으로 Day를 추가해 주세요</span></li>';
+            }
             for(let i=1; i<=totalDays; i++) {
                 let isReview = vocaIsReviewDayForLevel(currentLevel, i);
                 let dayLabel = isReview ? `Day ${i} (복습)` : `Day ${i}`;
@@ -2366,14 +2438,17 @@
                 giftSection.style.display = courseDone ? 'block' : 'none';
                 if (courseDone) {
                     const isToeicNote = typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.isToeicNoteLevel(currentLevel);
+                    const isExtraNote = isExtraWordLevel(currentLevel);
                     const isToeic = typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.isToeicLevel(currentLevel);
                     const titleEl = document.getElementById('final-gift-title');
                     if (titleEl) {
                         titleEl.textContent = isToeicNote
                             ? '◆ LC 오답노트 4일 완주! 🎊'
-                            : (isToeic
-                                ? '◆ 54일 완주 성공! 선물 도착 🎊'
-                                : '◆ 10주 완주 성공! 선물 도착 🎊');
+                            : (isExtraNote
+                                ? '◆ 추가 단어 Day 완주! 🎊'
+                                : (isToeic
+                                    ? '◆ 54일 완주 성공! 선물 도착 🎊'
+                                    : '◆ 10주 완주 성공! 선물 도착 🎊'));
                     }
                     const passEl = document.getElementById('final-gift-pass-label');
                     if (passEl) {
@@ -3472,14 +3547,15 @@
         document.getElementById('login-submit-btn').onclick = secureHandleLogin;
 
     </script>
-    <script src="praise-share.js?v=20260517_kakao_return"></script>
+    <script src="praise-share.js?v=20260721_extraword"></script>
     <script src="admin-unlock.js"></script>
-    <script src="app.js?v=20260720_daily3"></script>
+    <script src="app.js?v=20260721_extraword"></script>
     <script src="worddata.js"></script>
     <script src="worddata_toeic.js?v=20260721_official"></script>
     <script src="worddata_toeic_note.js?v=20260721_note"></script>
-    <script src="toeic-schedule.js?v=20260721_noteocr"></script>
+    <script src="toeic-schedule.js?v=20260721_extraword"></script>
     <script src="toeic-note-ocr.js?v=20260721_chunk40"></script>
+    <script src="voca-extra-ocr.js?v=20260721_extraword"></script>
     <script src="toeic-unlock.js?v=20260721_note"></script>
     <script src="words.js"></script>
     <script>
