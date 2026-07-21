@@ -755,7 +755,13 @@
             }
         }
         if (tapEl) {
-            tapEl.textContent = isBridge ? '준비가 되면 탭하세요' : '천천히 읽고, 탭하면 이어집니다';
+            if (isBridge) {
+                tapEl.textContent = '왼쪽 탭 · 이전  ·  준비가 되면 탭하세요';
+            } else if (state.docentIdx > 0) {
+                tapEl.textContent = '왼쪽 탭 · 이전  ·  탭하면 이어집니다';
+            } else {
+                tapEl.textContent = '천천히 읽고, 탭하면 이어집니다';
+            }
         }
 
         void el.offsetWidth;
@@ -800,6 +806,20 @@
         }
         if (state.docentPhase === 'lines') {
             state.docentIdx += 1;
+            showDocentLine();
+        }
+    }
+
+    function retreatDocent() {
+        if (state.docentPhase === 'bridge') {
+            var lines = state.data.docent || [];
+            if (!lines.length) return;
+            state.docentIdx = lines.length - 1;
+            showDocentLine();
+            return;
+        }
+        if (state.docentPhase === 'lines' && state.docentIdx > 0) {
+            state.docentIdx -= 1;
             showDocentLine();
         }
     }
@@ -927,9 +947,15 @@
 
         var docentEl = document.getElementById('pattern-docent');
         if (docentEl) {
-            docentEl.addEventListener('click', function () {
+            docentEl.addEventListener('click', function (e) {
                 if (!state.docentPhase) return;
-                advanceDocent();
+                var rect = docentEl.getBoundingClientRect();
+                var x = (e.clientX != null ? e.clientX : 0) - rect.left;
+                if (x < rect.width / 3) {
+                    retreatDocent();
+                } else {
+                    advanceDocent();
+                }
             });
         }
 
@@ -963,7 +989,7 @@
         state.isRepeat = isDoneBefore(id);
         state.skipDocent = false;
 
-        fetch('data/patterns/' + id + '.json?v=20260722i')
+        fetch('data/patterns/' + id + '.json?v=20260722j')
             .then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
