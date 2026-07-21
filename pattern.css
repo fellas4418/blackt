@@ -104,32 +104,33 @@
 }
 
 .pattern-docent-role {
-    margin: 0 0 14px;
-    font-size: 0.82rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    color: var(--neon-blue, #00f3ff);
-    text-shadow: 0 0 10px rgba(0, 243, 255, 0.25);
+    margin: 0 0 16px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: rgba(0, 243, 255, 0.75);
+    text-shadow: none;
     opacity: 0;
-    transform: translateY(6px);
-    transition: opacity 0.45s ease, transform 0.45s ease;
+    transform: translateY(4px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
 }
 
 .pattern-docent-example {
     display: none;
-    margin: 0 0 18px;
-    padding: 14px 12px;
-    font-size: clamp(1.15rem, 4.8vw, 1.35rem);
-    font-weight: 800;
-    line-height: 1.5;
-    letter-spacing: -0.02em;
-    color: #bbb;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
+    margin: 0 0 22px;
+    padding: 16px 14px;
+    font-size: clamp(1.18rem, 5vw, 1.42rem);
+    font-weight: 700;
+    line-height: 1.55;
+    letter-spacing: -0.01em;
+    color: #c8c8c8;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0;
     opacity: 0;
-    transform: translateY(8px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
+    transform: translateY(6px);
+    transition: opacity 0.75s ease, transform 0.75s ease;
 }
 
 .pattern-docent.has-example .pattern-docent-example {
@@ -138,49 +139,49 @@
 
 .pattern-docent-mark {
     display: inline;
-    padding: 0 2px;
-    border-radius: 4px;
+    padding: 1px 3px;
+    border-radius: 3px;
 }
 
 .pattern-docent-mark--s {
-    color: #00f3ff;
-    background: rgba(0, 243, 255, 0.12);
-    box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+    color: #7aefff;
+    background: rgba(0, 243, 255, 0.1);
+    box-shadow: none;
 }
 
 .pattern-docent-mark--o {
-    color: #ff9900;
-    background: rgba(255, 153, 0, 0.14);
-    box-shadow: 0 0 10px rgba(255, 153, 0, 0.22);
+    color: #ffb35c;
+    background: rgba(255, 153, 0, 0.1);
+    box-shadow: none;
 }
 
 .pattern-docent-mark--v {
-    color: #ffcc55;
-    background: rgba(255, 204, 85, 0.12);
-    box-shadow: 0 0 10px rgba(255, 204, 85, 0.22);
+    color: #ffe08a;
+    background: rgba(255, 204, 85, 0.1);
+    box-shadow: none;
 }
 
 .pattern-docent-text {
     margin: 0;
-    font-size: clamp(1.02rem, 4vw, 1.18rem);
-    font-weight: 700;
-    line-height: 1.55;
-    color: #eee;
-    letter-spacing: -0.02em;
+    font-size: clamp(0.98rem, 3.8vw, 1.12rem);
+    font-weight: 500;
+    line-height: 1.7;
+    color: #d4d4d4;
+    letter-spacing: -0.01em;
     white-space: pre-line;
     opacity: 0;
-    transform: translateY(8px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
+    transform: translateY(6px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
 }
 
 .pattern-docent-step {
-    margin: 16px 0 0;
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: #555;
-    letter-spacing: 0.04em;
+    margin: 20px 0 0;
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: #444;
+    letter-spacing: 0.06em;
     opacity: 0;
-    transition: opacity 0.4s ease;
+    transition: opacity 0.6s ease;
 }
 
 .pattern-docent.is-bridge .pattern-docent-role,
@@ -190,8 +191,10 @@
 }
 
 .pattern-docent.is-bridge .pattern-docent-text {
-    color: var(--neon-green);
-    text-shadow: 0 0 12px rgba(57, 255, 20, 0.2);
+    color: #e8e8e8;
+    text-shadow: none;
+    font-weight: 500;
+    line-height: 1.75;
 }
 
 .pattern-docent.is-show .pattern-docent-role,
@@ -203,11 +206,11 @@
 }
 
 .pattern-docent-tap {
-    margin: 28px 0 0;
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: #666;
-    letter-spacing: 0.02em;
+    margin: 32px 0 0;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: #555;
+    letter-spacing: 0.04em;
 }
 
 .pattern-guide-fold {

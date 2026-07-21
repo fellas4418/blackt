@@ -2,9 +2,9 @@
     'use strict';
 
     var INTRO_BAR_MS = 7000;
-    var DOCENT_LINE_MS = 8000;
-    var DOCENT_EXAMPLE_MS = 9000;
-    var DOCENT_BRIDGE_MS = 5000;
+    var DOCENT_LINE_MS = 10000;
+    var DOCENT_EXAMPLE_MS = 11000;
+    var DOCENT_BRIDGE_MS = 6500;
     var COL_COMP = { s: '주어', o: '목적어', c: '보어', v: '서술어' };
     var PARTICLE_POOL = ['은', '는', '이', '가', '을', '를', '다'];
     var SUBJECT_PARTICLES = { '은': 1, '는': 1, '이': 1, '가': 1 };
@@ -738,7 +738,7 @@
             }
         }
         if (tapEl) {
-            tapEl.textContent = isBridge ? '탭하여 시작' : '탭하여 다음';
+            tapEl.textContent = isBridge ? '준비가 되면 탭하세요' : '천천히 읽고, 탭하면 이어집니다';
         }
 
         void el.offsetWidth;
@@ -946,7 +946,7 @@
         state.isRepeat = isDoneBefore(id);
         state.skipDocent = false;
 
-        fetch('data/patterns/' + id + '.json?v=20260722b')
+        fetch('data/patterns/' + id + '.json?v=20260722c')
             .then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
