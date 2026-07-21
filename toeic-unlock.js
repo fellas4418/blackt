@@ -10,6 +10,10 @@
         return String(raw || '').trim().replace(/\s+/g, '').toLowerCase();
     }
 
+    function isToeicFamilyLevel(level) {
+        return level === 'toeic' || level === 'toeic_note';
+    }
+
     function initToeicProgressIfNeeded() {
         if (!localStorage.getItem('trigger_current_day_toeic')) {
             localStorage.setItem('trigger_current_day_toeic', '1');
@@ -18,11 +22,29 @@
         }
     }
 
+    function initToeicNoteProgressIfNeeded() {
+        if (!localStorage.getItem('trigger_current_day_toeic_note')) {
+            localStorage.setItem('trigger_current_day_toeic_note', '1');
+            localStorage.setItem('trigger_unlocked_day_toeic_note', '1');
+            localStorage.setItem('trigger_session_toeic_note', '1');
+        }
+    }
+
     function clampToeicDayKeys() {
         const maxDay = (typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.TOEIC_TOTAL_DAYS)
             ? TriggerToeicSchedule.TOEIC_TOTAL_DAYS
             : 54;
         ['trigger_current_day_toeic', 'trigger_unlocked_day_toeic'].forEach(function (key) {
+            const v = parseInt(localStorage.getItem(key), 10);
+            if (v > maxDay) localStorage.setItem(key, String(maxDay));
+        });
+    }
+
+    function clampToeicNoteDayKeys() {
+        const maxDay = (typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.TOEIC_NOTE_TOTAL_DAYS)
+            ? TriggerToeicSchedule.TOEIC_NOTE_TOTAL_DAYS
+            : 4;
+        ['trigger_current_day_toeic_note', 'trigger_unlocked_day_toeic_note'].forEach(function (key) {
             const v = parseInt(localStorage.getItem(key), 10);
             if (v > maxDay) localStorage.setItem(key, String(maxDay));
         });
@@ -41,7 +63,9 @@
     function enableToeicMode() {
         localStorage.setItem('trigger_toeic_unlocked', '1');
         initToeicProgressIfNeeded();
+        initToeicNoteProgressIfNeeded();
         clampToeicDayKeys();
+        clampToeicNoteDayKeys();
         window.applyToeicLevelButton();
         if (typeof window.selectLevel === 'function') {
             window.selectLevel('toeic');
@@ -55,21 +79,34 @@
     window.applyToeicModeBadge = function (show) {
         const el = document.getElementById('toeic-mode-badge');
         if (!el) return;
-        const active = show !== undefined ? show : localStorage.getItem('trigger_level') === 'toeic';
-        el.style.display = active ? 'block' : 'none';
+        const lvl = localStorage.getItem('trigger_level') || 'middle';
+        const active = show !== undefined ? show : isToeicFamilyLevel(lvl);
+        if (!active) {
+            el.style.display = 'none';
+            return;
+        }
+        el.style.display = 'block';
+        if (lvl === 'toeic_note') {
+            el.textContent = 'LC NOTE TRACK';
+        } else {
+            el.textContent = 'TOEIC TRACK';
+        }
     };
 
     window.syncLevelOnLoad = function () {
         window.applyToeicLevelButton();
         let lvl = localStorage.getItem('trigger_level') || 'middle';
-        if (lvl === 'toeic' && !window.isToeicUnlocked()) {
+        if (isToeicFamilyLevel(lvl) && !window.isToeicUnlocked()) {
             lvl = 'middle';
             localStorage.setItem('trigger_level', 'middle');
         }
-        if (lvl === 'toeic') {
+        if (isToeicFamilyLevel(lvl)) {
+            initToeicProgressIfNeeded();
+            initToeicNoteProgressIfNeeded();
             clampToeicDayKeys();
+            clampToeicNoteDayKeys();
             if (typeof window.selectLevel === 'function') {
-                window.selectLevel('toeic');
+                window.selectLevel(lvl);
             } else {
                 window.applyToeicModeBadge(true);
                 if (typeof window.updateDashboardUI === 'function') window.updateDashboardUI();
@@ -92,7 +129,7 @@
             return;
         }
         enableToeicMode();
-        alert('토익 모드가 활성화되었습니다.\n「학습 시작하기」로 시작하세요.');
+        alert('토익 모드가 활성화되었습니다.\n「LC 오답노트」 또는 「공식 커리큘럼」을 선택해 학습하세요.');
     }
 
     function initToeicSecretUnlock() {

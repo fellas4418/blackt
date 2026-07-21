@@ -791,9 +791,23 @@
                         고등단어<br>
                         <span style="font-size: 0.9rem; color: var(--neon-blue); font-weight: normal; opacity: 0.9;">2,000</span>
                     </button>
-                    <button class="level-btn" id="btn-toeic" onclick="selectLevel('toeic')" style="display:none; line-height: 1.4;">
+                    <button class="level-btn" id="btn-toeic" onclick="selectLevel(localStorage.getItem('trigger_toeic_last_track') || 'toeic')" style="display:none; line-height: 1.4;">
                         토익단어<br>
                         <span style="font-size: 0.9rem; color: #88ccff; font-weight: normal; opacity: 0.9;">2,775</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="toeic-track-section" class="card" style="display:none; padding: 14px 16px; margin-bottom: 12px; border: 1px solid rgba(136, 204, 255, 0.35); background: rgba(136, 204, 255, 0.04);">
+                <div style="font-size:0.82rem; color:#8cf; margin-bottom:10px; letter-spacing:0.08em;">토익 학습 선택</div>
+                <div style="display:flex; gap:10px;">
+                    <button type="button" id="btn-toeic-official" class="level-btn" onclick="selectToeicTrack('toeic')" style="flex:1; line-height:1.35; padding:12px 8px;">
+                        📘 공식<br>
+                        <span style="font-size:0.78rem; color:#8cf; font-weight:normal; opacity:0.9;">54일 · 2,775</span>
+                    </button>
+                    <button type="button" id="btn-toeic-note" class="level-btn" onclick="selectToeicTrack('toeic_note')" style="flex:1; line-height:1.35; padding:12px 8px;">
+                        📝 LC 오답노트<br>
+                        <span style="font-size:0.78rem; color:#8cf; font-weight:normal; opacity:0.9;">4일 · 106</span>
                     </button>
                 </div>
             </div>
@@ -1060,12 +1074,12 @@
 
         function getWordsForDay(level, absoluteDay) {
             if (typeof wordsData === 'undefined' || !wordsData[level]) return [];
-            if (typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.isToeicLevel(level)) {
+            if (typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.isToeicFamily(level)) {
                 var wl = {
                     week: TriggerToeicSchedule.weekNumForLevel(level, absoluteDay),
                     localDay: TriggerToeicSchedule.localDayForLevel(level, absoluteDay)
                 };
-                if (TriggerToeicSchedule.isReviewDay(level, absoluteDay)) {
+                if (TriggerToeicSchedule.isToeicLevel(level) && TriggerToeicSchedule.isReviewDay(level, absoluteDay)) {
                     return TriggerToeicSchedule.buildToeicReviewWords(level, absoluteDay);
                 }
                 var toeicWeekData = wordsData[level]['week' + wl.week];
@@ -1689,17 +1703,51 @@
             }
         }
 
+        function isToeicFamilyLevel(level) {
+            return level === 'toeic' || level === 'toeic_note';
+        }
+
+        function vocaLevelLabel(lvl) {
+            if (lvl === 'high') return '고등';
+            if (lvl === 'toeic') return '토익';
+            if (lvl === 'toeic_note') return 'LC노트';
+            return '중등';
+        }
+
+        function selectToeicTrack(track) {
+            selectLevel(track);
+        }
+
+        function updateToeicTrackUi(level) {
+            var trackSection = document.getElementById('toeic-track-section');
+            var toeicUnlocked = typeof isToeicUnlocked === 'function' && isToeicUnlocked();
+            if (trackSection) {
+                trackSection.style.display = (toeicUnlocked && isToeicFamilyLevel(level)) ? 'block' : 'none';
+            }
+            var btnOfficial = document.getElementById('btn-toeic-official');
+            var btnNote = document.getElementById('btn-toeic-note');
+            if (btnOfficial) btnOfficial.className = 'level-btn' + (level === 'toeic' ? ' active' : '');
+            if (btnNote) btnNote.className = 'level-btn' + (level === 'toeic_note' ? ' active' : '');
+        }
+
         function selectLevel(level) {
             localStorage.setItem('trigger_level', level);
+            if (isToeicFamilyLevel(level)) {
+                localStorage.setItem('trigger_toeic_last_track', level);
+            }
             
             document.getElementById('btn-middle').className = "level-btn";
             document.getElementById('btn-high').className = "level-btn";
             const btnToeic = document.getElementById('btn-toeic');
-            if (btnToeic) btnToeic.className = "level-btn";
-            const activeBtn = document.getElementById('btn-' + level);
-            if (activeBtn) activeBtn.className = "level-btn active";
+            if (btnToeic) btnToeic.className = isToeicFamilyLevel(level) ? "level-btn active" : "level-btn";
+            if (!isToeicFamilyLevel(level)) {
+                const activeBtn = document.getElementById('btn-' + level);
+                if (activeBtn) activeBtn.className = "level-btn active";
+            }
 
-            if (typeof applyToeicModeBadge === 'function') applyToeicModeBadge(level === 'toeic');
+            updateToeicTrackUi(level);
+
+            if (typeof applyToeicModeBadge === 'function') applyToeicModeBadge(isToeicFamilyLevel(level));
 
             updateDashboardUI();
 
@@ -2297,12 +2345,15 @@
                 const courseDone = typeof isVocaCourseComplete === 'function' && isVocaCourseComplete(currentLevel);
                 giftSection.style.display = courseDone ? 'block' : 'none';
                 if (courseDone) {
+                    const isToeicNote = typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.isToeicNoteLevel(currentLevel);
                     const isToeic = typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.isToeicLevel(currentLevel);
                     const titleEl = document.getElementById('final-gift-title');
                     if (titleEl) {
-                        titleEl.textContent = isToeic
-                            ? '◆ 54일 완주 성공! 선물 도착 🎊'
-                            : '◆ 10주 완주 성공! 선물 도착 🎊';
+                        titleEl.textContent = isToeicNote
+                            ? '◆ LC 오답노트 4일 완주! 🎊'
+                            : (isToeic
+                                ? '◆ 54일 완주 성공! 선물 도착 🎊'
+                                : '◆ 10주 완주 성공! 선물 도착 🎊');
                     }
                     const passEl = document.getElementById('final-gift-pass-label');
                     if (passEl) {
@@ -2431,7 +2482,7 @@
             document.getElementById('wrong-list').innerHTML = html;
             
             const titleEl = document.getElementById('wrong-modal-title');
-            titleEl.innerText = `[${lvl === 'high' ? '고등' : (lvl === 'toeic' ? '토익' : '중등')}] 오답/별표`;
+            titleEl.innerText = `[${vocaLevelLabel(lvl)}] 오답/별표`;
             titleEl.style.fontSize = "1.3rem"; 
             
             document.getElementById('wrong-modal').style.display = 'flex';
@@ -2476,7 +2527,7 @@
             }
             
             const titleEl = document.getElementById('all-words-title');
-            titleEl.innerText = `◆ CLEAR LOG [${lvl === 'high' ? '고등' : (lvl === 'toeic' ? '토익' : '중등')}]`;
+            titleEl.innerText = `◆ CLEAR LOG [${vocaLevelLabel(lvl)}]`;
             titleEl.style.fontSize = "1.3rem";
 
             document.getElementById('all-words-modal').style.display = 'flex';
@@ -3405,9 +3456,10 @@
     <script src="admin-unlock.js"></script>
     <script src="app.js?v=20260720_daily3"></script>
     <script src="worddata.js"></script>
-    <script src="worddata_toeic.js?v=20260721_note4d"></script>
-    <script src="toeic-schedule.js"></script>
-    <script src="toeic-unlock.js"></script>
+    <script src="worddata_toeic.js?v=20260721_official"></script>
+    <script src="worddata_toeic_note.js?v=20260721_note"></script>
+    <script src="toeic-schedule.js?v=20260721_note"></script>
+    <script src="toeic-unlock.js?v=20260721_note"></script>
     <script src="words.js"></script>
     <script>
         bindAdminKakaoTestButtons();

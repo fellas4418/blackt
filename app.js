@@ -2381,9 +2381,9 @@ function getReviewWordsForDay(level, absoluteDay) {
 
 function getWordsForDay(level, absoluteDay) {
     if (typeof wordsData === 'undefined' || !wordsData[level]) return [];
-    if (typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.isToeicLevel(level)) {
+    if (typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.isToeicFamily(level)) {
         const wl = vocaWeekAndLocal(level, absoluteDay);
-        if (TriggerToeicSchedule.isReviewDay(level, absoluteDay)) {
+        if (TriggerToeicSchedule.isToeicLevel(level) && TriggerToeicSchedule.isReviewDay(level, absoluteDay)) {
             return TriggerToeicSchedule.buildToeicReviewWords(level, absoluteDay);
         }
         const weekData = wordsData[level]['week' + wl.week];

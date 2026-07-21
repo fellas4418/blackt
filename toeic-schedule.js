@@ -1,5 +1,6 @@
 (function (g) {
     const TOEIC_TOTAL_DAYS = 54;
+    const TOEIC_NOTE_TOTAL_DAYS = 4;
     const TOEIC_REVIEW_CAP = 80;
     const MIDDLE_HIGH_TOTAL_DAYS = 70;
 
@@ -7,12 +8,23 @@
         return level === 'toeic';
     }
 
+    function isToeicNoteLevel(level) {
+        return level === 'toeic_note';
+    }
+
+    function isToeicFamily(level) {
+        return isToeicLevel(level) || isToeicNoteLevel(level);
+    }
+
     function vocaTotalDays(level) {
-        return isToeicLevel(level) ? TOEIC_TOTAL_DAYS : MIDDLE_HIGH_TOTAL_DAYS;
+        if (isToeicNoteLevel(level)) return TOEIC_NOTE_TOTAL_DAYS;
+        if (isToeicLevel(level)) return TOEIC_TOTAL_DAYS;
+        return MIDDLE_HIGH_TOTAL_DAYS;
     }
 
     function isReviewDay(level, absoluteDay) {
         const day = parseInt(absoluteDay, 10) || 0;
+        if (isToeicNoteLevel(level)) return false;
         if (isToeicLevel(level)) return day > 0 && day <= TOEIC_TOTAL_DAYS && day % 6 === 0;
         const local = day % 7 === 0 ? 7 : day % 7;
         return local === 6 || local === 7;
@@ -27,11 +39,13 @@
     }
 
     function weekNumForLevel(level, absoluteDay) {
+        if (isToeicNoteLevel(level)) return 1;
         if (isToeicLevel(level)) return toeicBlockAndLocal(absoluteDay).block;
         return Math.ceil(absoluteDay / 7);
     }
 
     function localDayForLevel(level, absoluteDay) {
+        if (isToeicNoteLevel(level)) return parseInt(absoluteDay, 10) || 1;
         if (isToeicLevel(level)) return toeicBlockAndLocal(absoluteDay).localDay;
         return absoluteDay % 7 === 0 ? 7 : absoluteDay % 7;
     }
@@ -99,18 +113,24 @@
 
     function completedBlocks(level, unlockedDay) {
         const ud = parseInt(unlockedDay, 10) || 1;
+        if (isToeicNoteLevel(level)) return 0;
         if (!isToeicLevel(level)) return Math.floor((ud - 1) / 7);
         return Math.floor((ud - 1) / 6);
     }
 
     function routineTitle(level) {
-        return isToeicLevel(level) ? '📅 54일 완성 도전하기' : '📅 10주 완성 도전하기';
+        if (isToeicNoteLevel(level)) return '📅 LC 오답노트 (4일)';
+        if (isToeicLevel(level)) return '📅 54일 완성 도전하기';
+        return '📅 10주 완성 도전하기';
     }
 
     g.TriggerToeicSchedule = {
         TOEIC_TOTAL_DAYS: TOEIC_TOTAL_DAYS,
+        TOEIC_NOTE_TOTAL_DAYS: TOEIC_NOTE_TOTAL_DAYS,
         TOEIC_REVIEW_CAP: TOEIC_REVIEW_CAP,
         isToeicLevel: isToeicLevel,
+        isToeicNoteLevel: isToeicNoteLevel,
+        isToeicFamily: isToeicFamily,
         vocaTotalDays: vocaTotalDays,
         isReviewDay: isReviewDay,
         toeicBlockAndLocal: toeicBlockAndLocal,

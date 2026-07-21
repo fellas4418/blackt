@@ -58,6 +58,18 @@
     function getWordsForDay(level, absoluteDay) {
         var wd = global.wordsData;
         if (!wd || !wd[level]) return [];
+        var sched = global.TriggerToeicSchedule;
+        if (sched && sched.isToeicFamily && sched.isToeicFamily(level)) {
+            var week = sched.weekNumForLevel(level, absoluteDay);
+            var localDay = sched.localDayForLevel(level, absoluteDay);
+            if (sched.isToeicLevel(level) && sched.isReviewDay(level, absoluteDay)) {
+                return sched.buildToeicReviewWords(level, absoluteDay);
+            }
+            var weekData = wd[level]['week' + week];
+            if (!weekData) return [];
+            var dayData = weekData[String(localDay)];
+            return Array.isArray(dayData) ? dayData : [];
+        }
         var week = Math.ceil(absoluteDay / 7);
         var localDay = absoluteDay % 7 === 0 ? 7 : absoluteDay % 7;
         if (localDay === 6 || localDay === 7) {
@@ -80,6 +92,7 @@
         var lv = String(level || 'middle').trim().toLowerCase();
         if (lv === 'high') return 'high';
         if (lv === 'toeic') return 'toeic';
+        if (lv === 'toeic_note') return 'toeic_note';
         return 'middle';
     }
 
@@ -90,10 +103,12 @@
                 : normalizeLevel(levelOrCtx);
         if (lv === 'high') return '고등단어';
         if (lv === 'toeic') return '토익단어';
+        if (lv === 'toeic_note') return 'LC오답노트';
         return '중등단어';
     }
 
     function statsFromStorage(kind) {
+        var sched = global.TriggerToeicSchedule;
         var level = '';
         try {
             level = global.localStorage.getItem('trigger_level') || 'middle';
@@ -115,7 +130,8 @@
             unlockedDay = parseInt(global.localStorage.getItem('trigger_unlocked_day_' + level), 10) || 1;
         } catch (e4) {}
         for (var i = 1; i < unlockedDay; i++) {
-            if (i % 7 === 6 || i % 7 === 0) continue;
+            if (sched && sched.isReviewDay && sched.isReviewDay(level, i)) continue;
+            else if (!sched && (i % 7 === 6 || i % 7 === 0)) continue;
             learnedTotal += getWordsForDay(level, i).length;
         }
         var accuracy = null;
