@@ -91,8 +91,7 @@
     function normalizeLevel(level) {
         var lv = String(level || 'middle').trim().toLowerCase();
         if (lv === 'high') return 'high';
-        if (lv === 'high_note') return 'high_note';
-        if (lv === 'middle_note') return 'middle_note';
+        if (lv === 'extra_note' || lv === 'middle_note' || lv === 'high_note') return 'extra_note';
         if (lv === 'toeic') return 'toeic';
         if (lv === 'toeic_note') return 'toeic_note';
         return 'middle';
@@ -104,8 +103,7 @@
                 ? normalizeLevel(levelOrCtx.l)
                 : normalizeLevel(levelOrCtx);
         if (lv === 'high') return '고등단어';
-        if (lv === 'high_note') return '고등추가단어';
-        if (lv === 'middle_note') return '중등추가단어';
+        if (lv === 'extra_note' || lv === 'middle_note' || lv === 'high_note') return '추가단어';
         if (lv === 'toeic') return '토익단어';
         if (lv === 'toeic_note') return 'LC오답노트';
         return '중등단어';

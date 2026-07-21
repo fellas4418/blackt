@@ -5,38 +5,76 @@
     var IMAGE_MAX_LONG = 1600;
     var JPEG_QUALITY = 0.88;
 
+    var EXTRA_LEVEL = 'extra_note';
+    var STORAGE_KEY = 'trigger_extra_note_user_days';
+    var LEGACY_STORAGE_KEYS = ['trigger_middle_note_user_days', 'trigger_high_note_user_days'];
+    var LEGACY_LEVELS = ['middle_note', 'high_note'];
     var WORDS_PER_DAY = 30;
 
-    var LEVELS = {
-        middle_note: {
-            storageKey: 'trigger_middle_note_user_days',
-            wordsPerDay: WORDS_PER_DAY,
-            baseDays: 0
-        },
-        high_note: {
-            storageKey: 'trigger_high_note_user_days',
-            wordsPerDay: WORDS_PER_DAY,
-            baseDays: 0
-        }
+    var CONFIG = {
+        storageKey: STORAGE_KEY,
+        wordsPerDay: WORDS_PER_DAY,
+        baseDays: 0
     };
 
     var activeLevel = '';
     var pendingBase64 = '';
     var extractedWords = [];
 
-    function cfg(level) {
-        return LEVELS[level] || null;
+    function isLegacyExtraLevel(level) {
+        return LEGACY_LEVELS.indexOf(level) >= 0;
     }
 
     function isExtraWordLevel(level) {
-        return !!cfg(level);
+        return level === EXTRA_LEVEL || isLegacyExtraLevel(level);
     }
 
-    function loadUserDays(level) {
-        var c = cfg(level);
-        if (!c) return {};
+    function normalizeLevel(level) {
+        return isExtraWordLevel(level) ? EXTRA_LEVEL : level;
+    }
+
+    function migrateLegacyExtraNote() {
         try {
-            var raw = localStorage.getItem(c.storageKey);
+            if (!localStorage.getItem(STORAGE_KEY)) {
+                var allWords = [];
+                LEGACY_STORAGE_KEYS.forEach(function (key) {
+                    var raw = localStorage.getItem(key);
+                    if (!raw) return;
+                    var parsed = JSON.parse(raw);
+                    if (!parsed || typeof parsed !== 'object') return;
+                    dayKeys(parsed).forEach(function (d) {
+                        var list = parsed[String(d)];
+                        if (Array.isArray(list)) allWords = allWords.concat(list);
+                    });
+                });
+                if (allWords.length) {
+                    var chunks = chunkWords(normalizeEntries(allWords), WORDS_PER_DAY);
+                    var days = {};
+                    chunks.forEach(function (chunk, i) {
+                        days[String(i + 1)] = chunk;
+                    });
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(days));
+                }
+            }
+            var lvl = localStorage.getItem('trigger_level');
+            if (isLegacyExtraLevel(lvl)) {
+                ['trigger_current_day_', 'trigger_unlocked_day_', 'trigger_session_'].forEach(function (prefix) {
+                    var oldVal = localStorage.getItem(prefix + lvl);
+                    if (oldVal && !localStorage.getItem(prefix + EXTRA_LEVEL)) {
+                        localStorage.setItem(prefix + EXTRA_LEVEL, oldVal);
+                    }
+                });
+                localStorage.setItem('trigger_level', EXTRA_LEVEL);
+            }
+        } catch (e) {}
+    }
+
+    migrateLegacyExtraNote();
+
+    function loadUserDays(level) {
+        if (!isExtraWordLevel(level)) return {};
+        try {
+            var raw = localStorage.getItem(STORAGE_KEY);
             var parsed = raw ? JSON.parse(raw) : {};
             return parsed && typeof parsed === 'object' ? parsed : {};
         } catch (e) {
@@ -45,9 +83,8 @@
     }
 
     function saveUserDays(level, days) {
-        var c = cfg(level);
-        if (!c) return;
-        localStorage.setItem(c.storageKey, JSON.stringify(days || {}));
+        if (!isExtraWordLevel(level)) return;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(days || {}));
     }
 
     function dayKeys(days) {
@@ -58,11 +95,10 @@
     }
 
     function getTotalDays(level) {
-        var c = cfg(level);
-        if (!c) return 0;
+        if (!isExtraWordLevel(level)) return 0;
         var keys = dayKeys(loadUserDays(level));
-        if (!keys.length) return c.baseDays;
-        return Math.max(c.baseDays, keys[keys.length - 1]);
+        if (!keys.length) return CONFIG.baseDays;
+        return Math.max(CONFIG.baseDays, keys[keys.length - 1]);
     }
 
     function getDayWords(level, absoluteDay) {
@@ -77,16 +113,16 @@
     }
 
     function wordsPerDayFor(level) {
-        var c = cfg(level);
-        return c ? c.wordsPerDay : WORDS_PER_DAY;
+        return isExtraWordLevel(level) ? WORDS_PER_DAY : WORDS_PER_DAY;
     }
 
     function initProgressIfNeeded(level) {
         if (!isExtraWordLevel(level)) return;
-        if (!localStorage.getItem('trigger_current_day_' + level)) {
-            localStorage.setItem('trigger_current_day_' + level, '1');
-            localStorage.setItem('trigger_unlocked_day_' + level, '1');
-            localStorage.setItem('trigger_session_' + level, '1');
+        var lvl = EXTRA_LEVEL;
+        if (!localStorage.getItem('trigger_current_day_' + lvl)) {
+            localStorage.setItem('trigger_current_day_' + lvl, '1');
+            localStorage.setItem('trigger_unlocked_day_' + lvl, '1');
+            localStorage.setItem('trigger_session_' + lvl, '1');
         }
     }
 
@@ -146,12 +182,11 @@
     }
 
     function addDaysChunked(level, words, startDayNum) {
-        var c = cfg(level);
-        if (!c) return null;
+        if (!isExtraWordLevel(level)) return null;
         var normalized = normalizeEntries(words);
         if (!normalized.length) return null;
         var startDay = parseInt(startDayNum, 10) || getNextDayNumber(level);
-        var chunks = chunkWords(normalized, c.wordsPerDay);
+        var chunks = chunkWords(normalized, WORDS_PER_DAY);
         var days = loadUserDays(level);
         var saved = [];
         for (var i = 0; i < chunks.length; i++) {
@@ -164,13 +199,14 @@
         var firstDay = saved[0].day;
         var lastDay = saved[saved.length - 1].day;
         initProgressIfNeeded(level);
-        var unlocked = parseInt(localStorage.getItem('trigger_unlocked_day_' + level), 10) || 1;
+        var progressLevel = EXTRA_LEVEL;
+        var unlocked = parseInt(localStorage.getItem('trigger_unlocked_day_' + progressLevel), 10) || 1;
         if (lastDay >= unlocked) {
-            localStorage.setItem('trigger_unlocked_day_' + level, String(lastDay));
-            var cur = parseInt(localStorage.getItem('trigger_current_day_' + level), 10) || 1;
+            localStorage.setItem('trigger_unlocked_day_' + progressLevel, String(lastDay));
+            var cur = parseInt(localStorage.getItem('trigger_current_day_' + progressLevel), 10) || 1;
             if (cur < firstDay) {
-                localStorage.setItem('trigger_current_day_' + level, String(firstDay));
-                localStorage.setItem('trigger_session_' + level, '1');
+                localStorage.setItem('trigger_current_day_' + progressLevel, String(firstDay));
+                localStorage.setItem('trigger_session_' + progressLevel, '1');
             }
         }
         return {
@@ -326,9 +362,7 @@
     }
 
     function resolveActiveLevel(level) {
-        if (isExtraWordLevel(level)) return level;
-        var base = localStorage.getItem('trigger_extra_word_base') || 'middle';
-        return base === 'high' ? 'high_note' : 'middle_note';
+        return isExtraWordLevel(level) ? EXTRA_LEVEL : EXTRA_LEVEL;
     }
 
     function syncUi(level) {
@@ -337,17 +371,13 @@
         var show = isExtraWordLevel(level);
         section.style.display = show ? 'block' : 'none';
         if (!show) return;
-        activeLevel = level;
-        initProgressIfNeeded(level);
-        var wpd = wordsPerDayFor(level);
-        var nextDay = getNextDayNumber(level);
+        activeLevel = EXTRA_LEVEL;
+        initProgressIfNeeded(activeLevel);
+        var wpd = wordsPerDayFor(activeLevel);
+        var nextDay = getNextDayNumber(activeLevel);
         var hint = el('extra-word-import-day-hint');
         if (hint) {
-            hint.textContent = '다음 추가 Day: ' + nextDay + ' · 현재 총 ' + getTotalDays(level) + '일 · 하루 최대 ' + wpd + '개';
-        }
-        var hintTop = el('extra-word-level-hint');
-        if (hintTop) {
-            hintTop.textContent = (level === 'high_note' ? '고등' : '중등') + ' · 하루 최대 ' + wpd + '개';
+            hint.textContent = '다음 추가 Day: ' + nextDay + ' · 현재 총 ' + getTotalDays(activeLevel) + '일 · 하루 최대 ' + wpd + '개';
         }
     }
 
@@ -469,8 +499,9 @@
     }
 
     g.TriggerVocaExtraOcr = {
-        LEVELS: LEVELS,
+        EXTRA_LEVEL: EXTRA_LEVEL,
         isExtraWordLevel: isExtraWordLevel,
+        normalizeLevel: normalizeLevel,
         resolveActiveLevel: resolveActiveLevel,
         initProgressIfNeeded: initProgressIfNeeded,
         loadUserDays: loadUserDays,

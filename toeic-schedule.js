@@ -139,8 +139,7 @@
         }
         if (isExtraWordLevel(level)) {
             var extraTotal = vocaTotalDays(level);
-            var extraLabel = level === 'high_note' ? '고등 추가 단어' : '중등 추가 단어';
-            return '📅 ' + extraLabel + (extraTotal ? ' (' + extraTotal + '일)' : '');
+            return '📅 추가 단어' + (extraTotal ? ' (' + extraTotal + '일)' : '');
         }
         if (isToeicLevel(level)) return '📅 54일 완성 도전하기';
         return '📅 10주 완성 도전하기';

@@ -837,8 +837,7 @@
 
             <div id="extra-word-import-section" class="card" style="display:none; padding: 14px 16px; margin-bottom: 12px; border: 1px dashed rgba(57, 255, 20, 0.45); background: rgba(0, 0, 0, 0.2);">
                 <div style="font-size:0.88rem; color:var(--neon-green); font-weight:bold; margin-bottom:6px;">📷 노트 사진 → Day 추가</div>
-                <div id="extra-word-import-day-hint" style="font-size:0.78rem; color:#888; margin-bottom:4px;">다음 추가 Day: 1</div>
-                <div id="extra-word-level-hint" style="font-size:0.75rem; color:#666; margin-bottom:10px;"></div>
+                <div id="extra-word-import-day-hint" style="font-size:0.78rem; color:#888; margin-bottom:10px;">다음 추가 Day: 1</div>
                 <input type="file" id="extra-word-photo-input" accept="image/*" style="display:none">
                 <div style="display:flex; gap:8px; margin-bottom:10px;">
                     <button type="button" id="extra-word-import-camera" class="level-btn" style="flex:1; padding:10px 6px; font-size:0.85rem;">📸 촬영</button>
@@ -1766,16 +1765,12 @@
         }
 
         function selectExtraWordTrack() {
-            var lvl = localStorage.getItem('trigger_level') || 'middle';
-            var base = (lvl === 'high' || lvl === 'high_note') ? 'high' : 'middle';
-            localStorage.setItem('trigger_extra_word_base', base);
-            selectLevel(base === 'high' ? 'high_note' : 'middle_note');
+            selectLevel('extra_note');
         }
 
         function vocaLevelLabel(lvl) {
             if (lvl === 'high') return '고등';
-            if (lvl === 'high_note') return '고등추가';
-            if (lvl === 'middle_note') return '중등추가';
+            if (lvl === 'extra_note' || lvl === 'middle_note' || lvl === 'high_note') return '추가단어';
             if (lvl === 'toeic') return '토익';
             if (lvl === 'toeic_note') return 'LC노트';
             return '중등';
@@ -1806,10 +1801,10 @@
         }
 
         function selectLevel(level) {
-            localStorage.setItem('trigger_level', level);
-            if (level === 'middle' || level === 'high') {
-                localStorage.setItem('trigger_extra_word_base', level);
+            if (typeof TriggerVocaExtraOcr !== 'undefined' && TriggerVocaExtraOcr.normalizeLevel) {
+                level = TriggerVocaExtraOcr.normalizeLevel(level);
             }
+            localStorage.setItem('trigger_level', level);
             if (isToeicFamilyLevel(level)) {
                 localStorage.setItem('trigger_toeic_last_track', level);
             }
