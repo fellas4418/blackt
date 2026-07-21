@@ -24,7 +24,8 @@
         hoverRole: null,
         docentTimer: null,
         docentIdx: 0,
-        docentPhase: null
+        docentPhase: null,
+        skipDocent: false
     };
 
     function activeRoles() {
@@ -752,27 +753,34 @@
 
     function startSession() {
         state.variantIdx = 0;
-        state.introDone = state.isRepeat;
 
-        if (state.isRepeat) {
+        // 도슨트 있는 패턴: 목차 「연습」 진입 시 항상 설명부터 (완료 여부 무관)
+        // 「한 번 더」만 skipDocent로 스킵
+        if (hasDocent() && !state.skipDocent) {
+            state.introDone = false;
+            var nav = document.getElementById('pattern-nav');
+            if (nav) nav.classList.add('is-hidden');
+            var wrap = document.getElementById('pattern-progress-wrap');
+            if (wrap) wrap.classList.add('is-hidden');
+            startDocent();
+            return;
+        }
+
+        if (hasDocent() || state.isRepeat) {
+            state.introDone = true;
             hideDocentOverlay();
             buildStepDom(currentStep());
             hideIntroBar();
             return;
         }
 
-        var nav = document.getElementById('pattern-nav');
-        if (nav) nav.classList.add('is-hidden');
-
-        if (hasDocent()) {
-            var wrap = document.getElementById('pattern-progress-wrap');
-            if (wrap) wrap.classList.add('is-hidden');
-            startDocent();
-        } else {
-            hideDocentOverlay();
-            buildStepDom(currentStep());
-            runIntroBar(onIntroComplete);
-        }
+        // 도슨트 없는 패턴 첫 진입: 기존 7초 학습 모드
+        state.introDone = false;
+        hideDocentOverlay();
+        var nav2 = document.getElementById('pattern-nav');
+        if (nav2) nav2.classList.add('is-hidden');
+        buildStepDom(currentStep());
+        runIntroBar(onIntroComplete);
     }
 
     function goNext() {
@@ -871,6 +879,7 @@
         document.getElementById('pattern-complete-retry').addEventListener('click', function () {
             document.getElementById('pattern-complete').classList.remove('is-open');
             state.isRepeat = true;
+            state.skipDocent = true;
             startSession();
         });
         document.getElementById('pattern-complete-toc').addEventListener('click', function () {
@@ -892,8 +901,9 @@
     function init() {
         var id = getPatternId();
         state.isRepeat = isDoneBefore(id);
+        state.skipDocent = false;
 
-        fetch('data/patterns/' + id + '.json')
+        fetch('data/patterns/' + id + '.json?v=20260722a')
             .then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
