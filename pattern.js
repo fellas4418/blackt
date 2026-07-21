@@ -179,17 +179,6 @@
         return '서술어는 ~다로 끝내요';
     }
 
-    function playSentenceTts(text) {
-        if (!text || !window.speechSynthesis) return;
-        try {
-            window.speechSynthesis.cancel();
-            var utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'en-US';
-            utterance.rate = 0.92;
-            window.speechSynthesis.speak(utterance);
-        } catch (e) {}
-    }
-
     function findKorByRole(step, role) {
         return (step.kor_slots || []).find(function (s) {
             return roleClass(s.role) === role;
@@ -560,10 +549,6 @@
         syncDrillHint();
         updateStepProgress();
         updateNavUi();
-
-        if (step.eng) {
-            playSentenceTts(step.eng);
-        }
     }
 
     function setProgress(ratio) {
@@ -989,7 +974,7 @@
         state.isRepeat = isDoneBefore(id);
         state.skipDocent = false;
 
-        fetch('data/patterns/' + id + '.json?v=20260722j')
+        fetch('data/patterns/' + id + '.json?v=20260722k')
             .then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
