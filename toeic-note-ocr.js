@@ -6,6 +6,7 @@
     var IMAGE_MAX_LONG = 1600;
     var JPEG_QUALITY = 0.88;
     var BASE_DAYS = 4;
+    var WORDS_PER_DAY = 40;
 
     var pendingBase64 = '';
     var pendingPreviewUrl = '';
@@ -63,25 +64,84 @@
         }).filter(function (x) { return x.word && x.meanings.length; });
     }
 
-    function addDay(words, dayNum) {
+    function chunkWords(list, size) {
+        var chunks = [];
+        var n = parseInt(size, 10) || WORDS_PER_DAY;
+        for (var i = 0; i < list.length; i += n) {
+            chunks.push(list.slice(i, i + n));
+        }
+        return chunks;
+    }
+
+    function formatChunkPlan(total, startDay) {
+        var partCounts = [];
+        var remain = total;
+        while (remain > 0) {
+            partCounts.push(remain >= WORDS_PER_DAY ? WORDS_PER_DAY : remain);
+            remain -= partCounts[partCounts.length - 1];
+        }
+        var endDay = startDay + partCounts.length - 1;
+        if (partCounts.length === 1) {
+            return {
+                confirm: 'Day ' + startDay + '에 ' + total + '개를 추가할까요?',
+                statusSuffix: ''
+            };
+        }
+        return {
+            confirm: total + '개를 Day ' + startDay + '~' + endDay + '에 나눠 저장할까요? (' + partCounts.join('+') + ')',
+            statusSuffix: ' · Day ' + partCounts.length + '개(최대 ' + WORDS_PER_DAY + '개씩)로 나눠 저장'
+        };
+    }
+
+    function formatSaveSummary(result) {
+        if (!result || !result.days.length) return '';
+        if (result.days.length === 1) {
+            return 'Day ' + result.firstDay + '에 ' + result.total + '개 추가했어요.';
+        }
+        var detail = result.days.map(function (d) {
+            return 'Day ' + d.day + ' ' + d.count + '개';
+        }).join(', ');
+        return result.total + '개를 ' + detail + '로 나눠 저장했어요.';
+    }
+
+    function addDaysChunked(words, startDayNum) {
         var normalized = normalizeEntries(words);
         if (!normalized.length) return null;
+        var startDay = parseInt(startDayNum, 10) || getNextDayNumber(BASE_DAYS);
+        var chunks = chunkWords(normalized, WORDS_PER_DAY);
         var days = loadUserDays();
-        var day = String(dayNum || getNextDayNumber(BASE_DAYS));
-        days[day] = normalized;
+        var saved = [];
+        for (var c = 0; c < chunks.length; c++) {
+            var dayInt = startDay + c;
+            days[String(dayInt)] = chunks[c];
+            saved.push({ day: dayInt, count: chunks[c].length });
+        }
         saveUserDays(days);
 
+        var firstDay = saved[0].day;
+        var lastDay = saved[saved.length - 1].day;
         var unlocked = parseInt(localStorage.getItem('trigger_unlocked_day_toeic_note'), 10) || 1;
-        var dayInt = parseInt(day, 10);
-        if (dayInt >= unlocked) {
-            localStorage.setItem('trigger_unlocked_day_toeic_note', String(dayInt));
+        if (lastDay >= unlocked) {
+            localStorage.setItem('trigger_unlocked_day_toeic_note', String(lastDay));
             var cur = parseInt(localStorage.getItem('trigger_current_day_toeic_note'), 10) || 1;
-            if (cur < dayInt) {
-                localStorage.setItem('trigger_current_day_toeic_note', String(dayInt));
+            if (cur < firstDay) {
+                localStorage.setItem('trigger_current_day_toeic_note', String(firstDay));
                 localStorage.setItem('trigger_session_toeic_note', '1');
             }
         }
-        return { day: dayInt, count: normalized.length };
+        return {
+            total: normalized.length,
+            days: saved,
+            firstDay: firstDay,
+            lastDay: lastDay
+        };
+    }
+
+    function addDay(words, dayNum) {
+        var startDay = dayNum || getNextDayNumber(BASE_DAYS);
+        var result = addDaysChunked(words, startDay);
+        if (!result || !result.days.length) return null;
+        return { day: result.firstDay, count: result.days[0].count, result: result };
     }
 
     function compressImageFile(file, done) {
@@ -236,7 +296,9 @@
         if (show) {
             var nextDay = getNextDayNumber(BASE_DAYS);
             var hint = el('toeic-note-import-day-hint');
-            if (hint) hint.textContent = '다음 추가 Day: ' + nextDay + ' · 현재 총 ' + getTotalDays(BASE_DAYS) + '일';
+            if (hint) {
+                hint.textContent = '다음 추가 Day: ' + nextDay + ' · 현재 총 ' + getTotalDays(BASE_DAYS) + '일 · 하루 최대 ' + WORDS_PER_DAY + '개';
+            }
         }
     }
 
@@ -291,7 +353,8 @@
             if (!extractedWords.length) {
                 setImportStatus('단어를 찾지 못했어요. 더 선명한 사진으로 다시 시도해 주세요.', true);
             } else {
-                setImportStatus(extractedWords.length + '개 추출됨. 확인 후 「Day에 추가」를 눌러 주세요.', false);
+                var planHint = formatChunkPlan(extractedWords.length, getNextDayNumber(BASE_DAYS));
+                setImportStatus(extractedWords.length + '개 추출됨' + planHint.statusSuffix + '. 확인 후 「Day에 추가」를 눌러 주세요.', false);
                 if (saveBtn) saveBtn.style.display = 'block';
             }
         }).catch(function (err) {
@@ -309,8 +372,9 @@
             return;
         }
         var nextDay = getNextDayNumber(BASE_DAYS);
-        if (!confirm('Day ' + nextDay + '에 ' + extractedWords.length + '개를 추가할까요?')) return;
-        var result = addDay(extractedWords, nextDay);
+        var plan = formatChunkPlan(extractedWords.length, nextDay);
+        if (!confirm(plan.confirm)) return;
+        var result = addDaysChunked(extractedWords, nextDay);
         if (!result) {
             alert('저장할 단어가 없습니다.');
             return;
@@ -325,10 +389,11 @@
         var saveBtn = el('toeic-note-import-save');
         if (saveBtn) saveBtn.style.display = 'none';
         renderPreviewList([]);
-        setImportStatus('Day ' + result.day + '에 ' + result.count + '개 추가됨!', false);
+        var summary = formatSaveSummary(result);
+        setImportStatus(summary, false);
         showSection('toeic_note');
         if (typeof updateDashboardUI === 'function') updateDashboardUI();
-        alert('Day ' + result.day + '에 ' + result.count + '개 추가했어요.\n「학습 시작하기」로 바로 학습할 수 있습니다.');
+        alert(summary + '\n「학습 시작하기」로 바로 학습할 수 있습니다.');
     }
 
     function resolveToeicNoteWords(staticWords, absoluteDay) {
@@ -370,6 +435,8 @@
     g.TriggerToeicNoteOcr = {
         STORAGE_KEY: STORAGE_KEY,
         BASE_DAYS: BASE_DAYS,
+        WORDS_PER_DAY: WORDS_PER_DAY,
+        addDaysChunked: addDaysChunked,
         loadUserDays: loadUserDays,
         getTotalDays: getTotalDays,
         getDayWords: getDayWords,
