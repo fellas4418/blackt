@@ -2,6 +2,8 @@
     'use strict';
 
     var INTRO_BAR_MS = 7000;
+    var DOCENT_LINE_MS = 3400;
+    var DOCENT_BRIDGE_MS = 3000;
     var COL_COMP = { s: '주어', o: '목적어', c: '보어', v: '서술어' };
     var PARTICLE_POOL = ['은', '는', '이', '가', '을', '를', '다'];
     var SUBJECT_PARTICLES = { '은': 1, '는': 1, '이': 1, '가': 1 };
@@ -19,7 +21,10 @@
         drillFilled: {},
         selectedChip: null,
         usedChips: {},
-        hoverRole: null
+        hoverRole: null,
+        docentTimer: null,
+        docentIdx: 0,
+        docentPhase: null
     };
 
     function activeRoles() {
@@ -644,21 +649,128 @@
 
     function onIntroComplete() {
         state.introDone = true;
+        hideDocentOverlay();
         hideIntroBar();
         buildStepDom(currentStep());
+    }
+
+    function hasDocent() {
+        return !!(state.data && Array.isArray(state.data.docent) && state.data.docent.length);
+    }
+
+    function clearDocentTimer() {
+        if (state.docentTimer) {
+            clearTimeout(state.docentTimer);
+            state.docentTimer = null;
+        }
+    }
+
+    function showDocentOverlay() {
+        var page = document.querySelector('.pattern-page');
+        var el = document.getElementById('pattern-docent');
+        if (page) page.classList.add('is-docent');
+        if (el) el.classList.remove('is-hidden');
+    }
+
+    function hideDocentOverlay() {
+        var page = document.querySelector('.pattern-page');
+        var el = document.getElementById('pattern-docent');
+        clearDocentTimer();
+        state.docentPhase = null;
+        if (page) page.classList.remove('is-docent');
+        if (el) {
+            el.classList.add('is-hidden');
+            el.classList.remove('is-show', 'is-bridge');
+        }
+    }
+
+    function renderDocentFrame(role, text, isBridge) {
+        var el = document.getElementById('pattern-docent');
+        var roleEl = document.getElementById('pattern-docent-role');
+        var textEl = document.getElementById('pattern-docent-text');
+        var tapEl = document.getElementById('pattern-docent-tap');
+        if (!el || !textEl) return;
+
+        el.classList.remove('is-show');
+        el.classList.toggle('is-bridge', !!isBridge);
+        if (roleEl) roleEl.textContent = role || '';
+        textEl.textContent = text || '';
+        if (tapEl) {
+            tapEl.textContent = isBridge ? '탭하여 시작' : '탭하여 다음';
+        }
+
+        void el.offsetWidth;
+        el.classList.add('is-show');
+    }
+
+    function scheduleDocentAdvance(ms) {
+        clearDocentTimer();
+        state.docentTimer = setTimeout(function () {
+            advanceDocent();
+        }, ms);
+    }
+
+    function showDocentBridge() {
+        state.docentPhase = 'bridge';
+        var bridge =
+            (state.data && state.data.docent_bridge) ||
+            '이제 해석 연습으로 들어갑니다.';
+        renderDocentFrame('', bridge, true);
+        scheduleDocentAdvance(DOCENT_BRIDGE_MS);
+    }
+
+    function showDocentLine() {
+        var lines = state.data.docent || [];
+        if (state.docentIdx >= lines.length) {
+            showDocentBridge();
+            return;
+        }
+        state.docentPhase = 'lines';
+        var item = lines[state.docentIdx];
+        renderDocentFrame(item.role || '', item.text || '', false);
+        scheduleDocentAdvance(DOCENT_LINE_MS);
+    }
+
+    function advanceDocent() {
+        if (state.docentPhase === 'bridge') {
+            clearDocentTimer();
+            onIntroComplete();
+            return;
+        }
+        if (state.docentPhase === 'lines') {
+            state.docentIdx += 1;
+            showDocentLine();
+        }
+    }
+
+    function startDocent() {
+        state.docentIdx = 0;
+        state.docentPhase = 'lines';
+        showDocentOverlay();
+        showDocentLine();
     }
 
     function startSession() {
         state.variantIdx = 0;
         state.introDone = state.isRepeat;
 
-        buildStepDom(currentStep());
-
         if (state.isRepeat) {
+            hideDocentOverlay();
+            buildStepDom(currentStep());
             hideIntroBar();
+            return;
+        }
+
+        var nav = document.getElementById('pattern-nav');
+        if (nav) nav.classList.add('is-hidden');
+
+        if (hasDocent()) {
+            var wrap = document.getElementById('pattern-progress-wrap');
+            if (wrap) wrap.classList.add('is-hidden');
+            startDocent();
         } else {
-            var nav = document.getElementById('pattern-nav');
-            if (nav) nav.classList.add('is-hidden');
+            hideDocentOverlay();
+            buildStepDom(currentStep());
             runIntroBar(onIntroComplete);
         }
     }
@@ -744,6 +856,14 @@
     function bindUi() {
         document.getElementById('pattern-btn-prev').addEventListener('click', goPrev);
         document.getElementById('pattern-btn-next').addEventListener('click', goNext);
+
+        var docentEl = document.getElementById('pattern-docent');
+        if (docentEl) {
+            docentEl.addEventListener('click', function () {
+                if (!state.docentPhase) return;
+                advanceDocent();
+            });
+        }
 
         document.getElementById('pattern-back').addEventListener('click', function () {
             location.href = 'index.html?tab=reading';

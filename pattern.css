@@ -69,6 +69,88 @@
     border-bottom: none;
 }
 
+/* 도슨트 설명 중 — 연습 UI 숨김 */
+.pattern-page.is-docent .pattern-guide,
+.pattern-page.is-docent .pattern-progress,
+.pattern-page.is-docent .pattern-phase-badge,
+.pattern-page.is-docent .pattern-stage,
+.pattern-page.is-docent .pattern-nav {
+    display: none;
+}
+
+.pattern-docent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    width: 100%;
+    min-height: 280px;
+    padding: 24px 8px 40px;
+    box-sizing: border-box;
+    text-align: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+.pattern-docent.is-hidden {
+    display: none;
+}
+
+.pattern-docent-inner {
+    width: 100%;
+    max-width: 360px;
+}
+
+.pattern-docent-role {
+    margin: 0 0 14px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--neon-blue, #00f3ff);
+    text-shadow: 0 0 10px rgba(0, 243, 255, 0.25);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+.pattern-docent-text {
+    margin: 0;
+    font-size: clamp(1.05rem, 4.2vw, 1.22rem);
+    font-weight: 700;
+    line-height: 1.55;
+    color: #eee;
+    letter-spacing: -0.02em;
+    white-space: pre-line;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.pattern-docent.is-bridge .pattern-docent-role {
+    display: none;
+}
+
+.pattern-docent.is-bridge .pattern-docent-text {
+    color: var(--neon-green);
+    text-shadow: 0 0 12px rgba(57, 255, 20, 0.2);
+}
+
+.pattern-docent.is-show .pattern-docent-role,
+.pattern-docent.is-show .pattern-docent-text {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.pattern-docent-tap {
+    margin: 36px 0 0;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #555;
+    letter-spacing: 0.02em;
+}
+
 .pattern-guide-fold {
     font-weight: normal;
     color: #888;
