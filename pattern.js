@@ -238,7 +238,7 @@
         var total = state.data.steps.length;
         badge.innerHTML = '<span class="pattern-phase-badge-core">' +
             '<span class="pattern-phase-badge-ch">' + (state.variantIdx + 1) + '/' + total + '</span>' +
-            '<span class="pattern-phase-badge-txt">조사 붙이기</span>' +
+            '<span class="pattern-phase-badge-txt">자리 표시하기</span>' +
             '</span>';
     }
 
@@ -334,13 +334,13 @@
             return;
         }
         if (isDrillComplete()) {
-            hint.textContent = '완성! 다음 문장으로 넘어가 보세요 →';
+            hint.textContent = '잘 표시했습니다. 다음 문장으로 가 보세요 →';
             hint.classList.add('is-done');
         } else if (state.selectedChip) {
             hint.textContent =
                 '「' + state.selectedChip + '」→ 붙일 칸(' + roleLabelsHint() + ')을 탭하세요';
         } else {
-            hint.textContent = '조사를 고른 뒤, 맞는 칸에 붙이세요';
+            hint.textContent = '조사를 고른 뒤, 맞는 칸에 붙여 보세요';
         }
     }
 
@@ -411,7 +411,7 @@
         if (isDrillComplete()) {
             onDrillAllComplete();
         } else {
-            syncDrillHint('잘 붙였어요!', 'ok');
+            syncDrillHint('자리에 잘 붙었습니다.', 'ok');
             setTimeout(function () { syncDrillHint(); }, 900);
             updateNavUi();
             updateStepProgress();
@@ -654,6 +654,12 @@
         hideDocentOverlay();
         hideIntroBar();
         buildStepDom(currentStep());
+        var stage = document.getElementById('pattern-stage');
+        if (stage) {
+            stage.classList.remove('is-enter');
+            void stage.offsetWidth;
+            stage.classList.add('is-enter');
+        }
     }
 
     function hasDocent() {
@@ -957,7 +963,7 @@
         state.isRepeat = isDoneBefore(id);
         state.skipDocent = false;
 
-        fetch('data/patterns/' + id + '.json?v=20260722f')
+        fetch('data/patterns/' + id + '.json?v=20260722g')
             .then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
