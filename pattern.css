@@ -117,8 +117,8 @@
 
 .pattern-docent-example {
     display: none;
-    margin: 0 0 22px;
-    padding: 16px 14px;
+    margin: 0 0 8px;
+    padding: 16px 14px 12px;
     font-size: clamp(1.18rem, 5vw, 1.42rem);
     font-weight: 700;
     line-height: 1.55;
@@ -126,7 +126,7 @@
     color: #c8c8c8;
     background: transparent;
     border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: none;
     border-radius: 0;
     opacity: 0;
     transform: translateY(6px);
@@ -135,6 +135,30 @@
 
 .pattern-docent.has-example .pattern-docent-example {
     display: block;
+}
+
+.pattern-docent-example-kor {
+    display: none;
+    margin: 0 0 22px;
+    padding: 0 14px 14px;
+    font-size: clamp(0.92rem, 3.6vw, 1.05rem);
+    font-weight: 600;
+    line-height: 1.5;
+    color: #888;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.75s ease, transform 0.75s ease;
+}
+
+.pattern-docent.has-kor .pattern-docent-example-kor {
+    display: block;
+}
+
+.pattern-docent.has-example:not(.has-kor) .pattern-docent-example {
+    margin-bottom: 22px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .pattern-docent-mark {
@@ -186,6 +210,7 @@
 
 .pattern-docent.is-bridge .pattern-docent-role,
 .pattern-docent.is-bridge .pattern-docent-example,
+.pattern-docent.is-bridge .pattern-docent-example-kor,
 .pattern-docent.is-bridge .pattern-docent-step {
     display: none;
 }
@@ -199,6 +224,7 @@
 
 .pattern-docent.is-show .pattern-docent-role,
 .pattern-docent.is-show .pattern-docent-example,
+.pattern-docent.is-show .pattern-docent-example-kor,
 .pattern-docent.is-show .pattern-docent-text,
 .pattern-docent.is-show .pattern-docent-step {
     opacity: 1;

@@ -682,7 +682,7 @@
         if (page) page.classList.remove('is-docent');
         if (el) {
             el.classList.add('is-hidden');
-            el.classList.remove('is-show', 'is-bridge', 'has-example');
+            el.classList.remove('is-show', 'is-bridge', 'has-example', 'has-kor');
         }
     }
 
@@ -709,6 +709,7 @@
         var el = document.getElementById('pattern-docent');
         var roleEl = document.getElementById('pattern-docent-role');
         var exampleEl = document.getElementById('pattern-docent-example');
+        var korEl = document.getElementById('pattern-docent-example-kor');
         var textEl = document.getElementById('pattern-docent-text');
         var stepEl = document.getElementById('pattern-docent-step');
         var tapEl = document.getElementById('pattern-docent-tap');
@@ -719,11 +720,16 @@
         el.classList.toggle('is-bridge', !!isBridge);
 
         var hasExample = !isBridge && item.parts && item.parts.length;
+        var hasKor = !isBridge && item.kor_parts && item.kor_parts.length;
         el.classList.toggle('has-example', !!hasExample);
+        el.classList.toggle('has-kor', !!hasKor);
 
         if (roleEl) roleEl.textContent = isBridge ? '' : item.role || '';
         if (exampleEl) {
             exampleEl.innerHTML = hasExample ? buildDocentMarkedHtml(item.parts) : '';
+        }
+        if (korEl) {
+            korEl.innerHTML = hasKor ? buildDocentMarkedHtml(item.kor_parts) : '';
         }
 
         if (isBridge) {
@@ -951,7 +957,7 @@
         state.isRepeat = isDoneBefore(id);
         state.skipDocent = false;
 
-        fetch('data/patterns/' + id + '.json?v=20260722d')
+        fetch('data/patterns/' + id + '.json?v=20260722e')
             .then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
