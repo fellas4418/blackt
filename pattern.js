@@ -957,7 +957,7 @@
         state.isRepeat = isDoneBefore(id);
         state.skipDocent = false;
 
-        fetch('data/patterns/' + id + '.json?v=20260722e')
+        fetch('data/patterns/' + id + '.json?v=20260722f')
             .then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
