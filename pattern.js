@@ -18,7 +18,8 @@
         progressInterval: null,
         drillFilled: { s: false, o: false, v: false },
         selectedChip: null,
-        usedChips: {}
+        usedChips: {},
+        hoverRole: null
     };
 
     function clearProgress() {
@@ -65,6 +66,7 @@
         state.drillFilled = { s: false, o: false, v: false };
         state.selectedChip = null;
         state.usedChips = {};
+        state.hoverRole = null;
         if (isLearnMode()) {
             state.drillFilled = { s: true, o: true, v: true };
         }
@@ -169,20 +171,80 @@
             '</span>';
     }
 
+    function syncEngHighlight() {
+        var learn = isLearnMode();
+        var tokens = document.querySelectorAll('.pattern-eng-tok');
+        tokens.forEach(function (tok) {
+            var role = tok.dataset.role;
+            var filled = !!state.drillFilled[role];
+            var done = filled && !learn;
+            var lit = state.hoverRole === role;
+            tok.classList.toggle('is-done', done);
+            tok.classList.toggle('is-lit', lit && !done);
+            tok.classList.toggle('is-await', !!state.selectedChip && !filled && !learn);
+        });
+
+        document.querySelectorAll('.pattern-col').forEach(function (col) {
+            var role = col.dataset.role;
+            col.classList.toggle('is-eng-sync', state.hoverRole === role);
+        });
+    }
+
+    function setHoverRole(role) {
+        state.hoverRole = role || null;
+        syncEngHighlight();
+    }
+
+    function onEngTokenClick(role) {
+        if (!role) return;
+        setHoverRole(role);
+        if (isLearnMode()) return;
+        if (state.selectedChip && !state.drillFilled[role]) {
+            applyParticleToRole(role, state.selectedChip);
+            return;
+        }
+        var col = document.querySelector('.pattern-col[data-role="' + role + '"]');
+        if (col) {
+            col.classList.remove('is-shake');
+            void col.offsetWidth;
+            col.classList.add('is-shake');
+        }
+    }
+
     function renderEngHero(step) {
         var el = document.getElementById('pattern-eng-hero');
         if (!el || !step) return;
 
-        if (step.eng) {
-            el.textContent = step.eng;
+        el.innerHTML = '';
+        var tokens = step.eng_tokens || [];
+
+        if (tokens.length) {
+            tokens.forEach(function (t, i) {
+                if (i > 0) el.appendChild(document.createTextNode(' '));
+                var role = roleClass(t.role);
+                var span = document.createElement('span');
+                span.className = 'pattern-eng-tok pattern-eng-tok--' + role;
+                span.dataset.role = role;
+                span.textContent = t.text || '';
+                span.addEventListener('pointerenter', function () {
+                    setHoverRole(role);
+                });
+                span.addEventListener('pointerleave', function () {
+                    if (state.hoverRole === role) setHoverRole(null);
+                });
+                span.addEventListener('click', function () {
+                    onEngTokenClick(role);
+                });
+                el.appendChild(span);
+            });
         } else {
-            var tokens = step.eng_tokens || [];
-            el.textContent = tokens.map(function (t) { return t.text; }).join(' ');
+            el.textContent = step.eng || '';
         }
 
         el.classList.remove('is-enter');
         void el.offsetWidth;
         el.classList.add('is-enter');
+        syncEngHighlight();
     }
 
     function syncDrillHint(msg, kind) {
@@ -272,6 +334,7 @@
 
         col.classList.add('is-filled');
         col.classList.remove('is-target');
+        syncEngHighlight();
 
         if (isDrillComplete()) {
             onDrillAllComplete();
@@ -292,6 +355,7 @@
         });
         renderParticlePool();
         syncDrillHint();
+        syncEngHighlight();
     }
 
     function onCardClick(role) {
@@ -380,6 +444,13 @@
         inner.appendChild(korEl);
         inner.appendChild(markerEl);
         col.appendChild(inner);
+
+        col.addEventListener('pointerenter', function () {
+            setHoverRole(role);
+        });
+        col.addEventListener('pointerleave', function () {
+            if (state.hoverRole === role) setHoverRole(null);
+        });
 
         if (!learnMode && !state.drillFilled[role]) {
             col.classList.add('is-tappable');
