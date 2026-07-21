@@ -62,5 +62,5 @@
       ]
     }
   ],
-  "next": { "id": "svc", "title": "주·동·보", "ready": false }
+  "next": { "id": "svc", "title": "주·동·보", "ready": true }
 }

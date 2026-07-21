@@ -7,7 +7,7 @@
       "title": "문장 성분",
       "patterns": [
         { "id": "svo", "title": "주·동·목", "ready": true },
-        { "id": "svc", "title": "주·동·보", "ready": false },
+        { "id": "svc", "title": "주·동·보", "ready": true },
         { "id": "svoc", "title": "주·동·목·보", "ready": false }
       ]
     },

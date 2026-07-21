@@ -185,6 +185,10 @@
     color: rgba(255, 153, 0, 0.68);
 }
 
+.pattern-eng-tok--c {
+    color: rgba(200, 120, 255, 0.72);
+}
+
 .pattern-eng-tok--v {
     color: rgba(255, 204, 85, 0.7);
 }
@@ -209,6 +213,12 @@
     color: #ff9900;
     background: rgba(255, 153, 0, 0.16);
     box-shadow: 0 0 14px rgba(255, 153, 0, 0.28);
+}
+
+.pattern-eng-tok--c.is-lit {
+    color: #d08cff;
+    background: rgba(200, 120, 255, 0.16);
+    box-shadow: 0 0 14px rgba(200, 120, 255, 0.3);
 }
 
 .pattern-eng-tok--v.is-lit {

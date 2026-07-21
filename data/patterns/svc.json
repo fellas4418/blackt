@@ -1,0 +1,68 @@
+{
+  "id": "svc",
+  "chapter": "01",
+  "title": "주·동·보",
+  "subtitle": "누가 · 뭐 한다 · 무엇이",
+  "roles": ["s", "v", "c"],
+  "guide": [
+    "주어 뒤에는 은/는",
+    "보어 뒤에는 이/가 (되다·아니다)",
+    "동사는 ~다",
+    "목적어(을/를)와 헷갈리지 마세요"
+  ],
+  "steps": [
+    {
+      "eng": "Mario became a hero.",
+      "eng_tokens": [
+        { "text": "Mario", "maps": 0, "role": "s" },
+        { "text": "became", "maps": 2, "role": "v" },
+        { "text": "a hero", "maps": 1, "role": "c" }
+      ],
+      "kor_slots": [
+        { "word": "마리오", "particle": "는", "role": "주어", "rule": "은/는" },
+        { "word": "영웅", "particle": "이", "role": "보어", "rule": "이/가" },
+        { "word": "되었다", "particle": "", "role": "서술어", "rule": "-다" }
+      ]
+    },
+    {
+      "eng": "Luna became a singer.",
+      "eng_tokens": [
+        { "text": "Luna", "maps": 0, "role": "s" },
+        { "text": "became", "maps": 2, "role": "v" },
+        { "text": "a singer", "maps": 1, "role": "c" }
+      ],
+      "kor_slots": [
+        { "word": "루나", "particle": "는", "role": "주어", "rule": "은/는" },
+        { "word": "가수", "particle": "가", "role": "보어", "rule": "이/가" },
+        { "word": "되었다", "particle": "", "role": "서술어", "rule": "-다" }
+      ]
+    },
+    {
+      "eng": "Einstein became a teacher.",
+      "eng_tokens": [
+        { "text": "Einstein", "maps": 0, "role": "s" },
+        { "text": "became", "maps": 2, "role": "v" },
+        { "text": "a teacher", "maps": 1, "role": "c" }
+      ],
+      "kor_slots": [
+        { "word": "아인슈타인", "particle": "은", "role": "주어", "rule": "은/는" },
+        { "word": "선생님", "particle": "이", "role": "보어", "rule": "이/가" },
+        { "word": "되었다", "particle": "", "role": "서술어", "rule": "-다" }
+      ]
+    },
+    {
+      "eng": "Students became doctors.",
+      "eng_tokens": [
+        { "text": "Students", "maps": 0, "role": "s" },
+        { "text": "became", "maps": 2, "role": "v" },
+        { "text": "doctors", "maps": 1, "role": "c" }
+      ],
+      "kor_slots": [
+        { "word": "학생들", "particle": "은", "role": "주어", "rule": "은/는" },
+        { "word": "의사", "particle": "가", "role": "보어", "rule": "이/가" },
+        { "word": "되었다", "particle": "", "role": "서술어", "rule": "-다" }
+      ]
+    }
+  ],
+  "next": { "id": "svoc", "title": "주·동·목·보", "ready": false }
+}

@@ -2,12 +2,12 @@
     'use strict';
 
     var INTRO_BAR_MS = 7000;
-    var COL_ROLES = ['s', 'v', 'o'];
-    var COL_COMP = { s: '주어', o: '목적어', v: '서술어' };
-    var COL_MARKER = { s: '은/는/이가', o: '을/를', v: '다' };
+    var COL_COMP = { s: '주어', o: '목적어', c: '보어', v: '서술어' };
     var PARTICLE_POOL = ['은', '는', '이', '가', '을', '를', '다'];
     var SUBJECT_PARTICLES = { '은': 1, '는': 1, '이': 1, '가': 1 };
+    var TOPIC_PARTICLES = { '은': 1, '는': 1 };
     var OBJECT_PARTICLES = { '을': 1, '를': 1 };
+    var COMPLEMENT_PARTICLES = { '이': 1, '가': 1 };
     var VERB_PARTICLES = { '다': 1 };
 
     var state = {
@@ -16,11 +16,45 @@
         introDone: false,
         isRepeat: false,
         progressInterval: null,
-        drillFilled: { s: false, o: false, v: false },
+        drillFilled: {},
         selectedChip: null,
         usedChips: {},
         hoverRole: null
     };
+
+    function activeRoles() {
+        if (state.data && Array.isArray(state.data.roles) && state.data.roles.length) {
+            return state.data.roles.slice();
+        }
+        return ['s', 'v', 'o'];
+    }
+
+    function patternHasRole(role) {
+        return activeRoles().indexOf(role) >= 0;
+    }
+
+    function emptyDrillFilled(filled) {
+        var o = {};
+        activeRoles().forEach(function (role) {
+            o[role] = !!filled;
+        });
+        return o;
+    }
+
+    function markerFor(role) {
+        if (role === 's') return patternHasRole('c') ? '은/는' : '은/는/이/가';
+        if (role === 'o') return '을/를';
+        if (role === 'c') return '이/가';
+        return '다';
+    }
+
+    function roleLabelsHint() {
+        return activeRoles()
+            .map(function (r) {
+                return COL_COMP[r] || r;
+            })
+            .join('·');
+    }
 
     function clearProgress() {
         if (state.progressInterval) {
@@ -44,6 +78,7 @@
     function roleClass(role) {
         if (role === 's' || role === '주어') return 's';
         if (role === 'o' || role === '목적어') return 'o';
+        if (role === 'c' || role === '보어') return 'c';
         return 'v';
     }
 
@@ -63,17 +98,17 @@
     }
 
     function resetDrillState() {
-        state.drillFilled = { s: false, o: false, v: false };
+        state.drillFilled = emptyDrillFilled(false);
         state.selectedChip = null;
         state.usedChips = {};
         state.hoverRole = null;
         if (isLearnMode()) {
-            state.drillFilled = { s: true, o: true, v: true };
+            state.drillFilled = emptyDrillFilled(true);
         }
     }
 
     function isDrillComplete() {
-        return COL_ROLES.every(function (role) {
+        return activeRoles().every(function (role) {
             return state.drillFilled[role];
         });
     }
@@ -99,7 +134,14 @@
     function validParticlesForRole(word, role) {
         if (role === 'v') return ['다'];
         if (role === 's') {
+            // 보어가 이/가를 쓰므로, 주·동·보에서는 주어를 은/는만 허용
+            if (patternHasRole('c')) {
+                return hasBatchim(word) ? ['은'] : ['는'];
+            }
             return hasBatchim(word) ? ['은', '이'] : ['는', '가'];
+        }
+        if (role === 'c') {
+            return hasBatchim(word) ? ['이'] : ['가'];
         }
         return hasBatchim(word) ? ['을'] : ['를'];
     }
@@ -110,6 +152,10 @@
 
     function batchimErrorMessage(role, word) {
         if (role === 's') {
+            if (patternHasRole('c')) {
+                if (hasBatchim(word)) return '받침이 있어요. 주어에는 은을 붙여요';
+                return '받침이 없어요. 주어에는 는을 붙여요';
+            }
             if (hasBatchim(word)) {
                 return '받침이 있어요. 주어에는 은·이 중 하나를 붙여요';
             }
@@ -118,6 +164,10 @@
         if (role === 'o') {
             if (hasBatchim(word)) return '받침이 있어요. 목적어에는 을을 붙여요';
             return '받침이 없어요. 목적어에는 를을 붙여요';
+        }
+        if (role === 'c') {
+            if (hasBatchim(word)) return '받침이 있어요. 보어에는 이를 붙여요';
+            return '받침이 없어요. 보어에는 가를 붙여요';
         }
         return '서술어는 ~다로 끝내요';
     }
@@ -140,15 +190,23 @@
     }
 
     function particleAllowedForRole(role, chip) {
-        if (role === 's') return !!SUBJECT_PARTICLES[chip];
+        if (role === 's') {
+            if (patternHasRole('c')) return !!TOPIC_PARTICLES[chip];
+            return !!SUBJECT_PARTICLES[chip];
+        }
         if (role === 'o') return !!OBJECT_PARTICLES[chip];
+        if (role === 'c') return !!COMPLEMENT_PARTICLES[chip];
         return !!VERB_PARTICLES[chip];
     }
 
     function roleErrorMessage(role, chip) {
         if (role === 's') {
             if (OBJECT_PARTICLES[chip]) return '목적어 조사(을·를)는 주어에 붙이지 않아요';
+            if (COMPLEMENT_PARTICLES[chip] && patternHasRole('c')) {
+                return '보어 조사(이·가)는 주어에 붙이지 않아요. 주어에는 은·는이에요';
+            }
             if (VERB_PARTICLES[chip]) return '서술어(~다)는 주어 자리에 붙이지 않아요';
+            if (patternHasRole('c')) return '주어에는 은·는 중 하나를 붙여요';
             return '주어에는 은·는·이·가 중 하나를 붙여요';
         }
         if (role === 'o') {
@@ -156,7 +214,13 @@
             if (VERB_PARTICLES[chip]) return '서술어(~다)는 목적어에 붙이지 않아요';
             return '목적어에는 을·를 중 하나를 붙여요';
         }
-        if (SUBJECT_PARTICLES[chip]) return '주어 조사(은·는·이·가)는 서술어에 붙이지 않아요';
+        if (role === 'c') {
+            if (TOPIC_PARTICLES[chip]) return '주어 조사(은·는)은 보어에 붙이지 않아요';
+            if (OBJECT_PARTICLES[chip]) return '목적어 조사(을·를)는 보어에 붙이지 않아요';
+            if (VERB_PARTICLES[chip]) return '서술어(~다)는 보어 자리에 붙이지 않아요';
+            return '보어에는 이·가 중 하나를 붙여요';
+        }
+        if (SUBJECT_PARTICLES[chip]) return '주어·보어 조사는 서술어에 붙이지 않아요';
         if (OBJECT_PARTICLES[chip]) return '목적어 조사(을·를)는 서술어에 붙이지 않아요';
         return '서술어는 ~다로 끝내요';
     }
@@ -266,7 +330,8 @@
             hint.textContent = '완성! 다음 문장으로 넘어가 보세요 →';
             hint.classList.add('is-done');
         } else if (state.selectedChip) {
-            hint.textContent = '「' + state.selectedChip + '」→ 붙일 칸(주어·목적어·서술어)을 탭하세요';
+            hint.textContent =
+                '「' + state.selectedChip + '」→ 붙일 칸(' + roleLabelsHint() + ')을 탭하세요';
         } else {
             hint.textContent = '조사를 고른 뒤, 맞는 칸에 붙이세요';
         }
@@ -438,7 +503,7 @@
 
         var markerEl = document.createElement('div');
         markerEl.className = 'pattern-col-marker';
-        markerEl.textContent = COL_MARKER[role] || '';
+        markerEl.textContent = markerFor(role);
 
         inner.appendChild(compEl);
         inner.appendChild(korEl);
@@ -471,7 +536,7 @@
 
         var learnMode = isLearnMode();
 
-        COL_ROLES.forEach(function (role) {
+        activeRoles().forEach(function (role) {
             var korSlot = findKorByRole(step, role);
             if (!korSlot) return;
 
