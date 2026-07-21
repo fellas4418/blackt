@@ -686,11 +686,11 @@
         }
     }
 
-    function buildDocentExampleHtml(parts) {
+    function buildDocentMarkedHtml(parts) {
         if (!parts || !parts.length) return '';
         return parts
             .map(function (p) {
-                var t = escapeHtml(p.text || '');
+                var t = escapeHtml(p.text || '').replace(/\n/g, '<br>');
                 if (p.mark) {
                     return (
                         '<span class="pattern-docent-mark pattern-docent-mark--' +
@@ -723,11 +723,16 @@
 
         if (roleEl) roleEl.textContent = isBridge ? '' : item.role || '';
         if (exampleEl) {
-            exampleEl.innerHTML = hasExample ? buildDocentExampleHtml(item.parts) : '';
+            exampleEl.innerHTML = hasExample ? buildDocentMarkedHtml(item.parts) : '';
         }
-        textEl.textContent = isBridge
-            ? item.text || ''
-            : item.text || '';
+
+        if (isBridge) {
+            textEl.textContent = item.text || '';
+        } else if (item.text_parts && item.text_parts.length) {
+            textEl.innerHTML = buildDocentMarkedHtml(item.text_parts);
+        } else {
+            textEl.textContent = item.text || '';
+        }
 
         if (stepEl) {
             if (isBridge) {
@@ -946,7 +951,7 @@
         state.isRepeat = isDoneBefore(id);
         state.skipDocent = false;
 
-        fetch('data/patterns/' + id + '.json?v=20260722c')
+        fetch('data/patterns/' + id + '.json?v=20260722d')
             .then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
