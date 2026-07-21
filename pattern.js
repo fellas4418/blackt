@@ -2,8 +2,9 @@
     'use strict';
 
     var INTRO_BAR_MS = 7000;
-    var DOCENT_LINE_MS = 3400;
-    var DOCENT_BRIDGE_MS = 3000;
+    var DOCENT_LINE_MS = 8000;
+    var DOCENT_EXAMPLE_MS = 9000;
+    var DOCENT_BRIDGE_MS = 5000;
     var COL_COMP = { s: '주어', o: '목적어', c: '보어', v: '서술어' };
     var PARTICLE_POOL = ['은', '는', '이', '가', '을', '를', '다'];
     var SUBJECT_PARTICLES = { '은': 1, '는': 1, '이': 1, '가': 1 };
@@ -681,21 +682,61 @@
         if (page) page.classList.remove('is-docent');
         if (el) {
             el.classList.add('is-hidden');
-            el.classList.remove('is-show', 'is-bridge');
+            el.classList.remove('is-show', 'is-bridge', 'has-example');
         }
     }
 
-    function renderDocentFrame(role, text, isBridge) {
+    function buildDocentExampleHtml(parts) {
+        if (!parts || !parts.length) return '';
+        return parts
+            .map(function (p) {
+                var t = escapeHtml(p.text || '');
+                if (p.mark) {
+                    return (
+                        '<span class="pattern-docent-mark pattern-docent-mark--' +
+                        escapeHtml(p.mark) +
+                        '">' +
+                        t +
+                        '</span>'
+                    );
+                }
+                return t;
+            })
+            .join('');
+    }
+
+    function renderDocentFrame(item, isBridge) {
         var el = document.getElementById('pattern-docent');
         var roleEl = document.getElementById('pattern-docent-role');
+        var exampleEl = document.getElementById('pattern-docent-example');
         var textEl = document.getElementById('pattern-docent-text');
+        var stepEl = document.getElementById('pattern-docent-step');
         var tapEl = document.getElementById('pattern-docent-tap');
         if (!el || !textEl) return;
 
+        item = item || {};
         el.classList.remove('is-show');
         el.classList.toggle('is-bridge', !!isBridge);
-        if (roleEl) roleEl.textContent = role || '';
-        textEl.textContent = text || '';
+
+        var hasExample = !isBridge && item.parts && item.parts.length;
+        el.classList.toggle('has-example', !!hasExample);
+
+        if (roleEl) roleEl.textContent = isBridge ? '' : item.role || '';
+        if (exampleEl) {
+            exampleEl.innerHTML = hasExample ? buildDocentExampleHtml(item.parts) : '';
+        }
+        textEl.textContent = isBridge
+            ? item.text || ''
+            : item.text || '';
+
+        if (stepEl) {
+            if (isBridge) {
+                stepEl.textContent = '';
+            } else {
+                var total = (state.data.docent || []).length;
+                stepEl.textContent = state.docentIdx + 1 + ' / ' + total;
+            }
+        }
         if (tapEl) {
             tapEl.textContent = isBridge ? '탭하여 시작' : '탭하여 다음';
         }
@@ -716,7 +757,7 @@
         var bridge =
             (state.data && state.data.docent_bridge) ||
             '이제 해석 연습으로 들어갑니다.';
-        renderDocentFrame('', bridge, true);
+        renderDocentFrame({ text: bridge }, true);
         scheduleDocentAdvance(DOCENT_BRIDGE_MS);
     }
 
@@ -728,8 +769,10 @@
         }
         state.docentPhase = 'lines';
         var item = lines[state.docentIdx];
-        renderDocentFrame(item.role || '', item.text || '', false);
-        scheduleDocentAdvance(DOCENT_LINE_MS);
+        renderDocentFrame(item, false);
+        var dwell =
+            item.parts && item.parts.length ? DOCENT_EXAMPLE_MS : DOCENT_LINE_MS;
+        scheduleDocentAdvance(dwell);
     }
 
     function advanceDocent() {
@@ -903,7 +946,7 @@
         state.isRepeat = isDoneBefore(id);
         state.skipDocent = false;
 
-        fetch('data/patterns/' + id + '.json?v=20260722a')
+        fetch('data/patterns/' + id + '.json?v=20260722b')
             .then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();

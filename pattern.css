@@ -115,9 +115,54 @@
     transition: opacity 0.45s ease, transform 0.45s ease;
 }
 
+.pattern-docent-example {
+    display: none;
+    margin: 0 0 18px;
+    padding: 14px 12px;
+    font-size: clamp(1.15rem, 4.8vw, 1.35rem);
+    font-weight: 800;
+    line-height: 1.5;
+    letter-spacing: -0.02em;
+    color: #bbb;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.pattern-docent.has-example .pattern-docent-example {
+    display: block;
+}
+
+.pattern-docent-mark {
+    display: inline;
+    padding: 0 2px;
+    border-radius: 4px;
+}
+
+.pattern-docent-mark--s {
+    color: #00f3ff;
+    background: rgba(0, 243, 255, 0.12);
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+}
+
+.pattern-docent-mark--o {
+    color: #ff9900;
+    background: rgba(255, 153, 0, 0.14);
+    box-shadow: 0 0 10px rgba(255, 153, 0, 0.22);
+}
+
+.pattern-docent-mark--v {
+    color: #ffcc55;
+    background: rgba(255, 204, 85, 0.12);
+    box-shadow: 0 0 10px rgba(255, 204, 85, 0.22);
+}
+
 .pattern-docent-text {
     margin: 0;
-    font-size: clamp(1.05rem, 4.2vw, 1.22rem);
+    font-size: clamp(1.02rem, 4vw, 1.18rem);
     font-weight: 700;
     line-height: 1.55;
     color: #eee;
@@ -128,7 +173,19 @@
     transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
-.pattern-docent.is-bridge .pattern-docent-role {
+.pattern-docent-step {
+    margin: 16px 0 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #555;
+    letter-spacing: 0.04em;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.pattern-docent.is-bridge .pattern-docent-role,
+.pattern-docent.is-bridge .pattern-docent-example,
+.pattern-docent.is-bridge .pattern-docent-step {
     display: none;
 }
 
@@ -138,16 +195,18 @@
 }
 
 .pattern-docent.is-show .pattern-docent-role,
-.pattern-docent.is-show .pattern-docent-text {
+.pattern-docent.is-show .pattern-docent-example,
+.pattern-docent.is-show .pattern-docent-text,
+.pattern-docent.is-show .pattern-docent-step {
     opacity: 1;
     transform: translateY(0);
 }
 
 .pattern-docent-tap {
-    margin: 36px 0 0;
+    margin: 28px 0 0;
     font-size: 0.78rem;
     font-weight: 600;
-    color: #555;
+    color: #666;
     letter-spacing: 0.02em;
 }
 
