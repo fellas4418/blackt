@@ -812,6 +812,21 @@
                 </div>
             </div>
 
+            <div id="toeic-note-import-section" class="card" style="display:none; padding: 14px 16px; margin-bottom: 12px; border: 1px dashed rgba(136, 204, 255, 0.45); background: rgba(0, 0, 0, 0.2);">
+                <div style="font-size:0.88rem; color:#8cf; font-weight:bold; margin-bottom:6px;">📷 LC 노트 사진 → Day 추가</div>
+                <div id="toeic-note-import-day-hint" style="font-size:0.78rem; color:#888; margin-bottom:10px;">다음 추가 Day: 5</div>
+                <input type="file" id="toeic-note-photo-input" accept="image/*" style="display:none">
+                <div style="display:flex; gap:8px; margin-bottom:10px;">
+                    <button type="button" id="toeic-note-import-camera" class="level-btn" style="flex:1; padding:10px 6px; font-size:0.85rem;">📸 촬영</button>
+                    <button type="button" id="toeic-note-import-gallery" class="level-btn" style="flex:1; padding:10px 6px; font-size:0.85rem;">🖼️ 앨범</button>
+                </div>
+                <img id="toeic-note-import-thumb" alt="" style="display:none; max-width:100%; max-height:160px; border-radius:8px; margin-bottom:10px; border:1px solid #444;">
+                <button type="button" id="toeic-note-import-run" class="start-btn" style="display:none; margin-bottom:8px; padding:12px; font-size:0.92rem;">단어 추출하기</button>
+                <div id="toeic-note-import-preview" style="max-height:180px; overflow-y:auto; margin-bottom:8px;"></div>
+                <button type="button" id="toeic-note-import-save" class="start-btn" style="display:none; padding:12px; font-size:0.92rem; border-color:var(--neon-green); color:#fff;">Day에 추가 ✓</button>
+                <div id="toeic-note-import-status" style="font-size:0.78rem; color:#aaa; margin-top:6px; line-height:1.4;"></div>
+            </div>
+
             <div class="card home-mission-card" style="padding: 25px 20px; border: 1px solid rgba(0, 243, 255, 0.45); background: rgba(0, 243, 255, 0.05); text-align: center;">
                 <div id="toeic-mode-badge" style="display:none; font-size:0.72rem; color:#8cf; letter-spacing:0.12em; margin-bottom:6px;">TOEIC TRACK</div>
                 <div class="home-mission-head">
@@ -1085,7 +1100,11 @@
                 var toeicWeekData = wordsData[level]['week' + wl.week];
                 if (!toeicWeekData) return [];
                 var toeicDayData = toeicWeekData[String(wl.localDay)];
-                return Array.isArray(toeicDayData) ? toeicDayData : [];
+                var staticList = Array.isArray(toeicDayData) ? toeicDayData : [];
+                if (level === 'toeic_note' && typeof TriggerToeicNoteOcr !== 'undefined') {
+                    return TriggerToeicNoteOcr.resolveToeicNoteWords(staticList, absoluteDay);
+                }
+                return staticList;
             }
             var week = Math.ceil(absoluteDay / 7);
             var localDay = absoluteDay % 7 === 0 ? 7 : absoluteDay % 7;
@@ -1728,6 +1747,7 @@
             var btnNote = document.getElementById('btn-toeic-note');
             if (btnOfficial) btnOfficial.className = 'level-btn' + (level === 'toeic' ? ' active' : '');
             if (btnNote) btnNote.className = 'level-btn' + (level === 'toeic_note' ? ' active' : '');
+            if (typeof TriggerToeicNoteOcr !== 'undefined') TriggerToeicNoteOcr.syncUi(level);
         }
 
         function selectLevel(level) {
@@ -3458,7 +3478,8 @@
     <script src="worddata.js"></script>
     <script src="worddata_toeic.js?v=20260721_official"></script>
     <script src="worddata_toeic_note.js?v=20260721_note"></script>
-    <script src="toeic-schedule.js?v=20260721_note"></script>
+    <script src="toeic-schedule.js?v=20260721_noteocr"></script>
+    <script src="toeic-note-ocr.js?v=20260721_noteocr"></script>
     <script src="toeic-unlock.js?v=20260721_note"></script>
     <script src="words.js"></script>
     <script>

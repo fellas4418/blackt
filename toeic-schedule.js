@@ -17,7 +17,13 @@
     }
 
     function vocaTotalDays(level) {
-        if (isToeicNoteLevel(level)) return TOEIC_NOTE_TOTAL_DAYS;
+        if (isToeicNoteLevel(level)) {
+            var base = TOEIC_NOTE_TOTAL_DAYS;
+            if (typeof g.TriggerToeicNoteOcr !== 'undefined') {
+                return g.TriggerToeicNoteOcr.getTotalDays(base);
+            }
+            return base;
+        }
         if (isToeicLevel(level)) return TOEIC_TOTAL_DAYS;
         return MIDDLE_HIGH_TOTAL_DAYS;
     }
@@ -119,7 +125,10 @@
     }
 
     function routineTitle(level) {
-        if (isToeicNoteLevel(level)) return '📅 LC 오답노트 (4일)';
+        if (isToeicNoteLevel(level)) {
+            var total = vocaTotalDays(level);
+            return '📅 LC 오답노트 (' + total + '일)';
+        }
         if (isToeicLevel(level)) return '📅 54일 완성 도전하기';
         return '📅 10주 완성 도전하기';
     }

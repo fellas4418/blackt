@@ -2389,7 +2389,11 @@ function getWordsForDay(level, absoluteDay) {
         const weekData = wordsData[level]['week' + wl.week];
         if (!weekData) return [];
         const dayData = weekData[String(wl.localDay)];
-        return Array.isArray(dayData) ? dayData : [];
+        const staticList = Array.isArray(dayData) ? dayData : [];
+        if (level === 'toeic_note' && typeof TriggerToeicNoteOcr !== 'undefined') {
+            return TriggerToeicNoteOcr.resolveToeicNoteWords(staticList, absoluteDay);
+        }
+        return staticList;
     }
     const week = Math.ceil(absoluteDay / 7);
     const localDay = absoluteDay % 7 === 0 ? 7 : absoluteDay % 7;
