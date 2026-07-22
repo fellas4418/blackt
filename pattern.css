@@ -135,7 +135,7 @@
 
 .pattern-docent-inner {
     width: 100%;
-    max-width: 420px;
+    max-width: 360px;
     flex: 0 1 auto;
     max-height: 100%;
     overflow-x: hidden;
@@ -148,7 +148,7 @@
     margin: 0 0 18px;
     font-size: clamp(1.9rem, 7.2vw, 2.35rem);
     font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.14em;
     color: #e8b4ff;
     text-shadow: none;
     opacity: 0;
@@ -158,10 +158,10 @@
 .pattern-docent-example {
     display: none;
     margin: 0 0 8px;
-    padding: 16px 10px 12px;
-    font-size: clamp(1.85rem, 7vw, 2.35rem);
+    padding: 16px 14px 12px;
+    font-size: clamp(2.1rem, 8vw, 2.6rem);
     font-weight: 700;
-    line-height: 1.5;
+    line-height: 1.55;
     letter-spacing: -0.01em;
     color: #c8c8c8;
     background: transparent;
@@ -179,8 +179,8 @@
 .pattern-docent-example-kor {
     display: none;
     margin: 0 0 22px;
-    padding: 0 10px 14px;
-    font-size: clamp(1.35rem, 5.2vw, 1.65rem);
+    padding: 0 14px 14px;
+    font-size: clamp(1.55rem, 6vw, 1.9rem);
     font-weight: 600;
     line-height: 1.5;
     color: #888;
@@ -234,7 +234,7 @@
     margin: 0;
     font-size: clamp(1.85rem, 7vw, 2.2rem);
     font-weight: 500;
-    line-height: 1.55;
+    line-height: 1.7;
     color: #d4d4d4;
     letter-spacing: -0.01em;
     white-space: pre-line;
