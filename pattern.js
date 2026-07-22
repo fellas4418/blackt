@@ -17,7 +17,7 @@
     var COMPLEMENT_PARTICLES = { '이': 1, '가': 1 };
     var VERB_PARTICLES = { '다': 1 };
 
-    var INDEX_URL = 'data/pattern_index.json?v=20260722w';
+    var INDEX_URL = 'data/pattern_index.json?v=20260722y';
     var SOUND_KEY = 'pattern_docent_sound';
 
     var state = {
