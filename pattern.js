@@ -5,7 +5,7 @@
     var DOCENT_LINE_MS = 10000;
     var DOCENT_EXAMPLE_MS = 11000;
     var DOCENT_BRIDGE_MS = 6500;
-    var DOCENT_FADE_OUT_MS = 750;
+    var DOCENT_FADE_OUT_MS = 950;
     var DOCENT_FADE_GAP_MS = 200;
     var DOCENT_SEG_MS = 6000;
     var AUTO_NEXT_MS = 850;
