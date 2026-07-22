@@ -106,12 +106,13 @@
     flex: 1;
     width: 100%;
     min-height: 280px;
-    padding: 24px 8px 40px;
+    padding: 24px 8px 52px;
     box-sizing: border-box;
     text-align: center;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
+    position: relative;
 }
 
 .pattern-docent.is-hidden {
@@ -243,13 +244,17 @@
 }
 
 .pattern-docent-step {
-    margin: 20px 0 0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 16px;
+    margin: 0;
     font-size: 0.72rem;
     font-weight: 500;
     color: #888;
     letter-spacing: 0.06em;
-    opacity: 0;
-    transition: opacity 0.95s ease;
+    opacity: 1;
+    pointer-events: none;
 }
 
 .pattern-docent.is-bridge .pattern-docent-role,
@@ -269,8 +274,7 @@
 .pattern-docent.is-show .pattern-docent-role,
 .pattern-docent.is-show .pattern-docent-example,
 .pattern-docent.is-show .pattern-docent-example-kor,
-.pattern-docent.is-show .pattern-docent-text,
-.pattern-docent.is-show .pattern-docent-step {
+.pattern-docent.is-show .pattern-docent-text {
     opacity: 1;
 }
 
