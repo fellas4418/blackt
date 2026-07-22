@@ -153,6 +153,8 @@
     text-shadow: none;
     opacity: 0;
     transition: opacity 0.95s ease;
+    word-break: keep-all;
+    overflow-wrap: break-word;
 }
 
 .pattern-docent-example {
@@ -170,6 +172,8 @@
     border-radius: 0;
     opacity: 0;
     transition: opacity 0.95s ease;
+    word-break: keep-all;
+    overflow-wrap: break-word;
 }
 
 .pattern-docent.has-example .pattern-docent-example {
@@ -187,6 +191,8 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     opacity: 0;
     transition: opacity 0.95s ease;
+    word-break: keep-all;
+    overflow-wrap: break-word;
 }
 
 .pattern-docent.has-kor .pattern-docent-example-kor {
@@ -203,6 +209,7 @@
     display: inline;
     padding: 1px 3px;
     border-radius: 3px;
+    word-break: keep-all;
 }
 
 .pattern-docent-mark--s {
@@ -241,6 +248,8 @@
     opacity: 0;
     transition: opacity 0.95s ease;
     position: relative;
+    word-break: keep-all;
+    overflow-wrap: break-word;
 }
 
 .pattern-docent-seg {
