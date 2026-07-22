@@ -99,6 +99,18 @@
     display: none;
 }
 
+.pattern-page.is-docent .pattern-center-block {
+    justify-content: stretch;
+    align-items: stretch;
+    padding-bottom: 0;
+}
+
+.pattern-page.is-docent .pattern-content-center {
+    flex: 1;
+    align-self: stretch;
+    min-height: 0;
+}
+
 .pattern-docent {
     display: flex;
     flex-direction: column;
@@ -106,14 +118,15 @@
     justify-content: center;
     flex: 1;
     width: 100%;
-    min-height: 280px;
-    padding: 24px 8px 52px;
+    min-height: 0;
+    padding: 16px 12px calc(48px + env(safe-area-inset-bottom, 0px));
     box-sizing: border-box;
     text-align: center;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
     position: relative;
+    overflow: hidden;
 }
 
 .pattern-docent.is-hidden {
@@ -122,14 +135,20 @@
 
 .pattern-docent-inner {
     width: 100%;
-    max-width: 360px;
+    max-width: 420px;
+    flex: 0 1 auto;
+    max-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
 
 .pattern-docent-role {
     margin: 0 0 18px;
-    font-size: clamp(1.05rem, 4.2vw, 1.22rem);
+    font-size: clamp(1.9rem, 7.2vw, 2.35rem);
     font-weight: 700;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.1em;
     color: #e8b4ff;
     text-shadow: none;
     opacity: 0;
@@ -139,10 +158,10 @@
 .pattern-docent-example {
     display: none;
     margin: 0 0 8px;
-    padding: 16px 14px 12px;
-    font-size: clamp(1.18rem, 5vw, 1.42rem);
+    padding: 16px 10px 12px;
+    font-size: clamp(1.85rem, 7vw, 2.35rem);
     font-weight: 700;
-    line-height: 1.55;
+    line-height: 1.5;
     letter-spacing: -0.01em;
     color: #c8c8c8;
     background: transparent;
@@ -160,8 +179,8 @@
 .pattern-docent-example-kor {
     display: none;
     margin: 0 0 22px;
-    padding: 0 14px 14px;
-    font-size: clamp(0.92rem, 3.6vw, 1.05rem);
+    padding: 0 10px 14px;
+    font-size: clamp(1.35rem, 5.2vw, 1.65rem);
     font-weight: 600;
     line-height: 1.5;
     color: #888;
@@ -213,9 +232,9 @@
 
 .pattern-docent-text {
     margin: 0;
-    font-size: clamp(0.98rem, 3.8vw, 1.12rem);
+    font-size: clamp(1.85rem, 7vw, 2.2rem);
     font-weight: 500;
-    line-height: 1.7;
+    line-height: 1.55;
     color: #d4d4d4;
     letter-spacing: -0.01em;
     white-space: pre-line;
@@ -245,17 +264,19 @@
 }
 
 .pattern-docent-step {
-    position: absolute;
+    position: fixed;
     left: 0;
     right: 0;
-    bottom: 16px;
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
     margin: 0;
-    font-size: 0.72rem;
+    font-size: 0.78rem;
     font-weight: 500;
     color: #888;
     letter-spacing: 0.06em;
     opacity: 1;
     pointer-events: none;
+    text-align: center;
+    z-index: 20;
 }
 
 .pattern-docent.is-bridge .pattern-docent-role,
