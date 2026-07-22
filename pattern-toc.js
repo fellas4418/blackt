@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    var INDEX_URL = 'data/pattern_index.json';
+    var INDEX_URL = 'data/pattern_index.json?v=20260722m';
 
     var indexData = null;
 

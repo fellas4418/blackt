@@ -14,8 +14,13 @@
     var COMPLEMENT_PARTICLES = { '이': 1, '가': 1 };
     var VERB_PARTICLES = { '다': 1 };
 
+    var INDEX_URL = 'data/pattern_index.json?v=20260722m';
+
     var state = {
         data: null,
+        indexData: null,
+        chapterMeta: null,
+        docentLines: null,
         variantIdx: 0,
         introDone: false,
         isRepeat: false,
@@ -786,8 +791,71 @@
         }
     }
 
+    function chapterPatterns(ch) {
+        var list = [];
+        if (!ch) return list;
+        if (ch.patterns) {
+            ch.patterns.forEach(function (p) {
+                list.push(p);
+            });
+        }
+        if (ch.sections) {
+            ch.sections.forEach(function (sec) {
+                (sec.patterns || []).forEach(function (p) {
+                    list.push(p);
+                });
+            });
+        }
+        return list;
+    }
+
+    function findChapterForPattern(patternId) {
+        var chapters = (state.indexData && state.indexData.chapters) || [];
+        for (var i = 0; i < chapters.length; i++) {
+            var pats = chapterPatterns(chapters[i]);
+            for (var j = 0; j < pats.length; j++) {
+                if (pats[j].id === patternId) {
+                    return { chapter: chapters[i], patternIndex: j, patterns: pats };
+                }
+            }
+        }
+        return null;
+    }
+
+    function isChapterFirstPattern() {
+        return !!(state.chapterMeta && state.chapterMeta.patternIndex === 0);
+    }
+
+    function buildDocentLines() {
+        var lines = [];
+        var ch = state.chapterMeta && state.chapterMeta.chapter;
+        // 대단원 첫 패턴일 때만 대단원 개괄을 앞에 붙임
+        if (isChapterFirstPattern() && ch && Array.isArray(ch.docent) && ch.docent.length) {
+            lines = lines.concat(ch.docent);
+            if (ch.docent_bridge) {
+                lines.push({
+                    role: '이어서',
+                    text: ch.docent_bridge,
+                    _chapterBridge: true
+                });
+            }
+        }
+        if (state.data && Array.isArray(state.data.docent) && state.data.docent.length) {
+            lines = lines.concat(state.data.docent);
+        }
+        state.docentLines = lines;
+        return lines;
+    }
+
     function hasDocent() {
-        return !!(state.data && Array.isArray(state.data.docent) && state.data.docent.length);
+        var lines = state.docentLines;
+        if (!lines) lines = buildDocentLines();
+        return !!(lines && lines.length);
+    }
+
+    function currentDocentLines() {
+        if (!state.docentLines) buildDocentLines();
+        return state.docentLines || [];
     }
 
     function clearDocentTimer() {
@@ -874,7 +942,7 @@
             if (isBridge) {
                 stepEl.textContent = '';
             } else {
-                var total = (state.data.docent || []).length;
+                var total = currentDocentLines().length;
                 stepEl.textContent = state.docentIdx + 1 + ' / ' + total;
             }
         }
@@ -909,7 +977,7 @@
     }
 
     function showDocentLine() {
-        var lines = state.data.docent || [];
+        var lines = currentDocentLines();
         if (state.docentIdx >= lines.length) {
             showDocentBridge();
             return;
@@ -918,7 +986,11 @@
         var item = lines[state.docentIdx];
         renderDocentFrame(item, false);
         var dwell =
-            item.parts && item.parts.length ? DOCENT_EXAMPLE_MS : DOCENT_LINE_MS;
+            item._chapterBridge
+                ? DOCENT_BRIDGE_MS
+                : item.parts && item.parts.length
+                  ? DOCENT_EXAMPLE_MS
+                  : DOCENT_LINE_MS;
         scheduleDocentAdvance(dwell);
     }
 
@@ -936,7 +1008,7 @@
 
     function retreatDocent() {
         if (state.docentPhase === 'bridge') {
-            var lines = state.data.docent || [];
+            var lines = currentDocentLines();
             if (!lines.length) return;
             state.docentIdx = lines.length - 1;
             showDocentLine();
@@ -949,6 +1021,7 @@
     }
 
     function startDocent() {
+        buildDocentLines();
         state.docentIdx = 0;
         state.docentPhase = 'lines';
         showDocentOverlay();
@@ -1135,21 +1208,30 @@
         state.isRepeat = isDoneBefore(id);
         state.skipDocent = false;
 
-        fetch('data/patterns/' + id + '.json?v=20260722l')
-            .then(function (r) {
+        Promise.all([
+            fetch(INDEX_URL).then(function (r) {
+                return r.ok ? r.json() : null;
+            }),
+            fetch('data/patterns/' + id + '.json?v=20260722m').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })
-            .then(function (data) {
-                state.data = data;
-                document.title = 'TRIGGER · ' + (data.title || '독해');
+        ])
+            .then(function (results) {
+                state.indexData = results[0];
+                state.data = results[1];
+                state.chapterMeta = findChapterForPattern(id);
+                state.docentLines = null;
+                buildDocentLines();
+
+                document.title = 'TRIGGER · ' + (state.data.title || '독해');
                 var label = document.getElementById('pattern-chapter-label');
                 if (label) {
                     label.innerHTML =
                         '<strong>' +
-                        escapeHtml(data.chapter) +
+                        escapeHtml(state.data.chapter) +
                         '</strong> · ' +
-                        escapeHtml(data.title);
+                        escapeHtml(state.data.title);
                 }
                 renderGuide();
                 bindUi();
