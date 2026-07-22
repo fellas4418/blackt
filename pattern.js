@@ -5,6 +5,8 @@
     var DOCENT_LINE_MS = 10000;
     var DOCENT_EXAMPLE_MS = 11000;
     var DOCENT_BRIDGE_MS = 6500;
+    var DOCENT_FADE_OUT_MS = 450;
+    var DOCENT_FADE_GAP_MS = 130;
     var AUTO_NEXT_MS = 850;
     var COL_COMP = { s: '주어', o: '목적어', c: '보어', v: '서술어' };
     var PARTICLE_POOL = ['은', '는', '이', '가', '을', '를', '다'];
@@ -14,7 +16,7 @@
     var COMPLEMENT_PARTICLES = { '이': 1, '가': 1 };
     var VERB_PARTICLES = { '다': 1 };
 
-    var INDEX_URL = 'data/pattern_index.json?v=20260722o';
+    var INDEX_URL = 'data/pattern_index.json?v=20260722p';
     var SOUND_KEY = 'pattern_docent_sound';
 
     var state = {
@@ -40,7 +42,10 @@
         docentSoundOn: false,
         docentVoice: null,
         lastDocentSpeak: '',
-        speakGen: 0
+        speakGen: 0,
+        docentTransitioning: false,
+        docentShownOnce: false,
+        docentFadeTimer: null
     };
 
     function activeRoles() {
@@ -1032,12 +1037,22 @@
         }, ms);
     }
 
+    function clearDocentFadeTimer() {
+        if (state.docentFadeTimer) {
+            clearTimeout(state.docentFadeTimer);
+            state.docentFadeTimer = null;
+        }
+    }
+
     function hideDocentOverlay() {
         var page = document.querySelector('.pattern-page');
         var el = document.getElementById('pattern-docent');
         clearDocentTimer();
+        clearDocentFadeTimer();
         stopDocentSpeech();
         state.docentPhase = null;
+        state.docentTransitioning = false;
+        state.docentShownOnce = false;
         if (page) page.classList.remove('is-docent');
         if (el) {
             el.classList.add('is-hidden');
@@ -1064,7 +1079,7 @@
             .join('');
     }
 
-    function renderDocentFrame(item, isBridge) {
+    function applyDocentContent(item, isBridge) {
         var el = document.getElementById('pattern-docent');
         var roleEl = document.getElementById('pattern-docent-role');
         var exampleEl = document.getElementById('pattern-docent-example');
@@ -1075,7 +1090,6 @@
         if (!el || !textEl) return;
 
         item = item || {};
-        el.classList.remove('is-show');
         el.classList.toggle('is-bridge', !!isBridge);
 
         var hasExample = !isBridge && item.parts && item.parts.length;
@@ -1117,9 +1131,49 @@
             }
         }
 
-        void el.offsetWidth;
-        el.classList.add('is-show');
         state.lastDocentSpeak = buildDocentSpeakText(item, isBridge);
+    }
+
+    function renderDocentFrame(item, isBridge, onReady) {
+        var el = document.getElementById('pattern-docent');
+        if (!el) {
+            if (onReady) onReady();
+            return;
+        }
+
+        clearDocentFadeTimer();
+
+        function reveal() {
+            applyDocentContent(item, isBridge);
+            void el.offsetWidth;
+            el.classList.add('is-show');
+            state.docentTransitioning = false;
+            state.docentShownOnce = true;
+            if (onReady) onReady();
+        }
+
+        // 첫 컷: 페이드 인만
+        if (!state.docentShownOnce || !el.classList.contains('is-show')) {
+            state.docentTransitioning = true;
+            el.classList.remove('is-show');
+            applyDocentContent(item, isBridge);
+            void el.offsetWidth;
+            state.docentFadeTimer = setTimeout(function () {
+                el.classList.add('is-show');
+                state.docentTransitioning = false;
+                state.docentShownOnce = true;
+                if (onReady) onReady();
+            }, 40);
+            return;
+        }
+
+        // 이후: 페이드 아웃 → 쉼 → 내용 교체 → 페이드 인
+        state.docentTransitioning = true;
+        stopDocentSpeech();
+        el.classList.remove('is-show');
+        state.docentFadeTimer = setTimeout(function () {
+            state.docentFadeTimer = setTimeout(reveal, DOCENT_FADE_GAP_MS);
+        }, DOCENT_FADE_OUT_MS);
     }
 
     function showDocentBridge() {
@@ -1127,8 +1181,10 @@
         var bridge =
             (state.data && state.data.docent_bridge) ||
             '이제 해석 연습으로 들어갑니다.';
-        renderDocentFrame({ text: bridge }, true);
-        scheduleDocentAdvance(DOCENT_BRIDGE_MS, state.lastDocentSpeak);
+        clearDocentTimer();
+        renderDocentFrame({ text: bridge }, true, function () {
+            scheduleDocentAdvance(DOCENT_BRIDGE_MS, state.lastDocentSpeak);
+        });
     }
 
     function showDocentLine() {
@@ -1139,20 +1195,23 @@
         }
         state.docentPhase = 'lines';
         var item = lines[state.docentIdx];
-        renderDocentFrame(item, false);
         var dwell =
             item._chapterBridge
                 ? DOCENT_BRIDGE_MS
                 : item.parts && item.parts.length
                   ? DOCENT_EXAMPLE_MS
                   : DOCENT_LINE_MS;
-        scheduleDocentAdvance(dwell, state.lastDocentSpeak);
+        clearDocentTimer();
+        renderDocentFrame(item, false, function () {
+            scheduleDocentAdvance(dwell, state.lastDocentSpeak);
+        });
     }
 
     function advanceDocent() {
+        if (state.docentTransitioning) return;
+        clearDocentTimer();
         stopDocentSpeech();
         if (state.docentPhase === 'bridge') {
-            clearDocentTimer();
             onIntroComplete();
             return;
         }
@@ -1163,6 +1222,8 @@
     }
 
     function retreatDocent() {
+        if (state.docentTransitioning) return;
+        clearDocentTimer();
         stopDocentSpeech();
         if (state.docentPhase === 'bridge') {
             var lines = currentDocentLines();
@@ -1181,6 +1242,9 @@
         buildDocentLines();
         state.docentIdx = 0;
         state.docentPhase = 'lines';
+        state.docentShownOnce = false;
+        state.docentTransitioning = false;
+        clearDocentFadeTimer();
         showDocentOverlay();
         showDocentLine();
     }
@@ -1310,7 +1374,7 @@
         var docentEl = document.getElementById('pattern-docent');
         if (docentEl) {
             docentEl.addEventListener('click', function (e) {
-                if (!state.docentPhase) return;
+                if (!state.docentPhase || state.docentTransitioning) return;
                 var rect = docentEl.getBoundingClientRect();
                 var x = (e.clientX != null ? e.clientX : 0) - rect.left;
                 if (x < rect.width / 3) {
@@ -1388,7 +1452,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260722o').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260722p').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })
