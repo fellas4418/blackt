@@ -282,6 +282,10 @@
     letter-spacing: 0.04em;
 }
 
+.pattern-docent-tap.is-hidden {
+    display: none;
+}
+
 .pattern-guide-fold {
     font-weight: normal;
     color: #888;

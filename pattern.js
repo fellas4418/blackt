@@ -1273,13 +1273,11 @@
             }
         }
         if (tapEl) {
-            if (isBridge) {
-                tapEl.textContent = '왼쪽 탭 · 이전  ·  준비가 되면 탭하세요';
-            } else if (state.docentIdx > 0) {
-                tapEl.textContent = '왼쪽 탭 · 이전  ·  탭하면 이어집니다';
-            } else {
-                tapEl.textContent = '천천히 읽고, 탭하면 이어집니다';
-            }
+            var showTap = !isBridge && state.docentIdx === 0;
+            tapEl.textContent = showTap
+                ? '천천히 읽고, 탭하면 이어집니다'
+                : '';
+            tapEl.classList.toggle('is-hidden', !showTap);
         }
 
         var head = [];
