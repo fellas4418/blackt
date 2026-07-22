@@ -43,6 +43,7 @@
 }
 
 .pattern-sound-btn {
+    display: none;
     flex-shrink: 0;
     background: transparent;
     border: 1px solid #444;
