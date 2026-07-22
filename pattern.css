@@ -147,29 +147,52 @@
     align-items: stretch;
 }
 
-.pattern-docent-role {
+/* 소제목·예문 슬롯 높이 고정 → 설명 시작 Y 일정 */
+.pattern-docent-role-slot {
     flex: 0 0 auto;
-    min-height: 2.7em;
+    height: 5.2rem;
     margin: 0 0 10px;
-    font-size: clamp(1.9rem, 7.2vw, 2.35rem);
-    font-weight: 700;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-align: left;
+}
+
+.pattern-docent-role-label {
+    display: block;
+    margin: 0 0 6px;
+    font-size: 0.72rem;
+    font-weight: 600;
     letter-spacing: 0.14em;
+    color: #777;
+    text-align: left;
+    opacity: 0;
+    transition: opacity 0.55s ease;
+}
+
+.pattern-docent-role {
+    margin: 0;
+    font-size: clamp(1.7rem, 6.4vw, 2.1rem);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1.35;
     color: #7aefff;
     text-shadow: none;
-    text-align: center;
+    text-align: left;
     opacity: 0;
     transition: opacity 0.55s ease;
     word-break: keep-all;
     overflow-wrap: break-word;
 }
 
-/* 예문 유무와 관계없이 자리 예약 → 컷마다 눈 위치 유지 */
 .pattern-docent-example-slot {
     flex: 0 0 auto;
-    min-height: 7.2rem;
+    height: 7.2rem;
     margin: 0 0 18px;
     padding: 0 0 14px;
     box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     text-align: center;
     border-bottom: 1px solid transparent;
 }
@@ -185,6 +208,7 @@
     font-weight: 600;
     letter-spacing: 0.14em;
     color: #777;
+    text-align: left;
     opacity: 0;
     transition: opacity 0.55s ease;
 }
@@ -322,7 +346,7 @@
     z-index: 20;
 }
 
-.pattern-docent.is-bridge .pattern-docent-role,
+.pattern-docent.is-bridge .pattern-docent-role-slot,
 .pattern-docent.is-bridge .pattern-docent-example-slot,
 .pattern-docent.is-bridge .pattern-docent-step {
     display: none;
@@ -336,6 +360,7 @@
     text-align: center;
 }
 
+.pattern-docent.is-show .pattern-docent-role-label,
 .pattern-docent.is-show .pattern-docent-role,
 .pattern-docent.is-show .pattern-docent-example-label,
 .pattern-docent.is-show .pattern-docent-example,
