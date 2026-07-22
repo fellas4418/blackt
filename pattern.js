@@ -14,7 +14,8 @@
     var COMPLEMENT_PARTICLES = { '이': 1, '가': 1 };
     var VERB_PARTICLES = { '다': 1 };
 
-    var INDEX_URL = 'data/pattern_index.json?v=20260722n';
+    var INDEX_URL = 'data/pattern_index.json?v=20260722o';
+    var SOUND_KEY = 'pattern_docent_sound';
 
     var state = {
         data: null,
@@ -35,7 +36,11 @@
         skipDocent: false,
         guideBeatActive: false,
         guideBeatDone: false,
-        autoNextTimer: null
+        autoNextTimer: null,
+        docentSoundOn: false,
+        docentVoice: null,
+        lastDocentSpeak: '',
+        speakGen: 0
     };
 
     function activeRoles() {
@@ -872,10 +877,166 @@
         if (el) el.classList.remove('is-hidden');
     }
 
+    function plainFromParts(parts) {
+        if (!parts || !parts.length) return '';
+        return parts
+            .map(function (p) {
+                return p.text || '';
+            })
+            .join('')
+            .replace(/\n+/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
+
+    function stopDocentSpeech() {
+        state.speakGen += 1;
+        try {
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+        } catch (e) {}
+    }
+
+    function pickKoreanVoice() {
+        if (!window.speechSynthesis) return null;
+        var voices = window.speechSynthesis.getVoices() || [];
+        if (!voices.length) return null;
+        var prefer = [
+            /google.*한국어/i,
+            /microsoft.*sunhi/i,
+            /microsoft.*injoon/i,
+            /yuna/i,
+            /heami/i,
+            /ko-KR/i,
+            /korean/i
+        ];
+        var i;
+        var j;
+        for (i = 0; i < prefer.length; i++) {
+            for (j = 0; j < voices.length; j++) {
+                if (
+                    prefer[i].test(voices[j].name) ||
+                    prefer[i].test(voices[j].lang)
+                ) {
+                    return voices[j];
+                }
+            }
+        }
+        for (j = 0; j < voices.length; j++) {
+            if ((voices[j].lang || '').toLowerCase().indexOf('ko') === 0) {
+                return voices[j];
+            }
+        }
+        return null;
+    }
+
+    function ensureDocentVoice() {
+        if (state.docentVoice) return state.docentVoice;
+        state.docentVoice = pickKoreanVoice();
+        return state.docentVoice;
+    }
+
+    function buildDocentSpeakText(item, isBridge) {
+        item = item || {};
+        var chunks = [];
+        if (!isBridge && item.role) chunks.push(String(item.role));
+        if (item.kor_parts && item.kor_parts.length) {
+            chunks.push(plainFromParts(item.kor_parts));
+        } else if (item.parts && item.parts.length && !item.kor_parts) {
+            chunks.push(plainFromParts(item.parts));
+        }
+        if (item.text_parts && item.text_parts.length) {
+            chunks.push(plainFromParts(item.text_parts));
+        } else if (item.text) {
+            chunks.push(
+                String(item.text)
+                    .replace(/\n+/g, ' ')
+                    .replace(/\s+/g, ' ')
+                    .trim()
+            );
+        }
+        return chunks.filter(Boolean).join('. ');
+    }
+
+    function speakDocentText(text, onEnd) {
+        stopDocentSpeech();
+        var gen = state.speakGen;
+        state.lastDocentSpeak = text || '';
+        if (!state.docentSoundOn || !text || !window.speechSynthesis) {
+            if (onEnd) onEnd();
+            return;
+        }
+        try {
+            var u = new SpeechSynthesisUtterance(text);
+            u.lang = 'ko-KR';
+            u.rate = 0.95;
+            u.pitch = 1;
+            var voice = ensureDocentVoice();
+            if (voice) u.voice = voice;
+            var done = false;
+            var finish = function () {
+                if (done || gen !== state.speakGen) return;
+                done = true;
+                if (onEnd) onEnd();
+            };
+            u.onend = finish;
+            u.onerror = finish;
+            window.speechSynthesis.speak(u);
+            setTimeout(finish, Math.min(45000, 1800 + text.length * 120));
+        } catch (e) {
+            if (gen === state.speakGen && onEnd) onEnd();
+        }
+    }
+
+    function syncSoundBtn() {
+        var btn = document.getElementById('pattern-sound-btn');
+        if (!btn) return;
+        btn.classList.toggle('is-on', !!state.docentSoundOn);
+        btn.classList.toggle('is-off', !state.docentSoundOn);
+        btn.setAttribute('aria-pressed', state.docentSoundOn ? 'true' : 'false');
+        btn.textContent = state.docentSoundOn ? '소리 켬' : '소리 끔';
+    }
+
+    function setDocentSound(on) {
+        state.docentSoundOn = !!on;
+        localStorage.setItem(SOUND_KEY, state.docentSoundOn ? '1' : '0');
+        syncSoundBtn();
+        if (!state.docentSoundOn) {
+            stopDocentSpeech();
+            return;
+        }
+        try {
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(new SpeechSynthesisUtterance(''));
+        } catch (e) {}
+        ensureDocentVoice();
+        if (state.docentPhase && state.lastDocentSpeak) {
+            clearDocentTimer();
+            scheduleDocentAdvance(DOCENT_LINE_MS, state.lastDocentSpeak);
+        }
+    }
+
+    function scheduleDocentAdvance(ms, speakText) {
+        clearDocentTimer();
+        if (state.docentSoundOn && speakText) {
+            speakDocentText(speakText, function () {
+                if (!state.docentPhase) return;
+                state.docentTimer = setTimeout(function () {
+                    advanceDocent();
+                }, 700);
+            });
+            return;
+        }
+        stopDocentSpeech();
+        state.docentTimer = setTimeout(function () {
+            advanceDocent();
+        }, ms);
+    }
+
     function hideDocentOverlay() {
         var page = document.querySelector('.pattern-page');
         var el = document.getElementById('pattern-docent');
         clearDocentTimer();
+        stopDocentSpeech();
         state.docentPhase = null;
         if (page) page.classList.remove('is-docent');
         if (el) {
@@ -958,13 +1119,7 @@
 
         void el.offsetWidth;
         el.classList.add('is-show');
-    }
-
-    function scheduleDocentAdvance(ms) {
-        clearDocentTimer();
-        state.docentTimer = setTimeout(function () {
-            advanceDocent();
-        }, ms);
+        state.lastDocentSpeak = buildDocentSpeakText(item, isBridge);
     }
 
     function showDocentBridge() {
@@ -973,7 +1128,7 @@
             (state.data && state.data.docent_bridge) ||
             '이제 해석 연습으로 들어갑니다.';
         renderDocentFrame({ text: bridge }, true);
-        scheduleDocentAdvance(DOCENT_BRIDGE_MS);
+        scheduleDocentAdvance(DOCENT_BRIDGE_MS, state.lastDocentSpeak);
     }
 
     function showDocentLine() {
@@ -991,10 +1146,11 @@
                 : item.parts && item.parts.length
                   ? DOCENT_EXAMPLE_MS
                   : DOCENT_LINE_MS;
-        scheduleDocentAdvance(dwell);
+        scheduleDocentAdvance(dwell, state.lastDocentSpeak);
     }
 
     function advanceDocent() {
+        stopDocentSpeech();
         if (state.docentPhase === 'bridge') {
             clearDocentTimer();
             onIntroComplete();
@@ -1007,6 +1163,7 @@
     }
 
     function retreatDocent() {
+        stopDocentSpeech();
         if (state.docentPhase === 'bridge') {
             var lines = currentDocentLines();
             if (!lines.length) return;
@@ -1179,8 +1336,17 @@
         }
 
         document.getElementById('pattern-back').addEventListener('click', function () {
+            stopDocentSpeech();
             location.href = 'index.html?tab=reading';
         });
+
+        var soundBtn = document.getElementById('pattern-sound-btn');
+        if (soundBtn) {
+            soundBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                setDocentSound(!state.docentSoundOn);
+            });
+        }
         document.getElementById('pattern-complete-retry').addEventListener('click', function () {
             document.getElementById('pattern-complete').classList.remove('is-open');
             state.isRepeat = true;
@@ -1207,12 +1373,22 @@
         var id = getPatternId();
         state.isRepeat = isDoneBefore(id);
         state.skipDocent = false;
+        state.docentSoundOn = localStorage.getItem(SOUND_KEY) === '1';
+        syncSoundBtn();
+
+        if (window.speechSynthesis) {
+            ensureDocentVoice();
+            window.speechSynthesis.onvoiceschanged = function () {
+                state.docentVoice = null;
+                ensureDocentVoice();
+            };
+        }
 
         Promise.all([
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260722n').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260722o').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })
