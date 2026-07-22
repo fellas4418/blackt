@@ -5,8 +5,9 @@
     var DOCENT_LINE_MS = 10000;
     var DOCENT_EXAMPLE_MS = 11000;
     var DOCENT_BRIDGE_MS = 6500;
-    var DOCENT_FADE_OUT_MS = 450;
-    var DOCENT_FADE_GAP_MS = 130;
+    var DOCENT_FADE_OUT_MS = 750;
+    var DOCENT_FADE_GAP_MS = 200;
+    var DOCENT_SEG_MS = 6000;
     var AUTO_NEXT_MS = 850;
     var COL_COMP = { s: '주어', o: '목적어', c: '보어', v: '서술어' };
     var PARTICLE_POOL = ['은', '는', '이', '가', '을', '를', '다'];
@@ -45,7 +46,10 @@
         speakGen: 0,
         docentTransitioning: false,
         docentShownOnce: false,
-        docentFadeTimer: null
+        docentFadeTimer: null,
+        docentBlockIdx: 0,
+        docentBlockCount: 1,
+        docentBlockSpeaks: null
     };
 
     function activeRoles() {
@@ -940,6 +944,109 @@
         return state.docentVoice;
     }
 
+    function plainSpeak(text) {
+        return String(text || '')
+            .replace(/\n+/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
+
+    /** 빈 줄(\n\n) 기준으로 윗글/아랫글 둘로 나눔 (마지막 구분 기준) */
+    function splitPlainDocentBlocks(text) {
+        var parts = String(text || '')
+            .split(/\n\n+/)
+            .map(function (s) {
+                return s.trim();
+            })
+            .filter(Boolean);
+        if (parts.length <= 1) return parts;
+        return [parts.slice(0, -1).join('\n\n'), parts[parts.length - 1]];
+    }
+
+    function splitTextPartsDocentBlocks(parts) {
+        var raw = [[]];
+        (parts || []).forEach(function (p) {
+            var chunks = String(p.text || '').split(/\n\n+/);
+            chunks.forEach(function (chunk, i) {
+                if (i > 0) raw.push([]);
+                if (!chunk) return;
+                var piece = { text: chunk };
+                if (p.mark) piece.mark = p.mark;
+                raw[raw.length - 1].push(piece);
+            });
+        });
+        raw = raw.filter(function (block) {
+            return (
+                block.length &&
+                block.some(function (x) {
+                    return String(x.text || '').trim();
+                })
+            );
+        });
+        if (raw.length <= 1) return raw;
+        var upper = [];
+        var i;
+        for (i = 0; i < raw.length - 1; i++) {
+            if (i > 0) upper.push({ text: '\n\n' });
+            upper = upper.concat(raw[i]);
+        }
+        return [upper, raw[raw.length - 1]];
+    }
+
+    function setDocentBlocksVisible(upToIdx) {
+        var textEl = document.getElementById('pattern-docent-text');
+        if (!textEl) return;
+        var segs = textEl.querySelectorAll('.pattern-docent-seg');
+        var i;
+        for (i = 0; i < segs.length; i++) {
+            segs[i].classList.toggle('is-on', i <= upToIdx);
+        }
+        state.docentBlockIdx = upToIdx;
+    }
+
+    function revealNextDocentBlock(onDone) {
+        if (state.docentBlockIdx >= state.docentBlockCount - 1) {
+            if (onDone) onDone();
+            return;
+        }
+        state.docentBlockIdx += 1;
+        setDocentBlocksVisible(state.docentBlockIdx);
+        var speaks = state.docentBlockSpeaks || [];
+        var speak = speaks[state.docentBlockIdx] || '';
+        state.lastDocentSpeak = speak;
+        if (onDone) onDone(speak);
+    }
+
+    function scheduleDocentBlocksThenAdvance(finalDwell) {
+        clearDocentTimer();
+        if (state.docentBlockCount <= 1) {
+            scheduleDocentAdvance(finalDwell, state.lastDocentSpeak);
+            return;
+        }
+
+        function afterUpper() {
+            if (!state.docentPhase) return;
+            revealNextDocentBlock(function (speak) {
+                scheduleDocentAdvance(finalDwell, speak || '');
+            });
+        }
+
+        var upperSpeak =
+            (state.docentBlockSpeaks && state.docentBlockSpeaks[0]) ||
+            state.lastDocentSpeak;
+        state.lastDocentSpeak = upperSpeak;
+
+        if (state.docentSoundOn && upperSpeak) {
+            speakDocentText(upperSpeak, function () {
+                if (!state.docentPhase) return;
+                state.docentTimer = setTimeout(afterUpper, 700);
+            });
+            return;
+        }
+        stopDocentSpeech();
+        state.docentTimer = setTimeout(afterUpper, DOCENT_SEG_MS);
+    }
+
     function buildDocentSpeakText(item, isBridge) {
         item = item || {};
         var chunks = [];
@@ -1053,6 +1160,9 @@
         state.docentPhase = null;
         state.docentTransitioning = false;
         state.docentShownOnce = false;
+        state.docentBlockIdx = 0;
+        state.docentBlockCount = 1;
+        state.docentBlockSpeaks = null;
         if (page) page.classList.remove('is-docent');
         if (el) {
             el.classList.add('is-hidden');
@@ -1105,12 +1215,53 @@
             korEl.innerHTML = hasKor ? buildDocentMarkedHtml(item.kor_parts) : '';
         }
 
+        var blockHtmls = [];
+        var blockSpeaks = [];
         if (isBridge) {
-            textEl.textContent = item.text || '';
+            var bridgeBlocks = splitPlainDocentBlocks(item.text || '');
+            if (!bridgeBlocks.length && item.text) bridgeBlocks = [String(item.text)];
+            blockHtmls = bridgeBlocks.map(function (t) {
+                return escapeHtml(t).replace(/\n/g, '<br>');
+            });
+            blockSpeaks = bridgeBlocks.map(plainSpeak);
         } else if (item.text_parts && item.text_parts.length) {
-            textEl.innerHTML = buildDocentMarkedHtml(item.text_parts);
+            var partBlocks = splitTextPartsDocentBlocks(item.text_parts);
+            if (!partBlocks.length) partBlocks = [item.text_parts];
+            blockHtmls = partBlocks.map(function (block) {
+                return buildDocentMarkedHtml(block);
+            });
+            blockSpeaks = partBlocks.map(function (block) {
+                return plainFromParts(block);
+            });
         } else {
-            textEl.textContent = item.text || '';
+            var plainBlocks = splitPlainDocentBlocks(item.text || '');
+            if (!plainBlocks.length && item.text) plainBlocks = [String(item.text)];
+            blockHtmls = plainBlocks.map(function (t) {
+                return escapeHtml(t).replace(/\n/g, '<br>');
+            });
+            blockSpeaks = plainBlocks.map(plainSpeak);
+        }
+
+        if (!blockHtmls.length) {
+            textEl.innerHTML = '';
+            state.docentBlockCount = 1;
+            state.docentBlockIdx = 0;
+            state.docentBlockSpeaks = [''];
+        } else {
+            textEl.innerHTML = blockHtmls
+                .map(function (html, i) {
+                    return (
+                        '<span class="pattern-docent-seg' +
+                        (i === 0 ? ' is-on' : '') +
+                        '">' +
+                        html +
+                        '</span>'
+                    );
+                })
+                .join('');
+            state.docentBlockCount = blockHtmls.length;
+            state.docentBlockIdx = 0;
+            state.docentBlockSpeaks = blockSpeaks;
         }
 
         if (stepEl) {
@@ -1131,7 +1282,21 @@
             }
         }
 
-        state.lastDocentSpeak = buildDocentSpeakText(item, isBridge);
+        var head = [];
+        if (!isBridge && item.role) head.push(String(item.role));
+        if (item.kor_parts && item.kor_parts.length) {
+            head.push(plainFromParts(item.kor_parts));
+        } else if (item.parts && item.parts.length && !item.kor_parts) {
+            head.push(plainFromParts(item.parts));
+        }
+        var firstSpeak = (state.docentBlockSpeaks && state.docentBlockSpeaks[0]) || '';
+        var lead = head.filter(Boolean).join('. ');
+        state.lastDocentSpeak = lead
+            ? lead + (firstSpeak ? '. ' + firstSpeak : '')
+            : firstSpeak;
+        if (state.docentBlockSpeaks && state.docentBlockSpeaks.length) {
+            state.docentBlockSpeaks[0] = state.lastDocentSpeak;
+        }
     }
 
     function renderDocentFrame(item, isBridge, onReady) {
@@ -1183,7 +1348,7 @@
             '이제 해석 연습으로 들어갑니다.';
         clearDocentTimer();
         renderDocentFrame({ text: bridge }, true, function () {
-            scheduleDocentAdvance(DOCENT_BRIDGE_MS, state.lastDocentSpeak);
+            scheduleDocentBlocksThenAdvance(DOCENT_BRIDGE_MS);
         });
     }
 
@@ -1203,7 +1368,7 @@
                   : DOCENT_LINE_MS;
         clearDocentTimer();
         renderDocentFrame(item, false, function () {
-            scheduleDocentAdvance(dwell, state.lastDocentSpeak);
+            scheduleDocentBlocksThenAdvance(dwell);
         });
     }
 
@@ -1211,6 +1376,20 @@
         if (state.docentTransitioning) return;
         clearDocentTimer();
         stopDocentSpeech();
+        if (
+            state.docentPhase &&
+            state.docentBlockCount > 1 &&
+            state.docentBlockIdx < state.docentBlockCount - 1
+        ) {
+            revealNextDocentBlock(function (speak) {
+                var dwell =
+                    state.docentPhase === 'bridge'
+                        ? DOCENT_BRIDGE_MS
+                        : DOCENT_LINE_MS;
+                scheduleDocentAdvance(dwell, speak || '');
+            });
+            return;
+        }
         if (state.docentPhase === 'bridge') {
             onIntroComplete();
             return;
@@ -1225,6 +1404,20 @@
         if (state.docentTransitioning) return;
         clearDocentTimer();
         stopDocentSpeech();
+        if (
+            state.docentPhase &&
+            state.docentBlockCount > 1 &&
+            state.docentBlockIdx > 0
+        ) {
+            setDocentBlocksVisible(0);
+            var speak =
+                (state.docentBlockSpeaks && state.docentBlockSpeaks[0]) || '';
+            state.lastDocentSpeak = speak;
+            scheduleDocentBlocksThenAdvance(
+                state.docentPhase === 'bridge' ? DOCENT_BRIDGE_MS : DOCENT_LINE_MS
+            );
+            return;
+        }
         if (state.docentPhase === 'bridge') {
             var lines = currentDocentLines();
             if (!lines.length) return;
@@ -1244,6 +1437,9 @@
         state.docentPhase = 'lines';
         state.docentShownOnce = false;
         state.docentTransitioning = false;
+        state.docentBlockIdx = 0;
+        state.docentBlockCount = 1;
+        state.docentBlockSpeaks = null;
         clearDocentFadeTimer();
         showDocentOverlay();
         showDocentLine();
