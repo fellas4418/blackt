@@ -13,88 +13,220 @@
         {
           "role": "다섯 가지",
           "text_parts": [
-            { "text": "문장 성분은 다섯 가지입니다.\n\n" },
-            { "text": "주어", "mark": "term" },
-            { "text": " · " },
-            { "text": "서술어", "mark": "term" },
-            { "text": " · " },
-            { "text": "목적어", "mark": "term" },
-            { "text": " ·\n" },
-            { "text": "주격보어", "mark": "term" },
-            { "text": " · " },
-            { "text": "목적격보어", "mark": "term" },
-            { "text": "\n\n모두 「어」로 끝나죠.\n문장 성분이라고 하면\n「어」로 끝나는 자리라고 생각하면 됩니다." }
+            {
+              "text": "문장 성분은 다섯 가지입니다.\n\n"
+            },
+            {
+              "text": "주어",
+              "mark": "term"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "서술어",
+              "mark": "term"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "목적어",
+              "mark": "term"
+            },
+            {
+              "text": " ·\n"
+            },
+            {
+              "text": "주격보어",
+              "mark": "term"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "목적격보어",
+              "mark": "term"
+            },
+            {
+              "text": "\n\n모두 「어」로 끝난다는 점을\n기억해 주세요."
+            }
           ]
         },
         {
           "role": "주어",
           "text_parts": [
-            { "text": "주어", "mark": "term" },
-            { "text": "는\n동작이나 상태의 주체입니다.\n\n문장의 맨 앞에 오고,\n명사 · 대명사 · 동명사만 들어갑니다." }
+            {
+              "text": "주어",
+              "mark": "term"
+            },
+            {
+              "text": "는 동작이나 상태의 주체입니다.\n문장의 맨 앞에 오고,\n이 주어 자리에는 "
+            },
+            {
+              "text": "명사",
+              "mark": "term"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "대명사",
+              "mark": "term"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "동명사",
+              "mark": "term"
+            },
+            {
+              "text": "라는 품사만 들어갑니다.\n\n품사는 비슷한 성질을 가진\n단어들을 모아놓은 것을 말하는데,\n품사가 같은 단어들은\n같은 성질을 가지고 있습니다."
+            }
           ]
         },
         {
           "role": "서술어",
           "text_parts": [
-            { "text": "서술어", "mark": "term" },
-            { "text": "는\n주어가 하는 동작이나 상태를 말합니다.\n\n품사는 동사만 들어갈 수 있어요." }
+            {
+              "text": "서술어",
+              "mark": "term"
+            },
+            {
+              "text": "는\n주어가 하는 동작이나 상태를 말합니다.\n\n품사는 동사만 들어갈 수 있어요."
+            }
           ]
         },
         {
           "role": "목적어",
           "text_parts": [
-            { "text": "목적어", "mark": "term" },
-            { "text": "는\n동작의 대상입니다.\n\n주어와 같이\n명사 · 대명사 · 동명사가 들어갑니다." }
+            {
+              "text": "목적어",
+              "mark": "term"
+            },
+            {
+              "text": "는\n동작의 대상입니다.\n\n주어와 같이\n명사 · 대명사 · 동명사가 들어갑니다."
+            }
           ]
         },
         {
           "role": "기본 뼈대",
           "text_parts": [
-            { "text": "주어", "mark": "s" },
-            { "text": " · " },
-            { "text": "서술어", "mark": "v" },
-            { "text": " · " },
-            { "text": "목적어", "mark": "o" },
-            { "text": "가\n가장 기본 뼈대입니다.\n\n우리말에도 있고,\n영어에서는 " },
-            { "text": "주어", "mark": "s" },
-            { "text": " → " },
-            { "text": "서술어", "mark": "v" },
-            { "text": " → " },
-            { "text": "목적어", "mark": "o" },
-            { "text": " 순서로 나옵니다." }
+            {
+              "text": "주어",
+              "mark": "s"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "서술어",
+              "mark": "v"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "목적어",
+              "mark": "o"
+            },
+            {
+              "text": "가 가장 기본 뼈대입니다.\n\n우리말에도 있고,\n영어에서는 "
+            },
+            {
+              "text": "주어",
+              "mark": "s"
+            },
+            {
+              "text": " → "
+            },
+            {
+              "text": "서술어",
+              "mark": "v"
+            },
+            {
+              "text": " → "
+            },
+            {
+              "text": "목적어",
+              "mark": "o"
+            },
+            {
+              "text": " 순서로 나옵니다."
+            }
           ]
         },
         {
           "role": "보어",
           "text_parts": [
-            { "text": "그런데 우리말에 없는 게 있어요.\n바로 " },
-            { "text": "보어", "mark": "term" },
-            { "text": "입니다.\n\n보어는 「보충어」의 줄임말.\n주어나 목적어의 상태를\n보충 설명해 줍니다." }
+            {
+              "text": "그런데 우리말에 없는 게 있어요.\n바로 "
+            },
+            {
+              "text": "보어",
+              "mark": "term"
+            },
+            {
+              "text": "입니다.\n\n보어는 「보충어」의 줄임말인데,\n주어나 목적어의 상태를\n보충 설명해 줍니다."
+            }
           ]
         },
         {
           "role": "주격 · 목적격 보어",
           "text_parts": [
-            { "text": "주어", "mark": "s" },
-            { "text": "의 상태를 보충하면 " },
-            { "text": "주격보어", "mark": "term" },
-            { "text": ".\n" },
-            { "text": "목적어", "mark": "o" },
-            { "text": "의 상태를 보충하면 " },
-            { "text": "목적격보어", "mark": "term" },
-            { "text": ".\n\n보어에는 부사가 들어갈 수 없다는 것만\n지금은 기억해 두세요.\n자세히는 뒤에서 볼게요." }
+            {
+              "text": "주어",
+              "mark": "s"
+            },
+            {
+              "text": "의 상태를 보충하면 "
+            },
+            {
+              "text": "주격보어",
+              "mark": "term"
+            },
+            {
+              "text": ".\n"
+            },
+            {
+              "text": "목적어",
+              "mark": "o"
+            },
+            {
+              "text": "의 상태를 보충하면 "
+            },
+            {
+              "text": "목적격보어",
+              "mark": "term"
+            },
+            {
+              "text": "입니다.\n\n보어에는 부사가 들어갈 수 없다는 것만\n우선 기억해 두세요."
+            }
           ]
         },
         {
           "role": "영어 문장의 형태",
-          "text": "영어 문장은 지금 이 세 형태만\n알아도 충분합니다.\n\n① 주 · 동 · 보\n② 주 · 동 · 목\n③ 주 · 동 · 목 · 보\n\n공통은 주어-서술어.\n그 뒤에 무엇이 오는지만 보면 됩니다."
+          "text": "영어 문장은 세 형태만 알아도 충분합니다.\n\n① 주어 · 동사 · 주격 보어\n② 주어 · 동사 · 목적어\n③ 주어 · 동사 · 목적어 · 목적격 보어\n\n모든 문장은 공통적으로\n주어-서술어를 가지고 있습니다.\n그 뒤에 무엇이 오는지만 보면 됩니다."
         }
       ],
-      "docent_bridge": "이제 그중 가장 기본인\n「주 · 동 · 목」을 자세히 볼게요.",
+      "docent_bridge": "이제 그중 가장 기본인\n「주어 · 동사 · 목적어」 구조를\n자세히 볼게요.",
       "patterns": [
-        { "id": "svo", "title": "주·동·목", "ready": true },
-        { "id": "svc", "title": "주·동·보", "ready": true },
-        { "id": "svoc", "title": "주·동·목·보", "ready": false }
+        {
+          "id": "svo",
+          "title": "주·동·목",
+          "ready": true
+        },
+        {
+          "id": "svc",
+          "title": "주·동·보",
+          "ready": true
+        },
+        {
+          "id": "svoc",
+          "title": "주·동·목·보",
+          "ready": false
+        }
       ]
     },
     {
@@ -104,52 +236,116 @@
         {
           "title": "동사",
           "patterns": [
-            { "id": "verb_s3", "title": "3인칭 단수 -s", "ready": false },
-            { "id": "causative", "title": "사역", "ready": false },
-            { "id": "sensory", "title": "감각", "ready": false },
-            { "id": "dative", "title": "수여", "ready": false },
-            { "id": "emotion", "title": "감정", "ready": false }
+            {
+              "id": "verb_s3",
+              "title": "3인칭 단수 -s",
+              "ready": false
+            },
+            {
+              "id": "causative",
+              "title": "사역",
+              "ready": false
+            },
+            {
+              "id": "sensory",
+              "title": "감각",
+              "ready": false
+            },
+            {
+              "id": "dative",
+              "title": "수여",
+              "ready": false
+            },
+            {
+              "id": "emotion",
+              "title": "감정",
+              "ready": false
+            }
           ]
         },
         {
           "title": "형용사",
           "patterns": [
-            { "id": "adj_comp", "title": "비교급·최상급", "ready": false },
-            { "id": "adj_as", "title": "as ~ as", "ready": false },
-            { "id": "the_comp", "title": "the ~, the ~", "ready": false }
+            {
+              "id": "adj_comp",
+              "title": "비교급·최상급",
+              "ready": false
+            },
+            {
+              "id": "adj_as",
+              "title": "as ~ as",
+              "ready": false
+            },
+            {
+              "id": "the_comp",
+              "title": "the ~, the ~",
+              "ready": false
+            }
           ]
         },
         {
           "title": "부사",
           "patterns": [
-            { "id": "adverb", "title": "부사", "ready": false }
+            {
+              "id": "adverb",
+              "title": "부사",
+              "ready": false
+            }
           ]
         },
         {
           "title": "동명사",
           "patterns": [
-            { "id": "gerund", "title": "동명사", "ready": false }
+            {
+              "id": "gerund",
+              "title": "동명사",
+              "ready": false
+            }
           ]
         },
         {
           "title": "to부정사",
           "patterns": [
-            { "id": "to_inf", "title": "to부정사", "ready": false }
+            {
+              "id": "to_inf",
+              "title": "to부정사",
+              "ready": false
+            }
           ]
         },
         {
           "title": "접속사·관계사",
           "patterns": [
-            { "id": "conj", "title": "접속사", "ready": false },
-            { "id": "rel_who", "title": "관계대명사 who", "ready": false },
-            { "id": "rel_which", "title": "관계대명사 which/that", "ready": false },
-            { "id": "rel_adv", "title": "관계부사", "ready": false }
+            {
+              "id": "conj",
+              "title": "접속사",
+              "ready": false
+            },
+            {
+              "id": "rel_who",
+              "title": "관계대명사 who",
+              "ready": false
+            },
+            {
+              "id": "rel_which",
+              "title": "관계대명사 which/that",
+              "ready": false
+            },
+            {
+              "id": "rel_adv",
+              "title": "관계부사",
+              "ready": false
+            }
           ]
         },
         {
           "title": "분사",
           "patterns": [
-            { "id": "participle", "title": "현재·과거분사", "ready": false }
+            {
+              "id": "participle",
+              "title": "현재·과거분사",
+              "ready": false
+            }
           ]
         }
       ]
@@ -158,49 +354,101 @@
       "id": "03",
       "title": "분사구문",
       "patterns": [
-        { "id": "participle_clause", "title": "분사구문", "ready": false }
+        {
+          "id": "participle_clause",
+          "title": "분사구문",
+          "ready": false
+        }
       ]
     },
     {
       "id": "04",
       "title": "시제",
       "patterns": [
-        { "id": "tense", "title": "시제", "ready": false }
+        {
+          "id": "tense",
+          "title": "시제",
+          "ready": false
+        }
       ]
     },
     {
       "id": "05",
       "title": "능동태·수동태",
       "patterns": [
-        { "id": "passive", "title": "수동태", "ready": false }
+        {
+          "id": "passive",
+          "title": "수동태",
+          "ready": false
+        }
       ]
     },
     {
       "id": "06",
       "title": "가정법",
       "patterns": [
-        { "id": "subjunctive", "title": "가정법", "ready": false }
+        {
+          "id": "subjunctive",
+          "title": "가정법",
+          "ready": false
+        }
       ]
     },
     {
       "id": "07",
       "title": "도치",
       "patterns": [
-        { "id": "inversion", "title": "도치", "ready": false }
+        {
+          "id": "inversion",
+          "title": "도치",
+          "ready": false
+        }
       ]
     },
     {
       "id": "08",
       "title": "기타 문장",
       "patterns": [
-        { "id": "dummy_subj", "title": "가주어·진주어", "ready": false },
-        { "id": "dummy_obj", "title": "가목적어·진목적어", "ready": false },
-        { "id": "emphasis", "title": "It·That 강조", "ready": false },
-        { "id": "so_that", "title": "So·That", "ready": false },
-        { "id": "there", "title": "There + 동사 + 주어", "ready": false },
-        { "id": "obj_to_ger", "title": "to/동명사 목적어", "ready": false },
-        { "id": "indirect_q", "title": "직접·간접의문문", "ready": false },
-        { "id": "parallel", "title": "병렬", "ready": false }
+        {
+          "id": "dummy_subj",
+          "title": "가주어·진주어",
+          "ready": false
+        },
+        {
+          "id": "dummy_obj",
+          "title": "가목적어·진목적어",
+          "ready": false
+        },
+        {
+          "id": "emphasis",
+          "title": "It·That 강조",
+          "ready": false
+        },
+        {
+          "id": "so_that",
+          "title": "So·That",
+          "ready": false
+        },
+        {
+          "id": "there",
+          "title": "There + 동사 + 주어",
+          "ready": false
+        },
+        {
+          "id": "obj_to_ger",
+          "title": "to/동명사 목적어",
+          "ready": false
+        },
+        {
+          "id": "indirect_q",
+          "title": "직접·간접의문문",
+          "ready": false
+        },
+        {
+          "id": "parallel",
+          "title": "병렬",
+          "ready": false
+        }
       ]
     }
   ]
