@@ -1228,7 +1228,10 @@
                 );
                 if (p.mark) {
                     var color = MARK_COLORS[p.mark] || '';
-                    var isBracket = /^「[\s\S]*」$/.test(String(p.text || '').trim());
+                    var rawText = String(p.text || '').trim();
+                    var isBracket = /^「[\s\S]*」$/.test(rawText);
+                    var isKeyList =
+                        p.mark === 'forms' || /^\d+\.\s/.test(rawText);
                     var styles = [
                         'background:none !important',
                         'padding:0 !important',
@@ -1242,6 +1245,7 @@
                         '<span class="pattern-docent-mark pattern-docent-mark--' +
                         escapeHtml(p.mark) +
                         (isBracket ? ' pattern-docent-mark--bracket' : '') +
+                        (isKeyList ? ' pattern-docent-mark--keylist' : '') +
                         '" style="' +
                         styles.join(';') +
                         '">' +
@@ -1719,7 +1723,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260724v').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260724x').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })

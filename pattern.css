@@ -361,16 +361,27 @@
     color: #d0b0ff;
 }
 
-/* 문장 형태 ①②③ — 한 줄씩 들어가게 축소 */
+/* 핵심 목록(1·2·3) — 본문보다 살짝 크게, 한 줄 유지 */
+.pattern-docent-mark--keylist {
+    display: block;
+    margin-top: 0.2em;
+    font-size: 1.06em;
+    font-weight: 800;
+    line-height: 1.4;
+    letter-spacing: -0.03em;
+    white-space: nowrap;
+}
+
+/* (구) 문장 형태 마크 — keylist와 동일 계열 */
 .pattern-docent-mark--forms {
     display: block;
-    margin-top: 0.15em;
-    font-size: 0.72em;
-    font-weight: 600;
-    line-height: 1.5;
-    letter-spacing: -0.02em;
+    margin-top: 0.2em;
+    font-size: 1.06em;
+    font-weight: 800;
+    line-height: 1.4;
+    letter-spacing: -0.03em;
     color: inherit;
-    white-space: pre-line;
+    white-space: nowrap;
     word-break: keep-all;
 }
 
