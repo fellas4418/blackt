@@ -17,7 +17,7 @@
     var COMPLEMENT_PARTICLES = { '이': 1, '가': 1 };
     var VERB_PARTICLES = { '다': 1 };
 
-    var INDEX_URL = 'data/pattern_index.json?v=20260723b';
+    var INDEX_URL = 'data/pattern_index.json?v=20260724a';
     var SOUND_KEY = 'pattern_docent_sound';
 
     var state = {
@@ -1034,32 +1034,16 @@
 
     function scheduleDocentBlocksThenAdvance(finalDwell) {
         clearDocentTimer();
-        if (state.docentBlockCount <= 1) {
-            scheduleDocentAdvance(finalDwell, state.lastDocentSpeak);
-            return;
-        }
-
-        function afterUpper() {
-            if (!state.docentPhase) return;
-            revealNextDocentBlock(function (speak) {
-                scheduleDocentAdvance(finalDwell, speak || '');
-            });
-        }
-
-        var upperSpeak =
+        // 자동 넘김 없음 — 다 읽고 탭할 때까지 대기 (일시정지보다 단순)
+        var speak =
             (state.docentBlockSpeaks && state.docentBlockSpeaks[0]) ||
             state.lastDocentSpeak;
-        state.lastDocentSpeak = upperSpeak;
-
-        if (state.docentSoundOn && upperSpeak) {
-            speakDocentText(upperSpeak, function () {
-                if (!state.docentPhase) return;
-                state.docentTimer = setTimeout(afterUpper, 700);
-            });
+        state.lastDocentSpeak = speak || '';
+        if (state.docentSoundOn && speak) {
+            speakDocentText(speak);
             return;
         }
         stopDocentSpeech();
-        state.docentTimer = setTimeout(afterUpper, DOCENT_SEG_MS);
     }
 
     function buildDocentSpeakText(item, isBridge) {
@@ -1144,19 +1128,12 @@
 
     function scheduleDocentAdvance(ms, speakText) {
         clearDocentTimer();
+        // 시간 지나면 넘기지 않음 — 탭으로만 이어감
         if (state.docentSoundOn && speakText) {
-            speakDocentText(speakText, function () {
-                if (!state.docentPhase) return;
-                state.docentTimer = setTimeout(function () {
-                    advanceDocent();
-                }, 700);
-            });
+            speakDocentText(speakText);
             return;
         }
         stopDocentSpeech();
-        state.docentTimer = setTimeout(function () {
-            advanceDocent();
-        }, ms);
     }
 
     function clearDocentFadeTimer() {
@@ -1287,11 +1264,8 @@
             }
         }
         if (tapEl) {
-            var showTap = !isBridge && state.docentIdx === 0;
-            tapEl.textContent = showTap
-                ? '천천히 읽고, 탭하면 이어집니다'
-                : '';
-            tapEl.classList.toggle('is-hidden', !showTap);
+            tapEl.textContent = '천천히 읽고, 탭하면 이어집니다';
+            tapEl.classList.remove('is-hidden');
         }
 
         var head = [];
