@@ -149,14 +149,28 @@
 
 .pattern-docent-role-slot {
     flex: 0 0 auto;
-    margin: 0 0 16px;
+    margin: 0 0 2.2rem;
     box-sizing: border-box;
     text-align: left;
 }
 
-.pattern-docent-role-label,
-.pattern-docent-example-label {
+.pattern-docent-role-label {
     display: inline-block;
+    margin: 0 0 8px;
+    padding: 3px 8px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: #9a9a9a;
+    text-align: left;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.04);
+    opacity: 1;
+}
+
+.pattern-docent-example-label {
+    display: none;
     margin: 0 0 8px;
     padding: 3px 8px;
     font-size: 0.68rem;
@@ -169,10 +183,6 @@
     background: rgba(255, 255, 255, 0.04);
     opacity: 0;
     transition: opacity 0.55s ease;
-}
-
-.pattern-docent-example-label {
-    display: none;
 }
 
 .pattern-docent.has-example .pattern-docent-example-label {
@@ -360,7 +370,6 @@
     text-align: center;
 }
 
-.pattern-docent.is-show .pattern-docent-role-label,
 .pattern-docent.is-show .pattern-docent-role,
 .pattern-docent.is-show .pattern-docent-example-label,
 .pattern-docent.is-show .pattern-docent-example,
