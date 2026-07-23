@@ -12,6 +12,11 @@
     /** 손필기 데모: 앞 N컷만 (느낌 확인용) */
     var HAND_INK_DEMO_PAGES = 3;
     var HAND_INK_KINDS = ['circle', 'dunderline', 'star'];
+    /** 설명 나온 뒤 첫 필기까지 대기 */
+    var HAND_INK_START_MS = 2200;
+    /** 단어와 단어 사이 (앞→뒤 순서) */
+    var HAND_INK_BETWEEN_MS = 1050;
+    var HAND_INK_NS = 'http://www.w3.org/2000/svg';
     var COL_COMP = { s: '주어', o: '목적어', c: '보어', v: '서술어' };
     var PARTICLE_POOL = ['은', '는', '이', '가', '을', '를', '다'];
     var SUBJECT_PARTICLES = { '은': 1, '는': 1, '이': 1, '가': 1 };
@@ -906,41 +911,143 @@
         state.handInkTimers = null;
     }
 
-    function attachHandCircleSvg(el) {
-        if (el.querySelector('.pattern-docent-hand-circle')) return;
-        var ns = 'http://www.w3.org/2000/svg';
-        var svg = document.createElementNS(ns, 'svg');
-        svg.setAttribute('class', 'pattern-docent-hand-circle');
-        svg.setAttribute('viewBox', '0 0 100 40');
+    function handInkPushTimer(fn, ms) {
+        if (!state.handInkTimers) state.handInkTimers = [];
+        state.handInkTimers.push(setTimeout(fn, ms));
+    }
+
+    function prepHandStroke(path) {
+        var len = 0;
+        try {
+            len = path.getTotalLength();
+        } catch (e) {
+            len = 180;
+        }
+        path.style.strokeDasharray = String(len);
+        path.style.strokeDashoffset = String(len);
+        return len;
+    }
+
+    function drawHandStroke(path, durationMs, onDone) {
+        prepHandStroke(path);
+        void path.getBoundingClientRect();
+        path.classList.add('is-drawing');
+        path.style.transitionDuration = durationMs + 'ms';
+        requestAnimationFrame(function () {
+            path.classList.add('is-drawn');
+            path.style.strokeDashoffset = '0';
+        });
+        if (onDone) handInkPushTimer(onDone, durationMs + 40);
+    }
+
+    function makeHandSvg(className, viewBox) {
+        var svg = document.createElementNS(HAND_INK_NS, 'svg');
+        svg.setAttribute('class', 'pattern-docent-hand-svg ' + className);
+        svg.setAttribute('viewBox', viewBox);
         svg.setAttribute('preserveAspectRatio', 'none');
         svg.setAttribute('aria-hidden', 'true');
-        var ellipse = document.createElementNS(ns, 'ellipse');
-        ellipse.setAttribute('cx', '50');
-        ellipse.setAttribute('cy', '20');
-        ellipse.setAttribute('rx', '46');
-        ellipse.setAttribute('ry', '16');
-        svg.appendChild(ellipse);
+        return svg;
+    }
+
+    function makeHandPath(d) {
+        var path = document.createElementNS(HAND_INK_NS, 'path');
+        path.setAttribute('d', d);
+        return path;
+    }
+
+    /** 비뚤비뚤한 손그림 원 */
+    function attachHandCircleSvg(el) {
+        if (el.querySelector('.pattern-docent-hand-svg--circle')) return null;
+        var svg = makeHandSvg('pattern-docent-hand-svg--circle', '0 0 100 44');
+        var path = makeHandPath(
+            'M 12 23 C 11 8, 28 3, 48 4 C 72 5, 92 10, 94 22 ' +
+                'C 96 34, 78 41, 52 40 C 28 39, 8 34, 10 24 C 11 20, 14 18, 18 17'
+        );
+        svg.appendChild(path);
         el.appendChild(svg);
+        return path;
     }
 
-    function drawHandInkOnMark(el, kind) {
-        if (!el || el.classList.contains('is-drawn')) return;
+    /** 물결 이중 밑줄 */
+    function attachHandLinesSvg(el) {
+        if (el.querySelector('.pattern-docent-hand-svg--lines')) return null;
+        var svg = makeHandSvg('pattern-docent-hand-svg--lines', '0 0 100 22');
+        var line1 = makeHandPath('M 2 7 Q 18 4, 34 8 T 66 6 T 98 9');
+        var line2 = makeHandPath('M 3 16 Q 22 13, 40 17 T 70 15 T 97 18');
+        svg.appendChild(line1);
+        svg.appendChild(line2);
+        el.appendChild(svg);
+        return { line1: line1, line2: line2 };
+    }
+
+    /** 손으로 긋는 별 */
+    function attachHandStarSvg(el) {
+        if (el.querySelector('.pattern-docent-hand-svg--star')) return null;
+        var svg = makeHandSvg('pattern-docent-hand-svg--star', '0 0 24 24');
+        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        var path = makeHandPath(
+            'M 12 2.5 L 14.2 9.2 L 21.2 9.4 L 15.6 13.6 L 17.6 20.5 L 12 16.6 L 6.4 20.5 L 8.4 13.6 L 2.8 9.4 L 9.8 9.2 Z'
+        );
+        svg.appendChild(path);
+        el.appendChild(svg);
+        return path;
+    }
+
+    function drawHandInkOnMark(el, kind, onDone) {
+        if (!el || el.classList.contains('is-hand-done')) {
+            if (onDone) onDone();
+            return;
+        }
         el.classList.add('is-hand-ink', 'is-hand-ink--' + kind);
-        if (kind === 'circle') attachHandCircleSvg(el);
-        // reflow then draw
-        void el.offsetWidth;
-        el.classList.add('is-drawn');
+
+        if (kind === 'circle') {
+            var cPath = attachHandCircleSvg(el);
+            if (!cPath) {
+                if (onDone) onDone();
+                return;
+            }
+            drawHandStroke(cPath, 700, function () {
+                el.classList.add('is-hand-done');
+                if (onDone) onDone();
+            });
+            return;
+        }
+
+        if (kind === 'dunderline') {
+            var lines = attachHandLinesSvg(el);
+            if (!lines) {
+                if (onDone) onDone();
+                return;
+            }
+            drawHandStroke(lines.line1, 420, function () {
+                handInkPushTimer(function () {
+                    drawHandStroke(lines.line2, 420, function () {
+                        el.classList.add('is-hand-done');
+                        if (onDone) onDone();
+                    });
+                }, 160);
+            });
+            return;
+        }
+
+        if (kind === 'star') {
+            var sPath = attachHandStarSvg(el);
+            if (!sPath) {
+                if (onDone) onDone();
+                return;
+            }
+            drawHandStroke(sPath, 580, function () {
+                el.classList.add('is-hand-done');
+                if (onDone) onDone();
+            });
+            return;
+        }
+
+        if (onDone) onDone();
     }
 
-    /** 앞 3컷: 마크된 단어에 동그라미·이중밑줄·별을 추정 타이밍으로 */
-    function startHandInkDemo() {
-        clearHandInkTimers();
-        if (state.docentPhase !== 'lines') return;
-        if (state.docentIdx < 0 || state.docentIdx >= HAND_INK_DEMO_PAGES) return;
-
-        var root = document.getElementById('pattern-docent');
-        if (!root) return;
-        var marks = root.querySelectorAll(
+    function collectHandInkMarks(root) {
+        var nodes = root.querySelectorAll(
             '.pattern-docent-text .pattern-docent-mark--s, ' +
                 '.pattern-docent-text .pattern-docent-mark--v, ' +
                 '.pattern-docent-text .pattern-docent-mark--o, ' +
@@ -949,22 +1056,42 @@
                 '.pattern-docent-text .pattern-docent-mark--term, ' +
                 '.pattern-docent-text .pattern-docent-mark--quote'
         );
+        var list = [];
+        var i;
+        for (i = 0; i < nodes.length; i++) {
+            if (list.indexOf(nodes[i]) < 0) list.push(nodes[i]);
+        }
+        return list;
+    }
+
+    /** 앞 3컷: 설명 후 쉬고, DOM 앞에서부터 손필기 */
+    function startHandInkDemo() {
+        clearHandInkTimers();
+        if (state.docentPhase !== 'lines') return;
+        if (state.docentIdx < 0 || state.docentIdx >= HAND_INK_DEMO_PAGES) return;
+
+        var root = document.getElementById('pattern-docent');
+        if (!root) return;
+        var marks = collectHandInkMarks(root);
         if (!marks.length) return;
 
         state.handInkTimers = [];
         var pageShift = state.docentIdx % HAND_INK_KINDS.length;
-        var i;
-        for (i = 0; i < marks.length; i++) {
-            (function (el, idx) {
-                var kind = HAND_INK_KINDS[(pageShift + idx) % HAND_INK_KINDS.length];
-                var delay = 550 + idx * 680;
-                var tid = setTimeout(function () {
-                    if (!state.docentPhase) return;
-                    drawHandInkOnMark(el, kind);
-                }, delay);
-                state.handInkTimers.push(tid);
-            })(marks[i], i);
+
+        function runAt(idx) {
+            if (!state.docentPhase || idx >= marks.length) return;
+            var kind = HAND_INK_KINDS[(pageShift + idx) % HAND_INK_KINDS.length];
+            drawHandInkOnMark(marks[idx], kind, function () {
+                handInkPushTimer(function () {
+                    runAt(idx + 1);
+                }, Math.round(HAND_INK_BETWEEN_MS * 0.4));
+            });
         }
+
+        handInkPushTimer(function () {
+            if (!state.docentPhase) return;
+            runAt(0);
+        }, HAND_INK_START_MS);
     }
 
     function showDocentOverlay() {
@@ -1453,6 +1580,10 @@
                 : item.parts && item.parts.length
                   ? DOCENT_EXAMPLE_MS
                   : DOCENT_LINE_MS;
+        // 손필기 데모 컷: 필기 볼 시간 확보
+        if (state.docentIdx < HAND_INK_DEMO_PAGES) {
+            dwell = Math.max(dwell, 16000);
+        }
         clearDocentTimer();
         renderDocentFrame(item, false, function () {
             startHandInkDemo();
