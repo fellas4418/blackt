@@ -330,36 +330,37 @@
     box-shadow: none;
 }
 
-/* 예문 태그 — 본문보다 배경·글자 더 뚜렷하게 */
+/* 예문·해석 태그 — 글자색만, 배경 없음 */
 .pattern-docent-example .pattern-docent-mark,
 .pattern-docent-example-kor .pattern-docent-mark {
-    padding: 3px 8px;
-    border-radius: 6px;
+    padding: 0;
+    border-radius: 0;
     font-weight: 700;
+    background: none;
 }
 
 .pattern-docent-example .pattern-docent-mark--s,
 .pattern-docent-example-kor .pattern-docent-mark--s {
     color: #9af5ff;
-    background: rgba(122, 239, 255, 0.32);
+    background: none;
 }
 
 .pattern-docent-example .pattern-docent-mark--o,
 .pattern-docent-example-kor .pattern-docent-mark--o {
     color: #ffc57a;
-    background: rgba(255, 179, 92, 0.32);
+    background: none;
 }
 
 .pattern-docent-example .pattern-docent-mark--v,
 .pattern-docent-example-kor .pattern-docent-mark--v {
     color: #ffe9a8;
-    background: rgba(255, 224, 138, 0.32);
+    background: none;
 }
 
 .pattern-docent-example .pattern-docent-mark--c,
 .pattern-docent-example-kor .pattern-docent-mark--c {
     color: #e0c8ff;
-    background: rgba(208, 176, 255, 0.32);
+    background: none;
 }
 
 /* 품사 — 초록 */
@@ -371,10 +372,10 @@
     font-weight: 700;
 }
 
-/* 그 외 강조(「…」) — 코랄 (목적어 오렌지·성분·품사와 비겹침) */
+/* 그 외 강조(「…」) — 코랄, 배경 없음 */
 .pattern-docent-mark--quote {
     color: #ff7a55;
-    background: rgba(255, 122, 85, 0.14);
+    background: none;
     box-shadow: none;
     font-weight: 700;
     white-space: normal;
