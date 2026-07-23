@@ -9,6 +9,9 @@
     var DOCENT_FADE_GAP_MS = 120;
     var DOCENT_SEG_MS = 6000;
     var AUTO_NEXT_MS = 850;
+    /** 손필기 데모: 앞 N컷만 (느낌 확인용) */
+    var HAND_INK_DEMO_PAGES = 3;
+    var HAND_INK_KINDS = ['circle', 'dunderline', 'star'];
     var COL_COMP = { s: '주어', o: '목적어', c: '보어', v: '서술어' };
     var PARTICLE_POOL = ['은', '는', '이', '가', '을', '를', '다'];
     var SUBJECT_PARTICLES = { '은': 1, '는': 1, '이': 1, '가': 1 };
@@ -49,7 +52,8 @@
         docentFadeTimer: null,
         docentBlockIdx: 0,
         docentBlockCount: 1,
-        docentBlockSpeaks: null
+        docentBlockSpeaks: null,
+        handInkTimers: null
     };
 
     function activeRoles() {
@@ -894,6 +898,75 @@
         }
     }
 
+    function clearHandInkTimers() {
+        if (!state.handInkTimers) return;
+        state.handInkTimers.forEach(function (id) {
+            clearTimeout(id);
+        });
+        state.handInkTimers = null;
+    }
+
+    function attachHandCircleSvg(el) {
+        if (el.querySelector('.pattern-docent-hand-circle')) return;
+        var ns = 'http://www.w3.org/2000/svg';
+        var svg = document.createElementNS(ns, 'svg');
+        svg.setAttribute('class', 'pattern-docent-hand-circle');
+        svg.setAttribute('viewBox', '0 0 100 40');
+        svg.setAttribute('preserveAspectRatio', 'none');
+        svg.setAttribute('aria-hidden', 'true');
+        var ellipse = document.createElementNS(ns, 'ellipse');
+        ellipse.setAttribute('cx', '50');
+        ellipse.setAttribute('cy', '20');
+        ellipse.setAttribute('rx', '46');
+        ellipse.setAttribute('ry', '16');
+        svg.appendChild(ellipse);
+        el.appendChild(svg);
+    }
+
+    function drawHandInkOnMark(el, kind) {
+        if (!el || el.classList.contains('is-drawn')) return;
+        el.classList.add('is-hand-ink', 'is-hand-ink--' + kind);
+        if (kind === 'circle') attachHandCircleSvg(el);
+        // reflow then draw
+        void el.offsetWidth;
+        el.classList.add('is-drawn');
+    }
+
+    /** 앞 3컷: 마크된 단어에 동그라미·이중밑줄·별을 추정 타이밍으로 */
+    function startHandInkDemo() {
+        clearHandInkTimers();
+        if (state.docentPhase !== 'lines') return;
+        if (state.docentIdx < 0 || state.docentIdx >= HAND_INK_DEMO_PAGES) return;
+
+        var root = document.getElementById('pattern-docent');
+        if (!root) return;
+        var marks = root.querySelectorAll(
+            '.pattern-docent-text .pattern-docent-mark--s, ' +
+                '.pattern-docent-text .pattern-docent-mark--v, ' +
+                '.pattern-docent-text .pattern-docent-mark--o, ' +
+                '.pattern-docent-text .pattern-docent-mark--c, ' +
+                '.pattern-docent-text .pattern-docent-mark--pos, ' +
+                '.pattern-docent-text .pattern-docent-mark--term, ' +
+                '.pattern-docent-text .pattern-docent-mark--quote'
+        );
+        if (!marks.length) return;
+
+        state.handInkTimers = [];
+        var pageShift = state.docentIdx % HAND_INK_KINDS.length;
+        var i;
+        for (i = 0; i < marks.length; i++) {
+            (function (el, idx) {
+                var kind = HAND_INK_KINDS[(pageShift + idx) % HAND_INK_KINDS.length];
+                var delay = 550 + idx * 680;
+                var tid = setTimeout(function () {
+                    if (!state.docentPhase) return;
+                    drawHandInkOnMark(el, kind);
+                }, delay);
+                state.handInkTimers.push(tid);
+            })(marks[i], i);
+        }
+    }
+
     function showDocentOverlay() {
         var page = document.querySelector('.pattern-page');
         var el = document.getElementById('pattern-docent');
@@ -1171,6 +1244,7 @@
         var el = document.getElementById('pattern-docent');
         clearDocentTimer();
         clearDocentFadeTimer();
+        clearHandInkTimers();
         stopDocentSpeech();
         state.docentPhase = null;
         state.docentTransitioning = false;
@@ -1319,6 +1393,7 @@
         }
 
         clearDocentFadeTimer();
+        clearHandInkTimers();
 
         function reveal() {
             applyDocentContent(item, isBridge);
@@ -1380,6 +1455,7 @@
                   : DOCENT_LINE_MS;
         clearDocentTimer();
         renderDocentFrame(item, false, function () {
+            startHandInkDemo();
             scheduleDocentBlocksThenAdvance(dwell);
         });
     }

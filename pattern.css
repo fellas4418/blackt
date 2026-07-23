@@ -334,6 +334,122 @@
     word-break: keep-all;
 }
 
+/* ── 손필기 강조 데모 (앞 3컷) ── */
+.pattern-docent-mark.is-hand-ink {
+    position: relative;
+    display: inline-block;
+    vertical-align: baseline;
+}
+
+.pattern-docent-hand-circle {
+    position: absolute;
+    left: -6%;
+    top: -18%;
+    width: 112%;
+    height: 136%;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 2;
+}
+
+.pattern-docent-hand-circle ellipse {
+    fill: none;
+    stroke: #ff5c5c;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-dasharray: 220;
+    stroke-dashoffset: 220;
+    transform-origin: center;
+    transform: rotate(-8deg);
+    opacity: 0.92;
+}
+
+.pattern-docent-mark.is-hand-ink--circle.is-drawn .pattern-docent-hand-circle ellipse {
+    animation: pattern-hand-circle-draw 0.55s ease-out forwards;
+}
+
+@keyframes pattern-hand-circle-draw {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+.pattern-docent-mark.is-hand-ink--dunderline::before,
+.pattern-docent-mark.is-hand-ink--dunderline::after {
+    content: '';
+    position: absolute;
+    left: -2%;
+    right: -2%;
+    height: 2px;
+    border-radius: 2px;
+    background: #ff5c5c;
+    transform: scaleX(0);
+    transform-origin: left center;
+    opacity: 0.9;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.pattern-docent-mark.is-hand-ink--dunderline::before {
+    bottom: -0.08em;
+    transform: scaleX(0) rotate(-0.8deg);
+}
+
+.pattern-docent-mark.is-hand-ink--dunderline::after {
+    bottom: -0.28em;
+    transform: scaleX(0) rotate(0.6deg);
+}
+
+.pattern-docent-mark.is-hand-ink--dunderline.is-drawn::before {
+    animation: pattern-hand-line-draw-a 0.32s ease-out forwards;
+}
+
+.pattern-docent-mark.is-hand-ink--dunderline.is-drawn::after {
+    animation: pattern-hand-line-draw-b 0.32s 0.14s ease-out forwards;
+}
+
+@keyframes pattern-hand-line-draw-a {
+    to {
+        transform: scaleX(1) rotate(-0.8deg);
+    }
+}
+
+@keyframes pattern-hand-line-draw-b {
+    to {
+        transform: scaleX(1) rotate(0.6deg);
+    }
+}
+
+.pattern-docent-mark.is-hand-ink--star::after {
+    content: '★';
+    position: absolute;
+    top: -0.62em;
+    right: -0.42em;
+    font-size: 0.58em;
+    line-height: 1;
+    color: #ffd24a;
+    opacity: 0;
+    transform: scale(0.2) rotate(-28deg);
+    pointer-events: none;
+    z-index: 3;
+    text-shadow: 0 0 6px rgba(255, 210, 74, 0.35);
+}
+
+.pattern-docent-mark.is-hand-ink--star.is-drawn::after {
+    animation: pattern-hand-star-pop 0.42s cubic-bezier(0.2, 1.4, 0.4, 1) forwards;
+}
+
+@keyframes pattern-hand-star-pop {
+    60% {
+        opacity: 1;
+        transform: scale(1.15) rotate(8deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(-6deg);
+    }
+}
+
 .pattern-docent-text {
     margin: 0;
     font-size: clamp(1.85rem, 7vw, 2.2rem);
