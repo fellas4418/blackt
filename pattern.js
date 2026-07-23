@@ -1689,7 +1689,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260724d').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260724f').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })
