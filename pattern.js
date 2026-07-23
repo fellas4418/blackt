@@ -17,7 +17,7 @@
     var COMPLEMENT_PARTICLES = { '이': 1, '가': 1 };
     var VERB_PARTICLES = { '다': 1 };
 
-    var INDEX_URL = 'data/pattern_index.json?v=20260723a';
+    var INDEX_URL = 'data/pattern_index.json?v=20260723b';
     var SOUND_KEY = 'pattern_docent_sound';
 
     var state = {
@@ -1646,7 +1646,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260723a').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260723b').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })
