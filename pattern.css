@@ -174,13 +174,13 @@
     margin: 0 0 8px;
     padding: 3px 8px;
     font-size: 0.68rem;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 0.12em;
-    color: #9a9a9a;
+    color: #7aefff;
     text-align: left;
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(122, 239, 255, 0.45);
     border-radius: 4px;
-    background: rgba(255, 255, 255, 0.04);
+    background: none;
     opacity: 1;
 }
 
