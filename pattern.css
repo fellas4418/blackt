@@ -251,6 +251,12 @@
     display: block;
 }
 
+/* 짧은 예문(단어 ≤5) — 한 줄, 좁은 화면에서는 글자만 살짝 축소 */
+.pattern-docent-example.is-oneline {
+    white-space: nowrap;
+    font-size: clamp(1.45rem, 5.8vw, 2.6rem);
+}
+
 .pattern-docent-example-kor {
     display: none;
     margin: 0;
@@ -267,6 +273,11 @@
 
 .pattern-docent.has-kor .pattern-docent-example-kor {
     display: block;
+}
+
+.pattern-docent-example-kor.is-oneline {
+    white-space: nowrap;
+    font-size: clamp(1.2rem, 4.8vw, 1.9rem);
 }
 
 .pattern-docent-mark {
@@ -299,6 +310,37 @@
     color: #d0b0ff;
     background: none;
     box-shadow: none;
+}
+
+/* 예문 안의 성분 태그 — 글자색 + 배경 틴트 */
+.pattern-docent-example .pattern-docent-mark,
+.pattern-docent-example-kor .pattern-docent-mark {
+    padding: 2px 6px;
+    border-radius: 5px;
+}
+
+.pattern-docent-example .pattern-docent-mark--s,
+.pattern-docent-example-kor .pattern-docent-mark--s {
+    color: #7aefff;
+    background: rgba(122, 239, 255, 0.16);
+}
+
+.pattern-docent-example .pattern-docent-mark--o,
+.pattern-docent-example-kor .pattern-docent-mark--o {
+    color: #ffb35c;
+    background: rgba(255, 179, 92, 0.16);
+}
+
+.pattern-docent-example .pattern-docent-mark--v,
+.pattern-docent-example-kor .pattern-docent-mark--v {
+    color: #ffe08a;
+    background: rgba(255, 224, 138, 0.16);
+}
+
+.pattern-docent-example .pattern-docent-mark--c,
+.pattern-docent-example-kor .pattern-docent-mark--c {
+    color: #d0b0ff;
+    background: rgba(208, 176, 255, 0.16);
 }
 
 /* 품사 — 초록 글자만 */

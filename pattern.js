@@ -913,6 +913,24 @@
             .trim();
     }
 
+    // 짧은 예문(단어 5개 이하)은 한 줄 유지 — SVO/짧은 SVC까지 커버
+    var EXAMPLE_ONELINE_MAX_WORDS = 5;
+
+    function countExampleWords(parts) {
+        var plain = plainFromParts(parts);
+        if (!plain) return 0;
+        return plain
+            .replace(/[^\w\s가-힣'-]+/g, ' ')
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean).length;
+    }
+
+    function shouldExampleOneline(parts) {
+        var n = countExampleWords(parts);
+        return n > 0 && n <= EXAMPLE_ONELINE_MAX_WORDS;
+    }
+
     function stopDocentSpeech() {
         state.speakGen += 1;
         try {
@@ -1205,9 +1223,17 @@
         if (roleEl) roleEl.textContent = isBridge ? '' : item.role || '';
         if (exampleEl) {
             exampleEl.innerHTML = hasExample ? buildDocentMarkedHtml(item.parts) : '';
+            exampleEl.classList.toggle(
+                'is-oneline',
+                !!(hasExample && shouldExampleOneline(item.parts))
+            );
         }
         if (korEl) {
             korEl.innerHTML = hasKor ? buildDocentMarkedHtml(item.kor_parts) : '';
+            korEl.classList.toggle(
+                'is-oneline',
+                !!(hasKor && shouldExampleOneline(item.kor_parts))
+            );
         }
 
         var blockHtmls = [];
