@@ -221,6 +221,21 @@
             .replace(/>/g, '&gt;');
     }
 
+    /** 「…」 핵심어·예시를 색으로 강조 (escape 이후 HTML 문자열용) */
+    function highlightCornerQuotes(escaped) {
+        return String(escaped || '').replace(/「[^」]*」/g, function (m) {
+            return (
+                '<span class="pattern-docent-mark pattern-docent-mark--quote">' +
+                m +
+                '</span>'
+            );
+        });
+    }
+
+    function formatDocentPlainHtml(text) {
+        return highlightCornerQuotes(escapeHtml(text || '')).replace(/\n/g, '<br>');
+    }
+
     function currentStep() {
         return state.data.steps[state.variantIdx];
     }
@@ -1174,7 +1189,10 @@
         if (!parts || !parts.length) return '';
         return parts
             .map(function (p) {
-                var t = escapeHtml(p.text || '').replace(/\n/g, '<br>');
+                var t = highlightCornerQuotes(escapeHtml(p.text || '')).replace(
+                    /\n/g,
+                    '<br>'
+                );
                 if (p.mark) {
                     return (
                         '<span class="pattern-docent-mark pattern-docent-mark--' +
@@ -1220,9 +1238,7 @@
         if (isBridge) {
             var bridgeBlocks = splitPlainDocentBlocks(item.text || '');
             if (!bridgeBlocks.length && item.text) bridgeBlocks = [String(item.text)];
-            blockHtmls = bridgeBlocks.map(function (t) {
-                return escapeHtml(t).replace(/\n/g, '<br>');
-            });
+            blockHtmls = bridgeBlocks.map(formatDocentPlainHtml);
             blockSpeaks = bridgeBlocks.map(plainSpeak);
         } else if (item.text_parts && item.text_parts.length) {
             var partBlocks = splitTextPartsDocentBlocks(item.text_parts);
@@ -1236,9 +1252,7 @@
         } else {
             var plainBlocks = splitPlainDocentBlocks(item.text || '');
             if (!plainBlocks.length && item.text) plainBlocks = [String(item.text)];
-            blockHtmls = plainBlocks.map(function (t) {
-                return escapeHtml(t).replace(/\n/g, '<br>');
-            });
+            blockHtmls = plainBlocks.map(formatDocentPlainHtml);
             blockSpeaks = plainBlocks.map(plainSpeak);
         }
 

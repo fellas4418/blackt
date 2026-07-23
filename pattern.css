@@ -302,6 +302,19 @@
     font-weight: 700;
 }
 
+/* 「…」 핵심·예시 — 용어와 같은 계열 색 */
+.pattern-docent-mark--quote {
+    color: #f0b8ff;
+    background: rgba(220, 140, 255, 0.12);
+    box-shadow: none;
+    font-weight: 700;
+    white-space: normal;
+    text-decoration: underline;
+    text-decoration-color: rgba(240, 184, 255, 0.45);
+    text-underline-offset: 0.18em;
+    text-decoration-thickness: 1.5px;
+}
+
 .pattern-docent-text {
     margin: 0;
     font-size: clamp(1.85rem, 7vw, 2.2rem);
