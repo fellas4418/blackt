@@ -18,35 +18,35 @@
             },
             {
               "text": "주어",
-              "mark": "term"
+              "mark": "s"
             },
             {
               "text": " · "
             },
             {
               "text": "서술어",
-              "mark": "term"
+              "mark": "v"
             },
             {
               "text": " · "
             },
             {
               "text": "목적어",
-              "mark": "term"
+              "mark": "o"
             },
             {
               "text": " ·\n"
             },
             {
               "text": "주격보어",
-              "mark": "term"
+              "mark": "c"
             },
             {
               "text": " · "
             },
             {
               "text": "목적격보어",
-              "mark": "term"
+              "mark": "c"
             }
           ]
         },
@@ -59,35 +59,35 @@
           "text_parts": [
             {
               "text": "주어",
-              "mark": "term"
+              "mark": "s"
             },
             {
               "text": "는 동작이나 상태의 주체입니다.\n문장의 맨 앞에 오고,\n이 주어 자리에는 "
             },
             {
               "text": "명사",
-              "mark": "term"
+              "mark": "pos"
             },
             {
               "text": " · "
             },
             {
               "text": "대명사",
-              "mark": "term"
+              "mark": "pos"
             },
             {
               "text": " · "
             },
             {
               "text": "동명사",
-              "mark": "term"
+              "mark": "pos"
             },
             {
               "text": "라는 "
             },
             {
               "text": "품사",
-              "mark": "term"
+              "mark": "pos"
             },
             {
               "text": "만 들어갑니다."
@@ -99,7 +99,7 @@
           "text_parts": [
             {
               "text": "품사",
-              "mark": "term"
+              "mark": "pos"
             },
             {
               "text": "는 비슷한 성질을 가진\n단어들을 모아놓은 것을 말하는데,\n품사가 같은 단어들은\n같은 성질을 가지고 있습니다."
@@ -111,10 +111,17 @@
           "text_parts": [
             {
               "text": "서술어",
-              "mark": "term"
+              "mark": "v"
             },
             {
-              "text": "는\n주어가 하는 동작이나 상태를 말합니다.\n\n품사는 동사만 들어갈 수 있어요."
+              "text": "는\n주어가 하는 동작이나 상태를 말합니다.\n\n품사는 "
+            },
+            {
+              "text": "동사",
+              "mark": "pos"
+            },
+            {
+              "text": "만 들어갈 수 있어요."
             }
           ]
         },
@@ -123,10 +130,31 @@
           "text_parts": [
             {
               "text": "목적어",
-              "mark": "term"
+              "mark": "o"
             },
             {
-              "text": "는\n동작의 대상입니다.\n\n주어와 같이\n명사 · 대명사 · 동명사가 들어갑니다."
+              "text": "는\n동작의 대상입니다.\n\n주어와 같이\n"
+            },
+            {
+              "text": "명사",
+              "mark": "pos"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "대명사",
+              "mark": "pos"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "동명사",
+              "mark": "pos"
+            },
+            {
+              "text": "가 들어갑니다."
             }
           ]
         },
@@ -185,7 +213,7 @@
             },
             {
               "text": "보어",
-              "mark": "term"
+              "mark": "c"
             },
             {
               "text": "입니다.\n\n보어는 「보충어」의 줄임말인데,\n주어나 목적어의 상태를\n보충 설명해 줍니다."
@@ -204,7 +232,7 @@
             },
             {
               "text": "주격보어",
-              "mark": "term"
+              "mark": "c"
             },
             {
               "text": ".\n"
@@ -218,14 +246,14 @@
             },
             {
               "text": "목적격보어",
-              "mark": "term"
+              "mark": "c"
             },
             {
               "text": "입니다.\n\n보어에는 "
             },
             {
               "text": "부사",
-              "mark": "term"
+              "mark": "pos"
             },
             {
               "text": "가 들어갈 수 없다는 것만\n우선 기억해 두세요."

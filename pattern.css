@@ -279,22 +279,30 @@
 
 .pattern-docent-mark--s {
     color: #7aefff;
-    background: rgba(0, 243, 255, 0.1);
+    background: none;
     box-shadow: none;
 }
 
 .pattern-docent-mark--o {
     color: #ffb35c;
-    background: rgba(255, 153, 0, 0.1);
+    background: none;
     box-shadow: none;
 }
 
 .pattern-docent-mark--v {
     color: #ffe08a;
-    background: rgba(255, 204, 85, 0.1);
+    background: none;
     box-shadow: none;
 }
 
+.pattern-docent-mark--c {
+    color: #d0b0ff;
+    background: none;
+    box-shadow: none;
+}
+
+/* 품사 — 초록 글자만 */
+.pattern-docent-mark--pos,
 .pattern-docent-mark--term {
     color: #7eef9a;
     background: none;
@@ -302,10 +310,10 @@
     font-weight: 700;
 }
 
-/* 「…」 핵심·예시 — 색만 (보어 분홍과 구분) */
+/* 그 외 강조(「…」) — 희미한 배경만 */
 .pattern-docent-mark--quote {
-    color: #7eef9a;
-    background: none;
+    color: inherit;
+    background: rgba(255, 255, 255, 0.12);
     box-shadow: none;
     font-weight: 700;
     white-space: normal;
