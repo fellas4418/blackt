@@ -341,6 +341,16 @@
     vertical-align: baseline;
 }
 
+/* 밑줄이 레이아웃 밖으로 안 잘리게 공간 확보 */
+.pattern-docent-mark.is-hand-ink--dunderline {
+    padding-bottom: 0.48em;
+}
+
+.pattern-docent-mark.is-hand-ink--circle {
+    padding-top: 0.12em;
+    padding-bottom: 0.12em;
+}
+
 .pattern-docent-hand-svg {
     position: absolute;
     pointer-events: none;
@@ -356,11 +366,10 @@
 }
 
 .pattern-docent-hand-svg--lines {
-    left: -4%;
-    right: -4%;
-    width: 108%;
-    height: 0.85em;
-    bottom: -0.55em;
+    left: -2%;
+    width: 104%;
+    height: 0.48em;
+    bottom: 0.02em;
     top: auto;
 }
 
@@ -371,6 +380,10 @@
     stroke-linecap: round;
     stroke-linejoin: round;
     opacity: 0.95;
+}
+
+.pattern-docent-hand-svg--lines path {
+    stroke-width: 2.3;
 }
 
 .pattern-docent-hand-svg path.is-drawing {
@@ -399,6 +412,9 @@
     position: relative;
     word-break: keep-all;
     overflow-wrap: break-word;
+    /* 손필기 밑줄·원이 잘리지 않게 */
+    padding-bottom: 0.35em;
+    overflow: visible;
 }
 
 .pattern-docent-seg {

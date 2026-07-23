@@ -968,12 +968,12 @@
         return path;
     }
 
-    /** 물결 이중 밑줄 */
+    /** 살짝 올라가는 직선 이중 밑줄 (왼쪽 아래 → 오른쪽 위) */
     function attachHandLinesSvg(el) {
         if (el.querySelector('.pattern-docent-hand-svg--lines')) return null;
-        var svg = makeHandSvg('pattern-docent-hand-svg--lines', '0 0 100 22');
-        var line1 = makeHandPath('M 2 7 Q 18 4, 34 8 T 66 6 T 98 9');
-        var line2 = makeHandPath('M 3 16 Q 22 13, 40 17 T 70 15 T 97 18');
+        var svg = makeHandSvg('pattern-docent-hand-svg--lines', '0 0 100 24');
+        var line1 = makeHandPath('M 2 14 L 98 8');
+        var line2 = makeHandPath('M 2 21 L 98 15');
         svg.appendChild(line1);
         svg.appendChild(line2);
         el.appendChild(svg);
