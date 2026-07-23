@@ -300,45 +300,32 @@
 
 .pattern-docent-mark {
     display: inline;
-    padding: 2px 6px;
-    border-radius: 5px;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
     word-break: keep-all;
     white-space: nowrap;
+    font-weight: 700;
 }
 
 .pattern-docent-mark--s {
     color: #7aefff;
-    background: rgba(122, 239, 255, 0.16);
-    box-shadow: none;
 }
 
 .pattern-docent-mark--o {
     color: #ffb35c;
-    background: rgba(255, 179, 92, 0.16);
-    box-shadow: none;
 }
 
 .pattern-docent-mark--v {
     color: #ffe08a;
-    background: rgba(255, 224, 138, 0.16);
-    box-shadow: none;
 }
 
 .pattern-docent-mark--c {
     color: #d0b0ff;
-    background: rgba(208, 176, 255, 0.16);
-    box-shadow: none;
 }
 
-/* 예문·해석 — 글자색 강제 (배경 없음) */
-#pattern-docent-example .pattern-docent-mark,
-#pattern-docent-example-kor .pattern-docent-mark {
-    padding: 0 !important;
-    border-radius: 0 !important;
-    font-weight: 700 !important;
-    background: none !important;
-}
-
+/* 예문·해석 — 글자색 강제 */
 #pattern-docent-example .pattern-docent-mark--s,
 #pattern-docent-example-kor .pattern-docent-mark--s {
     color: #7aefff !important;
@@ -363,29 +350,20 @@
     -webkit-text-fill-color: #d0b0ff !important;
 }
 
-/* 품사 — 초록 */
+/* 품사 — 초록 (글자색만) */
 .pattern-docent-mark--pos,
 .pattern-docent-mark--term {
     color: #7eef9a;
-    background: rgba(126, 239, 154, 0.14);
-    box-shadow: none;
-    font-weight: 700;
 }
 
-/* 그 외 강조(「…」) — 코랄, 배경 없음 */
-.pattern-docent-mark--quote,
-.pattern-docent-mark--bracket {
+/* 그 외 강조(「…」) — 코랄 (글자색만) */
+.pattern-docent-mark--quote {
     color: #ff7a55;
-    background: none !important;
-    box-shadow: none;
-    font-weight: 700;
     white-space: normal;
     text-decoration: none;
-    padding: 0 !important;
-    border-radius: 0 !important;
 }
 
-/* 성분색 꺽쇠는 글자색만 유지 (배경 강제 제거) */
+/* 성분색 꺽쇠는 역할 글자색 유지 */
 .pattern-docent-mark--bracket.pattern-docent-mark--s {
     color: #7aefff;
 }
@@ -408,7 +386,6 @@
     line-height: 1.5;
     letter-spacing: -0.02em;
     color: inherit;
-    background: none;
     white-space: pre-line;
     word-break: keep-all;
 }
@@ -902,28 +879,25 @@
 
 .pattern-guide-beat-mark {
     display: inline;
-    padding: 1px 4px;
-    border-radius: 4px;
+    padding: 0;
+    border-radius: 0;
+    background: none;
 }
 
 .pattern-guide-beat-mark--s {
     color: #7aefff;
-    background: rgba(0, 243, 255, 0.1);
 }
 
 .pattern-guide-beat-mark--o {
     color: #ffb35c;
-    background: rgba(255, 153, 0, 0.12);
 }
 
 .pattern-guide-beat-mark--c {
     color: #c8a0ff;
-    background: rgba(200, 160, 255, 0.12);
 }
 
 .pattern-guide-beat-mark--v {
     color: #ffe08a;
-    background: rgba(255, 224, 138, 0.12);
 }
 
 .pattern-guide-beat-tap {

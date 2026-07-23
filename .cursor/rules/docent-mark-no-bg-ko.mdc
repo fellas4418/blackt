@@ -1,0 +1,32 @@
+---
+description: 도슨트·해석 포인트 성분/꺽쇠 태그는 글자색만 (배경 금지)
+globs: pattern.css,pattern.js,pattern.html,data/patterns/**/*.json
+alwaysApply: true
+---
+
+# 도슨트 마크 — 배경색 금지
+
+성분·품사·꺽쇠(`「」`)·예문·해석 포인트 태그는 **글자색만** 쓴다. 배경색·알약 패딩을 넣지 않는다.
+
+## 적용 범위 (모든 페이지·모든 컷)
+
+- `.pattern-docent-mark` / `--s` `--v` `--o` `--c` `--pos` `--term` `--quote` `--bracket`
+- `.pattern-guide-beat-mark` / `--s` `--v` `--o` `--c`
+- 예문(`#pattern-docent-example`) · 한글 해석(`#pattern-docent-example-kor`) · 본문 · 해석 포인트
+
+## 허용
+
+- 글자색만: 주어 `#7aefff` / 서술어 `#ffe08a` / 목적어 `#ffb35c` / 보어 `#d0b0ff` / 품사 `#7eef9a` / 일반 꺽쇠 `#ff7a55`
+- `background: none` (또는 배경 속성 자체 생략)
+- `padding: 0`, `border-radius: 0`
+
+## 금지
+
+- `background: rgba(...)` / 반투명 배경 / 하이라이트 박스
+- 태그용 패딩·둥근 모서리로 “알약”처럼 보이게 하는 것
+- 예문만/본문만 예외 두기 — **전부 동일** (배경 없음)
+
+## 수정 시
+
+- 마크 스타일을 손대면 배경이 다시 들어가지 않았는지 확인
+- 버튼·패널·진행바 등 UI 크롬 배경은 이 규칙 밖 (텍스트 마크만 해당)

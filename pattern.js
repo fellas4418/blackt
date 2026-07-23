@@ -225,7 +225,7 @@
     function highlightCornerQuotes(escaped) {
         return String(escaped || '').replace(/「[^」]*」/g, function (m) {
             return (
-                '<span class="pattern-docent-mark pattern-docent-mark--quote">' +
+                '<span class="pattern-docent-mark pattern-docent-mark--quote" style="background:none !important;padding:0 !important;border-radius:0 !important">' +
                 m +
                 '</span>'
             );
@@ -1228,26 +1228,23 @@
                 );
                 if (p.mark) {
                     var color = MARK_COLORS[p.mark] || '';
-                    // 「…」 꺽쇠는 글자색만 (배경·패딩 없음)
                     var isBracket = /^「[\s\S]*」$/.test(String(p.text || '').trim());
-                    var styles = [];
+                    var styles = [
+                        'background:none !important',
+                        'padding:0 !important',
+                        'border-radius:0 !important'
+                    ];
                     if (forceInlineColor && color) {
                         styles.push('color:' + color + ' !important');
                         styles.push('-webkit-text-fill-color:' + color + ' !important');
                     }
-                    if (isBracket || forceInlineColor) {
-                        styles.push('background:none !important');
-                        styles.push('padding:0 !important');
-                        styles.push('border-radius:0 !important');
-                    }
-                    var style = styles.length ? ' style="' + styles.join(';') + '"' : '';
                     return (
                         '<span class="pattern-docent-mark pattern-docent-mark--' +
                         escapeHtml(p.mark) +
                         (isBracket ? ' pattern-docent-mark--bracket' : '') +
-                        '"' +
-                        style +
-                        '>' +
+                        '" style="' +
+                        styles.join(';') +
+                        '">' +
                         t +
                         '</span>'
                     );
@@ -1730,7 +1727,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260724q').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260724r').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })
