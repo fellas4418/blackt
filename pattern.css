@@ -334,70 +334,6 @@
     word-break: keep-all;
 }
 
-/* ── 손필기 강조 데모 (앞 3컷) ── */
-.pattern-docent-mark.is-hand-ink {
-    position: relative;
-    display: inline-block;
-    vertical-align: baseline;
-}
-
-/* 밑줄이 레이아웃 밖으로 안 잘리게 공간 확보 */
-.pattern-docent-mark.is-hand-ink--dunderline {
-    padding-bottom: 0.48em;
-}
-
-.pattern-docent-mark.is-hand-ink--circle {
-    padding-top: 0.12em;
-    padding-bottom: 0.12em;
-}
-
-.pattern-docent-hand-svg {
-    position: absolute;
-    pointer-events: none;
-    overflow: visible;
-    z-index: 2;
-}
-
-.pattern-docent-hand-svg--circle {
-    left: -10%;
-    top: -22%;
-    width: 120%;
-    height: 144%;
-}
-
-.pattern-docent-hand-svg--lines {
-    left: -2%;
-    width: 104%;
-    height: 0.48em;
-    bottom: 0.02em;
-    top: auto;
-}
-
-.pattern-docent-hand-svg path {
-    fill: none;
-    stroke: #ff5c5c;
-    stroke-width: 2.6;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    opacity: 0.95;
-}
-
-.pattern-docent-hand-svg--lines path {
-    stroke-width: 2.3;
-}
-
-.pattern-docent-hand-svg path.is-drawing {
-    transition: stroke-dashoffset 0.55s cubic-bezier(0.33, 0.1, 0.25, 1);
-}
-
-.pattern-docent-hand-svg--lines path.is-drawing {
-    transition: stroke-dashoffset 0.45s cubic-bezier(0.2, 0.15, 0.25, 1);
-}
-
-.pattern-docent-hand-svg path.is-drawn {
-    stroke-dashoffset: 0 !important;
-}
-
 .pattern-docent-text {
     margin: 0;
     font-size: clamp(1.85rem, 7vw, 2.2rem);
@@ -412,9 +348,6 @@
     position: relative;
     word-break: keep-all;
     overflow-wrap: break-word;
-    /* 손필기 밑줄·원이 잘리지 않게 */
-    padding-bottom: 0.35em;
-    overflow: visible;
 }
 
 .pattern-docent-seg {
