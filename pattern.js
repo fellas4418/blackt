@@ -7,11 +7,11 @@
     var DOCENT_BRIDGE_MS = 6500;
     var DOCENT_FADE_OUT_MS = 550;
     var DOCENT_FADE_GAP_MS = 120;
-    var DOCENT_SEG_MS = 6000;
+    var DOCENT_SEG_MS = 3000;
     var AUTO_NEXT_MS = 850;
     /** 손필기 데모: 앞 N컷만 (느낌 확인용) */
     var HAND_INK_DEMO_PAGES = 3;
-    var HAND_INK_KINDS = ['circle', 'dunderline', 'star'];
+    var HAND_INK_KINDS = ['circle', 'dunderline'];
     /** 설명 나온 뒤 첫 필기까지 대기 */
     var HAND_INK_START_MS = 2200;
     /** 단어와 단어 사이 (앞→뒤 순서) */
@@ -980,19 +980,6 @@
         return { line1: line1, line2: line2 };
     }
 
-    /** 손으로 긋는 별 */
-    function attachHandStarSvg(el) {
-        if (el.querySelector('.pattern-docent-hand-svg--star')) return null;
-        var svg = makeHandSvg('pattern-docent-hand-svg--star', '0 0 24 24');
-        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-        var path = makeHandPath(
-            'M 12 2.5 L 14.2 9.2 L 21.2 9.4 L 15.6 13.6 L 17.6 20.5 L 12 16.6 L 6.4 20.5 L 8.4 13.6 L 2.8 9.4 L 9.8 9.2 Z'
-        );
-        svg.appendChild(path);
-        el.appendChild(svg);
-        return path;
-    }
-
     function drawHandInkOnMark(el, kind, onDone) {
         if (!el || el.classList.contains('is-hand-done')) {
             if (onDone) onDone();
@@ -1019,26 +1006,14 @@
                 if (onDone) onDone();
                 return;
             }
-            drawHandStroke(lines.line1, 420, function () {
+            // 위 줄 먼저 → 멈춤 → 아래 줄
+            drawHandStroke(lines.line1, 450, function () {
                 handInkPushTimer(function () {
-                    drawHandStroke(lines.line2, 420, function () {
+                    drawHandStroke(lines.line2, 450, function () {
                         el.classList.add('is-hand-done');
                         if (onDone) onDone();
                     });
-                }, 160);
-            });
-            return;
-        }
-
-        if (kind === 'star') {
-            var sPath = attachHandStarSvg(el);
-            if (!sPath) {
-                if (onDone) onDone();
-                return;
-            }
-            drawHandStroke(sPath, 580, function () {
-                el.classList.add('is-hand-done');
-                if (onDone) onDone();
+                }, 220);
             });
             return;
         }

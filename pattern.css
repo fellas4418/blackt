@@ -364,14 +364,6 @@
     top: auto;
 }
 
-.pattern-docent-hand-svg--star {
-    top: -0.85em;
-    right: -0.55em;
-    width: 0.85em;
-    height: 0.85em;
-    left: auto;
-}
-
 .pattern-docent-hand-svg path {
     fill: none;
     stroke: #ff5c5c;
@@ -381,21 +373,12 @@
     opacity: 0.95;
 }
 
-.pattern-docent-hand-svg--star path {
-    stroke: #ffd24a;
-    stroke-width: 2.2;
-}
-
 .pattern-docent-hand-svg path.is-drawing {
     transition: stroke-dashoffset 0.55s cubic-bezier(0.33, 0.1, 0.25, 1);
 }
 
 .pattern-docent-hand-svg--lines path.is-drawing {
-    transition: stroke-dashoffset 0.42s cubic-bezier(0.2, 0.15, 0.25, 1);
-}
-
-.pattern-docent-hand-svg--star path.is-drawing {
-    transition: stroke-dashoffset 0.5s cubic-bezier(0.33, 0.05, 0.2, 1);
+    transition: stroke-dashoffset 0.45s cubic-bezier(0.2, 0.15, 0.25, 1);
 }
 
 .pattern-docent-hand-svg path.is-drawn {
