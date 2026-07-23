@@ -1228,10 +1228,15 @@
                 );
                 if (p.mark) {
                     var color = MARK_COLORS[p.mark] || '';
-                    var style =
-                        forceInlineColor && color
-                            ? ' style="color:' + color + ';background:none"'
-                            : '';
+                    var style = '';
+                    if (forceInlineColor && color) {
+                        style =
+                            ' style="color:' +
+                            color +
+                            ' !important;-webkit-text-fill-color:' +
+                            color +
+                            ';background:none !important"';
+                    }
                     return (
                         '<span class="pattern-docent-mark pattern-docent-mark--' +
                         escapeHtml(p.mark) +
@@ -1720,7 +1725,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260724m').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260724n').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })
