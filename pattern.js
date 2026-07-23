@@ -1357,7 +1357,7 @@
             }
         }
         if (tapEl) {
-            tapEl.textContent = '다 읽었으면 탭 → 다음  ·  왼쪽은 이전';
+            tapEl.textContent = '왼쪽 탭: 이전  ·  오른쪽 탭: 다음';
             tapEl.classList.remove('is-hidden');
         }
 
@@ -1727,7 +1727,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260724s').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260724t').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })
