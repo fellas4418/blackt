@@ -190,33 +190,17 @@
 
 .pattern-docent-role {
     margin: 0;
-    font-size: clamp(1.7rem, 6.4vw, 2.1rem);
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    line-height: 1.35;
-    color: #e4e4e4;
+    font-size: clamp(2.15rem, 8vw, 2.55rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+    color: #f0f0f0;
     text-shadow: none;
     text-align: left;
     opacity: 0;
     transition: opacity 0.55s ease;
     word-break: keep-all;
     overflow-wrap: break-word;
-}
-
-.pattern-docent-role--s {
-    color: #7aefff;
-}
-
-.pattern-docent-role--v {
-    color: #ffe08a;
-}
-
-.pattern-docent-role--o {
-    color: #ffb35c;
-}
-
-.pattern-docent-role--c {
-    color: #d0b0ff;
 }
 
 /* 예문·설명이 같은 Y에서 시작 (예문 없으면 설명이 그 자리) */
@@ -392,7 +376,7 @@
 
 .pattern-docent-text {
     margin: 0;
-    font-size: clamp(1.85rem, 7vw, 2.2rem);
+    font-size: clamp(1.55rem, 5.8vw, 1.85rem);
     font-weight: 500;
     line-height: 1.55;
     color: #d4d4d4;
