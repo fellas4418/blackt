@@ -2,12 +2,12 @@
     'use strict';
 
     var INTRO_BAR_MS = 7000;
-    var DOCENT_LINE_MS = 10000;
-    var DOCENT_EXAMPLE_MS = 11000;
-    var DOCENT_BRIDGE_MS = 6500;
+    var DOCENT_LINE_MS = 8000;
+    var DOCENT_EXAMPLE_MS = 9000;
+    var DOCENT_BRIDGE_MS = 4500;
     var DOCENT_FADE_OUT_MS = 550;
     var DOCENT_FADE_GAP_MS = 120;
-    var DOCENT_SEG_MS = 3000;
+    var DOCENT_SEG_MS = 4500;
     var AUTO_NEXT_MS = 850;
     var COL_COMP = { s: '주어', o: '목적어', c: '보어', v: '서술어' };
     var PARTICLE_POOL = ['은', '는', '이', '가', '을', '를', '다'];
