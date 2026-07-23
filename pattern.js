@@ -1235,7 +1235,7 @@
                             color +
                             ' !important;-webkit-text-fill-color:' +
                             color +
-                            ';background:none !important"';
+                            ' !important"';
                     }
                     return (
                         '<span class="pattern-docent-mark pattern-docent-mark--' +
@@ -1725,7 +1725,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260724o').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260724p').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })
