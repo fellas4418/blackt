@@ -310,13 +310,17 @@
     font-weight: 700;
 }
 
-/* 그 외 강조(「…」) — 따뜻한 앰버 배경만 */
+/* 그 외 강조(「…」) — 빨간 밑줄만 */
 .pattern-docent-mark--quote {
     color: inherit;
-    background: rgba(255, 196, 90, 0.2);
+    background: none;
     box-shadow: none;
-    font-weight: 700;
+    font-weight: inherit;
     white-space: normal;
+    text-decoration: underline;
+    text-decoration-color: #ff5a5a;
+    text-underline-offset: 0.18em;
+    text-decoration-thickness: 2px;
 }
 
 /* 문장 형태 ①②③ — 한 줄씩 들어가게 축소 */
