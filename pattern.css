@@ -296,23 +296,19 @@
 }
 
 .pattern-docent-mark--term {
-    color: #f0b8ff;
-    background: rgba(220, 140, 255, 0.14);
+    color: #7eef9a;
+    background: none;
     box-shadow: none;
     font-weight: 700;
 }
 
-/* 「…」 핵심·예시 — 용어와 같은 계열 색 */
+/* 「…」 핵심·예시 — 색만 (보어 분홍과 구분) */
 .pattern-docent-mark--quote {
-    color: #f0b8ff;
-    background: rgba(220, 140, 255, 0.12);
+    color: #7eef9a;
+    background: none;
     box-shadow: none;
     font-weight: 700;
     white-space: normal;
-    text-decoration: underline;
-    text-decoration-color: rgba(240, 184, 255, 0.45);
-    text-underline-offset: 0.18em;
-    text-decoration-thickness: 1.5px;
 }
 
 .pattern-docent-text {
