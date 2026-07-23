@@ -1052,16 +1052,43 @@
 
     function scheduleDocentBlocksThenAdvance(finalDwell) {
         clearDocentTimer();
-        // 자동 넘김 없음 — 다 읽고 탭할 때까지 대기 (일시정지보다 단순)
+
+        function speakThen(speak, thenFn) {
+            if (state.docentSoundOn && speak) {
+                speakDocentText(speak, function () {
+                    if (!state.docentPhase) return;
+                    if (thenFn) {
+                        state.docentTimer = setTimeout(thenFn, 700);
+                    }
+                });
+                return;
+            }
+            stopDocentSpeech();
+            if (thenFn) {
+                state.docentTimer = setTimeout(thenFn, DOCENT_SEG_MS);
+            }
+        }
+
+        // 같은 페이지 위→아래 블록만 자동 공개, 다음 페이지는 탭
+        function revealRest() {
+            if (!state.docentPhase) return;
+            if (state.docentBlockIdx >= state.docentBlockCount - 1) return;
+            revealNextDocentBlock(function (speak) {
+                var more = state.docentBlockIdx < state.docentBlockCount - 1;
+                speakThen(speak || '', more ? revealRest : null);
+            });
+        }
+
         var speak =
             (state.docentBlockSpeaks && state.docentBlockSpeaks[0]) ||
             state.lastDocentSpeak;
         state.lastDocentSpeak = speak || '';
-        if (state.docentSoundOn && speak) {
-            speakDocentText(speak);
+
+        if (state.docentBlockCount <= 1) {
+            speakThen(speak, null);
             return;
         }
-        stopDocentSpeech();
+        speakThen(speak, revealRest);
     }
 
     function buildDocentSpeakText(item, isBridge) {
@@ -1146,7 +1173,7 @@
 
     function scheduleDocentAdvance(ms, speakText) {
         clearDocentTimer();
-        // 시간 지나면 넘기지 않음 — 탭으로만 이어감
+        // 페이지 넘김은 탭만 — 여기서는 낭독만
         if (state.docentSoundOn && speakText) {
             speakDocentText(speakText);
             return;
