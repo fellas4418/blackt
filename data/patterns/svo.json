@@ -31,14 +31,20 @@
       ],
       "kor_parts": [
         {
-          "text": "사람은",
+          "text": "사람"
+        },
+        {
+          "text": "은",
           "mark": "s"
         },
         {
           "text": " "
         },
         {
-          "text": "사랑을",
+          "text": "사랑"
+        },
+        {
+          "text": "을",
           "mark": "o"
         },
         {
@@ -127,14 +133,20 @@
       ],
       "kor_parts": [
         {
-          "text": "사람은",
+          "text": "사람"
+        },
+        {
+          "text": "은",
           "mark": "s"
         },
         {
           "text": " "
         },
         {
-          "text": "사랑을",
+          "text": "사랑"
+        },
+        {
+          "text": "을",
           "mark": "o"
         },
         {
@@ -183,7 +195,21 @@
           "mark": "s"
         },
         {
-          "text": " want love."
+          "text": " "
+        },
+        {
+          "text": "want",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "love",
+          "mark": "o"
+        },
+        {
+          "text": "."
         }
       ],
       "kor_parts": [
@@ -195,7 +221,24 @@
           "mark": "s"
         },
         {
-          "text": " 사랑을 원한다."
+          "text": " "
+        },
+        {
+          "text": "사랑"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "원한다",
+          "mark": "v"
+        },
+        {
+          "text": "."
         }
       ],
       "text_parts": [
@@ -230,7 +273,21 @@
           "mark": "s"
         },
         {
-          "text": " want love."
+          "text": " "
+        },
+        {
+          "text": "want",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "love",
+          "mark": "o"
+        },
+        {
+          "text": "."
         }
       ],
       "kor_parts": [
@@ -242,7 +299,24 @@
           "mark": "s"
         },
         {
-          "text": " 사랑을 원한다."
+          "text": " "
+        },
+        {
+          "text": "사랑"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "원한다",
+          "mark": "v"
+        },
+        {
+          "text": "."
         }
       ],
       "text_parts": [
@@ -277,7 +351,21 @@
           "mark": "s"
         },
         {
-          "text": " want love."
+          "text": " "
+        },
+        {
+          "text": "want",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "love",
+          "mark": "o"
+        },
+        {
+          "text": "."
         }
       ],
       "kor_parts": [
@@ -289,7 +377,24 @@
           "mark": "s"
         },
         {
-          "text": " 사랑을 원한다."
+          "text": " "
+        },
+        {
+          "text": "사랑"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "원한다",
+          "mark": "v"
+        },
+        {
+          "text": "."
         }
       ],
       "text_parts": [
@@ -320,7 +425,21 @@
           "mark": "s"
         },
         {
-          "text": " want love."
+          "text": " "
+        },
+        {
+          "text": "want",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "love",
+          "mark": "o"
+        },
+        {
+          "text": "."
         }
       ],
       "kor_parts": [
@@ -332,7 +451,24 @@
           "mark": "s"
         },
         {
-          "text": " 사랑을 원한다."
+          "text": " "
+        },
+        {
+          "text": "사랑"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "원한다",
+          "mark": "v"
+        },
+        {
+          "text": "."
         }
       ],
       "text_parts": [
@@ -356,19 +492,47 @@
       "role": "서술어",
       "parts": [
         {
-          "text": "People "
+          "text": "People",
+          "mark": "s"
+        },
+        {
+          "text": " "
         },
         {
           "text": "want",
           "mark": "v"
         },
         {
-          "text": " love."
+          "text": " "
+        },
+        {
+          "text": "love",
+          "mark": "o"
+        },
+        {
+          "text": "."
         }
       ],
       "kor_parts": [
         {
-          "text": "사람은 사랑을 "
+          "text": "사람"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "사랑"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
         },
         {
           "text": "원한다",
@@ -416,19 +580,47 @@
       "role": "서술어",
       "parts": [
         {
-          "text": "People "
+          "text": "People",
+          "mark": "s"
+        },
+        {
+          "text": " "
         },
         {
           "text": "hate",
           "mark": "v"
         },
         {
-          "text": " love."
+          "text": " "
+        },
+        {
+          "text": "love",
+          "mark": "o"
+        },
+        {
+          "text": "."
         }
       ],
       "kor_parts": [
         {
-          "text": "사람은 사랑을 "
+          "text": "사람"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "사랑"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
         },
         {
           "text": "싫어한다",
@@ -462,19 +654,47 @@
       "role": "서술어",
       "parts": [
         {
-          "text": "People "
+          "text": "People",
+          "mark": "s"
+        },
+        {
+          "text": " "
         },
         {
           "text": "seek",
           "mark": "v"
         },
         {
-          "text": " love."
+          "text": " "
+        },
+        {
+          "text": "love",
+          "mark": "o"
+        },
+        {
+          "text": "."
         }
       ],
       "kor_parts": [
         {
-          "text": "사람은 사랑을 "
+          "text": "사람"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "사랑"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
         },
         {
           "text": "찾는다",
@@ -508,7 +728,18 @@
       "role": "목적어",
       "parts": [
         {
-          "text": "People want "
+          "text": "People",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "want",
+          "mark": "v"
+        },
+        {
+          "text": " "
         },
         {
           "text": "love",
@@ -520,14 +751,31 @@
       ],
       "kor_parts": [
         {
-          "text": "사람은 "
+          "text": "사람"
         },
         {
-          "text": "사랑을",
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "사랑"
+        },
+        {
+          "text": "을",
           "mark": "o"
         },
         {
-          "text": " 원한다."
+          "text": " "
+        },
+        {
+          "text": "원한다",
+          "mark": "v"
+        },
+        {
+          "text": "."
         }
       ],
       "text_parts": [
@@ -554,7 +802,18 @@
       "role": "목적어",
       "parts": [
         {
-          "text": "People want "
+          "text": "People",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "want",
+          "mark": "v"
+        },
+        {
+          "text": " "
         },
         {
           "text": "love",
@@ -566,7 +825,14 @@
       ],
       "kor_parts": [
         {
-          "text": "사람은 "
+          "text": "사람"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
         },
         {
           "text": "사랑"
@@ -576,7 +842,14 @@
           "mark": "o"
         },
         {
-          "text": " 원한다."
+          "text": " "
+        },
+        {
+          "text": "원한다",
+          "mark": "v"
+        },
+        {
+          "text": "."
         }
       ],
       "text_parts": [
@@ -617,7 +890,18 @@
       "role": "목적어",
       "parts": [
         {
-          "text": "People want "
+          "text": "People",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "want",
+          "mark": "v"
+        },
+        {
+          "text": " "
         },
         {
           "text": "peace",
@@ -629,7 +913,14 @@
       ],
       "kor_parts": [
         {
-          "text": "사람은 "
+          "text": "사람"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
         },
         {
           "text": "평화"
@@ -639,7 +930,14 @@
           "mark": "o"
         },
         {
-          "text": " 원한다."
+          "text": " "
+        },
+        {
+          "text": "원한다",
+          "mark": "v"
+        },
+        {
+          "text": "."
         }
       ],
       "text_parts": [
@@ -680,7 +978,18 @@
       "role": "목적어",
       "parts": [
         {
-          "text": "People want "
+          "text": "People",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "want",
+          "mark": "v"
+        },
+        {
+          "text": " "
         },
         {
           "text": "freedom",
@@ -692,7 +1001,14 @@
       ],
       "kor_parts": [
         {
-          "text": "사람은 "
+          "text": "사람"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
         },
         {
           "text": "자유"
@@ -702,7 +1018,14 @@
           "mark": "o"
         },
         {
-          "text": " 원한다."
+          "text": " "
+        },
+        {
+          "text": "원한다",
+          "mark": "v"
+        },
+        {
+          "text": "."
         }
       ],
       "text_parts": [
@@ -752,14 +1075,20 @@
       ],
       "kor_parts": [
         {
-          "text": "사람은",
+          "text": "사람"
+        },
+        {
+          "text": "은",
           "mark": "s"
         },
         {
           "text": " "
         },
         {
-          "text": "사랑을",
+          "text": "사랑"
+        },
+        {
+          "text": "을",
           "mark": "o"
         },
         {

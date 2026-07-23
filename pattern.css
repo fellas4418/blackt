@@ -194,13 +194,29 @@
     font-weight: 700;
     letter-spacing: 0.08em;
     line-height: 1.35;
-    color: #7aefff;
+    color: #e4e4e4;
     text-shadow: none;
     text-align: left;
     opacity: 0;
     transition: opacity 0.55s ease;
     word-break: keep-all;
     overflow-wrap: break-word;
+}
+
+.pattern-docent-role--s {
+    color: #7aefff;
+}
+
+.pattern-docent-role--v {
+    color: #ffe08a;
+}
+
+.pattern-docent-role--o {
+    color: #ffb35c;
+}
+
+.pattern-docent-role--c {
+    color: #d0b0ff;
 }
 
 /* 예문·설명이 같은 Y에서 시작 (예문 없으면 설명이 그 자리) */
@@ -218,7 +234,7 @@
     margin: 0 0 14px;
     padding: 12px 14px 14px;
     box-sizing: border-box;
-    text-align: left;
+    text-align: center;
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.03);
@@ -236,7 +252,7 @@
     font-weight: 700;
     line-height: 1.55;
     letter-spacing: -0.01em;
-    color: #c8c8c8;
+    color: #9a9a9a;
     text-decoration: none;
     background: transparent;
     border: none;
@@ -245,6 +261,7 @@
     transition: opacity 0.55s ease;
     word-break: keep-all;
     overflow-wrap: break-word;
+    text-align: center;
 }
 
 .pattern-docent.has-example .pattern-docent-example {
@@ -264,11 +281,12 @@
     font-size: clamp(1.55rem, 6vw, 1.9rem);
     font-weight: 600;
     line-height: 1.5;
-    color: #888;
+    color: #777;
     opacity: 0;
     transition: opacity 0.55s ease;
     word-break: keep-all;
     overflow-wrap: break-word;
+    text-align: center;
 }
 
 .pattern-docent.has-kor .pattern-docent-example-kor {
@@ -312,7 +330,39 @@
     box-shadow: none;
 }
 
-/* 품사 — 초록 글자만 */
+/* 예문 태그 — 본문보다 배경·글자 더 뚜렷하게 */
+.pattern-docent-example .pattern-docent-mark,
+.pattern-docent-example-kor .pattern-docent-mark {
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+}
+
+.pattern-docent-example .pattern-docent-mark--s,
+.pattern-docent-example-kor .pattern-docent-mark--s {
+    color: #9af5ff;
+    background: rgba(122, 239, 255, 0.32);
+}
+
+.pattern-docent-example .pattern-docent-mark--o,
+.pattern-docent-example-kor .pattern-docent-mark--o {
+    color: #ffc57a;
+    background: rgba(255, 179, 92, 0.32);
+}
+
+.pattern-docent-example .pattern-docent-mark--v,
+.pattern-docent-example-kor .pattern-docent-mark--v {
+    color: #ffe9a8;
+    background: rgba(255, 224, 138, 0.32);
+}
+
+.pattern-docent-example .pattern-docent-mark--c,
+.pattern-docent-example-kor .pattern-docent-mark--c {
+    color: #e0c8ff;
+    background: rgba(208, 176, 255, 0.32);
+}
+
+/* 품사 — 초록 */
 .pattern-docent-mark--pos,
 .pattern-docent-mark--term {
     color: #7eef9a;

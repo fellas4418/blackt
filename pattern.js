@@ -1249,7 +1249,18 @@
         el.classList.toggle('has-example', !!hasExample);
         el.classList.toggle('has-kor', !!hasKor);
 
-        if (roleEl) roleEl.textContent = isBridge ? '' : item.role || '';
+        if (roleEl) {
+            roleEl.textContent = isBridge ? '' : item.role || '';
+            roleEl.className = 'pattern-docent-role';
+            if (!isBridge && item.role) {
+                var rm = '';
+                if (/목적/.test(item.role)) rm = 'o';
+                else if (/서술|동사/.test(item.role)) rm = 'v';
+                else if (/보어/.test(item.role)) rm = 'c';
+                else if (/주어/.test(item.role)) rm = 's';
+                if (rm) roleEl.classList.add('pattern-docent-role--' + rm);
+            }
+        }
         if (exampleEl) {
             exampleEl.innerHTML = hasExample ? buildDocentMarkedHtml(item.parts) : '';
             exampleEl.classList.toggle(
@@ -1689,7 +1700,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260724h').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260724i').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })
