@@ -1207,7 +1207,16 @@
         }
     }
 
-    function buildDocentMarkedHtml(parts) {
+    var MARK_COLORS = {
+        s: '#7aefff',
+        v: '#ffe08a',
+        o: '#ffb35c',
+        c: '#d0b0ff',
+        pos: '#7eef9a',
+        term: '#7eef9a'
+    };
+
+    function buildDocentMarkedHtml(parts, forceInlineColor) {
         if (!parts || !parts.length) return '';
         return parts
             .map(function (p) {
@@ -1218,10 +1227,17 @@
                     '<br>'
                 );
                 if (p.mark) {
+                    var color = MARK_COLORS[p.mark] || '';
+                    var style =
+                        forceInlineColor && color
+                            ? ' style="color:' + color + ';background:none"'
+                            : '';
                     return (
                         '<span class="pattern-docent-mark pattern-docent-mark--' +
                         escapeHtml(p.mark) +
-                        '">' +
+                        '"' +
+                        style +
+                        '>' +
                         t +
                         '</span>'
                     );
@@ -1262,14 +1278,18 @@
             }
         }
         if (exampleEl) {
-            exampleEl.innerHTML = hasExample ? buildDocentMarkedHtml(item.parts) : '';
+            exampleEl.innerHTML = hasExample
+                ? buildDocentMarkedHtml(item.parts, true)
+                : '';
             exampleEl.classList.toggle(
                 'is-oneline',
                 !!(hasExample && shouldExampleOneline(item.parts))
             );
         }
         if (korEl) {
-            korEl.innerHTML = hasKor ? buildDocentMarkedHtml(item.kor_parts) : '';
+            korEl.innerHTML = hasKor
+                ? buildDocentMarkedHtml(item.kor_parts, true)
+                : '';
             korEl.classList.toggle(
                 'is-oneline',
                 !!(hasKor && shouldExampleOneline(item.kor_parts))
@@ -1700,7 +1720,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260724j').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260724m').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })

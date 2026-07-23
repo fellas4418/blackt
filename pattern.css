@@ -330,37 +330,33 @@
     box-shadow: none;
 }
 
-/* 예문·해석 태그 — 글자색만, 배경 없음 */
-.pattern-docent-example .pattern-docent-mark,
-.pattern-docent-example-kor .pattern-docent-mark {
-    padding: 0;
-    border-radius: 0;
-    font-weight: 700;
-    background: none;
+/* 예문·해석 — 글자색 강제 (배경 없음) */
+#pattern-docent-example .pattern-docent-mark,
+#pattern-docent-example-kor .pattern-docent-mark {
+    padding: 0 !important;
+    border-radius: 0 !important;
+    font-weight: 700 !important;
+    background: none !important;
 }
 
-.pattern-docent-example .pattern-docent-mark--s,
-.pattern-docent-example-kor .pattern-docent-mark--s {
-    color: #9af5ff;
-    background: none;
+#pattern-docent-example .pattern-docent-mark--s,
+#pattern-docent-example-kor .pattern-docent-mark--s {
+    color: #7aefff !important;
 }
 
-.pattern-docent-example .pattern-docent-mark--o,
-.pattern-docent-example-kor .pattern-docent-mark--o {
-    color: #ffc57a;
-    background: none;
+#pattern-docent-example .pattern-docent-mark--o,
+#pattern-docent-example-kor .pattern-docent-mark--o {
+    color: #ffb35c !important;
 }
 
-.pattern-docent-example .pattern-docent-mark--v,
-.pattern-docent-example-kor .pattern-docent-mark--v {
-    color: #ffe9a8;
-    background: none;
+#pattern-docent-example .pattern-docent-mark--v,
+#pattern-docent-example-kor .pattern-docent-mark--v {
+    color: #ffe08a !important;
 }
 
-.pattern-docent-example .pattern-docent-mark--c,
-.pattern-docent-example-kor .pattern-docent-mark--c {
-    color: #e0c8ff;
-    background: none;
+#pattern-docent-example .pattern-docent-mark--c,
+#pattern-docent-example-kor .pattern-docent-mark--c {
+    color: #d0b0ff !important;
 }
 
 /* 품사 — 초록 */
