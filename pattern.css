@@ -373,13 +373,30 @@
 }
 
 /* 그 외 강조(「…」) — 코랄, 배경 없음 */
-.pattern-docent-mark--quote {
+.pattern-docent-mark--quote,
+.pattern-docent-mark--bracket {
     color: #ff7a55;
-    background: none;
+    background: none !important;
     box-shadow: none;
     font-weight: 700;
     white-space: normal;
     text-decoration: none;
+    padding: 0 !important;
+    border-radius: 0 !important;
+}
+
+/* 성분색 꺽쇠는 글자색만 유지 (배경 강제 제거) */
+.pattern-docent-mark--bracket.pattern-docent-mark--s {
+    color: #7aefff;
+}
+.pattern-docent-mark--bracket.pattern-docent-mark--v {
+    color: #ffe08a;
+}
+.pattern-docent-mark--bracket.pattern-docent-mark--o {
+    color: #ffb35c;
+}
+.pattern-docent-mark--bracket.pattern-docent-mark--c {
+    color: #d0b0ff;
 }
 
 /* 문장 형태 ①②③ — 한 줄씩 들어가게 축소 */
