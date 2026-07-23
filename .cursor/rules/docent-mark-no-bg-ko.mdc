@@ -28,6 +28,6 @@ alwaysApply: true
 
 ## 라벨 「예문」
 
-- `.pattern-docent-example-label` 글자색은 `#7aefff` (회색 금지)
-- 배경 없음, 테두리만 `rgba(122, 239, 255, 0.45)`
+- `.pattern-docent-example-label` 글자·테두리 모두 `#ff8ec8` (핑크 — 성분/꺽쇠에 안 쓰는 색)
+- 배경 없음
 - 성분 마크(`pattern-docent-mark`)와 별개 — 「예문」 라벨 색 요청을 성분 마크 작업으로 바꾸지 말 것
