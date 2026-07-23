@@ -198,9 +198,10 @@
     content: '';
     flex: 0 0 4px;
     width: 4px;
-    height: 0.9em;
+    height: 0.99em;
     background: #4dffc4;
     border-radius: 1px;
+    transform: translateY(0.045em);
 }
 
 /* 예문·설명이 같은 Y에서 시작 (예문 없으면 설명이 그 자리) */
