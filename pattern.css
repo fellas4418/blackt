@@ -310,9 +310,9 @@
     font-weight: 700;
 }
 
-/* 그 외 강조(「…」) — 꺽쇠·글자 오렌지 */
+/* 그 외 강조(「…」) — 코랄 (목적어 오렌지·성분·품사와 비겹침) */
 .pattern-docent-mark--quote {
-    color: #ffb35c;
+    color: #ff7a55;
     background: none;
     box-shadow: none;
     font-weight: 700;
