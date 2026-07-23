@@ -1184,7 +1184,9 @@
         if (!parts || !parts.length) return '';
         return parts
             .map(function (p) {
-                var t = highlightCornerQuotes(escapeHtml(p.text || '')).replace(
+                var raw = escapeHtml(p.text || '');
+                // 성분 마크가 있으면 그 색을 우선 (「-다」 등이 겹낫표 강조색에 덮이지 않게)
+                var t = (p.mark ? raw : highlightCornerQuotes(raw)).replace(
                     /\n/g,
                     '<br>'
                 );
@@ -1660,7 +1662,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260723b').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260724d').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })
