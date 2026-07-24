@@ -1241,6 +1241,16 @@
                         styles.push('color:' + color + ' !important');
                         styles.push('-webkit-text-fill-color:' + color + ' !important');
                     }
+                    // ①②③ / 1. 2. 3. 번호만 강조색
+                    if (p.mark === 'forms' || isKeyList) {
+                        t = t.replace(/([①②③]|\d+\.)/g, function (m) {
+                            return (
+                                '<span class="pattern-docent-mark pattern-docent-mark--num">' +
+                                m +
+                                '</span>'
+                            );
+                        });
+                    }
                     return (
                         '<span class="pattern-docent-mark pattern-docent-mark--' +
                         escapeHtml(p.mark) +
