@@ -89,6 +89,12 @@ function checkTextParts(file, where, item) {
                 i += 1;
                 continue;
             }
+            // 문장 단위 줄바꿈: 직전이 . ? ! 이면 허용
+            const prev = joined[i - 1];
+            if (prev === '.' || prev === '?' || prev === '!') {
+                i += 1;
+                continue;
+            }
             if (i > 0 && joined[i - 1] !== '\n') {
                 const snip = JSON.stringify(joined.slice(Math.max(0, i - 12), i + 16));
                 add(file, where, '장식용 중간 \\n: ' + snip);
