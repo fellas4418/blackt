@@ -5,100 +5,6 @@
   "subtitle": "누가 · -하다 · 무엇을",
   "docent": [
     {
-      "role": "영어를 읽는 법",
-      "parts": [
-        {
-          "text": "People",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "want",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "love",
-          "mark": "o"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "text_parts": [
-        {
-          "text": "영어 문장 순서는\n"
-        },
-        {
-          "text": "누가",
-          "mark": "s"
-        },
-        {
-          "text": " → "
-        },
-        {
-          "text": "「-하다」",
-          "mark": "v"
-        },
-        {
-          "text": " → "
-        },
-        {
-          "text": "무엇을",
-          "mark": "o"
-        },
-        {
-          "text": "입니다.\n\n"
-        },
-        {
-          "text": "People",
-          "mark": "s"
-        },
-        {
-          "text": "이 "
-        },
-        {
-          "text": "누가",
-          "mark": "s"
-        },
-        {
-          "text": ", "
-        },
-        {
-          "text": "want",
-          "mark": "v"
-        },
-        {
-          "text": "가 "
-        },
-        {
-          "text": "「-하다」",
-          "mark": "v"
-        },
-        {
-          "text": ",\n"
-        },
-        {
-          "text": "love",
-          "mark": "o"
-        },
-        {
-          "text": "가 "
-        },
-        {
-          "text": "무엇을",
-          "mark": "o"
-        },
-        {
-          "text": "입니다."
-        }
-      ]
-    },
-    {
       "role": "어순",
       "parts": [
         {
@@ -123,41 +29,9 @@
           "text": "."
         }
       ],
-      "kor_parts": [
-        {
-          "text": "사람"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "사랑"
-        },
-        {
-          "text": "을",
-          "mark": "o"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "원하"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ],
       "text_parts": [
         {
-          "text": "영어의 순서는 한국어와 다릅니다.\n\n"
+          "text": "영어의 순서는 "
         },
         {
           "text": "주어",
@@ -171,7 +45,7 @@
           "mark": "v"
         },
         {
-          "text": "가 먼저 오고 "
+          "text": "가 오고,\n"
         },
         {
           "text": "목적어",
