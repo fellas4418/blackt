@@ -1276,6 +1276,7 @@
         var textEl = document.getElementById('pattern-docent-text');
         var stepEl = document.getElementById('pattern-docent-step');
         var tapEl = document.getElementById('pattern-docent-tap');
+        var hintEl = document.getElementById('pattern-docent-hint');
         if (!el || !textEl) return;
 
         item = item || {};
@@ -1364,8 +1365,8 @@
         }
         if (tapEl) {
             tapEl.textContent = '왼쪽 탭: 이전  ·  오른쪽 탭: 다음';
-            tapEl.classList.remove('is-hidden');
         }
+        if (hintEl) hintEl.classList.remove('is-hidden');
 
         var head = [];
         if (!isBridge && item.role) head.push(String(item.role));

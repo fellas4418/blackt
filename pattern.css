@@ -119,8 +119,8 @@
     flex: 1;
     width: 100%;
     min-height: 0;
-    /* 하단 탭 안내·페이지 번호와 본문이 겹치지 않게 여유 */
-    padding: 44px 12px calc(78px + env(safe-area-inset-bottom, 0px));
+    /* 하단 탭 안내·화살표·페이지 번호와 본문이 겹치지 않게 여유 */
+    padding: 44px 12px calc(92px + env(safe-area-inset-bottom, 0px));
     box-sizing: border-box;
     text-align: center;
     cursor: pointer;
@@ -475,23 +475,79 @@
     opacity: 1;
 }
 
-.pattern-docent-tap {
+.pattern-docent-hint {
     position: fixed;
     left: 0;
     right: 0;
-    bottom: calc(40px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(36px + env(safe-area-inset-bottom, 0px));
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    pointer-events: none;
+    z-index: 20;
+}
+
+.pattern-docent-hint.is-hidden {
+    display: none;
+}
+
+.pattern-docent-tap {
     margin: 0;
     font-size: 0.98rem;
     font-weight: 600;
     color: #aaa;
     letter-spacing: 0.04em;
     text-align: center;
-    pointer-events: none;
-    z-index: 20;
 }
 
-.pattern-docent-tap.is-hidden {
-    display: none;
+.pattern-docent-tap-arrows {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3.2rem;
+}
+
+.pattern-docent-tap-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.55rem;
+    height: 1.55rem;
+    font-size: 1.05rem;
+    font-weight: 500;
+    line-height: 1;
+    color: #4dffc4;
+    opacity: 0.7;
+    border: 1px solid rgba(77, 255, 196, 0.28);
+    border-radius: 50%;
+    background: rgba(77, 255, 196, 0.06);
+    box-sizing: border-box;
+    animation: pattern-docent-arrow-pulse 2.4s ease-in-out infinite;
+}
+
+.pattern-docent-tap-arrow--next {
+    animation-delay: 0.35s;
+}
+
+@keyframes pattern-docent-arrow-pulse {
+    0%,
+    100% {
+        opacity: 0.45;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.9;
+        transform: scale(1.06);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pattern-docent-tap-arrow {
+        animation: none;
+        opacity: 0.7;
+    }
 }
 
 .pattern-guide-fold {
