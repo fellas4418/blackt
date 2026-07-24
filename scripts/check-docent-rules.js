@@ -95,6 +95,11 @@ function checkTextParts(file, where, item) {
                 i += 1;
                 continue;
             }
+            // 강조 「…」 한 줄 유지: 다음이 「 이면 허용
+            if (after.charAt(0) === '「') {
+                i += 1;
+                continue;
+            }
             if (i > 0 && joined[i - 1] !== '\n') {
                 const snip = JSON.stringify(joined.slice(Math.max(0, i - 12), i + 16));
                 add(file, where, '장식용 중간 \\n: ' + snip);
