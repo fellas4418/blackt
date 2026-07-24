@@ -1364,7 +1364,7 @@
             }
         }
         if (tapEl) {
-            tapEl.textContent = '왼쪽 탭: 이전  ·  오른쪽 탭: 다음';
+            tapEl.textContent = '이전 · 다음';
         }
         if (hintEl) hintEl.classList.remove('is-hidden');
 
