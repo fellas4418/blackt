@@ -379,16 +379,16 @@
     overflow-wrap: break-word;
 }
 
-/* (구) 문장 형태 마크 — ①②③ 동일 크기, ③이 오른쪽 끝까지 */
+/* (구) 문장 형태 마크 — ①②③ 동일 크기, ③이 위 설명 오른쪽 끝까지 */
 .pattern-docent-mark--forms {
     display: block;
     margin-top: 0.25em;
     width: 100%;
     box-sizing: border-box;
-    font-size: calc(100cqi / 16.1);
+    font-size: calc(100cqi / 14.6);
     font-weight: 800;
     line-height: 1.55;
-    letter-spacing: -0.035em;
+    letter-spacing: -0.02em;
     color: inherit;
     white-space: nowrap;
     word-break: keep-all;
