@@ -16,19 +16,19 @@ const ALLOWED_BRACKETS = new Set([
     '「-은/는/이/가」',
     '「-을/를」',
     '「-다」',
-    '「는」',
-    '「은」',
-    '「을」',
-    '「를」',
-    '「이」',
-    '「가」',
+    '「-는」',
+    '「-은」',
+    '「-을」',
+    '「-를」',
+    '「-이」',
+    '「-가」',
     '「역할」',
     '「어」',
     '「보충어」',
     '「주어 · 서술어 · 목적어」'
 ]);
 
-const PARTICLE_TEXTS = new Set(['은', '는', '이', '가', '을', '를']);
+const BARE_RULE_FORMS = new Set(['-다', '-을/를', '-은/는/이/가', '-는', '-은', '-을', '-를']);
 
 const errors = [];
 
@@ -58,7 +58,22 @@ function checkTextParts(file, where, item) {
     const chunks = [];
     if (item.text_parts && item.text_parts.length) {
         item.text_parts.forEach(function (p) {
-            chunks.push(String(p.text || ''));
+            const t = String(p.text || '');
+            chunks.push(t);
+            if (BARE_RULE_FORMS.has(t.trim())) {
+                add(
+                    file,
+                    where,
+                    '조사·어미 규칙에 꺽쇠 없음 (「-…」 필요): ' + JSON.stringify(t)
+                );
+            }
+            if (/^「[은는이가을를]」$/.test(t.trim())) {
+                add(
+                    file,
+                    where,
+                    '조사 인용에 - 없음 (「-는」 형태 필요): ' + t
+                );
+            }
         });
     } else if (item.text) {
         chunks.push(String(item.text));
