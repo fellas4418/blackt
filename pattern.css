@@ -375,18 +375,17 @@
     overflow-wrap: break-word;
 }
 
-/* (구) 문장 형태 마크 — 긴 줄도 잘리지 않게 */
+/* (구) 문장 형태 마크 — ①②③ 각 줄 한 줄 유지 */
 .pattern-docent-mark--forms {
     display: block;
     margin-top: 0.2em;
-    font-size: 0.92em;
+    font-size: clamp(0.85rem, 3.4vw, 1.05rem);
     font-weight: 800;
-    line-height: 1.45;
-    letter-spacing: -0.04em;
+    line-height: 1.5;
+    letter-spacing: -0.05em;
     color: inherit;
-    white-space: normal;
+    white-space: nowrap;
     word-break: keep-all;
-    overflow-wrap: break-word;
 }
 
 /* 목록 번호 ①②③ / 1.2.3. — 코랄 강조(글자색만) */
