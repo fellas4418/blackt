@@ -1188,15 +1188,6 @@
         }
     }
 
-    function syncDocentPastelBg() {
-        var page = document.querySelector('.pattern-page');
-        if (!page) return;
-        page.classList.remove('pastel-bg-a', 'pastel-bg-b');
-        if (state.docentPhase !== 'lines') return;
-        if (state.docentIdx === 0) page.classList.add('pastel-bg-a');
-        else if (state.docentIdx === 1) page.classList.add('pastel-bg-b');
-    }
-
     function hideDocentOverlay() {
         var page = document.querySelector('.pattern-page');
         var el = document.getElementById('pattern-docent');
@@ -1209,9 +1200,7 @@
         state.docentBlockIdx = 0;
         state.docentBlockCount = 1;
         state.docentBlockSpeaks = null;
-        if (page) {
-            page.classList.remove('is-docent', 'pastel-bg-a', 'pastel-bg-b');
-        }
+        if (page) page.classList.remove('is-docent');
         if (el) {
             el.classList.add('is-hidden');
             el.classList.remove('is-show', 'is-bridge', 'has-example', 'has-kor');
@@ -1462,7 +1451,6 @@
 
     function showDocentBridge() {
         state.docentPhase = 'bridge';
-        syncDocentPastelBg();
         var bridge =
             (state.data && state.data.docent_bridge) ||
             '이제 해석 연습으로 들어갑니다.';
@@ -1479,7 +1467,6 @@
             return;
         }
         state.docentPhase = 'lines';
-        syncDocentPastelBg();
         var item = lines[state.docentIdx];
         var dwell =
             item._chapterBridge
