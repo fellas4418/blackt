@@ -145,6 +145,8 @@
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    container-type: inline-size;
+    container-name: docent;
 }
 
 .pattern-docent-role-slot {
@@ -375,14 +377,15 @@
     overflow-wrap: break-word;
 }
 
-/* (구) 문장 형태 마크 — ①②③ 각 줄 한 줄 유지 */
+/* (구) 문장 형태 마크 — ①②③ 각 줄 한 줄, 줄 너비에 맞게 최대화 */
 .pattern-docent-mark--forms {
     display: block;
-    margin-top: 0.2em;
-    font-size: clamp(0.85rem, 3.4vw, 1.05rem);
+    margin-top: 0.25em;
+    width: 100%;
+    font-size: clamp(1.2rem, 5.5cqi, 1.55rem);
     font-weight: 800;
-    line-height: 1.5;
-    letter-spacing: -0.05em;
+    line-height: 1.55;
+    letter-spacing: -0.04em;
     color: inherit;
     white-space: nowrap;
     word-break: keep-all;
