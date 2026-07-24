@@ -1251,6 +1251,28 @@
                             );
                         });
                     }
+                    // 문장 형태 목록: 주격보어·목적어·목적격보어만 성분색
+                    if (p.mark === 'forms') {
+                        t = t
+                            .replace(/목적격보어/g, function () {
+                                return (
+                                    '<span class="pattern-docent-mark pattern-docent-mark--c" style="background:none !important;padding:0 !important;border-radius:0 !important;color:#d0b0ff">' +
+                                    '목적격보어</span>'
+                                );
+                            })
+                            .replace(/주격보어/g, function () {
+                                return (
+                                    '<span class="pattern-docent-mark pattern-docent-mark--c" style="background:none !important;padding:0 !important;border-radius:0 !important;color:#d0b0ff">' +
+                                    '주격보어</span>'
+                                );
+                            })
+                            .replace(/목적어/g, function () {
+                                return (
+                                    '<span class="pattern-docent-mark pattern-docent-mark--o" style="background:none !important;padding:0 !important;border-radius:0 !important;color:#ffb35c">' +
+                                    '목적어</span>'
+                                );
+                            });
+                    }
                     return (
                         '<span class="pattern-docent-mark pattern-docent-mark--' +
                         escapeHtml(p.mark) +
