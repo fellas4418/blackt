@@ -114,24 +114,34 @@
             const praise = params.get('praise') === '1';
             const zone = (params.get('zone') || '').trim();
             const pcParam = params.get('pc');
-            const targetPath = path.startsWith('/') ? path : '/' + path;
+            const normalizeTargetPath = (value) => {
+                const raw = String(value || '').trim();
+                if (!raw) return { path: '/index.html', unsafe: false };
+                if (raw.indexOf('\\') !== -1) return { path: '/index.html', unsafe: true };
+                if (/^[a-z][a-z0-9+.-]*:/i.test(raw)) return { path: '/index.html', unsafe: true };
+                const withSlash = raw.startsWith('/') ? raw : '/' + raw;
+                if (withSlash.startsWith('//')) return { path: '/index.html', unsafe: true };
+                return { path: withSlash, unsafe: false };
+            };
+            const normalizedPath = normalizeTargetPath(path);
+            const targetPath = normalizedPath.path;
             const isVocaPath = /index\.html/i.test(targetPath);
             const refParam = params.get('ref');
             const refTrim = refParam ? String(refParam).trim() : '';
-            const isAppReferralShare = isVocaPath && !praise && !pcParam && !!refTrim;
+            const isAppReferralShare = !normalizedPath.unsafe && isVocaPath && !praise && !pcParam && !!refTrim;
             const finalUrl = new URL(
-                isAppReferralShare ? '/index.html' : (isVocaPath || praise ? '/praise-receiver.html' : targetPath),
-                isVocaPath || praise || isAppReferralShare ? KAKAO_SHARE_ORIGIN : location.origin
+                normalizedPath.unsafe ? '/index.html' : (isAppReferralShare ? '/index.html' : (isVocaPath || praise ? '/praise-receiver.html' : targetPath)),
+                isVocaPath || praise || isAppReferralShare || normalizedPath.unsafe ? KAKAO_SHARE_ORIGIN : location.origin
             );
-            if (praise) {
+            if (!normalizedPath.unsafe && praise) {
                 finalUrl.searchParams.set('praise', 'true');
-            } else if (isVocaPath && !isAppReferralShare) {
+            } else if (!normalizedPath.unsafe && isVocaPath && !isAppReferralShare) {
                 finalUrl.searchParams.set('share_result', '1');
             }
-            if (pcParam) finalUrl.searchParams.set('pc', pcParam);
-            if (zone) finalUrl.searchParams.set('zone', zone);
+            if (!normalizedPath.unsafe && pcParam) finalUrl.searchParams.set('pc', pcParam);
+            if (!normalizedPath.unsafe && zone) finalUrl.searchParams.set('zone', zone);
             if (refTrim) {
-                finalUrl.searchParams.set('ref', refTrim);
+                if (!normalizedPath.unsafe) finalUrl.searchParams.set('ref', refTrim);
                 try {
                     localStorage.setItem('trigger_referred_by', refTrim);
                     localStorage.setItem('trigger_referred_by_at', String(Date.now()));
@@ -139,14 +149,14 @@
                 } catch (e) {}
             }
             const erParam = params.get('er');
-            if (erParam) finalUrl.searchParams.set('er', erParam);
+            if (!normalizedPath.unsafe && erParam) finalUrl.searchParams.set('er', erParam);
 
-            const isVocaReceiver = praise || (isVocaPath && !!pcParam);
+            const isVocaReceiver = !normalizedPath.unsafe && (praise || (isVocaPath && !!pcParam));
 
             try {
                 const name = String(localStorage.getItem('trigger_name') || '').trim();
                 const phone = String(localStorage.getItem('trigger_phone') || '').replace(/[^0-9]/g, '');
-                if (name && /^010\d{8}$/.test(phone)) {
+                if (!normalizedPath.unsafe && finalUrl.origin === KAKAO_SHARE_ORIGIN && finalUrl.pathname === '/index.html' && name && /^010\d{8}$/.test(phone)) {
                     const au = encodeAuthBundle(name, phone);
                     if (au) finalUrl.searchParams.set('au', au);
                 }
