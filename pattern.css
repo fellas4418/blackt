@@ -99,6 +99,47 @@
     display: none;
 }
 
+/* 도슨트 배경 A/B 비교용 (1페이지=은은, 2페이지=조금 더) */
+.pattern-page.is-docent.pastel-bg-a,
+.pattern-page.is-docent.pastel-bg-b {
+    position: relative;
+    isolation: isolate;
+}
+
+.pattern-page.is-docent.pastel-bg-a::before,
+.pattern-page.is-docent.pastel-bg-b::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-color: #050505;
+}
+
+/* 1번 — 아주 은은한 파스텔 */
+.pattern-page.is-docent.pastel-bg-a::before {
+    background-image:
+        radial-gradient(ellipse 90% 70% at 12% 8%, rgba(77, 255, 196, 0.09), transparent 58%),
+        radial-gradient(ellipse 80% 65% at 88% 42%, rgba(176, 160, 255, 0.08), transparent 55%),
+        radial-gradient(ellipse 75% 60% at 18% 88%, rgba(255, 186, 160, 0.07), transparent 52%),
+        radial-gradient(ellipse 85% 55% at 55% 78%, rgba(122, 200, 255, 0.06), transparent 50%);
+}
+
+/* 2번 — 조금 더 보이는 파스텔 */
+.pattern-page.is-docent.pastel-bg-b::before {
+    background-image:
+        radial-gradient(ellipse 95% 75% at 14% 6%, rgba(77, 255, 196, 0.18), transparent 60%),
+        radial-gradient(ellipse 85% 70% at 82% 38%, rgba(176, 160, 255, 0.16), transparent 56%),
+        radial-gradient(ellipse 80% 65% at 78% 92%, rgba(255, 186, 120, 0.14), transparent 54%),
+        radial-gradient(ellipse 90% 60% at 22% 72%, rgba(90, 220, 255, 0.14), transparent 52%);
+}
+
+.pattern-page.is-docent.pastel-bg-a > *,
+.pattern-page.is-docent.pastel-bg-b > * {
+    position: relative;
+    z-index: 1;
+}
+
 .pattern-page.is-docent .pattern-center-block {
     justify-content: stretch;
     align-items: stretch;
