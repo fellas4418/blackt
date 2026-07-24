@@ -1661,12 +1661,13 @@
         function mergeVocaProgressFromServer(vocaProgress) {
             if (!vocaProgress || typeof vocaProgress !== 'object') return false;
             let changed = false;
-            ['middle', 'high'].forEach(function (lvl) {
+            ['middle', 'high', 'toeic'].forEach(function (lvl) {
                 // 1회차 이상 완주(재시작 포함) 후에는 로컬 진도가 기준 — 서버 next_day가 Day1 리셋을 덮어쓰지 않음
                 if (typeof getVocaPassCount === 'function' && getVocaPassCount(lvl) >= 1) return;
                 const p = vocaProgress[lvl];
                 if (!p) return;
-                const nextDay = Math.min(71, Math.max(1, parseInt(p.next_day, 10) || 1));
+                const maxNextDay = (typeof vocaTotalDaysForLevel === 'function' ? vocaTotalDaysForLevel(lvl) : 70) + 1;
+                const nextDay = Math.min(maxNextDay, Math.max(1, parseInt(p.next_day, 10) || 1));
                 const cur = parseInt(localStorage.getItem('trigger_current_day_' + lvl), 10) || 1;
                 const unlocked = parseInt(localStorage.getItem('trigger_unlocked_day_' + lvl), 10) || 1;
                 if (nextDay > cur) {
@@ -1842,11 +1843,31 @@
                 fetch(GOOGLE_SHEET_URL, { method: 'POST', body: formData });
 
                 var base = INDEX_STREAK_WORKER.replace(/\/$/, '');
-                fetch(base + '/api/signup/log', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: name, phone: phone, level: levelText, event_type: 'level' })
-                }).catch(function () {});
+                (async function () {
+                    try {
+                        var authRes = await fetch(base + '/api/auth/simple', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ name: name, phone: phone })
+                        });
+                        var authData = await authRes.json().catch(function () { return {}; });
+                        if (!authRes.ok || !authData.ok) return;
+                        var userId = String(authData.user_id || '').trim();
+                        var password = String(authData.auth_password || '').trim();
+                        if (!userId || !password) return;
+                        fetch(base + '/api/signup/log', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                name: name,
+                                phone: phone,
+                                level: levelText,
+                                user_id: userId,
+                                password: password
+                            })
+                        }).catch(function () {});
+                    } catch (e) {}
+                })();
             }
         }
 
