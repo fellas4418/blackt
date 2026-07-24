@@ -47,9 +47,7 @@ function walkDocent(file, label, docent) {
 function checkKorParts(file, where, korParts) {
     (korParts || []).forEach(function (p) {
         const t = String(p.text || '').trim();
-        if (PARTICLE_TEXTS.has(t) && p.mark) {
-            add(file, where, 'kor_parts 조사 "' + t + '" 에 mark 있음 (금지)');
-        }
+        // 예문 한글줄 조사는 성분색 mark 유지 (복구·유지)
         if (/「|」/.test(t)) {
             add(file, where, 'kor_parts 에 「」 있음: ' + t);
         }
