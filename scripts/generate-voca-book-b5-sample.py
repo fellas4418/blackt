@@ -1212,7 +1212,7 @@ def draw_random_review_divider(
     right = width - margin_right
     note_lines = [
         "전체 단어 순서가 무작위로 섞여",
-        "순서가 아닌 단어 뜻만으로 복습할 수 있습니다.",
+        "단어 뜻만으로 복습할 수 있습니다.",
     ]
     note_top = center_y - 58 * mm
     for index, line in enumerate(note_lines):
