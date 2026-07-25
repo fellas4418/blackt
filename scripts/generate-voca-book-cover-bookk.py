@@ -243,36 +243,41 @@ def draw_back_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float) 
 
 
 def draw_spine(c: canvas.Canvas, x0: float, y0: float, spine_w: float, h: float) -> None:
-    """책등 — 네온 라인 + 세로 제목, 제목 왼쪽(시작)에 T 마크."""
+    """책등 — 왼쪽 끝에 T 마크, 제목과 동일 높이로 책등 폭을 거의 꽉 채움."""
     c.saveState()
     c.setFillColor(NAVY)
     c.rect(x0, y0, spine_w, h, fill=1, stroke=0)
 
-    c.setStrokeColor(NEON_BLUE)
-    c.setLineWidth(1.2)
-    inset = max(1.5 * mm, spine_w * 0.18)
-    c.line(x0 + inset, y0 + 18 * mm, x0 + inset, y0 + h - 18 * mm)
+    # 책등 폭(짧은 변)에서 아주 살짝만 여백
+    edge = 1.0 * mm
+    band = max(spine_w - edge * 2, 4 * mm)
 
     c.translate(x0 + spine_w / 2, y0 + h / 2)
     c.rotate(90)
+
     title = "TRIGGER VOCA  ·  중등"
-    title_size = 11
+    # 대문자 높이 ≈ 0.72em → band에 맞춤 (로고와 동일 높이)
+    title_size = (band / mm) * (72.0 / 25.4) / 0.72
+    mark_size = band
+    end_margin = 10 * mm
+    gap = 2.5 * mm
+
+    # 로컬 +x = 책 위쪽. 읽기 기준 왼쪽 끝 = 책 아래쪽
+    mark_x = -(h / 2) + end_margin
+    mark_y = -mark_size / 2
+    draw_mark(c, mark_x, mark_y, mark_size)
+
+    avail = (h / 2 - end_margin) - (mark_x + mark_size + gap)
+    # 길이가 넘칠 때만 자간 느낌으로 아주 살짝 축소 (높이는 최대한 유지)
+    while title_size > band / mm * 2.0 and pdfmetrics.stringWidth(title, FONT_BOLD, title_size) > avail:
+        title_size *= 0.99
+
+    title_left = mark_x + mark_size + gap
+    title_center = title_left + avail / 2
+    baseline = -title_size * 0.35
     c.setFillColor(white)
     c.setFont(FONT_BOLD, title_size)
-    c.drawCentredString(0, -3.2, title)
-    title_w = pdfmetrics.stringWidth(title, FONT_BOLD, title_size)
-    mark_size = min(6.5 * mm, spine_w * 0.4)
-    gap = 1.5 * mm
-    # 제목 왼쪽 끝(문자열 시작) 바로 앞
-    draw_mark(
-        c,
-        -title_w / 2 - gap - mark_size,
-        -3.2 - mark_size * 0.28,
-        mark_size,
-    )
-    c.setFillColor(NEON_BLUE)
-    c.setFont(FONT_BOLD, 10)
-    c.drawCentredString(0, -14, "VOCA")
+    c.drawCentredString(title_center, baseline, title)
     c.restoreState()
 
 
@@ -356,7 +361,7 @@ def build_cover_pdf(
                     "",
                     "앞표지: Trigger 로고 + VOCA · 중등 배지(좌상) · T마크(우하) · DAY 바",
                     "뒷표지: Just Follow(40pt) + QR · T마크(우하)",
-                    "책등: 네온 라인 + T마크 + TRIGGER VOCA · 중등 / VOCA",
+                    "책등: T마크(왼쪽 끝) + TRIGGER VOCA · 중등 — 책등 폭에 거의 꽉 차는 동일 높이",
                     "",
                     f"표지 PDF 크기(도련 3mm 포함):",
                     f"  가로 {total_w / mm:.1f} mm = 3 + 182 + {spine} + 182 + 3",
