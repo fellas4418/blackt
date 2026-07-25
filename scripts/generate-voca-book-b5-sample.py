@@ -1114,20 +1114,21 @@ def draw_random_review_divider(
     c.roundRect(10 * mm, 10 * mm, width - 20 * mm, height - 20 * mm, 4 * mm, fill=0, stroke=1)
 
     center_y = height * 0.62
-    draw_text(c, "RANDOM", width / 2, center_y + 34 * mm, font=FONT_BOLD, size=22, color=PALE, align="center")
     draw_text(c, "REVIEW", width / 2, center_y + 6 * mm, font=FONT_BOLD, size=56, color=white, align="center")
+    subtitle = "단어 순서 재배치 테스트"
+    subtitle_size = 16
     draw_text(
         c,
-        "단어 순서 재배치 테스트",
+        subtitle,
         width / 2,
         center_y - 22 * mm,
         font=FONT_BOLD,
-        size=16,
+        size=subtitle_size,
         color=white,
         align="center",
     )
 
-    bar_w = 36 * mm
+    bar_w = pdfmetrics.stringWidth(subtitle, FONT_BOLD, subtitle_size)
     c.setFillColor(NEON_BLUE)
     c.rect((width - bar_w) / 2, center_y - 30 * mm, bar_w, 1.4 * mm, fill=1, stroke=0)
     draw_text(
