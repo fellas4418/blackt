@@ -1647,8 +1647,9 @@ def draw_confusables_divider(
     draw_text(c, title, width / 2, center_y + 6 * mm, font=FONT_BOLD, size=title_size, color=white, align="center")
 
     bar_w = pdfmetrics.stringWidth(title, FONT_BOLD, title_size)
+    bar_left = (width - bar_w) / 2
     c.setFillColor(NEON_BLUE)
-    c.rect((width - bar_w) / 2, center_y - 14 * mm, bar_w, 1.4 * mm, fill=1, stroke=0)
+    c.rect(bar_left, center_y - 14 * mm, bar_w, 1.4 * mm, fill=1, stroke=0)
 
     margin_left, margin_right = page_margins_x(page_no)
     left = margin_left
@@ -1658,13 +1659,11 @@ def draw_confusables_divider(
         "품사만 다른 동일 단어들을 모아 두었습니다.",
     ]
     note_size = 16.0
-    # 안내문 기준으로 블록 왼쪽을 잡아 ①②와 같은 왼쪽 정렬
-    note_block_w = max(pdfmetrics.stringWidth(line, FONT_REGULAR, note_size) for line in note_lines)
-    text_left = (width - note_block_w) / 2
+    text_left = bar_left  # 가로바 왼쪽 끝과 정렬
 
     section_lines = ["① 철자", "② 품사"]
-    section_size = 22.0  # 기존 11pt의 2배
-    section_gap = 11.0 * mm
+    section_size = note_size  # 안내문과 동일
+    section_gap = 8.0 * mm
     section_top = center_y - 26 * mm
     for index, line in enumerate(section_lines):
         draw_text(
@@ -2006,7 +2005,7 @@ def draw_confusables_spelling_page(
         start_page_no=page_no,
         banner="혼동 어휘 ①",
         subtitle="철자가 비슷한 단어",
-        subtitle_note="발음으로 구분하면 쉬워요.",
+        subtitle_note="[발음]으로 구분하면 쉬워요.",
         rows=rows,
     )
 
