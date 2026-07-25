@@ -781,6 +781,8 @@ def draw_index_pages(
     per_page = rows_per_col * cols
     offset = 0
     first_index_page = True
+    meta_size = 7.5
+    meta_max_w = pdfmetrics.stringWidth("D00 · 000", FONT_REGULAR, meta_size)
     while offset < len(items):
         chunk = items[offset : offset + per_page]
         offset += len(chunk)
@@ -837,18 +839,11 @@ def draw_index_pages(
                     day_label = f"D{day_no:02d}"
                     page_label = str(test_page)
                     meta = f"{day_label} · {page_label}"
-                    meta_w = pdfmetrics.stringWidth(meta, FONT_REGULAR, 7.5)
-                    word_max = col_w - meta_w - 3 * mm
+                    # D 열 고정(왼쪽 정렬) — 페이지 자리수 차이로 D가 흔들리지 않게
+                    meta_x = left + col_w - 1.2 * mm - meta_max_w
+                    word_max = meta_x - left - 2.5 * mm
                     draw_text(c, word, left + 1.2 * mm, baseline, font=FONT_BOLD, size=8.0, max_width=word_max)
-                    draw_text(
-                        c,
-                        meta,
-                        left + col_w - 1.2 * mm,
-                        baseline,
-                        size=7.5,
-                        color=SLATE,
-                        align="right",
-                    )
+                    draw_text(c, meta, meta_x, baseline, size=meta_size, color=SLATE)
                 y = next_y
 
         draw_page_footer(c, page_no, level_tag)
@@ -1297,13 +1292,13 @@ def draw_index_divider(
             max_width=right - left,
         )
 
-    # 표기 안내 — 한 상자 안 3줄, abandon 시작 위치 맞춤
+    # 표기 안내 — 한 상자 안 2줄, abandon 시작 위치 맞춤
     guide_w = min(right - left, 118 * mm)
     guide_x = (width - guide_w) / 2
     pad_x = 3.5 * mm
     line_h = 6.2 * mm
     box_pad_y = 3.2 * mm
-    box_h = box_pad_y * 2 + line_h * 3
+    box_h = box_pad_y * 2 + line_h * 2
     guide_top = note_top - 2 * 9 * mm - 10 * mm
     box_y = guide_top - box_h
 
@@ -1313,19 +1308,16 @@ def draw_index_divider(
 
     text_x = guide_x + pad_x
     font_size = 11
-    line1 = "왼쪽 영단어 · 오른쪽 D(Day) · TEST 페이지"
     prefix = "예) "
-    line2_rest = "abandon D25 · 102"
-    line3_rest = "abandon → Day 25 · 102페이지"
+    line1_rest = "abandon D25 · 102"
+    line2_rest = "abandon → Day 25 · 102페이지에서 찾을 수 있습니다."
     prefix_w = pdfmetrics.stringWidth(prefix, FONT_REGULAR, font_size)
     baselines = [
         box_y + box_h - box_pad_y - line_h * 0.72,
         box_y + box_h - box_pad_y - line_h * 1.72,
-        box_y + box_h - box_pad_y - line_h * 2.72,
     ]
-    draw_text(c, line1, text_x, baselines[0], size=font_size, color=PALE)
-    draw_text(c, prefix + line2_rest, text_x, baselines[1], size=font_size, color=PALE)
-    draw_text(c, line3_rest, text_x + prefix_w, baselines[2], size=font_size, color=PALE)
+    draw_text(c, prefix + line1_rest, text_x, baselines[0], size=font_size, color=PALE)
+    draw_text(c, line2_rest, text_x + prefix_w, baselines[1], size=font_size, color=PALE)
 
     draw_page_footer(c, page_no, level_tag, dark_bg=True)
     c.showPage()
