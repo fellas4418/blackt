@@ -1567,11 +1567,9 @@ def draw_index_divider(
     c.showPage()
 
 
-def plain_meaning_for_confusable(word: str, meanings: dict[str, str]) -> str:
-    """뜻에서 (명)(동) 등 품사 표기를 제거."""
-    raw = POS_MEANINGS.get(word) or meanings.get(word, "")
-    return re.sub(r"\s*\([명동형부접전관]+\)", "", raw).strip().rstrip(",").strip()
-
+def confusable_meaning_label(word: str, meanings: dict[str, str]) -> str:
+    """혼동 어휘 뜻 — 메타 meaning_pos(뜻별 품사 포함) 우선."""
+    return (POS_MEANINGS.get(word) or meanings.get(word, "")).strip()
 
 
 def confusable_pos_letter(word: str) -> str:
@@ -1593,6 +1591,15 @@ def confusable_pron(
     return ipa, ko
 
 
+def _attach_pos_if_needed(mean: str, pos: str) -> str:
+    """뜻에 이미 (동)/(명) 등이 있으면 그대로, 없으면 단일 품사 부착."""
+    if not mean:
+        return mean
+    if re.search(r"\([명동형부접전관]\)", mean):
+        return mean
+    return f"{mean} ({pos})" if pos else mean
+
+
 def format_confusable_pair_cells(
     word_a: str,
     mean_a: str,
@@ -1604,11 +1611,11 @@ def format_confusable_pair_cells(
     tag_a: str | None = None,
     tag_b: str | None = None,
 ) -> tuple[str, str, str, str]:
-    """단어·뜻 칸. 품사는 뜻에 양쪽 모두 표기. (타)/(자)만 단어 옆."""
+    """단어·뜻 칸. 품사는 뜻에 표기. (타)/(자)만 단어 옆."""
     la = f"{word_a} ({tag_a})" if tag_a else word_a
     lb = f"{word_b} ({tag_b})" if tag_b else word_b
-    ma = f"{mean_a} ({pos_a})" if pos_a else mean_a
-    mb = f"{mean_b} ({pos_b})" if pos_b else mean_b
+    ma = _attach_pos_if_needed(mean_a, pos_a)
+    mb = _attach_pos_if_needed(mean_b, pos_b)
     return la, ma, lb, mb
 
 
@@ -1769,7 +1776,7 @@ def draw_confusable_pairs_pages(
             if subtitle_note:
                 title_size = 14.0
                 note_size = 14.0
-                line_gap = 5.2 * mm
+                line_gap = 7.2 * mm
                 draw_text(
                     c,
                     subtitle,
@@ -1785,7 +1792,7 @@ def draw_confusable_pairs_pages(
                     subtitle_note,
                     width / 2,
                     mid_y - line_gap / 2 - note_size * 0.55,
-                    font=FONT_BOLD,
+                    font=FONT_REGULAR,
                     size=note_size,
                     color=SLATE,
                     align="center",
@@ -1930,10 +1937,10 @@ def draw_confusables_spelling_page(
         pos_b = confusable_pos_letter(b)
         la, ma, lb, mb = format_confusable_pair_cells(
             a,
-            plain_meaning_for_confusable(a, meanings),
+            confusable_meaning_label(a, meanings),
             pos_a,
             b,
-            plain_meaning_for_confusable(b, meanings),
+            confusable_meaning_label(b, meanings),
             pos_b,
             tag_a=tag_a,
             tag_b=tag_b,
@@ -1970,10 +1977,10 @@ def draw_confusables_derivation_page(
         pos_b = confusable_pos_letter(b) or pos_b
         la, ma, lb, mb = format_confusable_pair_cells(
             a,
-            plain_meaning_for_confusable(a, meanings),
+            confusable_meaning_label(a, meanings),
             pos_a,
             b,
-            plain_meaning_for_confusable(b, meanings),
+            confusable_meaning_label(b, meanings),
             pos_b,
         )
         wa, sa = split_confusable_label(la)
