@@ -1449,80 +1449,67 @@ def draw_confusable_pairs_page(
     subtitle: str,
     rows: list[tuple[str, str, str, str]],
 ) -> None:
-    """한 줄에 단어쌍 하나 — (left_label, left_meaning, right_label, right_meaning)."""
+    """한 줄=한 쌍 카드. 가운데 세로선 없이 ↔로 좌·우를 묶고, 줄 사이 간격으로 위아래 구분."""
     width, height = B5
-    draw_day_banner(c, banner, height - BANNER_Y)
-    subtitle_size = 19.0  # 기존 9.5의 2배
+    banner_cy = height - BANNER_Y
+    banner_h = 8.5 * mm
+    banner_bottom = banner_cy - banner_h / 2
+    draw_day_banner(c, banner, banner_cy)
+
+    margin_left, margin_right = page_margins_x(page_no)
+    left = margin_left
+    right = width - margin_right
+    table_w = right - left
+
+    n = max(len(rows), 1)
+    row_gap = 1.35 * mm if n <= 21 else 1.05 * mm
+    # 표는 아래쪽에 두고, 배너↔표 사이 중앙에 부제 (WORD×2 헤더·세로선 제거)
+    table_top = height - 52 * mm
+    avail = table_top - TABLE_BOTTOM - row_gap * (n - 1)
+    row_h = min(8.4 * mm, avail / n)
+
+    subtitle_size = 19.0
+    subtitle_cy = (banner_bottom + table_top) / 2
     draw_text(
         c,
         subtitle,
         width / 2,
-        height - SUBTITLE_Y,
+        subtitle_cy - subtitle_size * 0.35,
         font=FONT_BOLD,
         size=subtitle_size,
         color=SLATE,
         align="center",
     )
 
-    margin_left, margin_right = page_margins_x(page_no)
-    left = margin_left
-    right = width - margin_right
-    table_w = right - left
-    # 부제가 커져서 표 시작을 조금 내림
-    table_top = height - TABLE_TOP_LOOSE - 6 * mm
-    header_h = 8.5 * mm
-    row_h = min(8.4 * mm, (table_top - TABLE_BOTTOM - header_h) / max(len(rows), 1))
     half = table_w / 2
-    word_w = 44 * mm
-    mid_gap = 2.5 * mm
-    mean_max_w = half - word_w - mid_gap / 2 - 2.5 * mm
-    word_max_w = word_w - 3.5 * mm
+    mid_w = 10 * mm
+    side_w = (table_w - mid_w) / 2
+    word_w = min(42 * mm, side_w * 0.48)
+    mean_max_w = side_w - word_w - 4 * mm
+    word_max_w = word_w - 2.5 * mm
 
-    # 칸을 넘지 않는 범위에서 단어·뜻 글자 최대화
-    word_size = min(12.0, row_h * 0.72)
-    mean_size = min(11.0, row_h * 0.68)
+    word_size = min(11.5, row_h * 0.70)
+    mean_size = min(10.5, row_h * 0.66)
     for left_label, left_mean, right_label, right_mean in rows:
         for label in (left_label, right_label):
             word_size = min(word_size, fit_font_size(label, FONT_BOLD, word_size, word_max_w))
         for meaning in (left_mean, right_mean):
             mean_size = min(mean_size, fit_font_size(meaning, FONT_REGULAR, mean_size, mean_max_w))
 
-    c.setFillColor(NAVY)
-    c.rect(left, table_top - header_h, table_w, header_h, fill=1, stroke=0)
-    header_size = min(10.0, header_h * 0.55)
-    draw_text(c, "WORD", left + 2.5 * mm, table_top - header_h + 2.6 * mm, font=FONT_BOLD, size=header_size, color=white)
-    draw_text(c, "MEANING", left + word_w, table_top - header_h + 2.6 * mm, font=FONT_BOLD, size=header_size, color=white)
-    draw_text(
-        c,
-        "WORD",
-        left + half + mid_gap / 2 + 2.5 * mm,
-        table_top - header_h + 2.6 * mm,
-        font=FONT_BOLD,
-        size=header_size,
-        color=white,
-    )
-    draw_text(
-        c,
-        "MEANING",
-        left + half + mid_gap / 2 + word_w,
-        table_top - header_h + 2.6 * mm,
-        font=FONT_BOLD,
-        size=header_size,
-        color=white,
-    )
+    y = table_top
+    for left_label, left_mean, right_label, right_mean in rows:
+        card_bottom = y - row_h
+        c.setFillColor(LIGHT)
+        c.setStrokeColor(LINE)
+        c.setLineWidth(0.45)
+        c.roundRect(left, card_bottom, table_w, row_h, 1.2 * mm, fill=1, stroke=1)
 
-    y = table_top - header_h
-    for index, (left_label, left_mean, right_label, right_mean) in enumerate(rows):
-        next_y = y - row_h
-        if index % 2 == 1:
-            c.setFillColor(LIGHT)
-            c.rect(left, next_y, table_w, row_h, fill=1, stroke=0)
-        baseline = next_y + row_h / 2 - word_size * 0.32
-        draw_text(c, left_label, left + 2.2 * mm, baseline, font=FONT_BOLD, size=word_size, max_width=word_max_w)
+        baseline = card_bottom + row_h / 2 - word_size * 0.32
+        draw_text(c, left_label, left + 2.4 * mm, baseline, font=FONT_BOLD, size=word_size, max_width=word_max_w)
         draw_text(
             c,
             left_mean,
-            left + word_w,
+            left + 2.4 * mm + word_w,
             baseline,
             size=mean_size,
             color=SLATE,
@@ -1530,15 +1517,15 @@ def draw_confusable_pairs_page(
         )
         draw_text(
             c,
-            "·",
+            "↔",
             left + half,
             baseline,
-            size=max(word_size, mean_size),
-            color=LINE,
+            size=max(9.0, word_size * 0.95),
+            color=HexColor("#8A8A8A"),
             align="center",
         )
-        rx = left + half + mid_gap / 2
-        draw_text(c, right_label, rx + 2.2 * mm, baseline, font=FONT_BOLD, size=word_size, max_width=word_max_w)
+        rx = left + half + mid_w / 2
+        draw_text(c, right_label, rx, baseline, font=FONT_BOLD, size=word_size, max_width=word_max_w)
         draw_text(
             c,
             right_mean,
@@ -1548,14 +1535,7 @@ def draw_confusable_pairs_page(
             color=SLATE,
             max_width=mean_max_w,
         )
-        y = next_y
-
-    bottom = table_top - header_h - len(rows) * row_h
-    c.setStrokeColor(LINE)
-    c.setLineWidth(0.4)
-    c.rect(left, bottom, table_w, table_top - bottom, fill=0, stroke=1)
-    c.line(left, table_top - header_h, right, table_top - header_h)
-    c.line(left + half, bottom, left + half, table_top)
+        y = card_bottom - row_gap
 
     draw_page_footer(c, page_no, level_tag)
     c.showPage()
