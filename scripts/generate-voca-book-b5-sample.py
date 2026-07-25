@@ -122,6 +122,7 @@ SLATE = HexColor("#5C5C5C")
 PALE = HexColor("#EEF1F4")
 LIGHT = HexColor("#F7F7F7")  # 줄무늬 배경
 PAIR_EVEN = HexColor("#DEDEDE")  # 혼동 어휘 짝수 페어 배경
+DIFF_RED = HexColor("#C62828")  # 혼동 어휘 — 다른 철자 강조
 LINE = HexColor("#9AA4AE")
 INK = HexColor("#20262D")
 LOGO_SHADOW = HexColor("#636262")  # trigger-logo-v2 그림자 샘플
@@ -1519,7 +1520,7 @@ def draw_centered_word_with_diff(
     size: float,
     max_width: float,
 ) -> None:
-    """다른 철자는 오렌지+볼드, 같으면 검정 볼드. suffix(품사·타/자)는 슬레이트."""
+    """다른 철자는 진한 빨강+볼드, 같으면 검정 볼드. suffix(품사·타/자)는 슬레이트."""
     segs = spelling_diff_segments(word, other)[0]
 
     def total_w(sz: float) -> float:
@@ -1539,7 +1540,7 @@ def draw_centered_word_with_diff(
     x = cx - tw / 2
     for text, is_diff in segs:
         c.setFont(FONT_BOLD, sz)
-        c.setFillColor(ORANGE if is_diff else INK)
+        c.setFillColor(DIFF_RED if is_diff else INK)
         c.drawString(x, y, text)
         x += pdfmetrics.stringWidth(text, FONT_BOLD, sz)
     if suffix:
@@ -1556,19 +1557,20 @@ def draw_confusable_pairs_pages(
     start_page_no: int,
     banner: str,
     subtitle: str,
-    rows: list[tuple[str, str, str, str, str, str, str, str]],
+    rows: list[tuple[str, str, str, str, str, str, str, str, str, str]],
+    subtitle_note: str | None = None,
 ) -> int:
-    """페어 표: 번호 + 3행(단어·발음·뜻) × 2열. 다른 철자 강조 + IPA/한글 발음."""
+    """페어 표: 번호 + (단어·발음 한 칸) + 뜻. 다른 철자 빨강 강조."""
     width, height = B5
     word_size = 20.0
     mean_size = 18.0
-    pron_size = 10.0  # 단어의 절반
+    pron_size = 10.0
     no_size = 18.0
     pair_gap = 6.0 * mm
-    word_h = 11.0 * mm
-    pron_h = 8.0 * mm
+    # 단어+발음은 칸선 없이 한 블록, 뜻만 아래 칸
+    word_block_h = 18.5 * mm
     mean_h = 11.0 * mm
-    pair_h = word_h + pron_h + mean_h
+    pair_h = word_block_h + mean_h
     no_w = 14 * mm
 
     page_no = start_page_no
@@ -1589,18 +1591,43 @@ def draw_confusable_pairs_pages(
 
         if first_of_section:
             content_top = height - 52 * mm
-            subtitle_size = 19.0
-            subtitle_cy = (banner_bottom + content_top) / 2
-            draw_text(
-                c,
-                subtitle,
-                width / 2,
-                subtitle_cy - subtitle_size * 0.35,
-                font=FONT_BOLD,
-                size=subtitle_size,
-                color=SLATE,
-                align="center",
-            )
+            mid_y = (banner_bottom + content_top) / 2
+            if subtitle_note:
+                title_size = 12.0
+                note_size = 14.0
+                line_gap = 5.2 * mm
+                draw_text(
+                    c,
+                    subtitle,
+                    width / 2,
+                    mid_y + line_gap / 2 - title_size * 0.15,
+                    font=FONT_BOLD,
+                    size=title_size,
+                    color=SLATE,
+                    align="center",
+                )
+                draw_text(
+                    c,
+                    subtitle_note,
+                    width / 2,
+                    mid_y - line_gap / 2 - note_size * 0.55,
+                    font=FONT_BOLD,
+                    size=note_size,
+                    color=SLATE,
+                    align="center",
+                )
+            else:
+                subtitle_size = 19.0
+                draw_text(
+                    c,
+                    subtitle,
+                    width / 2,
+                    mid_y - subtitle_size * 0.35,
+                    font=FONT_BOLD,
+                    size=subtitle_size,
+                    color=SLATE,
+                    align="center",
+                )
             first_of_section = False
         else:
             content_top = height - TABLE_TOP_LOOSE
@@ -1620,8 +1647,8 @@ def draw_confusable_pairs_pages(
             c.setLineWidth(0.55)
             c.rect(left, bottom, table_w, pair_h, fill=0, stroke=1)
             c.line(left + no_w, bottom, left + no_w, y)
-            c.line(left + no_w, y - word_h, right, y - word_h)
-            c.line(left + no_w, y - word_h - pron_h, right, y - word_h - pron_h)
+            # 발음 전용 가로선 없음 — 뜻 칸만 구분
+            c.line(left + no_w, y - word_block_h, right, y - word_block_h)
             c.line(left + no_w + half_w, bottom, left + no_w + half_w, y)
 
             draw_text(
@@ -1638,8 +1665,7 @@ def draw_confusable_pairs_pages(
             left_cx = left + no_w + half_w / 2
             right_cx = left + no_w + half_w + half_w / 2
 
-            # 1) 단어 (다른 철자 강조)
-            word_base = y - word_h / 2 - word_size * 0.32
+            word_base = y - 6.2 * mm - word_size * 0.32
             draw_centered_word_with_diff(
                 c,
                 left_cx,
@@ -1661,8 +1687,7 @@ def draw_confusable_pairs_pages(
                 max_width=cell_max,
             )
 
-            # 2) 발음 IPA + 한글 (나란히, 절반 크기)
-            pron_base = y - word_h - pron_h / 2 - pron_size * 0.32
+            pron_base = y - word_block_h + 3.2 * mm
 
             def draw_pron(cx: float, ipa: str, ko: str) -> None:
                 ipa_show = ipa.strip()
@@ -1692,7 +1717,6 @@ def draw_confusable_pairs_pages(
             draw_pron(left_cx, ipa_a, ko_a)
             draw_pron(right_cx, ipa_b, ko_b)
 
-            # 3) 뜻
             m_size = min(mean_size, fit_font_size(mean_a, FONT_REGULAR, mean_size, cell_max))
             m_size = min(m_size, fit_font_size(mean_b, FONT_REGULAR, mean_size, cell_max))
             mean_base = bottom + mean_h / 2 - m_size * 0.32
@@ -1751,7 +1775,8 @@ def draw_confusables_spelling_page(
         start_page_no=page_no,
         banner="혼동 어휘 ①",
         subtitle="철자가 비슷한 단어",
-        rows=rows,  # type: ignore[arg-type]
+        subtitle_note="발음으로 구분하면 쉽다",
+        rows=rows,
     )
 
 
