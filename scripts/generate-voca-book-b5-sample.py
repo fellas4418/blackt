@@ -1440,165 +1440,149 @@ def draw_confusables_divider(
     c.showPage()
 
 
-def draw_confusable_pairs_page(
+def draw_confusable_pairs_pages(
     c: canvas.Canvas,
     *,
     level_tag: str,
-    page_no: int,
+    start_page_no: int,
     banner: str,
     subtitle: str,
     rows: list[tuple[str, str, str, str]],
-) -> None:
-    """번호 + 표 칸(No · 단어 · 뜻 · 단어 · 뜻). ↔ 없음."""
+) -> int:
+    """페어마다 표 1개: 왼쪽 번호(2행 합침) + 오른쪽 2×2(단어/뜻). 글씨 약 2배, 여러 쪽."""
     width, height = B5
-    banner_cy = height - BANNER_Y
-    banner_h = 8.5 * mm
-    banner_bottom = banner_cy - banner_h / 2
-    draw_day_banner(c, banner, banner_cy)
+    word_size = 20.0  # 기존 ~10의 2배
+    mean_size = 18.0
+    no_size = 18.0
+    pair_gap = 3.0 * mm
+    cell_h = 11.5 * mm  # 한 칸 높이 → 페어 표 높이 = 2*cell_h
+    pair_h = cell_h * 2
+    no_w = 14 * mm
 
-    margin_left, margin_right = page_margins_x(page_no)
-    left = margin_left
-    right = width - margin_right
-    table_w = right - left
+    page_no = start_page_no
+    idx = 0
+    first_of_section = True
 
-    n = max(len(rows), 1)
-    table_top = height - 52 * mm
-    header_h = 8.0 * mm
-    row_h = min(8.2 * mm, (table_top - TABLE_BOTTOM - header_h) / n)
+    while idx < len(rows):
+        banner_cy = height - BANNER_Y
+        banner_h = 8.5 * mm
+        banner_bottom = banner_cy - banner_h / 2
+        draw_day_banner(c, banner, banner_cy)
 
-    subtitle_size = 19.0
-    subtitle_cy = (banner_bottom + table_top) / 2
-    draw_text(
-        c,
-        subtitle,
-        width / 2,
-        subtitle_cy - subtitle_size * 0.35,
-        font=FONT_BOLD,
-        size=subtitle_size,
-        color=SLATE,
-        align="center",
-    )
+        margin_left, margin_right = page_margins_x(page_no)
+        left = margin_left
+        right = width - margin_right
+        table_w = right - left
+        half_w = (table_w - no_w) / 2
 
-    no_w = 10 * mm
-    rest = table_w - no_w
-    word_w = min(36 * mm, rest * 0.26)
-    mean_w = (rest - word_w * 2) / 2
-    # 열 x: No | WordA | MeanA | WordB | MeanB
-    col_xs = [
-        left,
-        left + no_w,
-        left + no_w + word_w,
-        left + no_w + word_w + mean_w,
-        left + no_w + word_w + mean_w + word_w,
-        right,
-    ]
+        if first_of_section:
+            content_top = height - 52 * mm
+            subtitle_size = 19.0
+            subtitle_cy = (banner_bottom + content_top) / 2
+            draw_text(
+                c,
+                subtitle,
+                width / 2,
+                subtitle_cy - subtitle_size * 0.35,
+                font=FONT_BOLD,
+                size=subtitle_size,
+                color=SLATE,
+                align="center",
+            )
+            first_of_section = False
+        else:
+            content_top = height - TABLE_TOP_LOOSE
 
-    word_max_w = word_w - 3.2 * mm
-    mean_max_w = mean_w - 3.2 * mm
-    word_size = min(11.0, row_h * 0.68)
-    mean_size = min(10.0, row_h * 0.64)
-    for left_label, left_mean, right_label, right_mean in rows:
-        for label in (left_label, right_label):
-            word_size = min(word_size, fit_font_size(label, FONT_BOLD, word_size, word_max_w))
-        for meaning in (left_mean, right_mean):
-            mean_size = min(mean_size, fit_font_size(meaning, FONT_REGULAR, mean_size, mean_max_w))
+        y = content_top
+        while idx < len(rows):
+            if y - pair_h < TABLE_BOTTOM:
+                break
+            left_label, left_mean, right_label, right_mean = rows[idx]
+            pair_no = idx + 1
+            bottom = y - pair_h
 
-    # 헤더
-    c.setFillColor(NAVY)
-    c.rect(left, table_top - header_h, table_w, header_h, fill=1, stroke=0)
-    header_size = 9.0
-    header_labels = ("No", "WORD", "MEANING", "WORD", "MEANING")
-    for label, x0, x1 in zip(header_labels, col_xs, col_xs[1:]):
-        draw_text(
-            c,
-            label,
-            (x0 + x1) / 2,
-            table_top - header_h / 2 - 3.0,
-            font=FONT_BOLD,
-            size=header_size,
-            color=white,
-            align="center",
-        )
+            # 배경
+            c.setFillColor(LIGHT if pair_no % 2 == 0 else white)
+            c.rect(left, bottom, table_w, pair_h, fill=1, stroke=0)
 
-    y = table_top - header_h
-    for index, (left_label, left_mean, right_label, right_mean) in enumerate(rows):
-        next_y = y - row_h
-        if index % 2 == 1:
-            c.setFillColor(LIGHT)
-            c.rect(left, next_y, table_w, row_h, fill=1, stroke=0)
-        baseline = next_y + row_h / 2 - word_size * 0.32
-        cells = (
-            str(index + 1),
-            left_label,
-            left_mean,
-            right_label,
-            right_mean,
-        )
-        # No
-        draw_text(
-            c,
-            cells[0],
-            (col_xs[0] + col_xs[1]) / 2,
-            baseline,
-            font=FONT_BOLD,
-            size=word_size * 0.92,
-            color=SLATE,
-            align="center",
-        )
-        # Word A
-        draw_text(
-            c,
-            cells[1],
-            col_xs[1] + 1.6 * mm,
-            baseline,
-            font=FONT_BOLD,
-            size=word_size,
-            max_width=word_max_w,
-        )
-        # Mean A
-        draw_text(
-            c,
-            cells[2],
-            col_xs[2] + 1.6 * mm,
-            baseline,
-            size=mean_size,
-            color=SLATE,
-            max_width=mean_max_w,
-        )
-        # Word B
-        draw_text(
-            c,
-            cells[3],
-            col_xs[3] + 1.6 * mm,
-            baseline,
-            font=FONT_BOLD,
-            size=word_size,
-            max_width=word_max_w,
-        )
-        # Mean B
-        draw_text(
-            c,
-            cells[4],
-            col_xs[4] + 1.6 * mm,
-            baseline,
-            size=mean_size,
-            color=SLATE,
-            max_width=mean_max_w,
-        )
-        y = next_y
+            # 외곽 + 내부 칸선 (5칸: 번호1 + 2×2)
+            c.setStrokeColor(LINE)
+            c.setLineWidth(0.55)
+            c.rect(left, bottom, table_w, pair_h, fill=0, stroke=1)
+            # 번호 | 내용
+            c.line(left + no_w, bottom, left + no_w, y)
+            # 가로 중앙 (단어 줄 / 뜻 줄)
+            c.line(left + no_w, y - cell_h, right, y - cell_h)
+            # 세로 중앙 (왼쪽 단어|오른쪽 단어)
+            c.line(left + no_w + half_w, bottom, left + no_w + half_w, y)
 
-    bottom = table_top - header_h - n * row_h
-    c.setStrokeColor(LINE)
-    c.setLineWidth(0.4)
-    c.rect(left, bottom, table_w, table_top - bottom, fill=0, stroke=1)
-    c.line(left, table_top - header_h, right, table_top - header_h)
-    for x in col_xs[1:-1]:
-        c.line(x, bottom, x, table_top)
-    for i in range(1, n):
-        c.line(left, table_top - header_h - i * row_h, right, table_top - header_h - i * row_h)
+            # 번호 (2행 합친 칸 중앙)
+            draw_text(
+                c,
+                str(pair_no),
+                left + no_w / 2,
+                bottom + pair_h / 2 - no_size * 0.35,
+                font=FONT_BOLD,
+                size=no_size,
+                align="center",
+            )
 
-    draw_page_footer(c, page_no, level_tag)
-    c.showPage()
+            word_max = half_w - 4 * mm
+            mean_max = half_w - 4 * mm
+            w_size = min(word_size, fit_font_size(left_label, FONT_BOLD, word_size, word_max))
+            w_size = min(w_size, fit_font_size(right_label, FONT_BOLD, word_size, word_max))
+            m_size = min(mean_size, fit_font_size(left_mean, FONT_REGULAR, mean_size, mean_max))
+            m_size = min(m_size, fit_font_size(right_mean, FONT_REGULAR, mean_size, mean_max))
+
+            # 위줄: 영단어
+            top_base = y - cell_h / 2 - w_size * 0.32
+            draw_text(
+                c,
+                left_label,
+                left + no_w + 2.2 * mm,
+                top_base,
+                font=FONT_BOLD,
+                size=w_size,
+                max_width=word_max,
+            )
+            draw_text(
+                c,
+                right_label,
+                left + no_w + half_w + 2.2 * mm,
+                top_base,
+                font=FONT_BOLD,
+                size=w_size,
+                max_width=word_max,
+            )
+            # 아래줄: 뜻
+            bot_base = bottom + cell_h / 2 - m_size * 0.32
+            draw_text(
+                c,
+                left_mean,
+                left + no_w + 2.2 * mm,
+                bot_base,
+                size=m_size,
+                color=SLATE,
+                max_width=mean_max,
+            )
+            draw_text(
+                c,
+                right_mean,
+                left + no_w + half_w + 2.2 * mm,
+                bot_base,
+                size=m_size,
+                color=SLATE,
+                max_width=mean_max,
+            )
+
+            y = bottom - pair_gap
+            idx += 1
+
+        draw_page_footer(c, page_no, level_tag)
+        c.showPage()
+        page_no += 1
+
+    return page_no
 
 
 def draw_confusables_spelling_page(
@@ -1607,7 +1591,7 @@ def draw_confusables_spelling_page(
     level_tag: str,
     page_no: int,
     meanings: dict[str, str],
-) -> None:
+) -> int:
     """① 철자가 비슷한 단어."""
     rows: list[tuple[str, str, str, str]] = []
     for a, tag_a, b, tag_b in CONFUSABLE_SPELLING:
@@ -1621,10 +1605,10 @@ def draw_confusables_spelling_page(
                 plain_meaning_for_confusable(b, meanings),
             )
         )
-    draw_confusable_pairs_page(
+    return draw_confusable_pairs_pages(
         c,
         level_tag=level_tag,
-        page_no=page_no,
+        start_page_no=page_no,
         banner="혼동 어휘 ①",
         subtitle="철자가 비슷한 단어",
         rows=rows,
@@ -1637,7 +1621,7 @@ def draw_confusables_derivation_page(
     level_tag: str,
     page_no: int,
     meanings: dict[str, str],
-) -> None:
+) -> int:
     """② 품사만 다른 동일 단어."""
     rows: list[tuple[str, str, str, str]] = []
     for a, pos_a, b, pos_b in CONFUSABLE_DERIVATION:
@@ -1649,10 +1633,10 @@ def draw_confusables_derivation_page(
                 plain_meaning_for_confusable(b, meanings),
             )
         )
-    draw_confusable_pairs_page(
+    return draw_confusable_pairs_pages(
         c,
         level_tag=level_tag,
-        page_no=page_no,
+        start_page_no=page_no,
         banner="혼동 어휘 ②",
         subtitle="품사만 다른 동일 단어",
         rows=rows,
@@ -2202,10 +2186,8 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: 
     meanings = {word: meaning for day_rows in days for word, meaning in day_rows}
     draw_confusables_divider(c, level_tag="MIDDLE", page_no=page_no)
     page_no += 1
-    draw_confusables_spelling_page(c, level_tag="MIDDLE", page_no=page_no, meanings=meanings)
-    page_no += 1
-    draw_confusables_derivation_page(c, level_tag="MIDDLE", page_no=page_no, meanings=meanings)
-    page_no += 1
+    page_no = draw_confusables_spelling_page(c, level_tag="MIDDLE", page_no=page_no, meanings=meanings)
+    page_no = draw_confusables_derivation_page(c, level_tag="MIDDLE", page_no=page_no, meanings=meanings)
 
     index_entries = build_word_index_entries(
         days,
