@@ -8,10 +8,13 @@ from __future__ import annotations
 
 import random
 import re
+from io import BytesIO
 from pathlib import Path
 
+from PIL import Image as PILImage
 from reportlab.lib.colors import Color, HexColor, white
 from reportlab.lib.units import mm
+from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
@@ -20,6 +23,46 @@ from reportlab.pdfgen import canvas
 ROOT = Path(__file__).resolve().parents[1]
 OUT_MIDDLE = ROOT / "단어장 PDF" / "중등"
 OUT_HIGH = ROOT / "단어장 PDF" / "고등"
+MARK_PATH = ROOT / "로고, 이미지" / "로고 최종.png"
+_MARK_CACHE: dict[bool, ImageReader] = {}
+
+
+def mark_reader(*, for_dark: bool) -> ImageReader:
+    """T 마크. 어두운 배경용은 검정 픽셀을 투명 처리."""
+    if for_dark not in _MARK_CACHE:
+        img = PILImage.open(MARK_PATH).convert("RGBA")
+        if for_dark:
+            pixels = img.load()
+            w, h = img.size
+            for y in range(h):
+                for x in range(w):
+                    r, g, b, a = pixels[x, y]
+                    if r < 45 and g < 45 and b < 45:
+                        pixels[x, y] = (r, g, b, 0)
+        buf = BytesIO()
+        img.save(buf, format="PNG")
+        buf.seek(0)
+        _MARK_CACHE[for_dark] = ImageReader(buf)
+    return _MARK_CACHE[for_dark]
+
+
+def draw_mark(
+    c: canvas.Canvas,
+    x: float,
+    y: float,
+    size: float,
+    *,
+    for_dark: bool,
+) -> None:
+    c.drawImage(
+        mark_reader(for_dark=for_dark),
+        x,
+        y,
+        width=size,
+        height=size,
+        preserveAspectRatio=True,
+        mask="auto",
+    )
 
 # 부크크 JIS B5 (182×257mm) — 권장 여백 안전 구역
 B5 = (182 * mm, 257 * mm)
@@ -41,16 +84,36 @@ def page_margins_x(page_no: int) -> tuple[float, float]:
     return MARGIN_INNER, MARGIN_OUTER
 
 
-def draw_page_footer(c: canvas.Canvas, page_no: int, level_tag: str) -> None:
+def draw_page_footer(
+    c: canvas.Canvas,
+    page_no: int,
+    level_tag: str,
+    *,
+    dark_bg: bool = False,
+) -> None:
     width, _ = B5
     margin_left, margin_right = page_margins_x(page_no)
     label = f"TRIGGER VOCA · {level_tag}"
+    ink = PALE if dark_bg else SLATE
+    mark_h = 5.0 * mm
+    gap = 1.8 * mm
+    img_y = MARGIN_BOTTOM - 0.6 * mm
     if page_no % 2 == 1:
-        draw_text(c, str(page_no), margin_left, MARGIN_BOTTOM, size=10.4, color=SLATE)
-        draw_text(c, label, width - margin_right, MARGIN_BOTTOM, size=6.5, color=SLATE, align="right")
+        draw_text(c, str(page_no), margin_left, MARGIN_BOTTOM, size=10.4, color=ink)
+        label_w = pdfmetrics.stringWidth(label, FONT_REGULAR, 6.5)
+        label_x = width - margin_right
+        draw_text(c, label, label_x, MARGIN_BOTTOM, size=6.5, color=ink, align="right")
+        draw_mark(
+            c,
+            label_x - label_w - gap - mark_h,
+            img_y,
+            mark_h,
+            for_dark=dark_bg,
+        )
     else:
-        draw_text(c, label, margin_left, MARGIN_BOTTOM, size=6.5, color=SLATE)
-        draw_text(c, str(page_no), width - margin_right, MARGIN_BOTTOM, size=10.4, color=SLATE, align="right")
+        draw_mark(c, margin_left, img_y, mark_h, for_dark=dark_bg)
+        draw_text(c, label, margin_left + mark_h + gap, MARGIN_BOTTOM, size=6.5, color=ink)
+        draw_text(c, str(page_no), width - margin_right, MARGIN_BOTTOM, size=10.4, color=ink, align="right")
 
 FONT_REGULAR = "Pretendard"
 FONT_BOLD = "PretendardBold"
@@ -512,6 +575,7 @@ def draw_cover(
         c.drawCentredString(dx, dy, day_label)
     c.restoreState()
 
+    draw_mark(c, (width - 12 * mm) / 2, 28 * mm, 12 * mm, for_dark=True)
     draw_text(c, "TRIGGER BLACK", width / 2, 18 * mm, size=14, color=PALE, align="center")
     c.showPage()
 
@@ -520,7 +584,7 @@ QR_PATH = ROOT / "로고, 이미지" / "qr-blackt.png"
 
 
 def draw_back_cover(c: canvas.Canvas) -> None:
-    """뒤표지 — 슬로건 + 앱 QR (로고 없음)."""
+    """뒤표지 — 슬로건 + 앱 QR + T 마크."""
     width, height = B5
     c.setFillColor(NAVY)
     c.rect(0, 0, width, height, fill=1, stroke=0)
@@ -557,6 +621,7 @@ def draw_back_cover(c: canvas.Canvas) -> None:
     c.roundRect(box_x, box_y, box_size, box_size, 2.5 * mm, fill=1, stroke=0)
     c.drawImage(str(QR_PATH), box_x + qr_pad, box_y + qr_pad, width=qr_size, height=qr_size)
 
+    draw_mark(c, (width - 12 * mm) / 2, 28 * mm, 12 * mm, for_dark=True)
     draw_text(c, "TRIGGER BLACK", width / 2, 18 * mm, size=14, color=PALE, align="center")
     c.showPage()
 
@@ -1093,7 +1158,7 @@ def draw_day_divider(
     draw_text(c, f"{len(rows)} WORDS", width / 2, center_y - 30 * mm, font=FONT_BOLD, size=12, color=white, align="center")
     draw_text(c, f"{rows[0][0]} – {rows[-1][0]}", width / 2, center_y - 38 * mm, size=11, color=PALE, align="center")
 
-    draw_page_footer(c, page_no, level_tag)
+    draw_page_footer(c, page_no, level_tag, dark_bg=True)
     c.showPage()
 
 
@@ -1162,7 +1227,7 @@ def draw_random_review_divider(
             max_width=right - left,
         )
 
-    draw_page_footer(c, page_no, level_tag)
+    draw_page_footer(c, page_no, level_tag, dark_bg=True)
     c.showPage()
 
 
@@ -1272,7 +1337,7 @@ def draw_index_divider(
             max_width=right - left,
         )
 
-    draw_page_footer(c, page_no, level_tag)
+    draw_page_footer(c, page_no, level_tag, dark_bg=True)
     c.showPage()
 
 

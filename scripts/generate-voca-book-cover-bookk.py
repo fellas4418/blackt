@@ -8,10 +8,13 @@
 from __future__ import annotations
 
 import argparse
+from io import BytesIO
 from pathlib import Path
 
+from PIL import Image as PILImage
 from reportlab.lib.colors import HexColor, white
 from reportlab.lib.units import mm
+from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
@@ -20,8 +23,10 @@ from reportlab.pdfgen import canvas
 ROOT = Path(__file__).resolve().parents[1]
 OUT_DIR = ROOT / "단어장 PDF" / "중등"
 LOGO_PATH = ROOT / "로고, 이미지" / "trigger-logo-v2.png"
+MARK_PATH = ROOT / "로고, 이미지" / "로고 최종.png"
 QR_PATH = ROOT / "로고, 이미지" / "qr-blackt.png"
 LOGO_ASPECT = 342 / 820
+_MARK_CACHE: dict[bool, ImageReader] = {}
 
 FONT_BOLD = "PretendardBold"
 FONT_REGULAR = "Pretendard"
@@ -37,6 +42,36 @@ LOGO_SHADOW = HexColor("#636262")  # trigger-logo-v2 그림자 실플
 PAGE_W = 182 * mm
 PAGE_H = 257 * mm
 BLEED = 3 * mm
+
+
+def mark_reader(*, for_dark: bool = True) -> ImageReader:
+    if for_dark not in _MARK_CACHE:
+        img = PILImage.open(MARK_PATH).convert("RGBA")
+        if for_dark:
+            pixels = img.load()
+            w, h = img.size
+            for y in range(h):
+                for x in range(w):
+                    r, g, b, a = pixels[x, y]
+                    if r < 45 and g < 45 and b < 45:
+                        pixels[x, y] = (r, g, b, 0)
+        buf = BytesIO()
+        img.save(buf, format="PNG")
+        buf.seek(0)
+        _MARK_CACHE[for_dark] = ImageReader(buf)
+    return _MARK_CACHE[for_dark]
+
+
+def draw_mark(c: canvas.Canvas, x: float, y: float, size: float) -> None:
+    c.drawImage(
+        mark_reader(for_dark=True),
+        x,
+        y,
+        width=size,
+        height=size,
+        preserveAspectRatio=True,
+        mask="auto",
+    )
 
 
 def register_fonts() -> None:
@@ -149,6 +184,7 @@ def draw_front_panel(
 
     c.setFillColor(PALE)
     c.setFont(FONT_REGULAR, 14)
+    draw_mark(c, (w - 12 * mm) / 2, 28 * mm, 12 * mm)
     c.drawCentredString(w / 2, 18 * mm, "TRIGGER BLACK")
     c.restoreState()
 
@@ -197,9 +233,10 @@ def draw_back_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float) 
 
     c.setFillColor(PALE)
     c.setFont(FONT_REGULAR, 11)
-    c.drawCentredString(w / 2, 28 * mm, "펴낸곳  플레이온")
+    c.drawCentredString(w / 2, 42 * mm, "펴낸곳  플레이온")
+    draw_mark(c, (w - 12 * mm) / 2, 26 * mm, 12 * mm)
     c.setFont(FONT_REGULAR, 14)
-    c.drawCentredString(w / 2, 18 * mm, "TRIGGER BLACK")
+    c.drawCentredString(w / 2, 16 * mm, "TRIGGER BLACK")
     c.restoreState()
 
 
@@ -303,8 +340,8 @@ def build_cover_pdf(
                     "  (1회독 + 랜덤 1회독 내지 기준. 부크크 100쪽=7.1mm 비율)",
                     "  (화면에 다른 두께가 나오면 --spine 으로 재생성)",
                     "",
-                    "앞표지: Trigger 로고 + VOCA(Black Han Sans·우하 압출 그림자) · 중등 배지 · DAY 바",
-                    "뒷표지: Just Follow(40pt) + QR · 로고 없음",
+                    "앞표지: Trigger 로고 + VOCA + T마크 · 중등 배지 · DAY 바",
+                    "뒷표지: Just Follow(40pt) + QR + T마크",
                     "책등: 네온 라인 + TRIGGER VOCA · 중등 / VOCA (얇은 타이포, 폭 19mm)",
                     "",
                     f"표지 PDF 크기(도련 3mm 포함):",
