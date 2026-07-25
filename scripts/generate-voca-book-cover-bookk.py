@@ -136,6 +136,9 @@ def draw_front_panel(
     c.setFont(FONT_BOLD, 13.5)
     c.drawCentredString(badge_x + badge_w / 2, badge_y + badge_h / 2 - 4.8, "중등")
 
+    mark_size = 14 * mm
+    draw_mark(c, w - 18 * mm - mark_size, h - 18 * mm - mark_size, mark_size)
+
     logo_h = logo_w * LOGO_ASPECT
     top = h - 60 * mm if logo_top is None else logo_top
     c.drawImage(
@@ -184,7 +187,6 @@ def draw_front_panel(
 
     c.setFillColor(PALE)
     c.setFont(FONT_REGULAR, 14)
-    draw_mark(c, (w - 12 * mm) / 2, 28 * mm, 12 * mm)
     c.drawCentredString(w / 2, 18 * mm, "TRIGGER BLACK")
     c.restoreState()
 
@@ -233,10 +235,9 @@ def draw_back_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float) 
 
     c.setFillColor(PALE)
     c.setFont(FONT_REGULAR, 11)
-    c.drawCentredString(w / 2, 42 * mm, "펴낸곳  플레이온")
-    draw_mark(c, (w - 12 * mm) / 2, 26 * mm, 12 * mm)
+    c.drawCentredString(w / 2, 28 * mm, "펴낸곳  플레이온")
     c.setFont(FONT_REGULAR, 14)
-    c.drawCentredString(w / 2, 16 * mm, "TRIGGER BLACK")
+    c.drawCentredString(w / 2, 18 * mm, "TRIGGER BLACK")
     c.restoreState()
 
 
@@ -340,8 +341,8 @@ def build_cover_pdf(
                     "  (1회독 + 랜덤 1회독 내지 기준. 부크크 100쪽=7.1mm 비율)",
                     "  (화면에 다른 두께가 나오면 --spine 으로 재생성)",
                     "",
-                    "앞표지: Trigger 로고 + VOCA + T마크 · 중등 배지 · DAY 바",
-                    "뒷표지: Just Follow(40pt) + QR + T마크",
+                    "앞표지: Trigger 로고 + VOCA · 중등 배지(좌상) · T마크(우상) · DAY 바",
+                    "뒷표지: Just Follow(40pt) + QR · 로고 마크 없음",
                     "책등: 네온 라인 + TRIGGER VOCA · 중등 / VOCA (얇은 타이포, 폭 19mm)",
                     "",
                     f"표지 PDF 크기(도련 3mm 포함):",

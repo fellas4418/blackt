@@ -95,25 +95,18 @@ def draw_page_footer(
     margin_left, margin_right = page_margins_x(page_no)
     label = f"TRIGGER VOCA · {level_tag}"
     ink = white if dark_bg else SLATE
-    mark_h = 5.0 * mm
-    gap = 1.8 * mm
-    img_y = MARGIN_BOTTOM - 0.6 * mm
     if page_no % 2 == 1:
         draw_text(c, str(page_no), margin_left, MARGIN_BOTTOM, size=10.4, color=ink)
-        label_w = pdfmetrics.stringWidth(label, FONT_REGULAR, 6.5)
-        label_x = width - margin_right
-        draw_text(c, label, label_x, MARGIN_BOTTOM, size=6.5, color=ink, align="right")
-        draw_mark(
-            c,
-            label_x - label_w - gap - mark_h,
-            img_y,
-            mark_h,
-            for_dark=dark_bg,
-        )
+        draw_text(c, label, width - margin_right, MARGIN_BOTTOM, size=6.5, color=ink, align="right")
     else:
-        draw_mark(c, margin_left, img_y, mark_h, for_dark=dark_bg)
-        draw_text(c, label, margin_left + mark_h + gap, MARGIN_BOTTOM, size=6.5, color=ink)
+        draw_text(c, label, margin_left, MARGIN_BOTTOM, size=6.5, color=ink)
         draw_text(c, str(page_no), width - margin_right, MARGIN_BOTTOM, size=10.4, color=ink, align="right")
+
+
+def draw_divider_mark(c: canvas.Canvas, width: float, height: float) -> None:
+    """검정 간지 상단 중앙 T 마크."""
+    size = 16 * mm
+    draw_mark(c, (width - size) / 2, height - 18 * mm - size, size, for_dark=True)
 
 FONT_REGULAR = "Pretendard"
 FONT_BOLD = "PretendardBold"
@@ -522,6 +515,14 @@ def draw_cover(
         color=white,
         align="center",
     )
+    mark_size = 14 * mm
+    draw_mark(
+        c,
+        width - 18 * mm - mark_size,
+        height - 18 * mm - mark_size,
+        mark_size,
+        for_dark=True,
+    )
 
     logo_w = 106 * mm  # Trigger 살짝 축소
     logo_h = logo_w * LOGO_ASPECT
@@ -575,7 +576,6 @@ def draw_cover(
         c.drawCentredString(dx, dy, day_label)
     c.restoreState()
 
-    draw_mark(c, (width - 12 * mm) / 2, 28 * mm, 12 * mm, for_dark=True)
     draw_text(c, "TRIGGER BLACK", width / 2, 18 * mm, size=14, color=PALE, align="center")
     c.showPage()
 
@@ -584,7 +584,7 @@ QR_PATH = ROOT / "로고, 이미지" / "qr-blackt.png"
 
 
 def draw_back_cover(c: canvas.Canvas) -> None:
-    """뒤표지 — 슬로건 + 앱 QR + T 마크."""
+    """뒤표지 — 슬로건 + 앱 QR."""
     width, height = B5
     c.setFillColor(NAVY)
     c.rect(0, 0, width, height, fill=1, stroke=0)
@@ -621,7 +621,6 @@ def draw_back_cover(c: canvas.Canvas) -> None:
     c.roundRect(box_x, box_y, box_size, box_size, 2.5 * mm, fill=1, stroke=0)
     c.drawImage(str(QR_PATH), box_x + qr_pad, box_y + qr_pad, width=qr_size, height=qr_size)
 
-    draw_mark(c, (width - 12 * mm) / 2, 28 * mm, 12 * mm, for_dark=True)
     draw_text(c, "TRIGGER BLACK", width / 2, 18 * mm, size=14, color=PALE, align="center")
     c.showPage()
 
@@ -1149,6 +1148,7 @@ def draw_day_divider(
     c.setLineWidth(1)
     c.roundRect(10 * mm, 10 * mm, width - 20 * mm, height - 20 * mm, 4 * mm, fill=0, stroke=1)
 
+    draw_divider_mark(c, width, height)
     center_y = height * 0.58
     draw_text(c, "DAY", width / 2, center_y + 30 * mm, font=FONT_BOLD, size=20, color=PALE, align="center")
     draw_text(c, f"{day_no:02d}", width / 2, center_y - 10 * mm, font=FONT_BOLD, size=96, color=white, align="center")
@@ -1178,6 +1178,7 @@ def draw_random_review_divider(
     c.setLineWidth(1)
     c.roundRect(10 * mm, 10 * mm, width - 20 * mm, height - 20 * mm, 4 * mm, fill=0, stroke=1)
 
+    draw_divider_mark(c, width, height)
     center_y = height * 0.62
     draw_text(c, "REVIEW", width / 2, center_y + 6 * mm, font=FONT_BOLD, size=56, color=white, align="center")
     subtitle = "단어 순서 재배치 테스트"
@@ -1246,6 +1247,7 @@ def draw_index_divider(
     c.setLineWidth(1)
     c.roundRect(10 * mm, 10 * mm, width - 20 * mm, height - 20 * mm, 4 * mm, fill=0, stroke=1)
 
+    draw_divider_mark(c, width, height)
     center_y = height * 0.62
     draw_text(c, "INDEX", width / 2, center_y + 6 * mm, font=FONT_BOLD, size=56, color=white, align="center")
     subtitle = "단어 찾기 색인"
