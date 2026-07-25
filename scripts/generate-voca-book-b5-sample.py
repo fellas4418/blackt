@@ -842,18 +842,6 @@ def draw_howto_page(c: canvas.Canvas, *, level_tag: str, page_no: int) -> None:
         draw_text(c, title, left + 24 * mm, y + box_h / 2 + 2.2 * mm, font=FONT_BOLD, size=13.0)
         draw_text(c, description, left + 24 * mm, y + box_h / 2 - 4.3 * mm, size=13.3, color=SLATE, max_width=right - left - 30 * mm)
 
-    draw_text(
-        c,
-        "1회독을 모두 마친 뒤, 뒤쪽 「랜덤 1회독」 구간(TEST만)으로 이어집니다.",
-        width / 2,
-        top - 4 * (box_h + gap) - 14 * mm,
-        font=FONT_BOLD,
-        size=10.5,
-        color=SLATE,
-        align="center",
-        max_width=right - left,
-    )
-
     draw_page_footer(c, page_no, level_tag)
     c.showPage()
 
@@ -1115,10 +1103,9 @@ def draw_random_review_divider(
     level_tag: str,
     day_count: int,
     word_count: int,
-    random_first_test_page: int,
     page_no: int,
 ) -> None:
-    """1회독과 랜덤 1회독 구간을 구분하는 표지 + 짧은 안내."""
+    """1회독과 랜덤 복습 구간을 구분하는 표지 + 짧은 안내."""
     width, height = B5
     c.setFillColor(NAVY)
     c.rect(0, 0, width, height, fill=1, stroke=0)
@@ -1129,14 +1116,23 @@ def draw_random_review_divider(
     center_y = height * 0.62
     draw_text(c, "RANDOM", width / 2, center_y + 34 * mm, font=FONT_BOLD, size=22, color=PALE, align="center")
     draw_text(c, "REVIEW", width / 2, center_y + 6 * mm, font=FONT_BOLD, size=56, color=white, align="center")
-    draw_text(c, "랜덤 1회독", width / 2, center_y - 22 * mm, font=FONT_BOLD, size=16, color=white, align="center")
+    draw_text(
+        c,
+        "단어 순서 재배치 테스트",
+        width / 2,
+        center_y - 22 * mm,
+        font=FONT_BOLD,
+        size=16,
+        color=white,
+        align="center",
+    )
 
     bar_w = 36 * mm
     c.setFillColor(NEON_BLUE)
     c.rect((width - bar_w) / 2, center_y - 30 * mm, bar_w, 1.4 * mm, fill=1, stroke=0)
     draw_text(
         c,
-        f"{word_count} WORDS · SHUFFLED · {day_count} DAYS",
+        f"{word_count} WORDS · {day_count} DAYS",
         width / 2,
         center_y - 40 * mm,
         font=FONT_BOLD,
@@ -1148,36 +1144,22 @@ def draw_random_review_divider(
     margin_left, margin_right = page_margins_x(page_no)
     left = margin_left
     right = width - margin_right
-    notes = [
-        "1회독을 모두 마친 뒤, 이 구간부터 시작하세요.",
-        "전체 단어 순서가 무작위로 섞여 Day 01~{:02d}으로 다시 구성되어 있습니다.".format(day_count),
-        "TEST만 있습니다. 연습(PRACTICE) 페이지는 없습니다.",
-        "Day 번호는 1부터이지만, 단어 구성은 1회독과 다릅니다.",
-        "순서를 외우지 않았는지 확인하는 복습입니다.",
+    note_lines = [
+        "전체 단어 순서가 무작위로 섞여",
+        "순서가 아닌 단어 뜻만으로 복습할 수 있습니다.",
     ]
     note_top = center_y - 58 * mm
-    for index, line in enumerate(notes):
+    for index, line in enumerate(note_lines):
         draw_text(
             c,
             line,
             width / 2,
-            note_top - index * 7.5 * mm,
-            size=10.5,
+            note_top - index * 11 * mm,
+            size=21,
             color=PALE,
             align="center",
             max_width=right - left,
         )
-
-    draw_text(
-        c,
-        f"다음 페이지(p.{random_first_test_page})부터 Day 01 TEST",
-        width / 2,
-        28 * mm,
-        font=FONT_BOLD,
-        size=10.0,
-        color=PALE,
-        align="center",
-    )
 
     draw_page_footer(c, page_no, level_tag)
     c.showPage()
@@ -1633,9 +1615,6 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: 
     word_count = sum(len(rows) for rows in days)
     random_days = shuffle_days_for_random_review(days)
     first_day_page = middle_first_day_page(include_covers=include_covers)
-    random_divider_page = first_day_page + day_count * MIDDLE_PAGES_PER_DAY_ROUND1
-    random_first_test_page = random_divider_page + 1
-    random_last_test_page = random_first_test_page + day_count - 1
 
     name_suffix = "" if include_covers else "_내지"
     out_path = resolve_output_path(OUT_MIDDLE / f"트리거보카_중등_Day01-{day_count:02d}_B5{name_suffix}.pdf")
@@ -1664,10 +1643,6 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: 
         level_tag="MIDDLE",
         entries=contents,
         page_no=contents_page_no,
-        footer_note=(
-            f"랜덤 1회독 · p.{random_divider_page}(안내) · "
-            f"p.{random_first_test_page}–{random_last_test_page}(TEST)"
-        ),
     )
     draw_howto_page(c, level_tag="MIDDLE", page_no=contents_page_no + 1)
     draw_pronunciation_guide(c, level_tag="MIDDLE", page_no=contents_page_no + 2)
@@ -1715,7 +1690,6 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: 
         level_tag="MIDDLE",
         day_count=day_count,
         word_count=word_count,
-        random_first_test_page=random_first_test_page,
         page_no=page_no,
     )
     page_no += 1
