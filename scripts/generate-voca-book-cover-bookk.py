@@ -258,7 +258,7 @@ def build_cover_pdf(
     total_h = BLEED + PAGE_H + BLEED
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    out = resolve_output_path(OUT_DIR / f"트리거보카_중등_표지_부크크_B5_등{spine}mm{name_suffix}.pdf")
+    out = resolve_output_path(OUT_DIR / f"중등_표지{name_suffix}.pdf")
     c = canvas.Canvas(str(out), pagesize=(total_w, total_h))
     c.setTitle(f"트리거 보카 중등 표지 (책등 {spine}mm)")
     c.setAuthor("플레이온")
@@ -292,7 +292,7 @@ def build_cover_pdf(
     c.save()
 
     if write_note:
-        note = OUT_DIR / "트리거보카_중등_표지_부크크_안내.txt"
+        note = OUT_DIR / "중등_표지_안내.txt"
         note.write_text(
             "\n".join(
                 [
@@ -355,7 +355,7 @@ def main() -> None:
     print(f"표지: {path}")
     print(f"책등(추정): {spine} mm  ·  내지 {args.pages}쪽")
     if args.variant is None:
-        print(f"안내: {OUT_DIR / '트리거보카_중등_표지_부크크_안내.txt'}")
+        print(f"안내: {OUT_DIR / '중등_표지_안내.txt'}")
 
 
 if __name__ == "__main__":

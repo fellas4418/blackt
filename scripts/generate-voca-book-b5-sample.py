@@ -1675,8 +1675,8 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: 
     random_days = shuffle_days_for_random_review(days)
     first_day_page = middle_first_day_page(include_covers=include_covers)
 
-    name_suffix = "" if include_covers else "_내지"
-    out_path = resolve_output_path(OUT_MIDDLE / f"트리거보카_중등_Day01-{day_count:02d}_B5{name_suffix}.pdf")
+    out_name = "중등.pdf" if include_covers else "중등_내지.pdf"
+    out_path = resolve_output_path(OUT_MIDDLE / out_name)
     c = canvas.Canvas(str(out_path), pagesize=B5, pageCompression=1)
     c.setTitle(f"트리거 보카 중등 Day 01-{day_count:02d} B5")
     c.setAuthor("TRIGGER BLACK")
