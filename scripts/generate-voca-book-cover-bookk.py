@@ -136,9 +136,6 @@ def draw_front_panel(
     c.setFont(FONT_BOLD, 13.5)
     c.drawCentredString(badge_x + badge_w / 2, badge_y + badge_h / 2 - 4.8, "중등")
 
-    mark_size = 14 * mm
-    draw_mark(c, w - 18 * mm - mark_size, h - 18 * mm - mark_size, mark_size)
-
     logo_h = logo_w * LOGO_ASPECT
     top = h - 60 * mm if logo_top is None else logo_top
     c.drawImage(
@@ -187,6 +184,8 @@ def draw_front_panel(
 
     c.setFillColor(PALE)
     c.setFont(FONT_REGULAR, 14)
+    mark_size = 14 * mm
+    draw_mark(c, w - 18 * mm - mark_size, 18 * mm, mark_size)
     c.drawCentredString(w / 2, 18 * mm, "TRIGGER BLACK")
     c.restoreState()
 
@@ -236,13 +235,15 @@ def draw_back_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float) 
     c.setFillColor(PALE)
     c.setFont(FONT_REGULAR, 11)
     c.drawCentredString(w / 2, 28 * mm, "펴낸곳  플레이온")
+    mark_size = 14 * mm
+    draw_mark(c, w - 18 * mm - mark_size, 14 * mm, mark_size)
     c.setFont(FONT_REGULAR, 14)
     c.drawCentredString(w / 2, 18 * mm, "TRIGGER BLACK")
     c.restoreState()
 
 
 def draw_spine(c: canvas.Canvas, x0: float, y0: float, spine_w: float, h: float) -> None:
-    """책등 — 네온 라인 + 고정 크기 세로 제목 (얇은 타이포, 폭은 spine_w)."""
+    """책등 — 네온 라인 + 세로 제목, 제목 왼쪽(시작)에 T 마크."""
     c.saveState()
     c.setFillColor(NAVY)
     c.rect(x0, y0, spine_w, h, fill=1, stroke=0)
@@ -254,9 +255,21 @@ def draw_spine(c: canvas.Canvas, x0: float, y0: float, spine_w: float, h: float)
 
     c.translate(x0 + spine_w / 2, y0 + h / 2)
     c.rotate(90)
+    title = "TRIGGER VOCA  ·  중등"
+    title_size = 11
     c.setFillColor(white)
-    c.setFont(FONT_BOLD, 11)
-    c.drawCentredString(0, -3.2, "TRIGGER VOCA  ·  중등")
+    c.setFont(FONT_BOLD, title_size)
+    c.drawCentredString(0, -3.2, title)
+    title_w = pdfmetrics.stringWidth(title, FONT_BOLD, title_size)
+    mark_size = min(6.5 * mm, spine_w * 0.4)
+    gap = 1.5 * mm
+    # 제목 왼쪽 끝(문자열 시작) 바로 앞
+    draw_mark(
+        c,
+        -title_w / 2 - gap - mark_size,
+        -3.2 - mark_size * 0.28,
+        mark_size,
+    )
     c.setFillColor(NEON_BLUE)
     c.setFont(FONT_BOLD, 10)
     c.drawCentredString(0, -14, "VOCA")
@@ -341,9 +354,9 @@ def build_cover_pdf(
                     "  (1회독 + 랜덤 1회독 내지 기준. 부크크 100쪽=7.1mm 비율)",
                     "  (화면에 다른 두께가 나오면 --spine 으로 재생성)",
                     "",
-                    "앞표지: Trigger 로고 + VOCA · 중등 배지(좌상) · T마크(우상) · DAY 바",
-                    "뒷표지: Just Follow(40pt) + QR · 로고 마크 없음",
-                    "책등: 네온 라인 + TRIGGER VOCA · 중등 / VOCA (얇은 타이포, 폭 19mm)",
+                    "앞표지: Trigger 로고 + VOCA · 중등 배지(좌상) · T마크(우하) · DAY 바",
+                    "뒷표지: Just Follow(40pt) + QR · T마크(우하)",
+                    "책등: 네온 라인 + T마크 + TRIGGER VOCA · 중등 / VOCA",
                     "",
                     f"표지 PDF 크기(도련 3mm 포함):",
                     f"  가로 {total_w / mm:.1f} mm = 3 + 182 + {spine} + 182 + 3",

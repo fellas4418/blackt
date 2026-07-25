@@ -104,9 +104,9 @@ def draw_page_footer(
 
 
 def draw_divider_mark(c: canvas.Canvas, width: float, height: float) -> None:
-    """검정 간지 상단 중앙 T 마크."""
+    """검정 간지 상단 왼쪽 T 마크 (타이틀과 같은 높이대)."""
     size = 16 * mm
-    draw_mark(c, (width - size) / 2, height - 18 * mm - size, size, for_dark=True)
+    draw_mark(c, 18 * mm, height - 18 * mm - size, size, for_dark=True)
 
 FONT_REGULAR = "Pretendard"
 FONT_BOLD = "PretendardBold"
@@ -519,7 +519,7 @@ def draw_cover(
     draw_mark(
         c,
         width - 18 * mm - mark_size,
-        height - 18 * mm - mark_size,
+        18 * mm,
         mark_size,
         for_dark=True,
     )
