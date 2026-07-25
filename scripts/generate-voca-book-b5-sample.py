@@ -274,6 +274,11 @@ CONFUSABLE_KO_PRON: dict[str, str] = {
     "classical": "클래시컬",
 }
 
+# 혼동 어휘 — 뜻 표기 고정(메타와 다를 때)
+CONFUSABLE_MEANING_OVERRIDE: dict[str, str] = {
+    "exhaust": "지치게 하다 (동)",
+}
+
 # 혼동 어휘 — 품사 한글자 (전부 수기, 빠짐 없이)
 CONFUSABLE_POS: dict[str, str] = {
     "affect": "동",
@@ -1568,7 +1573,9 @@ def draw_index_divider(
 
 
 def confusable_meaning_label(word: str, meanings: dict[str, str]) -> str:
-    """혼동 어휘 뜻 — 메타 meaning_pos(뜻별 품사 포함) 우선."""
+    """혼동 어휘 뜻 — 고정 오버라이드 → 메타 meaning_pos 우선."""
+    if word in CONFUSABLE_MEANING_OVERRIDE:
+        return CONFUSABLE_MEANING_OVERRIDE[word]
     return (POS_MEANINGS.get(word) or meanings.get(word, "")).strip()
 
 
@@ -1774,7 +1781,7 @@ def draw_confusable_pairs_pages(
             content_top = height - 52 * mm
             mid_y = (banner_bottom + content_top) / 2
             if subtitle_note:
-                title_size = 14.0
+                title_size = 16.0
                 note_size = 14.0
                 line_gap = 7.2 * mm
                 draw_text(
@@ -1784,7 +1791,7 @@ def draw_confusable_pairs_pages(
                     mid_y + line_gap / 2 - title_size * 0.15,
                     font=FONT_BOLD,
                     size=title_size,
-                    color=SLATE,
+                    color=INK,
                     align="center",
                 )
                 draw_text(
@@ -1876,13 +1883,13 @@ def draw_confusable_pairs_pages(
                     ipa_show = f"/{ipa_show.strip('/')}/"
                 gap = 2.2 * mm
                 ipa_w = pdfmetrics.stringWidth(ipa_show, FONT_IPA, pron_size) if ipa_show else 0
-                ko_w = pdfmetrics.stringWidth(ko, FONT_REGULAR, pron_size) if ko else 0
+                ko_w = pdfmetrics.stringWidth(ko, FONT_BOLD, pron_size) if ko else 0
                 total = ipa_w + (gap if ipa_show and ko else 0) + ko_w
                 sz = pron_size
                 while sz > 6.5 and total > cell_max:
                     sz -= 0.2
                     ipa_w = pdfmetrics.stringWidth(ipa_show, FONT_IPA, sz) if ipa_show else 0
-                    ko_w = pdfmetrics.stringWidth(ko, FONT_REGULAR, sz) if ko else 0
+                    ko_w = pdfmetrics.stringWidth(ko, FONT_BOLD, sz) if ko else 0
                     total = ipa_w + (gap if ipa_show and ko else 0) + ko_w
                 x = cx - total / 2
                 if ipa_show:
@@ -1891,8 +1898,8 @@ def draw_confusable_pairs_pages(
                     c.drawString(x, pron_base, ipa_show)
                     x += ipa_w + gap
                 if ko:
-                    c.setFont(FONT_REGULAR, sz)
-                    c.setFillColor(SLATE)
+                    c.setFont(FONT_BOLD, sz)
+                    c.setFillColor(INK)
                     c.drawString(x, pron_base, ko)
 
             draw_pron(left_cx, ipa_a, ko_a)
