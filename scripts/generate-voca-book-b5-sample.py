@@ -275,9 +275,7 @@ CONFUSABLE_KO_PRON: dict[str, str] = {
 }
 
 # 혼동 어휘 — 뜻 표기 고정(메타와 다를 때)
-CONFUSABLE_MEANING_OVERRIDE: dict[str, str] = {
-    "exhaust": "지치게 하다 (동)",
-}
+CONFUSABLE_MEANING_OVERRIDE: dict[str, str] = {}
 
 # 혼동 어휘 — 품사 한글자 (전부 수기, 빠짐 없이)
 CONFUSABLE_POS: dict[str, str] = {
@@ -672,6 +670,72 @@ def build_middle_round1_contents_entries(
     ]
 
 
+def _confusable_pairs_fit(content_top: float) -> int:
+    pair_h = 33.0 * mm  # word_block_h 22 + mean_h 11
+    pair_gap = 6.0 * mm
+    count = 0
+    y = content_top
+    while y - pair_h >= TABLE_BOTTOM:
+        count += 1
+        y -= pair_h + pair_gap
+    return count
+
+
+def confusable_pair_page_count(n_rows: int) -> int:
+    """혼동 어휘 페어 표 페이지 수 (draw_confusable_pairs_pages와 동일 간격)."""
+    if n_rows <= 0:
+        return 0
+    height = B5[1]
+    first_n = _confusable_pairs_fit(height - 52 * mm)
+    cont_n = max(1, _confusable_pairs_fit(height - TABLE_TOP_LOOSE))
+    if n_rows <= first_n:
+        return 1
+    return 1 + (n_rows - first_n + cont_n - 1) // cont_n
+
+
+def index_page_count(n_words: int) -> int:
+    """INDEX 페이지 수 (draw_index_pages와 동일 밀도)."""
+    if n_words <= 0:
+        return 0
+    height = B5[1]
+    cols = 3
+    row_h = 5.2 * mm
+    top = height - TABLE_TOP_LOOSE + 4 * mm
+    rows_per_col = int((top - TABLE_BOTTOM) / row_h)
+    per_page = max(1, rows_per_col * cols)
+    # 알파벳 헤더 약 26칸 + 단어
+    items = n_words + 26
+    return (items + per_page - 1) // per_page
+
+
+def build_middle_back_matter_note(
+    days: list[list[tuple[str, str]]],
+    *,
+    include_covers: bool,
+) -> str:
+    """목차 하단 — REVIEW · 혼동 어휘 · INDEX 페이지 안내."""
+    day_count = len(days)
+    word_count = sum(len(rows) for rows in days)
+    first = middle_first_day_page(include_covers=include_covers)
+    round1_end = first + day_count * MIDDLE_PAGES_PER_DAY_ROUND1 - 1
+    review_div = round1_end + 1
+    review_start = review_div + 1
+    review_end = review_start + day_count - 1
+    conf_div = review_end + 1
+    spelling_pages = confusable_pair_page_count(len(CONFUSABLE_SPELLING))
+    derivation_pages = confusable_pair_page_count(len(CONFUSABLE_DERIVATION))
+    conf_start = conf_div + 1
+    conf_end = conf_div + spelling_pages + derivation_pages
+    index_div = conf_end + 1
+    index_start = index_div + 1
+    index_end = index_div + index_page_count(word_count)
+    return (
+        f"REVIEW {review_div}–{review_end}  ·  "
+        f"혼동 어휘 {conf_div}–{conf_end}  ·  "
+        f"INDEX {index_div}–{index_end}"
+    )
+
+
 def fit_font_size(text: str, font: str, max_size: float, max_width: float) -> float:
     size = max_size
     while size > 5.8 and pdfmetrics.stringWidth(text, font, size) > max_width:
@@ -895,6 +959,18 @@ def draw_contents_page(
         color=SLATE,
         align="center",
     )
+    subtitle_extra = 0.0
+    if footer_note:
+        draw_text(
+            c,
+            footer_note,
+            width / 2,
+            height - SUBTITLE_Y - 6.5 * mm,
+            size=8.2,
+            color=SLATE,
+            align="center",
+        )
+        subtitle_extra = 8.0 * mm
 
     margin_left, margin_right = page_margins_x(page_no)
     gap = 8 * mm
@@ -902,7 +978,7 @@ def draw_contents_page(
     table_w = width - margin_left - margin_right
     column_w = (table_w - gap * (column_count - 1)) / column_count
     rows_per_column = (len(entries) + column_count - 1) // column_count
-    table_top = height - TABLE_TOP_LOOSE
+    table_top = height - TABLE_TOP_LOOSE - subtitle_extra
     header_h = 9 * mm
     row_h = min(8 * mm, (table_top - TABLE_BOTTOM - header_h) / max(rows_per_column, 1))
     day_w = 25 * mm
@@ -962,18 +1038,6 @@ def draw_contents_page(
             line_y = table_top - header_h - index * row_h
             c.line(left, line_y, right, line_y)
         c.rect(left, bottom, column_w, table_top - bottom, fill=0, stroke=1)
-
-    if footer_note:
-        draw_text(
-            c,
-            footer_note,
-            width / 2,
-            TABLE_BOTTOM + 6 * mm,
-            font=FONT_BOLD,
-            size=10.0,
-            color=SLATE,
-            align="center",
-        )
 
     draw_page_footer(c, page_no, level_tag)
     c.showPage()
@@ -1125,6 +1189,15 @@ def draw_howto_page(c: canvas.Canvas, *, level_tag: str, page_no: int) -> None:
         color=SLATE,
         align="center",
     )
+    draw_text(
+        c,
+        "1회독 뒤에는 랜덤 REVIEW · 혼동 어휘 · INDEX가 이어집니다.",
+        width / 2,
+        height - SUBTITLE_Y - 13.5 * mm,
+        size=10.0,
+        color=SLATE,
+        align="center",
+    )
 
     steps = [
         ("01", "FOLD", "정답 면을 가운데 세로선에서 뒤로 접습니다."),
@@ -1135,9 +1208,9 @@ def draw_howto_page(c: canvas.Canvas, *, level_tag: str, page_no: int) -> None:
     margin_left, margin_right = page_margins_x(page_no)
     left = margin_left
     right = width - margin_right
-    top = height - SUBTITLE_Y - 18 * mm
-    box_h = 35 * mm
-    gap = 8 * mm
+    top = height - SUBTITLE_Y - 24 * mm
+    box_h = 32 * mm
+    gap = 6 * mm
     for index, (number, title, description) in enumerate(steps):
         y = top - index * (box_h + gap) - box_h
         c.setFillColor(LIGHT if index % 2 == 0 else white)
@@ -1148,7 +1221,7 @@ def draw_howto_page(c: canvas.Canvas, *, level_tag: str, page_no: int) -> None:
         c.circle(left + 11 * mm, y + box_h / 2, 6 * mm, fill=1, stroke=0)
         draw_text(c, number, left + 11 * mm, y + box_h / 2 - 3.0, font=FONT_BOLD, size=9.5, color=white, align="center")
         draw_text(c, title, left + 24 * mm, y + box_h / 2 + 2.2 * mm, font=FONT_BOLD, size=13.0)
-        draw_text(c, description, left + 24 * mm, y + box_h / 2 - 4.3 * mm, size=13.3, color=SLATE, max_width=right - left - 30 * mm)
+        draw_text(c, description, left + 24 * mm, y + box_h / 2 - 4.3 * mm, size=13.0, color=SLATE, max_width=right - left - 30 * mm)
 
     draw_page_footer(c, page_no, level_tag)
     c.showPage()
@@ -2507,6 +2580,7 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: 
         level_tag="MIDDLE",
         entries=contents,
         page_no=contents_page_no,
+        footer_note=build_middle_back_matter_note(days, include_covers=include_covers),
     )
     draw_howto_page(c, level_tag="MIDDLE", page_no=contents_page_no + 1)
     draw_pronunciation_guide(c, level_tag="MIDDLE", page_no=contents_page_no + 2)

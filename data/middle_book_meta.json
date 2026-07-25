@@ -2048,7 +2048,7 @@
   "unless": {
     "ipa": "/ənˈlɛs/",
     "ko": "어느레스",
-    "meaning_pos": "~하지 않으면 (명)",
+    "meaning_pos": "~하지 않으면 (접)",
     "source": "auto"
   },
   "otherwise": {
@@ -3938,7 +3938,7 @@
   "exhaust": {
     "ipa": "/ɪgˈzɔst/",
     "ko": "이그조스트",
-    "meaning_pos": "지치게 하다 (동), 배기가스 (명)",
+    "meaning_pos": "지치게 하다 (동)",
     "source": "auto"
   },
   "shortage": {
@@ -5558,7 +5558,7 @@
   "absolutely": {
     "ipa": "/ˌæbsəˈlutli/",
     "ko": "애브설우트리",
-    "meaning_pos": "절대적으로 (명)",
+    "meaning_pos": "절대적으로 (부)",
     "source": "auto"
   },
   "seaweed": {
@@ -6164,7 +6164,7 @@
   "unfortunately": {
     "ipa": "/ənˈfɔrʧənətli/",
     "ko": "어느포르천어트리",
-    "meaning_pos": "불행하게도 (명)",
+    "meaning_pos": "불행하게도 (부)",
     "source": "auto"
   },
   "parade": {
@@ -6332,7 +6332,7 @@
   "luckily": {
     "ipa": "/ˈləkəli/",
     "ko": "러컬이",
-    "meaning_pos": "운 좋게도 (명)",
+    "meaning_pos": "운 좋게도 (부)",
     "source": "auto"
   },
   "wreck": {
