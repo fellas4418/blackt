@@ -127,10 +127,10 @@ LINE = HexColor("#9AA4AE")
 INK = HexColor("#20262D")
 LOGO_SHADOW = HexColor("#636262")  # trigger-logo-v2 그림자 샘플
 
-# 혼동 어휘(철자) — (word_a, tag_a|None, word_b, tag_b|None). tag는 단어 오른쪽 (타)/(자) 등.
+# 혼동 어휘(철자) — (word_a, tag_a|None, word_b, tag_b|None). tag는 단어 오른쪽 (타동사)/(자동사) 등.
 CONFUSABLE_SPELLING: list[tuple[str, str | None, str, str | None]] = [
     ("affect", None, "effect", None),
-    ("raise", "타", "rise", "자"),
+    ("raise", "타동사", "rise", "자동사"),
     ("adapt", None, "adopt", None),
     ("principal", None, "principle", None),
     ("purse", None, "pursue", None),
@@ -1708,14 +1708,13 @@ def draw_centered_word_with_diff(
     size: float,
     max_width: float,
 ) -> None:
-    """다른 철자는 진한 빨강+볼드, 같으면 검정 볼드. suffix(품사·타/자)는 슬레이트."""
+    """다른 철자는 진한 빨강+볼드, 같으면 검정 볼드. suffix(품사·타동사/자동사)는 슬레이트."""
     segs = spelling_diff_segments(word, other)[0]
 
     def total_w(sz: float) -> float:
         w = 0.0
-        for text, is_diff in segs:
-            font = FONT_BOLD
-            w += pdfmetrics.stringWidth(text, font, sz)
+        for text, _is_diff in segs:
+            w += pdfmetrics.stringWidth(text, FONT_BOLD, sz)
         if suffix:
             w += pdfmetrics.stringWidth(suffix, FONT_REGULAR, sz * 0.85)
         return w
@@ -1738,6 +1737,51 @@ def draw_centered_word_with_diff(
         c.drawString(x, y, suffix)
 
 
+def draw_boxed_ko_pron_with_diff(
+    c: canvas.Canvas,
+    cx: float,
+    baseline_y: float,
+    *,
+    ko: str,
+    other: str,
+    size: float,
+    max_width: float,
+) -> float:
+    """한글 발음 — 다른 글자만 빨강, 테두리 박스. 사용한 박스 너비 반환."""
+    if not ko:
+        return 0.0
+    segs = spelling_diff_segments(ko, other or ko)[0]
+    pad_x = 1.8 * mm
+    pad_y = 1.0 * mm
+
+    def text_w(sz: float) -> float:
+        return sum(pdfmetrics.stringWidth(t, FONT_BOLD, sz) for t, _ in segs)
+
+    sz = size
+    while sz > 7.0 and text_w(sz) + 2 * pad_x > max_width:
+        sz -= 0.2
+
+    tw = text_w(sz)
+    box_w = tw + 2 * pad_x
+    box_bottom = baseline_y - pad_y - sz * 0.18
+    box_top = baseline_y + sz * 0.82 + pad_y
+    box_h = box_top - box_bottom
+    box_x = cx - box_w / 2
+
+    c.setFillColor(white)
+    c.setStrokeColor(LINE)
+    c.setLineWidth(0.75)
+    c.roundRect(box_x, box_bottom, box_w, box_h, 1.1 * mm, fill=1, stroke=1)
+
+    x = cx - tw / 2
+    for text, is_diff in segs:
+        c.setFont(FONT_BOLD, sz)
+        c.setFillColor(DIFF_RED if is_diff else INK)
+        c.drawString(x, baseline_y, text)
+        x += pdfmetrics.stringWidth(text, FONT_BOLD, sz)
+    return box_w
+
+
 def draw_confusable_pairs_pages(
     c: canvas.Canvas,
     *,
@@ -1752,11 +1796,11 @@ def draw_confusable_pairs_pages(
     width, height = B5
     word_size = 20.0
     mean_size = 18.0
-    pron_size = 10.0
+    pron_size = 12.5
     no_size = 18.0
     pair_gap = 6.0 * mm
     # 단어+발음은 칸선 없이 한 블록, 뜻만 아래 칸
-    word_block_h = 18.5 * mm
+    word_block_h = 22.0 * mm
     mean_h = 11.0 * mm
     pair_h = word_block_h + mean_h
     no_w = 14 * mm
@@ -1853,7 +1897,7 @@ def draw_confusable_pairs_pages(
             left_cx = left + no_w + half_w / 2
             right_cx = left + no_w + half_w + half_w / 2
 
-            word_base = y - 6.2 * mm - word_size * 0.32
+            word_base = y - 5.8 * mm - word_size * 0.32
             draw_centered_word_with_diff(
                 c,
                 left_cx,
@@ -1875,35 +1919,23 @@ def draw_confusable_pairs_pages(
                 max_width=cell_max,
             )
 
-            pron_base = y - word_block_h + 3.2 * mm
+            pron_base = y - word_block_h + 4.2 * mm
 
-            def draw_pron(cx: float, ipa: str, ko: str) -> None:
-                ipa_show = ipa.strip()
-                if ipa_show and not ipa_show.startswith("/"):
-                    ipa_show = f"/{ipa_show.strip('/')}/"
-                gap = 2.2 * mm
-                ipa_w = pdfmetrics.stringWidth(ipa_show, FONT_IPA, pron_size) if ipa_show else 0
-                ko_w = pdfmetrics.stringWidth(ko, FONT_BOLD, pron_size) if ko else 0
-                total = ipa_w + (gap if ipa_show and ko else 0) + ko_w
-                sz = pron_size
-                while sz > 6.5 and total > cell_max:
-                    sz -= 0.2
-                    ipa_w = pdfmetrics.stringWidth(ipa_show, FONT_IPA, sz) if ipa_show else 0
-                    ko_w = pdfmetrics.stringWidth(ko, FONT_BOLD, sz) if ko else 0
-                    total = ipa_w + (gap if ipa_show and ko else 0) + ko_w
-                x = cx - total / 2
-                if ipa_show:
-                    c.setFont(FONT_IPA, sz)
-                    c.setFillColor(SLATE)
-                    c.drawString(x, pron_base, ipa_show)
-                    x += ipa_w + gap
-                if ko:
-                    c.setFont(FONT_BOLD, sz)
-                    c.setFillColor(INK)
-                    c.drawString(x, pron_base, ko)
+            def draw_pron(cx: float, ko: str, other_ko: str) -> None:
+                if not ko:
+                    return
+                draw_boxed_ko_pron_with_diff(
+                    c,
+                    cx,
+                    pron_base,
+                    ko=ko,
+                    other=other_ko,
+                    size=pron_size,
+                    max_width=cell_max,
+                )
 
-            draw_pron(left_cx, ipa_a, ko_a)
-            draw_pron(right_cx, ipa_b, ko_b)
+            draw_pron(left_cx, ko_a, ko_b)
+            draw_pron(right_cx, ko_b, ko_a)
 
             m_size = min(mean_size, fit_font_size(mean_a, FONT_REGULAR, mean_size, cell_max))
             m_size = min(m_size, fit_font_size(mean_b, FONT_REGULAR, mean_size, cell_max))
@@ -1922,7 +1954,7 @@ def draw_confusable_pairs_pages(
 
 
 def split_confusable_label(label: str) -> tuple[str, str]:
-    """'rise (자·동)' → ('rise', ' (자·동)')."""
+    """'rise (자동사)' → ('rise', ' (자동사)')."""
     m = re.match(r"^([A-Za-z]+)(.*)$", label.strip())
     if not m:
         return label, ""
