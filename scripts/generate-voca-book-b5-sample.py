@@ -1604,11 +1604,9 @@ def format_confusable_pair_cells(
     tag_a: str | None = None,
     tag_b: str | None = None,
 ) -> tuple[str, str, str, str]:
-    """단어·뜻 칸. 품사는 뜻에 표기. 같으면 오른쪽 뜻만, 다르면 양쪽."""
+    """단어·뜻 칸. 품사는 뜻에 양쪽 모두 표기. (타)/(자)만 단어 옆."""
     la = f"{word_a} ({tag_a})" if tag_a else word_a
     lb = f"{word_b} ({tag_b})" if tag_b else word_b
-    if pos_a and pos_b and pos_a == pos_b:
-        return la, mean_a, lb, f"{mean_b} ({pos_b})"
     ma = f"{mean_a} ({pos_a})" if pos_a else mean_a
     mb = f"{mean_b} ({pos_b})" if pos_b else mean_b
     return la, ma, lb, mb
