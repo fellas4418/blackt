@@ -454,7 +454,7 @@ holy|신성한
 sacred|신성한
 wire|철사, 전선
 million|100만
-classic|고전적인
+classic|일류의, 대표적인
 capture|포획하다
 miss|놓치다, 그리워하다
 humor|유머
@@ -987,7 +987,7 @@ harmful|해로운
 excite|흥분시키다
 reality|현실
 pitcher|투수, 물주전자
-classical|고전적인
+classical|고전주의의, 클래식 음악의
 energetic|활동적인
 cotton|면
 activity|활동

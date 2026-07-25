@@ -1914,7 +1914,7 @@ def draw_confusable_pairs_pages(
                     align="center",
                 )
             else:
-                subtitle_size = 19.0
+                subtitle_size = 16.0
                 draw_text(
                     c,
                     subtitle,
@@ -1922,7 +1922,7 @@ def draw_confusable_pairs_pages(
                     mid_y - subtitle_size * 0.35,
                     font=FONT_BOLD,
                     size=subtitle_size,
-                    color=SLATE,
+                    color=INK,
                     align="center",
                 )
             first_of_section = False
@@ -2577,18 +2577,18 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: 
     contents = build_middle_round1_contents_entries(days, include_covers=include_covers)
     draw_contents_page(
         c,
-        level_tag="MIDDLE",
+        level_tag="중등",
         entries=contents,
         page_no=contents_page_no,
         footer_note=build_middle_back_matter_note(days, include_covers=include_covers),
     )
-    draw_howto_page(c, level_tag="MIDDLE", page_no=contents_page_no + 1)
-    draw_pronunciation_guide(c, level_tag="MIDDLE", page_no=contents_page_no + 2)
+    draw_howto_page(c, level_tag="중등", page_no=contents_page_no + 1)
+    draw_pronunciation_guide(c, level_tag="중등", page_no=contents_page_no + 2)
     page_no = first_day_page
     for day_no, rows in enumerate(days, 1):
         draw_day_divider(
             c,
-            level_tag="MIDDLE",
+            level_tag="중등",
             day_no=day_no,
             rows=rows,
             page_no=page_no,
@@ -2596,7 +2596,7 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: 
         page_no += 1
         draw_day_log_page(
             c,
-            level_tag="MIDDLE",
+            level_tag="중등",
             day_no=day_no,
             word_count=len(rows),
             page_no=page_no,
@@ -2604,7 +2604,7 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: 
         page_no += 1
         draw_test_page(
             c,
-            level_tag="MIDDLE",
+            level_tag="중등",
             day_no=day_no,
             part_label="",
             rows=rows,
@@ -2614,7 +2614,7 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: 
         page_no += 1
         draw_practice_page(
             c,
-            level_tag="MIDDLE",
+            level_tag="중등",
             day_no=day_no,
             part_label="",
             rows=rows,
@@ -2625,7 +2625,7 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: 
 
     draw_random_review_divider(
         c,
-        level_tag="MIDDLE",
+        level_tag="중등",
         day_count=day_count,
         word_count=word_count,
         page_no=page_no,
@@ -2634,7 +2634,7 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: 
     for day_no, rows in enumerate(random_days, 1):
         draw_test_page(
             c,
-            level_tag="MIDDLE",
+            level_tag="중등",
             day_no=day_no,
             part_label="RANDOM",
             rows=rows,
@@ -2644,13 +2644,13 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: 
         page_no += 1
 
     meanings = {word: meaning for day_rows in days for word, meaning in day_rows}
-    draw_confusables_divider(c, level_tag="MIDDLE", page_no=page_no)
+    draw_confusables_divider(c, level_tag="중등", page_no=page_no)
     page_no += 1
     page_no = draw_confusables_spelling_page(
-        c, level_tag="MIDDLE", page_no=page_no, meanings=meanings, pronunciations=pron
+        c, level_tag="중등", page_no=page_no, meanings=meanings, pronunciations=pron
     )
     page_no = draw_confusables_derivation_page(
-        c, level_tag="MIDDLE", page_no=page_no, meanings=meanings, pronunciations=pron
+        c, level_tag="중등", page_no=page_no, meanings=meanings, pronunciations=pron
     )
 
     index_entries = build_word_index_entries(
@@ -2660,14 +2660,14 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: 
     )
     draw_index_divider(
         c,
-        level_tag="MIDDLE",
+        level_tag="중등",
         word_count=word_count,
         page_no=page_no,
     )
     page_no += 1
     page_no = draw_index_pages(
         c,
-        level_tag="MIDDLE",
+        level_tag="중등",
         entries=index_entries,
         start_page_no=page_no,
     )
