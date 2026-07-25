@@ -180,6 +180,194 @@ CONFUSABLE_DERIVATION: list[tuple[str, str, str, str]] = [
     ("classic", "형", "classical", "형"),
 ]
 
+# 혼동 어휘 — 실제 짧게 나는 한글 발음 (표기용)
+CONFUSABLE_KO_PRON: dict[str, str] = {
+    "affect": "어펙트",
+    "effect": "이펙트",
+    "raise": "레이즈",
+    "rise": "라이즈",
+    "adapt": "어댑트",
+    "adopt": "어답트",
+    "principal": "프린시펄",
+    "principle": "프린시플",
+    "purse": "퍼스",
+    "pursue": "퍼슈",
+    "garage": "개라지",
+    "garbage": "가비지",
+    "patent": "패튼트",
+    "patient": "페이션트",
+    "rely": "릴라이",
+    "reply": "리플라이",
+    "compete": "컴피트",
+    "complete": "컴플리트",
+    "past": "패스트",
+    "paste": "페이스트",
+    "pain": "페인",
+    "plain": "플레인",
+    "found": "파운드",
+    "fund": "펀드",
+    "exist": "이그지스트",
+    "exit": "엑시트",
+    "distinct": "디스팅트",
+    "district": "디스트릭트",
+    "thorough": "써로",
+    "though": "도우",
+    "effective": "이펙티브",
+    "efficient": "이피션트",
+    "content": "컨텐츠",
+    "continent": "콘티넌트",
+    "contract": "컨트랙트",
+    "contrast": "컨트라스트",
+    "factor": "팩터",
+    "factory": "팩토리",
+    "rid": "리드",
+    "ride": "라이드",
+    "sting": "스팅",
+    "string": "스트링",
+    "threat": "스렛",
+    "threaten": "스레튼",
+    "absent": "앱선트",
+    "absence": "앱선스",
+    "gradual": "그래주얼",
+    "gradually": "그래주얼리",
+    "immediate": "이미디엇",
+    "immediately": "이미디엇리",
+    "definite": "데피닛",
+    "definitely": "데피닛리",
+    "exhaust": "이그조스트",
+    "exhausted": "이그조스티드",
+    "concern": "컨선",
+    "concerned": "컨선드",
+    "explain": "익스플레인",
+    "explanation": "익스플러네이션",
+    "construct": "컨스트럭트",
+    "construction": "컨스트럭션",
+    "instruct": "인스트럭트",
+    "instruction": "인스트럭션",
+    "organize": "오거나이즈",
+    "organization": "오거나이제이션",
+    "solve": "솔브",
+    "solution": "솔루션",
+    "prove": "프루브",
+    "proof": "프루프",
+    "appear": "어피어",
+    "appearance": "어피어런스",
+    "attend": "어텐드",
+    "attention": "어텐션",
+    "attract": "어트랙트",
+    "attraction": "어트랙션",
+    "press": "프레스",
+    "pressure": "프레셔",
+    "produce": "프로듀스",
+    "product": "프로덕트",
+    "nature": "네이처",
+    "natural": "내추럴",
+    "announce": "어나운스",
+    "announcer": "어나운서",
+    "complain": "컴플레인",
+    "complaint": "컴플레인트",
+    "counsel": "카운슬",
+    "counselor": "카운슬러",
+    "contain": "컨테인",
+    "container": "컨테이너",
+    "classic": "클래식",
+    "classical": "클래시컬",
+}
+
+# 혼동 어휘 — 품사 한글자 (전부 수기, 빠짐 없이)
+CONFUSABLE_POS: dict[str, str] = {
+    "affect": "동",
+    "effect": "명",
+    "raise": "동",
+    "rise": "동",
+    "adapt": "동",
+    "adopt": "동",
+    "principal": "명",
+    "principle": "명",
+    "purse": "명",
+    "pursue": "동",
+    "garage": "명",
+    "garbage": "명",
+    "patent": "명",
+    "patient": "명",
+    "rely": "동",
+    "reply": "동",
+    "compete": "동",
+    "complete": "동",
+    "past": "명",
+    "paste": "동",
+    "pain": "명",
+    "plain": "형",
+    "found": "동",
+    "fund": "명",
+    "exist": "동",
+    "exit": "명",
+    "distinct": "형",
+    "district": "명",
+    "thorough": "형",
+    "though": "접",
+    "effective": "형",
+    "efficient": "형",
+    "content": "명",
+    "continent": "명",
+    "contract": "명",
+    "contrast": "동",
+    "factor": "명",
+    "factory": "명",
+    "rid": "동",
+    "ride": "동",
+    "sting": "동",
+    "string": "명",
+    "threat": "명",
+    "threaten": "동",
+    "absent": "형",
+    "absence": "명",
+    "gradual": "형",
+    "gradually": "부",
+    "immediate": "형",
+    "immediately": "부",
+    "definite": "형",
+    "definitely": "부",
+    "exhaust": "동",
+    "exhausted": "형",
+    "concern": "명",
+    "concerned": "형",
+    "explain": "동",
+    "explanation": "명",
+    "construct": "동",
+    "construction": "명",
+    "instruct": "동",
+    "instruction": "명",
+    "organize": "동",
+    "organization": "명",
+    "solve": "동",
+    "solution": "명",
+    "prove": "동",
+    "proof": "명",
+    "appear": "동",
+    "appearance": "명",
+    "attend": "동",
+    "attention": "명",
+    "attract": "동",
+    "attraction": "명",
+    "press": "동",
+    "pressure": "명",
+    "produce": "동",
+    "product": "명",
+    "nature": "명",
+    "natural": "형",
+    "announce": "동",
+    "announcer": "명",
+    "complain": "동",
+    "complaint": "명",
+    "counsel": "동",
+    "counselor": "명",
+    "contain": "동",
+    "container": "명",
+    "classic": "형",
+    "classical": "형",
+}
+
 # 중등 Day 1~3 발음 — (IPA, 한글) 수기 검수. 전체 1,200개는 data/middle_book_meta.json 이 우선.
 MIDDLE_PRON = {
     # Day 1
@@ -1387,30 +1575,22 @@ def plain_meaning_for_confusable(word: str, meanings: dict[str, str]) -> str:
 
 
 def confusable_pos_letter(word: str) -> str:
-    """품사 한글자. 수기 보정 → POS_MEANINGS."""
-    overrides = {
-        "factor": "명",
-        "principal": "명",
-        "patent": "명",
-        "patient": "명",
-        "past": "명",
-        "paste": "동",
-        "content": "명",
-        "contract": "명",
-        "thorough": "형",
-        "though": "접",
-        "effective": "형",
-        "efficient": "형",
-        "found": "동",
-        "fund": "명",
-        "rid": "동",
-        "ride": "동",
-    }
-    if word in overrides:
-        return overrides[word]
+    """품사 한글자 — 혼동 어휘는 CONFUSABLE_POS 고정."""
+    if word in CONFUSABLE_POS:
+        return CONFUSABLE_POS[word]
     raw = POS_MEANINGS.get(word, "")
     m = re.search(r"\(([명동형부접전관])\)", raw)
     return m.group(1) if m else ""
+
+
+def confusable_pron(
+    word: str,
+    pronunciations: dict[str, tuple[str, str]],
+) -> tuple[str, str]:
+    """IPA + 짧은 실발음 한글."""
+    ipa, ko = pronunciations.get(word, ("", ""))
+    ko = CONFUSABLE_KO_PRON.get(word, ko)
+    return ipa, ko
 
 
 def format_confusable_pair_cells(
@@ -1424,15 +1604,11 @@ def format_confusable_pair_cells(
     tag_a: str | None = None,
     tag_b: str | None = None,
 ) -> tuple[str, str, str, str]:
-    """단어·뜻 칸 문구. 같은 품사면 오른쪽 단어에만 (품사) 1회."""
+    """단어·뜻 칸. 품사는 뜻에 표기. 같으면 오른쪽 뜻만, 다르면 양쪽."""
     la = f"{word_a} ({tag_a})" if tag_a else word_a
-    if pos_a and pos_b and pos_a == pos_b:
-        if tag_b:
-            lb = f"{word_b} ({tag_b}·{pos_b})"
-        else:
-            lb = f"{word_b} ({pos_b})"
-        return la, mean_a, lb, mean_b
     lb = f"{word_b} ({tag_b})" if tag_b else word_b
+    if pos_a and pos_b and pos_a == pos_b:
+        return la, mean_a, lb, f"{mean_b} ({pos_b})"
     ma = f"{mean_a} ({pos_a})" if pos_a else mean_a
     mb = f"{mean_b} ({pos_b})" if pos_b else mean_b
     return la, ma, lb, mb
@@ -1766,8 +1942,8 @@ def draw_confusables_spelling_page(
         )
         wa, sa = split_confusable_label(la)
         wb, sb = split_confusable_label(lb)
-        ipa_a, ko_a = pronunciations.get(a, ("", ""))
-        ipa_b, ko_b = pronunciations.get(b, ("", ""))
+        ipa_a, ko_a = confusable_pron(a, pronunciations)
+        ipa_b, ko_b = confusable_pron(b, pronunciations)
         rows.append((wa, sa, ma, ipa_a, ko_a, wb, sb, mb, ipa_b, ko_b))
     return draw_confusable_pairs_pages(
         c,
@@ -1791,6 +1967,9 @@ def draw_confusables_derivation_page(
     """② 품사만 다른 동일 단어."""
     rows: list[tuple[str, str, str, str, str, str, str, str, str, str]] = []
     for a, pos_a, b, pos_b in CONFUSABLE_DERIVATION:
+        # 표기용 품사는 CONFUSABLE_POS 우선 (수기 고정)
+        pos_a = confusable_pos_letter(a) or pos_a
+        pos_b = confusable_pos_letter(b) or pos_b
         la, ma, lb, mb = format_confusable_pair_cells(
             a,
             plain_meaning_for_confusable(a, meanings),
@@ -1801,8 +1980,8 @@ def draw_confusables_derivation_page(
         )
         wa, sa = split_confusable_label(la)
         wb, sb = split_confusable_label(lb)
-        ipa_a, ko_a = pronunciations.get(a, ("", ""))
-        ipa_b, ko_b = pronunciations.get(b, ("", ""))
+        ipa_a, ko_a = confusable_pron(a, pronunciations)
+        ipa_b, ko_b = confusable_pron(b, pronunciations)
         rows.append((wa, sa, ma, ipa_a, ko_a, wb, sb, mb, ipa_b, ko_b))
     return draw_confusable_pairs_pages(
         c,
