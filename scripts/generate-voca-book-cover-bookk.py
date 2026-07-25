@@ -27,6 +27,7 @@ MARK_PATH = ROOT / "로고, 이미지" / "로고 최종.png"
 QR_PATH = ROOT / "로고, 이미지" / "qr-blackt.png"
 LOGO_ASPECT = 342 / 820
 _MARK_CACHE: dict[bool, ImageReader] = {}
+_MARK_TIGHT: ImageReader | None = None
 
 FONT_BOLD = "PretendardBold"
 FONT_REGULAR = "Pretendard"
@@ -65,6 +66,52 @@ def mark_reader(*, for_dark: bool = True) -> ImageReader:
 def draw_mark(c: canvas.Canvas, x: float, y: float, size: float) -> None:
     c.drawImage(
         mark_reader(for_dark=True),
+        x,
+        y,
+        width=size,
+        height=size,
+        preserveAspectRatio=True,
+        mask="auto",
+    )
+
+
+def mark_reader_tight() -> ImageReader:
+    """여백을 잘라 T가 박스에 꽉 차게 — 책등에서 제목 높이와 맞출 때 사용."""
+    global _MARK_TIGHT
+    if _MARK_TIGHT is None:
+        img = PILImage.open(MARK_PATH).convert("RGBA")
+        pixels = img.load()
+        w, h = img.size
+        for y in range(h):
+            for x in range(w):
+                r, g, b, a = pixels[x, y]
+                if r < 45 and g < 45 and b < 45:
+                    pixels[x, y] = (0, 0, 0, 0)
+        bbox = img.getbbox()
+        if bbox:
+            pad = 4
+            left, top, right, bottom = bbox
+            img = img.crop(
+                (
+                    max(0, left - pad),
+                    max(0, top - pad),
+                    min(w, right + pad),
+                    min(h, bottom + pad),
+                )
+            )
+        side = max(img.size)
+        square = PILImage.new("RGBA", (side, side), (0, 0, 0, 0))
+        square.paste(img, ((side - img.size[0]) // 2, (side - img.size[1]) // 2), img)
+        buf = BytesIO()
+        square.save(buf, format="PNG")
+        buf.seek(0)
+        _MARK_TIGHT = ImageReader(buf)
+    return _MARK_TIGHT
+
+
+def draw_spine_mark(c: canvas.Canvas, x: float, y: float, size: float) -> None:
+    c.drawImage(
+        mark_reader_tight(),
         x,
         y,
         width=size,
