@@ -1165,6 +1165,64 @@ def draw_random_review_divider(
     c.showPage()
 
 
+def draw_index_divider(
+    c: canvas.Canvas,
+    *,
+    level_tag: str,
+    word_count: int,
+    page_no: int,
+) -> None:
+    """색인 구간 앞에 두는 표지 간지."""
+    width, height = B5
+    c.setFillColor(NAVY)
+    c.rect(0, 0, width, height, fill=1, stroke=0)
+    c.setStrokeColor(white)
+    c.setLineWidth(1)
+    c.roundRect(10 * mm, 10 * mm, width - 20 * mm, height - 20 * mm, 4 * mm, fill=0, stroke=1)
+
+    center_y = height * 0.62
+    draw_text(c, "WORD", width / 2, center_y + 34 * mm, font=FONT_BOLD, size=22, color=PALE, align="center")
+    draw_text(c, "INDEX", width / 2, center_y + 6 * mm, font=FONT_BOLD, size=56, color=white, align="center")
+    draw_text(c, "색인", width / 2, center_y - 22 * mm, font=FONT_BOLD, size=16, color=white, align="center")
+
+    bar_w = 36 * mm
+    c.setFillColor(NEON_BLUE)
+    c.rect((width - bar_w) / 2, center_y - 30 * mm, bar_w, 1.4 * mm, fill=1, stroke=0)
+    draw_text(
+        c,
+        f"{word_count} WORDS · A–Z",
+        width / 2,
+        center_y - 40 * mm,
+        font=FONT_BOLD,
+        size=11,
+        color=white,
+        align="center",
+    )
+
+    margin_left, margin_right = page_margins_x(page_no)
+    left = margin_left
+    right = width - margin_right
+    note_lines = [
+        "영단어를 알파벳 순으로 찾아",
+        "Day·TEST 페이지를 확인할 수 있습니다.",
+    ]
+    note_top = center_y - 58 * mm
+    for index, line in enumerate(note_lines):
+        draw_text(
+            c,
+            line,
+            width / 2,
+            note_top - index * 9 * mm,
+            size=16,
+            color=PALE,
+            align="center",
+            max_width=right - left,
+        )
+
+    draw_page_footer(c, page_no, level_tag)
+    c.showPage()
+
+
 def draw_day_log_page(
     c: canvas.Canvas,
     *,
@@ -1710,6 +1768,13 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: 
         first_day_page=first_day_page,
         pages_per_day=MIDDLE_PAGES_PER_DAY_ROUND1,
     )
+    draw_index_divider(
+        c,
+        level_tag="MIDDLE",
+        word_count=word_count,
+        page_no=page_no,
+    )
+    page_no += 1
     page_no = draw_index_pages(
         c,
         level_tag="MIDDLE",
