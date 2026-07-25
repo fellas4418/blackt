@@ -256,7 +256,7 @@ def draw_spine(c: canvas.Canvas, x0: float, y0: float, spine_w: float, h: float)
     c.rotate(90)
 
     title = "TRIGGER VOCA  ·  중등"
-    # 대문자 높이 ≈ 0.72em → band의 2/3 (이전 풀사이즈 대비)
+    # 제목은 책등 폭의 2/3, 로고는 제목 대문자와 같은 시각 높이(여백 크롭)
     title_size = (band / mm) * (72.0 / 25.4) / 0.72 * (2.0 / 3.0)
     end_margin = 10 * mm
     gap = 2.5 * mm
@@ -264,15 +264,15 @@ def draw_spine(c: canvas.Canvas, x0: float, y0: float, spine_w: float, h: float)
     # 로컬 +x = 책 위쪽. 읽기 기준 왼쪽 끝 = 책 아래쪽
     mark_x = -(h / 2) + end_margin
     avail_end = h / 2 - end_margin
-    # 길이 넘치면 제목·로고 함께 축소 (높이 비율 유지)
     while True:
-        mark_size = title_size * 0.72 * (25.4 / 72.0) * mm
+        # 대문자 높이 ≈ 0.72em — 크롭된 T가 이 높이에 맞춤
+        mark_size = min(band, title_size * 0.72 * (25.4 / 72.0) * mm)
         avail = avail_end - (mark_x + mark_size + gap)
         if title_size <= 8 or pdfmetrics.stringWidth(title, FONT_BOLD, title_size) <= avail:
             break
         title_size *= 0.99
 
-    draw_mark(c, mark_x, -mark_size / 2, mark_size)
+    draw_spine_mark(c, mark_x, -mark_size / 2, mark_size)
 
     title_left = mark_x + mark_size + gap
     title_center = title_left + avail / 2
