@@ -1324,7 +1324,8 @@ def draw_index_divider(
     )
     guide_lines = [
         "왼쪽 영단어 · 오른쪽 D(Day) · TEST 페이지",
-        "예) abandon → Day 25 · TEST p.102",
+        "예) abandon D25 · 102",
+        "abandon → Day 25 · 테스트 102페이지",
     ]
     guide_top = sample_y - 12 * mm
     for index, line in enumerate(guide_lines):
