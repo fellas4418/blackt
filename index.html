@@ -1707,12 +1707,9 @@
             persistLoginMirror(name, phone);
             checkLoginStatus(); 
 
-            if (isNewSignup && referredBy && typeof TriggerCredit !== 'undefined') {
-                TriggerCredit.reportReferralSignup(referredBy, phone);
-            }
-
             if (isNewSignup) {
                 let sheetIsNewUser = true;
+                let authData = null;
                 try {
                     const base = INDEX_STREAK_WORKER.replace(/\/$/, '');
                     const authRes = await fetch(base + '/api/auth/simple', {
@@ -1725,9 +1722,22 @@
                             referrer: referredBy || ''
                         })
                     });
-                    const authData = await authRes.json().catch(function () { return {}; });
+                    authData = await authRes.json().catch(function () { return {}; });
                     if (authRes.ok && authData.ok && authData.is_new_user === false) {
                         sheetIsNewUser = false;
+                    }
+                    if (
+                        sheetIsNewUser &&
+                        referredBy &&
+                        authRes.ok &&
+                        authData &&
+                        authData.ok &&
+                        typeof TriggerCredit !== 'undefined'
+                    ) {
+                        TriggerCredit.reportReferralSignup(referredBy, phone, {
+                            user_id: String(authData.user_id || '').trim(),
+                            password: String(authData.auth_password || '').trim()
+                        });
                     }
                 } catch (e) {}
 

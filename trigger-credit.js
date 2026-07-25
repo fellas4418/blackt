@@ -123,25 +123,54 @@
             });
     }
 
-    function reportReferralSignup(referrerId, refereePhone) {
+    function fetchSimpleAuth() {
+        var name = String(localStorage.getItem('trigger_name') || '').trim();
+        var phone = normalizePhone(localStorage.getItem('trigger_phone'));
+        if (!name || !/^010\d{8}$/.test(phone)) return Promise.resolve(null);
+        return postReferralApi('/api/auth/simple', { name: name, phone: phone }).then(function (data) {
+            if (!data || !data.ok) return null;
+            var userId = String(data.user_id || '').trim();
+            var password = String(data.auth_password || '').trim();
+            if (!userId || !password) return null;
+            return { user_id: userId, password: password, is_new_user: !!data.is_new_user };
+        });
+    }
+
+    function reportReferralSignup(referrerId, refereePhone, authOpt) {
         referrerId = String(referrerId || '').trim();
         var phone = normalizePhone(refereePhone);
-        if (!referrerId || !/^010\d{8}$/.test(phone)) return;
-        if (referrerId === referralIdFromPhone(phone)) return;
-        clearReferredBy();
-        postReferralApi('/api/referral/signup', {
-            referrer_id: referrerId,
-            referee_phone: phone
-        });
+        if (!referrerId || !/^010\d{8}$/.test(phone)) return Promise.resolve(false);
+        if (referrerId === referralIdFromPhone(phone)) return Promise.resolve(false);
+        var send = function (auth) {
+            if (!auth || !auth.user_id || !auth.password) return false;
+            clearReferredBy();
+            return postReferralApi('/api/referral/signup', {
+                referrer_id: referrerId,
+                referee_phone: phone,
+                user_id: auth.user_id,
+                password: auth.password
+            }).then(function () {
+                return true;
+            });
+        };
+        if (authOpt && authOpt.user_id && authOpt.password) return Promise.resolve(send(authOpt));
+        return fetchSimpleAuth().then(send);
     }
 
     function syncReferralCreditsFromServer() {
         var myId = getMyReferralId();
         if (!myId || myId.charAt(0) !== 'r') return Promise.resolve(0);
-        return postReferralApi('/api/referral/claim', { referrer_id: myId }).then(function (data) {
-            var count = data && Number(data.count) > 0 ? Number(data.count) : 0;
-            if (!count) return 0;
-            return addCredit(count * APP_SHARE_REFERRAL_BONUS, '앱 공유 · 신규 가입 ' + count + '명');
+        return fetchSimpleAuth().then(function (auth) {
+            if (!auth) return 0;
+            return postReferralApi('/api/referral/claim', {
+                referrer_id: myId,
+                user_id: auth.user_id,
+                password: auth.password
+            }).then(function (data) {
+                var count = data && Number(data.count) > 0 ? Number(data.count) : 0;
+                if (!count) return 0;
+                return addCredit(count * APP_SHARE_REFERRAL_BONUS, '앱 공유 · 신규 가입 ' + count + '명');
+            });
         });
     }
 
