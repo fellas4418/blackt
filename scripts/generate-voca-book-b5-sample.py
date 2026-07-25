@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import random
 import re
+from difflib import SequenceMatcher
 from io import BytesIO
 from pathlib import Path
 
@@ -1494,6 +1495,60 @@ def draw_confusables_divider(
     c.showPage()
 
 
+def spelling_diff_segments(word_a: str, word_b: str) -> tuple[list[tuple[str, bool]], list[tuple[str, bool]]]:
+    """글자 단위 비교 — 다른 구간만 True (SequenceMatcher)."""
+    segs_a: list[tuple[str, bool]] = []
+    segs_b: list[tuple[str, bool]] = []
+    for tag, i1, i2, j1, j2 in SequenceMatcher(None, word_a.lower(), word_b.lower()).get_opcodes():
+        is_diff = tag != "equal"
+        if i1 != i2:
+            segs_a.append((word_a[i1:i2], is_diff))
+        if j1 != j2:
+            segs_b.append((word_b[j1:j2], is_diff))
+    return segs_a or [(word_a, False)], segs_b or [(word_b, False)]
+
+
+def draw_centered_word_with_diff(
+    c: canvas.Canvas,
+    cx: float,
+    y: float,
+    *,
+    word: str,
+    other: str,
+    suffix: str,
+    size: float,
+    max_width: float,
+) -> None:
+    """다른 철자는 오렌지+볼드, 같으면 검정 볼드. suffix(품사·타/자)는 슬레이트."""
+    segs = spelling_diff_segments(word, other)[0]
+
+    def total_w(sz: float) -> float:
+        w = 0.0
+        for text, is_diff in segs:
+            font = FONT_BOLD
+            w += pdfmetrics.stringWidth(text, font, sz)
+        if suffix:
+            w += pdfmetrics.stringWidth(suffix, FONT_REGULAR, sz * 0.85)
+        return w
+
+    sz = size
+    while sz > 8.0 and total_w(sz) > max_width:
+        sz -= 0.2
+
+    tw = total_w(sz)
+    x = cx - tw / 2
+    for text, is_diff in segs:
+        c.setFont(FONT_BOLD, sz)
+        c.setFillColor(ORANGE if is_diff else INK)
+        c.drawString(x, y, text)
+        x += pdfmetrics.stringWidth(text, FONT_BOLD, sz)
+    if suffix:
+        suf_sz = sz * 0.85
+        c.setFont(FONT_REGULAR, suf_sz)
+        c.setFillColor(SLATE)
+        c.drawString(x, y, suffix)
+
+
 def draw_confusable_pairs_pages(
     c: canvas.Canvas,
     *,
@@ -1501,16 +1556,19 @@ def draw_confusable_pairs_pages(
     start_page_no: int,
     banner: str,
     subtitle: str,
-    rows: list[tuple[str, str, str, str]],
+    rows: list[tuple[str, str, str, str, str, str, str, str]],
 ) -> int:
-    """페어마다 표 1개: 왼쪽 번호(2행 합침) + 오른쪽 2×2(단어/뜻, 가운데 정렬)."""
+    """페어 표: 번호 + 3행(단어·발음·뜻) × 2열. 다른 철자 강조 + IPA/한글 발음."""
     width, height = B5
     word_size = 20.0
     mean_size = 18.0
+    pron_size = 10.0  # 단어의 절반
     no_size = 18.0
-    pair_gap = 6.0 * mm  # 기존 3mm의 2배
-    cell_h = 11.5 * mm
-    pair_h = cell_h * 2
+    pair_gap = 6.0 * mm
+    word_h = 11.0 * mm
+    pron_h = 8.0 * mm
+    mean_h = 11.0 * mm
+    pair_h = word_h + pron_h + mean_h
     no_w = 14 * mm
 
     page_no = start_page_no
@@ -1551,7 +1609,7 @@ def draw_confusable_pairs_pages(
         while idx < len(rows):
             if y - pair_h < TABLE_BOTTOM:
                 break
-            left_label, left_mean, right_label, right_mean = rows[idx]
+            word_a, suf_a, mean_a, ipa_a, ko_a, word_b, suf_b, mean_b, ipa_b, ko_b = rows[idx]
             pair_no = idx + 1
             bottom = y - pair_h
 
@@ -1562,7 +1620,8 @@ def draw_confusable_pairs_pages(
             c.setLineWidth(0.55)
             c.rect(left, bottom, table_w, pair_h, fill=0, stroke=1)
             c.line(left + no_w, bottom, left + no_w, y)
-            c.line(left + no_w, y - cell_h, right, y - cell_h)
+            c.line(left + no_w, y - word_h, right, y - word_h)
+            c.line(left + no_w, y - word_h - pron_h, right, y - word_h - pron_h)
             c.line(left + no_w + half_w, bottom, left + no_w + half_w, y)
 
             draw_text(
@@ -1575,58 +1634,70 @@ def draw_confusable_pairs_pages(
                 align="center",
             )
 
-            word_max = half_w - 4 * mm
-            mean_max = half_w - 4 * mm
-            w_size = min(word_size, fit_font_size(left_label, FONT_BOLD, word_size, word_max))
-            w_size = min(w_size, fit_font_size(right_label, FONT_BOLD, word_size, word_max))
-            m_size = min(mean_size, fit_font_size(left_mean, FONT_REGULAR, mean_size, mean_max))
-            m_size = min(m_size, fit_font_size(right_mean, FONT_REGULAR, mean_size, mean_max))
-
+            cell_max = half_w - 4 * mm
             left_cx = left + no_w + half_w / 2
             right_cx = left + no_w + half_w + half_w / 2
-            top_base = y - cell_h / 2 - w_size * 0.32
-            bot_base = bottom + cell_h / 2 - m_size * 0.32
 
-            draw_text(
+            # 1) 단어 (다른 철자 강조)
+            word_base = y - word_h / 2 - word_size * 0.32
+            draw_centered_word_with_diff(
                 c,
-                left_label,
                 left_cx,
-                top_base,
-                font=FONT_BOLD,
-                size=w_size,
-                align="center",
-                max_width=word_max,
+                word_base,
+                word=word_a,
+                other=word_b,
+                suffix=suf_a,
+                size=word_size,
+                max_width=cell_max,
             )
-            draw_text(
+            draw_centered_word_with_diff(
                 c,
-                right_label,
                 right_cx,
-                top_base,
-                font=FONT_BOLD,
-                size=w_size,
-                align="center",
-                max_width=word_max,
+                word_base,
+                word=word_b,
+                other=word_a,
+                suffix=suf_b,
+                size=word_size,
+                max_width=cell_max,
             )
-            draw_text(
-                c,
-                left_mean,
-                left_cx,
-                bot_base,
-                size=m_size,
-                color=SLATE,
-                align="center",
-                max_width=mean_max,
-            )
-            draw_text(
-                c,
-                right_mean,
-                right_cx,
-                bot_base,
-                size=m_size,
-                color=SLATE,
-                align="center",
-                max_width=mean_max,
-            )
+
+            # 2) 발음 IPA + 한글 (나란히, 절반 크기)
+            pron_base = y - word_h - pron_h / 2 - pron_size * 0.32
+
+            def draw_pron(cx: float, ipa: str, ko: str) -> None:
+                ipa_show = ipa.strip()
+                if ipa_show and not ipa_show.startswith("/"):
+                    ipa_show = f"/{ipa_show.strip('/')}/"
+                gap = 2.2 * mm
+                ipa_w = pdfmetrics.stringWidth(ipa_show, FONT_IPA, pron_size) if ipa_show else 0
+                ko_w = pdfmetrics.stringWidth(ko, FONT_REGULAR, pron_size) if ko else 0
+                total = ipa_w + (gap if ipa_show and ko else 0) + ko_w
+                sz = pron_size
+                while sz > 6.5 and total > cell_max:
+                    sz -= 0.2
+                    ipa_w = pdfmetrics.stringWidth(ipa_show, FONT_IPA, sz) if ipa_show else 0
+                    ko_w = pdfmetrics.stringWidth(ko, FONT_REGULAR, sz) if ko else 0
+                    total = ipa_w + (gap if ipa_show and ko else 0) + ko_w
+                x = cx - total / 2
+                if ipa_show:
+                    c.setFont(FONT_IPA, sz)
+                    c.setFillColor(SLATE)
+                    c.drawString(x, pron_base, ipa_show)
+                    x += ipa_w + gap
+                if ko:
+                    c.setFont(FONT_REGULAR, sz)
+                    c.setFillColor(SLATE)
+                    c.drawString(x, pron_base, ko)
+
+            draw_pron(left_cx, ipa_a, ko_a)
+            draw_pron(right_cx, ipa_b, ko_b)
+
+            # 3) 뜻
+            m_size = min(mean_size, fit_font_size(mean_a, FONT_REGULAR, mean_size, cell_max))
+            m_size = min(m_size, fit_font_size(mean_b, FONT_REGULAR, mean_size, cell_max))
+            mean_base = bottom + mean_h / 2 - m_size * 0.32
+            draw_text(c, mean_a, left_cx, mean_base, size=m_size, color=SLATE, align="center", max_width=cell_max)
+            draw_text(c, mean_b, right_cx, mean_base, size=m_size, color=SLATE, align="center", max_width=cell_max)
 
             y = bottom - pair_gap
             idx += 1
@@ -1638,37 +1709,49 @@ def draw_confusable_pairs_pages(
     return page_no
 
 
+def split_confusable_label(label: str) -> tuple[str, str]:
+    """'rise (자·동)' → ('rise', ' (자·동)')."""
+    m = re.match(r"^([A-Za-z]+)(.*)$", label.strip())
+    if not m:
+        return label, ""
+    return m.group(1), m.group(2)
+
+
 def draw_confusables_spelling_page(
     c: canvas.Canvas,
     *,
     level_tag: str,
     page_no: int,
     meanings: dict[str, str],
+    pronunciations: dict[str, tuple[str, str]],
 ) -> int:
     """① 철자가 비슷한 단어."""
-    rows: list[tuple[str, str, str, str]] = []
+    rows: list[tuple[str, str, str, str, str, str, str, str, str, str]] = []
     for a, tag_a, b, tag_b in CONFUSABLE_SPELLING:
         pos_a = confusable_pos_letter(a)
         pos_b = confusable_pos_letter(b)
-        rows.append(
-            format_confusable_pair_cells(
-                a,
-                plain_meaning_for_confusable(a, meanings),
-                pos_a,
-                b,
-                plain_meaning_for_confusable(b, meanings),
-                pos_b,
-                tag_a=tag_a,
-                tag_b=tag_b,
-            )
+        la, ma, lb, mb = format_confusable_pair_cells(
+            a,
+            plain_meaning_for_confusable(a, meanings),
+            pos_a,
+            b,
+            plain_meaning_for_confusable(b, meanings),
+            pos_b,
+            tag_a=tag_a,
+            tag_b=tag_b,
         )
+        wa, sa = split_confusable_label(la)
+        wb, sb = split_confusable_label(lb)
+        ipa_a, ko_a = pronunciations.get(a, ("", ""))
+        ipa_b, ko_b = pronunciations.get(b, ("", ""))
+        rows.append((wa, sa, ma, ipa_a, ko_a, wb, sb, mb, ipa_b, ko_b))
     return draw_confusable_pairs_pages(
         c,
         level_tag=level_tag,
         start_page_no=page_no,
         banner="혼동 어휘 ①",
         subtitle="철자가 비슷한 단어",
-        rows=rows,
+        rows=rows,  # type: ignore[arg-type]
     )
 
 
@@ -1678,27 +1761,31 @@ def draw_confusables_derivation_page(
     level_tag: str,
     page_no: int,
     meanings: dict[str, str],
+    pronunciations: dict[str, tuple[str, str]],
 ) -> int:
     """② 품사만 다른 동일 단어."""
-    rows: list[tuple[str, str, str, str]] = []
+    rows: list[tuple[str, str, str, str, str, str, str, str, str, str]] = []
     for a, pos_a, b, pos_b in CONFUSABLE_DERIVATION:
-        rows.append(
-            format_confusable_pair_cells(
-                a,
-                plain_meaning_for_confusable(a, meanings),
-                pos_a,
-                b,
-                plain_meaning_for_confusable(b, meanings),
-                pos_b,
-            )
+        la, ma, lb, mb = format_confusable_pair_cells(
+            a,
+            plain_meaning_for_confusable(a, meanings),
+            pos_a,
+            b,
+            plain_meaning_for_confusable(b, meanings),
+            pos_b,
         )
+        wa, sa = split_confusable_label(la)
+        wb, sb = split_confusable_label(lb)
+        ipa_a, ko_a = pronunciations.get(a, ("", ""))
+        ipa_b, ko_b = pronunciations.get(b, ("", ""))
+        rows.append((wa, sa, ma, ipa_a, ko_a, wb, sb, mb, ipa_b, ko_b))
     return draw_confusable_pairs_pages(
         c,
         level_tag=level_tag,
         start_page_no=page_no,
         banner="혼동 어휘 ②",
         subtitle="품사만 다른 동일 단어",
-        rows=rows,
+        rows=rows,  # type: ignore[arg-type]
     )
 
 
@@ -2245,8 +2332,12 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: 
     meanings = {word: meaning for day_rows in days for word, meaning in day_rows}
     draw_confusables_divider(c, level_tag="MIDDLE", page_no=page_no)
     page_no += 1
-    page_no = draw_confusables_spelling_page(c, level_tag="MIDDLE", page_no=page_no, meanings=meanings)
-    page_no = draw_confusables_derivation_page(c, level_tag="MIDDLE", page_no=page_no, meanings=meanings)
+    page_no = draw_confusables_spelling_page(
+        c, level_tag="MIDDLE", page_no=page_no, meanings=meanings, pronunciations=pron
+    )
+    page_no = draw_confusables_derivation_page(
+        c, level_tag="MIDDLE", page_no=page_no, meanings=meanings, pronunciations=pron
+    )
 
     index_entries = build_word_index_entries(
         days,
