@@ -148,6 +148,7 @@ CONFUSABLE_SPELLING: list[tuple[str, str | None, str, str | None]] = [
     ("content", None, "continent", None),
     ("contract", None, "contrast", None),
     ("factor", None, "factory", None),
+    ("produce", None, "product", None),
     ("rid", None, "ride", None),
     ("sting", None, "string", None),
 ]
@@ -171,7 +172,6 @@ CONFUSABLE_DERIVATION: list[tuple[str, str, str, str]] = [
     ("attend", "동", "attention", "명"),
     ("attract", "동", "attraction", "명"),
     ("press", "동", "pressure", "명"),
-    ("produce", "동", "product", "명"),
     ("nature", "명", "natural", "형"),
     ("announce", "동", "announcer", "명"),
     ("complain", "동", "complaint", "명"),
