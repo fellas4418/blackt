@@ -1659,25 +1659,21 @@ def draw_confusables_divider(
         "품사만 다른 동일 단어들을 모아 두었습니다.",
     ]
     note_size = 16.0
-    text_left = bar_left  # 가로바 왼쪽 끝과 정렬
 
-    section_lines = ["① 철자", "② 품사"]
     section_size = note_size  # 안내문과 동일
-    section_gap = 8.0 * mm
     section_top = center_y - 26 * mm
-    for index, line in enumerate(section_lines):
-        draw_text(
-            c,
-            line,
-            text_left,
-            section_top - index * section_gap,
-            font=FONT_BOLD,
-            size=section_size,
-            color=white,
-            align="left",
-        )
+    draw_text(
+        c,
+        "철자 / 품사 혼동 어휘",
+        width / 2,
+        section_top,
+        font=FONT_BOLD,
+        size=section_size,
+        color=white,
+        align="center",
+    )
 
-    note_top = section_top - len(section_lines) * section_gap - 6 * mm
+    note_top = section_top - 12 * mm
     for index, line in enumerate(note_lines):
         draw_text(
             c,
