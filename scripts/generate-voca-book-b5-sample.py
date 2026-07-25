@@ -1182,11 +1182,21 @@ def draw_index_divider(
     c.roundRect(10 * mm, 10 * mm, width - 20 * mm, height - 20 * mm, 4 * mm, fill=0, stroke=1)
 
     center_y = height * 0.62
-    draw_text(c, "WORD", width / 2, center_y + 34 * mm, font=FONT_BOLD, size=22, color=PALE, align="center")
     draw_text(c, "INDEX", width / 2, center_y + 6 * mm, font=FONT_BOLD, size=56, color=white, align="center")
-    draw_text(c, "색인", width / 2, center_y - 22 * mm, font=FONT_BOLD, size=16, color=white, align="center")
+    subtitle = "단어 찾기 색인"
+    subtitle_size = 16
+    draw_text(
+        c,
+        subtitle,
+        width / 2,
+        center_y - 22 * mm,
+        font=FONT_BOLD,
+        size=subtitle_size,
+        color=white,
+        align="center",
+    )
 
-    bar_w = 36 * mm
+    bar_w = pdfmetrics.stringWidth(subtitle, FONT_BOLD, subtitle_size)
     c.setFillColor(NEON_BLUE)
     c.rect((width - bar_w) / 2, center_y - 30 * mm, bar_w, 1.4 * mm, fill=1, stroke=0)
     draw_text(
@@ -1215,6 +1225,48 @@ def draw_index_divider(
             width / 2,
             note_top - index * 9 * mm,
             size=16,
+            color=PALE,
+            align="center",
+            max_width=right - left,
+        )
+
+    # 표기 예시 + 안내
+    sample_y = note_top - 2 * 9 * mm - 16 * mm
+    sample_w = 72 * mm
+    sample_x = (width - sample_w) / 2
+    c.setStrokeColor(HexColor("#3A3A3A"))
+    c.setLineWidth(0.6)
+    c.roundRect(sample_x, sample_y - 4 * mm, sample_w, 12 * mm, 1.5 * mm, fill=0, stroke=1)
+    draw_text(
+        c,
+        "abandon",
+        sample_x + 3 * mm,
+        sample_y + 0.5 * mm,
+        font=FONT_BOLD,
+        size=11,
+        color=white,
+    )
+    draw_text(
+        c,
+        "D25 · 102",
+        sample_x + sample_w - 3 * mm,
+        sample_y + 0.5 * mm,
+        size=11,
+        color=PALE,
+        align="right",
+    )
+    guide_lines = [
+        "왼쪽 영단어 · 오른쪽 D(Day) · TEST 페이지",
+        "예) abandon → Day 25 · TEST p.102",
+    ]
+    guide_top = sample_y - 12 * mm
+    for index, line in enumerate(guide_lines):
+        draw_text(
+            c,
+            line,
+            width / 2,
+            guide_top - index * 6.5 * mm,
+            size=11,
             color=PALE,
             align="center",
             max_width=right - left,
