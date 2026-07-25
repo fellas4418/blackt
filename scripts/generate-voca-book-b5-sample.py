@@ -124,6 +124,59 @@ LINE = HexColor("#9AA4AE")
 INK = HexColor("#20262D")
 LOGO_SHADOW = HexColor("#636262")  # trigger-logo-v2 그림자 샘플
 
+# CONFUSABLES — (word_a, tag_a|None, word_b, tag_b|None). tag는 단어 오른쪽 (타)/(자) 등.
+CONFUSABLE_SPELLING: list[tuple[str, str | None, str, str | None]] = [
+    ("affect", None, "effect", None),
+    ("raise", "타", "rise", "자"),
+    ("adapt", None, "adopt", None),
+    ("principal", None, "principle", None),
+    ("purse", None, "pursue", None),
+    ("garage", None, "garbage", None),
+    ("patent", None, "patient", None),
+    ("rely", None, "reply", None),
+    ("compete", None, "complete", None),
+    ("past", None, "paste", None),
+    ("pain", None, "plain", None),
+    ("found", None, "fund", None),
+    ("exist", None, "exit", None),
+    ("distinct", None, "district", None),
+    ("thorough", None, "though", None),
+    ("effective", None, "efficient", None),
+    ("content", None, "continent", None),
+    ("contract", None, "contrast", None),
+    ("factor", None, "factory", None),
+    ("rid", None, "ride", None),
+    ("sting", None, "string", None),
+]
+
+# CONFUSABLES 어족 — 품사 한글자(수기). 메타 오표기 보정 포함.
+CONFUSABLE_DERIVATION: list[tuple[str, str, str, str]] = [
+    ("threat", "명", "threaten", "동"),
+    ("absent", "형", "absence", "명"),
+    ("gradual", "형", "gradually", "부"),
+    ("immediate", "형", "immediately", "부"),
+    ("definite", "형", "definitely", "부"),
+    ("exhaust", "동", "exhausted", "형"),
+    ("concern", "명", "concerned", "형"),
+    ("explain", "동", "explanation", "명"),
+    ("construct", "동", "construction", "명"),
+    ("instruct", "동", "instruction", "명"),
+    ("organize", "동", "organization", "명"),
+    ("solve", "동", "solution", "명"),
+    ("prove", "동", "proof", "명"),
+    ("appear", "동", "appearance", "명"),
+    ("attend", "동", "attention", "명"),
+    ("attract", "동", "attraction", "명"),
+    ("press", "동", "pressure", "명"),
+    ("produce", "동", "product", "명"),
+    ("nature", "명", "natural", "형"),
+    ("announce", "동", "announcer", "명"),
+    ("complain", "동", "complaint", "명"),
+    ("counsel", "동", "counselor", "명"),
+    ("contain", "동", "container", "명"),
+    ("classic", "형", "classical", "형"),
+]
+
 # 중등 Day 1~3 발음 — (IPA, 한글) 수기 검수. 전체 1,200개는 data/middle_book_meta.json 이 우선.
 MIDDLE_PRON = {
     # Day 1
@@ -1323,6 +1376,248 @@ def draw_index_divider(
     c.showPage()
 
 
+def plain_meaning_for_confusable(word: str, meanings: dict[str, str]) -> str:
+    """뜻에서 (명)(동) 등 품사 표기를 제거."""
+    raw = POS_MEANINGS.get(word) or meanings.get(word, "")
+    return re.sub(r"\s*\([명동형부접전관]+\)", "", raw).strip().rstrip(",").strip()
+
+
+def draw_confusables_divider(
+    c: canvas.Canvas,
+    *,
+    level_tag: str,
+    page_no: int,
+) -> None:
+    """CONFUSABLES 구간 앞 간지."""
+    width, height = B5
+    c.setFillColor(NAVY)
+    c.rect(0, 0, width, height, fill=1, stroke=0)
+    c.setStrokeColor(white)
+    c.setLineWidth(1)
+    c.roundRect(10 * mm, 10 * mm, width - 20 * mm, height - 20 * mm, 4 * mm, fill=0, stroke=1)
+
+    draw_divider_mark(c, width, height)
+    center_y = height * 0.62
+    draw_text(c, "CONFUSABLES", width / 2, center_y + 6 * mm, font=FONT_BOLD, size=42, color=white, align="center")
+    subtitle = "헷갈리기 쉬운 단어"
+    subtitle_size = 16
+    draw_text(
+        c,
+        subtitle,
+        width / 2,
+        center_y - 22 * mm,
+        font=FONT_BOLD,
+        size=subtitle_size,
+        color=white,
+        align="center",
+    )
+
+    bar_w = pdfmetrics.stringWidth(subtitle, FONT_BOLD, subtitle_size)
+    c.setFillColor(NEON_BLUE)
+    c.rect((width - bar_w) / 2, center_y - 30 * mm, bar_w, 1.4 * mm, fill=1, stroke=0)
+    draw_text(
+        c,
+        "SPELLING · WORD FAMILY",
+        width / 2,
+        center_y - 40 * mm,
+        font=FONT_BOLD,
+        size=11,
+        color=white,
+        align="center",
+    )
+
+    margin_left, margin_right = page_margins_x(page_no)
+    left = margin_left
+    right = width - margin_right
+    note_lines = [
+        "철자가 비슷한 단어와",
+        "단어장에 함께 실린 어족을 모아 두었습니다.",
+    ]
+    note_top = center_y - 58 * mm
+    for index, line in enumerate(note_lines):
+        draw_text(
+            c,
+            line,
+            width / 2,
+            note_top - index * 9 * mm,
+            size=16,
+            color=PALE,
+            align="center",
+            max_width=right - left,
+        )
+
+    draw_page_footer(c, page_no, level_tag, dark_bg=True)
+    c.showPage()
+
+
+def draw_confusable_pairs_page(
+    c: canvas.Canvas,
+    *,
+    level_tag: str,
+    page_no: int,
+    banner: str,
+    subtitle: str,
+    rows: list[tuple[str, str, str, str]],
+) -> None:
+    """한 줄에 단어쌍 하나 — (left_label, left_meaning, right_label, right_meaning)."""
+    width, height = B5
+    draw_day_banner(c, banner, height - BANNER_Y)
+    draw_text(
+        c,
+        subtitle,
+        width / 2,
+        height - SUBTITLE_Y,
+        font=FONT_BOLD,
+        size=9.5,
+        color=SLATE,
+        align="center",
+    )
+
+    margin_left, margin_right = page_margins_x(page_no)
+    left = margin_left
+    right = width - margin_right
+    table_w = right - left
+    table_top = height - TABLE_TOP_LOOSE
+    header_h = 8 * mm
+    row_h = min(8.2 * mm, (table_top - TABLE_BOTTOM - header_h) / max(len(rows), 1))
+    half = table_w / 2
+    word_w = 42 * mm
+    mid_gap = 3 * mm
+
+    c.setFillColor(NAVY)
+    c.rect(left, table_top - header_h, table_w, header_h, fill=1, stroke=0)
+    draw_text(c, "WORD", left + 2.5 * mm, table_top - header_h + 2.4 * mm, font=FONT_BOLD, size=9.0, color=white)
+    draw_text(c, "MEANING", left + word_w, table_top - header_h + 2.4 * mm, font=FONT_BOLD, size=9.0, color=white)
+    draw_text(
+        c,
+        "WORD",
+        left + half + mid_gap / 2 + 2.5 * mm,
+        table_top - header_h + 2.4 * mm,
+        font=FONT_BOLD,
+        size=9.0,
+        color=white,
+    )
+    draw_text(
+        c,
+        "MEANING",
+        left + half + mid_gap / 2 + word_w,
+        table_top - header_h + 2.4 * mm,
+        font=FONT_BOLD,
+        size=9.0,
+        color=white,
+    )
+
+    y = table_top - header_h
+    for index, (left_label, left_mean, right_label, right_mean) in enumerate(rows):
+        next_y = y - row_h
+        if index % 2 == 1:
+            c.setFillColor(LIGHT)
+            c.rect(left, next_y, table_w, row_h, fill=1, stroke=0)
+        baseline = next_y + row_h / 2 - 2.8
+        # 왼쪽 쌍
+        draw_text(c, left_label, left + 2.2 * mm, baseline, font=FONT_BOLD, size=8.2, max_width=word_w - 3 * mm)
+        draw_text(
+            c,
+            left_mean,
+            left + word_w,
+            baseline,
+            size=7.6,
+            color=SLATE,
+            max_width=half - word_w - mid_gap / 2 - 2 * mm,
+        )
+        # 가운데 점
+        draw_text(
+            c,
+            "·",
+            left + half,
+            baseline,
+            size=9.0,
+            color=LINE,
+            align="center",
+        )
+        # 오른쪽 쌍
+        rx = left + half + mid_gap / 2
+        draw_text(c, right_label, rx + 2.2 * mm, baseline, font=FONT_BOLD, size=8.2, max_width=word_w - 3 * mm)
+        draw_text(
+            c,
+            right_mean,
+            rx + word_w,
+            baseline,
+            size=7.6,
+            color=SLATE,
+            max_width=half - word_w - mid_gap / 2 - 2 * mm,
+        )
+        y = next_y
+
+    bottom = table_top - header_h - len(rows) * row_h
+    c.setStrokeColor(LINE)
+    c.setLineWidth(0.4)
+    c.rect(left, bottom, table_w, table_top - bottom, fill=0, stroke=1)
+    c.line(left, table_top - header_h, right, table_top - header_h)
+    c.line(left + half, bottom, left + half, table_top)
+
+    draw_page_footer(c, page_no, level_tag)
+    c.showPage()
+
+
+def draw_confusables_spelling_page(
+    c: canvas.Canvas,
+    *,
+    level_tag: str,
+    page_no: int,
+    meanings: dict[str, str],
+) -> None:
+    """① 철자가 비슷한 단어."""
+    rows: list[tuple[str, str, str, str]] = []
+    for a, tag_a, b, tag_b in CONFUSABLE_SPELLING:
+        la = f"{a} ({tag_a})" if tag_a else a
+        lb = f"{b} ({tag_b})" if tag_b else b
+        rows.append(
+            (
+                la,
+                plain_meaning_for_confusable(a, meanings),
+                lb,
+                plain_meaning_for_confusable(b, meanings),
+            )
+        )
+    draw_confusable_pairs_page(
+        c,
+        level_tag=level_tag,
+        page_no=page_no,
+        banner="CONFUSABLES ①",
+        subtitle="철자가 비슷한 단어",
+        rows=rows,
+    )
+
+
+def draw_confusables_derivation_page(
+    c: canvas.Canvas,
+    *,
+    level_tag: str,
+    page_no: int,
+    meanings: dict[str, str],
+) -> None:
+    """② 단어장에 함께 실린 어족."""
+    rows: list[tuple[str, str, str, str]] = []
+    for a, pos_a, b, pos_b in CONFUSABLE_DERIVATION:
+        rows.append(
+            (
+                f"{a} ({pos_a})",
+                plain_meaning_for_confusable(a, meanings),
+                f"{b} ({pos_b})",
+                plain_meaning_for_confusable(b, meanings),
+            )
+        )
+    draw_confusable_pairs_page(
+        c,
+        level_tag=level_tag,
+        page_no=page_no,
+        banner="CONFUSABLES ②",
+        subtitle="단어장에 함께 실린 어족",
+        rows=rows,
+    )
+
+
 def draw_day_log_page(
     c: canvas.Canvas,
     *,
@@ -1763,7 +2058,7 @@ def validate_pronunciations(rows: list[tuple[str, str]], pronunciations: dict[st
 
 
 def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: bool = True) -> Path:
-    """앞부분 + 1회독(Day×4) + 랜덤 표지 + 랜덤 1회독(TEST) + 색인."""
+    """앞부분 + 1회독(Day×4) + 랜덤 표지 + 랜덤 1회독(TEST) + CONFUSABLES + 색인."""
     global POS_MEANINGS
     pron, pos = load_middle_meta()
     POS_MEANINGS = pos
@@ -1862,6 +2157,14 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: 
             page_no=page_no,
         )
         page_no += 1
+
+    meanings = {word: meaning for day_rows in days for word, meaning in day_rows}
+    draw_confusables_divider(c, level_tag="MIDDLE", page_no=page_no)
+    page_no += 1
+    draw_confusables_spelling_page(c, level_tag="MIDDLE", page_no=page_no, meanings=meanings)
+    page_no += 1
+    draw_confusables_derivation_page(c, level_tag="MIDDLE", page_no=page_no, meanings=meanings)
+    page_no += 1
 
     index_entries = build_word_index_entries(
         days,
