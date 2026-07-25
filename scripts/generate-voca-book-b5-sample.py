@@ -120,6 +120,7 @@ ORANGE = HexColor("#FF9900")  # 부가 포인트 — 레벨 배지 테두리·�
 SLATE = HexColor("#5C5C5C")
 PALE = HexColor("#EEF1F4")
 LIGHT = HexColor("#F7F7F7")  # 줄무늬 배경
+PAIR_EVEN = HexColor("#DEDEDE")  # 혼동 어휘 짝수 페어 배경
 LINE = HexColor("#9AA4AE")
 INK = HexColor("#20262D")
 LOGO_SHADOW = HexColor("#636262")  # trigger-logo-v2 그림자 샘플
@@ -1382,6 +1383,59 @@ def plain_meaning_for_confusable(word: str, meanings: dict[str, str]) -> str:
     return re.sub(r"\s*\([명동형부접전관]+\)", "", raw).strip().rstrip(",").strip()
 
 
+
+def confusable_pos_letter(word: str) -> str:
+    """품사 한글자. 수기 보정 → POS_MEANINGS."""
+    overrides = {
+        "factor": "명",
+        "principal": "명",
+        "patent": "명",
+        "patient": "명",
+        "past": "명",
+        "paste": "동",
+        "content": "명",
+        "contract": "명",
+        "thorough": "형",
+        "though": "접",
+        "effective": "형",
+        "efficient": "형",
+        "found": "동",
+        "fund": "명",
+        "rid": "동",
+        "ride": "동",
+    }
+    if word in overrides:
+        return overrides[word]
+    raw = POS_MEANINGS.get(word, "")
+    m = re.search(r"\(([명동형부접전관])\)", raw)
+    return m.group(1) if m else ""
+
+
+def format_confusable_pair_cells(
+    word_a: str,
+    mean_a: str,
+    pos_a: str,
+    word_b: str,
+    mean_b: str,
+    pos_b: str,
+    *,
+    tag_a: str | None = None,
+    tag_b: str | None = None,
+) -> tuple[str, str, str, str]:
+    """단어·뜻 칸 문구. 같은 품사면 오른쪽 단어에만 (품사) 1회."""
+    la = f"{word_a} ({tag_a})" if tag_a else word_a
+    if pos_a and pos_b and pos_a == pos_b:
+        if tag_b:
+            lb = f"{word_b} ({tag_b}·{pos_b})"
+        else:
+            lb = f"{word_b} ({pos_b})"
+        return la, mean_a, lb, mean_b
+    lb = f"{word_b} ({tag_b})" if tag_b else word_b
+    ma = f"{mean_a} ({pos_a})" if pos_a else mean_a
+    mb = f"{mean_b} ({pos_b})" if pos_b else mean_b
+    return la, ma, lb, mb
+
+
 def draw_confusables_divider(
     c: canvas.Canvas,
     *,
@@ -1449,13 +1503,13 @@ def draw_confusable_pairs_pages(
     subtitle: str,
     rows: list[tuple[str, str, str, str]],
 ) -> int:
-    """페어마다 표 1개: 왼쪽 번호(2행 합침) + 오른쪽 2×2(단어/뜻). 글씨 약 2배, 여러 쪽."""
+    """페어마다 표 1개: 왼쪽 번호(2행 합침) + 오른쪽 2×2(단어/뜻, 가운데 정렬)."""
     width, height = B5
-    word_size = 20.0  # 기존 ~10의 2배
+    word_size = 20.0
     mean_size = 18.0
     no_size = 18.0
-    pair_gap = 3.0 * mm
-    cell_h = 11.5 * mm  # 한 칸 높이 → 페어 표 높이 = 2*cell_h
+    pair_gap = 6.0 * mm  # 기존 3mm의 2배
+    cell_h = 11.5 * mm
     pair_h = cell_h * 2
     no_w = 14 * mm
 
@@ -1501,22 +1555,16 @@ def draw_confusable_pairs_pages(
             pair_no = idx + 1
             bottom = y - pair_h
 
-            # 배경
-            c.setFillColor(LIGHT if pair_no % 2 == 0 else white)
+            c.setFillColor(PAIR_EVEN if pair_no % 2 == 0 else white)
             c.rect(left, bottom, table_w, pair_h, fill=1, stroke=0)
 
-            # 외곽 + 내부 칸선 (5칸: 번호1 + 2×2)
             c.setStrokeColor(LINE)
             c.setLineWidth(0.55)
             c.rect(left, bottom, table_w, pair_h, fill=0, stroke=1)
-            # 번호 | 내용
             c.line(left + no_w, bottom, left + no_w, y)
-            # 가로 중앙 (단어 줄 / 뜻 줄)
             c.line(left + no_w, y - cell_h, right, y - cell_h)
-            # 세로 중앙 (왼쪽 단어|오른쪽 단어)
             c.line(left + no_w + half_w, bottom, left + no_w + half_w, y)
 
-            # 번호 (2행 합친 칸 중앙)
             draw_text(
                 c,
                 str(pair_no),
@@ -1534,44 +1582,49 @@ def draw_confusable_pairs_pages(
             m_size = min(mean_size, fit_font_size(left_mean, FONT_REGULAR, mean_size, mean_max))
             m_size = min(m_size, fit_font_size(right_mean, FONT_REGULAR, mean_size, mean_max))
 
-            # 위줄: 영단어
+            left_cx = left + no_w + half_w / 2
+            right_cx = left + no_w + half_w + half_w / 2
             top_base = y - cell_h / 2 - w_size * 0.32
+            bot_base = bottom + cell_h / 2 - m_size * 0.32
+
             draw_text(
                 c,
                 left_label,
-                left + no_w + 2.2 * mm,
+                left_cx,
                 top_base,
                 font=FONT_BOLD,
                 size=w_size,
+                align="center",
                 max_width=word_max,
             )
             draw_text(
                 c,
                 right_label,
-                left + no_w + half_w + 2.2 * mm,
+                right_cx,
                 top_base,
                 font=FONT_BOLD,
                 size=w_size,
+                align="center",
                 max_width=word_max,
             )
-            # 아래줄: 뜻
-            bot_base = bottom + cell_h / 2 - m_size * 0.32
             draw_text(
                 c,
                 left_mean,
-                left + no_w + 2.2 * mm,
+                left_cx,
                 bot_base,
                 size=m_size,
                 color=SLATE,
+                align="center",
                 max_width=mean_max,
             )
             draw_text(
                 c,
                 right_mean,
-                left + no_w + half_w + 2.2 * mm,
+                right_cx,
                 bot_base,
                 size=m_size,
                 color=SLATE,
+                align="center",
                 max_width=mean_max,
             )
 
@@ -1595,14 +1648,18 @@ def draw_confusables_spelling_page(
     """① 철자가 비슷한 단어."""
     rows: list[tuple[str, str, str, str]] = []
     for a, tag_a, b, tag_b in CONFUSABLE_SPELLING:
-        la = f"{a} ({tag_a})" if tag_a else a
-        lb = f"{b} ({tag_b})" if tag_b else b
+        pos_a = confusable_pos_letter(a)
+        pos_b = confusable_pos_letter(b)
         rows.append(
-            (
-                la,
+            format_confusable_pair_cells(
+                a,
                 plain_meaning_for_confusable(a, meanings),
-                lb,
+                pos_a,
+                b,
                 plain_meaning_for_confusable(b, meanings),
+                pos_b,
+                tag_a=tag_a,
+                tag_b=tag_b,
             )
         )
     return draw_confusable_pairs_pages(
@@ -1626,11 +1683,13 @@ def draw_confusables_derivation_page(
     rows: list[tuple[str, str, str, str]] = []
     for a, pos_a, b, pos_b in CONFUSABLE_DERIVATION:
         rows.append(
-            (
-                f"{a} ({pos_a})",
+            format_confusable_pair_cells(
+                a,
                 plain_meaning_for_confusable(a, meanings),
-                f"{b} ({pos_b})",
+                pos_a,
+                b,
                 plain_meaning_for_confusable(b, meanings),
+                pos_b,
             )
         )
     return draw_confusable_pairs_pages(
