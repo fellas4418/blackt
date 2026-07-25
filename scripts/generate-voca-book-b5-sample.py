@@ -1682,11 +1682,11 @@ def draw_confusables_divider(
         draw_text(
             c,
             line,
-            text_left,
+            width / 2,
             note_top - index * 9 * mm,
             size=note_size,
             color=PALE,
-            align="left",
+            align="center",
             max_width=right - left,
         )
 
