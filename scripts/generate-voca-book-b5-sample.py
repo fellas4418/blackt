@@ -1297,33 +1297,35 @@ def draw_index_divider(
             max_width=right - left,
         )
 
-    # 표기 안내 3줄 — 테두리 상자 + 왼쪽 정렬
-    guide_lines = [
-        "왼쪽 영단어 · 오른쪽 D(Day) · TEST 페이지",
-        "예) abandon D25 · 102",
-        "abandon → Day 25 · 테스트 102페이지",
-    ]
-    box_h = 9.5 * mm
-    box_gap = 2.2 * mm
-    pad_x = 3.5 * mm
+    # 표기 안내 — 한 상자 안 3줄, abandon 시작 위치 맞춤
     guide_w = min(right - left, 118 * mm)
     guide_x = (width - guide_w) / 2
+    pad_x = 3.5 * mm
+    line_h = 6.2 * mm
+    box_pad_y = 3.2 * mm
+    box_h = box_pad_y * 2 + line_h * 3
     guide_top = note_top - 2 * 9 * mm - 10 * mm
+    box_y = guide_top - box_h
+
     c.setStrokeColor(HexColor("#3A3A3A"))
     c.setLineWidth(0.6)
-    for index, line in enumerate(guide_lines):
-        box_y = guide_top - index * (box_h + box_gap) - box_h
-        c.roundRect(guide_x, box_y, guide_w, box_h, 1.5 * mm, fill=0, stroke=1)
-        draw_text(
-            c,
-            line,
-            guide_x + pad_x,
-            box_y + box_h / 2 - 3.2,
-            size=11,
-            color=PALE,
-            align="left",
-            max_width=guide_w - pad_x * 2,
-        )
+    c.roundRect(guide_x, box_y, guide_w, box_h, 1.5 * mm, fill=0, stroke=1)
+
+    text_x = guide_x + pad_x
+    font_size = 11
+    line1 = "왼쪽 영단어 · 오른쪽 D(Day) · TEST 페이지"
+    prefix = "예) "
+    line2_rest = "abandon D25 · 102"
+    line3_rest = "abandon → Day 25 · 102페이지"
+    prefix_w = pdfmetrics.stringWidth(prefix, FONT_REGULAR, font_size)
+    baselines = [
+        box_y + box_h - box_pad_y - line_h * 0.72,
+        box_y + box_h - box_pad_y - line_h * 1.72,
+        box_y + box_h - box_pad_y - line_h * 2.72,
+    ]
+    draw_text(c, line1, text_x, baselines[0], size=font_size, color=PALE)
+    draw_text(c, prefix + line2_rest, text_x, baselines[1], size=font_size, color=PALE)
+    draw_text(c, line3_rest, text_x + prefix_w, baselines[2], size=font_size, color=PALE)
 
     draw_page_footer(c, page_no, level_tag, dark_bg=True)
     c.showPage()
