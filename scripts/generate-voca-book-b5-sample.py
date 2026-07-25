@@ -94,7 +94,7 @@ def draw_page_footer(
     width, _ = B5
     margin_left, margin_right = page_margins_x(page_no)
     label = f"TRIGGER VOCA · {level_tag}"
-    ink = PALE if dark_bg else SLATE
+    ink = white if dark_bg else SLATE
     mark_h = 5.0 * mm
     gap = 1.8 * mm
     img_y = MARGIN_BOTTOM - 0.6 * mm
