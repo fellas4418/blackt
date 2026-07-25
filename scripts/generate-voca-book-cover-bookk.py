@@ -302,7 +302,9 @@ def draw_spine(c: canvas.Canvas, x0: float, y0: float, spine_w: float, h: float)
     c.translate(x0 + spine_w / 2, y0 + h / 2)
     c.rotate(90)
 
-    title = "TRIGGER VOCA  ·  중등"
+    title_prefix = "TRIGGER VOCA  ·  "
+    title_level = "중등"
+    title = title_prefix + title_level
     # 제목은 책등 폭의 1/2, 로고는 제목 대문자와 같은 시각 높이(여백 크롭)
     title_size = (band / mm) * (72.0 / 25.4) / 0.72 * (1.0 / 2.0)
     end_margin = 10 * mm
@@ -324,9 +326,15 @@ def draw_spine(c: canvas.Canvas, x0: float, y0: float, spine_w: float, h: float)
     title_left = mark_x + mark_size + gap
     title_center = title_left + avail / 2
     baseline = -title_size * 0.35
-    c.setFillColor(white)
+    prefix_w = pdfmetrics.stringWidth(title_prefix, FONT_BOLD, title_size)
+    level_w = pdfmetrics.stringWidth(title_level, FONT_BOLD, title_size)
+    total_w = prefix_w + level_w
+    x = title_center - total_w / 2
     c.setFont(FONT_BOLD, title_size)
-    c.drawCentredString(title_center, baseline, title)
+    c.setFillColor(white)
+    c.drawString(x, baseline, title_prefix)
+    c.setFillColor(ORANGE)
+    c.drawString(x + prefix_w, baseline, title_level)
     c.restoreState()
 
 
