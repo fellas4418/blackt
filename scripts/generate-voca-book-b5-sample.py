@@ -1659,21 +1659,7 @@ def draw_confusables_divider(
         "품사만 다른 동일 단어들을 모아 두었습니다.",
     ]
     note_size = 16.0
-
-    section_size = note_size  # 안내문과 동일
-    section_top = center_y - 26 * mm
-    draw_text(
-        c,
-        "철자 / 품사 혼동 어휘",
-        width / 2,
-        section_top,
-        font=FONT_BOLD,
-        size=section_size,
-        color=white,
-        align="center",
-    )
-
-    note_top = section_top - 12 * mm
+    note_top = center_y - 26 * mm
     for index, line in enumerate(note_lines):
         draw_text(
             c,
