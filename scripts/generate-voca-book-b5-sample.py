@@ -124,7 +124,7 @@ LINE = HexColor("#9AA4AE")
 INK = HexColor("#20262D")
 LOGO_SHADOW = HexColor("#636262")  # trigger-logo-v2 그림자 샘플
 
-# CONFUSABLES — (word_a, tag_a|None, word_b, tag_b|None). tag는 단어 오른쪽 (타)/(자) 등.
+# 혼동 어휘(철자) — (word_a, tag_a|None, word_b, tag_b|None). tag는 단어 오른쪽 (타)/(자) 등.
 CONFUSABLE_SPELLING: list[tuple[str, str | None, str, str | None]] = [
     ("affect", None, "effect", None),
     ("raise", "타", "rise", "자"),
@@ -149,7 +149,7 @@ CONFUSABLE_SPELLING: list[tuple[str, str | None, str, str | None]] = [
     ("sting", None, "string", None),
 ]
 
-# CONFUSABLES 어족 — 품사 한글자(수기). 메타 오표기 보정 포함.
+# 혼동 어휘(품사) — 품사 한글자(수기). 메타 오표기 보정 포함.
 CONFUSABLE_DERIVATION: list[tuple[str, str, str, str]] = [
     ("threat", "명", "threaten", "동"),
     ("absent", "형", "absence", "명"),
@@ -1388,7 +1388,7 @@ def draw_confusables_divider(
     level_tag: str,
     page_no: int,
 ) -> None:
-    """CONFUSABLES 구간 앞 간지."""
+    """혼동 어휘 구간 앞 간지."""
     width, height = B5
     c.setFillColor(NAVY)
     c.rect(0, 0, width, height, fill=1, stroke=0)
@@ -1398,28 +1398,18 @@ def draw_confusables_divider(
 
     draw_divider_mark(c, width, height)
     center_y = height * 0.62
-    draw_text(c, "CONFUSABLES", width / 2, center_y + 6 * mm, font=FONT_BOLD, size=42, color=white, align="center")
-    subtitle = "헷갈리기 쉬운 단어"
-    subtitle_size = 16
-    draw_text(
-        c,
-        subtitle,
-        width / 2,
-        center_y - 22 * mm,
-        font=FONT_BOLD,
-        size=subtitle_size,
-        color=white,
-        align="center",
-    )
+    title = "혼동 어휘"
+    title_size = 48
+    draw_text(c, title, width / 2, center_y + 6 * mm, font=FONT_BOLD, size=title_size, color=white, align="center")
 
-    bar_w = pdfmetrics.stringWidth(subtitle, FONT_BOLD, subtitle_size)
+    bar_w = pdfmetrics.stringWidth(title, FONT_BOLD, title_size)
     c.setFillColor(NEON_BLUE)
-    c.rect((width - bar_w) / 2, center_y - 30 * mm, bar_w, 1.4 * mm, fill=1, stroke=0)
+    c.rect((width - bar_w) / 2, center_y - 14 * mm, bar_w, 1.4 * mm, fill=1, stroke=0)
     draw_text(
         c,
-        "SPELLING · WORD FAMILY",
+        "① 철자 · ② 품사",
         width / 2,
-        center_y - 40 * mm,
+        center_y - 26 * mm,
         font=FONT_BOLD,
         size=11,
         color=white,
@@ -1431,9 +1421,9 @@ def draw_confusables_divider(
     right = width - margin_right
     note_lines = [
         "철자가 비슷한 단어와",
-        "단어장에 함께 실린 어족을 모아 두었습니다.",
+        "품사만 다른 동일 단어들을 모아 두었습니다.",
     ]
-    note_top = center_y - 58 * mm
+    note_top = center_y - 46 * mm
     for index, line in enumerate(note_lines):
         draw_text(
             c,
@@ -1462,13 +1452,14 @@ def draw_confusable_pairs_page(
     """한 줄에 단어쌍 하나 — (left_label, left_meaning, right_label, right_meaning)."""
     width, height = B5
     draw_day_banner(c, banner, height - BANNER_Y)
+    subtitle_size = 19.0  # 기존 9.5의 2배
     draw_text(
         c,
         subtitle,
         width / 2,
         height - SUBTITLE_Y,
         font=FONT_BOLD,
-        size=9.5,
+        size=subtitle_size,
         color=SLATE,
         align="center",
     )
@@ -1477,33 +1468,46 @@ def draw_confusable_pairs_page(
     left = margin_left
     right = width - margin_right
     table_w = right - left
-    table_top = height - TABLE_TOP_LOOSE
-    header_h = 8 * mm
-    row_h = min(8.2 * mm, (table_top - TABLE_BOTTOM - header_h) / max(len(rows), 1))
+    # 부제가 커져서 표 시작을 조금 내림
+    table_top = height - TABLE_TOP_LOOSE - 6 * mm
+    header_h = 8.5 * mm
+    row_h = min(8.4 * mm, (table_top - TABLE_BOTTOM - header_h) / max(len(rows), 1))
     half = table_w / 2
-    word_w = 42 * mm
-    mid_gap = 3 * mm
+    word_w = 44 * mm
+    mid_gap = 2.5 * mm
+    mean_max_w = half - word_w - mid_gap / 2 - 2.5 * mm
+    word_max_w = word_w - 3.5 * mm
+
+    # 칸을 넘지 않는 범위에서 단어·뜻 글자 최대화
+    word_size = min(12.0, row_h * 0.72)
+    mean_size = min(11.0, row_h * 0.68)
+    for left_label, left_mean, right_label, right_mean in rows:
+        for label in (left_label, right_label):
+            word_size = min(word_size, fit_font_size(label, FONT_BOLD, word_size, word_max_w))
+        for meaning in (left_mean, right_mean):
+            mean_size = min(mean_size, fit_font_size(meaning, FONT_REGULAR, mean_size, mean_max_w))
 
     c.setFillColor(NAVY)
     c.rect(left, table_top - header_h, table_w, header_h, fill=1, stroke=0)
-    draw_text(c, "WORD", left + 2.5 * mm, table_top - header_h + 2.4 * mm, font=FONT_BOLD, size=9.0, color=white)
-    draw_text(c, "MEANING", left + word_w, table_top - header_h + 2.4 * mm, font=FONT_BOLD, size=9.0, color=white)
+    header_size = min(10.0, header_h * 0.55)
+    draw_text(c, "WORD", left + 2.5 * mm, table_top - header_h + 2.6 * mm, font=FONT_BOLD, size=header_size, color=white)
+    draw_text(c, "MEANING", left + word_w, table_top - header_h + 2.6 * mm, font=FONT_BOLD, size=header_size, color=white)
     draw_text(
         c,
         "WORD",
         left + half + mid_gap / 2 + 2.5 * mm,
-        table_top - header_h + 2.4 * mm,
+        table_top - header_h + 2.6 * mm,
         font=FONT_BOLD,
-        size=9.0,
+        size=header_size,
         color=white,
     )
     draw_text(
         c,
         "MEANING",
         left + half + mid_gap / 2 + word_w,
-        table_top - header_h + 2.4 * mm,
+        table_top - header_h + 2.6 * mm,
         font=FONT_BOLD,
-        size=9.0,
+        size=header_size,
         color=white,
     )
 
@@ -1513,39 +1517,36 @@ def draw_confusable_pairs_page(
         if index % 2 == 1:
             c.setFillColor(LIGHT)
             c.rect(left, next_y, table_w, row_h, fill=1, stroke=0)
-        baseline = next_y + row_h / 2 - 2.8
-        # 왼쪽 쌍
-        draw_text(c, left_label, left + 2.2 * mm, baseline, font=FONT_BOLD, size=8.2, max_width=word_w - 3 * mm)
+        baseline = next_y + row_h / 2 - word_size * 0.32
+        draw_text(c, left_label, left + 2.2 * mm, baseline, font=FONT_BOLD, size=word_size, max_width=word_max_w)
         draw_text(
             c,
             left_mean,
             left + word_w,
             baseline,
-            size=7.6,
+            size=mean_size,
             color=SLATE,
-            max_width=half - word_w - mid_gap / 2 - 2 * mm,
+            max_width=mean_max_w,
         )
-        # 가운데 점
         draw_text(
             c,
             "·",
             left + half,
             baseline,
-            size=9.0,
+            size=max(word_size, mean_size),
             color=LINE,
             align="center",
         )
-        # 오른쪽 쌍
         rx = left + half + mid_gap / 2
-        draw_text(c, right_label, rx + 2.2 * mm, baseline, font=FONT_BOLD, size=8.2, max_width=word_w - 3 * mm)
+        draw_text(c, right_label, rx + 2.2 * mm, baseline, font=FONT_BOLD, size=word_size, max_width=word_max_w)
         draw_text(
             c,
             right_mean,
             rx + word_w,
             baseline,
-            size=7.6,
+            size=mean_size,
             color=SLATE,
-            max_width=half - word_w - mid_gap / 2 - 2 * mm,
+            max_width=mean_max_w,
         )
         y = next_y
 
@@ -1584,7 +1585,7 @@ def draw_confusables_spelling_page(
         c,
         level_tag=level_tag,
         page_no=page_no,
-        banner="CONFUSABLES ①",
+        banner="혼동 어휘 ①",
         subtitle="철자가 비슷한 단어",
         rows=rows,
     )
@@ -1597,7 +1598,7 @@ def draw_confusables_derivation_page(
     page_no: int,
     meanings: dict[str, str],
 ) -> None:
-    """② 단어장에 함께 실린 어족."""
+    """② 품사만 다른 동일 단어."""
     rows: list[tuple[str, str, str, str]] = []
     for a, pos_a, b, pos_b in CONFUSABLE_DERIVATION:
         rows.append(
@@ -1612,8 +1613,8 @@ def draw_confusables_derivation_page(
         c,
         level_tag=level_tag,
         page_no=page_no,
-        banner="CONFUSABLES ②",
-        subtitle="단어장에 함께 실린 어족",
+        banner="혼동 어휘 ②",
+        subtitle="품사만 다른 동일 단어",
         rows=rows,
     )
 
@@ -2058,7 +2059,7 @@ def validate_pronunciations(rows: list[tuple[str, str]], pronunciations: dict[st
 
 
 def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: bool = True) -> Path:
-    """앞부분 + 1회독(Day×4) + 랜덤 표지 + 랜덤 1회독(TEST) + CONFUSABLES + 색인."""
+    """앞부분 + 1회독(Day×4) + 랜덤 표지 + 랜덤 1회독(TEST) + 혼동 어휘 + 색인."""
     global POS_MEANINGS
     pron, pos = load_middle_meta()
     POS_MEANINGS = pos
