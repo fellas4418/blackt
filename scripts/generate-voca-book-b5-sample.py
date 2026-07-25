@@ -1767,7 +1767,7 @@ def draw_confusable_pairs_pages(
             content_top = height - 52 * mm
             mid_y = (banner_bottom + content_top) / 2
             if subtitle_note:
-                title_size = 12.0
+                title_size = 14.0
                 note_size = 14.0
                 line_gap = 5.2 * mm
                 draw_text(
@@ -1949,7 +1949,7 @@ def draw_confusables_spelling_page(
         start_page_no=page_no,
         banner="혼동 어휘 ①",
         subtitle="철자가 비슷한 단어",
-        subtitle_note="발음으로 구분하면 쉽다",
+        subtitle_note="발음으로 구분하면 쉬워요.",
         rows=rows,
     )
 
