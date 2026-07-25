@@ -1297,47 +1297,32 @@ def draw_index_divider(
             max_width=right - left,
         )
 
-    # 표기 예시 + 안내
-    sample_y = note_top - 2 * 9 * mm - 16 * mm
-    sample_w = 72 * mm
-    sample_x = (width - sample_w) / 2
-    c.setStrokeColor(HexColor("#3A3A3A"))
-    c.setLineWidth(0.6)
-    c.roundRect(sample_x, sample_y - 4 * mm, sample_w, 12 * mm, 1.5 * mm, fill=0, stroke=1)
-    draw_text(
-        c,
-        "abandon",
-        sample_x + 3 * mm,
-        sample_y + 0.5 * mm,
-        font=FONT_BOLD,
-        size=11,
-        color=white,
-    )
-    draw_text(
-        c,
-        "D25 · 102",
-        sample_x + sample_w - 3 * mm,
-        sample_y + 0.5 * mm,
-        size=11,
-        color=PALE,
-        align="right",
-    )
+    # 표기 안내 3줄 — 테두리 상자 + 왼쪽 정렬
     guide_lines = [
         "왼쪽 영단어 · 오른쪽 D(Day) · TEST 페이지",
         "예) abandon D25 · 102",
         "abandon → Day 25 · 테스트 102페이지",
     ]
-    guide_top = sample_y - 12 * mm
+    box_h = 9.5 * mm
+    box_gap = 2.2 * mm
+    pad_x = 3.5 * mm
+    guide_w = min(right - left, 118 * mm)
+    guide_x = (width - guide_w) / 2
+    guide_top = note_top - 2 * 9 * mm - 10 * mm
+    c.setStrokeColor(HexColor("#3A3A3A"))
+    c.setLineWidth(0.6)
     for index, line in enumerate(guide_lines):
+        box_y = guide_top - index * (box_h + box_gap) - box_h
+        c.roundRect(guide_x, box_y, guide_w, box_h, 1.5 * mm, fill=0, stroke=1)
         draw_text(
             c,
             line,
-            width / 2,
-            guide_top - index * 6.5 * mm,
+            guide_x + pad_x,
+            box_y + box_h / 2 - 3.2,
             size=11,
             color=PALE,
-            align="center",
-            max_width=right - left,
+            align="left",
+            max_width=guide_w - pad_x * 2,
         )
 
     draw_page_footer(c, page_no, level_tag, dark_bg=True)
