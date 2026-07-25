@@ -1280,7 +1280,7 @@
   "eager": {
     "ipa": "/ˈigər/",
     "ko": "이거",
-    "meaning_pos": "열망하는 (명)",
+    "meaning_pos": "열망하는 (형)",
     "source": "auto"
   },
   "amount": {
@@ -1556,7 +1556,7 @@
   "factor": {
     "ipa": "/ˈfæktər/",
     "ko": "패크터",
-    "meaning_pos": "요인 (형)",
+    "meaning_pos": "요인 (명)",
     "source": "auto"
   },
   "recycle": {
@@ -1718,7 +1718,7 @@
   "favorite": {
     "ipa": "/ˈfeɪvərɪt/",
     "ko": "페이버이트",
-    "meaning_pos": "가장 좋아하는 (명)",
+    "meaning_pos": "가장 좋아하는 (형)",
     "source": "auto"
   },
   "pill": {
@@ -1754,7 +1754,7 @@
   "bored": {
     "ipa": "/bɔrd/",
     "ko": "보르드",
-    "meaning_pos": "지루해하는 (명)",
+    "meaning_pos": "지루해하는 (형)",
     "source": "auto"
   },
   "chore": {
@@ -2432,7 +2432,7 @@
   "though": {
     "ipa": "/ðoʊ/",
     "ko": "도",
-    "meaning_pos": "비록 ~일지라도 (명)",
+    "meaning_pos": "비록 ~일지라도 (접)",
     "source": "auto"
   },
   "paste": {
@@ -2450,7 +2450,7 @@
   "grateful": {
     "ipa": "/ˈgreɪtfəl/",
     "ko": "그레이트펄",
-    "meaning_pos": "감사하는 (명)",
+    "meaning_pos": "감사하는 (형)",
     "source": "auto"
   },
   "honest": {
@@ -2780,7 +2780,7 @@
   "attention": {
     "ipa": "/əˈtɛnʃən/",
     "ko": "어테느션",
-    "meaning_pos": "주의 (형)",
+    "meaning_pos": "주의 (명)",
     "source": "auto"
   },
   "terminal": {
@@ -3380,7 +3380,7 @@
   "caution": {
     "ipa": "/ˈkɔʃən/",
     "ko": "카션",
-    "meaning_pos": "주의 (형)",
+    "meaning_pos": "주의 (명)",
     "source": "auto"
   },
   "establish": {
@@ -3608,7 +3608,7 @@
   "democracy": {
     "ipa": "/dɪˈmɑkrəsi/",
     "ko": "딤아크러시",
-    "meaning_pos": "민주주의 (형)",
+    "meaning_pos": "민주주의 (명)",
     "source": "auto"
   },
   "reform": {
@@ -3704,7 +3704,7 @@
   "although": {
     "ipa": "/ˌɔlˈðoʊ/",
     "ko": "오르도",
-    "meaning_pos": "비록 ~일지라도 (명)",
+    "meaning_pos": "비록 ~일지라도 (접)",
     "source": "auto"
   },
   "legal": {
@@ -4364,7 +4364,7 @@
   "gradually": {
     "ipa": "/ˈgræʤuəli/",
     "ko": "그래주얼이",
-    "meaning_pos": "점차 (명)",
+    "meaning_pos": "점차 (부)",
     "source": "auto"
   },
   "overall": {
@@ -5282,7 +5282,7 @@
   "jealous": {
     "ipa": "/ˈʤɛləs/",
     "ko": "젤어스",
-    "meaning_pos": "질투하는 (명)",
+    "meaning_pos": "질투하는 (형)",
     "source": "auto"
   },
   "confidence": {
@@ -5654,7 +5654,7 @@
   "respectful": {
     "ipa": "/rɪˈspɛktfəl/",
     "ko": "리스페크트펄",
-    "meaning_pos": "존경하는 (명)",
+    "meaning_pos": "존경하는 (형)",
     "source": "auto"
   },
   "extraordinary": {
@@ -5708,7 +5708,7 @@
   "concerned": {
     "ipa": "/kənˈsərnd/",
     "ko": "커느서느드",
-    "meaning_pos": "걱정하는 (명)",
+    "meaning_pos": "걱정하는 (형)",
     "source": "auto"
   },
   "instruct": {
@@ -5780,7 +5780,7 @@
   "punctual": {
     "ipa": "/ˈpəŋkʧuəl/",
     "ko": "퍼으크추얼",
-    "meaning_pos": "시간을 엄수하는 (명)",
+    "meaning_pos": "시간을 엄수하는 (형)",
     "source": "auto"
   },
   "detect": {
@@ -5996,7 +5996,7 @@
   "immediately": {
     "ipa": "/ˌɪˈmiˌdiətli/",
     "ko": "임이디어트리",
-    "meaning_pos": "즉시 (명)",
+    "meaning_pos": "즉시 (부)",
     "source": "auto"
   },
   "reasonable": {
@@ -6806,7 +6806,7 @@
   "satisfied": {
     "ipa": "/ˈsætɪsˌfaɪd/",
     "ko": "새터스파이드",
-    "meaning_pos": "만족하는 (명)",
+    "meaning_pos": "만족하는 (형)",
     "source": "auto"
   },
   "ray": {
