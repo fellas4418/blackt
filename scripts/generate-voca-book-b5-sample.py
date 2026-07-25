@@ -1449,7 +1449,7 @@ def draw_confusable_pairs_page(
     subtitle: str,
     rows: list[tuple[str, str, str, str]],
 ) -> None:
-    """한 줄=한 쌍 카드. 가운데 세로선 없이 ↔로 좌·우를 묶고, 줄 사이 간격으로 위아래 구분."""
+    """번호 + 표 칸(No · 단어 · 뜻 · 단어 · 뜻). ↔ 없음."""
     width, height = B5
     banner_cy = height - BANNER_Y
     banner_h = 8.5 * mm
@@ -1462,11 +1462,9 @@ def draw_confusable_pairs_page(
     table_w = right - left
 
     n = max(len(rows), 1)
-    row_gap = 1.35 * mm if n <= 21 else 1.05 * mm
-    # 표는 아래쪽에 두고, 배너↔표 사이 중앙에 부제 (WORD×2 헤더·세로선 제거)
     table_top = height - 52 * mm
-    avail = table_top - TABLE_BOTTOM - row_gap * (n - 1)
-    row_h = min(8.4 * mm, avail / n)
+    header_h = 8.0 * mm
+    row_h = min(8.2 * mm, (table_top - TABLE_BOTTOM - header_h) / n)
 
     subtitle_size = 19.0
     subtitle_cy = (banner_bottom + table_top) / 2
@@ -1481,61 +1479,123 @@ def draw_confusable_pairs_page(
         align="center",
     )
 
-    half = table_w / 2
-    mid_w = 10 * mm
-    side_w = (table_w - mid_w) / 2
-    word_w = min(42 * mm, side_w * 0.48)
-    mean_max_w = side_w - word_w - 4 * mm
-    word_max_w = word_w - 2.5 * mm
+    no_w = 10 * mm
+    rest = table_w - no_w
+    word_w = min(36 * mm, rest * 0.26)
+    mean_w = (rest - word_w * 2) / 2
+    # 열 x: No | WordA | MeanA | WordB | MeanB
+    col_xs = [
+        left,
+        left + no_w,
+        left + no_w + word_w,
+        left + no_w + word_w + mean_w,
+        left + no_w + word_w + mean_w + word_w,
+        right,
+    ]
 
-    word_size = min(11.5, row_h * 0.70)
-    mean_size = min(10.5, row_h * 0.66)
+    word_max_w = word_w - 3.2 * mm
+    mean_max_w = mean_w - 3.2 * mm
+    word_size = min(11.0, row_h * 0.68)
+    mean_size = min(10.0, row_h * 0.64)
     for left_label, left_mean, right_label, right_mean in rows:
         for label in (left_label, right_label):
             word_size = min(word_size, fit_font_size(label, FONT_BOLD, word_size, word_max_w))
         for meaning in (left_mean, right_mean):
             mean_size = min(mean_size, fit_font_size(meaning, FONT_REGULAR, mean_size, mean_max_w))
 
-    y = table_top
-    for left_label, left_mean, right_label, right_mean in rows:
-        card_bottom = y - row_h
-        c.setFillColor(LIGHT)
-        c.setStrokeColor(LINE)
-        c.setLineWidth(0.45)
-        c.roundRect(left, card_bottom, table_w, row_h, 1.2 * mm, fill=1, stroke=1)
-
-        baseline = card_bottom + row_h / 2 - word_size * 0.32
-        draw_text(c, left_label, left + 2.4 * mm, baseline, font=FONT_BOLD, size=word_size, max_width=word_max_w)
+    # 헤더
+    c.setFillColor(NAVY)
+    c.rect(left, table_top - header_h, table_w, header_h, fill=1, stroke=0)
+    header_size = 9.0
+    header_labels = ("No", "WORD", "MEANING", "WORD", "MEANING")
+    for label, x0, x1 in zip(header_labels, col_xs, col_xs[1:]):
         draw_text(
             c,
-            left_mean,
-            left + 2.4 * mm + word_w,
-            baseline,
-            size=mean_size,
-            color=SLATE,
-            max_width=mean_max_w,
-        )
-        draw_text(
-            c,
-            "↔",
-            left + half,
-            baseline,
-            size=max(9.0, word_size * 0.95),
-            color=HexColor("#8A8A8A"),
+            label,
+            (x0 + x1) / 2,
+            table_top - header_h / 2 - 3.0,
+            font=FONT_BOLD,
+            size=header_size,
+            color=white,
             align="center",
         )
-        rx = left + half + mid_w / 2
-        draw_text(c, right_label, rx, baseline, font=FONT_BOLD, size=word_size, max_width=word_max_w)
+
+    y = table_top - header_h
+    for index, (left_label, left_mean, right_label, right_mean) in enumerate(rows):
+        next_y = y - row_h
+        if index % 2 == 1:
+            c.setFillColor(LIGHT)
+            c.rect(left, next_y, table_w, row_h, fill=1, stroke=0)
+        baseline = next_y + row_h / 2 - word_size * 0.32
+        cells = (
+            str(index + 1),
+            left_label,
+            left_mean,
+            right_label,
+            right_mean,
+        )
+        # No
         draw_text(
             c,
-            right_mean,
-            rx + word_w,
+            cells[0],
+            (col_xs[0] + col_xs[1]) / 2,
+            baseline,
+            font=FONT_BOLD,
+            size=word_size * 0.92,
+            color=SLATE,
+            align="center",
+        )
+        # Word A
+        draw_text(
+            c,
+            cells[1],
+            col_xs[1] + 1.6 * mm,
+            baseline,
+            font=FONT_BOLD,
+            size=word_size,
+            max_width=word_max_w,
+        )
+        # Mean A
+        draw_text(
+            c,
+            cells[2],
+            col_xs[2] + 1.6 * mm,
             baseline,
             size=mean_size,
             color=SLATE,
             max_width=mean_max_w,
         )
-        y = card_bottom - row_gap
+        # Word B
+        draw_text(
+            c,
+            cells[3],
+            col_xs[3] + 1.6 * mm,
+            baseline,
+            font=FONT_BOLD,
+            size=word_size,
+            max_width=word_max_w,
+        )
+        # Mean B
+        draw_text(
+            c,
+            cells[4],
+            col_xs[4] + 1.6 * mm,
+            baseline,
+            size=mean_size,
+            color=SLATE,
+            max_width=mean_max_w,
+        )
+        y = next_y
+
+    bottom = table_top - header_h - n * row_h
+    c.setStrokeColor(LINE)
+    c.setLineWidth(0.4)
+    c.rect(left, bottom, table_w, table_top - bottom, fill=0, stroke=1)
+    c.line(left, table_top - header_h, right, table_top - header_h)
+    for x in col_xs[1:-1]:
+        c.line(x, bottom, x, table_top)
+    for i in range(1, n):
+        c.line(left, table_top - header_h - i * row_h, right, table_top - header_h - i * row_h)
 
     draw_page_footer(c, page_no, level_tag)
     c.showPage()
