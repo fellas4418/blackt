@@ -256,21 +256,23 @@ def draw_spine(c: canvas.Canvas, x0: float, y0: float, spine_w: float, h: float)
     c.rotate(90)
 
     title = "TRIGGER VOCA  ·  중등"
-    # 대문자 높이 ≈ 0.72em → band에 맞춤 (로고와 동일 높이)
-    title_size = (band / mm) * (72.0 / 25.4) / 0.72
-    mark_size = band
+    # 대문자 높이 ≈ 0.72em → band의 2/3 (이전 풀사이즈 대비)
+    title_size = (band / mm) * (72.0 / 25.4) / 0.72 * (2.0 / 3.0)
     end_margin = 10 * mm
     gap = 2.5 * mm
 
     # 로컬 +x = 책 위쪽. 읽기 기준 왼쪽 끝 = 책 아래쪽
     mark_x = -(h / 2) + end_margin
-    mark_y = -mark_size / 2
-    draw_mark(c, mark_x, mark_y, mark_size)
-
-    avail = (h / 2 - end_margin) - (mark_x + mark_size + gap)
-    # 길이가 넘칠 때만 자간 느낌으로 아주 살짝 축소 (높이는 최대한 유지)
-    while title_size > band / mm * 2.0 and pdfmetrics.stringWidth(title, FONT_BOLD, title_size) > avail:
+    avail_end = h / 2 - end_margin
+    # 길이 넘치면 제목·로고 함께 축소 (높이 비율 유지)
+    while True:
+        mark_size = title_size * 0.72 * (25.4 / 72.0) * mm
+        avail = avail_end - (mark_x + mark_size + gap)
+        if title_size <= 8 or pdfmetrics.stringWidth(title, FONT_BOLD, title_size) <= avail:
+            break
         title_size *= 0.99
+
+    draw_mark(c, mark_x, -mark_size / 2, mark_size)
 
     title_left = mark_x + mark_size + gap
     title_center = title_left + avail / 2
@@ -361,7 +363,7 @@ def build_cover_pdf(
                     "",
                     "앞표지: Trigger 로고 + VOCA · 중등 배지(좌상) · T마크(우하) · DAY 바",
                     "뒷표지: Just Follow(40pt) + QR · T마크(우하)",
-                    "책등: T마크(왼쪽 끝) + TRIGGER VOCA · 중등 — 책등 폭에 거의 꽉 차는 동일 높이",
+                    "책등: T마크(왼쪽 끝) + TRIGGER VOCA · 중등 — 제목·로고 동일 높이(책등 폭의 약 2/3)",
                     "",
                     f"표지 PDF 크기(도련 3mm 포함):",
                     f"  가로 {total_w / mm:.1f} mm = 3 + 182 + {spine} + 182 + 3",
