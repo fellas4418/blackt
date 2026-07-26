@@ -1220,7 +1220,22 @@
         if (!parts || !parts.length) return '';
         return parts
             .map(function (p) {
-                var raw = escapeHtml(p.text || '');
+                // 목록 사이 장식용 \n 만 있는 조각은 <br>로 한 줄 더 띄우므로 버림
+                if (
+                    !p.mark &&
+                    !String(p.text || '')
+                        .replace(/\n/g, '')
+                        .trim()
+                ) {
+                    return '';
+                }
+                var rawTextSrc = String(p.text || '');
+                var rawText = rawTextSrc.trim();
+                var isKeyList =
+                    !!p.mark &&
+                    (p.mark === 'forms' || /^\d+\.\s/.test(rawText));
+                // keylist는 display:block이라 사이 \n→<br>가 한 줄 더 띄움 — 줄바꿈 제거
+                var raw = escapeHtml(isKeyList ? rawText : rawTextSrc);
                 // 성분 마크가 있으면 그 색을 우선 (「-다」 등이 겹낫표 강조색에 덮이지 않게)
                 var t = (p.mark ? raw : highlightCornerQuotes(raw)).replace(
                     /\n/g,
@@ -1228,10 +1243,7 @@
                 );
                 if (p.mark) {
                     var color = MARK_COLORS[p.mark] || '';
-                    var rawText = String(p.text || '').trim();
                     var isBracket = /^「[\s\S]*」$/.test(rawText);
-                    var isKeyList =
-                        p.mark === 'forms' || /^\d+\.\s/.test(rawText);
                     var styles = [
                         'background:none !important',
                         'padding:0 !important',

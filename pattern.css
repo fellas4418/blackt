@@ -137,18 +137,35 @@
 .pattern-docent-inner {
     width: 100%;
     max-width: 360px;
-    flex: 1 1 auto;
+    /* flex 자식에서 overflow 스크롤이 먹히게 height 기준을 잡음 */
+    flex: 1 1 0;
     min-height: 0;
     max-height: 100%;
     overflow-x: hidden;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(77, 255, 196, 0.45) transparent;
     display: flex;
     flex-direction: column;
     align-items: stretch;
     container-type: inline-size;
     container-name: docent;
+}
+
+.pattern-docent-inner::-webkit-scrollbar {
+    width: 4px;
+}
+
+.pattern-docent-inner::-webkit-scrollbar-thumb {
+    background: rgba(77, 255, 196, 0.4);
+    border-radius: 4px;
+}
+
+.pattern-docent-inner::-webkit-scrollbar-track {
+    background: transparent;
 }
 
 .pattern-docent-role-slot {
@@ -210,7 +227,7 @@
 
 /* 예문·설명이 같은 Y에서 시작 (예문 없으면 설명이 그 자리) */
 .pattern-docent-body {
-    flex: 0 1 auto;
+    flex: 1 1 auto;
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -366,17 +383,22 @@
     color: #d0b0ff;
 }
 
-/* 핵심 목록(1·2·3) — 본문보다 살짝 크게 */
+/* 핵심 목록(1·2·3) — 본문보다 살짝 크게, 줄 사이 br 없이 block만으로 구분 */
 .pattern-docent-mark--keylist {
     display: block;
-    margin-top: 0.2em;
-    font-size: 1.06em;
+    margin: 0;
+    padding: 0;
+    font-size: 1.02em;
     font-weight: 800;
-    line-height: 1.4;
+    line-height: 1.35;
     letter-spacing: -0.03em;
     white-space: normal;
     word-break: keep-all;
     overflow-wrap: break-word;
+}
+
+.pattern-docent-mark--keylist + .pattern-docent-mark--keylist {
+    margin-top: 0.12em;
 }
 
 /* (구) 문장 형태 마크 — ①②③ 동일 크기, ③이 위 설명 오른쪽 끝까지 */
