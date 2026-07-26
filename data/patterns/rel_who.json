@@ -1,0 +1,445 @@
+{
+  "id": "rel_who",
+  "chapter": "02",
+  "title": "관계대명사 who",
+  "subtitle": "사람 뒤에 설명 이어붙이기",
+  "roles": [
+    "s",
+    "v",
+    "o"
+  ],
+  "docent": [
+    {
+      "role": "패턴",
+      "parts": [
+        {
+          "text": "The man who smiled",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "waved",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "hello",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "미소 지은 남자"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "안녕"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "손짓했"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "먼저 이 문장 모양을 볼게요.\n\n"
+        },
+        {
+          "text": "The man who smiled",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "waved",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "hello",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        },
+        {
+          "text": "\n색만 따라가 보세요."
+        }
+      ]
+    },
+    {
+      "role": "독해 공식",
+      "parts": [
+        {
+          "text": "The man who smiled",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "waved",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "hello",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "미소 지은 남자"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "안녕"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "손짓했"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "읽는 공식은 한 줄입니다.\n\n사람 뒤에 설명 이어붙이기"
+        }
+      ]
+    },
+    {
+      "role": "이름 붙이기",
+      "parts": [
+        {
+          "text": "The man who smiled",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "waved",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "hello",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "미소 지은 남자"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "안녕"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "손짓했"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "이걸 문법에서는 관계대명사 who라고 부릅니다."
+        }
+      ]
+    },
+    {
+      "role": "해석",
+      "parts": [
+        {
+          "text": "The man who smiled",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "waved",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "hello",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "미소 지은 남자"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "안녕"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "손짓했"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "공식(사람 뒤에 설명 이어붙이기)을 기억한 뒤, 아래에 조사를 붙여 연습합니다."
+        }
+      ]
+    },
+    {
+      "role": "마무리",
+      "parts": [
+        {
+          "text": "The man who smiled",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "waved",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "hello",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "미소 지은 남자"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "안녕"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "손짓했"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "모양 → 공식 → 이름 순서입니다.\n이제 연습으로 확인합니다."
+        }
+      ]
+    }
+  ],
+  "docent_bridge": "영어 문장 위에 조사를 붙여 보겠습니다.\n천천히, 순서와 해석을 생각하며\n연습해 보세요.",
+  "guide": [
+    "사람 뒤에 who로 설명",
+    "주어 → 은/는",
+    "목적어 → 을/를"
+  ],
+  "steps": [
+    {
+      "eng": "Students need help.",
+      "eng_tokens": [
+        {
+          "text": "Students",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "need",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "help",
+          "maps": 1,
+          "role": "o"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "학생들",
+          "particle": "은",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "도움",
+          "particle": "을",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "필요로 한다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    },
+    {
+      "eng": "Friends share stories.",
+      "eng_tokens": [
+        {
+          "text": "Friends",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "share",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "stories",
+          "maps": 1,
+          "role": "o"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "친구들",
+          "particle": "은",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "이야기",
+          "particle": "를",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "나눈다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    }
+  ],
+  "next": {
+    "id": "rel_which",
+    "title": "관계대명사 which/that",
+    "ready": true
+  }
+}

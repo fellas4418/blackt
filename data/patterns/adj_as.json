@@ -1,0 +1,395 @@
+{
+  "id": "adj_as",
+  "chapter": "02",
+  "title": "as ~ as",
+  "subtitle": "A만큼 B하다",
+  "roles": [
+    "s",
+    "v",
+    "c"
+  ],
+  "docent": [
+    {
+      "role": "패턴",
+      "parts": [
+        {
+          "text": "Tom",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "is",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "as tall as Jim",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "톰"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "짐만큼 크"
+        },
+        {
+          "text": "다",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "먼저 이 문장 모양을 볼게요.\n\n"
+        },
+        {
+          "text": "Tom",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "is",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "as tall as Jim",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        },
+        {
+          "text": "\n색만 따라가 보세요."
+        }
+      ]
+    },
+    {
+      "role": "독해 공식",
+      "parts": [
+        {
+          "text": "Tom",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "is",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "as tall as Jim",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "톰"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "짐만큼 크"
+        },
+        {
+          "text": "다",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "읽는 공식은 한 줄입니다.\n\nA만큼 B하다"
+        }
+      ]
+    },
+    {
+      "role": "이름 붙이기",
+      "parts": [
+        {
+          "text": "Tom",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "is",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "as tall as Jim",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "톰"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "짐만큼 크"
+        },
+        {
+          "text": "다",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "이걸 문법에서는 as ~ as라고 부릅니다."
+        }
+      ]
+    },
+    {
+      "role": "해석",
+      "parts": [
+        {
+          "text": "Tom",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "is",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "as tall as Jim",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "톰"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "짐만큼 크"
+        },
+        {
+          "text": "다",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "공식(A만큼 B하다)을 기억한 뒤, 아래에 조사를 붙여 연습합니다."
+        }
+      ]
+    },
+    {
+      "role": "마무리",
+      "parts": [
+        {
+          "text": "Tom",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "is",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "as tall as Jim",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "톰"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "짐만큼 크"
+        },
+        {
+          "text": "다",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "모양 → 공식 → 이름 순서입니다.\n이제 연습으로 확인합니다."
+        }
+      ]
+    }
+  ],
+  "docent_bridge": "영어 문장 위에 조사를 붙여 보겠습니다.\n천천히, 순서와 해석을 생각하며\n연습해 보세요.",
+  "guide": [
+    "주어 뒤에는 은/는",
+    "보어 뒤에는 이/가",
+    "서술어는 ~다"
+  ],
+  "steps": [
+    {
+      "eng": "Tom became a hero.",
+      "eng_tokens": [
+        {
+          "text": "Tom",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "became",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "a hero",
+          "maps": 1,
+          "role": "c"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "톰",
+          "particle": "은",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "영웅",
+          "particle": "이",
+          "role": "보어",
+          "rule": "이/가"
+        },
+        {
+          "word": "되었다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    },
+    {
+      "eng": "This became easy.",
+      "eng_tokens": [
+        {
+          "text": "This",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "became",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "easy",
+          "maps": 1,
+          "role": "c"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "이것",
+          "particle": "은",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "쉬운 것",
+          "particle": "이",
+          "role": "보어",
+          "rule": "이/가"
+        },
+        {
+          "word": "되었다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    }
+  ],
+  "next": {
+    "id": "the_comp",
+    "title": "the ~, the ~",
+    "ready": true
+  }
+}

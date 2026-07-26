@@ -1,0 +1,537 @@
+{
+  "id": "sensory",
+  "chapter": "02",
+  "title": "감각",
+  "subtitle": "누가 · 누구를 · ~하는 걸 보다/듣다",
+  "roles": [
+    "s",
+    "v",
+    "o"
+  ],
+  "docent": [
+    {
+      "role": "패턴",
+      "parts": [
+        {
+          "text": "I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "saw",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "her",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "dance",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "그녀"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "춤추"
+        },
+        {
+          "text": "는 걸",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "보"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "먼저 이 문장 모양을 볼게요.\n\n"
+        },
+        {
+          "text": "I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "saw",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "her",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "dance",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        },
+        {
+          "text": "\n색만 따라가 보세요."
+        }
+      ]
+    },
+    {
+      "role": "독해 공식",
+      "parts": [
+        {
+          "text": "I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "saw",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "her",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "dance",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "그녀"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "춤추"
+        },
+        {
+          "text": "는 걸",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "보"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "읽는 공식은 한 줄입니다.\n\n누가 · 누구를 · ~하는 걸 보다/듣다"
+        }
+      ]
+    },
+    {
+      "role": "이름 붙이기",
+      "parts": [
+        {
+          "text": "I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "saw",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "her",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "dance",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "그녀"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "춤추"
+        },
+        {
+          "text": "는 걸",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "보"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "이걸 문법에서는 감각동사라고 부릅니다."
+        }
+      ]
+    },
+    {
+      "role": "해석",
+      "parts": [
+        {
+          "text": "I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "saw",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "her",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "dance",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "그녀"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "춤추"
+        },
+        {
+          "text": "는 걸",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "보"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "공식(누가 · 누구를 · ~하는 걸 보다/듣다)을 기억한 뒤, 아래에 조사를 붙여 연습합니다."
+        }
+      ]
+    },
+    {
+      "role": "마무리",
+      "parts": [
+        {
+          "text": "I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "saw",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "her",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "dance",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "그녀"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "춤추"
+        },
+        {
+          "text": "는 걸",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "보"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "모양 → 공식 → 이름 순서입니다.\n이제 연습으로 확인합니다."
+        }
+      ]
+    }
+  ],
+  "docent_bridge": "영어 문장 위에 조사를 붙여 보겠습니다.\n천천히, 순서와 해석을 생각하며\n연습해 보세요.",
+  "guide": [
+    "주어 → 은/는/이/가",
+    "목적어 → 을/를",
+    "서술어 → ~다"
+  ],
+  "steps": [
+    {
+      "eng": "I saw her.",
+      "eng_tokens": [
+        {
+          "text": "I",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "saw",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "her",
+          "maps": 1,
+          "role": "o"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "나",
+          "particle": "는",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "그녀",
+          "particle": "를",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "보았다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    },
+    {
+      "eng": "We heard him.",
+      "eng_tokens": [
+        {
+          "text": "We",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "heard",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "him",
+          "maps": 1,
+          "role": "o"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "우리",
+          "particle": "는",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "그",
+          "particle": "를",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "들었다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    }
+  ],
+  "next": {
+    "id": "dative",
+    "title": "수여",
+    "ready": true
+  }
+}

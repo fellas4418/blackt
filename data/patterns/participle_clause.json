@@ -1,0 +1,474 @@
+{
+  "id": "participle_clause",
+  "chapter": "03",
+  "title": "분사구문",
+  "subtitle": "주어 같고 동사 줄여 앞절",
+  "roles": [
+    "s",
+    "v",
+    "o"
+  ],
+  "docent": [
+    {
+      "role": "패턴",
+      "parts": [
+        {
+          "text": "Walking home",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "I",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "saw a cat",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "집으로 걸으며"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "고양이"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "보"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "먼저 이 문장 모양을 볼게요.\n\n"
+        },
+        {
+          "text": "Walking home",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "I",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "saw a cat",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        },
+        {
+          "text": "\n색만 따라가 보세요."
+        }
+      ]
+    },
+    {
+      "role": "독해 공식",
+      "parts": [
+        {
+          "text": "Walking home",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "I",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "saw a cat",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "집으로 걸으며"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "고양이"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "보"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "읽는 공식은 한 줄입니다.\n\n주어 같고 동사 줄여 앞절"
+        }
+      ]
+    },
+    {
+      "role": "이름 붙이기",
+      "parts": [
+        {
+          "text": "Walking home",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "I",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "saw a cat",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "집으로 걸으며"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "고양이"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "보"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "이걸 문법에서는 분사구문라고 부릅니다."
+        }
+      ]
+    },
+    {
+      "role": "해석",
+      "parts": [
+        {
+          "text": "Walking home",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "I",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "saw a cat",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "집으로 걸으며"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "고양이"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "보"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "공식(주어 같고 동사 줄여 앞절)을 기억한 뒤, 아래에 조사를 붙여 연습합니다."
+        }
+      ]
+    },
+    {
+      "role": "마무리",
+      "parts": [
+        {
+          "text": "Walking home",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "I",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "saw a cat",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "집으로 걸으며"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "고양이"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "보"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "모양 → 공식 → 이름 순서입니다.\n이제 연습으로 확인합니다."
+        }
+      ]
+    }
+  ],
+  "docent_bridge": "영어 문장 위에 조사를 붙여 보겠습니다.\n천천히, 순서와 해석을 생각하며\n연습해 보세요.",
+  "guide": [
+    "앞절 주어가 같고 동사를 줄임",
+    "본절 주어·서술어·목적어"
+  ],
+  "steps": [
+    {
+      "eng": "I saw a cat.",
+      "eng_tokens": [
+        {
+          "text": "I",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "saw",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "a cat",
+          "maps": 1,
+          "role": "o"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "나",
+          "particle": "는",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "고양이",
+          "particle": "를",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "보았다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    },
+    {
+      "eng": "We found a key.",
+      "eng_tokens": [
+        {
+          "text": "We",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "found",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "a key",
+          "maps": 1,
+          "role": "o"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "우리",
+          "particle": "는",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "열쇠",
+          "particle": "를",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "찾았다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    }
+  ],
+  "next": {
+    "id": "tense",
+    "title": "시제",
+    "ready": true
+  }
+}

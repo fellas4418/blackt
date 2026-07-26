@@ -1,0 +1,374 @@
+{
+  "id": "the_comp",
+  "chapter": "02",
+  "title": "the ~, the ~",
+  "subtitle": "~할수록 ~하다",
+  "roles": [
+    "s",
+    "v",
+    "o"
+  ],
+  "docent": [
+    {
+      "role": "패턴",
+      "parts": [
+        {
+          "text": "The more",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "you study",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "the better",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "공부할수록"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "더 좋"
+        },
+        {
+          "text": "다",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "먼저 이 문장 모양을 볼게요.\n\n"
+        },
+        {
+          "text": "The more",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "you study",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "the better",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        },
+        {
+          "text": "\n색만 따라가 보세요."
+        }
+      ]
+    },
+    {
+      "role": "독해 공식",
+      "parts": [
+        {
+          "text": "The more",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "you study",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "the better",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "공부할수록"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "더 좋"
+        },
+        {
+          "text": "다",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "읽는 공식은 한 줄입니다.\n\n~할수록 ~하다"
+        }
+      ]
+    },
+    {
+      "role": "이름 붙이기",
+      "parts": [
+        {
+          "text": "The more",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "you study",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "the better",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "공부할수록"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "더 좋"
+        },
+        {
+          "text": "다",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "이걸 문법에서는 the ~, the ~라고 부릅니다."
+        }
+      ]
+    },
+    {
+      "role": "해석",
+      "parts": [
+        {
+          "text": "The more",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "you study",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "the better",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "공부할수록"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "더 좋"
+        },
+        {
+          "text": "다",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "공식(~할수록 ~하다)을 기억한 뒤, 아래에 조사를 붙여 연습합니다."
+        }
+      ]
+    },
+    {
+      "role": "마무리",
+      "parts": [
+        {
+          "text": "The more",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "you study",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "the better",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "공부할수록"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "더 좋"
+        },
+        {
+          "text": "다",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "모양 → 공식 → 이름 순서입니다.\n이제 연습으로 확인합니다."
+        }
+      ]
+    }
+  ],
+  "docent_bridge": "영어 문장 위에 조사를 붙여 보겠습니다.\n천천히, 순서와 해석을 생각하며\n연습해 보세요.",
+  "guide": [
+    "앞절·뒷절이 함께 움직임",
+    "비교가 쌍으로 온다"
+  ],
+  "steps": [
+    {
+      "eng": "Practice makes perfect.",
+      "eng_tokens": [
+        {
+          "text": "Practice",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "makes",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "perfect",
+          "maps": 1,
+          "role": "o"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "연습",
+          "particle": "은",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "완벽",
+          "particle": "을",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "만든다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    },
+    {
+      "eng": "Kids want more time.",
+      "eng_tokens": [
+        {
+          "text": "Kids",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "want",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "more time",
+          "maps": 1,
+          "role": "o"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "아이",
+          "particle": "는",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "더 많은 시간",
+          "particle": "을",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "원한다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    }
+  ],
+  "next": {
+    "id": "adverb",
+    "title": "부사",
+    "ready": true
+  }
+}

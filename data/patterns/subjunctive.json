@@ -1,0 +1,424 @@
+{
+  "id": "subjunctive",
+  "chapter": "06",
+  "title": "가정법",
+  "subtitle": "사실이 아닌 가정",
+  "roles": [
+    "s",
+    "v",
+    "o"
+  ],
+  "docent": [
+    {
+      "role": "패턴",
+      "parts": [
+        {
+          "text": "If I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "had",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "time",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "가",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "시간"
+        },
+        {
+          "text": "이",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "있다면"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "먼저 이 문장 모양을 볼게요.\n\n"
+        },
+        {
+          "text": "If I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "had",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "time",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        },
+        {
+          "text": "\n색만 따라가 보세요."
+        }
+      ]
+    },
+    {
+      "role": "독해 공식",
+      "parts": [
+        {
+          "text": "If I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "had",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "time",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "가",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "시간"
+        },
+        {
+          "text": "이",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "있다면"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "읽는 공식은 한 줄입니다.\n\n사실이 아닌 가정"
+        }
+      ]
+    },
+    {
+      "role": "이름 붙이기",
+      "parts": [
+        {
+          "text": "If I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "had",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "time",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "가",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "시간"
+        },
+        {
+          "text": "이",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "있다면"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "이걸 문법에서는 가정법라고 부릅니다."
+        }
+      ]
+    },
+    {
+      "role": "해석",
+      "parts": [
+        {
+          "text": "If I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "had",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "time",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "가",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "시간"
+        },
+        {
+          "text": "이",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "있다면"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "공식(사실이 아닌 가정)을 기억한 뒤, 아래에 조사를 붙여 연습합니다."
+        }
+      ]
+    },
+    {
+      "role": "마무리",
+      "parts": [
+        {
+          "text": "If I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "had",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "time",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "가",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "시간"
+        },
+        {
+          "text": "이",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "있다면"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "모양 → 공식 → 이름 순서입니다.\n이제 연습으로 확인합니다."
+        }
+      ]
+    }
+  ],
+  "docent_bridge": "영어 문장 위에 조사를 붙여 보겠습니다.\n천천히, 순서와 해석을 생각하며\n연습해 보세요.",
+  "guide": [
+    "사실이 아닌 가정",
+    "동사 형태가 시제와 어긋남"
+  ],
+  "steps": [
+    {
+      "eng": "I need time.",
+      "eng_tokens": [
+        {
+          "text": "I",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "need",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "time",
+          "maps": 1,
+          "role": "o"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "나",
+          "particle": "는",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "시간",
+          "particle": "을",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "필요로 한다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    },
+    {
+      "eng": "We want peace.",
+      "eng_tokens": [
+        {
+          "text": "We",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "want",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "peace",
+          "maps": 1,
+          "role": "o"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "우리",
+          "particle": "는",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "평화",
+          "particle": "를",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "원한다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    }
+  ],
+  "next": {
+    "id": "inversion",
+    "title": "도치",
+    "ready": true
+  }
+}

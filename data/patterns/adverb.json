@@ -1,0 +1,445 @@
+{
+  "id": "adverb",
+  "chapter": "02",
+  "title": "부사",
+  "subtitle": "어떻게·언제·어디서 (꾸밈)",
+  "roles": [
+    "s",
+    "v",
+    "o"
+  ],
+  "docent": [
+    {
+      "role": "패턴",
+      "parts": [
+        {
+          "text": "She",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "runs",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "fast",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그녀"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "빠르"
+        },
+        {
+          "text": "게",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "뛴"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "먼저 이 문장 모양을 볼게요.\n\n"
+        },
+        {
+          "text": "She",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "runs",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "fast",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        },
+        {
+          "text": "\n색만 따라가 보세요."
+        }
+      ]
+    },
+    {
+      "role": "독해 공식",
+      "parts": [
+        {
+          "text": "She",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "runs",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "fast",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그녀"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "빠르"
+        },
+        {
+          "text": "게",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "뛴"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "읽는 공식은 한 줄입니다.\n\n어떻게·언제·어디서 (꾸밈)"
+        }
+      ]
+    },
+    {
+      "role": "이름 붙이기",
+      "parts": [
+        {
+          "text": "She",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "runs",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "fast",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그녀"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "빠르"
+        },
+        {
+          "text": "게",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "뛴"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "이걸 문법에서는 부사라고 부릅니다."
+        }
+      ]
+    },
+    {
+      "role": "해석",
+      "parts": [
+        {
+          "text": "She",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "runs",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "fast",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그녀"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "빠르"
+        },
+        {
+          "text": "게",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "뛴"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "부사는 목적어 자리와 다릅니다. 여기서는 꾸밈을 표시합니다.\n\n공식(어떻게·언제·어디서 (꾸밈))을 기억한 뒤, 아래에 조사를 붙여 연습합니다."
+        }
+      ]
+    },
+    {
+      "role": "마무리",
+      "parts": [
+        {
+          "text": "She",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "runs",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "fast",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그녀"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "빠르"
+        },
+        {
+          "text": "게",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "뛴"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "모양 → 공식 → 이름 순서입니다.\n이제 연습으로 확인합니다."
+        }
+      ]
+    }
+  ],
+  "docent_bridge": "영어 문장 위에 조사를 붙여 보겠습니다.\n천천히, 순서와 해석을 생각하며\n연습해 보세요.",
+  "guide": [
+    "주어 → 은/는/이/가",
+    "서술어 → ~다",
+    "꾸밈(어떻게) 자리 확인"
+  ],
+  "steps": [
+    {
+      "eng": "She runs races.",
+      "eng_tokens": [
+        {
+          "text": "She",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "runs",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "races",
+          "maps": 1,
+          "role": "o"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "그녀",
+          "particle": "는",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "경주",
+          "particle": "를",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "뛴다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    },
+    {
+      "eng": "They need help.",
+      "eng_tokens": [
+        {
+          "text": "They",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "need",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "help",
+          "maps": 1,
+          "role": "o"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "그들",
+          "particle": "은",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "도움",
+          "particle": "을",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "필요로 한다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    }
+  ],
+  "next": {
+    "id": "gerund",
+    "title": "동명사",
+    "ready": true
+  }
+}

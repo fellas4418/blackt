@@ -1,0 +1,445 @@
+{
+  "id": "participle",
+  "chapter": "02",
+  "title": "현재·과거분사",
+  "subtitle": "-ing/-ed가 앞에서 꾸미기",
+  "roles": [
+    "s",
+    "v",
+    "o"
+  ],
+  "docent": [
+    {
+      "role": "패턴",
+      "parts": [
+        {
+          "text": "A smiling baby",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "wants",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "milk",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "미소 짓는 아기"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "우유"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "원한"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "먼저 이 문장 모양을 볼게요.\n\n"
+        },
+        {
+          "text": "A smiling baby",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "wants",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "milk",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        },
+        {
+          "text": "\n색만 따라가 보세요."
+        }
+      ]
+    },
+    {
+      "role": "독해 공식",
+      "parts": [
+        {
+          "text": "A smiling baby",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "wants",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "milk",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "미소 짓는 아기"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "우유"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "원한"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "읽는 공식은 한 줄입니다.\n\n-ing/-ed가 앞에서 꾸미기"
+        }
+      ]
+    },
+    {
+      "role": "이름 붙이기",
+      "parts": [
+        {
+          "text": "A smiling baby",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "wants",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "milk",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "미소 짓는 아기"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "우유"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "원한"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "이걸 문법에서는 현재·과거분사라고 부릅니다."
+        }
+      ]
+    },
+    {
+      "role": "해석",
+      "parts": [
+        {
+          "text": "A smiling baby",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "wants",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "milk",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "미소 짓는 아기"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "우유"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "원한"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "공식(-ing/-ed가 앞에서 꾸미기)을 기억한 뒤, 아래에 조사를 붙여 연습합니다."
+        }
+      ]
+    },
+    {
+      "role": "마무리",
+      "parts": [
+        {
+          "text": "A smiling baby",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "wants",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "milk",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "미소 짓는 아기"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "우유"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "원한"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "모양 → 공식 → 이름 순서입니다.\n이제 연습으로 확인합니다."
+        }
+      ]
+    }
+  ],
+  "docent_bridge": "영어 문장 위에 조사를 붙여 보겠습니다.\n천천히, 순서와 해석을 생각하며\n연습해 보세요.",
+  "guide": [
+    "-ing/-ed가 앞에서 꾸밈",
+    "주어 → 은/는",
+    "목적어 → 을/를"
+  ],
+  "steps": [
+    {
+      "eng": "A smiling baby wants milk.",
+      "eng_tokens": [
+        {
+          "text": "A smiling baby",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "wants",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "milk",
+          "maps": 1,
+          "role": "o"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "아기",
+          "particle": "는",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "우유",
+          "particle": "를",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "원한다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    },
+    {
+      "eng": "Broken toys need glue.",
+      "eng_tokens": [
+        {
+          "text": "Broken toys",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "need",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "glue",
+          "maps": 1,
+          "role": "o"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "장난감",
+          "particle": "은",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "풀",
+          "particle": "을",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "필요로 한다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    }
+  ],
+  "next": {
+    "id": "participle_clause",
+    "title": "분사구문",
+    "ready": true
+  }
+}

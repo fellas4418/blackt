@@ -2,8 +2,194 @@
   "id": "svc",
   "chapter": "01",
   "title": "주·동·보",
-  "subtitle": "누가 · 뭐 한다 · 무엇이",
+  "subtitle": "누가 · (되다) · 무엇이",
   "roles": ["s", "v", "c"],
+  "docent": [
+    {
+      "role": "패턴",
+      "parts": [
+        { "text": "Mario", "mark": "s" },
+        { "text": " " },
+        { "text": "became", "mark": "v" },
+        { "text": " " },
+        { "text": "a hero", "mark": "c" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "마리오" },
+        { "text": "는", "mark": "s" },
+        { "text": " " },
+        { "text": "영웅" },
+        { "text": "이", "mark": "c" },
+        { "text": " " },
+        { "text": "되었" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ],
+      "text_parts": [
+        { "text": "먼저 이 문장 모양을 볼게요.\n\n" },
+        { "text": "Mario", "mark": "s" },
+        { "text": " " },
+        { "text": "became", "mark": "v" },
+        { "text": " " },
+        { "text": "a hero", "mark": "c" },
+        { "text": ".\n색만 따라가 보세요." }
+      ]
+    },
+    {
+      "role": "독해 공식",
+      "parts": [
+        { "text": "Mario", "mark": "s" },
+        { "text": " " },
+        { "text": "became", "mark": "v" },
+        { "text": " " },
+        { "text": "a hero", "mark": "c" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "마리오" },
+        { "text": "는", "mark": "s" },
+        { "text": " " },
+        { "text": "영웅" },
+        { "text": "이", "mark": "c" },
+        { "text": " " },
+        { "text": "되었" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ],
+      "text_parts": [
+        { "text": "읽는 공식은 한 줄입니다.\n\n누가 · (되다) · 무엇이" }
+      ]
+    },
+    {
+      "role": "이름 붙이기",
+      "parts": [
+        { "text": "Mario", "mark": "s" },
+        { "text": " " },
+        { "text": "became", "mark": "v" },
+        { "text": " " },
+        { "text": "a hero", "mark": "c" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "마리오" },
+        { "text": "는", "mark": "s" },
+        { "text": " " },
+        { "text": "영웅" },
+        { "text": "이", "mark": "c" },
+        { "text": " " },
+        { "text": "되었" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ],
+      "text_parts": [
+        { "text": "이걸 문법에서는 " },
+        { "text": "주어", "mark": "s" },
+        { "text": " · " },
+        { "text": "서술어", "mark": "v" },
+        { "text": " · " },
+        { "text": "주격보어", "mark": "c" },
+        { "text": "라고 부릅니다.\n\n뒤의 " },
+        { "text": "무엇이", "mark": "c" },
+        { "text": "는 목적어가 아니라, 주어 상태를 보충하는 " },
+        { "text": "보어", "mark": "c" },
+        { "text": "입니다." }
+      ]
+    },
+    {
+      "role": "보어",
+      "parts": [
+        { "text": "Mario", "mark": "s" },
+        { "text": " " },
+        { "text": "became", "mark": "v" },
+        { "text": " " },
+        { "text": "a hero", "mark": "c" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "마리오" },
+        { "text": "는", "mark": "s" },
+        { "text": " " },
+        { "text": "영웅" },
+        { "text": "이", "mark": "c" },
+        { "text": " " },
+        { "text": "되었" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ],
+      "text_parts": [
+        { "text": "주어", "mark": "s" },
+        { "text": "에는 " },
+        { "text": "「-은/는」", "mark": "s" },
+        { "text": "을 붙입니다.\n" },
+        { "text": "보어", "mark": "c" },
+        { "text": "에는 " },
+        { "text": "「-이/가」", "mark": "c" },
+        { "text": "를 붙입니다 (되다·아니다).\n" },
+        { "text": "서술어", "mark": "v" },
+        { "text": "는 " },
+        { "text": "「-다」", "mark": "v" },
+        { "text": "로 끝냅니다." }
+      ]
+    },
+    {
+      "role": "바꿔 보기",
+      "parts": [
+        { "text": "Luna", "mark": "s" },
+        { "text": " " },
+        { "text": "became", "mark": "v" },
+        { "text": " " },
+        { "text": "a singer", "mark": "c" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "루나" },
+        { "text": "는", "mark": "s" },
+        { "text": " " },
+        { "text": "가수" },
+        { "text": "가", "mark": "c" },
+        { "text": " " },
+        { "text": "되었" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ],
+      "text_parts": [
+        { "text": "주어를 " },
+        { "text": "Luna", "mark": "s" },
+        { "text": "로, 보어를 " },
+        { "text": "a singer", "mark": "c" },
+        { "text": "로 바꿔 봅니다.\n\n공식은 그대로 누가 · (되다) · 무엇입니다." }
+      ]
+    },
+    {
+      "role": "마무리",
+      "parts": [
+        { "text": "Mario", "mark": "s" },
+        { "text": " " },
+        { "text": "became", "mark": "v" },
+        { "text": " " },
+        { "text": "a hero", "mark": "c" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "마리오" },
+        { "text": "는", "mark": "s" },
+        { "text": " " },
+        { "text": "영웅" },
+        { "text": "이", "mark": "c" },
+        { "text": " " },
+        { "text": "되었" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ],
+      "text_parts": [
+        { "text": "목적어의 " },
+        { "text": "「-을/를」", "mark": "o" },
+        { "text": "과 헷갈리지 마세요.\n보어는 주어 상태를 말해 주는 자리입니다." }
+      ]
+    }
+  ],
+  "docent_bridge": "영어 문장 위에 조사를 붙여 보겠습니다.\n천천히, 순서와 해석을 생각하며\n연습해 보세요.",
   "guide": [
     "주어 뒤에는 은/는",
     "보어 뒤에는 이/가 (되다·아니다)",
@@ -64,5 +250,5 @@
       ]
     }
   ],
-  "next": { "id": "svoc", "title": "주·동·목·보", "ready": false }
+  "next": { "id": "svoc", "title": "주·동·목·보", "ready": true }
 }

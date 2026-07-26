@@ -5,1001 +5,431 @@
   "subtitle": "누가 · -하다 · 무엇을",
   "docent": [
     {
-      "role": "주어",
+      "role": "패턴",
       "parts": [
-        {
-          "text": "People",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "want",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "love",
-          "mark": "o"
-        },
-        {
-          "text": "."
-        }
+        { "text": "People", "mark": "s" },
+        { "text": " " },
+        { "text": "want", "mark": "v" },
+        { "text": " " },
+        { "text": "love", "mark": "o" },
+        { "text": "." }
       ],
       "kor_parts": [
-        {
-          "text": "사람"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "사랑"
-        },
-        {
-          "text": "을",
-          "mark": "o"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "원하"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
+        { "text": "사람" },
+        { "text": "은", "mark": "s" },
+        { "text": " " },
+        { "text": "사랑" },
+        { "text": "을", "mark": "o" },
+        { "text": " " },
+        { "text": "원하" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
       ],
       "text_parts": [
-        {
-          "text": "먼저 맨 앞에는 "
-        },
-        {
-          "text": "주어",
-          "mark": "s"
-        },
-        {
-          "text": "가 옵니다.\n\n"
-        },
-        {
-          "text": "People",
-          "mark": "s"
-        },
-        {
-          "text": "은"
-        },
-        {
-          "text": " 이 문장에서 동작을 일으키는 주체예요. 영어든 한국어든 주어는 문장 맨 앞에 옵니다."
-        }
+        { "text": "먼저 이 문장 모양을 볼게요.\n\n" },
+        { "text": "People", "mark": "s" },
+        { "text": " " },
+        { "text": "want", "mark": "v" },
+        { "text": " " },
+        { "text": "love", "mark": "o" },
+        { "text": ".\n색만 따라가 보세요." }
+      ]
+    },
+    {
+      "role": "독해 공식",
+      "parts": [
+        { "text": "People", "mark": "s" },
+        { "text": " " },
+        { "text": "want", "mark": "v" },
+        { "text": " " },
+        { "text": "love", "mark": "o" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "사람" },
+        { "text": "은", "mark": "s" },
+        { "text": " " },
+        { "text": "사랑" },
+        { "text": "을", "mark": "o" },
+        { "text": " " },
+        { "text": "원하" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ],
+      "text_parts": [
+        { "text": "읽는 공식은 한 줄입니다.\n\n누가 · -하다 · 무엇을" }
+      ]
+    },
+    {
+      "role": "이름 붙이기",
+      "parts": [
+        { "text": "People", "mark": "s" },
+        { "text": " " },
+        { "text": "want", "mark": "v" },
+        { "text": " " },
+        { "text": "love", "mark": "o" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "사람" },
+        { "text": "은", "mark": "s" },
+        { "text": " " },
+        { "text": "사랑" },
+        { "text": "을", "mark": "o" },
+        { "text": " " },
+        { "text": "원하" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ],
+      "text_parts": [
+        { "text": "이걸 문법에서는\n" },
+        { "text": "「주어 · 서술어 · 목적어」", "mark": "quote" },
+        { "text": "라고 부릅니다.\n\n누가 → " },
+        { "text": "주어", "mark": "s" },
+        { "text": ", -하다 → " },
+        { "text": "서술어", "mark": "v" },
+        { "text": ", 무엇을 → " },
+        { "text": "목적어", "mark": "o" },
+        { "text": "." }
       ]
     },
     {
       "role": "주어",
       "parts": [
-        {
-          "text": "People",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "want",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "love",
-          "mark": "o"
-        },
-        {
-          "text": "."
-        }
+        { "text": "People", "mark": "s" },
+        { "text": " " },
+        { "text": "want", "mark": "v" },
+        { "text": " " },
+        { "text": "love", "mark": "o" },
+        { "text": "." }
       ],
       "kor_parts": [
-        {
-          "text": "사람"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "사랑"
-        },
-        {
-          "text": "을",
-          "mark": "o"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "원하"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
+        { "text": "사람" },
+        { "text": "은", "mark": "s" },
+        { "text": " " },
+        { "text": "사랑" },
+        { "text": "을", "mark": "o" },
+        { "text": " " },
+        { "text": "원하" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
       ],
       "text_parts": [
-        {
-          "text": "주어",
-          "mark": "s"
-        },
-        {
-          "text": "에는 항상 "
-        },
-        {
-          "text": "「-은/는/이/가」",
-          "mark": "s"
-        },
-        {
-          "text": "중 하나를 반드시 붙여서 해석합니다.\n\n보통 맨 앞의 단어에 "
-        },
-        {
-          "text": "「-은/는/이/가」",
-          "mark": "s"
-        },
-        {
-          "text": "를 붙이면 됩니다."
-        }
+        { "text": "주어", "mark": "s" },
+        { "text": "에는 항상 " },
+        { "text": "「-은/는/이/가」", "mark": "s" },
+        { "text": "중 하나를 반드시 붙여서 해석합니다.\n\n보통 맨 앞의 단어에 " },
+        { "text": "「-은/는/이/가」", "mark": "s" },
+        { "text": "를 붙이면 됩니다." }
       ]
     },
     {
       "role": "주어",
       "parts": [
-        {
-          "text": "Dogs",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "want",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "love",
-          "mark": "o"
-        },
-        {
-          "text": "."
-        }
+        { "text": "Dogs", "mark": "s" },
+        { "text": " " },
+        { "text": "want", "mark": "v" },
+        { "text": " " },
+        { "text": "love", "mark": "o" },
+        { "text": "." }
       ],
       "kor_parts": [
-        {
-          "text": "강아지"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "사랑"
-        },
-        {
-          "text": "을",
-          "mark": "o"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "원하"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
+        { "text": "강아지" },
+        { "text": "는", "mark": "s" },
+        { "text": " " },
+        { "text": "사랑" },
+        { "text": "을", "mark": "o" },
+        { "text": " " },
+        { "text": "원하" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
       ],
       "text_parts": [
-        {
-          "text": "주어를 "
-        },
-        {
-          "text": "Dogs",
-          "mark": "s"
-        },
-        {
-          "text": "로 바꿔 봅니다.\n\n강아지라는 주어에 "
-        },
-        {
-          "text": "「-는」",
-          "mark": "s"
-        },
-        {
-          "text": "이라는 말이 붙어 있죠? 바로 주어이기 때문입니다."
-        }
+        { "text": "주어를 " },
+        { "text": "Dogs", "mark": "s" },
+        { "text": "로 바꿔 봅니다.\n\n강아지라는 주어에 " },
+        { "text": "「-는」", "mark": "s" },
+        { "text": "이라는 말이 붙어 있죠? 바로 주어이기 때문입니다." }
       ]
     },
     {
       "role": "주어",
       "parts": [
-        {
-          "text": "Kids",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "want",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "love",
-          "mark": "o"
-        },
-        {
-          "text": "."
-        }
+        { "text": "Kids", "mark": "s" },
+        { "text": " " },
+        { "text": "want", "mark": "v" },
+        { "text": " " },
+        { "text": "love", "mark": "o" },
+        { "text": "." }
       ],
       "kor_parts": [
-        {
-          "text": "아이"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "사랑"
-        },
-        {
-          "text": "을",
-          "mark": "o"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "원하"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
+        { "text": "아이" },
+        { "text": "는", "mark": "s" },
+        { "text": " " },
+        { "text": "사랑" },
+        { "text": "을", "mark": "o" },
+        { "text": " " },
+        { "text": "원하" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
       ],
       "text_parts": [
-        {
-          "text": "Kids",
-          "mark": "s"
-        },
-        {
-          "text": "도 주어이기 때문에 "
-        },
-        {
-          "text": "「-는」",
-          "mark": "s"
-        },
-        {
-          "text": "이라는 말이 붙어 있습니다."
-        }
+        { "text": "Kids", "mark": "s" },
+        { "text": "도 주어이기 때문에 " },
+        { "text": "「-는」", "mark": "s" },
+        { "text": "이라는 말이 붙어 있습니다." }
       ]
     },
     {
       "role": "서술어",
       "parts": [
-        {
-          "text": "People",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "want",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "love",
-          "mark": "o"
-        },
-        {
-          "text": "."
-        }
+        { "text": "People", "mark": "s" },
+        { "text": " " },
+        { "text": "want", "mark": "v" },
+        { "text": " " },
+        { "text": "love", "mark": "o" },
+        { "text": "." }
       ],
       "kor_parts": [
-        {
-          "text": "사람"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "사랑"
-        },
-        {
-          "text": "을",
-          "mark": "o"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "원하"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
+        { "text": "사람" },
+        { "text": "은", "mark": "s" },
+        { "text": " " },
+        { "text": "사랑" },
+        { "text": "을", "mark": "o" },
+        { "text": " " },
+        { "text": "원하" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
       ],
       "text_parts": [
-        {
-          "text": "주어 다음은 바로 "
-        },
-        {
-          "text": "서술어",
-          "mark": "v"
-        },
-        {
-          "text": "가 옵니다. 서술어를 해석할 때는 "
-        },
-        {
-          "text": "「-다」",
-          "mark": "v"
-        },
-        {
-          "text": "라는 말을 붙여야 합니다.\n\n동사 "
-        },
-        {
-          "text": "want",
-          "mark": "v"
-        },
-        {
-          "text": "가 주어 다음에 온 서술어로 "
-        },
-        {
-          "text": "원하다",
-          "mark": "v"
-        },
-        {
-          "text": "라는 뜻으로 쓰였습니다."
-        }
+        { "text": "주어 다음은 바로 " },
+        { "text": "서술어", "mark": "v" },
+        { "text": "가 옵니다. 서술어를 해석할 때는 " },
+        { "text": "「-다」", "mark": "v" },
+        { "text": "라는 말을 붙여야 합니다.\n\n동사 " },
+        { "text": "want", "mark": "v" },
+        { "text": "가 주어 다음에 온 서술어로 " },
+        { "text": "원하다", "mark": "v" },
+        { "text": "라는 뜻으로 쓰였습니다." }
       ]
     },
     {
       "role": "서술어",
       "parts": [
-        {
-          "text": "People",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "hate",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "love",
-          "mark": "o"
-        },
-        {
-          "text": "."
-        }
+        { "text": "People", "mark": "s" },
+        { "text": " " },
+        { "text": "hate", "mark": "v" },
+        { "text": " " },
+        { "text": "love", "mark": "o" },
+        { "text": "." }
       ],
       "kor_parts": [
-        {
-          "text": "사람"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "사랑"
-        },
-        {
-          "text": "을",
-          "mark": "o"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "싫어한"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
+        { "text": "사람" },
+        { "text": "은", "mark": "s" },
+        { "text": " " },
+        { "text": "사랑" },
+        { "text": "을", "mark": "o" },
+        { "text": " " },
+        { "text": "싫어한" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
       ],
       "text_parts": [
-        {
-          "text": "싫어하다라는 뜻의 동사 "
-        },
-        {
-          "text": "hate",
-          "mark": "v"
-        },
-        {
-          "text": "가 왔습니다.\n\n어떤 서술어가 오더라도 항상 "
-        },
-        {
-          "text": "「-다」",
-          "mark": "v"
-        },
-        {
-          "text": "를 붙여야 합니다."
-        }
+        { "text": "싫어하다라는 뜻의 동사 " },
+        { "text": "hate", "mark": "v" },
+        { "text": "가 왔습니다.\n\n어떤 서술어가 오더라도 항상 " },
+        { "text": "「-다」", "mark": "v" },
+        { "text": "를 붙여야 합니다." }
       ]
     },
     {
       "role": "서술어",
       "parts": [
-        {
-          "text": "People",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "seek",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "love",
-          "mark": "o"
-        },
-        {
-          "text": "."
-        }
+        { "text": "People", "mark": "s" },
+        { "text": " " },
+        { "text": "seek", "mark": "v" },
+        { "text": " " },
+        { "text": "love", "mark": "o" },
+        { "text": "." }
       ],
       "kor_parts": [
-        {
-          "text": "사람"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "사랑"
-        },
-        {
-          "text": "을",
-          "mark": "o"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "찾는"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
+        { "text": "사람" },
+        { "text": "은", "mark": "s" },
+        { "text": " " },
+        { "text": "사랑" },
+        { "text": "을", "mark": "o" },
+        { "text": " " },
+        { "text": "찾는" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
       ],
       "text_parts": [
-        {
-          "text": "찾다라는 뜻의 동사 "
-        },
-        {
-          "text": "seek",
-          "mark": "v"
-        },
-        {
-          "text": "이 서술어에 왔습니다.\n\n서술어에는 이처럼 동사가 들어갈 수 있고, 항상 "
-        },
-        {
-          "text": "「-다」",
-          "mark": "v"
-        },
-        {
-          "text": "를 붙여야 합니다."
-        }
+        { "text": "찾다라는 뜻의 동사 " },
+        { "text": "seek", "mark": "v" },
+        { "text": "이 서술어에 왔습니다.\n\n서술어에는 이처럼 동사가 들어갈 수 있고, 항상 " },
+        { "text": "「-다」", "mark": "v" },
+        { "text": "를 붙여야 합니다." }
       ]
     },
     {
       "role": "목적어",
       "parts": [
-        {
-          "text": "People",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "want",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "love",
-          "mark": "o"
-        },
-        {
-          "text": "."
-        }
+        { "text": "People", "mark": "s" },
+        { "text": " " },
+        { "text": "want", "mark": "v" },
+        { "text": " " },
+        { "text": "love", "mark": "o" },
+        { "text": "." }
       ],
       "kor_parts": [
-        {
-          "text": "사람"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "사랑"
-        },
-        {
-          "text": "을",
-          "mark": "o"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "원하"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
+        { "text": "사람" },
+        { "text": "은", "mark": "s" },
+        { "text": " " },
+        { "text": "사랑" },
+        { "text": "을", "mark": "o" },
+        { "text": " " },
+        { "text": "원하" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
       ],
       "text_parts": [
-        {
-          "text": "영어에서는 서술어 뒤에 보통 "
-        },
-        {
-          "text": "목적어",
-          "mark": "o"
-        },
-        {
-          "text": "가 옵니다.\n\n목적어는 동작이 향하는 대상으로 이 문장에서는 "
-        },
-        {
-          "text": "love",
-          "mark": "o"
-        },
-        {
-          "text": "가 바로 목적어입니다."
-        }
+        { "text": "영어에서는 서술어 뒤에 보통 " },
+        { "text": "목적어", "mark": "o" },
+        { "text": "가 옵니다.\n\n목적어는 동작이 향하는 대상으로 이 문장에서는 " },
+        { "text": "love", "mark": "o" },
+        { "text": "가 바로 목적어입니다." }
       ]
     },
     {
       "role": "목적어",
       "parts": [
-        {
-          "text": "People",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "want",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "love",
-          "mark": "o"
-        },
-        {
-          "text": "."
-        }
+        { "text": "People", "mark": "s" },
+        { "text": " " },
+        { "text": "want", "mark": "v" },
+        { "text": " " },
+        { "text": "love", "mark": "o" },
+        { "text": "." }
       ],
       "kor_parts": [
-        {
-          "text": "사람"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "사랑"
-        },
-        {
-          "text": "을",
-          "mark": "o"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "원하"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
+        { "text": "사람" },
+        { "text": "은", "mark": "s" },
+        { "text": " " },
+        { "text": "사랑" },
+        { "text": "을", "mark": "o" },
+        { "text": " " },
+        { "text": "원하" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
       ],
       "text_parts": [
-        {
-          "text": "목적어에는 항상 "
-        },
-        {
-          "text": "「-을/를」",
-          "mark": "o"
-        },
-        {
-          "text": "중 하나를 해석에 붙여야 합니다. "
-        },
-        {
-          "text": "love",
-          "mark": "o"
-        },
-        {
-          "text": "가 목적어이므로 "
-        },
-        {
-          "text": "「-을/를」",
-          "mark": "o"
-        },
-        {
-          "text": "을 붙여서 "
-        },
-        {
-          "text": "사랑을",
-          "mark": "o"
-        },
-        {
-          "text": "이라고 해석합니다."
-        }
+        { "text": "목적어에는 항상 " },
+        { "text": "「-을/를」", "mark": "o" },
+        { "text": "중 하나를 해석에 붙여야 합니다. " },
+        { "text": "love", "mark": "o" },
+        { "text": "가 목적어이므로 " },
+        { "text": "「-을/를」", "mark": "o" },
+        { "text": "을 붙여서 " },
+        { "text": "사랑을", "mark": "o" },
+        { "text": "이라고 해석합니다." }
       ]
     },
     {
       "role": "목적어",
       "parts": [
-        {
-          "text": "People",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "want",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "peace",
-          "mark": "o"
-        },
-        {
-          "text": "."
-        }
+        { "text": "People", "mark": "s" },
+        { "text": " " },
+        { "text": "want", "mark": "v" },
+        { "text": " " },
+        { "text": "peace", "mark": "o" },
+        { "text": "." }
       ],
       "kor_parts": [
-        {
-          "text": "사람"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "평화"
-        },
-        {
-          "text": "를",
-          "mark": "o"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "원하"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
+        { "text": "사람" },
+        { "text": "은", "mark": "s" },
+        { "text": " " },
+        { "text": "평화" },
+        { "text": "를", "mark": "o" },
+        { "text": " " },
+        { "text": "원하" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
       ],
       "text_parts": [
-        {
-          "text": "대상을 "
-        },
-        {
-          "text": "peace",
-          "mark": "o"
-        },
-        {
-          "text": "로 바꿔 봅니다.\n\n역시 "
-        },
-        {
-          "text": "peace",
-          "mark": "o"
-        },
-        {
-          "text": "(평화)에 "
-        },
-        {
-          "text": "「-을/를」",
-          "mark": "o"
-        },
-        {
-          "text": "을 붙여 "
-        },
-        {
-          "text": "평화를",
-          "mark": "o"
-        },
-        {
-          "text": "이라고 해석합니다."
-        }
+        { "text": "대상을 " },
+        { "text": "peace", "mark": "o" },
+        { "text": "로 바꿔 봅니다.\n\n역시 " },
+        { "text": "peace", "mark": "o" },
+        { "text": "(평화)에 " },
+        { "text": "「-을/를」", "mark": "o" },
+        { "text": "을 붙여 " },
+        { "text": "평화를", "mark": "o" },
+        { "text": "이라고 해석합니다." }
       ]
     },
     {
       "role": "목적어",
       "parts": [
-        {
-          "text": "People",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "want",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "freedom",
-          "mark": "o"
-        },
-        {
-          "text": "."
-        }
+        { "text": "People", "mark": "s" },
+        { "text": " " },
+        { "text": "want", "mark": "v" },
+        { "text": " " },
+        { "text": "freedom", "mark": "o" },
+        { "text": "." }
       ],
       "kor_parts": [
-        {
-          "text": "사람"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "자유"
-        },
-        {
-          "text": "를",
-          "mark": "o"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "원하"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
+        { "text": "사람" },
+        { "text": "은", "mark": "s" },
+        { "text": " " },
+        { "text": "자유" },
+        { "text": "를", "mark": "o" },
+        { "text": " " },
+        { "text": "원하" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
       ],
       "text_parts": [
-        {
-          "text": "대상을 "
-        },
-        {
-          "text": "freedom",
-          "mark": "o"
-        },
-        {
-          "text": "으로 바꿔 봅니다.\n\n이처럼 "
-        },
-        {
-          "text": "목적어",
-          "mark": "o"
-        },
-        {
-          "text": "는 서술어 뒤에만 위치할 수 있습니다."
-        }
+        { "text": "대상을 " },
+        { "text": "freedom", "mark": "o" },
+        { "text": "으로 바꿔 봅니다.\n\n이처럼 " },
+        { "text": "목적어", "mark": "o" },
+        { "text": "는 서술어 뒤에만 위치할 수 있습니다." }
       ]
     },
     {
       "role": "마무리",
       "parts": [
-        {
-          "text": "People",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "want",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "love",
-          "mark": "o"
-        },
-        {
-          "text": "."
-        }
+        { "text": "People", "mark": "s" },
+        { "text": " " },
+        { "text": "want", "mark": "v" },
+        { "text": " " },
+        { "text": "love", "mark": "o" },
+        { "text": "." }
       ],
       "kor_parts": [
-        {
-          "text": "사람"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "사랑"
-        },
-        {
-          "text": "을",
-          "mark": "o"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "원하"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
+        { "text": "사람" },
+        { "text": "은", "mark": "s" },
+        { "text": " " },
+        { "text": "사랑" },
+        { "text": "을", "mark": "o" },
+        { "text": " " },
+        { "text": "원하" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
       ],
       "text_parts": [
-        {
-          "text": "영어는 이처럼 "
-        },
-        {
-          "text": "주어",
-          "mark": "s"
-        },
-        {
-          "text": "-"
-        },
-        {
-          "text": "서술어",
-          "mark": "v"
-        },
-        {
-          "text": "-"
-        },
-        {
-          "text": "목적어",
-          "mark": "o"
-        },
-        {
-          "text": " 순으로 말합니다.\n\n"
-        },
-        {
-          "text": "1. 주어는 「-은/는/이/가」",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "2. 서술어는 「-다」",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "3. 목적어는 「-을/를」",
-          "mark": "o"
-        },
-        {
-          "text": " 을 붙여서 해석합니다."
-        }
+        { "text": "공식은 누가 · -하다 · 무엇입니다.\n이름은 " },
+        { "text": "주어", "mark": "s" },
+        { "text": "-" },
+        { "text": "서술어", "mark": "v" },
+        { "text": "-" },
+        { "text": "목적어", "mark": "o" },
+        { "text": "입니다.\n\n" },
+        { "text": "1. 주어는 「-은/는/이/가」", "mark": "s" },
+        { "text": "\n" },
+        { "text": "2. 서술어는 「-다」", "mark": "v" },
+        { "text": "\n" },
+        { "text": "3. 목적어는 「-을/를」", "mark": "o" },
+        { "text": " 을 붙여서 해석합니다." }
       ]
     }
   ],
@@ -1013,161 +443,53 @@
     {
       "eng": "A penguin likes fish.",
       "eng_tokens": [
-        {
-          "text": "A penguin",
-          "maps": 0,
-          "role": "s"
-        },
-        {
-          "text": "likes",
-          "maps": 2,
-          "role": "v"
-        },
-        {
-          "text": "fish",
-          "maps": 1,
-          "role": "o"
-        }
+        { "text": "A penguin", "maps": 0, "role": "s" },
+        { "text": "likes", "maps": 2, "role": "v" },
+        { "text": "fish", "maps": 1, "role": "o" }
       ],
       "kor_slots": [
-        {
-          "word": "펭귄",
-          "particle": "은",
-          "role": "주어",
-          "rule": "은/는"
-        },
-        {
-          "word": "물고기",
-          "particle": "를",
-          "role": "목적어",
-          "rule": "을/를"
-        },
-        {
-          "word": "좋아한다",
-          "particle": "",
-          "role": "서술어",
-          "rule": "-다"
-        }
+        { "word": "펭귄", "particle": "은", "role": "주어", "rule": "은/는" },
+        { "word": "물고기", "particle": "를", "role": "목적어", "rule": "을/를" },
+        { "word": "좋아한다", "particle": "", "role": "서술어", "rule": "-다" }
       ]
     },
     {
       "eng": "Mario likes pizza.",
       "eng_tokens": [
-        {
-          "text": "Mario",
-          "maps": 0,
-          "role": "s"
-        },
-        {
-          "text": "likes",
-          "maps": 2,
-          "role": "v"
-        },
-        {
-          "text": "pizza",
-          "maps": 1,
-          "role": "o"
-        }
+        { "text": "Mario", "maps": 0, "role": "s" },
+        { "text": "likes", "maps": 2, "role": "v" },
+        { "text": "pizza", "maps": 1, "role": "o" }
       ],
       "kor_slots": [
-        {
-          "word": "마리오",
-          "particle": "는",
-          "role": "주어",
-          "rule": "은/는"
-        },
-        {
-          "word": "피자",
-          "particle": "를",
-          "role": "목적어",
-          "rule": "을/를"
-        },
-        {
-          "word": "좋아한다",
-          "particle": "",
-          "role": "서술어",
-          "rule": "-다"
-        }
+        { "word": "마리오", "particle": "는", "role": "주어", "rule": "은/는" },
+        { "word": "피자", "particle": "를", "role": "목적어", "rule": "을/를" },
+        { "word": "좋아한다", "particle": "", "role": "서술어", "rule": "-다" }
       ]
     },
     {
       "eng": "Einstein loves music.",
       "eng_tokens": [
-        {
-          "text": "Einstein",
-          "maps": 0,
-          "role": "s"
-        },
-        {
-          "text": "loves",
-          "maps": 2,
-          "role": "v"
-        },
-        {
-          "text": "music",
-          "maps": 1,
-          "role": "o"
-        }
+        { "text": "Einstein", "maps": 0, "role": "s" },
+        { "text": "loves", "maps": 2, "role": "v" },
+        { "text": "music", "maps": 1, "role": "o" }
       ],
       "kor_slots": [
-        {
-          "word": "아인슈타인",
-          "particle": "은",
-          "role": "주어",
-          "rule": "은/는"
-        },
-        {
-          "word": "음악",
-          "particle": "을",
-          "role": "목적어",
-          "rule": "을/를"
-        },
-        {
-          "word": "사랑한다",
-          "particle": "",
-          "role": "서술어",
-          "rule": "-다"
-        }
+        { "word": "아인슈타인", "particle": "은", "role": "주어", "rule": "은/는" },
+        { "word": "음악", "particle": "을", "role": "목적어", "rule": "을/를" },
+        { "word": "사랑한다", "particle": "", "role": "서술어", "rule": "-다" }
       ]
     },
     {
       "eng": "Students hate homework.",
       "eng_tokens": [
-        {
-          "text": "Students",
-          "maps": 0,
-          "role": "s"
-        },
-        {
-          "text": "hate",
-          "maps": 2,
-          "role": "v"
-        },
-        {
-          "text": "homework",
-          "maps": 1,
-          "role": "o"
-        }
+        { "text": "Students", "maps": 0, "role": "s" },
+        { "text": "hate", "maps": 2, "role": "v" },
+        { "text": "homework", "maps": 1, "role": "o" }
       ],
       "kor_slots": [
-        {
-          "word": "학생들",
-          "particle": "은",
-          "role": "주어",
-          "rule": "은/는"
-        },
-        {
-          "word": "숙제",
-          "particle": "를",
-          "role": "목적어",
-          "rule": "을/를"
-        },
-        {
-          "word": "싫어한다",
-          "particle": "",
-          "role": "서술어",
-          "rule": "-다"
-        }
+        { "word": "학생들", "particle": "은", "role": "주어", "rule": "은/는" },
+        { "word": "숙제", "particle": "를", "role": "목적어", "rule": "을/를" },
+        { "word": "싫어한다", "particle": "", "role": "서술어", "rule": "-다" }
       ]
     }
   ],

@@ -1,0 +1,465 @@
+{
+  "id": "to_inf",
+  "chapter": "02",
+  "title": "to부정사",
+  "subtitle": "to+원형이 무엇/~하기 자리에",
+  "roles": [
+    "s",
+    "v",
+    "o"
+  ],
+  "docent": [
+    {
+      "role": "패턴",
+      "parts": [
+        {
+          "text": "I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "want",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "to rest",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "쉬"
+        },
+        {
+          "text": "기",
+          "mark": "o"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "원한"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "먼저 이 문장 모양을 볼게요.\n\n"
+        },
+        {
+          "text": "I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "want",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "to rest",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        },
+        {
+          "text": "\n색만 따라가 보세요."
+        }
+      ]
+    },
+    {
+      "role": "독해 공식",
+      "parts": [
+        {
+          "text": "I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "want",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "to rest",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "쉬"
+        },
+        {
+          "text": "기",
+          "mark": "o"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "원한"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "읽는 공식은 한 줄입니다.\n\nto+원형이 무엇/~하기 자리에"
+        }
+      ]
+    },
+    {
+      "role": "이름 붙이기",
+      "parts": [
+        {
+          "text": "I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "want",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "to rest",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "쉬"
+        },
+        {
+          "text": "기",
+          "mark": "o"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "원한"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "이걸 문법에서는 to부정사라고 부릅니다."
+        }
+      ]
+    },
+    {
+      "role": "해석",
+      "parts": [
+        {
+          "text": "I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "want",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "to rest",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "쉬"
+        },
+        {
+          "text": "기",
+          "mark": "o"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "원한"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "공식(to+원형이 무엇/~하기 자리에)을 기억한 뒤, 아래에 조사를 붙여 연습합니다."
+        }
+      ]
+    },
+    {
+      "role": "마무리",
+      "parts": [
+        {
+          "text": "I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "want",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "to rest",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "쉬"
+        },
+        {
+          "text": "기",
+          "mark": "o"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "원한"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "모양 → 공식 → 이름 순서입니다.\n이제 연습으로 확인합니다."
+        }
+      ]
+    }
+  ],
+  "docent_bridge": "영어 문장 위에 조사를 붙여 보겠습니다.\n천천히, 순서와 해석을 생각하며\n연습해 보세요.",
+  "guide": [
+    "주어 → 은/는/이/가",
+    "목적어 → 을/를",
+    "서술어 → ~다"
+  ],
+  "steps": [
+    {
+      "eng": "I want to rest.",
+      "eng_tokens": [
+        {
+          "text": "I",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "want",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "to rest",
+          "maps": 1,
+          "role": "o"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "나",
+          "particle": "는",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "쉬기",
+          "particle": "를",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "원한다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    },
+    {
+      "eng": "Kids like to play.",
+      "eng_tokens": [
+        {
+          "text": "Kids",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "like",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "to play",
+          "maps": 1,
+          "role": "o"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "아이",
+          "particle": "는",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "놀기",
+          "particle": "를",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "좋아한다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    }
+  ],
+  "next": {
+    "id": "conj",
+    "title": "접속사",
+    "ready": true
+  }
+}

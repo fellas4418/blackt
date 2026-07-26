@@ -1,0 +1,395 @@
+{
+  "id": "passive",
+  "chapter": "05",
+  "title": "수동태",
+  "subtitle": "무엇이 · ~되다 (당하는 쪽)",
+  "roles": [
+    "s",
+    "v",
+    "o"
+  ],
+  "docent": [
+    {
+      "role": "패턴",
+      "parts": [
+        {
+          "text": "The door",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "was",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "opened",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "문"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "열리"
+        },
+        {
+          "text": "었다",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "먼저 이 문장 모양을 볼게요.\n\n"
+        },
+        {
+          "text": "The door",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "was",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "opened",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        },
+        {
+          "text": "\n색만 따라가 보세요."
+        }
+      ]
+    },
+    {
+      "role": "독해 공식",
+      "parts": [
+        {
+          "text": "The door",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "was",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "opened",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "문"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "열리"
+        },
+        {
+          "text": "었다",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "읽는 공식은 한 줄입니다.\n\n무엇이 · ~되다 (당하는 쪽)"
+        }
+      ]
+    },
+    {
+      "role": "이름 붙이기",
+      "parts": [
+        {
+          "text": "The door",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "was",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "opened",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "문"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "열리"
+        },
+        {
+          "text": "었다",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "이걸 문법에서는 수동태라고 부릅니다."
+        }
+      ]
+    },
+    {
+      "role": "해석",
+      "parts": [
+        {
+          "text": "The door",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "was",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "opened",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "문"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "열리"
+        },
+        {
+          "text": "었다",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "공식(무엇이 · ~되다 (당하는 쪽))을 기억한 뒤, 아래에 조사를 붙여 연습합니다."
+        }
+      ]
+    },
+    {
+      "role": "마무리",
+      "parts": [
+        {
+          "text": "The door",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "was",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "opened",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "문"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "열리"
+        },
+        {
+          "text": "었다",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "모양 → 공식 → 이름 순서입니다.\n이제 연습으로 확인합니다."
+        }
+      ]
+    }
+  ],
+  "docent_bridge": "영어 문장 위에 조사를 붙여 보겠습니다.\n천천히, 순서와 해석을 생각하며\n연습해 보세요.",
+  "guide": [
+    "주어 → 은/는/이/가",
+    "목적어 → 을/를",
+    "서술어 → ~다"
+  ],
+  "steps": [
+    {
+      "eng": "They opened the door.",
+      "eng_tokens": [
+        {
+          "text": "They",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "opened",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "the door",
+          "maps": 1,
+          "role": "o"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "그들",
+          "particle": "은",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "문",
+          "particle": "을",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "열었다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    },
+    {
+      "eng": "Kids ate the cake.",
+      "eng_tokens": [
+        {
+          "text": "Kids",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "ate",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "the cake",
+          "maps": 1,
+          "role": "o"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "아이",
+          "particle": "는",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "케이크",
+          "particle": "를",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "먹었다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    }
+  ],
+  "next": {
+    "id": "subjunctive",
+    "title": "가정법",
+    "ready": true
+  }
+}

@@ -7,13 +7,22 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.join(__dirname, '..');
-const files = [
-    path.join(root, 'data', 'patterns', 'svo.json'),
-    path.join(root, 'data', 'pattern_index.json')
-];
+const patternsDir = path.join(root, 'data', 'patterns');
+const files = [path.join(root, 'data', 'pattern_index.json')].concat(
+    fs
+        .readdirSync(patternsDir)
+        .filter(function (name) {
+            return name.endsWith('.json');
+        })
+        .map(function (name) {
+            return path.join(patternsDir, name);
+        })
+);
 
 const ALLOWED_BRACKETS = new Set([
     '「-은/는/이/가」',
+    '「-은/는」',
+    '「-이/가」',
     '「-을/를」',
     '「-다」',
     '「-는」',

@@ -1,0 +1,395 @@
+{
+  "id": "dummy_subj",
+  "chapter": "08",
+  "title": "가주어·진주어",
+  "subtitle": "It이 자리만 잡고 진짜는 뒤",
+  "roles": [
+    "s",
+    "v",
+    "c"
+  ],
+  "docent": [
+    {
+      "role": "패턴",
+      "parts": [
+        {
+          "text": "It",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "is",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "easy to learn",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그것"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "배우기 쉽"
+        },
+        {
+          "text": "다",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "먼저 이 문장 모양을 볼게요.\n\n"
+        },
+        {
+          "text": "It",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "is",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "easy to learn",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        },
+        {
+          "text": "\n색만 따라가 보세요."
+        }
+      ]
+    },
+    {
+      "role": "독해 공식",
+      "parts": [
+        {
+          "text": "It",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "is",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "easy to learn",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그것"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "배우기 쉽"
+        },
+        {
+          "text": "다",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "읽는 공식은 한 줄입니다.\n\nIt이 자리만 잡고 진짜는 뒤"
+        }
+      ]
+    },
+    {
+      "role": "이름 붙이기",
+      "parts": [
+        {
+          "text": "It",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "is",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "easy to learn",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그것"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "배우기 쉽"
+        },
+        {
+          "text": "다",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "이걸 문법에서는 가주어·진주어라고 부릅니다."
+        }
+      ]
+    },
+    {
+      "role": "해석",
+      "parts": [
+        {
+          "text": "It",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "is",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "easy to learn",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그것"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "배우기 쉽"
+        },
+        {
+          "text": "다",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "공식(It이 자리만 잡고 진짜는 뒤)을 기억한 뒤, 아래에 조사를 붙여 연습합니다."
+        }
+      ]
+    },
+    {
+      "role": "마무리",
+      "parts": [
+        {
+          "text": "It",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "is",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "easy to learn",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그것"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "배우기 쉽"
+        },
+        {
+          "text": "다",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "모양 → 공식 → 이름 순서입니다.\n이제 연습으로 확인합니다."
+        }
+      ]
+    }
+  ],
+  "docent_bridge": "영어 문장 위에 조사를 붙여 보겠습니다.\n천천히, 순서와 해석을 생각하며\n연습해 보세요.",
+  "guide": [
+    "주어 뒤에는 은/는",
+    "보어 뒤에는 이/가",
+    "서술어는 ~다"
+  ],
+  "steps": [
+    {
+      "eng": "It became easy.",
+      "eng_tokens": [
+        {
+          "text": "It",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "became",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "easy",
+          "maps": 1,
+          "role": "c"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "그것",
+          "particle": "은",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "쉬운 것",
+          "particle": "이",
+          "role": "보어",
+          "rule": "이/가"
+        },
+        {
+          "word": "되었다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    },
+    {
+      "eng": "It became clear.",
+      "eng_tokens": [
+        {
+          "text": "It",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "became",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "clear",
+          "maps": 1,
+          "role": "c"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "그것",
+          "particle": "은",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "분명한 것",
+          "particle": "이",
+          "role": "보어",
+          "rule": "이/가"
+        },
+        {
+          "word": "되었다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    }
+  ],
+  "next": {
+    "id": "dummy_obj",
+    "title": "가목적어·진목적어",
+    "ready": true
+  }
+}

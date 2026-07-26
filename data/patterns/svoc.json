@@ -1,0 +1,537 @@
+{
+  "id": "svoc",
+  "chapter": "01",
+  "title": "주·동·목·보",
+  "subtitle": "누가 · -하다 · 무엇을 · ~하게/으로",
+  "roles": [
+    "s",
+    "v",
+    "o"
+  ],
+  "docent": [
+    {
+      "role": "패턴",
+      "parts": [
+        {
+          "text": "Mom",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "made",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "me",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "happy",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "엄마"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "나"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "행복하"
+        },
+        {
+          "text": "게",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "만들"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "먼저 이 문장 모양을 볼게요.\n\n"
+        },
+        {
+          "text": "Mom",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "made",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "me",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "happy",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        },
+        {
+          "text": "\n색만 따라가 보세요."
+        }
+      ]
+    },
+    {
+      "role": "독해 공식",
+      "parts": [
+        {
+          "text": "Mom",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "made",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "me",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "happy",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "엄마"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "나"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "행복하"
+        },
+        {
+          "text": "게",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "만들"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "읽는 공식은 한 줄입니다.\n\n누가 · -하다 · 무엇을 · ~하게/으로"
+        }
+      ]
+    },
+    {
+      "role": "이름 붙이기",
+      "parts": [
+        {
+          "text": "Mom",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "made",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "me",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "happy",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "엄마"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "나"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "행복하"
+        },
+        {
+          "text": "게",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "만들"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "이걸 문법에서는 주어 · 서술어 · 목적어 · 목적격보어라고 부릅니다."
+        }
+      ]
+    },
+    {
+      "role": "해석",
+      "parts": [
+        {
+          "text": "Mom",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "made",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "me",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "happy",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "엄마"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "나"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "행복하"
+        },
+        {
+          "text": "게",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "만들"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "공식(누가 · -하다 · 무엇을 · ~하게/으로)을 기억한 뒤, 아래에 조사를 붙여 연습합니다."
+        }
+      ]
+    },
+    {
+      "role": "마무리",
+      "parts": [
+        {
+          "text": "Mom",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "made",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "me",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "happy",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "엄마"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "나"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "행복하"
+        },
+        {
+          "text": "게",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "만들"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "모양 → 공식 → 이름 순서입니다.\n이제 연습으로 확인합니다."
+        }
+      ]
+    }
+  ],
+  "docent_bridge": "영어 문장 위에 조사를 붙여 보겠습니다.\n천천히, 순서와 해석을 생각하며\n연습해 보세요.",
+  "guide": [
+    "주어 → 은/는/이/가",
+    "목적어 → 을/를",
+    "서술어 → ~다"
+  ],
+  "steps": [
+    {
+      "eng": "Mom made pizza.",
+      "eng_tokens": [
+        {
+          "text": "Mom",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "made",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "pizza",
+          "maps": 1,
+          "role": "o"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "엄마",
+          "particle": "는",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "피자",
+          "particle": "를",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "만들었다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    },
+    {
+      "eng": "Dad painted walls.",
+      "eng_tokens": [
+        {
+          "text": "Dad",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "painted",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "walls",
+          "maps": 1,
+          "role": "o"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "아빠",
+          "particle": "는",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "벽",
+          "particle": "을",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "칠했다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    }
+  ],
+  "next": {
+    "id": "verb_s3",
+    "title": "3인칭 단수 -s",
+    "ready": true
+  }
+}

@@ -1,0 +1,445 @@
+{
+  "id": "tense",
+  "chapter": "04",
+  "title": "시제",
+  "subtitle": "언제 시점인지 표시",
+  "roles": [
+    "s",
+    "v",
+    "o"
+  ],
+  "docent": [
+    {
+      "role": "패턴",
+      "parts": [
+        {
+          "text": "She",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "ate",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "lunch",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그녀"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "점심"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "먹었"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "먼저 이 문장 모양을 볼게요.\n\n"
+        },
+        {
+          "text": "She",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "ate",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "lunch",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        },
+        {
+          "text": "\n색만 따라가 보세요."
+        }
+      ]
+    },
+    {
+      "role": "독해 공식",
+      "parts": [
+        {
+          "text": "She",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "ate",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "lunch",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그녀"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "점심"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "먹었"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "읽는 공식은 한 줄입니다.\n\n언제 시점인지 표시"
+        }
+      ]
+    },
+    {
+      "role": "이름 붙이기",
+      "parts": [
+        {
+          "text": "She",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "ate",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "lunch",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그녀"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "점심"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "먹었"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "이걸 문법에서는 시제라고 부릅니다."
+        }
+      ]
+    },
+    {
+      "role": "해석",
+      "parts": [
+        {
+          "text": "She",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "ate",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "lunch",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그녀"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "점심"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "먹었"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "대조해 보세요.\n\nShe eats lunch. / She ate lunch.\n\n공식(언제 시점인지 표시)을 기억한 뒤, 아래에 조사를 붙여 연습합니다."
+        }
+      ]
+    },
+    {
+      "role": "마무리",
+      "parts": [
+        {
+          "text": "She",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "ate",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "lunch",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그녀"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "점심"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "먹었"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "모양 → 공식 → 이름 순서입니다.\n이제 연습으로 확인합니다."
+        }
+      ]
+    }
+  ],
+  "docent_bridge": "영어 문장 위에 조사를 붙여 보겠습니다.\n천천히, 순서와 해석을 생각하며\n연습해 보세요.",
+  "guide": [
+    "동사 형태로 시점 표시",
+    "주어 → 은/는",
+    "목적어 → 을/를"
+  ],
+  "steps": [
+    {
+      "eng": "She ate lunch.",
+      "eng_tokens": [
+        {
+          "text": "She",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "ate",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "lunch",
+          "maps": 1,
+          "role": "o"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "그녀",
+          "particle": "는",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "점심",
+          "particle": "을",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "먹었다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    },
+    {
+      "eng": "They will need help.",
+      "eng_tokens": [
+        {
+          "text": "They",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "will need",
+          "maps": 2,
+          "role": "v"
+        },
+        {
+          "text": "help",
+          "maps": 1,
+          "role": "o"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "그들",
+          "particle": "은",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "도움",
+          "particle": "을",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "필요로 할 것이다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    }
+  ],
+  "next": {
+    "id": "passive",
+    "title": "수동태",
+    "ready": true
+  }
+}
