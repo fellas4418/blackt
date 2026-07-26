@@ -872,18 +872,6 @@
         if (state.data && Array.isArray(state.data.docent) && state.data.docent.length) {
             lines = lines.concat(state.data.docent);
         }
-        var readings = resolveReadings();
-        if (readings.length) {
-            lines.push({
-                role: '같은 모양',
-                text:
-                    '이제 같은 모양 문장을 여러 개 볼게요.\n해석이 어떻게 붙는지 따라가 보세요.',
-                _readingsIntro: true
-            });
-            readings.forEach(function (r, i) {
-                lines.push(readingToDocentItem(r, i + 1));
-            });
-        }
         state.docentLines = lines;
         return lines;
     }
@@ -974,6 +962,82 @@
             ];
         }
         return item;
+    }
+
+    function hideReadingsGallery() {
+        var gallery = document.getElementById('pattern-readings');
+        var inner = document.querySelector('.pattern-docent-inner');
+        if (gallery) gallery.classList.add('is-hidden');
+        if (inner) inner.classList.remove('is-hidden');
+        var el = document.getElementById('pattern-docent');
+        if (el) el.classList.remove('is-readings');
+    }
+
+    function showReadingsGallery() {
+        var readings = resolveReadings();
+        if (!readings.length) {
+            showDocentBridge();
+            return;
+        }
+        state.docentPhase = 'readings';
+        clearDocentTimer();
+        stopDocentSpeech();
+
+        var el = document.getElementById('pattern-docent');
+        var gallery = document.getElementById('pattern-readings');
+        var list = document.getElementById('pattern-readings-list');
+        var inner = document.querySelector('.pattern-docent-inner');
+        var hintEl = document.getElementById('pattern-docent-hint');
+        var tapEl = document.getElementById('pattern-docent-tap');
+        var stepEl = document.getElementById('pattern-docent-step');
+        if (!gallery || !list) {
+            showDocentBridge();
+            return;
+        }
+
+        if (inner) inner.classList.add('is-hidden');
+        if (el) {
+            el.classList.add('is-readings', 'is-show');
+            el.classList.remove('is-bridge', 'has-example', 'has-kor');
+        }
+        gallery.classList.remove('is-hidden');
+
+        list.innerHTML = readings
+            .map(function (r, i) {
+                var engHtml =
+                    r.parts && r.parts.length
+                        ? buildDocentMarkedHtml(r.parts, true)
+                        : escapeHtml((r.eng || '').replace(/\.$/, '') + '.');
+                var korHtml =
+                    r.kor_parts && r.kor_parts.length
+                        ? buildDocentMarkedHtml(r.kor_parts, true)
+                        : escapeHtml(r.kor || '');
+                return (
+                    '<button type="button" class="pattern-readings-card" data-idx="' +
+                    i +
+                    '">' +
+                    '<span class="pattern-readings-num">' +
+                    (i + 1) +
+                    '</span>' +
+                    '<span class="pattern-readings-eng">' +
+                    engHtml +
+                    '</span>' +
+                    '<span class="pattern-readings-kor">' +
+                    korHtml +
+                    '</span>' +
+                    '<span class="pattern-readings-tap">탭 → 해석</span>' +
+                    '</button>'
+                );
+            })
+            .join('');
+
+        if (tapEl) tapEl.textContent = '문장 탭 · 완료는 →';
+        if (hintEl) hintEl.classList.remove('is-hidden');
+        if (stepEl) {
+            stepEl.textContent = '해석 ' + readings.length + '문장';
+        }
+        state.lastDocentSpeak = '영어를 탭하면 해석이 나옵니다.';
+        scheduleDocentAdvance(DOCENT_LINE_MS, state.lastDocentSpeak);
     }
 
     function shouldSkipParticleDrill() {
@@ -1308,8 +1372,9 @@
         if (page) page.classList.remove('is-docent');
         if (el) {
             el.classList.add('is-hidden');
-            el.classList.remove('is-show', 'is-bridge', 'has-example', 'has-kor');
+            el.classList.remove('is-show', 'is-bridge', 'has-example', 'has-kor', 'is-readings');
         }
+        hideReadingsGallery();
     }
 
     var MARK_COLORS = {
@@ -1325,16 +1390,15 @@
         if (!parts || !parts.length) return '';
         return parts
             .map(function (p) {
-                // 목록 사이 장식용 \n 만 있는 조각은 <br>로 한 줄 더 띄우므로 버림
-                if (
-                    !p.mark &&
-                    !String(p.text || '')
-                        .replace(/\n/g, '')
-                        .trim()
-                ) {
+                // 순수 줄바꿈만 있는 조각은 <br> 중복을 막기 위해 버림 (공백은 유지)
+                if (!p.mark && /^[\n\r]*$/.test(String(p.text || ''))) {
                     return '';
                 }
                 var rawTextSrc = String(p.text || '');
+                // 띄어쓰기만 있는 조각은 HTML에서 사라지지 않게 nbsp
+                if (!p.mark && /^ +$/.test(rawTextSrc)) {
+                    return rawTextSrc.replace(/ /g, '\u00A0');
+                }
                 var rawText = rawTextSrc.trim();
                 var isKeyList =
                     !!p.mark &&
@@ -1567,6 +1631,7 @@
     }
 
     function showDocentBridge() {
+        hideReadingsGallery();
         state.docentPhase = 'bridge';
         var bridge =
             (state.data && state.data.docent_bridge) ||
@@ -1580,9 +1645,15 @@
     function showDocentLine() {
         var lines = currentDocentLines();
         if (state.docentIdx >= lines.length) {
-            showDocentBridge();
+            hideReadingsGallery();
+            if (resolveReadings().length) {
+                showReadingsGallery();
+            } else {
+                showDocentBridge();
+            }
             return;
         }
+        hideReadingsGallery();
         state.docentPhase = 'lines';
         var item = lines[state.docentIdx];
         var dwell =
@@ -1601,6 +1672,11 @@
         if (state.docentTransitioning) return;
         clearDocentTimer();
         stopDocentSpeech();
+        if (state.docentPhase === 'readings') {
+            hideReadingsGallery();
+            showDocentBridge();
+            return;
+        }
         if (
             state.docentPhase &&
             state.docentBlockCount > 1 &&
@@ -1634,6 +1710,14 @@
         if (state.docentTransitioning) return;
         clearDocentTimer();
         stopDocentSpeech();
+        if (state.docentPhase === 'readings') {
+            hideReadingsGallery();
+            var linesR = currentDocentLines();
+            if (!linesR.length) return;
+            state.docentIdx = linesR.length - 1;
+            showDocentLine();
+            return;
+        }
         if (
             state.docentPhase &&
             state.docentBlockCount > 1 &&
@@ -1649,6 +1733,10 @@
             return;
         }
         if (state.docentPhase === 'bridge') {
+            if (resolveReadings().length) {
+                showReadingsGallery();
+                return;
+            }
             var lines = currentDocentLines();
             if (!lines.length) return;
             state.docentIdx = lines.length - 1;
@@ -1805,6 +1893,22 @@
         if (docentEl) {
             docentEl.addEventListener('click', function (e) {
                 if (!state.docentPhase || state.docentTransitioning) return;
+                var card = e.target && e.target.closest
+                    ? e.target.closest('.pattern-readings-card')
+                    : null;
+                if (card && state.docentPhase === 'readings') {
+                    e.stopPropagation();
+                    card.classList.toggle('is-open');
+                    return;
+                }
+                var doneBtn = e.target && e.target.closest
+                    ? e.target.closest('#pattern-readings-done')
+                    : null;
+                if (doneBtn && state.docentPhase === 'readings') {
+                    e.stopPropagation();
+                    advanceDocent();
+                    return;
+                }
                 var rect = docentEl.getBoundingClientRect();
                 var x = (e.clientX != null ? e.clientX : 0) - rect.left;
                 if (x < rect.width / 3) {
