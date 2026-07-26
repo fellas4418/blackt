@@ -189,7 +189,185 @@
       ]
     }
   ],
-  "docent_bridge": "영어 문장 위에 조사를 붙여 보겠습니다.\n천천히, 순서와 해석을 생각하며\n연습해 보세요.",
+  "docent_bridge": "같은 모양이 보입니다.\n같은 방식으로 읽으면 됩니다.",
+  "readings": [
+    {
+      "eng": "Mario became a hero.",
+      "parts": [
+        { "text": "Mario", "mark": "s" },
+        { "text": " " },
+        { "text": "became", "mark": "v" },
+        { "text": " " },
+        { "text": "a hero", "mark": "c" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "마리오" },
+        { "text": "는", "mark": "s" },
+        { "text": " " },
+        { "text": "영웅" },
+        { "text": "이", "mark": "c" },
+        { "text": " " },
+        { "text": "되었" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ]
+    },
+    {
+      "eng": "Luna became a singer.",
+      "parts": [
+        { "text": "Luna", "mark": "s" },
+        { "text": " " },
+        { "text": "became", "mark": "v" },
+        { "text": " " },
+        { "text": "a singer", "mark": "c" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "루나" },
+        { "text": "는", "mark": "s" },
+        { "text": " " },
+        { "text": "가수" },
+        { "text": "가", "mark": "c" },
+        { "text": " " },
+        { "text": "되었" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ]
+    },
+    {
+      "eng": "Einstein became a teacher.",
+      "parts": [
+        { "text": "Einstein", "mark": "s" },
+        { "text": " " },
+        { "text": "became", "mark": "v" },
+        { "text": " " },
+        { "text": "a teacher", "mark": "c" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "아인슈타인" },
+        { "text": "은", "mark": "s" },
+        { "text": " " },
+        { "text": "선생님" },
+        { "text": "이", "mark": "c" },
+        { "text": " " },
+        { "text": "되었" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ]
+    },
+    {
+      "eng": "Students became doctors.",
+      "parts": [
+        { "text": "Students", "mark": "s" },
+        { "text": " " },
+        { "text": "became", "mark": "v" },
+        { "text": " " },
+        { "text": "doctors", "mark": "c" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "학생들" },
+        { "text": "은", "mark": "s" },
+        { "text": " " },
+        { "text": "의사" },
+        { "text": "가", "mark": "c" },
+        { "text": " " },
+        { "text": "되었" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ]
+    },
+    {
+      "eng": "Tom became a leader.",
+      "parts": [
+        { "text": "Tom", "mark": "s" },
+        { "text": " " },
+        { "text": "became", "mark": "v" },
+        { "text": " " },
+        { "text": "a leader", "mark": "c" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "톰" },
+        { "text": "은", "mark": "s" },
+        { "text": " " },
+        { "text": "리더" },
+        { "text": "가", "mark": "c" },
+        { "text": " " },
+        { "text": "되었" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ]
+    },
+    {
+      "eng": "She became happy.",
+      "parts": [
+        { "text": "She", "mark": "s" },
+        { "text": " " },
+        { "text": "became", "mark": "v" },
+        { "text": " " },
+        { "text": "happy", "mark": "c" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "그녀" },
+        { "text": "는", "mark": "s" },
+        { "text": " " },
+        { "text": "행복" },
+        { "text": "이", "mark": "c" },
+        { "text": " " },
+        { "text": "되었" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ]
+    },
+    {
+      "eng": "It became clear.",
+      "parts": [
+        { "text": "It", "mark": "s" },
+        { "text": " " },
+        { "text": "became", "mark": "v" },
+        { "text": " " },
+        { "text": "clear", "mark": "c" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "그것" },
+        { "text": "은", "mark": "s" },
+        { "text": " " },
+        { "text": "분명" },
+        { "text": "이", "mark": "c" },
+        { "text": " " },
+        { "text": "되었" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ]
+    },
+    {
+      "eng": "We became friends.",
+      "parts": [
+        { "text": "We", "mark": "s" },
+        { "text": " " },
+        { "text": "became", "mark": "v" },
+        { "text": " " },
+        { "text": "friends", "mark": "c" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "우리" },
+        { "text": "는", "mark": "s" },
+        { "text": " " },
+        { "text": "친구" },
+        { "text": "가", "mark": "c" },
+        { "text": " " },
+        { "text": "되었" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ]
+    }
+  ],
   "guide": [
     "주어 뒤에는 은/는",
     "보어 뒤에는 이/가 (되다·아니다)",

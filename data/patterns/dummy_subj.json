@@ -299,7 +299,7 @@
       ]
     }
   ],
-  "docent_bridge": "영어 문장 위에 조사를 붙여 보겠습니다.\n천천히, 순서와 해석을 생각하며\n연습해 보세요.",
+  "docent_bridge": "같은 모양이 보입니다.\n같은 방식으로 읽으면 됩니다.",
   "guide": [
     "주어 뒤에는 은/는",
     "보어 뒤에는 이/가",
@@ -391,5 +391,413 @@
     "id": "dummy_obj",
     "title": "가목적어·진목적어",
     "ready": true
-  }
+  },
+  "readings": [
+    {
+      "eng": "It became easy.",
+      "parts": [
+        {
+          "text": "It",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "became",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "easy",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그것"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "쉬운 것"
+        },
+        {
+          "text": "이",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "되었"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "It became clear.",
+      "parts": [
+        {
+          "text": "It",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "became",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "clear",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그것"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "분명한 것"
+        },
+        {
+          "text": "이",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "되었"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "Tom became a hero.",
+      "parts": [
+        {
+          "text": "Tom",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "became",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "a hero",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "톰"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "영웅"
+        },
+        {
+          "text": "이",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "되었"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "She became a star.",
+      "parts": [
+        {
+          "text": "She",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "became",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "a star",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그녀"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "스타"
+        },
+        {
+          "text": "가",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "되었"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "We became ready.",
+      "parts": [
+        {
+          "text": "We",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "became",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "ready",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "우리"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "준비된 것"
+        },
+        {
+          "text": "이",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "되었"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "He became quiet.",
+      "parts": [
+        {
+          "text": "He",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "became",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "quiet",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "조용한 것"
+        },
+        {
+          "text": "이",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "되었"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "They became strong.",
+      "parts": [
+        {
+          "text": "They",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "became",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "strong",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그들"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "강한 것"
+        },
+        {
+          "text": "이",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "되었"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    }
+  ]
 }

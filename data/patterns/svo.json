@@ -431,7 +431,185 @@
       ]
     }
   ],
-  "docent_bridge": "영어 문장 위에 조사를 붙여 보겠습니다.\n천천히, 순서와 해석을 생각하며\n연습해 보세요.",
+  "docent_bridge": "같은 모양이 보입니다.\n같은 방식으로 읽으면 됩니다.",
+  "readings": [
+    {
+      "eng": "People want love.",
+      "parts": [
+        { "text": "People", "mark": "s" },
+        { "text": " " },
+        { "text": "want", "mark": "v" },
+        { "text": " " },
+        { "text": "love", "mark": "o" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "사람" },
+        { "text": "은", "mark": "s" },
+        { "text": " " },
+        { "text": "사랑" },
+        { "text": "을", "mark": "o" },
+        { "text": " " },
+        { "text": "원하" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ]
+    },
+    {
+      "eng": "Dogs need water.",
+      "parts": [
+        { "text": "Dogs", "mark": "s" },
+        { "text": " " },
+        { "text": "need", "mark": "v" },
+        { "text": " " },
+        { "text": "water", "mark": "o" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "강아지" },
+        { "text": "는", "mark": "s" },
+        { "text": " " },
+        { "text": "물" },
+        { "text": "을", "mark": "o" },
+        { "text": " " },
+        { "text": "필요하" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ]
+    },
+    {
+      "eng": "Kids like games.",
+      "parts": [
+        { "text": "Kids", "mark": "s" },
+        { "text": " " },
+        { "text": "like", "mark": "v" },
+        { "text": " " },
+        { "text": "games", "mark": "o" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "아이" },
+        { "text": "는", "mark": "s" },
+        { "text": " " },
+        { "text": "게임" },
+        { "text": "을", "mark": "o" },
+        { "text": " " },
+        { "text": "좋아하" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ]
+    },
+    {
+      "eng": "A penguin likes fish.",
+      "parts": [
+        { "text": "A penguin", "mark": "s" },
+        { "text": " " },
+        { "text": "likes", "mark": "v" },
+        { "text": " " },
+        { "text": "fish", "mark": "o" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "펭귄" },
+        { "text": "은", "mark": "s" },
+        { "text": " " },
+        { "text": "물고기" },
+        { "text": "를", "mark": "o" },
+        { "text": " " },
+        { "text": "좋아하" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ]
+    },
+    {
+      "eng": "Mario likes pizza.",
+      "parts": [
+        { "text": "Mario", "mark": "s" },
+        { "text": " " },
+        { "text": "likes", "mark": "v" },
+        { "text": " " },
+        { "text": "pizza", "mark": "o" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "마리오" },
+        { "text": "는", "mark": "s" },
+        { "text": " " },
+        { "text": "피자" },
+        { "text": "를", "mark": "o" },
+        { "text": " " },
+        { "text": "좋아하" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ]
+    },
+    {
+      "eng": "Einstein loves music.",
+      "parts": [
+        { "text": "Einstein", "mark": "s" },
+        { "text": " " },
+        { "text": "loves", "mark": "v" },
+        { "text": " " },
+        { "text": "music", "mark": "o" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "아인슈타인" },
+        { "text": "은", "mark": "s" },
+        { "text": " " },
+        { "text": "음악" },
+        { "text": "을", "mark": "o" },
+        { "text": " " },
+        { "text": "사랑하" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ]
+    },
+    {
+      "eng": "Students hate homework.",
+      "parts": [
+        { "text": "Students", "mark": "s" },
+        { "text": " " },
+        { "text": "hate", "mark": "v" },
+        { "text": " " },
+        { "text": "homework", "mark": "o" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "학생들" },
+        { "text": "은", "mark": "s" },
+        { "text": " " },
+        { "text": "숙제" },
+        { "text": "를", "mark": "o" },
+        { "text": " " },
+        { "text": "싫어하" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ]
+    },
+    {
+      "eng": "Birds seek food.",
+      "parts": [
+        { "text": "Birds", "mark": "s" },
+        { "text": " " },
+        { "text": "seek", "mark": "v" },
+        { "text": " " },
+        { "text": "food", "mark": "o" },
+        { "text": "." }
+      ],
+      "kor_parts": [
+        { "text": "새" },
+        { "text": "는", "mark": "s" },
+        { "text": " " },
+        { "text": "먹이" },
+        { "text": "를", "mark": "o" },
+        { "text": " " },
+        { "text": "찾" },
+        { "text": "다", "mark": "v" },
+        { "text": "." }
+      ]
+    }
+  ],
   "guide": [
     "주어 → 은/는/이/가",
     "목적어 → 을/를",

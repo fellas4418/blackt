@@ -872,8 +872,113 @@
         if (state.data && Array.isArray(state.data.docent) && state.data.docent.length) {
             lines = lines.concat(state.data.docent);
         }
+        var readings = resolveReadings();
+        if (readings.length) {
+            lines.push({
+                role: '같은 모양',
+                text:
+                    '이제 같은 모양 문장을 여러 개 볼게요.\n해석이 어떻게 붙는지 따라가 보세요.',
+                _readingsIntro: true
+            });
+            readings.forEach(function (r, i) {
+                lines.push(readingToDocentItem(r, i + 1));
+            });
+        }
         state.docentLines = lines;
         return lines;
+    }
+
+    function resolveReadings() {
+        if (!state.data) return [];
+        if (Array.isArray(state.data.readings) && state.data.readings.length) {
+            return state.data.readings;
+        }
+        return readingsFromSteps(state.data.steps || []);
+    }
+
+    function readingsFromSteps(steps) {
+        return (steps || []).map(function (step) {
+            return {
+                eng: step.eng || '',
+                parts: partsFromEngTokens(step.eng_tokens),
+                kor_parts: korPartsFromSlots(step.kor_slots)
+            };
+        });
+    }
+
+    function partsFromEngTokens(tokens) {
+        var parts = [];
+        (tokens || []).forEach(function (tok, i) {
+            if (i > 0) parts.push({ text: ' ' });
+            var piece = { text: tok.text || '' };
+            if (tok.role) piece.mark = tok.role;
+            parts.push(piece);
+        });
+        if (parts.length) parts.push({ text: '.' });
+        return parts;
+    }
+
+    function korPartsFromSlots(slots) {
+        var byRole = {};
+        (slots || []).forEach(function (s) {
+            byRole[s.role] = s;
+        });
+        var parts = [];
+        var roles = state.data && state.data.roles;
+        var prefer =
+            roles && roles.indexOf('c') >= 0 && roles.indexOf('o') < 0
+                ? ['주어', '보어', '서술어']
+                : roles && roles.indexOf('c') >= 0 && roles.indexOf('o') >= 0
+                  ? ['주어', '목적어', '보어', '서술어']
+                  : ['주어', '목적어', '서술어'];
+        prefer.forEach(function (roleName) {
+            var s = byRole[roleName];
+            if (!s) return;
+            if (parts.length) parts.push({ text: ' ' });
+            var w = s.word || '';
+            var mark =
+                roleName === '주어'
+                    ? 's'
+                    : roleName === '목적어'
+                      ? 'o'
+                      : roleName === '보어'
+                        ? 'c'
+                        : 'v';
+            if (roleName === '서술어' && !s.particle && w.slice(-1) === '다') {
+                parts.push({ text: w.slice(0, -1) });
+                parts.push({ text: '다', mark: 'v' });
+            } else {
+                parts.push({ text: w });
+                if (s.particle) parts.push({ text: s.particle, mark: mark });
+            }
+        });
+        if (parts.length) parts.push({ text: '.' });
+        return parts;
+    }
+
+    function readingToDocentItem(r, n) {
+        var parts = r.parts && r.parts.length ? r.parts : null;
+        var korParts = r.kor_parts && r.kor_parts.length ? r.kor_parts : null;
+        var engPlain = (r.eng || plainFromParts(parts || [])).replace(/\.$/, '');
+        var korPlain = (r.kor || plainFromParts(korParts || [])).replace(/\.$/, '');
+        var item = {
+            role: String(n),
+            _reading: true
+        };
+        if (parts && korParts) {
+            item.parts = parts;
+            item.kor_parts = korParts;
+        } else {
+            item.text_parts = [
+                { text: n + '. ' + engPlain + ' : ' + korPlain }
+            ];
+        }
+        return item;
+    }
+
+    function shouldSkipParticleDrill() {
+        // 도슨트 패턴은 조사 붙이기 대신 해석 예문 갤러리로 마무리
+        return hasDocent();
     }
 
     function hasDocent() {
@@ -1465,7 +1570,7 @@
         state.docentPhase = 'bridge';
         var bridge =
             (state.data && state.data.docent_bridge) ||
-            '이제 해석 연습으로 들어갑니다.';
+            '같은 모양으로 읽으면 됩니다.';
         clearDocentTimer();
         renderDocentFrame({ text: bridge }, true, function () {
             scheduleDocentBlocksThenAdvance(DOCENT_BRIDGE_MS);
@@ -1511,7 +1616,12 @@
             return;
         }
         if (state.docentPhase === 'bridge') {
-            onIntroComplete();
+            if (shouldSkipParticleDrill()) {
+                hideDocentOverlay();
+                finishPattern();
+            } else {
+                onIntroComplete();
+            }
             return;
         }
         if (state.docentPhase === 'lines') {
@@ -1587,6 +1697,10 @@
             state.introDone = true;
             state.guideBeatDone = true;
             hideDocentOverlay();
+            if (shouldSkipParticleDrill()) {
+                finishPattern();
+                return;
+            }
             buildStepDom(currentStep());
             hideIntroBar();
             return;
@@ -1625,7 +1739,7 @@
         var title = document.getElementById('pattern-complete-title');
         var nextBtn = document.getElementById('pattern-complete-next');
 
-        if (title) title.textContent = (state.data.title || '') + ' 연습 완료';
+        if (title) title.textContent = (state.data.title || '') + ' 완료';
 
         if (nextBtn && state.data.next && state.data.next.ready) {
             nextBtn.textContent = '다음: ' + state.data.next.title;
@@ -1730,7 +1844,7 @@
         document.getElementById('pattern-complete-retry').addEventListener('click', function () {
             document.getElementById('pattern-complete').classList.remove('is-open');
             state.isRepeat = true;
-            state.skipDocent = true;
+            state.skipDocent = false;
             startSession();
         });
         document.getElementById('pattern-complete-toc').addEventListener('click', function () {

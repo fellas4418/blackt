@@ -349,7 +349,7 @@
       ]
     }
   ],
-  "docent_bridge": "영어 문장 위에 조사를 붙여 보겠습니다.\n천천히, 순서와 해석을 생각하며\n연습해 보세요.",
+  "docent_bridge": "같은 모양이 보입니다.\n같은 방식으로 읽으면 됩니다.",
   "guide": [
     "사물 뒤에 which/that으로 설명",
     "주어 → 은/는",
@@ -441,5 +441,413 @@
     "id": "rel_adv",
     "title": "관계부사",
     "ready": true
-  }
+  },
+  "readings": [
+    {
+      "eng": "Books help kids.",
+      "parts": [
+        {
+          "text": "Books",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "help",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "kids",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "책"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "아이"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "돕는"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "Games teach skills.",
+      "parts": [
+        {
+          "text": "Games",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "teach",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "skills",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "게임"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "기술"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "가르친"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "Kids need help.",
+      "parts": [
+        {
+          "text": "Kids",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "need",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "help",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "아이"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "도움"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "필요하"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "Friends share stories.",
+      "parts": [
+        {
+          "text": "Friends",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "share",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "stories",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "친구들"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "이야기"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "나누"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "Birds seek food.",
+      "parts": [
+        {
+          "text": "Birds",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "seek",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "food",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "새"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "먹이"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "찾"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "Tom wants peace.",
+      "parts": [
+        {
+          "text": "Tom",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "wants",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "peace",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "톰"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "평화"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "원하"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "She loves music.",
+      "parts": [
+        {
+          "text": "She",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "loves",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "music",
+          "mark": "o"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그녀"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "음악"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "사랑하"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    }
+  ]
 }
