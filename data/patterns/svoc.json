@@ -6,7 +6,8 @@
   "roles": [
     "s",
     "v",
-    "o"
+    "o",
+    "c"
   ],
   "docent": [
     {
@@ -113,10 +114,7 @@
           "mark": "c"
         },
         {
-          "text": "."
-        },
-        {
-          "text": "\n색만 따라가 보세요."
+          "text": ".\n색만 따라가 보세요."
         }
       ]
     },
@@ -276,7 +274,49 @@
       ],
       "text_parts": [
         {
-          "text": "이걸 문법에서는 주어 · 서술어 · 목적어 · 목적격보어라고 부릅니다."
+          "text": "이걸 문법에서는 "
+        },
+        {
+          "text": "주어",
+          "mark": "s"
+        },
+        {
+          "text": " · "
+        },
+        {
+          "text": "서술어",
+          "mark": "v"
+        },
+        {
+          "text": " · "
+        },
+        {
+          "text": "목적어",
+          "mark": "o"
+        },
+        {
+          "text": " · "
+        },
+        {
+          "text": "목적격보어",
+          "mark": "c"
+        },
+        {
+          "text": "라고 부릅니다.\n\n"
+        },
+        {
+          "text": "목적격보어",
+          "mark": "c"
+        },
+        {
+          "text": "는 "
+        },
+        {
+          "text": "목적어",
+          "mark": "o"
+        },
+        {
+          "text": "의 상태나 정체를 보충 설명합니다."
         }
       ]
     },
@@ -356,7 +396,323 @@
       ],
       "text_parts": [
         {
-          "text": "공식(누가 · -하다 · 무엇을 · ~하게/으로)을 기억한 뒤, 아래에 조사를 붙여 연습합니다."
+          "text": "주어",
+          "mark": "s"
+        },
+        {
+          "text": "에는 "
+        },
+        {
+          "text": "「-은/는」",
+          "mark": "s"
+        },
+        {
+          "text": "을 붙입니다.\n"
+        },
+        {
+          "text": "목적어",
+          "mark": "o"
+        },
+        {
+          "text": "에는 "
+        },
+        {
+          "text": "「-을/를」",
+          "mark": "o"
+        },
+        {
+          "text": "을 붙입니다.\n"
+        },
+        {
+          "text": "목적격보어",
+          "mark": "c"
+        },
+        {
+          "text": "는 ~하게/~으로/~라고로 붙입니다.\n"
+        },
+        {
+          "text": "서술어",
+          "mark": "v"
+        },
+        {
+          "text": "는 "
+        },
+        {
+          "text": "「-다」",
+          "mark": "v"
+        },
+        {
+          "text": "로 끝냅니다."
+        }
+      ]
+    },
+    {
+      "role": "해석 방법",
+      "parts": [
+        {
+          "text": "I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "keep",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "my room",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "clean",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "내 방"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "깨끗하"
+        },
+        {
+          "text": "게",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "유지한"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "목적어 뒤에 오는 형용사·명사가 "
+        },
+        {
+          "text": "목적격보어",
+          "mark": "c"
+        },
+        {
+          "text": "입니다.\n\n"
+        },
+        {
+          "text": "① keep A B → A를 B한 상태로 유지하다\n② call A B → A를 B라고 부르다\n③ find A B → A가 B하다는 것을 알게 되다\n④ leave A B → A를 B한 상태로 두다",
+          "mark": "forms"
+        }
+      ]
+    },
+    {
+      "role": "동사 목록",
+      "parts": [
+        {
+          "text": "They",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "call",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "him",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "Tyson",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그들"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "그"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "타이슨이"
+        },
+        {
+          "text": "라고",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "부른"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "목적어·목적격보어가 따라오는 동사입니다. 전체는 따로 외워 두세요.\n\n",
+          "mark": "forms"
+        },
+        {
+          "text": "01. keep, call, find, leave\n02. consider, tell, ask\n03. 사역: make, have, let, get, help\n04. 감각: see, hear, watch, feel, smell",
+          "mark": "forms"
+        }
+      ]
+    },
+    {
+      "role": "바꿔 보기",
+      "parts": [
+        {
+          "text": "I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "found",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "the test",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "easy",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "그 시험"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "쉽"
+        },
+        {
+          "text": "다고",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "알았"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "text_parts": [
+        {
+          "text": "동사를 "
+        },
+        {
+          "text": "found",
+          "mark": "v"
+        },
+        {
+          "text": "로, 보어를 "
+        },
+        {
+          "text": "easy",
+          "mark": "c"
+        },
+        {
+          "text": "로 바꿔 봅니다.\n\n공식은 그대로 누가 · -하다 · 무엇을 · ~하게/으로입니다."
         }
       ]
     },
@@ -436,7 +792,7 @@
       ],
       "text_parts": [
         {
-          "text": "모양 → 공식 → 이름 순서입니다.\n이제 연습으로 확인합니다."
+          "text": "모양 → 공식 → 이름 순서입니다.\n이제 짧은 문장부터 긴 문장까지 읽어 봅니다."
         }
       ]
     }
@@ -445,11 +801,165 @@
   "guide": [
     "주어 → 은/는/이/가",
     "목적어 → 을/를",
+    "목적격보어 → ~하게/~으로/~라고",
     "서술어 → ~다"
   ],
   "steps": [
     {
-      "eng": "Mom made pizza.",
+      "eng": "I keep my room clean.",
+      "eng_tokens": [
+        {
+          "text": "I",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "keep",
+          "maps": 3,
+          "role": "v"
+        },
+        {
+          "text": "my room",
+          "maps": 1,
+          "role": "o"
+        },
+        {
+          "text": "clean",
+          "maps": 2,
+          "role": "c"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "나",
+          "particle": "는",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "내 방",
+          "particle": "을",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "깨끗하",
+          "particle": "게",
+          "role": "보어",
+          "rule": "게/으로"
+        },
+        {
+          "word": "유지한다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    },
+    {
+      "eng": "They call him Tyson.",
+      "eng_tokens": [
+        {
+          "text": "They",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "call",
+          "maps": 3,
+          "role": "v"
+        },
+        {
+          "text": "him",
+          "maps": 1,
+          "role": "o"
+        },
+        {
+          "text": "Tyson",
+          "maps": 2,
+          "role": "c"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "그들",
+          "particle": "은",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "그",
+          "particle": "를",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "타이슨이",
+          "particle": "라고",
+          "role": "보어",
+          "rule": "게/으로"
+        },
+        {
+          "word": "부른다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    },
+    {
+      "eng": "I found the test easy.",
+      "eng_tokens": [
+        {
+          "text": "I",
+          "maps": 0,
+          "role": "s"
+        },
+        {
+          "text": "found",
+          "maps": 3,
+          "role": "v"
+        },
+        {
+          "text": "the test",
+          "maps": 1,
+          "role": "o"
+        },
+        {
+          "text": "easy",
+          "maps": 2,
+          "role": "c"
+        }
+      ],
+      "kor_slots": [
+        {
+          "word": "나",
+          "particle": "는",
+          "role": "주어",
+          "rule": "은/는"
+        },
+        {
+          "word": "그 시험",
+          "particle": "을",
+          "role": "목적어",
+          "rule": "을/를"
+        },
+        {
+          "word": "쉽",
+          "particle": "다고",
+          "role": "보어",
+          "rule": "게/으로"
+        },
+        {
+          "word": "알았다",
+          "particle": "",
+          "role": "서술어",
+          "rule": "-다"
+        }
+      ]
+    },
+    {
+      "eng": "Mom made me happy.",
       "eng_tokens": [
         {
           "text": "Mom",
@@ -458,13 +968,18 @@
         },
         {
           "text": "made",
-          "maps": 2,
+          "maps": 3,
           "role": "v"
         },
         {
-          "text": "pizza",
+          "text": "me",
           "maps": 1,
           "role": "o"
+        },
+        {
+          "text": "happy",
+          "maps": 2,
+          "role": "c"
         }
       ],
       "kor_slots": [
@@ -475,53 +990,19 @@
           "rule": "은/는"
         },
         {
-          "word": "피자",
+          "word": "나",
           "particle": "를",
           "role": "목적어",
           "rule": "을/를"
         },
         {
+          "word": "행복하",
+          "particle": "게",
+          "role": "보어",
+          "rule": "게/으로"
+        },
+        {
           "word": "만들었다",
-          "particle": "",
-          "role": "서술어",
-          "rule": "-다"
-        }
-      ]
-    },
-    {
-      "eng": "Dad painted walls.",
-      "eng_tokens": [
-        {
-          "text": "Dad",
-          "maps": 0,
-          "role": "s"
-        },
-        {
-          "text": "painted",
-          "maps": 2,
-          "role": "v"
-        },
-        {
-          "text": "walls",
-          "maps": 1,
-          "role": "o"
-        }
-      ],
-      "kor_slots": [
-        {
-          "word": "아빠",
-          "particle": "는",
-          "role": "주어",
-          "rule": "은/는"
-        },
-        {
-          "word": "벽",
-          "particle": "을",
-          "role": "목적어",
-          "rule": "을/를"
-        },
-        {
-          "word": "칠했다",
           "particle": "",
           "role": "서술어",
           "rule": "-다"
@@ -536,7 +1017,382 @@
   },
   "readings": [
     {
-      "eng": "Mom made pizza.",
+      "eng": "I keep my room clean.",
+      "parts": [
+        {
+          "text": "I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "keep",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "my room",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "clean",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "내 방"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "깨끗하"
+        },
+        {
+          "text": "게",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "유지한"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "They call him Tyson.",
+      "parts": [
+        {
+          "text": "They",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "call",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "him",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "Tyson",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그들"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "그"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "타이슨이"
+        },
+        {
+          "text": "라고",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "부른"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "I found the test easy.",
+      "parts": [
+        {
+          "text": "I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "found",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "the test",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "easy",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "그 시험"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "쉽"
+        },
+        {
+          "text": "다고",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "알았"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "Leave the door open.",
+      "parts": [
+        {
+          "text": "You",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "leave",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "the door",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "open",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "너"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "문"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "열린"
+        },
+        {
+          "text": "채로",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "두"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "We consider him honest.",
+      "parts": [
+        {
+          "text": "We",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "consider",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "him",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "honest",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "우리"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "그"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "정직하"
+        },
+        {
+          "text": "다고",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "여긴"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "Mom made me happy.",
       "parts": [
         {
           "text": "Mom",
@@ -553,8 +1409,15 @@
           "text": " "
         },
         {
-          "text": "pizza",
+          "text": "me",
           "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "happy",
+          "mark": "c"
         },
         {
           "text": "."
@@ -572,7 +1435,7 @@
           "text": " "
         },
         {
-          "text": "피자"
+          "text": "나"
         },
         {
           "text": "를",
@@ -582,7 +1445,17 @@
           "text": " "
         },
         {
-          "text": "만들었"
+          "text": "행복하"
+        },
+        {
+          "text": "게",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "만들"
         },
         {
           "text": "다",
@@ -594,7 +1467,7 @@
       ]
     },
     {
-      "eng": "Dad painted walls.",
+      "eng": "Dad let me go.",
       "parts": [
         {
           "text": "Dad",
@@ -604,15 +1477,22 @@
           "text": " "
         },
         {
-          "text": "painted",
+          "text": "let",
           "mark": "v"
         },
         {
           "text": " "
         },
         {
-          "text": "walls",
+          "text": "me",
           "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "go",
+          "mark": "c"
         },
         {
           "text": "."
@@ -630,123 +1510,7 @@
           "text": " "
         },
         {
-          "text": "벽"
-        },
-        {
-          "text": "을",
-          "mark": "o"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "칠했"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "Kids need help.",
-      "parts": [
-        {
-          "text": "Kids",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "need",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "help",
-          "mark": "o"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "아이"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "도움"
-        },
-        {
-          "text": "을",
-          "mark": "o"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "필요하"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "Friends share stories.",
-      "parts": [
-        {
-          "text": "Friends",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "share",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "stories",
-          "mark": "o"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "친구들"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "이야기"
+          "text": "나"
         },
         {
           "text": "를",
@@ -756,7 +1520,17 @@
           "text": " "
         },
         {
-          "text": "나누"
+          "text": "가"
+        },
+        {
+          "text": "게",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "했"
         },
         {
           "text": "다",
@@ -768,123 +1542,7 @@
       ]
     },
     {
-      "eng": "Birds seek food.",
-      "parts": [
-        {
-          "text": "Birds",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "seek",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "food",
-          "mark": "o"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "새"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "먹이"
-        },
-        {
-          "text": "를",
-          "mark": "o"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "찾"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "Tom wants peace.",
-      "parts": [
-        {
-          "text": "Tom",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "wants",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "peace",
-          "mark": "o"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "톰"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "평화"
-        },
-        {
-          "text": "를",
-          "mark": "o"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "원하"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "She loves music.",
+      "eng": "She had him wait.",
       "parts": [
         {
           "text": "She",
@@ -894,15 +1552,22 @@
           "text": " "
         },
         {
-          "text": "loves",
+          "text": "had",
           "mark": "v"
         },
         {
           "text": " "
         },
         {
-          "text": "music",
+          "text": "him",
           "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "wait",
+          "mark": "c"
         },
         {
           "text": "."
@@ -920,7 +1585,382 @@
           "text": " "
         },
         {
-          "text": "음악"
+          "text": "그"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "기다리"
+        },
+        {
+          "text": "게",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "했"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "I got him to help.",
+      "parts": [
+        {
+          "text": "I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "got",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "him",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "to help",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "그"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "돕"
+        },
+        {
+          "text": "게",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "만들"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "Friends help me study.",
+      "parts": [
+        {
+          "text": "Friends",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "help",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "me",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "study",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "친구들"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "나"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "공부하"
+        },
+        {
+          "text": "게",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "도와준"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "I saw her cry.",
+      "parts": [
+        {
+          "text": "I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "saw",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "her",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "cry",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "그녀"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "울"
+        },
+        {
+          "text": "는 걸",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "봤"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "We heard him sing.",
+      "parts": [
+        {
+          "text": "We",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "heard",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "him",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "sing",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "우리"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "그"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "노래하"
+        },
+        {
+          "text": "는 걸",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "들었"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "They watch kids play.",
+      "parts": [
+        {
+          "text": "They",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "watch",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "kids",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "play",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그들"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "아이들"
         },
         {
           "text": "을",
@@ -930,7 +1970,542 @@
           "text": " "
         },
         {
-          "text": "사랑하"
+          "text": "놀"
+        },
+        {
+          "text": "는 걸",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "본"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "I felt the floor shake.",
+      "parts": [
+        {
+          "text": "I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "felt",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "the floor",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "shake",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "바닥"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "흔들리"
+        },
+        {
+          "text": "는 걸",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "느꼈"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "Dogs smell food burn.",
+      "parts": [
+        {
+          "text": "Dogs",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "smell",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "food",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "burn",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "강아지"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "음식"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "타"
+        },
+        {
+          "text": "는 걸",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "냄새 맡"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "Teachers tell students to wait.",
+      "parts": [
+        {
+          "text": "Teachers",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "tell",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "students",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "to wait",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "선생님들"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "학생들"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "기다리"
+        },
+        {
+          "text": "라고",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "말한"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "I ask him to stay.",
+      "parts": [
+        {
+          "text": "I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "ask",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "him",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "to stay",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "그"
+        },
+        {
+          "text": "를",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "남아 있"
+        },
+        {
+          "text": "게",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "요청한"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "I keep the room that I use every day clean.",
+      "parts": [
+        {
+          "text": "I",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "keep",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "the room that I use every day",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "clean",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "나"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "매일 쓰는 방"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "깨끗하"
+        },
+        {
+          "text": "게",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "유지한"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "They call the boy who won the race Tyson.",
+      "parts": [
+        {
+          "text": "They",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "call",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "the boy who won the race",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "Tyson",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "그들"
+        },
+        {
+          "text": "은",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "경주에서 이긴 소년"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "타이슨이"
+        },
+        {
+          "text": "라고",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "부른"
+        },
+        {
+          "text": "다",
+          "mark": "v"
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "eng": "Mom made the kids who were tired happy.",
+      "parts": [
+        {
+          "text": "Mom",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "made",
+          "mark": "v"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "the kids who were tired",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "happy",
+          "mark": "c"
+        },
+        {
+          "text": "."
+        }
+      ],
+      "kor_parts": [
+        {
+          "text": "엄마"
+        },
+        {
+          "text": "는",
+          "mark": "s"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "피곤한 아이들"
+        },
+        {
+          "text": "을",
+          "mark": "o"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "행복하"
+        },
+        {
+          "text": "게",
+          "mark": "c"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "만들"
         },
         {
           "text": "다",
