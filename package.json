@@ -1,0 +1,13 @@
+{
+  "name": "trigger-black",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler pages dev . --compatibility-date=2026-05-04 --do GEMINI_PROXY=GeminiProxy@src/index.js",
+    "dev:static": "npx --yes serve -l 3000 .",
+    "dev:api": "wrangler dev",
+    "deploy:api": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.20.0"
+  }
+}
