@@ -68,7 +68,7 @@
       ],
       "text_parts": [
         {
-          "text": "먼저 이 문장 모양을 볼게요.\n\n"
+          "text": "2번 모양입니다.\n\n"
         },
         {
           "text": "Mario",
@@ -152,212 +152,12 @@
       ],
       "text_parts": [
         {
-          "text": "읽는 공식은 한 줄입니다.\n\n누가 · (되다) · 무엇이"
+          "text": "읽는 공식: 누가 · (되다) · 무엇이"
         }
       ]
     },
     {
-      "role": "이름 붙이기",
-      "parts": [
-        {
-          "text": "Mario",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "became",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "a hero",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "마리오"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "영웅"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "되었"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "text_parts": [
-        {
-          "text": "이걸 문법에서는 "
-        },
-        {
-          "text": "주어",
-          "mark": "s"
-        },
-        {
-          "text": " · "
-        },
-        {
-          "text": "서술어",
-          "mark": "v"
-        },
-        {
-          "text": " · "
-        },
-        {
-          "text": "주격보어",
-          "mark": "c"
-        },
-        {
-          "text": "라고 부릅니다.\n\n뒤의 "
-        },
-        {
-          "text": "무엇이",
-          "mark": "c"
-        },
-        {
-          "text": "는 목적어가 아니라, 주어 상태를 보충하는 "
-        },
-        {
-          "text": "보어",
-          "mark": "c"
-        },
-        {
-          "text": "입니다."
-        }
-      ]
-    },
-    {
-      "role": "보어",
-      "parts": [
-        {
-          "text": "Mario",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "became",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "a hero",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "마리오"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "영웅"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "되었"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "text_parts": [
-        {
-          "text": "주어",
-          "mark": "s"
-        },
-        {
-          "text": "에는 "
-        },
-        {
-          "text": "「-은/는」",
-          "mark": "s"
-        },
-        {
-          "text": "을 붙입니다.\n"
-        },
-        {
-          "text": "보어",
-          "mark": "c"
-        },
-        {
-          "text": "에는 "
-        },
-        {
-          "text": "「-이/가」",
-          "mark": "c"
-        },
-        {
-          "text": "를 붙입니다 (되다·아니다).\n"
-        },
-        {
-          "text": "서술어",
-          "mark": "v"
-        },
-        {
-          "text": "는 "
-        },
-        {
-          "text": "「-다」",
-          "mark": "v"
-        },
-        {
-          "text": "로 끝냅니다."
-        }
-      ]
-    },
-    {
-      "role": "해석 방법",
+      "role": "주격보어",
       "parts": [
         {
           "text": "You",
@@ -415,2023 +215,242 @@
       ],
       "text_parts": [
         {
-          "text": "아래 동사 뒤에 형용사가 오면, 그 형용사는 "
+          "text": "보어는 "
+        },
+        {
+          "text": "주어",
+          "mark": "s"
+        },
+        {
+          "text": "의 상태·정체를 설명합니다.\n그래서 "
         },
         {
           "text": "주격보어",
           "mark": "c"
         },
         {
-          "text": "입니다.\n\n"
-        },
-        {
-          "text": "① be동사 → (형용사)한 상태이다 / (명사)이다\n② remain류 → (형용사)한 상태로 남아 있다\n③ go·get류 → (형용사)한 상태가 되다 (원래 뜻 X)\n④ prove류 → (형용사)인 상태로 드러나다\n⑤ 감각동사 → (형용사)인 상태로 느껴지다",
-          "mark": "forms"
-        }
-      ]
-    },
-    {
-      "role": "동사 목록",
-      "parts": [
-        {
-          "text": "Linda",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "remains",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "strong",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "린다"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "강함"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "남아 있"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "text_parts": [
-        {
-          "text": "전체 목록은 따로 외워 두세요.\n\n",
-          "mark": "forms"
-        },
-        {
-          "text": "01. be동사: is, am, are, was, were, be, been, being\n02. 남아 있다: remain, stay, keep, hold, stand\n03. 되다: go, get, grow, run, turn, come, fall\n04. 드러나다: prove, turn out\n05. 감각: seem, sound, smell, taste, look, appear, feel",
-          "mark": "forms"
-        }
-      ]
-    },
-    {
-      "role": "바꿔 보기",
-      "parts": [
-        {
-          "text": "Luna",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "became",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "a singer",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "루나"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "가수"
-        },
-        {
-          "text": "가",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "되었"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "text_parts": [
-        {
-          "text": "주어를 "
-        },
-        {
-          "text": "Luna",
-          "mark": "s"
-        },
-        {
-          "text": "로, 보어를 "
-        },
-        {
-          "text": "a singer",
-          "mark": "c"
-        },
-        {
-          "text": "로 바꿔 봅니다.\n\n공식은 그대로 누가 · (되다) · 무엇입니다."
-        }
-      ]
-    },
-    {
-      "role": "마무리",
-      "parts": [
-        {
-          "text": "Mario",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "became",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "a hero",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "마리오"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "영웅"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "되었"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "text_parts": [
-        {
-          "text": "목적어의 "
-        },
-        {
-          "text": "「-을/를」",
-          "mark": "o"
-        },
-        {
-          "text": "과 헷갈리지 마세요.\n보어는 주어 상태를 말해 주는 자리입니다.\n이제 짧은 문장부터 긴 문장까지 읽어 봅니다."
+          "text": "라고 부릅니다.\n이제 보어만 바꿔 봅니다."
         }
       ]
     }
   ],
-  "docent_bridge": "같은 모양이 보입니다.\n같은 방식으로 읽으면 됩니다.",
-  "readings": [
-    {
-      "eng": "Yoda is your father.",
-      "parts": [
-        {
-          "text": "Yoda",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "is",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "your father",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "요다"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "네 아버지"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "I am ready.",
-      "parts": [
-        {
-          "text": "I",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "am",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "ready",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "나"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "준비"
-        },
-        {
-          "text": "가",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "되어 있"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "They are friends.",
-      "parts": [
-        {
-          "text": "They",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "are",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "friends",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "그들"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "친구"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "She was calm.",
-      "parts": [
-        {
-          "text": "She",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "was",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "calm",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "그녀"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "차분"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "었"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "Linda remains strong.",
-      "parts": [
-        {
-          "text": "Linda",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "remains",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "strong",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "린다"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "강함"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "남아 있"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "Stay quiet.",
-      "parts": [
-        {
-          "text": "You",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "stay",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "quiet",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "너"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "조용"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "남아 있"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "Keep calm.",
-      "parts": [
-        {
-          "text": "You",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "keep",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "calm",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "너"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "차분"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "유지되"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "The rule holds true.",
-      "parts": [
-        {
-          "text": "The rule",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "holds",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "true",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "그 규칙"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "참"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "유지되"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "He stands firm.",
-      "parts": [
-        {
-          "text": "He",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "stands",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "firm",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "그"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "굳셈"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "서 있"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "The milk went bad.",
-      "parts": [
-        {
-          "text": "The milk",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "went",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "bad",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "그 우유"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "상함"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "되었"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "It gets cold.",
-      "parts": [
-        {
-          "text": "It",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "gets",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "cold",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "날씨"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "추움"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "되었"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "Kids grow tall.",
-      "parts": [
-        {
-          "text": "Kids",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "grow",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "tall",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "아이"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "큼"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "되었"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "Rivers run dry.",
-      "parts": [
-        {
-          "text": "Rivers",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "run",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "dry",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "강"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "마름"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "되었"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "Leaves turn red.",
-      "parts": [
-        {
-          "text": "Leaves",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "turn",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "red",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "나뭇잎"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "빨강"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "되었"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "Dreams come true.",
-      "parts": [
-        {
-          "text": "Dreams",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "come",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "true",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "꿈"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "참"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "되었"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "He fell ill.",
-      "parts": [
-        {
-          "text": "He",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "fell",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "ill",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "그"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "아픔"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "되었"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "The story proved false.",
-      "parts": [
-        {
-          "text": "The story",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "proved",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "false",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "그 이야기"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "거짓"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "드러났"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "It turned out fine.",
-      "parts": [
-        {
-          "text": "It",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "turned out",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "fine",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "그것"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "괜찮음"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "드러났"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "You look happy.",
-      "parts": [
-        {
-          "text": "You",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "look",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "happy",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "너"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "행복"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "보인"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "Honey tastes sweet.",
-      "parts": [
-        {
-          "text": "Honey",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "tastes",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "sweet",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "꿀"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "달콤함"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "느껴진"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "It seems easy.",
-      "parts": [
-        {
-          "text": "It",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "seems",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "easy",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "그것"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "쉬움"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "보이"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "That sounds good.",
-      "parts": [
-        {
-          "text": "That",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "sounds",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "good",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "그것"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "좋음"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "들린"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "Roses smell nice.",
-      "parts": [
-        {
-          "text": "Roses",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "smell",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "nice",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "장미"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "좋음"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "냄새 나"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "She appears tired.",
-      "parts": [
-        {
-          "text": "She",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "appears",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "tired",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "그녀"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "피곤"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "보이"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "I feel safe.",
-      "parts": [
-        {
-          "text": "I",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "feel",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "safe",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "나"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "안전"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "느껴진"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "The milk we bought yesterday went bad.",
-      "parts": [
-        {
-          "text": "The milk we bought yesterday",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "went",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "bad",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "어제 산 우유"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "상함"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "되었"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "Students who practice every day remain strong.",
-      "parts": [
-        {
-          "text": "Students who practice every day",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "remain",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "strong",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "매일 연습하는 학생들"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "강함"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "남아 있"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    },
-    {
-      "eng": "The plan that looked hard turned out fine.",
-      "parts": [
-        {
-          "text": "The plan that looked hard",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "turned out",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "fine",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "어려워 보였던 계획"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "괜찮음"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "드러났"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ]
-    }
-  ],
+  "docent_bridge": "주·동·보 모양을 익혔습니다.\n다음은 주·동·목·보입니다.",
   "guide": [
-    "주어 뒤에는 은/는",
-    "보어 뒤에는 이/가 (되다·아니다)",
-    "서술어는 ~다",
-    "목적어(을/를)와 헷갈리지 마세요"
+    "주어 → 은/는",
+    "보어 → 이/가",
+    "서술어 → ~다"
   ],
-  "steps": [
+  "rolling": [
     {
-      "eng": "Yoda is your father.",
-      "eng_tokens": [
+      "title": "주격보어",
+      "focus": "c",
+      "particle_hint": "이/가",
+      "caption": "보어만 바뀝니다. 주어의 상태·정체를 설명하므로 주격보어입니다.",
+      "items": [
         {
-          "text": "Yoda",
-          "maps": 0,
-          "role": "s"
+          "eng": "Mario became a hero.",
+          "eng_tokens": [
+            {
+              "text": "Mario",
+              "maps": 0,
+              "role": "s"
+            },
+            {
+              "text": "became",
+              "maps": 2,
+              "role": "v"
+            },
+            {
+              "text": "a hero",
+              "maps": 1,
+              "role": "c"
+            }
+          ],
+          "kor_slots": [
+            {
+              "word": "마리오",
+              "particle": "는",
+              "role": "주어",
+              "rule": "은/는"
+            },
+            {
+              "word": "영웅",
+              "particle": "이",
+              "role": "보어",
+              "rule": "이/가"
+            },
+            {
+              "word": "되었다",
+              "particle": "",
+              "role": "서술어",
+              "rule": "-다"
+            }
+          ]
         },
         {
-          "text": "is",
-          "maps": 2,
-          "role": "v"
+          "eng": "Luna became a singer.",
+          "eng_tokens": [
+            {
+              "text": "Luna",
+              "maps": 0,
+              "role": "s"
+            },
+            {
+              "text": "became",
+              "maps": 2,
+              "role": "v"
+            },
+            {
+              "text": "a singer",
+              "maps": 1,
+              "role": "c"
+            }
+          ],
+          "kor_slots": [
+            {
+              "word": "루나",
+              "particle": "는",
+              "role": "주어",
+              "rule": "은/는"
+            },
+            {
+              "word": "가수",
+              "particle": "가",
+              "role": "보어",
+              "rule": "이/가"
+            },
+            {
+              "word": "되었다",
+              "particle": "",
+              "role": "서술어",
+              "rule": "-다"
+            }
+          ]
         },
         {
-          "text": "your father",
-          "maps": 1,
-          "role": "c"
-        }
-      ],
-      "kor_slots": [
-        {
-          "word": "요다",
-          "particle": "는",
-          "role": "주어",
-          "rule": "은/는"
+          "eng": "She became happy.",
+          "eng_tokens": [
+            {
+              "text": "She",
+              "maps": 0,
+              "role": "s"
+            },
+            {
+              "text": "became",
+              "maps": 2,
+              "role": "v"
+            },
+            {
+              "text": "happy",
+              "maps": 1,
+              "role": "c"
+            }
+          ],
+          "kor_slots": [
+            {
+              "word": "그녀",
+              "particle": "는",
+              "role": "주어",
+              "rule": "은/는"
+            },
+            {
+              "word": "행복",
+              "particle": "이",
+              "role": "보어",
+              "rule": "이/가"
+            },
+            {
+              "word": "되었다",
+              "particle": "",
+              "role": "서술어",
+              "rule": "-다"
+            }
+          ]
         },
         {
-          "word": "네 아버지",
-          "particle": "이",
-          "role": "보어",
-          "rule": "이/가"
+          "eng": "You look happy.",
+          "eng_tokens": [
+            {
+              "text": "You",
+              "maps": 0,
+              "role": "s"
+            },
+            {
+              "text": "look",
+              "maps": 2,
+              "role": "v"
+            },
+            {
+              "text": "happy",
+              "maps": 1,
+              "role": "c"
+            }
+          ],
+          "kor_slots": [
+            {
+              "word": "너",
+              "particle": "는",
+              "role": "주어",
+              "rule": "은/는"
+            },
+            {
+              "word": "행복",
+              "particle": "이",
+              "role": "보어",
+              "rule": "이/가"
+            },
+            {
+              "word": "보인다",
+              "particle": "",
+              "role": "서술어",
+              "rule": "-다"
+            }
+          ]
         },
         {
-          "word": "이다",
-          "particle": "",
-          "role": "서술어",
-          "rule": "-다"
-        }
-      ]
-    },
-    {
-      "eng": "You look happy.",
-      "eng_tokens": [
-        {
-          "text": "You",
-          "maps": 0,
-          "role": "s"
-        },
-        {
-          "text": "look",
-          "maps": 2,
-          "role": "v"
-        },
-        {
-          "text": "happy",
-          "maps": 1,
-          "role": "c"
-        }
-      ],
-      "kor_slots": [
-        {
-          "word": "너",
-          "particle": "는",
-          "role": "주어",
-          "rule": "은/는"
-        },
-        {
-          "word": "행복",
-          "particle": "이",
-          "role": "보어",
-          "rule": "이/가"
-        },
-        {
-          "word": "보인다",
-          "particle": "",
-          "role": "서술어",
-          "rule": "-다"
-        }
-      ]
-    },
-    {
-      "eng": "Linda remains strong.",
-      "eng_tokens": [
-        {
-          "text": "Linda",
-          "maps": 0,
-          "role": "s"
-        },
-        {
-          "text": "remains",
-          "maps": 2,
-          "role": "v"
-        },
-        {
-          "text": "strong",
-          "maps": 1,
-          "role": "c"
-        }
-      ],
-      "kor_slots": [
-        {
-          "word": "린다",
-          "particle": "는",
-          "role": "주어",
-          "rule": "은/는"
-        },
-        {
-          "word": "강함",
-          "particle": "이",
-          "role": "보어",
-          "rule": "이/가"
-        },
-        {
-          "word": "남아 있다",
-          "particle": "",
-          "role": "서술어",
-          "rule": "-다"
-        }
-      ]
-    },
-    {
-      "eng": "The milk went bad.",
-      "eng_tokens": [
-        {
-          "text": "The milk",
-          "maps": 0,
-          "role": "s"
-        },
-        {
-          "text": "went",
-          "maps": 2,
-          "role": "v"
-        },
-        {
-          "text": "bad",
-          "maps": 1,
-          "role": "c"
-        }
-      ],
-      "kor_slots": [
-        {
-          "word": "그 우유",
-          "particle": "는",
-          "role": "주어",
-          "rule": "은/는"
-        },
-        {
-          "word": "상함",
-          "particle": "이",
-          "role": "보어",
-          "rule": "이/가"
-        },
-        {
-          "word": "되었다",
-          "particle": "",
-          "role": "서술어",
-          "rule": "-다"
+          "eng": "The milk went bad.",
+          "eng_tokens": [
+            {
+              "text": "The milk",
+              "maps": 0,
+              "role": "s"
+            },
+            {
+              "text": "went",
+              "maps": 2,
+              "role": "v"
+            },
+            {
+              "text": "bad",
+              "maps": 1,
+              "role": "c"
+            }
+          ],
+          "kor_slots": [
+            {
+              "word": "우유",
+              "particle": "는",
+              "role": "주어",
+              "rule": "은/는"
+            },
+            {
+              "word": "상함",
+              "particle": "이",
+              "role": "보어",
+              "rule": "이/가"
+            },
+            {
+              "word": "되었다",
+              "particle": "",
+              "role": "서술어",
+              "rule": "-다"
+            }
+          ]
         }
       ]
     }
   ],
+  "steps": [],
   "next": {
     "id": "svoc",
     "title": "주·동·목·보",

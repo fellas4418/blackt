@@ -407,13 +407,14 @@
     margin-top: 0.25em;
     width: 100%;
     box-sizing: border-box;
-    font-size: calc(100cqi / 14.6);
-    font-weight: 800;
+    font-size: clamp(0.82rem, 3.4vw, 1rem);
+    font-weight: 700;
     line-height: 1.55;
     letter-spacing: -0.02em;
     color: inherit;
-    white-space: nowrap;
+    white-space: normal;
     word-break: keep-all;
+    overflow-wrap: anywhere;
 }
 
 /* 목록 번호 ①②③ / 1.2.3. — 코랄 강조(글자색만) */
@@ -566,7 +567,7 @@
 
 .pattern-readings-card {
     display: grid;
-    grid-template-columns: 1.6rem 1fr;
+    grid-template-columns: 1.6rem minmax(0, 1fr);
     grid-template-rows: auto auto auto;
     column-gap: 10px;
     row-gap: 4px;
@@ -601,33 +602,39 @@
 .pattern-readings-eng {
     grid-column: 2;
     margin: 0;
+    min-width: 0;
+    max-width: 100%;
     font-size: clamp(1.35rem, 5.4vw, 1.75rem);
     font-weight: 700;
     line-height: 1.45;
     letter-spacing: -0.01em;
     color: #e8e8e8;
     word-break: keep-all;
-    overflow-wrap: break-word;
+    overflow-wrap: anywhere;
 }
 
 .pattern-readings-eng .pattern-docent-mark {
     white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 .pattern-readings-kor {
     grid-column: 2;
     display: none;
     margin: 0;
+    min-width: 0;
+    max-width: 100%;
     font-size: clamp(1.2rem, 4.8vw, 1.5rem);
     font-weight: 600;
     line-height: 1.45;
     color: #b8b8b8;
     word-break: keep-all;
-    overflow-wrap: break-word;
+    overflow-wrap: anywhere;
 }
 
 .pattern-readings-kor .pattern-docent-mark {
     white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 .pattern-readings-card.is-open .pattern-readings-kor {
@@ -1468,4 +1475,140 @@
     color: #999;
     font-size: 1rem;
     padding: 40px 20px;
+}
+
+/* 롤링 연습 — 한 자리만 바꾸며 해석 익히기 */
+.pattern-page.is-rolling .pattern-eng-hero,
+.pattern-page.is-rolling .pattern-guide-beat,
+.pattern-page.is-rolling .pattern-drill-hint,
+.pattern-page.is-rolling .pattern-cols,
+.pattern-page.is-rolling .pattern-pool-wrap,
+.pattern-page.is-rolling .pattern-nav {
+    display: none !important;
+}
+
+.pattern-page.is-rolling .pattern-progress-wrap {
+    display: block !important;
+}
+
+.pattern-rolling {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    min-width: 0;
+    padding: 8px 4px 16px;
+    box-sizing: border-box;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.pattern-rolling.is-hidden {
+    display: none;
+}
+
+.pattern-rolling-phase {
+    margin: 0 0 6px;
+    font-size: 0.88rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: #4dffc4;
+    text-align: left;
+}
+
+.pattern-rolling-particle {
+    margin: 0 0 14px;
+    padding: 8px 12px;
+    font-size: clamp(1.05rem, 4.2vw, 1.25rem);
+    font-weight: 800;
+    color: #ffe08a;
+    text-align: center;
+    border: 1px solid rgba(255, 224, 138, 0.35);
+    border-radius: 10px;
+    background: rgba(255, 224, 138, 0.06);
+}
+
+.pattern-rolling-particle:empty {
+    display: none;
+}
+
+.pattern-rolling-eng {
+    margin: 0 0 12px;
+    min-width: 0;
+    max-width: 100%;
+    font-size: clamp(1.45rem, 5.8vw, 1.95rem);
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+    color: #e8e8e8;
+    text-align: center;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+}
+
+.pattern-rolling-eng .pattern-docent-mark {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.pattern-rolling-eng .pattern-docent-mark.is-dim {
+    opacity: 0.35;
+}
+
+.pattern-rolling-eng .pattern-docent-mark.is-focus {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+}
+
+.pattern-rolling-kor {
+    margin: 0 0 14px;
+    min-width: 0;
+    max-width: 100%;
+    font-size: clamp(1.2rem, 4.8vw, 1.55rem);
+    font-weight: 600;
+    line-height: 1.5;
+    color: #b8b8b8;
+    text-align: center;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    min-height: 1.5em;
+    transition: opacity 0.35s ease;
+}
+
+.pattern-rolling-kor.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.pattern-rolling-kor .pattern-docent-mark {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.pattern-rolling-kor .pattern-docent-mark.is-dim {
+    opacity: 0.35;
+}
+
+.pattern-rolling-kor .pattern-docent-mark.is-focus {
+    font-weight: 800;
+}
+
+.pattern-rolling-caption {
+    margin: 0 0 10px;
+    font-size: clamp(1rem, 4vw, 1.15rem);
+    font-weight: 500;
+    line-height: 1.55;
+    color: #aaa;
+    text-align: left;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+}
+
+.pattern-rolling-tap {
+    margin: 0;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #666;
+    text-align: center;
 }

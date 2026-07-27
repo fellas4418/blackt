@@ -49,8 +49,18 @@
         docentFadeTimer: null,
         docentBlockIdx: 0,
         docentBlockCount: 1,
-        docentBlockSpeaks: null
+        docentBlockSpeaks: null,
+        rollingActive: false,
+        rollingPhaseIdx: 0,
+        rollingItemIdx: 0,
+        rollingKorVisible: false,
+        rollingTimer: null,
+        rollingWaitingTap: false
     };
+
+    var ROLLING_PEEK_MS = 2000;
+    var ROLLING_AUTO_MS = 4500;
+    var ROLLING_REVEAL_MS = 2200;
 
     function activeRoles() {
         if (state.data && Array.isArray(state.data.roles) && state.data.roles.length) {
@@ -1045,6 +1055,257 @@
         return hasDocent();
     }
 
+    function hasRolling() {
+        return !!(
+            state.data &&
+            Array.isArray(state.data.rolling) &&
+            state.data.rolling.length
+        );
+    }
+
+    function clearRollingTimer() {
+        if (state.rollingTimer) {
+            clearTimeout(state.rollingTimer);
+            state.rollingTimer = null;
+        }
+    }
+
+    function currentRollingPhase() {
+        if (!hasRolling()) return null;
+        return state.data.rolling[state.rollingPhaseIdx] || null;
+    }
+
+    function currentRollingItem() {
+        var phase = currentRollingPhase();
+        if (!phase || !Array.isArray(phase.items)) return null;
+        return phase.items[state.rollingItemIdx] || null;
+    }
+
+    function rollingItemParts(item) {
+        if (!item) return { eng: [], kor: [] };
+        return {
+            eng: item.parts && item.parts.length
+                ? item.parts
+                : partsFromEngTokens(item.eng_tokens || []),
+            kor: item.kor_parts && item.kor_parts.length
+                ? item.kor_parts
+                : korPartsFromSlots(item.kor_slots || [])
+        };
+    }
+
+    function buildRollingMarkedHtml(parts, focus, forceInlineColor) {
+        if (!parts || !parts.length) return '';
+        return parts
+            .map(function (p) {
+                if (!p.mark && /^[\n\r]*$/.test(String(p.text || ''))) {
+                    return '';
+                }
+                var rawTextSrc = String(p.text || '');
+                if (!p.mark && /^ +$/.test(rawTextSrc)) {
+                    return rawTextSrc.replace(/ /g, '\u00A0');
+                }
+                var rawText = rawTextSrc.trim();
+                var raw = escapeHtml(rawTextSrc);
+                var t = (p.mark ? raw : highlightCornerQuotes(raw)).replace(/\n/g, '<br>');
+                if (p.mark) {
+                    var color = MARK_COLORS[p.mark] || '';
+                    var isFocus = focus && p.mark === focus;
+                    var isDim = focus && p.mark !== focus;
+                    var styles = [
+                        'background:none !important',
+                        'padding:0 !important',
+                        'border-radius:0 !important'
+                    ];
+                    if (forceInlineColor && color) {
+                        styles.push('color:' + color + ' !important');
+                        styles.push('-webkit-text-fill-color:' + color + ' !important');
+                    }
+                    return (
+                        '<span class="pattern-docent-mark pattern-docent-mark--' +
+                        escapeHtml(p.mark) +
+                        (isFocus ? ' is-focus' : '') +
+                        (isDim ? ' is-dim' : '') +
+                        '" style="' +
+                        styles.join(';') +
+                        '">' +
+                        t +
+                        '</span>'
+                    );
+                }
+                return t;
+            })
+            .join('');
+    }
+
+    function showRollingUi() {
+        var el = document.getElementById('pattern-rolling');
+        if (el) el.classList.remove('is-hidden');
+    }
+
+    function hideRollingUi() {
+        var el = document.getElementById('pattern-rolling');
+        if (el) el.classList.add('is-hidden');
+    }
+
+    function updateRollingProgress() {
+        if (!hasRolling()) return;
+        var total = 0;
+        var done = 0;
+        state.data.rolling.forEach(function (phase, pi) {
+            var n = (phase.items || []).length;
+            total += n;
+            if (pi < state.rollingPhaseIdx) done += n;
+            else if (pi === state.rollingPhaseIdx) done += state.rollingItemIdx;
+        });
+        var wrap = document.getElementById('pattern-progress-wrap');
+        var fill = document.getElementById('pattern-progress-fill');
+        if (wrap) wrap.classList.remove('is-hidden', 'is-intro');
+        if (fill) {
+            fill.style.width =
+                (total > 0 ? Math.min(100, (done / total) * 100) : 0) + '%';
+        }
+        var badge = document.getElementById('pattern-phase-badge');
+        if (badge) {
+            badge.textContent = '연습 ' + (done + 1) + ' / ' + total;
+            badge.classList.remove('is-hidden');
+        }
+    }
+
+    function renderRollingFrame() {
+        var phase = currentRollingPhase();
+        var item = currentRollingItem();
+        if (!phase || !item) return;
+
+        var parts = rollingItemParts(item);
+        var focus = phase.focus || '';
+        var phaseEl = document.getElementById('pattern-rolling-phase');
+        var particleEl = document.getElementById('pattern-rolling-particle');
+        var engEl = document.getElementById('pattern-rolling-eng');
+        var korEl = document.getElementById('pattern-rolling-kor');
+        var capEl = document.getElementById('pattern-rolling-caption');
+        var tapEl = document.getElementById('pattern-rolling-tap');
+
+        if (phaseEl) {
+            phaseEl.textContent =
+                (phase.title || COL_COMP[focus] || '연습') +
+                ' · ' +
+                (state.rollingItemIdx + 1) +
+                '/' +
+                (phase.items || []).length;
+        }
+        if (particleEl) {
+            particleEl.textContent = phase.particle_hint
+                ? '고정: 「' + phase.particle_hint + '」'
+                : '';
+        }
+        if (engEl) {
+            engEl.innerHTML = buildRollingMarkedHtml(parts.eng, focus, true);
+        }
+        if (korEl) {
+            korEl.innerHTML = buildRollingMarkedHtml(parts.kor, focus, true);
+            korEl.classList.toggle('is-hidden', !state.rollingKorVisible);
+        }
+        if (capEl) capEl.textContent = phase.caption || '';
+        if (tapEl) {
+            tapEl.textContent = state.rollingKorVisible
+                ? '탭 → 다음'
+                : '탭 → 해석';
+        }
+        updateRollingProgress();
+    }
+
+    function scheduleRolling(fn, ms) {
+        clearRollingTimer();
+        state.rollingTimer = setTimeout(fn, ms);
+    }
+
+    function beginRollingItem(isPeek) {
+        state.rollingKorVisible = !!isPeek;
+        state.rollingWaitingTap = !isPeek;
+        renderRollingFrame();
+        if (isPeek) {
+            scheduleRolling(function () {
+                state.rollingKorVisible = false;
+                state.rollingWaitingTap = true;
+                renderRollingFrame();
+                scheduleRolling(advanceRollingAuto, ROLLING_AUTO_MS);
+            }, phasePeekMs());
+        }
+    }
+
+    function phasePeekMs() {
+        var phase = currentRollingPhase();
+        return (phase && phase.peek_ms) || ROLLING_PEEK_MS;
+    }
+
+    function advanceRollingAuto() {
+        if (!state.rollingActive || state.rollingKorVisible) return;
+        state.rollingKorVisible = true;
+        state.rollingWaitingTap = false;
+        renderRollingFrame();
+        scheduleRolling(goNextRollingItem, ROLLING_REVEAL_MS);
+    }
+
+    function goNextRollingItem() {
+        if (!state.rollingActive) return;
+        clearRollingTimer();
+        var phase = currentRollingPhase();
+        if (!phase) {
+            finishRolling();
+            return;
+        }
+        if (state.rollingItemIdx < (phase.items || []).length - 1) {
+            state.rollingItemIdx += 1;
+            beginRollingItem(true);
+            return;
+        }
+        if (state.rollingPhaseIdx < state.data.rolling.length - 1) {
+            state.rollingPhaseIdx += 1;
+            state.rollingItemIdx = 0;
+            beginRollingItem(true);
+            return;
+        }
+        finishRolling();
+    }
+
+    function onRollingTap() {
+        if (!state.rollingActive) return;
+        clearRollingTimer();
+        if (!state.rollingKorVisible) {
+            state.rollingKorVisible = true;
+            state.rollingWaitingTap = false;
+            renderRollingFrame();
+            scheduleRolling(goNextRollingItem, ROLLING_REVEAL_MS);
+            return;
+        }
+        goNextRollingItem();
+    }
+
+    function startRolling() {
+        hideReadingsGallery();
+        hideDocentOverlay();
+        state.rollingActive = true;
+        state.rollingPhaseIdx = 0;
+        state.rollingItemIdx = 0;
+        state.introDone = true;
+        state.rollingKorVisible = false;
+        state.rollingWaitingTap = false;
+        var page = document.querySelector('.pattern-page');
+        if (page) page.classList.add('is-rolling');
+        showRollingUi();
+        beginRollingItem(true);
+    }
+
+    function finishRolling() {
+        clearRollingTimer();
+        state.rollingActive = false;
+        hideRollingUi();
+        var page = document.querySelector('.pattern-page');
+        if (page) page.classList.remove('is-rolling');
+        showDocentOverlay();
+        showDocentBridge();
+    }
+
     function hasDocent() {
         var lines = state.docentLines;
         if (!lines) lines = buildDocentLines();
@@ -1096,6 +1357,8 @@
     }
 
     function shouldExampleOneline(parts) {
+        var plain = plainFromParts(parts);
+        if (plain.length > 42) return false;
         var n = countExampleWords(parts);
         return n > 0 && n <= EXAMPLE_ONELINE_MAX_WORDS;
     }
@@ -1362,6 +1625,7 @@
         var el = document.getElementById('pattern-docent');
         clearDocentTimer();
         clearDocentFadeTimer();
+        clearRollingTimer();
         stopDocentSpeech();
         state.docentPhase = null;
         state.docentTransitioning = false;
@@ -1369,7 +1633,12 @@
         state.docentBlockIdx = 0;
         state.docentBlockCount = 1;
         state.docentBlockSpeaks = null;
-        if (page) page.classList.remove('is-docent');
+        state.rollingActive = false;
+        hideRollingUi();
+        if (page) {
+            page.classList.remove('is-docent');
+            page.classList.remove('is-rolling');
+        }
         if (el) {
             el.classList.add('is-hidden');
             el.classList.remove('is-show', 'is-bridge', 'has-example', 'has-kor', 'is-readings');
@@ -1646,6 +1915,10 @@
         var lines = currentDocentLines();
         if (state.docentIdx >= lines.length) {
             hideReadingsGallery();
+            if (hasRolling()) {
+                startRolling();
+                return;
+            }
             if (resolveReadings().length) {
                 showReadingsGallery();
             } else {
@@ -1889,6 +2162,14 @@
         document.getElementById('pattern-btn-prev').addEventListener('click', goPrev);
         document.getElementById('pattern-btn-next').addEventListener('click', goNext);
 
+        var rollingEl = document.getElementById('pattern-rolling');
+        if (rollingEl) {
+            rollingEl.addEventListener('click', function (e) {
+                e.stopPropagation();
+                onRollingTap();
+            });
+        }
+
         var docentEl = document.getElementById('pattern-docent');
         if (docentEl) {
             docentEl.addEventListener('click', function (e) {
@@ -1986,7 +2267,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260724x').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260727d').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })
