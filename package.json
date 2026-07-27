@@ -2,8 +2,8 @@
   "name": "trigger-black",
   "private": true,
   "scripts": {
-    "dev": "wrangler pages dev . --compatibility-date=2026-05-04 --do GEMINI_PROXY=GeminiProxy@src/index.js",
-    "dev:static": "npx --yes serve -l 3000 .",
+    "dev": "npx --yes serve -l 3000 .",
+    "dev:pages": "wrangler pages dev . --compatibility-date=2026-05-04 --ip 127.0.0.1 --port 8788 --do GEMINI_PROXY=GeminiProxy@src/index.js",
     "dev:api": "wrangler dev",
     "deploy:api": "wrangler deploy"
   },
