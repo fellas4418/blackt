@@ -21,7 +21,7 @@
     var COMPLEMENT_PARTICLES = { '이': 1, '가': 1 };
     var VERB_PARTICLES = { '다': 1 };
 
-    var INDEX_URL = 'data/pattern_index.json?v=20260728a';
+    var INDEX_URL = 'data/pattern_index.json?v=20260728b';
     var SOUND_KEY = 'pattern_docent_sound';
 
     var state = {
@@ -150,7 +150,12 @@
     }
 
     function shouldShowGuideBeat() {
-        return !state.guideBeatDone && !state.skipDocent && resolveGuidePoints().length > 0;
+        return (
+            !state.guideBeatDone &&
+            !state.skipDocent &&
+            !hasRolling() &&
+            resolveGuidePoints().length > 0
+        );
     }
 
     function collapseTopGuide() {
@@ -247,7 +252,8 @@
     function formatDocentPlainHtml(text) {
         return highlightCornerQuotes(escapeHtml(text || ''))
             .replace(/\(([^)\n]+)\)/g, function (_m, inner) {
-                return '<span class="pattern-docent-paren">(' + inner + ')</span>';
+                // 괄호 표기 없이 강조만
+                return '<span class="pattern-docent-paren">' + inner + '</span>';
             })
             .replace(/\n/g, '<br>');
     }
@@ -381,7 +387,7 @@
         var badge = document.getElementById('pattern-phase-badge');
         if (!badge || !state.data) return;
         var total = state.data.steps.length;
-        var label = state.guideBeatActive ? '해석 포인트' : '자리 표시하기';
+        var label = state.guideBeatActive ? '자리 표시' : '자리 표시하기';
         badge.innerHTML = '<span class="pattern-phase-badge-core">' +
             '<span class="pattern-phase-badge-ch">' + (state.variantIdx + 1) + '/' + total + '</span>' +
             '<span class="pattern-phase-badge-txt">' + label + '</span>' +
@@ -1121,7 +1127,6 @@
                 if (!p.mark && /^ +$/.test(rawTextSrc)) {
                     return rawTextSrc.replace(/ /g, '\u00A0');
                 }
-                var rawText = rawTextSrc.trim();
                 var raw = escapeHtml(rawTextSrc);
                 var t = (p.mark ? raw : highlightCornerQuotes(raw)).replace(/\n/g, '<br>');
                 if (p.mark) {
@@ -1152,6 +1157,111 @@
                 return t;
             })
             .join('');
+    }
+
+    function rollingKorPreferRoles() {
+        var roles = state.data && state.data.roles;
+        if (roles && roles.indexOf('c') >= 0 && roles.indexOf('o') < 0) {
+            return ['주어', '보어', '서술어'];
+        }
+        if (roles && roles.indexOf('c') >= 0 && roles.indexOf('o') >= 0) {
+            return ['주어', '목적어', '보어', '서술어'];
+        }
+        return ['주어', '목적어', '서술어'];
+    }
+
+    function korRoleToMark(roleName) {
+        if (roleName === '주어') return 's';
+        if (roleName === '목적어') return 'o';
+        if (roleName === '보어') return 'c';
+        return 'v';
+    }
+
+    function rollingEngSlots(item) {
+        var tokens = item && item.eng_tokens;
+        if (tokens && tokens.length) {
+            return tokens.map(function (tok) {
+                return {
+                    text: tok.text || '',
+                    mark: tok.role || ''
+                };
+            });
+        }
+        var parts = (item && item.parts) || [];
+        return parts
+            .filter(function (p) {
+                return p.mark;
+            })
+            .map(function (p) {
+                return { text: p.text || '', mark: p.mark };
+            });
+    }
+
+    function rollingKorSlots(item) {
+        var slots = item && item.kor_slots;
+        if (slots && slots.length) {
+            var byRole = {};
+            slots.forEach(function (s) {
+                byRole[s.role] = s;
+            });
+            return rollingKorPreferRoles()
+                .map(function (roleName) {
+                    var s = byRole[roleName];
+                    if (!s) return null;
+                    var mark = korRoleToMark(roleName);
+                    var w = s.word || '';
+                    var text;
+                    if (roleName === '서술어' && !s.particle && w.slice(-1) === '다') {
+                        text = w.slice(0, -1) + '다';
+                    } else {
+                        text = w + (s.particle || '');
+                    }
+                    return { text: text, mark: mark };
+                })
+                .filter(Boolean);
+        }
+        var parts = (item && item.kor_parts) || [];
+        var grouped = [];
+        var cur = null;
+        parts.forEach(function (p) {
+            if (!p.mark && !String(p.text || '').trim()) return;
+            if (p.mark) {
+                if (cur && cur.mark === p.mark) {
+                    cur.text += p.text || '';
+                } else {
+                    cur = { text: p.text || '', mark: p.mark };
+                    grouped.push(cur);
+                }
+            } else if (cur) {
+                cur.text += p.text || '';
+            }
+        });
+        return grouped;
+    }
+
+    function buildRollingSlotsHtml(slots, focus) {
+        var n = (slots || []).length || 1;
+        var cols = 'repeat(' + n + ', minmax(0, 1fr))';
+        return (
+            '<span class="pattern-rolling-line" style="grid-template-columns:' +
+            cols +
+            '">' +
+            (slots || [])
+                .map(function (slot) {
+                    var mark = slot.mark || '';
+                    var isFocus = focus && mark === focus;
+                    return (
+                        '<span class="pattern-rolling-slot pattern-docent-mark' +
+                        (mark ? ' pattern-docent-mark--' + escapeHtml(mark) : '') +
+                        (isFocus ? ' is-focus' : ' is-dim') +
+                        '">' +
+                        escapeHtml(slot.text || '') +
+                        '</span>'
+                    );
+                })
+                .join('') +
+            '</span>'
+        );
     }
 
     function showRollingUi() {
@@ -1193,7 +1303,6 @@
         var item = currentRollingItem();
         if (!phase || !item) return;
 
-        var parts = rollingItemParts(item);
         var focus = phase.focus || '';
         var phaseEl = document.getElementById('pattern-rolling-phase');
         var particleEl = document.getElementById('pattern-rolling-particle');
@@ -1214,10 +1323,16 @@
             particleEl.textContent = phase.particle_hint || '';
         }
         if (engEl) {
-            engEl.innerHTML = buildRollingMarkedHtml(parts.eng, focus, true);
+            var engSlots = rollingEngSlots(item);
+            engEl.innerHTML = engSlots.length
+                ? buildRollingSlotsHtml(engSlots, focus)
+                : buildRollingMarkedHtml(rollingItemParts(item).eng, focus, true);
         }
         if (korEl) {
-            korEl.innerHTML = buildRollingMarkedHtml(parts.kor, focus, true);
+            var korSlots = rollingKorSlots(item);
+            korEl.innerHTML = korSlots.length
+                ? buildRollingSlotsHtml(korSlots, focus)
+                : buildRollingMarkedHtml(rollingItemParts(item).kor, focus, true);
             korEl.classList.toggle('is-hidden', !state.rollingKorVisible);
         }
         if (capEl) capEl.textContent = phase.caption || '';
@@ -1753,34 +1868,44 @@
                             );
                         });
                     }
-                    // ( … ) 괄호만 하이라이트
+                    // ( … ) 괄호는 표시하지 않고 안쪽만 강조·깜빡임
                     if (p.mark === 'paren' || p.mark === 'forms') {
                         t = t.replace(/\(([^)\n]+)\)/g, function (_m, inner) {
                             return (
-                                '<span class="pattern-docent-paren">(' +
+                                '<span class="pattern-docent-paren">' +
                                 inner +
-                                ')</span>'
+                                '</span>'
                             );
                         });
+                        // 「-…」 규칙·핵심 어휘도 깜빡임 대상
+                        t = t.replace(/「-[^」]+」/g, function (m) {
+                            if (m.indexOf('pattern-docent-paren') >= 0) return m;
+                            return '<span class="pattern-docent-paren">' + m + '</span>';
+                        });
+                        t = t.replace(/(누가|무엇을)/g, function (m) {
+                            return '<span class="pattern-docent-paren">' + m + '</span>';
+                        });
                     }
-                    // 문장 형태 목록: 주격보어·목적어·목적격보어만 성분색
-                    if (p.mark === 'forms') {
+                    // 문장 형태 목록: 주격보어·목적어·목적격보어만 성분색 (+깜빡임)
+                    if (p.mark === 'forms' || p.mark === 'paren') {
                         t = t
-                            .replace(/목적격보어/g, function () {
+                            .replace(/목적격\s*보어/g, function (m) {
                                 return (
-                                    '<span class="pattern-docent-mark pattern-docent-mark--c" style="background:none !important;padding:0 !important;border-radius:0 !important;color:#d0b0ff">' +
-                                    '목적격보어</span>'
+                                    '<span class="pattern-docent-mark pattern-docent-mark--c pattern-docent-paren" style="background:none !important;padding:0 !important;border-radius:0 !important;color:#d0b0ff">' +
+                                    m +
+                                    '</span>'
                                 );
                             })
-                            .replace(/주격보어/g, function () {
+                            .replace(/주격\s*보어/g, function (m) {
                                 return (
-                                    '<span class="pattern-docent-mark pattern-docent-mark--c" style="background:none !important;padding:0 !important;border-radius:0 !important;color:#d0b0ff">' +
-                                    '주격보어</span>'
+                                    '<span class="pattern-docent-mark pattern-docent-mark--c pattern-docent-paren" style="background:none !important;padding:0 !important;border-radius:0 !important;color:#d0b0ff">' +
+                                    m +
+                                    '</span>'
                                 );
                             })
                             .replace(/목적어/g, function () {
                                 return (
-                                    '<span class="pattern-docent-mark pattern-docent-mark--o" style="background:none !important;padding:0 !important;border-radius:0 !important;color:#ffb35c">' +
+                                    '<span class="pattern-docent-mark pattern-docent-mark--o pattern-docent-paren" style="background:none !important;padding:0 !important;border-radius:0 !important;color:#ffb35c">' +
                                     '목적어</span>'
                                 );
                             });
@@ -2309,7 +2434,17 @@
     function renderGuide() {
         var head = document.getElementById('pattern-guide-head');
         var body = document.getElementById('pattern-guide-body');
+        var guide = document.getElementById('pattern-guide') || document.querySelector('.pattern-guide');
         if (!body || !state.data) return;
+
+        // 롤링·도슨트 패턴은 해석포인트(자리 표시) 패널 숨김
+        if (guide) {
+            var hideGuide = hasRolling() || hasDocent();
+            guide.classList.toggle('is-hidden', hideGuide);
+            var page = document.querySelector('.pattern-page');
+            if (page) page.classList.toggle('is-no-guide', hideGuide);
+            if (hideGuide) return;
+        }
 
         body.innerHTML =
             '<ul>' +
@@ -2444,7 +2579,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260728a').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260728b').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })

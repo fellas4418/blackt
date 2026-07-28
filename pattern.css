@@ -95,8 +95,11 @@
 .pattern-page.is-docent .pattern-progress,
 .pattern-page.is-docent .pattern-phase-badge,
 .pattern-page.is-docent .pattern-stage,
-.pattern-page.is-docent .pattern-nav {
-    display: none;
+.pattern-page.is-docent .pattern-nav,
+.pattern-page.is-rolling .pattern-guide,
+.pattern-page.is-no-guide .pattern-guide,
+.pattern-guide.is-hidden {
+    display: none !important;
 }
 
 .pattern-page.is-docent .pattern-center-block {
@@ -120,7 +123,7 @@
     width: 100%;
     min-height: 0;
     /* 하단 탭 안내·화살표·페이지 번호와 본문이 겹치지 않게 여유 */
-    padding: 44px 12px calc(92px + env(safe-area-inset-bottom, 0px));
+    padding: 28px 12px calc(92px + env(safe-area-inset-bottom, 0px));
     box-sizing: border-box;
     text-align: center;
     cursor: pointer;
@@ -136,11 +139,14 @@
 
 .pattern-docent-inner {
     width: 100%;
-    max-width: 360px;
-    /* flex 자식에서 overflow 스크롤이 먹히게 height 기준을 잡음 */
-    flex: 1 1 0;
+    max-width: 440px;
+    /* 화면 높이의 약 70% — 예문·맵이 작게 보이지 않게 */
+    flex: 0 1 auto;
+    height: 70vh;
+    height: 70dvh;
     min-height: 0;
-    max-height: 100%;
+    max-height: 70vh;
+    max-height: 70dvh;
     overflow-x: hidden;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -151,6 +157,10 @@
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    justify-content: flex-start;
+    /* 중간 위쪽부터 배치 */
+    padding-top: 6vh;
+    box-sizing: border-box;
     container-type: inline-size;
     container-name: docent;
 }
@@ -170,7 +180,7 @@
 
 .pattern-docent-role-slot {
     flex: 0 0 auto;
-    margin: 0 0 1.7rem;
+    margin: 0 0 1rem;
     box-sizing: border-box;
     text-align: left;
 }
@@ -236,27 +246,32 @@
 
 .pattern-docent-example-slot {
     display: none;
-    flex: 0 0 auto;
-    margin: 0 0 14px;
-    padding: 12px 14px 14px;
+    flex: 1 1 auto;
+    margin: 0 0 16px;
+    padding: 18px 16px 20px;
     box-sizing: border-box;
     text-align: center;
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.03);
+    min-height: 38%;
+    justify-content: center;
 }
 
-.pattern-docent.has-example .pattern-docent-example-slot {
-    display: block;
+.pattern-docent.has-example .pattern-docent-example-slot,
+.pattern-docent.has-map .pattern-docent-example-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
 }
 
 .pattern-docent-example {
     display: none;
-    margin: 0 0 6px;
+    margin: 0 0 10px;
     padding: 0;
-    font-size: clamp(2.1rem, 8vw, 2.6rem);
+    font-size: clamp(2.35rem, 9.2vw, 3.1rem);
     font-weight: 700;
-    line-height: 1.55;
+    line-height: 1.45;
     letter-spacing: -0.01em;
     color: #b0b0b0;
     text-decoration: none;
@@ -277,16 +292,16 @@
 /* 짧은 예문(단어 ≤5) — 한 줄, 좁은 화면에서는 글자만 살짝 축소 */
 .pattern-docent-example.is-oneline {
     white-space: nowrap;
-    font-size: clamp(1.45rem, 5.8vw, 2.6rem);
+    font-size: clamp(1.85rem, 7.2vw, 3.1rem);
 }
 
 .pattern-docent-example-kor {
     display: none;
     margin: 0;
     padding: 0;
-    font-size: clamp(1.55rem, 6vw, 1.9rem);
+    font-size: clamp(1.75rem, 6.8vw, 2.25rem);
     font-weight: 600;
-    line-height: 1.5;
+    line-height: 1.45;
     color: #777;
     opacity: 0;
     transition: opacity 0.55s ease;
@@ -301,7 +316,7 @@
 
 .pattern-docent-example-kor.is-oneline {
     white-space: nowrap;
-    font-size: clamp(1.2rem, 4.8vw, 1.9rem);
+    font-size: clamp(1.45rem, 5.6vw, 2.25rem);
 }
 
 .pattern-docent-mark {
@@ -1546,10 +1561,13 @@
 .pattern-docent-map {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px 8px;
+    gap: 14px 10px;
     width: 100%;
-    margin: 14px 0 22px;
+    margin: auto 0;
+    padding: 8px 0 12px;
     box-sizing: border-box;
+    flex: 1 1 auto;
+    align-content: center;
 }
 
 .pattern-docent-map.is-hidden {
@@ -1557,9 +1575,9 @@
 }
 
 .pattern-docent-map-eng {
-    font-size: clamp(1.8rem, 8.5vw, 2.75rem);
+    font-size: clamp(2.35rem, 11vw, 3.5rem);
     font-weight: 700;
-    line-height: 1.25;
+    line-height: 1.2;
     color: #c8c8c8;
     text-align: center;
     word-break: keep-all;
@@ -1567,9 +1585,9 @@
 }
 
 .pattern-docent-map-particle {
-    font-size: clamp(1.2rem, 5.2vw, 1.65rem);
+    font-size: clamp(1.45rem, 6.2vw, 2rem);
     font-weight: 700;
-    line-height: 1.3;
+    line-height: 1.25;
     color: #b0b0b0;
     text-align: center;
     word-break: keep-all;
@@ -1598,6 +1616,64 @@
 .pattern-rolling-eng,
 .pattern-rolling-kor {
     color: #b5b5b5;
+}
+
+.pattern-rolling-line {
+    display: grid;
+    gap: 0.35em 0.5em;
+    width: 100%;
+    align-items: baseline;
+    justify-items: center;
+}
+
+.pattern-rolling-slot {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    text-align: center;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    white-space: normal;
+    font-weight: 700;
+    color: #b5b5b5 !important;
+    -webkit-text-fill-color: #b5b5b5 !important;
+    background: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+}
+
+.pattern-rolling-slot.is-focus {
+    opacity: 1;
+}
+
+.pattern-rolling-slot.is-focus.pattern-docent-mark--s {
+    color: #7aefff !important;
+    -webkit-text-fill-color: #7aefff !important;
+}
+
+.pattern-rolling-slot.is-focus.pattern-docent-mark--v {
+    color: #ffe08a !important;
+    -webkit-text-fill-color: #ffe08a !important;
+}
+
+.pattern-rolling-slot.is-focus.pattern-docent-mark--o {
+    color: #ffb35c !important;
+    -webkit-text-fill-color: #ffb35c !important;
+}
+
+.pattern-rolling-slot.is-focus.pattern-docent-mark--c {
+    color: #d0b0ff !important;
+    -webkit-text-fill-color: #d0b0ff !important;
+}
+
+.pattern-rolling-eng .pattern-rolling-slot.is-focus {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+}
+
+.pattern-rolling-kor .pattern-rolling-slot.is-focus {
+    font-weight: 800;
 }
 
 .pattern-rolling-eng .pattern-docent-mark,
@@ -1652,12 +1728,12 @@
 }
 
 .pattern-rolling-eng {
-    margin: 0 0 12px;
+    margin: 0 0 14px;
     min-width: 0;
     max-width: 100%;
-    font-size: clamp(1.55rem, 6.4vw, 2.15rem);
+    font-size: clamp(1.85rem, 7.4vw, 2.55rem);
     font-weight: 700;
-    line-height: 1.5;
+    line-height: 1.45;
     letter-spacing: -0.01em;
     color: #b5b5b5;
     text-align: center;
@@ -1677,12 +1753,12 @@
 }
 
 .pattern-rolling-kor {
-    margin: 0 0 14px;
+    margin: 0 0 16px;
     min-width: 0;
     max-width: 100%;
-    font-size: clamp(1.25rem, 5vw, 1.65rem);
+    font-size: clamp(1.45rem, 5.8vw, 1.95rem);
     font-weight: 600;
-    line-height: 1.5;
+    line-height: 1.45;
     color: #b5b5b5;
     text-align: center;
     word-break: keep-all;
