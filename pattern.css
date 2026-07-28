@@ -114,6 +114,29 @@
     min-height: 0;
 }
 
+/* 연습 제목 — 도슨트 role과 같은 위쪽 위치 */
+.pattern-page.is-rolling .pattern-center-block {
+    justify-content: flex-start;
+    align-items: center;
+    padding-top: 28px;
+    padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+    box-sizing: border-box;
+}
+
+.pattern-page.is-rolling .pattern-content-center,
+.pattern-page.is-rolling .pattern-stage {
+    width: 100%;
+    max-width: 440px;
+    align-self: center;
+    align-items: stretch;
+    justify-content: flex-start;
+}
+
+.pattern-page.is-rolling .pattern-stage {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
 .pattern-docent {
     display: flex;
     flex-direction: column;
@@ -1537,7 +1560,8 @@
     align-items: stretch;
     width: 100%;
     min-width: 0;
-    padding: 8px 4px 16px;
+    /* 도슨트 제목과 같은 시작 Y */
+    padding: 6vh 4px 16px;
     box-sizing: border-box;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
@@ -1645,7 +1669,11 @@
     }
 }
 
-/* 예문 맵: 영어 → 조사 대응 — 화면 중간 */
+/* 예문 맵: 영어 → 조사 대응 — 예문 블록이 화면 중간에 오도록 약간 위 */
+.pattern-docent.has-map .pattern-docent-inner {
+    padding-top: 2vh;
+}
+
 .pattern-docent.has-map .pattern-docent-body {
     flex: 1 1 auto;
     justify-content: center;
@@ -1655,6 +1683,16 @@
 .pattern-docent.has-map .pattern-docent-example-slot {
     margin-top: auto;
     margin-bottom: auto;
+    transform: translateY(-5vh);
+}
+
+.pattern-docent.has-map .pattern-docent-text {
+    flex: 0 0 auto;
+    margin-top: 0.35rem;
+    text-align: center;
+    font-size: clamp(1.25rem, 4.8vw, 1.5rem);
+    color: #b0b0b0;
+    transform: translateY(-5vh);
 }
 
 .pattern-docent-map {

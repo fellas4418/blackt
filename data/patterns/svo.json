@@ -87,7 +87,11 @@
           "role_ko": "목적어"
         }
       ],
-      "text_parts": []
+      "text_parts": [
+        {
+          "text": "이제 한 자리씩 바꿔 보며 익혀 봅시다."
+        }
+      ]
     }
   ],
   "docent_bridge": "",
