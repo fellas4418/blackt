@@ -21,7 +21,7 @@
     var COMPLEMENT_PARTICLES = { '이': 1, '가': 1 };
     var VERB_PARTICLES = { '다': 1 };
 
-    var INDEX_URL = 'data/pattern_index.json?v=20260728d';
+    var INDEX_URL = 'data/pattern_index.json?v=20260728e';
     var SOUND_KEY = 'pattern_docent_sound';
 
     var state = {
@@ -1311,8 +1311,8 @@
         }
         var badge = document.getElementById('pattern-phase-badge');
         if (badge) {
-            badge.textContent = '연습 ' + (done + 1) + ' / ' + total;
-            badge.classList.remove('is-hidden');
+            badge.textContent = '';
+            badge.classList.add('is-hidden');
         }
     }
 
@@ -1322,6 +1322,7 @@
         if (!phase || !item) return;
 
         var focus = phase.focus || '';
+        var focusEl = document.getElementById('pattern-rolling-focus');
         var phaseEl = document.getElementById('pattern-rolling-phase');
         var particleEl = document.getElementById('pattern-rolling-particle');
         var engEl = document.getElementById('pattern-rolling-eng');
@@ -1329,21 +1330,24 @@
         var capEl = document.getElementById('pattern-rolling-caption');
         var tapEl = document.getElementById('pattern-rolling-tap');
 
+        if (focusEl) {
+            var title = phase.title || COL_COMP[focus] || '';
+            var hint = phase.particle_hint || '';
+            focusEl.textContent = hint ? title + ' + ' + hint : title;
+            focusEl.className =
+                'pattern-rolling-focus' +
+                (focus ? ' pattern-rolling-focus--' + focus : '');
+        }
         if (phaseEl) {
-            phaseEl.textContent =
-                '연습 · ' +
-                (phase.title || COL_COMP[focus] || '') +
-                ' · ' +
-                (state.rollingItemIdx + 1) +
-                '/' +
-                (phase.items || []).length;
+            phaseEl.textContent = '';
+            phaseEl.classList.add('is-hidden');
         }
         if (particleEl) {
-            particleEl.textContent = phase.particle_hint || '';
+            particleEl.textContent = '';
+            particleEl.classList.add('is-hidden');
         }
         if (engEl) {
             var engSlots = rollingEngSlots(item);
-            // 원문·해석 모두 해당 성분만 색
             engEl.innerHTML = engSlots.length
                 ? buildRollingSlotsHtml(engSlots, focus, true)
                 : buildRollingMarkedHtml(rollingItemParts(item).eng, focus, true);
@@ -1494,11 +1498,13 @@
     function finishRolling() {
         clearRollingTimer();
         state.rollingActive = false;
+        state.bridgeFromRolling = false;
         hideRollingUi();
         var page = document.querySelector('.pattern-page');
         if (page) page.classList.remove('is-rolling');
-        showDocentOverlay();
-        showDocentBridge({ fromRolling: true });
+        // 「~을 익혔습니다」 브릿지 없이 완료
+        hideDocentOverlay();
+        finishPattern();
     }
 
     function hasDocent() {
@@ -2046,30 +2052,61 @@
             if (onDone) onDone();
             return;
         }
-        // 전부 숨긴 뒤 한 줄씩 다시 공개 + 괄호 깜빡
-        setDocentBlocksVisible(-1);
-        var segs = textEl.querySelectorAll('.pattern-docent-seg');
-        var startIdx = 0;
-        // 첫 블록이 안내문("다시 한번…")이면 유지하고 나머지부터 재생
-        if (segs.length > 1) {
-            segs[0].classList.add('is-on');
-            startIdx = 1;
-            state.docentBlockIdx = 0;
+        var segs = Array.prototype.slice.call(
+            textEl.querySelectorAll('.pattern-docent-seg')
+        );
+        if (!segs.length) {
+            if (onDone) onDone();
+            return;
         }
-        var i = startIdx;
+
+        function segPlain(el) {
+            return String(el.textContent || '')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        var keepIdx = {};
+        var firstPlain = segPlain(segs[0]);
+        var lastPlain = segPlain(segs[segs.length - 1]);
+        // 안내문(첫번째… / 다시 한번…)은 유지, 주어·서술어·목적어만 다시 재생
+        if (!/^(주어|서술어|목적어|주격|목적격|\d+\.)/.test(firstPlain)) {
+            keepIdx[0] = true;
+        }
+        if (/다시\s*한번\s*복습/.test(lastPlain)) {
+            keepIdx[segs.length - 1] = true;
+        }
+
+        var replayIdx = [];
+        var i;
+        for (i = 0; i < segs.length; i++) {
+            if (!keepIdx[i]) replayIdx.push(i);
+        }
+        if (!replayIdx.length) {
+            if (onDone) onDone();
+            return;
+        }
+
+        for (i = 0; i < segs.length; i++) {
+            if (keepIdx[i]) segs[i].classList.add('is-on');
+            else segs[i].classList.remove('is-on');
+        }
+
+        var stepI = 0;
         function step() {
             if (!state.docentPhase) return;
-            if (i >= segs.length) {
+            if (stepI >= replayIdx.length) {
                 if (item.blink_paren) blinkParensInDocent();
                 state.docentTimer = setTimeout(function () {
                     if (onDone) onDone();
                 }, item.blink_paren ? PAREN_BLINK_MS : 400);
                 return;
             }
-            segs[i].classList.add('is-on');
-            state.docentBlockIdx = i;
+            var idx = replayIdx[stepI];
+            segs[idx].classList.add('is-on');
+            state.docentBlockIdx = idx;
             if (item.blink_paren) blinkParensInDocent();
-            i += 1;
+            stepI += 1;
             state.docentTimer = setTimeout(step, DOCENT_SEG_MS);
         }
         state.docentTimer = setTimeout(step, 600);
@@ -2127,7 +2164,12 @@
                             escapeHtml(col.particle || '') +
                             '</span>' +
                             (roleKo
-                                ? '<span class="pattern-docent-map-role">(' +
+                                ? '<span class="pattern-docent-map-role' +
+                                  (mark
+                                      ? ' pattern-docent-mark pattern-docent-mark--' +
+                                        escapeHtml(mark)
+                                      : '') +
+                                  '">(' +
                                   escapeHtml(roleKo) +
                                   ')</span>'
                                 : '') +
@@ -2687,7 +2729,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260728d').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260728e').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })

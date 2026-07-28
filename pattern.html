@@ -6,7 +6,7 @@
     <title>TRIGGER · 독해</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="cyber-theme.css">
-    <link rel="stylesheet" href="pattern.css?v=20260728d">
+    <link rel="stylesheet" href="pattern.css?v=20260728e">
 </head>
 <body>
     <div class="pattern-page">
@@ -43,12 +43,16 @@
                             <div class="pattern-pool" id="pattern-pool"></div>
                         </div>
                         <div class="pattern-rolling is-hidden" id="pattern-rolling">
-                            <p class="pattern-rolling-phase" id="pattern-rolling-phase"></p>
-                            <p class="pattern-rolling-particle" id="pattern-rolling-particle"></p>
+                            <div class="pattern-rolling-topic" id="pattern-rolling-topic">
+                                <p class="pattern-rolling-topic-title">연습</p>
+                            </div>
+                            <p class="pattern-rolling-focus" id="pattern-rolling-focus"></p>
+                            <p class="pattern-rolling-phase is-hidden" id="pattern-rolling-phase"></p>
+                            <p class="pattern-rolling-particle is-hidden" id="pattern-rolling-particle"></p>
                             <p class="pattern-rolling-eng" id="pattern-rolling-eng" aria-live="polite"></p>
                             <p class="pattern-rolling-kor" id="pattern-rolling-kor"></p>
-                            <p class="pattern-rolling-caption" id="pattern-rolling-caption"></p>
-                            <p class="pattern-rolling-tap" id="pattern-rolling-tap">탭 → 해석</p>
+                            <p class="pattern-rolling-caption is-hidden" id="pattern-rolling-caption"></p>
+                            <p class="pattern-rolling-tap" id="pattern-rolling-tap">← 이전 · 다음 →</p>
                         </div>
                     </div>
                     <div class="pattern-docent is-hidden" id="pattern-docent" aria-live="polite">
@@ -103,6 +107,6 @@
         </div>
     </div>
 
-    <script src="pattern.js?v=20260728d"></script>
+    <script src="pattern.js?v=20260728e"></script>
 </body>
 </html>

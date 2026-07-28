@@ -1556,6 +1556,68 @@
     text-align: center;
 }
 
+.pattern-rolling-phase.is-hidden,
+.pattern-rolling-particle.is-hidden {
+    display: none !important;
+}
+
+.pattern-rolling-topic {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 14px;
+    text-align: left;
+}
+
+.pattern-rolling-topic-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    font-size: clamp(1.95rem, 7.4vw, 2.3rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: #f0f0f0;
+}
+
+.pattern-rolling-topic-title::before {
+    content: '';
+    flex: 0 0 4px;
+    width: 4px;
+    height: 0.99em;
+    background: #4dffc4;
+    border-radius: 1px;
+    transform: translateY(0.045em);
+}
+
+.pattern-rolling-focus {
+    margin: 0 0 18px;
+    font-size: clamp(1.55rem, 6.2vw, 2.05rem);
+    font-weight: 800;
+    line-height: 1.35;
+    text-align: center;
+    word-break: keep-all;
+    color: #c8c8c8;
+}
+
+.pattern-rolling-focus--s {
+    color: #7aefff;
+}
+
+.pattern-rolling-focus--v {
+    color: #ffe08a;
+}
+
+.pattern-rolling-focus--o {
+    color: #ffb35c;
+}
+
+.pattern-rolling-focus--c {
+    color: #d0b0ff;
+}
+
 .pattern-docent-mark--paren {
     color: inherit;
 }
@@ -1582,16 +1644,27 @@
     }
 }
 
-/* 예문 맵: 영어 → 조사 대응 */
+/* 예문 맵: 영어 → 조사 대응 — 화면 중간 */
+.pattern-docent.has-map .pattern-docent-body {
+    flex: 1 1 auto;
+    justify-content: center;
+    min-height: 0;
+}
+
+.pattern-docent.has-map .pattern-docent-example-slot {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
 .pattern-docent-map {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 14px 10px;
     width: 100%;
-    margin: auto 0;
+    margin: 0;
     padding: 8px 0 12px;
     box-sizing: border-box;
-    flex: 1 1 auto;
+    flex: 0 0 auto;
     align-content: center;
 }
 
@@ -1641,12 +1714,32 @@
 }
 
 .pattern-docent-map-role {
-    margin-top: 4px;
-    font-size: clamp(0.95rem, 3.8vw, 1.2rem);
-    font-weight: 600;
-    color: #888;
+    margin-top: 6px;
+    font-size: clamp(1.9rem, 7.6vw, 2.4rem);
+    font-weight: 700;
     text-align: center;
     white-space: nowrap;
+    color: #888;
+}
+
+.pattern-docent-map-role.pattern-docent-mark--s {
+    color: #7aefff !important;
+    -webkit-text-fill-color: #7aefff !important;
+}
+
+.pattern-docent-map-role.pattern-docent-mark--v {
+    color: #ffe08a !important;
+    -webkit-text-fill-color: #ffe08a !important;
+}
+
+.pattern-docent-map-role.pattern-docent-mark--o {
+    color: #ffb35c !important;
+    -webkit-text-fill-color: #ffb35c !important;
+}
+
+.pattern-docent-map-role.pattern-docent-mark--c {
+    color: #d0b0ff !important;
+    -webkit-text-fill-color: #d0b0ff !important;
 }
 
 .pattern-docent-map-col {
