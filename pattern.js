@@ -21,7 +21,7 @@
     var COMPLEMENT_PARTICLES = { '이': 1, '가': 1 };
     var VERB_PARTICLES = { '다': 1 };
 
-    var INDEX_URL = 'data/pattern_index.json?v=20260728f';
+    var INDEX_URL = 'data/pattern_index.json?v=20260728g';
     var SOUND_KEY = 'pattern_docent_sound';
 
     var state = {
@@ -1729,7 +1729,7 @@
             runDocentReplayIfNeeded(function () {
                 var item = state.currentDocentItem;
                 if (item && item.blink_paren && !item.replay_lines) {
-                    blinkParensInDocent();
+                    blinkParensInDocent(null, null);
                 }
             });
         }
@@ -2031,15 +2031,53 @@
         );
     }
 
-    function blinkParensInDocent() {
+    function clearAllParenBlinks() {
         var textEl = document.getElementById('pattern-docent-text');
         if (!textEl) return;
-        var nodes = textEl.querySelectorAll('.pattern-docent-paren');
-        nodes.forEach(function (n) {
+        textEl.querySelectorAll('.pattern-docent-paren.is-blink').forEach(function (n) {
             n.classList.remove('is-blink');
+        });
+    }
+
+    /** 노드마다 2회만 깜빡 → 멈추고 다음 노드 */
+    function blinkNodesSequentially(nodes, onDone) {
+        var list = Array.prototype.slice.call(nodes || []);
+        var i = 0;
+
+        function next() {
+            clearAllParenBlinks();
+            if (!state.docentPhase) {
+                if (onDone) onDone();
+                return;
+            }
+            if (i >= list.length) {
+                if (onDone) onDone();
+                return;
+            }
+            var n = list[i];
+            i += 1;
             void n.offsetWidth;
             n.classList.add('is-blink');
-        });
+            state.docentTimer = setTimeout(function () {
+                n.classList.remove('is-blink');
+                next();
+            }, PAREN_BLINK_MS);
+        }
+
+        if (!list.length) {
+            if (onDone) onDone();
+            return;
+        }
+        next();
+    }
+
+    function blinkParensInDocent(root, onDone) {
+        var scope = root || document.getElementById('pattern-docent-text');
+        if (!scope) {
+            if (onDone) onDone();
+            return;
+        }
+        blinkNodesSequentially(scope.querySelectorAll('.pattern-docent-paren'), onDone);
     }
 
     function runDocentReplayIfNeeded(onDone) {
@@ -2059,9 +2097,8 @@
         var replaySegs = Array.prototype.slice.call(
             textEl.querySelectorAll('.pattern-docent-seg.is-replay')
         );
-        // fallback: 이전 휴리스틱
         if (!replaySegs.length && allSegs.length > 1) {
-            allSegs.forEach(function (seg, idx) {
+            allSegs.forEach(function (seg) {
                 var plain = String(seg.textContent || '')
                     .replace(/\s+/g, ' ')
                     .trim();
@@ -2083,7 +2120,6 @@
         state.docentReplayDone = true;
         state.docentReplaying = true;
 
-        // 안내문(첫번째… / 다시 한번…)은 유지, 복습 줄만 숨김
         allSegs.forEach(function (seg) {
             if (seg.classList.contains('is-replay')) {
                 seg.classList.remove('is-on');
@@ -2099,17 +2135,21 @@
                 return;
             }
             if (stepI >= replaySegs.length) {
-                if (item.blink_paren) blinkParensInDocent();
-                state.docentTimer = setTimeout(function () {
-                    state.docentReplaying = false;
-                    if (onDone) onDone();
-                }, item.blink_paren ? PAREN_BLINK_MS : 400);
+                clearAllParenBlinks();
+                state.docentReplaying = false;
+                if (onDone) onDone();
                 return;
             }
-            replaySegs[stepI].classList.add('is-on');
-            if (item.blink_paren) blinkParensInDocent();
+            var seg = replaySegs[stepI];
             stepI += 1;
-            state.docentTimer = setTimeout(step, DOCENT_SEG_MS);
+            seg.classList.add('is-on');
+            if (item.blink_paren) {
+                blinkParensInDocent(seg, function () {
+                    state.docentTimer = setTimeout(step, 350);
+                });
+            } else {
+                state.docentTimer = setTimeout(step, DOCENT_SEG_MS);
+            }
         }
         state.docentTimer = setTimeout(step, 600);
     }
@@ -2780,7 +2820,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260728f').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260728g').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })

@@ -1629,6 +1629,7 @@
 
 .pattern-docent-paren.is-blink {
     animation: pattern-paren-blink 1.4s ease-in-out 2;
+    animation-fill-mode: forwards;
 }
 
 @keyframes pattern-paren-blink {
