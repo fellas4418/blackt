@@ -21,7 +21,7 @@
     var COMPLEMENT_PARTICLES = { '이': 1, '가': 1 };
     var VERB_PARTICLES = { '다': 1 };
 
-    var INDEX_URL = 'data/pattern_index.json?v=20260728e';
+    var INDEX_URL = 'data/pattern_index.json?v=20260728f';
     var SOUND_KEY = 'pattern_docent_sound';
 
     var state = {
@@ -61,7 +61,9 @@
         rollingTimer: null,
         rollingWaitingTap: false,
         docentReplayDone: false,
+        docentReplaying: false,
         bridgeFromRolling: false,
+        docentBlockReplayFlags: null,
         currentDocentItem: null
     };
 
@@ -2046,70 +2048,87 @@
             if (onDone) onDone();
             return;
         }
-        state.docentReplayDone = true;
         var textEl = document.getElementById('pattern-docent-text');
         if (!textEl) {
             if (onDone) onDone();
             return;
         }
-        var segs = Array.prototype.slice.call(
+        var allSegs = Array.prototype.slice.call(
             textEl.querySelectorAll('.pattern-docent-seg')
         );
-        if (!segs.length) {
+        var replaySegs = Array.prototype.slice.call(
+            textEl.querySelectorAll('.pattern-docent-seg.is-replay')
+        );
+        // fallback: 이전 휴리스틱
+        if (!replaySegs.length && allSegs.length > 1) {
+            allSegs.forEach(function (seg, idx) {
+                var plain = String(seg.textContent || '')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+                if (
+                    /^(주어|서술어|목적어)\s*:/.test(plain) ||
+                    /^\d+\.\s/.test(plain)
+                ) {
+                    seg.classList.add('is-replay');
+                    replaySegs.push(seg);
+                }
+            });
+        }
+        if (!replaySegs.length) {
+            state.docentReplayDone = true;
             if (onDone) onDone();
             return;
         }
 
-        function segPlain(el) {
-            return String(el.textContent || '')
-                .replace(/\s+/g, ' ')
-                .trim();
-        }
+        state.docentReplayDone = true;
+        state.docentReplaying = true;
 
-        var keepIdx = {};
-        var firstPlain = segPlain(segs[0]);
-        var lastPlain = segPlain(segs[segs.length - 1]);
-        // 안내문(첫번째… / 다시 한번…)은 유지, 주어·서술어·목적어만 다시 재생
-        if (!/^(주어|서술어|목적어|주격|목적격|\d+\.)/.test(firstPlain)) {
-            keepIdx[0] = true;
-        }
-        if (/다시\s*한번\s*복습/.test(lastPlain)) {
-            keepIdx[segs.length - 1] = true;
-        }
-
-        var replayIdx = [];
-        var i;
-        for (i = 0; i < segs.length; i++) {
-            if (!keepIdx[i]) replayIdx.push(i);
-        }
-        if (!replayIdx.length) {
-            if (onDone) onDone();
-            return;
-        }
-
-        for (i = 0; i < segs.length; i++) {
-            if (keepIdx[i]) segs[i].classList.add('is-on');
-            else segs[i].classList.remove('is-on');
-        }
+        // 안내문(첫번째… / 다시 한번…)은 유지, 복습 줄만 숨김
+        allSegs.forEach(function (seg) {
+            if (seg.classList.contains('is-replay')) {
+                seg.classList.remove('is-on');
+            } else {
+                seg.classList.add('is-on');
+            }
+        });
 
         var stepI = 0;
         function step() {
-            if (!state.docentPhase) return;
-            if (stepI >= replayIdx.length) {
+            if (!state.docentPhase) {
+                state.docentReplaying = false;
+                return;
+            }
+            if (stepI >= replaySegs.length) {
                 if (item.blink_paren) blinkParensInDocent();
                 state.docentTimer = setTimeout(function () {
+                    state.docentReplaying = false;
                     if (onDone) onDone();
                 }, item.blink_paren ? PAREN_BLINK_MS : 400);
                 return;
             }
-            var idx = replayIdx[stepI];
-            segs[idx].classList.add('is-on');
-            state.docentBlockIdx = idx;
+            replaySegs[stepI].classList.add('is-on');
             if (item.blink_paren) blinkParensInDocent();
             stepI += 1;
             state.docentTimer = setTimeout(step, DOCENT_SEG_MS);
         }
         state.docentTimer = setTimeout(step, 600);
+    }
+
+    function ensureDocentReplayThen(nextFn) {
+        var item = state.currentDocentItem;
+        if (
+            item &&
+            item.replay_lines &&
+            !state.docentReplayDone &&
+            !state.docentReplaying
+        ) {
+            runDocentReplayIfNeeded(function () {
+                if (nextFn) nextFn();
+            });
+            return;
+        }
+        if (state.docentReplaying) return;
+        if (nextFn) nextFn();
     }
 
     function applyDocentContent(item, isBridge) {
@@ -2127,6 +2146,7 @@
         item = item || {};
         state.currentDocentItem = item;
         state.docentReplayDone = false;
+        state.docentReplaying = false;
         el.classList.toggle('is-bridge', !!isBridge);
 
         var hasMap =
@@ -2219,6 +2239,13 @@
             blockSpeaks = partBlocks.map(function (block) {
                 return plainFromParts(block);
             });
+            state.docentBlockReplayFlags = partBlocks.map(function (block) {
+                var plain = plainFromParts(block).replace(/\s+/g, ' ').trim();
+                return (
+                    /^(주어|서술어|목적어)\s*:/.test(plain) ||
+                    /^\d+\.\s/.test(plain)
+                );
+            });
         } else {
             var plainBlocks = splitPlainDocentBlocks(item.text || '', revealLines);
             if (!plainBlocks.length && item.text) plainBlocks = [String(item.text)];
@@ -2230,6 +2257,14 @@
                 return html;
             });
             blockSpeaks = plainBlocks.map(plainSpeak);
+            state.docentBlockReplayFlags = plainBlocks.map(function (plain) {
+                var t = String(plain || '')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+                return (
+                    /^(주어|서술어|목적어)\s*:/.test(t) || /^\d+\.\s/.test(t)
+                );
+            });
         }
 
         if (!blockHtmls.length) {
@@ -2237,12 +2272,15 @@
             state.docentBlockCount = 1;
             state.docentBlockIdx = 0;
             state.docentBlockSpeaks = [''];
+            state.docentBlockReplayFlags = [false];
         } else {
+            var flags = state.docentBlockReplayFlags || [];
             textEl.innerHTML = blockHtmls
                 .map(function (html, i) {
                     return (
                         '<span class="pattern-docent-seg' +
                         (i === 0 ? ' is-on' : '') +
+                        (flags[i] ? ' is-replay' : '') +
                         '">' +
                         html +
                         '</span>'
@@ -2390,7 +2428,7 @@
     }
 
     function advanceDocent() {
-        if (state.docentTransitioning) return;
+        if (state.docentTransitioning || state.docentReplaying) return;
         clearDocentTimer();
         stopDocentSpeech();
         if (state.docentPhase === 'readings') {
@@ -2398,18 +2436,31 @@
             showDocentBridge();
             return;
         }
+        // 아직 안 연 블록 → 다음 줄 공개 (마지막이면 복습 재생)
         if (
             state.docentPhase &&
             state.docentBlockCount > 1 &&
             state.docentBlockIdx < state.docentBlockCount - 1
         ) {
             revealNextDocentBlock(function (speak) {
-                var dwell =
-                    state.docentPhase === 'bridge'
-                        ? DOCENT_BRIDGE_MS
-                        : DOCENT_LINE_MS;
-                scheduleDocentAdvance(dwell, speak || '');
+                state.lastDocentSpeak = speak || state.lastDocentSpeak;
+                if (state.docentSoundOn && speak) {
+                    speakDocentText(speak);
+                }
+                if (state.docentBlockIdx >= state.docentBlockCount - 1) {
+                    ensureDocentReplayThen(null);
+                }
             });
+            return;
+        }
+        // 블록은 다 열렸는데 복습 재생 전이면 복습 먼저
+        if (
+            state.docentPhase &&
+            state.currentDocentItem &&
+            state.currentDocentItem.replay_lines &&
+            !state.docentReplayDone
+        ) {
+            ensureDocentReplayThen(null);
             return;
         }
         if (state.docentPhase === 'bridge') {
@@ -2729,7 +2780,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260728e').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260728f').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })
