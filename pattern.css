@@ -114,27 +114,45 @@
     min-height: 0;
 }
 
-/* 연습 제목 — 도슨트 role과 같은 위쪽 위치 */
+/* 연습 제목 — 도슨트 role과 같은 위쪽 위치 (진행 바는 레이아웃 차지 안 함) */
+.pattern-page.is-rolling .pattern-main {
+    position: relative;
+}
+
 .pattern-page.is-rolling .pattern-center-block {
-    justify-content: flex-start;
-    align-items: center;
-    padding-top: 28px;
-    padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+    justify-content: stretch;
+    align-items: stretch;
+    padding-top: 0;
+    padding-bottom: 0;
     box-sizing: border-box;
 }
 
-.pattern-page.is-rolling .pattern-content-center,
-.pattern-page.is-rolling .pattern-stage {
+.pattern-page.is-rolling .pattern-content-center {
+    flex: 1;
+    align-self: stretch;
+    min-height: 0;
     width: 100%;
-    max-width: 440px;
-    align-self: center;
-    align-items: stretch;
+    max-width: none;
+    align-items: center;
     justify-content: flex-start;
 }
 
 .pattern-page.is-rolling .pattern-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
     flex: 1 1 auto;
+    width: 100%;
+    max-width: 440px;
     min-height: 0;
+    /* 도슨트(.pattern-docent)와 동일 패딩 */
+    padding: 28px 12px calc(92px + env(safe-area-inset-bottom, 0px));
+    box-sizing: border-box;
+}
+
+.pattern-page.is-rolling .pattern-phase-badge:empty {
+    display: none;
 }
 
 .pattern-docent {
@@ -1550,8 +1568,16 @@
     display: none !important;
 }
 
-.pattern-page.is-rolling .pattern-progress-wrap {
+.pattern-page.is-rolling .pattern-progress-wrap,
+.pattern-page.is-rolling .pattern-progress {
     display: block !important;
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    top: 0;
+    z-index: 2;
+    margin-bottom: 0;
+    height: 5px;
 }
 
 .pattern-rolling {
@@ -1560,8 +1586,8 @@
     align-items: stretch;
     width: 100%;
     min-width: 0;
-    /* 도슨트 제목과 같은 시작 Y */
-    padding: 6vh 4px 16px;
+    /* 도슨트-inner와 동일: 제목 시작 Y */
+    padding: 6vh 0 16px;
     box-sizing: border-box;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
@@ -1652,7 +1678,7 @@
 }
 
 .pattern-docent-paren.is-blink {
-    animation: pattern-paren-blink 1.4s ease-in-out 2;
+    animation: pattern-paren-blink 1.4s ease-in-out 1;
     animation-fill-mode: forwards;
 }
 
@@ -1693,6 +1719,44 @@
     font-size: clamp(1.25rem, 4.8vw, 1.5rem);
     color: #b0b0b0;
     transform: translateY(-5vh);
+}
+
+/* 마무리 한 페이지 + 구석 로고 */
+.pattern-docent.has-closing {
+    position: relative;
+}
+
+.pattern-docent-logo {
+    display: none;
+    position: absolute;
+    right: 14px;
+    bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    opacity: 0.85;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.pattern-docent.has-closing .pattern-docent-logo {
+    display: block;
+}
+
+.pattern-docent.has-closing .pattern-docent-inner {
+    padding-top: 10vh;
+    justify-content: center;
+}
+
+.pattern-docent.has-closing .pattern-docent-role-slot {
+    margin-bottom: 1.4rem;
+}
+
+.pattern-docent.has-closing .pattern-docent-text {
+    text-align: center;
+    font-size: clamp(1.55rem, 6vw, 1.95rem);
+    line-height: 1.55;
+    color: #d0d0d0;
 }
 
 .pattern-docent-map {

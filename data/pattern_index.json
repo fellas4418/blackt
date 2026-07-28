@@ -42,7 +42,15 @@
               "text": "다시 한번 복습합니다.\n\n"
             },
             {
-              "text": "1. 주어 - 서술어 - 목적어\n\n2. 주어 - 서술어 - 주격 보어\n\n3. 주어 - 서술어 - 목적어 - 목적격 보어",
+              "text": "1. 주어 - 서술어 - 목적어",
+              "mark": "forms"
+            },
+            {
+              "text": "\n\n2. 주어 - 서술어 - 주격 보어",
+              "mark": "forms"
+            },
+            {
+              "text": "\n\n3. 주어 - 서술어 - 목적어 - 목적격 보어",
               "mark": "forms"
             }
           ]
@@ -72,7 +80,7 @@
       "docent_bridge_meta": {
         "reveal": "lines",
         "replay_lines": true,
-        "blink_paren": true,
+        "blink_paren": false,
         "text_parts": [
           {
             "text": "첫번째 주어 서술어 목적어의 해석을 살펴 봅니다.\n\n"

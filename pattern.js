@@ -12,7 +12,7 @@
     var ROLLING_PEEK_MS = 2000;
     var ROLLING_AUTO_MS = 2800;
     var ROLLING_REVEAL_MS = 900;
-    var PAREN_BLINK_MS = 2800;
+    var PAREN_BLINK_MS = 1400;
     var COL_COMP = { s: '주어', o: '목적어', c: '보어', v: '서술어' };
     var PARTICLE_POOL = ['은', '는', '이', '가', '을', '를', '다'];
     var SUBJECT_PARTICLES = { '은': 1, '는': 1, '이': 1, '가': 1 };
@@ -21,7 +21,7 @@
     var COMPLEMENT_PARTICLES = { '이': 1, '가': 1 };
     var VERB_PARTICLES = { '다': 1 };
 
-    var INDEX_URL = 'data/pattern_index.json?v=20260728h';
+    var INDEX_URL = 'data/pattern_index.json?v=20260728i';
     var SOUND_KEY = 'pattern_docent_sound';
 
     var state = {
@@ -1034,7 +1034,7 @@
         if (inner) inner.classList.add('is-hidden');
         if (el) {
             el.classList.add('is-readings', 'is-show');
-            el.classList.remove('is-bridge', 'has-example', 'has-kor');
+            el.classList.remove('is-bridge', 'has-example', 'has-kor', 'has-closing');
         }
         gallery.classList.remove('is-hidden');
 
@@ -1750,8 +1750,8 @@
 
         function afterBlocks() {
             runDocentReplayIfNeeded(function () {
-                var item = state.currentDocentItem;
-                if (item && item.blink_paren && !item.replay_lines) {
+                var cur = state.currentDocentItem;
+                if (cur && cur.blink_paren && !cur.replay_lines) {
                     blinkParensInDocent(null, null);
                 }
             });
@@ -1759,25 +1759,57 @@
 
         var item = state.currentDocentItem;
         var flags = state.docentBlockReplayFlags || [];
-        var firstPlain = String(speak || '')
-            .replace(/\s+/g, ' ')
-            .trim();
-        // 복습: 「다시 한번」이 맨 앞이면 keep만 보여준 뒤 1번부터 바로 깜빡 리플레이
-        if (
-            item &&
-            item.replay_lines &&
-            item.blink_paren &&
-            /다시\s*한번\s*복습/.test(firstPlain)
-        ) {
-            var keepEnd = 0;
-            while (keepEnd < flags.length && !flags[keepEnd]) keepEnd += 1;
-            if (keepEnd > 0 && keepEnd < state.docentBlockCount) {
-                setDocentBlocksVisible(keepEnd - 1);
-                speakThen(speak, function () {
-                    runDocentReplayIfNeeded(function () {});
-                });
-                return;
+        var firstReplay = -1;
+        var fi;
+        for (fi = 0; fi < flags.length; fi++) {
+            if (flags[fi]) {
+                firstReplay = fi;
+                break;
             }
+        }
+
+        // 복습(+깜빡): keep만 보여준 뒤, 번호 한 줄씩 나오며 그 줄만 즉시 1회 깜빡
+        if (item && item.replay_lines && item.blink_paren && firstReplay > 0) {
+            setDocentBlocksVisible(firstReplay - 1);
+            state.docentReplayDone = true;
+
+            function revealBlinkChain(idx) {
+                if (!state.docentPhase) return;
+                if (idx >= state.docentBlockCount) {
+                    state.docentReplaying = false;
+                    return;
+                }
+                state.docentReplaying = true;
+                setDocentBlocksVisible(idx);
+                var segs = document.querySelectorAll('#pattern-docent-text .pattern-docent-seg');
+                var seg = segs[idx];
+                function goNext() {
+                    state.docentTimer = setTimeout(function () {
+                        revealBlinkChain(idx + 1);
+                    }, 350);
+                }
+                if (seg && flags[idx]) {
+                    blinkParensInDocent(seg, goNext);
+                } else {
+                    goNext();
+                }
+            }
+
+            // 「다시 한번」 직후 짧게 두고 1번+깜빡 바로 시작
+            stopDocentSpeech();
+            if (state.docentSoundOn && speak) {
+                speakDocentText(speak, function () {
+                    if (!state.docentPhase) return;
+                    state.docentTimer = setTimeout(function () {
+                        revealBlinkChain(firstReplay);
+                    }, 400);
+                });
+            } else {
+                state.docentTimer = setTimeout(function () {
+                    revealBlinkChain(firstReplay);
+                }, 900);
+            }
+            return;
         }
 
         if (state.docentBlockCount <= 1) {
@@ -1905,7 +1937,7 @@
         }
         if (el) {
             el.classList.add('is-hidden');
-            el.classList.remove('is-show', 'is-bridge', 'has-example', 'has-kor', 'is-readings');
+            el.classList.remove('is-show', 'is-bridge', 'has-example', 'has-kor', 'has-closing', 'is-readings');
         }
         hideReadingsGallery();
     }
@@ -2085,7 +2117,7 @@
         });
     }
 
-    /** 노드마다 2회만 깜빡 → 멈추고(켜진 채) 다음 노드만 깜빡 */
+    /** 노드마다 1회만 깜빡 → 켜진 채 유지하고 다음 노드 */
     function blinkNodesSequentially(nodes, onDone) {
         var list = Array.prototype.slice.call(nodes || []);
         var i = 0;
@@ -2119,14 +2151,40 @@
         next();
     }
 
+    /** 여러 노드 동시 1회 깜빡 (3번 목적어+목적격 보어) */
+    function blinkNodesTogether(nodes, onDone) {
+        var list = Array.prototype.slice.call(nodes || []);
+        if (!list.length) {
+            if (onDone) onDone();
+            return;
+        }
+        clearAllParenBlinks();
+        list.forEach(function (n) {
+            void n.offsetWidth;
+            n.classList.add('is-blink');
+        });
+        state.docentTimer = setTimeout(function () {
+            clearAllParenBlinks();
+            if (onDone) onDone();
+        }, PAREN_BLINK_MS);
+    }
+
     function blinkParensInDocent(root, onDone) {
         var scope = root || document.getElementById('pattern-docent-text');
         if (!scope) {
             if (onDone) onDone();
             return;
         }
-        // 해당 세그먼트(또는 지정 루트) 안의 깜빡 대상만 — 화면 전체 동시 깜빡 금지
-        blinkNodesSequentially(scope.querySelectorAll('.pattern-docent-paren'), onDone);
+        var nodes = scope.querySelectorAll('.pattern-docent-paren');
+        var plain = String(scope.textContent || '')
+            .replace(/\s+/g, ' ')
+            .trim();
+        // 3번만: 목적어·목적격 보어 동시 깜빡
+        if (/^3\.\s/.test(plain) && nodes.length > 1) {
+            blinkNodesTogether(nodes, onDone);
+            return;
+        }
+        blinkNodesSequentially(nodes, onDone);
     }
 
     function runDocentReplayIfNeeded(onDone) {
@@ -2244,9 +2302,11 @@
             !isBridge && item.layout === 'map' && item.map_cols && item.map_cols.length;
         var hasExample = !isBridge && !hasMap && item.parts && item.parts.length;
         var hasKor = !isBridge && !hasMap && item.kor_parts && item.kor_parts.length;
+        var hasClosing = !isBridge && item.layout === 'closing';
         el.classList.toggle('has-example', !!hasExample);
         el.classList.toggle('has-kor', !!hasKor);
         el.classList.toggle('has-map', !!hasMap);
+        el.classList.toggle('has-closing', !!hasClosing);
 
         if (roleEl) {
             roleEl.textContent = isBridge ? '' : item.role || '';
@@ -2876,7 +2936,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260728h').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260728i').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })
