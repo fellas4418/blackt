@@ -1600,7 +1600,7 @@
 }
 
 .pattern-docent-map-eng {
-    font-size: clamp(1.25rem, 5.2vw, 1.75rem);
+    font-size: clamp(1.875rem, 7.8vw, 2.625rem);
     font-weight: 700;
     line-height: 1.2;
     color: #c8c8c8;
@@ -1611,12 +1611,41 @@
 }
 
 .pattern-docent-map-particle {
-    font-size: clamp(1rem, 4.2vw, 1.35rem);
+    font-size: clamp(1.5rem, 6.3vw, 2.025rem);
     font-weight: 700;
     line-height: 1.25;
-    color: #b0b0b0;
     text-align: center;
     word-break: keep-all;
+    white-space: nowrap;
+    color: #b0b0b0;
+}
+
+.pattern-docent-map-particle.pattern-docent-mark--s {
+    color: #7aefff !important;
+    -webkit-text-fill-color: #7aefff !important;
+}
+
+.pattern-docent-map-particle.pattern-docent-mark--v {
+    color: #ffe08a !important;
+    -webkit-text-fill-color: #ffe08a !important;
+}
+
+.pattern-docent-map-particle.pattern-docent-mark--o {
+    color: #ffb35c !important;
+    -webkit-text-fill-color: #ffb35c !important;
+}
+
+.pattern-docent-map-particle.pattern-docent-mark--c {
+    color: #d0b0ff !important;
+    -webkit-text-fill-color: #d0b0ff !important;
+}
+
+.pattern-docent-map-role {
+    margin-top: 4px;
+    font-size: clamp(0.95rem, 3.8vw, 1.2rem);
+    font-weight: 600;
+    color: #888;
+    text-align: center;
     white-space: nowrap;
 }
 
@@ -1649,8 +1678,25 @@
     display: grid;
     gap: 0.35em 0.5em;
     width: 100%;
-    align-items: baseline;
+    align-items: start;
     justify-items: center;
+}
+
+.pattern-rolling-slot-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
+    width: 100%;
+    gap: 4px;
+}
+
+.pattern-rolling-role {
+    font-size: clamp(0.82rem, 3.2vw, 0.98rem);
+    font-weight: 600;
+    color: #888;
+    line-height: 1.2;
+    white-space: nowrap;
 }
 
 .pattern-rolling-slot {
@@ -1694,11 +1740,17 @@
 }
 
 .pattern-rolling-eng .pattern-rolling-slot.is-focus {
-    text-decoration: none;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
 }
 
 .pattern-rolling-kor .pattern-rolling-slot.is-focus {
     font-weight: 800;
+}
+
+.pattern-rolling-caption.is-hidden {
+    display: none;
 }
 
 .pattern-rolling-eng .pattern-docent-mark,

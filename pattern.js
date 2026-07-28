@@ -21,7 +21,7 @@
     var COMPLEMENT_PARTICLES = { '이': 1, '가': 1 };
     var VERB_PARTICLES = { '다': 1 };
 
-    var INDEX_URL = 'data/pattern_index.json?v=20260728c';
+    var INDEX_URL = 'data/pattern_index.json?v=20260728d';
     var SOUND_KEY = 'pattern_docent_sound';
 
     var state = {
@@ -61,6 +61,7 @@
         rollingTimer: null,
         rollingWaitingTap: false,
         docentReplayDone: false,
+        bridgeFromRolling: false,
         currentDocentItem: null
     };
 
@@ -1239,7 +1240,15 @@
         return grouped;
     }
 
-    function buildRollingSlotsHtml(slots, focus) {
+    function markToRoleKo(mark) {
+        if (mark === 's') return '주어';
+        if (mark === 'o') return '목적어';
+        if (mark === 'c') return '보어';
+        if (mark === 'v') return '서술어';
+        return '';
+    }
+
+    function buildRollingSlotsHtml(slots, focus, withRoleLabel) {
         var n = (slots || []).length || 1;
         var cols = 'repeat(' + n + ', minmax(0, 1fr))';
         return (
@@ -1250,12 +1259,21 @@
                 .map(function (slot) {
                     var mark = slot.mark || '';
                     var isFocus = focus && mark === focus;
+                    var roleKo = markToRoleKo(mark);
+                    var label = withRoleLabel && roleKo
+                        ? '<span class="pattern-rolling-role">(' +
+                          escapeHtml(roleKo) +
+                          ')</span>'
+                        : '';
                     return (
+                        '<span class="pattern-rolling-slot-wrap">' +
                         '<span class="pattern-rolling-slot pattern-docent-mark' +
                         (mark ? ' pattern-docent-mark--' + escapeHtml(mark) : '') +
                         (isFocus ? ' is-focus' : ' is-dim') +
                         '">' +
                         escapeHtml(slot.text || '') +
+                        '</span>' +
+                        label +
                         '</span>'
                     );
                 })
@@ -1313,7 +1331,8 @@
 
         if (phaseEl) {
             phaseEl.textContent =
-                (phase.title || COL_COMP[focus] || '연습') +
+                '연습 · ' +
+                (phase.title || COL_COMP[focus] || '') +
                 ' · ' +
                 (state.rollingItemIdx + 1) +
                 '/' +
@@ -1324,19 +1343,22 @@
         }
         if (engEl) {
             var engSlots = rollingEngSlots(item);
-            // 영어는 무색 고정, 해석(한글)만 포커스 색
+            // 원문·해석 모두 해당 성분만 색
             engEl.innerHTML = engSlots.length
-                ? buildRollingSlotsHtml(engSlots, '')
-                : buildRollingMarkedHtml(rollingItemParts(item).eng, '', true);
+                ? buildRollingSlotsHtml(engSlots, focus, true)
+                : buildRollingMarkedHtml(rollingItemParts(item).eng, focus, true);
         }
         if (korEl) {
             var korSlots = rollingKorSlots(item);
             korEl.innerHTML = korSlots.length
-                ? buildRollingSlotsHtml(korSlots, focus)
+                ? buildRollingSlotsHtml(korSlots, focus, false)
                 : buildRollingMarkedHtml(rollingItemParts(item).kor, focus, true);
             korEl.classList.toggle('is-hidden', !state.rollingKorVisible);
         }
-        if (capEl) capEl.textContent = phase.caption || '';
+        if (capEl) {
+            capEl.textContent = '';
+            capEl.classList.add('is-hidden');
+        }
         if (tapEl) {
             tapEl.textContent = '← 이전 · 다음 →';
         }
@@ -1439,8 +1461,27 @@
         hideReadingsGallery();
         hideDocentOverlay();
         state.rollingActive = true;
+        state.bridgeFromRolling = false;
         state.rollingPhaseIdx = 0;
         state.rollingItemIdx = 0;
+        state.introDone = true;
+        state.rollingKorVisible = true;
+        state.rollingWaitingTap = true;
+        var page = document.querySelector('.pattern-page');
+        if (page) page.classList.add('is-rolling');
+        showRollingUi();
+        beginRollingItem();
+    }
+
+    function resumeRollingAtEnd() {
+        if (!hasRolling()) return;
+        hideReadingsGallery();
+        hideDocentOverlay();
+        state.bridgeFromRolling = false;
+        state.rollingActive = true;
+        state.rollingPhaseIdx = Math.max(0, state.data.rolling.length - 1);
+        var phase = state.data.rolling[state.rollingPhaseIdx];
+        state.rollingItemIdx = Math.max(0, (phase.items || []).length - 1);
         state.introDone = true;
         state.rollingKorVisible = true;
         state.rollingWaitingTap = true;
@@ -1457,7 +1498,7 @@
         var page = document.querySelector('.pattern-page');
         if (page) page.classList.remove('is-rolling');
         showDocentOverlay();
-        showDocentBridge();
+        showDocentBridge({ fromRolling: true });
     }
 
     function hasDocent() {
@@ -1870,9 +1911,9 @@
                             );
                         });
                     }
-                    // 이어서: 해석어(누가/-다/무엇을)만 색, 꺽쇠 없음
+                    // 이어서: 해석어(누가/-하다/무엇을)만 색, 꺽쇠 없음
                     if (p.mark === 'paren' && opts.interpOnly) {
-                        t = t.replace(/(-다|누가|무엇을)/g, function (m) {
+                        t = t.replace(/(-하다|-다|누가|무엇을)/g, function (m) {
                             return (
                                 '<span class="pattern-docent-mark pattern-docent-mark--quote pattern-docent-paren" style="background:none !important;padding:0 !important;border-radius:0 !important">' +
                                 m +
@@ -2068,15 +2109,28 @@
                 mapEl.classList.remove('is-hidden');
                 mapEl.innerHTML = (item.map_cols || [])
                     .map(function (col) {
+                        var mark = col.mark || '';
+                        var roleKo =
+                            col.role_ko || markToRoleKo(mark) || '';
                         return (
                             '<div class="pattern-docent-map-col">' +
                             '<span class="pattern-docent-map-eng">' +
                             escapeHtml(col.eng || '') +
                             '</span>' +
                             '<span class="pattern-docent-map-arrow" aria-hidden="true">↓</span>' +
-                            '<span class="pattern-docent-map-particle">' +
+                            '<span class="pattern-docent-map-particle' +
+                            (mark
+                                ? ' pattern-docent-mark pattern-docent-mark--' +
+                                  escapeHtml(mark)
+                                : '') +
+                            '">' +
                             escapeHtml(col.particle || '') +
                             '</span>' +
+                            (roleKo
+                                ? '<span class="pattern-docent-map-role">(' +
+                                  escapeHtml(roleKo) +
+                                  ')</span>'
+                                : '') +
                             '</div>'
                         );
                     })
@@ -2232,14 +2286,17 @@
         }, DOCENT_FADE_OUT_MS);
     }
 
-    function showDocentBridge() {
+    function showDocentBridge(opts) {
+        opts = opts || {};
         hideReadingsGallery();
         state.docentPhase = 'bridge';
+        state.bridgeFromRolling = !!opts.fromRolling;
         clearDocentTimer();
         var ch = state.chapterMeta && state.chapterMeta.chapter;
         var meta = ch && ch.docent_bridge_meta;
         var item;
-        if (meta && (meta.text_parts || meta.text)) {
+        // 롤링 종료 후·패턴 브릿지는 패턴 docent_bridge 사용 (대단원 이어서와 구분)
+        if (!opts.fromRolling && meta && (meta.text_parts || meta.text)) {
             item = {
                 text: meta.text,
                 text_parts: meta.text_parts,
@@ -2355,6 +2412,10 @@
             return;
         }
         if (state.docentPhase === 'bridge') {
+            if (state.bridgeFromRolling && hasRolling()) {
+                resumeRollingAtEnd();
+                return;
+            }
             if (resolveReadings().length) {
                 showReadingsGallery();
                 return;
@@ -2626,7 +2687,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260728c').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260728d').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })

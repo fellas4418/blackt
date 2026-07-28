@@ -71,87 +71,23 @@
         {
           "eng": "People",
           "particle": "은/는/이/가",
-          "mark": "s"
+          "mark": "s",
+          "role_ko": "주어"
         },
         {
           "eng": "want",
-          "particle": "-다",
-          "mark": "v"
+          "particle": "-하다",
+          "mark": "v",
+          "role_ko": "서술어"
         },
         {
           "eng": "love",
           "particle": "을/를",
-          "mark": "o"
+          "mark": "o",
+          "role_ko": "목적어"
         }
       ],
-      "text_parts": [
-        {
-          "text": "주어 - 서술어 - 목적어 형태의 예문입니다."
-        }
-      ]
-    },
-    {
-      "role": "연습",
-      "parts": [
-        {
-          "text": "People",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "want",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "love",
-          "mark": "o"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "사람"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "사랑"
-        },
-        {
-          "text": "을",
-          "mark": "o"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "원하"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "text_parts": [
-        {
-          "text": "주어 → 서술어 → 목적어 순으로, 한 자리씩만 바꿔 보며 해석합니다."
-        }
-      ]
+      "text_parts": []
     }
   ],
   "docent_bridge": "주·동·목 모양을 익혔습니다.\n다음은 주·동·보입니다.",
@@ -165,7 +101,7 @@
       "title": "주어",
       "focus": "s",
       "particle_hint": "은/는/이/가",
-      "caption": "주어만 바뀝니다. 주어에는 은/는/이/가를 붙입니다.",
+      "caption": "",
       "items": [
         {
           "eng": "People want love.",
@@ -189,13 +125,13 @@
           "kor_slots": [
             {
               "word": "사람",
-              "particle": "는",
+              "particle": "은",
               "role": "주어",
               "rule": "은/는"
             },
             {
               "word": "사랑",
-              "particle": "를",
+              "particle": "을",
               "role": "목적어",
               "rule": "을/를"
             },
@@ -235,7 +171,7 @@
             },
             {
               "word": "사랑",
-              "particle": "를",
+              "particle": "을",
               "role": "목적어",
               "rule": "을/를"
             },
@@ -275,7 +211,7 @@
             },
             {
               "word": "사랑",
-              "particle": "를",
+              "particle": "을",
               "role": "목적어",
               "rule": "을/를"
             },
@@ -315,7 +251,7 @@
             },
             {
               "word": "사랑",
-              "particle": "를",
+              "particle": "을",
               "role": "목적어",
               "rule": "을/를"
             },
@@ -333,7 +269,7 @@
       "title": "서술어",
       "focus": "v",
       "particle_hint": "-다",
-      "caption": "서술어만 바뀝니다. 서술어는 항상 ~다로 끝냅니다.",
+      "caption": "",
       "items": [
         {
           "eng": "People want love.",
@@ -357,13 +293,13 @@
           "kor_slots": [
             {
               "word": "사람",
-              "particle": "는",
+              "particle": "은",
               "role": "주어",
               "rule": "은/는"
             },
             {
               "word": "사랑",
-              "particle": "를",
+              "particle": "을",
               "role": "목적어",
               "rule": "을/를"
             },
@@ -397,13 +333,13 @@
           "kor_slots": [
             {
               "word": "사람",
-              "particle": "는",
+              "particle": "은",
               "role": "주어",
               "rule": "은/는"
             },
             {
               "word": "사랑",
-              "particle": "를",
+              "particle": "을",
               "role": "목적어",
               "rule": "을/를"
             },
@@ -437,13 +373,13 @@
           "kor_slots": [
             {
               "word": "사람",
-              "particle": "는",
+              "particle": "은",
               "role": "주어",
               "rule": "은/는"
             },
             {
               "word": "사랑",
-              "particle": "를",
+              "particle": "을",
               "role": "목적어",
               "rule": "을/를"
             },
@@ -477,13 +413,13 @@
           "kor_slots": [
             {
               "word": "사람",
-              "particle": "는",
+              "particle": "은",
               "role": "주어",
               "rule": "은/는"
             },
             {
               "word": "사랑",
-              "particle": "를",
+              "particle": "을",
               "role": "목적어",
               "rule": "을/를"
             },
@@ -501,7 +437,7 @@
       "title": "목적어",
       "focus": "o",
       "particle_hint": "을/를",
-      "caption": "목적어만 바뀝니다. 목적어에는 을/를을 붙입니다.",
+      "caption": "",
       "items": [
         {
           "eng": "People want love.",
@@ -525,13 +461,13 @@
           "kor_slots": [
             {
               "word": "사람",
-              "particle": "는",
+              "particle": "은",
               "role": "주어",
               "rule": "은/는"
             },
             {
               "word": "사랑",
-              "particle": "를",
+              "particle": "을",
               "role": "목적어",
               "rule": "을/를"
             },
@@ -565,7 +501,7 @@
           "kor_slots": [
             {
               "word": "사람",
-              "particle": "는",
+              "particle": "은",
               "role": "주어",
               "rule": "은/는"
             },
@@ -605,7 +541,7 @@
           "kor_slots": [
             {
               "word": "사람",
-              "particle": "는",
+              "particle": "은",
               "role": "주어",
               "rule": "은/는"
             },
@@ -645,7 +581,7 @@
           "kor_slots": [
             {
               "word": "사람",
-              "particle": "는",
+              "particle": "은",
               "role": "주어",
               "rule": "은/는"
             },
