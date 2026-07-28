@@ -11,6 +11,7 @@
   "docent": [
     {
       "role": "패턴",
+      "layout": "map",
       "parts": [
         {
           "text": "People",
@@ -66,93 +67,33 @@
           "text": "."
         }
       ],
-      "text_parts": [
+      "map_cols": [
         {
-          "text": "1번 모양입니다.\n\n"
-        },
-        {
-          "text": "People",
+          "eng": "People",
+          "particle": "은/는/이/가",
           "mark": "s"
         },
         {
-          "text": " "
-        },
-        {
-          "text": "want",
+          "eng": "want",
+          "particle": "-다",
           "mark": "v"
         },
         {
-          "text": " "
-        },
-        {
-          "text": "love",
+          "eng": "love",
+          "particle": "을/를",
           "mark": "o"
-        },
-        {
-          "text": ".\n색만 따라가 보세요."
-        }
-      ]
-    },
-    {
-      "role": "독해 공식",
-      "parts": [
-        {
-          "text": "People",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "want",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "love",
-          "mark": "o"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "사람"
-        },
-        {
-          "text": "은",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "사랑"
-        },
-        {
-          "text": "을",
-          "mark": "o"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "원하"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
         }
       ],
       "text_parts": [
         {
-          "text": "읽는 공식: 누가 · -하다 · 무엇을"
+          "text": "주어 - 서술어 - "
+        },
+        {
+          "text": "목적어",
+          "mark": "o"
+        },
+        {
+          "text": " 형태의 예문입니다."
         }
       ]
     },
@@ -215,7 +156,7 @@
       ],
       "text_parts": [
         {
-          "text": "이제 주어 → 서술어 → 목적어 순으로, 한 자리씩만 바꿔 보며 읽습니다.\n해석을 잠깐 보여 준 뒤 가립니다. 탭하면 다시 나옵니다."
+          "text": "주어 → 서술어 → 목적어 순으로, 한 자리씩만 바꿔 보며 해석합니다."
         }
       ]
     }
@@ -520,6 +461,46 @@
               "rule": "-다"
             }
           ]
+        },
+        {
+          "eng": "People like love.",
+          "eng_tokens": [
+            {
+              "text": "People",
+              "maps": 0,
+              "role": "s"
+            },
+            {
+              "text": "like",
+              "maps": 2,
+              "role": "v"
+            },
+            {
+              "text": "love",
+              "maps": 1,
+              "role": "o"
+            }
+          ],
+          "kor_slots": [
+            {
+              "word": "사람",
+              "particle": "는",
+              "role": "주어",
+              "rule": "은/는"
+            },
+            {
+              "word": "사랑",
+              "particle": "를",
+              "role": "목적어",
+              "rule": "을/를"
+            },
+            {
+              "word": "좋아한다",
+              "particle": "",
+              "role": "서술어",
+              "rule": "-다"
+            }
+          ]
         }
       ]
     },
@@ -638,6 +619,46 @@
             {
               "word": "자유",
               "particle": "를",
+              "role": "목적어",
+              "rule": "을/를"
+            },
+            {
+              "word": "원한다",
+              "particle": "",
+              "role": "서술어",
+              "rule": "-다"
+            }
+          ]
+        },
+        {
+          "eng": "People want music.",
+          "eng_tokens": [
+            {
+              "text": "People",
+              "maps": 0,
+              "role": "s"
+            },
+            {
+              "text": "want",
+              "maps": 2,
+              "role": "v"
+            },
+            {
+              "text": "music",
+              "maps": 1,
+              "role": "o"
+            }
+          ],
+          "kor_slots": [
+            {
+              "word": "사람",
+              "particle": "는",
+              "role": "주어",
+              "rule": "은/는"
+            },
+            {
+              "word": "음악",
+              "particle": "을",
               "role": "목적어",
               "rule": "을/를"
             },

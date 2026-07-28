@@ -7,8 +7,12 @@
     var DOCENT_BRIDGE_MS = 4500;
     var DOCENT_FADE_OUT_MS = 550;
     var DOCENT_FADE_GAP_MS = 120;
-    var DOCENT_SEG_MS = 4500;
+    var DOCENT_SEG_MS = 3200;
     var AUTO_NEXT_MS = 850;
+    var ROLLING_PEEK_MS = 2000;
+    var ROLLING_AUTO_MS = 2800;
+    var ROLLING_REVEAL_MS = 900;
+    var PAREN_BLINK_MS = 2800;
     var COL_COMP = { s: '주어', o: '목적어', c: '보어', v: '서술어' };
     var PARTICLE_POOL = ['은', '는', '이', '가', '을', '를', '다'];
     var SUBJECT_PARTICLES = { '은': 1, '는': 1, '이': 1, '가': 1 };
@@ -17,7 +21,7 @@
     var COMPLEMENT_PARTICLES = { '이': 1, '가': 1 };
     var VERB_PARTICLES = { '다': 1 };
 
-    var INDEX_URL = 'data/pattern_index.json?v=20260724a';
+    var INDEX_URL = 'data/pattern_index.json?v=20260728a';
     var SOUND_KEY = 'pattern_docent_sound';
 
     var state = {
@@ -55,12 +59,10 @@
         rollingItemIdx: 0,
         rollingKorVisible: false,
         rollingTimer: null,
-        rollingWaitingTap: false
+        rollingWaitingTap: false,
+        docentReplayDone: false,
+        currentDocentItem: null
     };
-
-    var ROLLING_PEEK_MS = 2000;
-    var ROLLING_AUTO_MS = 4500;
-    var ROLLING_REVEAL_MS = 2200;
 
     function activeRoles() {
         if (state.data && Array.isArray(state.data.roles) && state.data.roles.length) {
@@ -243,7 +245,11 @@
     }
 
     function formatDocentPlainHtml(text) {
-        return highlightCornerQuotes(escapeHtml(text || '')).replace(/\n/g, '<br>');
+        return highlightCornerQuotes(escapeHtml(text || ''))
+            .replace(/\(([^)\n]+)\)/g, function (_m, inner) {
+                return '<span class="pattern-docent-paren">(' + inner + ')</span>';
+            })
+            .replace(/\n/g, '<br>');
     }
 
     function currentStep() {
@@ -871,10 +877,21 @@
         // 대단원 첫 패턴일 때만 대단원 개괄을 앞에 붙임
         if (isChapterFirstPattern() && ch && Array.isArray(ch.docent) && ch.docent.length) {
             lines = lines.concat(ch.docent);
-            if (ch.docent_bridge) {
+            if (ch.docent_bridge_meta) {
+                lines.push(
+                    Object.assign(
+                        {
+                            role: '이어서',
+                            _chapterBridge: true
+                        },
+                        ch.docent_bridge_meta
+                    )
+                );
+            } else if (ch.docent_bridge) {
                 lines.push({
                     role: '이어서',
                     text: ch.docent_bridge,
+                    reveal: 'lines',
                     _chapterBridge: true
                 });
             }
@@ -1194,9 +1211,7 @@
                 (phase.items || []).length;
         }
         if (particleEl) {
-            particleEl.textContent = phase.particle_hint
-                ? '고정: 「' + phase.particle_hint + '」'
-                : '';
+            particleEl.textContent = phase.particle_hint || '';
         }
         if (engEl) {
             engEl.innerHTML = buildRollingMarkedHtml(parts.eng, focus, true);
@@ -1207,9 +1222,7 @@
         }
         if (capEl) capEl.textContent = phase.caption || '';
         if (tapEl) {
-            tapEl.textContent = state.rollingKorVisible
-                ? '탭 → 다음'
-                : '탭 → 해석';
+            tapEl.textContent = '← 이전 · 다음 →';
         }
         updateRollingProgress();
     }
@@ -1219,18 +1232,12 @@
         state.rollingTimer = setTimeout(fn, ms);
     }
 
-    function beginRollingItem(isPeek) {
-        state.rollingKorVisible = !!isPeek;
-        state.rollingWaitingTap = !isPeek;
+    function beginRollingItem() {
+        // 영문·해석 함께 보이며 하이라이트만 롤링
+        state.rollingKorVisible = true;
+        state.rollingWaitingTap = true;
         renderRollingFrame();
-        if (isPeek) {
-            scheduleRolling(function () {
-                state.rollingKorVisible = false;
-                state.rollingWaitingTap = true;
-                renderRollingFrame();
-                scheduleRolling(advanceRollingAuto, ROLLING_AUTO_MS);
-            }, phasePeekMs());
-        }
+        scheduleRolling(goNextRollingItem, ROLLING_AUTO_MS);
     }
 
     function phasePeekMs() {
@@ -1256,27 +1263,58 @@
         }
         if (state.rollingItemIdx < (phase.items || []).length - 1) {
             state.rollingItemIdx += 1;
-            beginRollingItem(true);
+            beginRollingItem();
             return;
         }
         if (state.rollingPhaseIdx < state.data.rolling.length - 1) {
             state.rollingPhaseIdx += 1;
             state.rollingItemIdx = 0;
-            beginRollingItem(true);
+            beginRollingItem();
             return;
         }
         finishRolling();
     }
 
-    function onRollingTap() {
+    function goPrevRollingItem() {
         if (!state.rollingActive) return;
         clearRollingTimer();
-        if (!state.rollingKorVisible) {
-            state.rollingKorVisible = true;
-            state.rollingWaitingTap = false;
-            renderRollingFrame();
-            scheduleRolling(goNextRollingItem, ROLLING_REVEAL_MS);
+        if (state.rollingItemIdx > 0) {
+            state.rollingItemIdx -= 1;
+            beginRollingItem();
             return;
+        }
+        if (state.rollingPhaseIdx > 0) {
+            state.rollingPhaseIdx -= 1;
+            var prev = state.data.rolling[state.rollingPhaseIdx];
+            state.rollingItemIdx = Math.max(0, (prev.items || []).length - 1);
+            beginRollingItem();
+            return;
+        }
+        // 롤링 첫 칸 → 도슨트 마지막 컷으로
+        clearRollingTimer();
+        state.rollingActive = false;
+        hideRollingUi();
+        var page = document.querySelector('.pattern-page');
+        if (page) page.classList.remove('is-rolling');
+        showDocentOverlay();
+        var lines = currentDocentLines();
+        if (lines.length) {
+            state.docentIdx = lines.length - 1;
+            showDocentLine();
+        }
+    }
+
+    function onRollingTap(e) {
+        if (!state.rollingActive) return;
+        clearRollingTimer();
+        var el = document.getElementById('pattern-rolling');
+        if (el && e && e.clientX != null) {
+            var rect = el.getBoundingClientRect();
+            var x = e.clientX - rect.left;
+            if (x < rect.width / 3) {
+                goPrevRollingItem();
+                return;
+            }
         }
         goNextRollingItem();
     }
@@ -1288,12 +1326,12 @@
         state.rollingPhaseIdx = 0;
         state.rollingItemIdx = 0;
         state.introDone = true;
-        state.rollingKorVisible = false;
-        state.rollingWaitingTap = false;
+        state.rollingKorVisible = true;
+        state.rollingWaitingTap = true;
         var page = document.querySelector('.pattern-page');
         if (page) page.classList.add('is-rolling');
         showRollingUi();
-        beginRollingItem(true);
+        beginRollingItem();
     }
 
     function finishRolling() {
@@ -1416,8 +1454,8 @@
             .trim();
     }
 
-    /** 빈 줄(\n\n) 기준으로 윗글/아랫글 둘로 나눔 (마지막 구분 기준) */
-    function splitPlainDocentBlocks(text) {
+    /** 빈 줄(\n\n) 기준. revealLines면 각 블록을 따로 공개 */
+    function splitPlainDocentBlocks(text, revealLines) {
         var parts = String(text || '')
             .split(/\n\n+/)
             .map(function (s) {
@@ -1425,10 +1463,11 @@
             })
             .filter(Boolean);
         if (parts.length <= 1) return parts;
+        if (revealLines) return parts;
         return [parts.slice(0, -1).join('\n\n'), parts[parts.length - 1]];
     }
 
-    function splitTextPartsDocentBlocks(parts) {
+    function splitTextPartsDocentBlocks(parts, revealLines) {
         var raw = [[]];
         (parts || []).forEach(function (p) {
             var chunks = String(p.text || '').split(/\n\n+/);
@@ -1449,6 +1488,7 @@
             );
         });
         if (raw.length <= 1) return raw;
+        if (revealLines) return raw;
         var upper = [];
         var i;
         for (i = 0; i < raw.length - 1; i++) {
@@ -1466,7 +1506,7 @@
         for (i = 0; i < segs.length; i++) {
             segs[i].classList.toggle('is-on', i <= upToIdx);
         }
-        state.docentBlockIdx = upToIdx;
+        state.docentBlockIdx = upToIdx < 0 ? 0 : upToIdx;
     }
 
     function revealNextDocentBlock(onDone) {
@@ -1504,10 +1544,13 @@
         // 같은 페이지 위→아래 블록만 자동 공개, 다음 페이지는 탭
         function revealRest() {
             if (!state.docentPhase) return;
-            if (state.docentBlockIdx >= state.docentBlockCount - 1) return;
+            if (state.docentBlockIdx >= state.docentBlockCount - 1) {
+                afterBlocks();
+                return;
+            }
             revealNextDocentBlock(function (speak) {
                 var more = state.docentBlockIdx < state.docentBlockCount - 1;
-                speakThen(speak || '', more ? revealRest : null);
+                speakThen(speak || '', more ? revealRest : afterBlocks);
             });
         }
 
@@ -1516,8 +1559,17 @@
             state.lastDocentSpeak;
         state.lastDocentSpeak = speak || '';
 
+        function afterBlocks() {
+            runDocentReplayIfNeeded(function () {
+                var item = state.currentDocentItem;
+                if (item && item.blink_paren && !item.replay_lines) {
+                    blinkParensInDocent();
+                }
+            });
+        }
+
         if (state.docentBlockCount <= 1) {
-            speakThen(speak, null);
+            speakThen(speak, afterBlocks);
             return;
         }
         speakThen(speak, revealRest);
@@ -1692,12 +1744,22 @@
                         styles.push('-webkit-text-fill-color:' + color + ' !important');
                     }
                     // ①②③ / 1. 2. 3. 번호만 강조색
-                    if (p.mark === 'forms' || isKeyList) {
+                    if (p.mark === 'forms' || p.mark === 'paren' || isKeyList) {
                         t = t.replace(/([①②③]|\d+\.)/g, function (m) {
                             return (
                                 '<span class="pattern-docent-mark pattern-docent-mark--num">' +
                                 m +
                                 '</span>'
+                            );
+                        });
+                    }
+                    // ( … ) 괄호만 하이라이트
+                    if (p.mark === 'paren' || p.mark === 'forms') {
+                        t = t.replace(/\(([^)\n]+)\)/g, function (_m, inner) {
+                            return (
+                                '<span class="pattern-docent-paren">(' +
+                                inner +
+                                ')</span>'
                             );
                         });
                     }
@@ -1740,11 +1802,86 @@
             .join('');
     }
 
+    function buildDocentMapHtml(cols) {
+        return (
+            '<div class="pattern-docent-map">' +
+            (cols || [])
+                .map(function (col) {
+                    return (
+                        '<div class="pattern-docent-map-col">' +
+                        '<span class="pattern-docent-map-eng">' +
+                        escapeHtml(col.eng || '') +
+                        '</span>' +
+                        '<span class="pattern-docent-map-arrow" aria-hidden="true">↓</span>' +
+                        '<span class="pattern-docent-map-particle">' +
+                        escapeHtml(col.particle || '') +
+                        '</span>' +
+                        '</div>'
+                    );
+                })
+                .join('') +
+            '</div>'
+        );
+    }
+
+    function blinkParensInDocent() {
+        var textEl = document.getElementById('pattern-docent-text');
+        if (!textEl) return;
+        var nodes = textEl.querySelectorAll('.pattern-docent-paren');
+        nodes.forEach(function (n) {
+            n.classList.remove('is-blink');
+            void n.offsetWidth;
+            n.classList.add('is-blink');
+        });
+    }
+
+    function runDocentReplayIfNeeded(onDone) {
+        var item = state.currentDocentItem;
+        if (!item || !item.replay_lines || state.docentReplayDone) {
+            if (onDone) onDone();
+            return;
+        }
+        state.docentReplayDone = true;
+        var textEl = document.getElementById('pattern-docent-text');
+        if (!textEl) {
+            if (onDone) onDone();
+            return;
+        }
+        // 전부 숨긴 뒤 한 줄씩 다시 공개 + 괄호 깜빡
+        setDocentBlocksVisible(-1);
+        var segs = textEl.querySelectorAll('.pattern-docent-seg');
+        var startIdx = 0;
+        // 첫 블록이 안내문("다시 한번…")이면 유지하고 나머지부터 재생
+        if (segs.length > 1) {
+            segs[0].classList.add('is-on');
+            startIdx = 1;
+            state.docentBlockIdx = 0;
+        }
+        var i = startIdx;
+        function step() {
+            if (!state.docentPhase) return;
+            if (i >= segs.length) {
+                if (item.blink_paren) blinkParensInDocent();
+                state.docentTimer = setTimeout(function () {
+                    if (onDone) onDone();
+                }, item.blink_paren ? PAREN_BLINK_MS : 400);
+                return;
+            }
+            segs[i].classList.add('is-on');
+            state.docentBlockIdx = i;
+            if (item.blink_paren) blinkParensInDocent();
+            i += 1;
+            state.docentTimer = setTimeout(step, DOCENT_SEG_MS);
+        }
+        state.docentTimer = setTimeout(step, 600);
+    }
+
     function applyDocentContent(item, isBridge) {
         var el = document.getElementById('pattern-docent');
         var roleEl = document.getElementById('pattern-docent-role');
         var exampleEl = document.getElementById('pattern-docent-example');
         var korEl = document.getElementById('pattern-docent-example-kor');
+        var mapEl = document.getElementById('pattern-docent-map');
         var textEl = document.getElementById('pattern-docent-text');
         var stepEl = document.getElementById('pattern-docent-step');
         var tapEl = document.getElementById('pattern-docent-tap');
@@ -1752,16 +1889,44 @@
         if (!el || !textEl) return;
 
         item = item || {};
+        state.currentDocentItem = item;
+        state.docentReplayDone = false;
         el.classList.toggle('is-bridge', !!isBridge);
 
-        var hasExample = !isBridge && item.parts && item.parts.length;
-        var hasKor = !isBridge && item.kor_parts && item.kor_parts.length;
+        var hasMap =
+            !isBridge && item.layout === 'map' && item.map_cols && item.map_cols.length;
+        var hasExample = !isBridge && !hasMap && item.parts && item.parts.length;
+        var hasKor = !isBridge && !hasMap && item.kor_parts && item.kor_parts.length;
         el.classList.toggle('has-example', !!hasExample);
         el.classList.toggle('has-kor', !!hasKor);
+        el.classList.toggle('has-map', !!hasMap);
 
         if (roleEl) {
             roleEl.textContent = isBridge ? '' : item.role || '';
             roleEl.className = 'pattern-docent-role';
+        }
+        if (mapEl) {
+            if (hasMap) {
+                mapEl.classList.remove('is-hidden');
+                mapEl.innerHTML = (item.map_cols || [])
+                    .map(function (col) {
+                        return (
+                            '<div class="pattern-docent-map-col">' +
+                            '<span class="pattern-docent-map-eng">' +
+                            escapeHtml(col.eng || '') +
+                            '</span>' +
+                            '<span class="pattern-docent-map-arrow" aria-hidden="true">↓</span>' +
+                            '<span class="pattern-docent-map-particle">' +
+                            escapeHtml(col.particle || '') +
+                            '</span>' +
+                            '</div>'
+                        );
+                    })
+                    .join('');
+            } else {
+                mapEl.innerHTML = '';
+                mapEl.classList.add('is-hidden');
+            }
         }
         if (exampleEl) {
             exampleEl.innerHTML = hasExample
@@ -1782,15 +1947,11 @@
             );
         }
 
+        var revealLines = item.reveal === 'lines' || !!item.reveal_lines;
         var blockHtmls = [];
         var blockSpeaks = [];
-        if (isBridge) {
-            var bridgeBlocks = splitPlainDocentBlocks(item.text || '');
-            if (!bridgeBlocks.length && item.text) bridgeBlocks = [String(item.text)];
-            blockHtmls = bridgeBlocks.map(formatDocentPlainHtml);
-            blockSpeaks = bridgeBlocks.map(plainSpeak);
-        } else if (item.text_parts && item.text_parts.length) {
-            var partBlocks = splitTextPartsDocentBlocks(item.text_parts);
+        if (item.text_parts && item.text_parts.length) {
+            var partBlocks = splitTextPartsDocentBlocks(item.text_parts, revealLines);
             if (!partBlocks.length) partBlocks = [item.text_parts];
             blockHtmls = partBlocks.map(function (block) {
                 return buildDocentMarkedHtml(block);
@@ -1799,7 +1960,7 @@
                 return plainFromParts(block);
             });
         } else {
-            var plainBlocks = splitPlainDocentBlocks(item.text || '');
+            var plainBlocks = splitPlainDocentBlocks(item.text || '', revealLines);
             if (!plainBlocks.length && item.text) plainBlocks = [String(item.text)];
             blockHtmls = plainBlocks.map(formatDocentPlainHtml);
             blockSpeaks = plainBlocks.map(plainSpeak);
@@ -1902,11 +2063,27 @@
     function showDocentBridge() {
         hideReadingsGallery();
         state.docentPhase = 'bridge';
-        var bridge =
-            (state.data && state.data.docent_bridge) ||
-            '같은 모양으로 읽으면 됩니다.';
         clearDocentTimer();
-        renderDocentFrame({ text: bridge }, true, function () {
+        var ch = state.chapterMeta && state.chapterMeta.chapter;
+        var meta = ch && ch.docent_bridge_meta;
+        var item;
+        if (meta && (meta.text_parts || meta.text)) {
+            item = {
+                text: meta.text,
+                text_parts: meta.text_parts,
+                reveal: meta.reveal || 'lines',
+                replay_lines: !!meta.replay_lines,
+                blink_paren: !!meta.blink_paren
+            };
+        } else {
+            item = {
+                text:
+                    (state.data && state.data.docent_bridge) ||
+                    '같은 모양으로 읽으면 됩니다.',
+                reveal: 'lines'
+            };
+        }
+        renderDocentFrame(item, true, function () {
             scheduleDocentBlocksThenAdvance(DOCENT_BRIDGE_MS);
         });
     }
@@ -2166,7 +2343,7 @@
         if (rollingEl) {
             rollingEl.addEventListener('click', function (e) {
                 e.stopPropagation();
-                onRollingTap();
+                onRollingTap(e);
             });
         }
 
@@ -2267,7 +2444,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260727d').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260728a').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })
