@@ -21,7 +21,7 @@
     var COMPLEMENT_PARTICLES = { '이': 1, '가': 1 };
     var VERB_PARTICLES = { '다': 1 };
 
-    var INDEX_URL = 'data/pattern_index.json?v=20260728b';
+    var INDEX_URL = 'data/pattern_index.json?v=20260728c';
     var SOUND_KEY = 'pattern_docent_sound';
 
     var state = {
@@ -1324,9 +1324,10 @@
         }
         if (engEl) {
             var engSlots = rollingEngSlots(item);
+            // 영어는 무색 고정, 해석(한글)만 포커스 색
             engEl.innerHTML = engSlots.length
-                ? buildRollingSlotsHtml(engSlots, focus)
-                : buildRollingMarkedHtml(rollingItemParts(item).eng, focus, true);
+                ? buildRollingSlotsHtml(engSlots, '')
+                : buildRollingMarkedHtml(rollingItemParts(item).eng, '', true);
         }
         if (korEl) {
             var korSlots = rollingKorSlots(item);
@@ -1622,6 +1623,7 @@
             segs[i].classList.toggle('is-on', i <= upToIdx);
         }
         state.docentBlockIdx = upToIdx < 0 ? 0 : upToIdx;
+        fitFormsKeylistWidth();
     }
 
     function revealNextDocentBlock(onDone) {
@@ -1822,16 +1824,15 @@
         term: '#7eef9a'
     };
 
-    function buildDocentMarkedHtml(parts, forceInlineColor) {
+    function buildDocentMarkedHtml(parts, forceInlineColor, opts) {
+        opts = opts || {};
         if (!parts || !parts.length) return '';
         return parts
             .map(function (p) {
-                // 순수 줄바꿈만 있는 조각은 <br> 중복을 막기 위해 버림 (공백은 유지)
                 if (!p.mark && /^[\n\r]*$/.test(String(p.text || ''))) {
                     return '';
                 }
                 var rawTextSrc = String(p.text || '');
-                // 띄어쓰기만 있는 조각은 HTML에서 사라지지 않게 nbsp
                 if (!p.mark && /^ +$/.test(rawTextSrc)) {
                     return rawTextSrc.replace(/ /g, '\u00A0');
                 }
@@ -1839,9 +1840,7 @@
                 var isKeyList =
                     !!p.mark &&
                     (p.mark === 'forms' || /^\d+\.\s/.test(rawText));
-                // keylist는 display:block이라 사이 \n→<br>가 한 줄 더 띄움 — 줄바꿈 제거
                 var raw = escapeHtml(isKeyList ? rawText : rawTextSrc);
-                // 성분 마크가 있으면 그 색을 우선 (「-다」 등이 겹낫표 강조색에 덮이지 않게)
                 var t = (p.mark ? raw : highlightCornerQuotes(raw)).replace(
                     /\n/g,
                     '<br>'
@@ -1854,40 +1853,35 @@
                         'padding:0 !important',
                         'border-radius:0 !important'
                     ];
-                    if (forceInlineColor && color) {
+                    if (forceInlineColor && color && p.mark !== 'paren' && p.mark !== 'forms') {
                         styles.push('color:' + color + ' !important');
                         styles.push('-webkit-text-fill-color:' + color + ' !important');
                     }
-                    // ①②③ / 1. 2. 3. 번호만 강조색
-                    if (p.mark === 'forms' || p.mark === 'paren' || isKeyList) {
-                        t = t.replace(/([①②③]|\d+\.)/g, function (m) {
+                    if (opts.stripBrackets) {
+                        t = t.replace(/「([^」]*)」/g, '$1');
+                    }
+                    // 독해 성분 목록: 해석(「-…」)만 색, 번호·성분명 무색
+                    if (p.mark === 'paren' && !opts.interpOnly) {
+                        t = t.replace(/「-[^」]+」/g, function (m) {
                             return (
-                                '<span class="pattern-docent-mark pattern-docent-mark--num">' +
+                                '<span class="pattern-docent-mark pattern-docent-mark--quote pattern-docent-paren" style="background:none !important;padding:0 !important;border-radius:0 !important">' +
                                 m +
                                 '</span>'
                             );
                         });
                     }
-                    // ( … ) 괄호는 표시하지 않고 안쪽만 강조·깜빡임
-                    if (p.mark === 'paren' || p.mark === 'forms') {
-                        t = t.replace(/\(([^)\n]+)\)/g, function (_m, inner) {
+                    // 이어서: 해석어(누가/-다/무엇을)만 색, 꺽쇠 없음
+                    if (p.mark === 'paren' && opts.interpOnly) {
+                        t = t.replace(/(-다|누가|무엇을)/g, function (m) {
                             return (
-                                '<span class="pattern-docent-paren">' +
-                                inner +
+                                '<span class="pattern-docent-mark pattern-docent-mark--quote pattern-docent-paren" style="background:none !important;padding:0 !important;border-radius:0 !important">' +
+                                m +
                                 '</span>'
                             );
                         });
-                        // 「-…」 규칙·핵심 어휘도 깜빡임 대상
-                        t = t.replace(/「-[^」]+」/g, function (m) {
-                            if (m.indexOf('pattern-docent-paren') >= 0) return m;
-                            return '<span class="pattern-docent-paren">' + m + '</span>';
-                        });
-                        t = t.replace(/(누가|무엇을)/g, function (m) {
-                            return '<span class="pattern-docent-paren">' + m + '</span>';
-                        });
                     }
-                    // 문장 형태 목록: 주격보어·목적어·목적격보어만 성분색 (+깜빡임)
-                    if (p.mark === 'forms' || p.mark === 'paren') {
+                    // 문장 구조 3개(forms): 성분만 색, 번호 무색
+                    if (p.mark === 'forms') {
                         t = t
                             .replace(/목적격\s*보어/g, function (m) {
                                 return (
@@ -1925,6 +1919,45 @@
                 return t;
             })
             .join('');
+    }
+
+    function fitFormsKeylistWidth() {
+        var textEl = document.getElementById('pattern-docent-text');
+        if (!textEl) return;
+        // 숨긴 줄 포함 — 가장 긴 3번에 맞춰 세 줄 동일 크기
+        var nodes = textEl.querySelectorAll(
+            '.pattern-docent-mark--forms.pattern-docent-mark--keylist'
+        );
+        if (nodes.length < 1) return;
+        var containerW = textEl.clientWidth;
+        if (containerW < 40) return;
+        var i;
+        for (i = 0; i < nodes.length; i++) {
+            nodes[i].style.fontSize = '';
+            nodes[i].style.width = '100%';
+            nodes[i].style.boxSizing = 'border-box';
+        }
+        var lo = 11;
+        var hi = 34;
+        var best = 14;
+        var step;
+        for (step = 0; step < 14; step++) {
+            var mid = (lo + hi) / 2;
+            var maxW = 0;
+            for (i = 0; i < nodes.length; i++) {
+                nodes[i].style.fontSize = mid + 'px';
+                maxW = Math.max(maxW, nodes[i].scrollWidth);
+            }
+            if (maxW <= containerW) {
+                best = mid;
+                lo = mid;
+            } else {
+                hi = mid;
+            }
+        }
+        for (i = 0; i < nodes.length; i++) {
+            nodes[i].style.fontSize = best + 'px';
+        }
     }
 
     function buildDocentMapHtml(cols) {
@@ -2054,8 +2087,9 @@
             }
         }
         if (exampleEl) {
+            // 영어 예문: 성분색 없음 / 한글 해석만 색
             exampleEl.innerHTML = hasExample
-                ? buildDocentMarkedHtml(item.parts, true)
+                ? buildDocentMarkedHtml(item.parts, false)
                 : '';
             exampleEl.classList.toggle(
                 'is-oneline',
@@ -2073,13 +2107,18 @@
         }
 
         var revealLines = item.reveal === 'lines' || !!item.reveal_lines;
+        var markOpts = {};
+        if (isBridge || item._chapterBridge || item.role === '이어서') {
+            markOpts.interpOnly = true;
+            markOpts.stripBrackets = true;
+        }
         var blockHtmls = [];
         var blockSpeaks = [];
         if (item.text_parts && item.text_parts.length) {
             var partBlocks = splitTextPartsDocentBlocks(item.text_parts, revealLines);
             if (!partBlocks.length) partBlocks = [item.text_parts];
             blockHtmls = partBlocks.map(function (block) {
-                return buildDocentMarkedHtml(block);
+                return buildDocentMarkedHtml(block, false, markOpts);
             });
             blockSpeaks = partBlocks.map(function (block) {
                 return plainFromParts(block);
@@ -2087,7 +2126,13 @@
         } else {
             var plainBlocks = splitPlainDocentBlocks(item.text || '', revealLines);
             if (!plainBlocks.length && item.text) plainBlocks = [String(item.text)];
-            blockHtmls = plainBlocks.map(formatDocentPlainHtml);
+            blockHtmls = plainBlocks.map(function (plain) {
+                var html = formatDocentPlainHtml(plain);
+                if (markOpts.stripBrackets) {
+                    html = html.replace(/「([^」]*)」/g, '$1');
+                }
+                return html;
+            });
             blockSpeaks = plainBlocks.map(plainSpeak);
         }
 
@@ -2112,6 +2157,8 @@
             state.docentBlockIdx = 0;
             state.docentBlockSpeaks = blockSpeaks;
         }
+        fitFormsKeylistWidth();
+        requestAnimationFrame(fitFormsKeylistWidth);
 
         if (stepEl) {
             if (isBridge) {
@@ -2579,7 +2626,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260728b').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260728c').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })

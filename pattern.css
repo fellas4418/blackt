@@ -187,21 +187,23 @@
 
 .pattern-docent-example-label {
     display: none;
-    margin: 0 0 8px;
-    padding: 3px 8px;
-    font-size: 0.68rem;
+    margin: 0 auto 10px;
+    padding: 5px 12px;
+    font-size: 1.36rem;
     font-weight: 700;
     letter-spacing: 0.12em;
     color: #ff8ec8;
-    text-align: left;
+    text-align: center;
     border: 1px solid #ff8ec8;
     border-radius: 4px;
     background: none;
     opacity: 1;
+    box-sizing: border-box;
 }
 
 .pattern-docent.has-example .pattern-docent-example-label {
     display: inline-block;
+    align-self: center;
 }
 
 .pattern-docent-role {
@@ -246,23 +248,34 @@
 
 .pattern-docent-example-slot {
     display: none;
-    flex: 1 1 auto;
-    margin: 0 0 16px;
-    padding: 18px 16px 20px;
+    flex: 0 0 auto;
+    margin: 0 auto 16px;
+    padding: 14px 16px 16px;
     box-sizing: border-box;
     text-align: center;
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.03);
-    min-height: 38%;
+    width: fit-content;
+    max-width: 100%;
     justify-content: center;
+    align-items: center;
 }
 
 .pattern-docent.has-example .pattern-docent-example-slot,
 .pattern-docent.has-map .pattern-docent-example-slot {
     display: flex;
     flex-direction: column;
-    align-items: stretch;
+    align-items: center;
+}
+
+.pattern-docent.has-map .pattern-docent-example-slot {
+    width: 100%;
+    max-width: 100%;
+    border: none;
+    background: none;
+    padding: 0;
+    margin: 0 0 16px;
 }
 
 .pattern-docent-example {
@@ -346,26 +359,30 @@
     color: #d0b0ff;
 }
 
-/* 예문·해석 — 글자색 강제 */
+/* 영어 예문 — 성분색 없음 / 해석(한글)만 색 */
 #pattern-docent-example .pattern-docent-mark--s,
+#pattern-docent-example .pattern-docent-mark--o,
+#pattern-docent-example .pattern-docent-mark--v,
+#pattern-docent-example .pattern-docent-mark--c {
+    color: #b0b0b0 !important;
+    -webkit-text-fill-color: #b0b0b0 !important;
+}
+
 #pattern-docent-example-kor .pattern-docent-mark--s {
     color: #7aefff !important;
     -webkit-text-fill-color: #7aefff !important;
 }
 
-#pattern-docent-example .pattern-docent-mark--o,
 #pattern-docent-example-kor .pattern-docent-mark--o {
     color: #ffb35c !important;
     -webkit-text-fill-color: #ffb35c !important;
 }
 
-#pattern-docent-example .pattern-docent-mark--v,
 #pattern-docent-example-kor .pattern-docent-mark--v {
     color: #ffe08a !important;
     -webkit-text-fill-color: #ffe08a !important;
 }
 
-#pattern-docent-example .pattern-docent-mark--c,
 #pattern-docent-example-kor .pattern-docent-mark--c {
     color: #d0b0ff !important;
     -webkit-text-fill-color: #d0b0ff !important;
@@ -432,13 +449,21 @@
     overflow-wrap: anywhere;
 }
 
-/* 목록 번호 ①②③ / 1.2.3. — 코랄 강조(글자색만) */
+/* 목록 번호 — 무색 (세 가지 모양 등) */
 .pattern-docent-mark--num {
-    color: #ff7a55;
-    font-weight: 800;
+    color: inherit;
+    font-weight: inherit;
     background: none;
     padding: 0;
     border-radius: 0;
+}
+
+.pattern-docent-mark--forms.pattern-docent-mark--keylist {
+    width: 100%;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
 }
 
 .pattern-docent-text {
@@ -1528,7 +1553,7 @@
     font-weight: 800;
     letter-spacing: 0.06em;
     color: #4dffc4;
-    text-align: left;
+    text-align: center;
 }
 
 .pattern-docent-mark--paren {
@@ -1575,22 +1600,24 @@
 }
 
 .pattern-docent-map-eng {
-    font-size: clamp(2.35rem, 11vw, 3.5rem);
+    font-size: clamp(1.25rem, 5.2vw, 1.75rem);
     font-weight: 700;
     line-height: 1.2;
     color: #c8c8c8;
     text-align: center;
     word-break: keep-all;
-    overflow-wrap: anywhere;
+    overflow-wrap: normal;
+    white-space: nowrap;
 }
 
 .pattern-docent-map-particle {
-    font-size: clamp(1.45rem, 6.2vw, 2rem);
+    font-size: clamp(1rem, 4.2vw, 1.35rem);
     font-weight: 700;
     line-height: 1.25;
     color: #b0b0b0;
     text-align: center;
     word-break: keep-all;
+    white-space: nowrap;
 }
 
 .pattern-docent-map-col {
@@ -1667,9 +1694,7 @@
 }
 
 .pattern-rolling-eng .pattern-rolling-slot.is-focus {
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 4px;
+    text-decoration: none;
 }
 
 .pattern-rolling-kor .pattern-rolling-slot.is-focus {
@@ -1712,7 +1737,7 @@
 }
 
 .pattern-rolling-particle {
-    margin: 0 0 14px;
+    margin: 0 auto 14px;
     padding: 8px 12px;
     font-size: clamp(1.05rem, 4.2vw, 1.25rem);
     font-weight: 800;
@@ -1721,6 +1746,9 @@
     border: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.04);
+    width: fit-content;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .pattern-rolling-particle:empty {
@@ -1787,7 +1815,7 @@
     font-weight: 500;
     line-height: 1.55;
     color: #aaa;
-    text-align: left;
+    text-align: center;
     word-break: keep-all;
     overflow-wrap: break-word;
 }
