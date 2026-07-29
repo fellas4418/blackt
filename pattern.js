@@ -21,7 +21,7 @@
     var COMPLEMENT_PARTICLES = { '이': 1, '가': 1 };
     var VERB_PARTICLES = { '다': 1 };
 
-    var INDEX_URL = 'data/pattern_index.json?v=20260728n';
+    var INDEX_URL = 'data/pattern_index.json?v=20260728o';
     var SOUND_KEY = 'pattern_docent_sound';
 
     var state = {
@@ -1466,14 +1466,11 @@
     function onRollingTap(e) {
         if (!state.rollingActive) return;
         clearRollingTimer();
-        var el = document.getElementById('pattern-rolling');
-        if (el && e && e.clientX != null) {
-            var rect = el.getBoundingClientRect();
-            var x = e.clientX - rect.left;
-            if (x < rect.width / 3) {
-                goPrevRollingItem();
-                return;
-            }
+        var x = e && e.clientX != null ? e.clientX : 0;
+        var w = window.innerWidth || document.documentElement.clientWidth || 1;
+        if (x < w / 3) {
+            goPrevRollingItem();
+            return;
         }
         goNextRollingItem();
     }
@@ -2898,6 +2895,20 @@
                 onRollingTap(e);
             });
         }
+        var rollingNav = document.getElementById('pattern-rolling-nav');
+        if (rollingNav) {
+            rollingNav.addEventListener('click', function (e) {
+                e.stopPropagation();
+                onRollingTap(e);
+            });
+        }
+        var stageEl = document.getElementById('pattern-stage');
+        if (stageEl) {
+            stageEl.addEventListener('click', function (e) {
+                if (!state.rollingActive) return;
+                onRollingTap(e);
+            });
+        }
 
         var docentEl = document.getElementById('pattern-docent');
         if (docentEl) {
@@ -2996,7 +3007,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260728n').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260728o').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })

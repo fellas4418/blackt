@@ -737,6 +737,13 @@
     z-index: 20;
 }
 
+.pattern-rolling-nav {
+    /* 연습: 하단 탭 영역 클릭 가능 (도슨트 hint는 본문이 받음) */
+    pointer-events: auto;
+    padding: 12px 24px 8px;
+    box-sizing: border-box;
+}
+
 .pattern-docent-hint.is-hidden,
 .pattern-rolling-nav.is-hidden {
     display: none;
