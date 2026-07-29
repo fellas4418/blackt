@@ -21,7 +21,7 @@
     var COMPLEMENT_PARTICLES = { '이': 1, '가': 1 };
     var VERB_PARTICLES = { '다': 1 };
 
-    var INDEX_URL = 'data/pattern_index.json?v=20260728i';
+    var INDEX_URL = 'data/pattern_index.json?v=20260728j';
     var SOUND_KEY = 'pattern_docent_sound';
 
     var state = {
@@ -2227,6 +2227,7 @@
         state.docentReplayDone = true;
         state.docentReplaying = true;
 
+        // 복습 문구는 남기고, 성분 3개(또는 번호 줄)는 한꺼번에 숨김
         allSegs.forEach(function (seg) {
             if (seg.classList.contains('is-replay')) {
                 seg.classList.remove('is-on');
@@ -2256,11 +2257,12 @@
                     state.docentTimer = setTimeout(step, 350);
                 });
             } else {
+                // 앞선 1차 공개와 같은 간격으로 순차 등장
                 state.docentTimer = setTimeout(step, DOCENT_SEG_MS);
             }
         }
-        // 1번이 나오자마자 바로 깜빡임
-        state.docentTimer = setTimeout(step, 0);
+        // 3개가 같이 사라진 상태가 보이게 잠시 둔 뒤 순차 공개
+        state.docentTimer = setTimeout(step, 900);
     }
 
     function ensureDocentReplayThen(nextFn) {
@@ -2604,7 +2606,10 @@
                     speakDocentText(speak);
                 }
                 if (state.docentBlockIdx >= state.docentBlockCount - 1) {
-                    ensureDocentReplayThen(null);
+                    // 「다시 한번」+ 성분 3개가 함께 보인 뒤 복습 재생
+                    state.docentTimer = setTimeout(function () {
+                        ensureDocentReplayThen(null);
+                    }, 900);
                 }
             });
             return;
@@ -2936,7 +2941,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260728i').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260728j').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })
