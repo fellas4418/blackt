@@ -21,7 +21,7 @@
     var COMPLEMENT_PARTICLES = { '이': 1, '가': 1 };
     var VERB_PARTICLES = { '다': 1 };
 
-    var INDEX_URL = 'data/pattern_index.json?v=20260728m';
+    var INDEX_URL = 'data/pattern_index.json?v=20260728n';
     var SOUND_KEY = 'pattern_docent_sound';
 
     var state = {
@@ -62,6 +62,9 @@
         rollingWaitingTap: false,
         docentReplayDone: false,
         docentReplaying: false,
+        docentReplaySegs: null,
+        docentReplayStepI: 0,
+        docentReplayOnDone: null,
         bridgeFromRolling: false,
         docentBlockReplayFlags: null,
         currentDocentItem: null
@@ -2199,6 +2202,50 @@
         blinkNodesSequentially(nodes, onDone);
     }
 
+    function finishDocentReplay() {
+        clearAllParenBlinks();
+        state.docentReplaying = false;
+        state.docentReplaySegs = null;
+        state.docentReplayStepI = 0;
+        var cb = state.docentReplayOnDone;
+        state.docentReplayOnDone = null;
+        if (cb) cb();
+    }
+
+    /** 복습 순차 공개 한 스텝. fromTap이면 대기 없이 다음 줄 즉시 */
+    function advanceDocentReplayStep(fromTap) {
+        if (!state.docentReplaying) return 'idle';
+        clearDocentTimer();
+        var segs = state.docentReplaySegs || [];
+        var item = state.currentDocentItem;
+        if (state.docentReplayStepI >= segs.length) {
+            finishDocentReplay();
+            return 'done';
+        }
+        var seg = segs[state.docentReplayStepI];
+        state.docentReplayStepI += 1;
+        seg.classList.add('is-on');
+        scrollDocentLatestIntoView();
+
+        function scheduleNext() {
+            if (!state.docentPhase || !state.docentReplaying) return;
+            if (state.docentReplayStepI >= segs.length) {
+                finishDocentReplay();
+                return;
+            }
+            state.docentTimer = setTimeout(function () {
+                advanceDocentReplayStep(false);
+            }, item && item.blink_paren ? 350 : DOCENT_SEG_MS);
+        }
+
+        if (item && item.blink_paren) {
+            blinkParensInDocent(seg, scheduleNext);
+        } else {
+            scheduleNext();
+        }
+        return 'step';
+    }
+
     function runDocentReplayIfNeeded(onDone) {
         var item = state.currentDocentItem;
         if (!item || !item.replay_lines || state.docentReplayDone) {
@@ -2238,6 +2285,9 @@
 
         state.docentReplayDone = true;
         state.docentReplaying = true;
+        state.docentReplaySegs = replaySegs;
+        state.docentReplayStepI = 0;
+        state.docentReplayOnDone = onDone || null;
 
         // 복습 문구는 남기고, 성분 3개(또는 번호 줄)는 한꺼번에 숨김
         allSegs.forEach(function (seg) {
@@ -2248,33 +2298,10 @@
             }
         });
 
-        var stepI = 0;
-        function step() {
-            if (!state.docentPhase) {
-                state.docentReplaying = false;
-                return;
-            }
-            if (stepI >= replaySegs.length) {
-                clearAllParenBlinks();
-                state.docentReplaying = false;
-                if (onDone) onDone();
-                return;
-            }
-            var seg = replaySegs[stepI];
-            stepI += 1;
-            seg.classList.add('is-on');
-            scrollDocentLatestIntoView();
-            if (item.blink_paren) {
-                blinkParensInDocent(seg, function () {
-                    state.docentTimer = setTimeout(step, 350);
-                });
-            } else {
-                // 앞선 1차 공개와 같은 간격으로 순차 등장
-                state.docentTimer = setTimeout(step, DOCENT_SEG_MS);
-            }
-        }
         // 3개가 같이 사라진 상태가 보이게 잠시 둔 뒤 순차 공개
-        state.docentTimer = setTimeout(step, 900);
+        state.docentTimer = setTimeout(function () {
+            advanceDocentReplayStep(false);
+        }, 900);
     }
 
     function ensureDocentReplayThen(nextFn) {
@@ -2598,7 +2625,23 @@
     }
 
     function advanceDocent() {
-        if (state.docentTransitioning || state.docentReplaying) return;
+        if (state.docentTransitioning) return;
+        // 해석 복습 순차 공개 중: 다음 누르면 다음 성분 즉시
+        if (state.docentReplaying && state.docentReplaySegs) {
+            clearDocentTimer();
+            stopDocentSpeech();
+            clearAllParenBlinks();
+            if (state.docentReplayStepI >= state.docentReplaySegs.length) {
+                finishDocentReplay();
+                // 이미 다 나왔으면 같은 탭으로 다음 페이지
+            } else {
+                advanceDocentReplayStep(true);
+                return;
+            }
+        } else if (state.docentReplaying) {
+            // 깜빡 체인 등 다른 재생 중에는 탭으로 스킵하지 않음
+            return;
+        }
         clearDocentTimer();
         stopDocentSpeech();
         if (state.docentPhase === 'readings') {
@@ -2953,7 +2996,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260728m').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260728n').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })

@@ -88,16 +88,6 @@
         }
       ],
       "text_parts": []
-    },
-    {
-      "role": "마무리",
-      "layout": "closing",
-      "reveal": "lines",
-      "text_parts": [
-        {
-          "text": "이 모양으로 읽으면 됩니다.\n이제 연습으로 넘어가 볼까요?"
-        }
-      ]
     }
   ],
   "docent_bridge": "",
