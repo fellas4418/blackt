@@ -1,0 +1,32 @@
+---
+description: 독해 제목·이전다음·예문 위치 LOCKED (무단 변경 금지)
+globs: pattern.css,pattern.html,pattern.js
+alwaysApply: true
+---
+
+# 독해 크롬 LOCKED
+
+**LOCKED.** 사용자가 「제목/이전다음/예문 위치 바꿔」라고 **명시하기 전**에 아래를 바꾸지 말 것.
+
+## 고정 대상
+
+| 항목 | 규격 |
+|------|------|
+| 제목 글자색 | `#f0f0f0` (`--pattern-locked-title-color`) |
+| 제목 왼쪽 민트 바 | `#4dffc4` (`--pattern-locked-title-bar`) |
+| 제목 크기 | `clamp(1.95rem, 7.4vw, 2.3rem)` |
+| 제목 위치 | 도슨트 role · 연습「연습」 동일. 연습은 `top: var(--pattern-locked-title-top)` 고정 |
+| 이전·다음 UI | 화면 **하단 고정** (`--pattern-locked-nav-bottom`). 문구 `이전 · 다음` + 원형 ← → 화살표. 도슨트·연습 **동일** |
+| 예문(맵) | 화면 **세로 중간** (`justify-content: center` + margin auto). `translateY` 올리기/내리기 **금지** |
+
+## 변수 위치
+
+`pattern.css` 상단 `.pattern-page` 의 `--pattern-locked-*` 가 단일 출처.
+
+## 금지
+
+- 연습만 제목/네비를 다르게 두기
+- 예문에 `transform: translateY(...)` 로 중간에서 밀기
+- LOCKED 값·셀렉터를 “정리/리팩터” 명목으로 이동·삭제
+
+요청 범위가 다른 버그여도 이 크롬은 건드리지 않는다.

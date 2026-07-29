@@ -1,6 +1,19 @@
 /* 트리거 독해 — 연습 화면 (pattern.html) */
 
+/*
+ * LOCKED chrome (사용자 명시 없이 변경 금지)
+ * - 제목 위치·색·민트 바
+ * - 이전/다음 화면전환 UI (하단 고정)
+ * - 예문(맵) 세로 위치 = 화면 중간
+ */
 .pattern-page {
+    --pattern-locked-title-color: #f0f0f0;
+    --pattern-locked-title-bar: #4dffc4;
+    --pattern-locked-title-size: clamp(1.95rem, 7.4vw, 2.3rem);
+    --pattern-locked-title-top: calc(16px + 44px + 10px + 28px + 6vh);
+    --pattern-locked-nav-bottom: calc(36px + env(safe-area-inset-bottom, 0px));
+    --pattern-locked-nav-label: #aaa;
+    --pattern-locked-example-inner-pad-top: 6vh;
     min-height: 100vh;
     min-height: 100dvh;
     display: flex;
@@ -212,11 +225,11 @@
     gap: 10px;
     margin: 0;
     padding: 0;
-    font-size: clamp(1.95rem, 7.4vw, 2.3rem);
+    font-size: var(--pattern-locked-title-size);
     font-weight: 800;
     letter-spacing: -0.02em;
     line-height: 1.15;
-    color: #f0f0f0;
+    color: var(--pattern-locked-title-color);
     text-shadow: none;
     text-align: left;
     opacity: 0;
@@ -232,7 +245,7 @@
     flex: 0 0 4px;
     width: 4px;
     height: 0.99em;
-    background: #4dffc4;
+    background: var(--pattern-locked-title-bar);
     border-radius: 1px;
     transform: translateY(0.045em);
 }
@@ -708,11 +721,13 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-.pattern-docent-hint {
+/* LOCKED: 이전·다음 화면전환 UI — 도슨트·연습 동일 하단 고정 */
+.pattern-docent-hint,
+.pattern-rolling-nav {
     position: fixed;
     left: 0;
     right: 0;
-    bottom: calc(36px + env(safe-area-inset-bottom, 0px));
+    bottom: var(--pattern-locked-nav-bottom);
     margin: 0;
     display: flex;
     flex-direction: column;
@@ -722,15 +737,17 @@
     z-index: 20;
 }
 
-.pattern-docent-hint.is-hidden {
+.pattern-docent-hint.is-hidden,
+.pattern-rolling-nav.is-hidden {
     display: none;
 }
 
-.pattern-docent-tap {
+.pattern-docent-tap,
+.pattern-rolling-nav .pattern-docent-tap {
     margin: 0;
     font-size: 0.98rem;
     font-weight: 600;
-    color: #aaa;
+    color: var(--pattern-locked-nav-label);
     letter-spacing: 0.04em;
     text-align: center;
 }
@@ -1562,11 +1579,22 @@
 }
 
 .pattern-rolling-topic {
+    /* LOCKED: 도슨트 제목과 동일 위치·색 */
+    position: fixed;
+    top: var(--pattern-locked-title-top);
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(440px, calc(100% - 32px));
+    max-width: 440px;
+    margin: 0;
+    padding: 0 12px;
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     gap: 10px;
-    margin: 0 0 14px;
     text-align: left;
+    z-index: 15;
+    pointer-events: none;
 }
 
 .pattern-rolling-topic-title {
@@ -1575,11 +1603,11 @@
     gap: 10px;
     margin: 0;
     padding: 0;
-    font-size: clamp(1.95rem, 7.4vw, 2.3rem);
+    font-size: var(--pattern-locked-title-size);
     font-weight: 800;
     letter-spacing: -0.02em;
     line-height: 1.15;
-    color: #f0f0f0;
+    color: var(--pattern-locked-title-color);
 }
 
 .pattern-rolling-topic-title::before {
@@ -1587,7 +1615,7 @@
     flex: 0 0 4px;
     width: 4px;
     height: 0.99em;
-    background: #4dffc4;
+    background: var(--pattern-locked-title-bar);
     border-radius: 1px;
     transform: translateY(0.045em);
 }
@@ -1645,9 +1673,9 @@
     }
 }
 
-/* 예문 맵: 영어 → 조사 대응 — 예문 블록을 화면 세로 중간에 */
+/* LOCKED: 예문 맵 — 화면 세로 중간 (올리기/내리기 보정 금지) */
 .pattern-docent.has-map .pattern-docent-inner {
-    padding-top: 6vh;
+    padding-top: var(--pattern-locked-example-inner-pad-top);
 }
 
 .pattern-docent.has-map .pattern-docent-body {
@@ -1659,6 +1687,7 @@
 .pattern-docent.has-map .pattern-docent-example-slot {
     margin-top: auto;
     margin-bottom: auto;
+    transform: none;
 }
 
 .pattern-docent.has-map .pattern-docent-text {
@@ -1667,6 +1696,7 @@
     text-align: center;
     font-size: clamp(1.25rem, 4.8vw, 1.5rem);
     color: #b0b0b0;
+    transform: none;
 }
 
 /* 마무리 한 페이지 + 구석 로고 */
@@ -2014,19 +2044,4 @@
     text-align: center;
     word-break: keep-all;
     overflow-wrap: break-word;
-}
-
-.pattern-rolling-tap {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: calc(36px + env(safe-area-inset-bottom, 0px));
-    margin: 0;
-    font-size: 0.98rem;
-    font-weight: 600;
-    color: #aaa;
-    letter-spacing: 0.04em;
-    text-align: center;
-    pointer-events: none;
-    z-index: 20;
 }

@@ -6,7 +6,7 @@
     <title>TRIGGER · 독해</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="cyber-theme.css">
-    <link rel="stylesheet" href="pattern.css?v=20260728k">
+    <link rel="stylesheet" href="pattern.css?v=20260728m">
 </head>
 <body>
     <div class="pattern-page">
@@ -52,7 +52,13 @@
                             <p class="pattern-rolling-eng" id="pattern-rolling-eng" aria-live="polite"></p>
                             <p class="pattern-rolling-kor" id="pattern-rolling-kor"></p>
                             <p class="pattern-rolling-caption is-hidden" id="pattern-rolling-caption"></p>
-                            <p class="pattern-rolling-tap" id="pattern-rolling-tap">← 이전 · 다음 →</p>
+                        </div>
+                        <div class="pattern-rolling-nav is-hidden" id="pattern-rolling-nav" aria-hidden="true">
+                            <p class="pattern-docent-tap" id="pattern-rolling-tap">이전 · 다음</p>
+                            <div class="pattern-docent-tap-arrows" aria-hidden="true">
+                                <span class="pattern-docent-tap-arrow pattern-docent-tap-arrow--prev">←</span>
+                                <span class="pattern-docent-tap-arrow pattern-docent-tap-arrow--next">→</span>
+                            </div>
                         </div>
                     </div>
                     <div class="pattern-docent is-hidden" id="pattern-docent" aria-live="polite">
@@ -108,6 +114,6 @@
         </div>
     </div>
 
-    <script src="pattern.js?v=20260728k"></script>
+    <script src="pattern.js?v=20260728m"></script>
 </body>
 </html>

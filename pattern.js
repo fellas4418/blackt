@@ -21,7 +21,7 @@
     var COMPLEMENT_PARTICLES = { '이': 1, '가': 1 };
     var VERB_PARTICLES = { '다': 1 };
 
-    var INDEX_URL = 'data/pattern_index.json?v=20260728j';
+    var INDEX_URL = 'data/pattern_index.json?v=20260728m';
     var SOUND_KEY = 'pattern_docent_sound';
 
     var state = {
@@ -1286,12 +1286,24 @@
 
     function showRollingUi() {
         var el = document.getElementById('pattern-rolling');
+        var nav = document.getElementById('pattern-rolling-nav');
+        var docentHint = document.getElementById('pattern-docent-hint');
         if (el) el.classList.remove('is-hidden');
+        if (nav) {
+            nav.classList.remove('is-hidden');
+            nav.setAttribute('aria-hidden', 'false');
+        }
+        if (docentHint) docentHint.classList.add('is-hidden');
     }
 
     function hideRollingUi() {
         var el = document.getElementById('pattern-rolling');
+        var nav = document.getElementById('pattern-rolling-nav');
         if (el) el.classList.add('is-hidden');
+        if (nav) {
+            nav.classList.add('is-hidden');
+            nav.setAttribute('aria-hidden', 'true');
+        }
     }
 
     function updateRollingProgress() {
@@ -1366,7 +1378,7 @@
             capEl.classList.add('is-hidden');
         }
         if (tapEl) {
-            tapEl.textContent = '← 이전 · 다음 →';
+            tapEl.textContent = '이전 · 다음';
         }
         updateRollingProgress();
     }
@@ -2941,7 +2953,7 @@
             fetch(INDEX_URL).then(function (r) {
                 return r.ok ? r.json() : null;
             }),
-            fetch('data/patterns/' + id + '.json?v=20260728j').then(function (r) {
+            fetch('data/patterns/' + id + '.json?v=20260728m').then(function (r) {
                 if (!r.ok) throw new Error('missing');
                 return r.json();
             })
