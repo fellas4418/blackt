@@ -10,79 +10,20 @@
   ],
   "docent": [
     {
-      "role": "패턴",
-      "parts": [
-        {
-          "text": "Mario",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "became",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "a hero",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "마리오"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "영웅"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "되었"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ],
+      "role": "예문",
       "text_parts": [
         {
-          "text": "Mario",
-          "mark": "s"
+          "text": "The river "
         },
         {
-          "text": " "
-        },
-        {
-          "text": "became",
+          "text": "ran",
           "mark": "v"
         },
         {
           "text": " "
         },
         {
-          "text": "a hero",
+          "text": "dry",
           "mark": "c"
         },
         {
@@ -91,142 +32,62 @@
       ]
     },
     {
-      "role": "독해 공식",
-      "parts": [
+      "role": "분해",
+      "layout": "map",
+      "map_cols": [
         {
-          "text": "Mario",
-          "mark": "s"
+          "eng": "The river",
+          "particle": "강은",
+          "mark": "s",
+          "role_ko": "주어"
         },
         {
-          "text": " "
+          "eng": "ran",
+          "particle": "~한 상태가 되다",
+          "mark": "v",
+          "role_ko": "트리거"
         },
         {
-          "text": "became",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "a hero",
-          "mark": "c"
-        },
-        {
-          "text": "."
+          "eng": "dry",
+          "particle": "마른",
+          "mark": "c",
+          "role_ko": "형용사"
         }
       ],
-      "kor_parts": [
-        {
-          "text": "마리오"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "영웅"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "되었"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ],
+      "text_parts": []
+    },
+    {
+      "role": "합치기",
       "text_parts": [
         {
-          "text": "읽는 공식: 누가 · (되다) · 무엇이"
+          "text": "ran",
+          "mark": "v"
+        },
+        {
+          "text": " + "
+        },
+        {
+          "text": "dry",
+          "mark": "c"
+        },
+        {
+          "text": "\n\n→ 마른 + 상태가 되다\n\n→ 마른 상태가 되다"
         }
       ]
     },
     {
-      "role": "주격보어",
-      "parts": [
-        {
-          "text": "You",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "look",
-          "mark": "v"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "happy",
-          "mark": "c"
-        },
-        {
-          "text": "."
-        }
-      ],
-      "kor_parts": [
-        {
-          "text": "너"
-        },
-        {
-          "text": "는",
-          "mark": "s"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "행복"
-        },
-        {
-          "text": "이",
-          "mark": "c"
-        },
-        {
-          "text": " "
-        },
-        {
-          "text": "보인"
-        },
-        {
-          "text": "다",
-          "mark": "v"
-        },
-        {
-          "text": "."
-        }
-      ],
+      "role": "직역",
       "text_parts": [
         {
-          "text": "보어는 "
-        },
+          "text": "강은 마른 상태가 되었다."
+        }
+      ]
+    },
+    {
+      "role": "의역",
+      "text_parts": [
         {
-          "text": "주어",
-          "mark": "s"
-        },
-        {
-          "text": "의 상태·정체를 설명합니다.\n그래서 "
-        },
-        {
-          "text": "주격보어",
-          "mark": "c"
-        },
-        {
-          "text": "라고 부릅니다.\n이제 보어만 바꿔 봅니다."
+          "text": "강이 말라버렸다."
         }
       ]
     }
