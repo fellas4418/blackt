@@ -111,8 +111,8 @@ def draw_divider_mark(c: canvas.Canvas, width: float, height: float) -> None:
 
 FONT_REGULAR = "Pretendard"
 FONT_BOLD = "PretendardBold"
-FONT_IPA = "ArialIPA"
-FONT_IPA_BOLD = "ArialIPABold"
+FONT_IPA = "Pretendard"  # IPA도 Pretendard (중등 메타 IPA 글리프 전부 포함)
+FONT_IPA_BOLD = "PretendardBold"
 FONT_LOGO = "BlackHanSans"  # Trigger 워드마크와 맞춘 디스플레이 서체
 # 브랜드 색 — 트리거 블랙: 검정 배경 + 흰 글씨, 흑백 인쇄에서도 구분되는 무채색
 NAVY = HexColor("#0A0A0A")  # 브랜드 블랙 (헤더 바·배너·표지)
@@ -575,13 +575,10 @@ POS_MEANINGS = {
 
 
 def register_fonts() -> None:
-    font_dir = Path("C:/Windows/Fonts")
     brand_dir = ROOT / "fonts"  # 앱과 동일한 Pretendard (브랜드 통일)
     pdfmetrics.registerFont(TTFont(FONT_REGULAR, str(brand_dir / "Pretendard-Regular.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_BOLD, str(brand_dir / "Pretendard-Bold.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_LOGO, str(brand_dir / "BlackHanSans-Regular.ttf")))
-    pdfmetrics.registerFont(TTFont(FONT_IPA, str(font_dir / "arial.ttf")))
-    pdfmetrics.registerFont(TTFont(FONT_IPA_BOLD, str(font_dir / "arialbd.ttf")))
 
 
 def load_middle_meta() -> tuple[dict[str, tuple[str, str]], dict[str, str]]:
