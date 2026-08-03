@@ -675,9 +675,9 @@ def build_middle_round1_contents_entries(
 
 def _confusable_pairs_fit(content_top: float) -> int:
     if CONFUSABLE_COMPACT:
-        # 페이지당 약 10쌍 (교보 부분컬러 10쪽 맞춤)
-        pair_h = 16.8 * mm
-        pair_gap = 1.6 * mm
+        # 페이지당 5줄(페어) = 10칸 (기존 4줄/8칸 → 5줄/10칸)
+        pair_h = 32.0 * mm
+        pair_gap = 2.2 * mm
     else:
         pair_h = 33.0 * mm  # word_block_h 22 + mean_h 11
         pair_gap = 6.0 * mm
@@ -1868,15 +1868,15 @@ def draw_confusable_pairs_pages(
     """페어 표: 번호 + (단어·발음 한 칸) + 뜻. 다른 철자 빨강 강조."""
     width, height = B5
     if CONFUSABLE_COMPACT:
-        # 페이지당 ~10쌍 (기존 ~8쌍 → 부분컬러 12쪽을 10쪽으로)
-        word_size = 13.5
-        mean_size = 11.0
-        pron_size = 8.5
-        no_size = 12.0
-        pair_gap = 1.6 * mm
-        word_block_h = 11.2 * mm
-        mean_h = 5.6 * mm
-        no_w = 11 * mm
+        # 5줄×2칸=10칸/쪽 (기존 4줄×2칸=8칸). 글자 크기는 거의 유지.
+        word_size = 17.0
+        mean_size = 14.5
+        pron_size = 11.0
+        no_size = 15.0
+        pair_gap = 2.2 * mm
+        word_block_h = 20.5 * mm
+        mean_h = 11.5 * mm
+        no_w = 12 * mm
     else:
         word_size = 20.0
         mean_size = 18.0
@@ -1905,12 +1905,13 @@ def draw_confusable_pairs_pages(
         half_w = (table_w - no_w) / 2
 
         if first_of_section:
-            content_top = height - (40 * mm if CONFUSABLE_COMPACT else 52 * mm)
+            # compact: 부제 영역 조금만 줄여 첫 쪽도 5줄 가깝게
+            content_top = height - (48 * mm if CONFUSABLE_COMPACT else 52 * mm)
             mid_y = (banner_bottom + content_top) / 2
             if subtitle_note:
-                title_size = 13.0 if CONFUSABLE_COMPACT else 16.0
-                note_size = 11.0 if CONFUSABLE_COMPACT else 14.0
-                line_gap = 5.5 * mm if CONFUSABLE_COMPACT else 7.2 * mm
+                title_size = 14.0 if CONFUSABLE_COMPACT else 16.0
+                note_size = 12.0 if CONFUSABLE_COMPACT else 14.0
+                line_gap = 6.2 * mm if CONFUSABLE_COMPACT else 7.2 * mm
                 draw_text(
                     c,
                     subtitle,
@@ -1932,7 +1933,7 @@ def draw_confusable_pairs_pages(
                     align="center",
                 )
             else:
-                subtitle_size = 13.0 if CONFUSABLE_COMPACT else 16.0
+                subtitle_size = 14.0 if CONFUSABLE_COMPACT else 16.0
                 draw_text(
                     c,
                     subtitle,
@@ -1981,8 +1982,8 @@ def draw_confusable_pairs_pages(
             right_cx = left + no_w + half_w + half_w / 2
 
             if CONFUSABLE_COMPACT:
-                word_base = y - 3.0 * mm - word_size * 0.32
-                pron_base = y - word_block_h + 1.8 * mm
+                word_base = y - 5.0 * mm - word_size * 0.32
+                pron_base = y - word_block_h + 3.6 * mm
             else:
                 word_base = y - 5.8 * mm - word_size * 0.32
                 pron_base = y - word_block_h + 4.2 * mm

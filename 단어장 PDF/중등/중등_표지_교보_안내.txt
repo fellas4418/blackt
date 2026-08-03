@@ -1,7 +1,7 @@
 교보 표지 등록 안내
 
 파일: 중등_표지_교보.pdf
-내지 페이지: 275쪽 → 책등 16.4mm
+내지 페이지: 279쪽 → 책등 16.6mm
   (교보 계산기 값이면 --spine 으로 그 값 사용)
 
 앞표지: Trigger 로고 + VOCA · 중등 배지(좌상) · T마크(우하) · DAY 바
@@ -9,11 +9,11 @@
 책등: T마크(왼쪽 끝) + TRIGGER VOCA · 중등
 
 표지 PDF 크기(도련 3mm 포함):
-  가로 398.4 mm = 3 + 188 + 16.4 + 188 + 3
+  가로 398.6 mm = 3 + 188 + 16.6 + 188 + 3
   세로 260.0 mm = 3 + 254 + 3
 
 레이아웃: [뒤표지] [책등] [앞표지]  ← 왼쪽→오른쪽
 날개: 없음
 
 재생성 예:
-  python scripts/generate-voca-book-cover-bookk.py --kyobo --pages 275 --spine 16.4
+  python scripts/generate-voca-book-cover-bookk.py --kyobo --pages 279 --spine 16.6
