@@ -641,10 +641,11 @@ MIDDLE_RANDOM_SEED = 20260720
 def middle_first_day_page(*, include_covers: bool, kyobo: bool = False) -> int:
     """1회독 Day 01 간지가 시작하는 페이지 번호."""
     # 표지 제외: 목차·사용법·발음 = 3쪽 → Day 4
-    # 교보: 앞에 판권 1쪽 추가 → Day 5
+    # 교보 판권은 INDEX 뒤(맨 끝) — Day 시작은 동일
+    _ = kyobo
     if include_covers:
-        return 6 if kyobo else 5
-    return 5 if kyobo else 4
+        return 5
+    return 4
 
 
 def shuffle_days_for_random_review(
@@ -796,8 +797,8 @@ def draw_colophon_page(
         ("지은이", "Looke"),
         ("발행처", "플레이온"),
         ("ISBN", "979-11-993384-0-1"),
-        ("부가기호", "53740"),
-        ("값", "16,000원"),
+        ("이메일", "ohryee@gmail.com"),
+        ("값", "18,000원"),
     ]
     label_w = 28 * mm
     for label, value in rows:
@@ -2868,13 +2869,7 @@ def build_middle_days_pdf(
             day_label=f"DAY 01–{day_count:02d} · {word_count} WORDS",
             words_note="1회독 + 랜덤 1회독 · Day 구분은 페이지 헤더만 사용합니다.",
         )
-    if kyobo:
-        # 교보: 판권(1) → 목차 → 사용법 → 발음 → Day…
-        colophon_no = 2 if include_covers else 1
-        draw_colophon_page(c, level_tag="중등", page_no=colophon_no)
-        contents_page_no = colophon_no + 1
-    else:
-        contents_page_no = 2 if include_covers else 1
+    contents_page_no = 2 if include_covers else 1
     contents = build_middle_round1_contents_entries(
         days, include_covers=include_covers, kyobo=kyobo
     )
@@ -3006,6 +3001,10 @@ def build_middle_days_pdf(
         entries=index_entries,
         start_page_no=page_no,
     )
+    if kyobo:
+        # 교보: 판권은 INDEX 다음 맨 뒤
+        draw_colophon_page(c, level_tag="중등", page_no=page_no)
+        page_no += 1
     if include_covers:
         draw_back_cover(c)
     c.save()
