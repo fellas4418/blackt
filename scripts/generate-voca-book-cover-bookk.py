@@ -39,9 +39,13 @@ ORANGE = HexColor("#FF9900")
 PALE = HexColor("#EEF1F4")
 LOGO_SHADOW = HexColor("#636262")  # trigger-logo-v2 그림자 실플
 
-# B5 재단 사이즈 (부크크)
-PAGE_W = 182 * mm
-PAGE_H = 257 * mm
+# B5 재단 사이즈 — 기본 부크크. --kyobo 시 188×254.
+PAGE_W_BOOKK = 182 * mm
+PAGE_H_BOOKK = 257 * mm
+PAGE_W_KYOBO = 188 * mm
+PAGE_H_KYOBO = 254 * mm
+PAGE_W = PAGE_W_BOOKK
+PAGE_H = PAGE_H_BOOKK
 BLEED = 3 * mm
 
 
@@ -361,7 +365,14 @@ def build_cover_pdf(
     logo_top: float | None = None,
     voca_y: float | None = None,
     write_note: bool = True,
+    kyobo: bool = False,
 ) -> Path:
+    global PAGE_W, PAGE_H
+    if kyobo:
+        PAGE_W, PAGE_H = PAGE_W_KYOBO, PAGE_H_KYOBO
+    else:
+        PAGE_W, PAGE_H = PAGE_W_BOOKK, PAGE_H_BOOKK
+
     register_fonts()
     spine = spine_mm if spine_mm is not None else bookk_spine_mm(pages)
     spine_w = spine * mm
@@ -371,11 +382,15 @@ def build_cover_pdf(
     total_h = BLEED + PAGE_H + BLEED
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    out = resolve_output_path(OUT_DIR / f"중등_표지{name_suffix}.pdf")
+    default_name = "중등_표지_교보" if kyobo else "중등_표지"
+    out = resolve_output_path(OUT_DIR / f"{default_name}{name_suffix}.pdf")
+    channel = "교보" if kyobo else "부크크"
+    trim_w = 188 if kyobo else 182
+    trim_h = 254 if kyobo else 257
     c = canvas.Canvas(str(out), pagesize=(total_w, total_h))
     c.setTitle(f"트리거 보카 중등 표지 (책등 {spine}mm)")
     c.setAuthor("플레이온")
-    c.setSubject(f"부크크 B5 표지 · {pages}p · spine {spine}mm · bleed 3mm")
+    c.setSubject(f"{channel} B5 표지 · {pages}p · spine {spine}mm · bleed 3mm")
 
     # 전체 검정 (도련까지)
     c.setFillColor(NAVY)
@@ -400,35 +415,33 @@ def build_cover_pdf(
         voca_y=voca_y,
     )
 
-    # 재단·등 가이드 (인쇄용으로는 연하게 — 실제 인쇄 전 가이드 없는 버전도 가능)
-    # 부크크 업로드용: 가이드 선 없이 순수 디자인만 (가이드는 콘솔/파일명으로 안내)
     c.save()
 
     if write_note:
-        note = OUT_DIR / "중등_표지_안내.txt"
+        note_name = "중등_표지_교보_안내.txt" if kyobo else "중등_표지_안내.txt"
+        note = OUT_DIR / note_name
         note.write_text(
             "\n".join(
                 [
-                    "부크크 표지 등록 안내",
+                    f"{channel} 표지 등록 안내",
                     "",
                     f"파일: {out.name}",
-                    f"내지 페이지: {pages}쪽 → 추정 책등 {spine}mm",
-                    "  (1회독 + 랜덤 1회독 내지 기준. 부크크 100쪽=7.1mm 비율)",
-                    "  (화면에 다른 두께가 나오면 --spine 으로 재생성)",
+                    f"내지 페이지: {pages}쪽 → 책등 {spine}mm",
+                    "  (교보 계산기 값이면 --spine 으로 그 값 사용)",
                     "",
                     "앞표지: Trigger 로고 + VOCA · 중등 배지(좌상) · T마크(우하) · DAY 바",
                     "뒷표지: Just Follow(40pt) + QR · T마크(우하)",
-                    "책등: T마크(왼쪽 끝) + TRIGGER VOCA · 중등 — 제목·로고 동일 높이(책등 폭의 약 1/2)",
+                    "책등: T마크(왼쪽 끝) + TRIGGER VOCA · 중등",
                     "",
-                    f"표지 PDF 크기(도련 3mm 포함):",
-                    f"  가로 {total_w / mm:.1f} mm = 3 + 182 + {spine} + 182 + 3",
-                    f"  세로 {total_h / mm:.1f} mm = 3 + 257 + 3",
+                    "표지 PDF 크기(도련 3mm 포함):",
+                    f"  가로 {total_w / mm:.1f} mm = 3 + {trim_w} + {spine} + {trim_w} + 3",
+                    f"  세로 {total_h / mm:.1f} mm = 3 + {trim_h} + 3",
                     "",
                     "레이아웃: [뒤표지] [책등] [앞표지]  ← 왼쪽→오른쪽",
                     "날개: 없음",
                     "",
                     "재생성 예:",
-                    f"  python scripts/generate-voca-book-cover-bookk.py --pages {pages} --spine {spine}",
+                    f"  python scripts/generate-voca-book-cover-bookk.py --kyobo --pages {pages} --spine {spine}",
                     "",
                 ]
             ),
@@ -441,6 +454,11 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--pages", type=int, default=267, help="내지 쪽수 (기본 267 · 1회독+랜덤)")
     parser.add_argument("--spine", type=float, default=None, help="책등 mm (미입력 시 부크크 비율 추정)")
+    parser.add_argument(
+        "--kyobo",
+        action="store_true",
+        help="교보 B5 188×254 표지 전개도",
+    )
     parser.add_argument(
         "--variant",
         choices=["logo-half-voca2x"],
@@ -461,14 +479,16 @@ def main() -> None:
             logo_top=PAGE_H - 48 * mm,
             voca_y=PAGE_H - 148 * mm,
             write_note=False,
+            kyobo=args.kyobo,
         )
     else:
-        path = build_cover_pdf(pages=args.pages, spine_mm=args.spine)
+        path = build_cover_pdf(pages=args.pages, spine_mm=args.spine, kyobo=args.kyobo)
 
     print(f"표지: {path}")
     print(f"책등(추정): {spine} mm  ·  내지 {args.pages}쪽")
     if args.variant is None:
-        print(f"안내: {OUT_DIR / '중등_표지_안내.txt'}")
+        note = "중등_표지_교보_안내.txt" if args.kyobo else "중등_표지_안내.txt"
+        print(f"안내: {OUT_DIR / note}")
 
 
 if __name__ == "__main__":

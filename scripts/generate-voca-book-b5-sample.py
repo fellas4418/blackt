@@ -65,8 +65,10 @@ def draw_mark(
         mask="auto",
     )
 
-# 부크크 JIS B5 (182×257mm) — 권장 여백 안전 구역
-B5 = (182 * mm, 257 * mm)
+# 기본: 부크크 JIS B5 (182×257). --kyobo 시 교보 46배판 (188×254).
+B5_BOOKK = (182 * mm, 257 * mm)
+B5_KYOBO = (188 * mm, 254 * mm)
+B5 = B5_BOOKK
 MARGIN_OUTER = 14 * mm  # 권장여백 안쪽 끝 (바깥으로 밀 때)
 MARGIN_INNER = 20 * mm  # 반대쪽 (콘텐츠를 한쪽 끝으로 밀 때)
 MARGIN_BOTTOM = 14 * mm
@@ -116,7 +118,7 @@ FONT_IPA_BOLD = "PretendardBold"
 FONT_LOGO = "BlackHanSans"  # Trigger 워드마크와 맞춘 디스플레이 서체
 # 브랜드 색 — 트리거 블랙: 검정 배경 + 흰 글씨, 흑백 인쇄에서도 구분되는 무채색
 NAVY = HexColor("#0A0A0A")  # 브랜드 블랙 (헤더 바·배너·표지)
-NEON_BLUE = HexColor("#00F3FF")  # 앱 네온블루 — 표지·간지 포인트 전용
+NEON_BLUE = HexColor("#00F3FF")  # 앱 네온블루 — 표지·혼동 간지 포인트
 ORANGE = HexColor("#FF9900")  # 부가 포인트 — 레벨 배지 테두리·슬로건 마침표
 SLATE = HexColor("#5C5C5C")
 PALE = HexColor("#EEF1F4")
@@ -126,6 +128,10 @@ DIFF_RED = HexColor("#C62828")  # 혼동 어휘 — 다른 철자 강조
 LINE = HexColor("#9AA4AE")
 INK = HexColor("#20262D")
 LOGO_SHADOW = HexColor("#636262")  # trigger-logo-v2 그림자 샘플
+# Day/REVIEW/INDEX 간지 바 — 교보 부분컬러용 무채(혼동 구간만 NEON·빨강)
+DIVIDER_ACCENT = PALE
+# 교보 부분컬러(≤10쪽)용 — 혼동 표 밀도 상향
+CONFUSABLE_COMPACT = False
 
 # 혼동 어휘(철자) — (word_a, tag_a|None, word_b, tag_b|None). tag는 단어 오른쪽 (타동사)/(자동사) 등.
 CONFUSABLE_SPELLING: list[tuple[str, str | None, str, str | None]] = [
@@ -668,8 +674,12 @@ def build_middle_round1_contents_entries(
 
 
 def _confusable_pairs_fit(content_top: float) -> int:
-    pair_h = 33.0 * mm  # word_block_h 22 + mean_h 11
-    pair_gap = 6.0 * mm
+    if CONFUSABLE_COMPACT:
+        pair_h = 18.0 * mm
+        pair_gap = 1.6 * mm
+    else:
+        pair_h = 33.0 * mm  # word_block_h 22 + mean_h 11
+        pair_gap = 6.0 * mm
     count = 0
     y = content_top
     while y - pair_h >= TABLE_BOTTOM:
@@ -1467,7 +1477,7 @@ def draw_day_divider(
     draw_text(c, "DAY", width / 2, center_y + 30 * mm, font=FONT_BOLD, size=20, color=PALE, align="center")
     draw_text(c, f"{day_no:02d}", width / 2, center_y - 10 * mm, font=FONT_BOLD, size=96, color=white, align="center")
     bar_w = 26 * mm
-    c.setFillColor(NEON_BLUE)
+    c.setFillColor(DIVIDER_ACCENT)
     c.rect((width - bar_w) / 2, center_y - 20 * mm, bar_w, 1.4 * mm, fill=1, stroke=0)
     draw_text(c, f"{len(rows)} WORDS", width / 2, center_y - 30 * mm, font=FONT_BOLD, size=12, color=white, align="center")
     draw_text(c, f"{rows[0][0]} – {rows[-1][0]}", width / 2, center_y - 38 * mm, size=11, color=PALE, align="center")
@@ -1509,7 +1519,7 @@ def draw_random_review_divider(
     )
 
     bar_w = pdfmetrics.stringWidth(subtitle, FONT_BOLD, subtitle_size)
-    c.setFillColor(NEON_BLUE)
+    c.setFillColor(DIVIDER_ACCENT)
     c.rect((width - bar_w) / 2, center_y - 30 * mm, bar_w, 1.4 * mm, fill=1, stroke=0)
     draw_text(
         c,
@@ -1578,7 +1588,7 @@ def draw_index_divider(
     )
 
     bar_w = pdfmetrics.stringWidth(subtitle, FONT_BOLD, subtitle_size)
-    c.setFillColor(NEON_BLUE)
+    c.setFillColor(DIVIDER_ACCENT)
     c.rect((width - bar_w) / 2, center_y - 30 * mm, bar_w, 1.4 * mm, fill=1, stroke=0)
     draw_text(
         c,
@@ -1856,16 +1866,25 @@ def draw_confusable_pairs_pages(
 ) -> int:
     """페어 표: 번호 + (단어·발음 한 칸) + 뜻. 다른 철자 빨강 강조."""
     width, height = B5
-    word_size = 20.0
-    mean_size = 18.0
-    pron_size = 12.5
-    no_size = 18.0
-    pair_gap = 6.0 * mm
-    # 단어+발음은 칸선 없이 한 블록, 뜻만 아래 칸
-    word_block_h = 22.0 * mm
-    mean_h = 11.0 * mm
+    if CONFUSABLE_COMPACT:
+        word_size = 12.0
+        mean_size = 10.0
+        pron_size = 8.0
+        no_size = 11.0
+        pair_gap = 1.6 * mm
+        word_block_h = 12.0 * mm
+        mean_h = 6.0 * mm
+        no_w = 10 * mm
+    else:
+        word_size = 20.0
+        mean_size = 18.0
+        pron_size = 12.5
+        no_size = 18.0
+        pair_gap = 6.0 * mm
+        word_block_h = 22.0 * mm
+        mean_h = 11.0 * mm
+        no_w = 14 * mm
     pair_h = word_block_h + mean_h
-    no_w = 14 * mm
 
     page_no = start_page_no
     idx = 0
@@ -1955,11 +1974,16 @@ def draw_confusable_pairs_pages(
                 align="center",
             )
 
-            cell_max = half_w - 4 * mm
+            cell_max = half_w - (2.5 * mm if CONFUSABLE_COMPACT else 4 * mm)
             left_cx = left + no_w + half_w / 2
             right_cx = left + no_w + half_w + half_w / 2
 
-            word_base = y - 5.8 * mm - word_size * 0.32
+            if CONFUSABLE_COMPACT:
+                word_base = y - 3.2 * mm - word_size * 0.32
+                pron_base = y - word_block_h + 2.0 * mm
+            else:
+                word_base = y - 5.8 * mm - word_size * 0.32
+                pron_base = y - word_block_h + 4.2 * mm
             draw_centered_word_with_diff(
                 c,
                 left_cx,
@@ -1980,8 +2004,6 @@ def draw_confusable_pairs_pages(
                 size=word_size,
                 max_width=cell_max,
             )
-
-            pron_base = y - word_block_h + 4.2 * mm
 
             def draw_pron(cx: float, ko: str, other_ko: str) -> None:
                 if not ko:
@@ -2538,9 +2560,20 @@ def validate_pronunciations(rows: list[tuple[str, str]], pronunciations: dict[st
         raise ValueError(f"발음이 없는 단어: {missing}")
 
 
-def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: bool = True) -> Path:
+def build_middle_days_pdf(
+    days: list[list[tuple[str, str]]],
+    *,
+    include_covers: bool = True,
+    kyobo: bool = False,
+) -> Path:
     """앞부분 + 1회독(Day×4) + 랜덤 표지 + 랜덤 1회독(TEST) + 혼동 어휘 + 색인."""
-    global POS_MEANINGS
+    global B5, POS_MEANINGS, CONFUSABLE_COMPACT
+    if kyobo:
+        B5 = B5_KYOBO
+        CONFUSABLE_COMPACT = True
+    else:
+        B5 = B5_BOOKK
+        CONFUSABLE_COMPACT = False
     pron, pos = load_middle_meta()
     POS_MEANINGS = pos
 
@@ -2550,18 +2583,25 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: 
     random_days = shuffle_days_for_random_review(days)
     first_day_page = middle_first_day_page(include_covers=include_covers)
 
-    out_name = "중등.pdf" if include_covers else "중등_내지.pdf"
+    if kyobo and not include_covers:
+        out_name = "중등_내지_교보.pdf"
+    elif kyobo:
+        out_name = "중등_교보.pdf"
+    else:
+        out_name = "중등.pdf" if include_covers else "중등_내지.pdf"
     out_path = resolve_output_path(OUT_MIDDLE / out_name)
     c = canvas.Canvas(str(out_path), pagesize=B5, pageCompression=1)
-    c.setTitle(f"트리거 보카 중등 Day 01-{day_count:02d} B5")
+    size_note = "교보 B5 188×254" if kyobo else "부크크 B5 182×257"
+    c.setTitle(f"트리거 보카 중등 Day 01-{day_count:02d} {size_note}")
     c.setAuthor("TRIGGER BLACK")
     c.setSubject(
-        "B5 중등 단어장 (1회독 + 랜덤 1회독)"
+        f"{size_note} 중등 단어장 (1회독 + 랜덤 1회독)"
         if include_covers
-        else "B5 중등 단어장 내지 (1회독 + 랜덤 1회독 · 표지 제외)"
+        else f"{size_note} 중등 단어장 내지 (표지 제외 · 부분컬러=혼동)"
     )
     c.setCreator("TRIGGER VOCA Book Generator")
 
+    conf_color_start = conf_color_end = 0
     contents_page_no = 2 if include_covers else 1
     if include_covers:
         draw_cover(
@@ -2641,6 +2681,7 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: 
         page_no += 1
 
     meanings = {word: meaning for day_rows in days for word, meaning in day_rows}
+    conf_color_start = page_no
     draw_confusables_divider(c, level_tag="중등", page_no=page_no)
     page_no += 1
     page_no = draw_confusables_spelling_page(
@@ -2649,6 +2690,24 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: 
     page_no = draw_confusables_derivation_page(
         c, level_tag="중등", page_no=page_no, meanings=meanings, pronunciations=pron
     )
+    if conf_color_start % 2 == 0:
+        raise RuntimeError(
+            f"혼동 간지가 PDF 짝수({conf_color_start})에서 시작했습니다. "
+            "부분컬러는 홀수 시작이어야 합니다."
+        )
+    while (page_no - 1) % 2 == 1:
+        width, height = B5
+        c.setFillColor(white)
+        c.rect(0, 0, width, height, fill=1, stroke=0)
+        draw_page_footer(c, page_no, "중등")
+        c.showPage()
+        page_no += 1
+    conf_color_end = page_no - 1
+    if conf_color_end - conf_color_start + 1 > 10:
+        raise RuntimeError(
+            f"혼동 컬러 구간이 {conf_color_end - conf_color_start + 1}쪽입니다. "
+            "교보 부분컬러는 최대 10쪽입니다."
+        )
 
     index_entries = build_word_index_entries(
         days,
@@ -2671,6 +2730,34 @@ def build_middle_days_pdf(days: list[list[tuple[str, str]]], *, include_covers: 
     if include_covers:
         draw_back_cover(c)
     c.save()
+
+    if kyobo and not include_covers:
+        note = OUT_MIDDLE / "중등_교보_부분컬러_안내.txt"
+        note.write_text(
+            "\n".join(
+                [
+                    "교보 바로출판 POD — 부분 컬러 요청 안내",
+                    "",
+                    f"내지 파일: {out_path.name}",
+                    f"판형: 188×254 mm (교보 B5/46배판)",
+                    f"총 페이지: {page_no - 1}쪽",
+                    "",
+                    "Step2: 내지인쇄 = 흑백",
+                    "Step5 요청 사항 예시:",
+                    f"p.{conf_color_start}(홀수페이지)~p.{conf_color_end}(짝수페이지) 부분 컬러 적용 요청",
+                    "",
+                    "※ PDF 파일 페이지 순서 기준 (인쇄 쪽번호 아님)",
+                    "※ 표지는 전개도 파일(중등_표지_교보.pdf)을 따로 업로드",
+                ]
+            ),
+            encoding="utf-8",
+        )
+        print(f"부분컬러 안내: {note}")
+        print(
+            f"부분컬러 요청: p.{conf_color_start}(홀수)~p.{conf_color_end}(짝수) "
+            f"({conf_color_end - conf_color_start + 1}쪽)"
+        )
+
     return out_path
 
 
@@ -2735,7 +2822,12 @@ def main() -> None:
     parser.add_argument(
         "--interior-only",
         action="store_true",
-        help="부크크용 내지 PDF만 생성 (앞·뒤표지 제외)",
+        help="내지 PDF만 생성 (앞·뒤표지 제외)",
+    )
+    parser.add_argument(
+        "--kyobo",
+        action="store_true",
+        help="교보 46배판 188×254 · 간지 무채 · 혼동만 컬러(부분컬러용)",
     )
     args = parser.parse_args()
     register_fonts()
@@ -2746,9 +2838,15 @@ def main() -> None:
     pron, _ = load_middle_meta()
     for day_rows in middle_days:
         validate_pronunciations(day_rows, pron)
-    if args.interior_only:
-        interior_path = build_middle_days_pdf(middle_days, include_covers=False)
+    if args.interior_only or args.kyobo:
+        interior_path = build_middle_days_pdf(
+            middle_days, include_covers=False, kyobo=args.kyobo
+        )
         print(f"중등 B5 내지: {interior_path}")
+        if args.kyobo:
+            return
+
+    if args.interior_only:
         return
 
     middle_path = build_middle_days_pdf(middle_days)
