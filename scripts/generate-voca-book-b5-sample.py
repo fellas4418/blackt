@@ -1724,10 +1724,10 @@ def draw_confusables_howto_page(
     right = width - margin_right
     max_w = right - left
 
-    # 가운데 희미한 T 로고 (첨부 마크 · 크게)
-    mark_size = min(max_w * 0.72, 105 * mm)
+    # 가운데 희미한 T 로고 (상하 중앙 · 기존 대비 크기·농도 약 30% 축소)
+    mark_size = min(max_w * 0.72, 105 * mm) * 0.70
     mark_x = (width - mark_size) / 2
-    mark_y = height * 0.42 - mark_size / 2
+    mark_y = (height - mark_size) / 2
     try:
         mark_src = ROOT / "로고, 이미지" / "trigger-t-watermark.png"
         if not mark_src.exists():
@@ -1735,7 +1735,7 @@ def draw_confusables_howto_page(
         img = PILImage.open(mark_src).convert("RGBA")
         pixels = img.load()
         w_px, h_px = img.size
-        opacity = 0.10
+        opacity = 0.10 * 0.70  # 약 30% 더 희미
         for py in range(h_px):
             for px in range(w_px):
                 r, g, b, a = pixels[px, py]
@@ -1801,7 +1801,7 @@ def draw_confusables_howto_page(
         y -= 9.2 * mm
     y -= 8 * mm  # 리드 아래 여유
 
-    draw_text(c, "예시", left, y, font=FONT_BOLD, size=15, color=INK)
+    draw_text(c, "[예시]", left, y, font=FONT_BOLD, size=15, color=INK)
     y -= 10 * mm
 
     examples = [
