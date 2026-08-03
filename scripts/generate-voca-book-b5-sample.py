@@ -638,9 +638,13 @@ MIDDLE_PAGES_PER_DAY_ROUND1 = 4  # 간지 · STUDY LOG · TEST · PRACTICE
 MIDDLE_RANDOM_SEED = 20260720
 
 
-def middle_first_day_page(*, include_covers: bool) -> int:
+def middle_first_day_page(*, include_covers: bool, kyobo: bool = False) -> int:
     """1회독 Day 01 간지가 시작하는 페이지 번호."""
-    return 5 if include_covers else 4
+    # 표지 제외: 목차·사용법·발음 = 3쪽 → Day 4
+    # 교보: 앞에 판권 1쪽 추가 → Day 5
+    if include_covers:
+        return 6 if kyobo else 5
+    return 5 if kyobo else 4
 
 
 def shuffle_days_for_random_review(
@@ -662,8 +666,9 @@ def build_middle_round1_contents_entries(
     days: list[list[tuple[str, str]]],
     *,
     include_covers: bool,
+    kyobo: bool = False,
 ) -> list[tuple[str, int, int, int]]:
-    first = middle_first_day_page(include_covers=include_covers)
+    first = middle_first_day_page(include_covers=include_covers, kyobo=kyobo)
     return [
         (
             f"DAY {day_no:02d}",
@@ -722,11 +727,12 @@ def build_middle_back_matter_note(
     days: list[list[tuple[str, str]]],
     *,
     include_covers: bool,
+    kyobo: bool = False,
 ) -> str:
     """목차 하단 — REVIEW · 혼동 어휘 · INDEX 페이지 안내."""
     day_count = len(days)
     word_count = sum(len(rows) for rows in days)
-    first = middle_first_day_page(include_covers=include_covers)
+    first = middle_first_day_page(include_covers=include_covers, kyobo=kyobo)
     round1_end = first + day_count * MIDDLE_PAGES_PER_DAY_ROUND1 - 1
     review_div = round1_end + 1
     review_start = review_div + 1
@@ -751,6 +757,94 @@ def fit_font_size(text: str, font: str, max_size: float, max_width: float) -> fl
     while size > 5.8 and pdfmetrics.stringWidth(text, font, size) > max_width:
         size -= 0.2
     return size
+
+
+def draw_colophon_page(
+    c: canvas.Canvas,
+    *,
+    level_tag: str,
+    page_no: int,
+) -> None:
+    """교보 POD 필수 판권 페이지."""
+    width, height = B5
+    c.setFillColor(white)
+    c.rect(0, 0, width, height, fill=1, stroke=0)
+
+    margin_left, margin_right = page_margins_x(page_no)
+    left = margin_left
+    right = width - margin_right
+    max_w = right - left
+    cx = width / 2
+
+    y = height - 48 * mm
+    draw_text(c, "Trigger VOCA 중등", cx, y, font=FONT_BOLD, size=22, color=INK, align="center")
+    y -= 10 * mm
+    draw_text(
+        c,
+        "DAY 01–50 · 1,200 WORDS",
+        cx,
+        y,
+        font=FONT_REGULAR,
+        size=12,
+        color=SLATE,
+        align="center",
+    )
+
+    y -= 22 * mm
+    rows = [
+        ("발행일", "2026년 8월 11일"),
+        ("지은이", "Looke"),
+        ("발행처", "플레이온"),
+        ("ISBN", "979-11-993384-0-1"),
+        ("부가기호", "53740"),
+        ("값", "16,000원"),
+    ]
+    label_w = 28 * mm
+    for label, value in rows:
+        draw_text(c, f"{label}", left, y, font=FONT_BOLD, size=12, color=INK)
+        draw_text(c, value, left + label_w, y, font=FONT_REGULAR, size=12, color=INK, max_width=max_w - label_w)
+        y -= 9.5 * mm
+
+    y -= 14 * mm
+    draw_text(c, "ⓒ Looke 2026", left, y, font=FONT_BOLD, size=12, color=INK)
+    y -= 12 * mm
+    legal = (
+        "* 이 책 내용의 전부 또는 일부를 재사용하려면 "
+        "반드시 저작권자의 동의를 받으셔야 합니다."
+    )
+    # wrap legal
+    words = legal.split(" ")
+    cur = ""
+    for w in words:
+        trial = f"{cur} {w}".strip() if cur else w
+        if pdfmetrics.stringWidth(trial, FONT_REGULAR, 10.5) <= max_w:
+            cur = trial
+        else:
+            draw_text(c, cur, left, y, font=FONT_REGULAR, size=10.5, color=SLATE)
+            y -= 6.5 * mm
+            cur = w
+    if cur:
+        draw_text(c, cur, left, y, font=FONT_REGULAR, size=10.5, color=SLATE)
+        y -= 10 * mm
+
+    ai_note = (
+        "단어 선별·검수·학습 설계는 직접 진행했으며, "
+        "편집·제작 일부에 AI를 활용했습니다."
+    )
+    cur = ""
+    for w in ai_note.split(" "):
+        trial = f"{cur} {w}".strip() if cur else w
+        if pdfmetrics.stringWidth(trial, FONT_REGULAR, 10) <= max_w:
+            cur = trial
+        else:
+            draw_text(c, cur, left, y, font=FONT_REGULAR, size=10, color=SLATE)
+            y -= 6.2 * mm
+            cur = w
+    if cur:
+        draw_text(c, cur, left, y, font=FONT_REGULAR, size=10, color=SLATE)
+
+    draw_page_footer(c, page_no, level_tag)
+    c.showPage()
 
 
 def draw_text(
@@ -2745,7 +2839,7 @@ def build_middle_days_pdf(
     day_count = len(days)
     word_count = sum(len(rows) for rows in days)
     random_days = shuffle_days_for_random_review(days)
-    first_day_page = middle_first_day_page(include_covers=include_covers)
+    first_day_page = middle_first_day_page(include_covers=include_covers, kyobo=kyobo)
 
     if kyobo and not include_covers:
         out_name = "중등_내지_교보.pdf"
@@ -2766,7 +2860,6 @@ def build_middle_days_pdf(
     c.setCreator("TRIGGER VOCA Book Generator")
 
     conf_color_start = conf_color_end = 0
-    contents_page_no = 2 if include_covers else 1
     if include_covers:
         draw_cover(
             c,
@@ -2775,13 +2868,24 @@ def build_middle_days_pdf(
             day_label=f"DAY 01–{day_count:02d} · {word_count} WORDS",
             words_note="1회독 + 랜덤 1회독 · Day 구분은 페이지 헤더만 사용합니다.",
         )
-    contents = build_middle_round1_contents_entries(days, include_covers=include_covers)
+    if kyobo:
+        # 교보: 판권(1) → 목차 → 사용법 → 발음 → Day…
+        colophon_no = 2 if include_covers else 1
+        draw_colophon_page(c, level_tag="중등", page_no=colophon_no)
+        contents_page_no = colophon_no + 1
+    else:
+        contents_page_no = 2 if include_covers else 1
+    contents = build_middle_round1_contents_entries(
+        days, include_covers=include_covers, kyobo=kyobo
+    )
     draw_contents_page(
         c,
         level_tag="중등",
         entries=contents,
         page_no=contents_page_no,
-        footer_note=build_middle_back_matter_note(days, include_covers=include_covers),
+        footer_note=build_middle_back_matter_note(
+            days, include_covers=include_covers, kyobo=kyobo
+        ),
     )
     draw_howto_page(c, level_tag="중등", page_no=contents_page_no + 1)
     draw_pronunciation_guide(c, level_tag="중등", page_no=contents_page_no + 2)
