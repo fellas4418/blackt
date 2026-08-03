@@ -1724,25 +1724,38 @@ def draw_confusables_howto_page(
     right = width - margin_right
     max_w = right - left
 
-    # 가운데 희미한 로고 (크게)
-    logo_w = min(max_w * 0.92, 140 * mm)
-    logo_h = logo_w * (342 / 820)
-    logo_x = (width - logo_w) / 2
-    logo_y = height * 0.38 - logo_h / 2
+    # 가운데 희미한 T 로고 (첨부 마크 · 크게)
+    mark_size = min(max_w * 0.72, 105 * mm)
+    mark_x = (width - mark_size) / 2
+    mark_y = height * 0.42 - mark_size / 2
     try:
-        img = PILImage.open(LOGO_PATH).convert("RGBA")
-        alpha = img.split()[3]
-        alpha = alpha.point(lambda a: int(a * 0.07))
-        img.putalpha(alpha)
+        mark_src = ROOT / "로고, 이미지" / "trigger-t-watermark.png"
+        if not mark_src.exists():
+            mark_src = MARK_PATH
+        img = PILImage.open(mark_src).convert("RGBA")
+        pixels = img.load()
+        w_px, h_px = img.size
+        opacity = 0.10
+        for py in range(h_px):
+            for px in range(w_px):
+                r, g, b, a = pixels[px, py]
+                if a < 8 or (r < 45 and g < 45 and b < 45):
+                    pixels[px, py] = (0, 0, 0, 0)
+                    continue
+                # 시안 점 유지(희미), 흰 T → 진한 회색 희미
+                if b > 180 and g > 150 and r < 120:
+                    pixels[px, py] = (0, 220, 235, int(255 * opacity * 1.15))
+                else:
+                    pixels[px, py] = (32, 38, 45, int(255 * opacity))
         buf = BytesIO()
         img.save(buf, format="PNG")
         buf.seek(0)
         c.drawImage(
             ImageReader(buf),
-            logo_x,
-            logo_y,
-            width=logo_w,
-            height=logo_h,
+            mark_x,
+            mark_y,
+            width=mark_size,
+            height=mark_size,
             mask="auto",
             preserveAspectRatio=True,
         )
@@ -1774,12 +1787,9 @@ def draw_confusables_howto_page(
             out.append(cur)
         return out
 
-    # 리드 문단 — 위·아래 간격 넓게, 두 덩어리
-    para1 = (
-        "왼쪽과 오른쪽 단어를 나란히 비교하세요. "
-        "철자가 다른 글자만 빨강으로 표시됩니다."
-    )
-    para2 = "테스트·연습에서 헷갈렸던 단어를 여기서 다시 정리하세요."
+    # 리드 문단 — 위·아래 간격 넓게
+    para1 = "테스트·연습에서 헷갈렸던 단어를 여기서 다시 정리하세요."
+    para2 = "철자가 다른 글자만 빨강으로 표시됩니다."
     y = height - 58 * mm
     y -= 4 * mm  # 제목 아래 여유
     for line in wrap_lines(para1, FONT_REGULAR, 13.5):
