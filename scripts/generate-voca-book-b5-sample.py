@@ -675,7 +675,8 @@ def build_middle_round1_contents_entries(
 
 def _confusable_pairs_fit(content_top: float) -> int:
     if CONFUSABLE_COMPACT:
-        pair_h = 18.0 * mm
+        # 페이지당 약 10쌍 (교보 부분컬러 10쪽 맞춤)
+        pair_h = 16.8 * mm
         pair_gap = 1.6 * mm
     else:
         pair_h = 33.0 * mm  # word_block_h 22 + mean_h 11
@@ -1728,7 +1729,7 @@ def draw_confusables_divider(
 
     bar_w = pdfmetrics.stringWidth(title, FONT_BOLD, title_size)
     bar_left = (width - bar_w) / 2
-    c.setFillColor(NEON_BLUE)
+    c.setFillColor(DIVIDER_ACCENT)
     c.rect(bar_left, center_y - 14 * mm, bar_w, 1.4 * mm, fill=1, stroke=0)
 
     margin_left, margin_right = page_margins_x(page_no)
@@ -1867,14 +1868,15 @@ def draw_confusable_pairs_pages(
     """페어 표: 번호 + (단어·발음 한 칸) + 뜻. 다른 철자 빨강 강조."""
     width, height = B5
     if CONFUSABLE_COMPACT:
-        word_size = 12.0
-        mean_size = 10.0
-        pron_size = 8.0
-        no_size = 11.0
+        # 페이지당 ~10쌍 (기존 ~8쌍 → 부분컬러 12쪽을 10쪽으로)
+        word_size = 13.5
+        mean_size = 11.0
+        pron_size = 8.5
+        no_size = 12.0
         pair_gap = 1.6 * mm
-        word_block_h = 12.0 * mm
-        mean_h = 6.0 * mm
-        no_w = 10 * mm
+        word_block_h = 11.2 * mm
+        mean_h = 5.6 * mm
+        no_w = 11 * mm
     else:
         word_size = 20.0
         mean_size = 18.0
@@ -1903,12 +1905,12 @@ def draw_confusable_pairs_pages(
         half_w = (table_w - no_w) / 2
 
         if first_of_section:
-            content_top = height - 52 * mm
+            content_top = height - (40 * mm if CONFUSABLE_COMPACT else 52 * mm)
             mid_y = (banner_bottom + content_top) / 2
             if subtitle_note:
-                title_size = 16.0
-                note_size = 14.0
-                line_gap = 7.2 * mm
+                title_size = 13.0 if CONFUSABLE_COMPACT else 16.0
+                note_size = 11.0 if CONFUSABLE_COMPACT else 14.0
+                line_gap = 5.5 * mm if CONFUSABLE_COMPACT else 7.2 * mm
                 draw_text(
                     c,
                     subtitle,
@@ -1930,7 +1932,7 @@ def draw_confusable_pairs_pages(
                     align="center",
                 )
             else:
-                subtitle_size = 16.0
+                subtitle_size = 13.0 if CONFUSABLE_COMPACT else 16.0
                 draw_text(
                     c,
                     subtitle,
@@ -1979,8 +1981,8 @@ def draw_confusable_pairs_pages(
             right_cx = left + no_w + half_w + half_w / 2
 
             if CONFUSABLE_COMPACT:
-                word_base = y - 3.2 * mm - word_size * 0.32
-                pron_base = y - word_block_h + 2.0 * mm
+                word_base = y - 3.0 * mm - word_size * 0.32
+                pron_base = y - word_block_h + 1.8 * mm
             else:
                 word_base = y - 5.8 * mm - word_size * 0.32
                 pron_base = y - word_block_h + 4.2 * mm
@@ -2570,10 +2572,10 @@ def build_middle_days_pdf(
     global B5, POS_MEANINGS, CONFUSABLE_COMPACT
     if kyobo:
         B5 = B5_KYOBO
+        CONFUSABLE_COMPACT = True  # 페이지당 ~10쌍 · 표만 부분컬러(≤10쪽)
     else:
         B5 = B5_BOOKK
-    # 혼동 표는 원래 밀도 유지 (부분컬러 10쪽 초과 시 생성 단계에서 안내)
-    CONFUSABLE_COMPACT = False
+        CONFUSABLE_COMPACT = False
     pron, pos = load_middle_meta()
     POS_MEANINGS = pos
 
@@ -2681,20 +2683,24 @@ def build_middle_days_pdf(
         page_no += 1
 
     meanings = {word: meaning for day_rows in days for word, meaning in day_rows}
-    conf_color_start = page_no
+    # 혼동 간지 = 흑백. 부분컬러는 표 페이지만.
     draw_confusables_divider(c, level_tag="중등", page_no=page_no)
     page_no += 1
+    if page_no % 2 == 0:
+        # 표 컬러 구간은 PDF 홀수에서 시작해야 함
+        width, height = B5
+        c.setFillColor(white)
+        c.rect(0, 0, width, height, fill=1, stroke=0)
+        draw_page_footer(c, page_no, "중등")
+        c.showPage()
+        page_no += 1
+    conf_color_start = page_no
     page_no = draw_confusables_spelling_page(
         c, level_tag="중등", page_no=page_no, meanings=meanings, pronunciations=pron
     )
     page_no = draw_confusables_derivation_page(
         c, level_tag="중등", page_no=page_no, meanings=meanings, pronunciations=pron
     )
-    if conf_color_start % 2 == 0:
-        raise RuntimeError(
-            f"혼동 간지가 PDF 짝수({conf_color_start})에서 시작했습니다. "
-            "부분컬러는 홀수 시작이어야 합니다."
-        )
     while (page_no - 1) % 2 == 1:
         width, height = B5
         c.setFillColor(white)
@@ -2706,8 +2712,13 @@ def build_middle_days_pdf(
     color_pages = conf_color_end - conf_color_start + 1
     if color_pages > 10:
         print(
-            f"[경고] 혼동 컬러 구간 {color_pages}쪽 (p.{conf_color_start}~{conf_color_end}). "
-            "교보 부분컬러 한도 10쪽 초과 - 전체 컬러 또는 흑백(빨강=회색) 검토 필요."
+            f"[경고] 혼동 표 컬러 구간 {color_pages}쪽 (p.{conf_color_start}~{conf_color_end}). "
+            "교보 부분컬러 한도 10쪽 초과."
+        )
+    elif conf_color_start % 2 == 0 or conf_color_end % 2 == 1:
+        print(
+            f"[경고] 부분컬러 홀수시작/짝수끝 조건 확인: "
+            f"p.{conf_color_start}~{conf_color_end}"
         )
 
     index_entries = build_word_index_entries(
@@ -2748,12 +2759,12 @@ def build_middle_days_pdf(
             lines += [
                 "",
                 "[주의] 교보 부분컬러 한도 10쪽 초과.",
-                "  - 혼동을 원래 밀도로 유지하면 부분컬러 불가",
-                "  - 선택: 내지 전체 컬러 / 흑백만(빨강은 회색) / 혼동만 다시 압축",
+                "  - 혼동 표 밀도/쪽수를 더 줄여야 함",
             ]
         else:
             lines += [
                 "",
+                "혼동 간지 = 흑백 (부분컬러에 포함하지 않음)",
                 "Step2: 내지인쇄 = 흑백",
                 "Step5 요청 사항 예시:",
                 f"p.{conf_color_start}(홀수페이지)~p.{conf_color_end}(짝수페이지) 부분 컬러 적용 요청",
