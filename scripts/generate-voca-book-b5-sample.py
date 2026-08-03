@@ -1707,6 +1707,68 @@ def format_confusable_pair_cells(
     return la, ma, lb, mb
 
 
+def draw_confusables_howto_page(
+    c: canvas.Canvas,
+    *,
+    level_tag: str,
+    page_no: int,
+) -> None:
+    """혼동 어휘 읽기 안내 (흑백). 간지 바로 앞 — 빈 쪽 대신 배치."""
+    width, height = B5
+    c.setFillColor(white)
+    c.rect(0, 0, width, height, fill=1, stroke=0)
+    draw_day_banner(c, "HOW TO", height - BANNER_Y)
+
+    margin_left, margin_right = page_margins_x(page_no)
+    left = margin_left
+    right = width - margin_right
+    max_w = right - left
+
+    draw_text(
+        c,
+        "혼동 어휘 보는 법",
+        width / 2,
+        height - 48 * mm,
+        font=FONT_BOLD,
+        size=18,
+        color=INK,
+        align="center",
+    )
+
+    lines = [
+        "왼쪽과 오른쪽 단어를 나란히 비교하세요.",
+        "철자가 다른 글자만 빨강으로 표시됩니다. (컬러 인쇄)",
+        "",
+        "① 철자가 비슷한 단어",
+        "    예: compete / complete — 비슷한 철자, 다른 뜻",
+        "",
+        "② 품사만 다른 단어",
+        "    예: threat(명) / threaten(동) — 같은 어근, 다른 품사",
+        "",
+        "테스트·연습에서 헷갈렸던 단어를 여기서 다시 정리하세요.",
+    ]
+    y = height - 62 * mm
+    for line in lines:
+        if not line:
+            y -= 5 * mm
+            continue
+        is_head = line.startswith("①") or line.startswith("②")
+        draw_text(
+            c,
+            line,
+            left,
+            y,
+            font=FONT_BOLD if is_head else FONT_REGULAR,
+            size=12.5 if is_head else 11.5,
+            color=INK,
+            max_width=max_w,
+        )
+        y -= 8.2 * mm if is_head else 7.2 * mm
+
+    draw_page_footer(c, page_no, level_tag)
+    c.showPage()
+
+
 def draw_confusables_divider(
     c: canvas.Canvas,
     *,
@@ -2684,17 +2746,18 @@ def build_middle_days_pdf(
         page_no += 1
 
     meanings = {word: meaning for day_rows in days for word, meaning in day_rows}
-    # 혼동 간지 = 흑백. 부분컬러는 표 페이지만.
-    draw_confusables_divider(c, level_tag="중등", page_no=page_no)
-    page_no += 1
+    # 흑백: 안내(홀수) → 간지(짝수) → 표 컬러는 다음 홀수부터
     if page_no % 2 == 0:
-        # 표 컬러 구간은 PDF 홀수에서 시작해야 함
         width, height = B5
         c.setFillColor(white)
         c.rect(0, 0, width, height, fill=1, stroke=0)
         draw_page_footer(c, page_no, "중등")
         c.showPage()
         page_no += 1
+    draw_confusables_howto_page(c, level_tag="중등", page_no=page_no)
+    page_no += 1
+    draw_confusables_divider(c, level_tag="중등", page_no=page_no)
+    page_no += 1
     conf_color_start = page_no
     page_no = draw_confusables_spelling_page(
         c, level_tag="중등", page_no=page_no, meanings=meanings, pronunciations=pron
@@ -2765,7 +2828,8 @@ def build_middle_days_pdf(
         else:
             lines += [
                 "",
-                "혼동 간지 = 흑백 (부분컬러에 포함하지 않음)",
+                "혼동 안내·간지 = 흑백 (부분컬러에 포함하지 않음)",
+                "배치: 안내(홀수) → 간지(짝수) → 표(홀수~짝수 컬러)",
                 "Step2: 내지인쇄 = 흑백",
                 "Step5 요청 사항 예시:",
                 f"p.{conf_color_start}(홀수페이지)~p.{conf_color_end}(짝수페이지) 부분 컬러 적용 요청",
