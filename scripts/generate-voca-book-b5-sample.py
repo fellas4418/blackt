@@ -1728,42 +1728,94 @@ def draw_confusables_howto_page(
         c,
         "혼동 어휘 보는 법",
         width / 2,
-        height - 48 * mm,
+        height - 46 * mm,
         font=FONT_BOLD,
-        size=18,
+        size=20,
         color=INK,
         align="center",
     )
 
-    lines = [
-        "왼쪽과 오른쪽 단어를 나란히 비교하세요.",
-        "철자가 다른 글자만 빨강으로 표시됩니다. (컬러 인쇄)",
-        "",
-        "① 철자가 비슷한 단어",
-        "    예: compete / complete — 비슷한 철자, 다른 뜻",
-        "",
-        "② 품사만 다른 단어",
-        "    예: threat(명) / threaten(동) — 같은 어근, 다른 품사",
-        "",
-        "테스트·연습에서 헷갈렸던 단어를 여기서 다시 정리하세요.",
-    ]
-    y = height - 62 * mm
+    lead = (
+        "왼쪽과 오른쪽 단어를 나란히 비교하세요. "
+        "철자가 다른 글자만 빨강으로 표시됩니다. "
+        "테스트·연습에서 헷갈렸던 단어를 여기서 다시 정리하세요."
+    )
+    # 본문 리드 — 2~3줄로 감싸기
+    y = height - 58 * mm
+    words = lead.split(" ")
+    lines: list[str] = []
+    cur = ""
+    for w in words:
+        trial = f"{cur} {w}".strip() if cur else w
+        if pdfmetrics.stringWidth(trial, FONT_REGULAR, 13.5) <= max_w:
+            cur = trial
+        else:
+            if cur:
+                lines.append(cur)
+            cur = w
+    if cur:
+        lines.append(cur)
     for line in lines:
-        if not line:
-            y -= 5 * mm
-            continue
-        is_head = line.startswith("①") or line.startswith("②")
-        draw_text(
-            c,
-            line,
-            left,
-            y,
-            font=FONT_BOLD if is_head else FONT_REGULAR,
-            size=12.5 if is_head else 11.5,
-            color=INK,
-            max_width=max_w,
-        )
-        y -= 8.2 * mm if is_head else 7.2 * mm
+        draw_text(c, line, left, y, font=FONT_REGULAR, size=13.5, color=INK, max_width=max_w)
+        y -= 7.8 * mm
+
+    y -= 6 * mm
+    draw_text(c, "예시", left, y, font=FONT_BOLD, size=15, color=INK)
+    y -= 9 * mm
+    draw_text(
+        c,
+        "compete / complete  →  가운데 l 유무가 다릅니다.",
+        left,
+        y,
+        font=FONT_REGULAR,
+        size=13,
+        color=SLATE,
+        max_width=max_w,
+    )
+    y -= 7.5 * mm
+    draw_text(
+        c,
+        "past / paste  →  끝의 e 유무가 다릅니다.",
+        left,
+        y,
+        font=FONT_REGULAR,
+        size=13,
+        color=SLATE,
+        max_width=max_w,
+    )
+
+    y -= 12 * mm
+    draw_text(
+        c,
+        "혼동 어휘는 아래 두 종류로 나뉩니다.",
+        left,
+        y,
+        font=FONT_BOLD,
+        size=14.5,
+        color=INK,
+        max_width=max_w,
+    )
+    y -= 11 * mm
+
+    blocks = [
+        (
+            "① 철자가 비슷한 단어",
+            "비슷한 철자인데 뜻이 다른 쌍입니다.",
+            "예: compete(경쟁하다) / complete(완성하다)",
+        ),
+        (
+            "② 품사만 다른 단어",
+            "같은 어근인데 품사(명·동·형·부)만 다른 쌍입니다.",
+            "예: threat(명) / threaten(동)",
+        ),
+    ]
+    for title, desc, ex in blocks:
+        draw_text(c, title, left, y, font=FONT_BOLD, size=14, color=INK, max_width=max_w)
+        y -= 8 * mm
+        draw_text(c, desc, left + 2 * mm, y, font=FONT_REGULAR, size=12.5, color=INK, max_width=max_w - 2 * mm)
+        y -= 7.2 * mm
+        draw_text(c, ex, left + 2 * mm, y, font=FONT_REGULAR, size=12.5, color=SLATE, max_width=max_w - 2 * mm)
+        y -= 12 * mm
 
     draw_page_footer(c, page_no, level_tag)
     c.showPage()
