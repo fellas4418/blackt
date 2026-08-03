@@ -113,6 +113,7 @@ def draw_divider_mark(c: canvas.Canvas, width: float, height: float) -> None:
 
 FONT_REGULAR = "Pretendard"
 FONT_BOLD = "PretendardBold"
+FONT_BLACK = "PretendardBlack"
 FONT_IPA = "Pretendard"  # IPA도 Pretendard (중등 메타 IPA 글리프 전부 포함)
 FONT_IPA_BOLD = "PretendardBold"
 FONT_LOGO = "BlackHanSans"  # Trigger 워드마크와 맞춘 디스플레이 서체
@@ -584,6 +585,7 @@ def register_fonts() -> None:
     brand_dir = ROOT / "fonts"  # 앱과 동일한 Pretendard (브랜드 통일)
     pdfmetrics.registerFont(TTFont(FONT_REGULAR, str(brand_dir / "Pretendard-Regular.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_BOLD, str(brand_dir / "Pretendard-Bold.ttf")))
+    pdfmetrics.registerFont(TTFont(FONT_BLACK, str(brand_dir / "Pretendard-Black.ttf")))
     pdfmetrics.registerFont(TTFont(FONT_LOGO, str(brand_dir / "BlackHanSans-Regular.ttf")))
 
 
@@ -1787,18 +1789,15 @@ def draw_confusables_howto_page(
             out.append(cur)
         return out
 
-    # 리드 문단 — 위·아래 간격 넓게
+    # 리드 문단 — 두 줄 사이 간격은 이전의 절반
     para1 = "테스트·연습에서 헷갈렸던 단어를 여기서 다시 정리하세요."
     para2 = "철자가 다른 글자만 빨강으로 표시됩니다."
     y = height - 58 * mm
     y -= 4 * mm  # 제목 아래 여유
-    for line in wrap_lines(para1, FONT_REGULAR, 13.5):
-        draw_text(c, line, left, y, font=FONT_REGULAR, size=13.5, color=INK, max_width=max_w)
-        y -= 9.2 * mm
-    y -= 5 * mm
-    for line in wrap_lines(para2, FONT_REGULAR, 13.5):
-        draw_text(c, line, left, y, font=FONT_REGULAR, size=13.5, color=INK, max_width=max_w)
-        y -= 9.2 * mm
+    draw_text(c, para1, left, y, font=FONT_REGULAR, size=13.5, color=INK, max_width=max_w)
+    y -= 7.1 * mm  # 기존 ~14.2mm의 절반
+    draw_text(c, para2, left, y, font=FONT_REGULAR, size=13.5, color=INK, max_width=max_w)
+    y -= 9.2 * mm
     y -= 8 * mm  # 리드 아래 여유
 
     draw_text(c, "[예시]", left, y, font=FONT_BOLD, size=15, color=INK)
@@ -1858,7 +1857,7 @@ def draw_confusables_howto_page(
         ),
     ]
     for title, desc, ex in blocks:
-        draw_text(c, title, left, y, font=FONT_BOLD, size=14, color=INK, max_width=max_w)
+        draw_text(c, title, left, y, font=FONT_BLACK, size=14.5, color=INK, max_width=max_w)
         y -= 8.5 * mm
         draw_text(c, desc, left + 2 * mm, y, font=FONT_REGULAR, size=12.5, color=INK, max_width=max_w - 2 * mm)
         y -= 7.5 * mm
