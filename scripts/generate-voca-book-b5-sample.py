@@ -1724,70 +1724,108 @@ def draw_confusables_howto_page(
     right = width - margin_right
     max_w = right - left
 
-    draw_text(
-        c,
-        "혼동 어휘 보는 법",
-        width / 2,
-        height - 46 * mm,
-        font=FONT_BOLD,
-        size=20,
-        color=INK,
-        align="center",
-    )
+    # 가운데 희미한 로고 (크게)
+    logo_w = min(max_w * 0.92, 140 * mm)
+    logo_h = logo_w * (342 / 820)
+    logo_x = (width - logo_w) / 2
+    logo_y = height * 0.38 - logo_h / 2
+    try:
+        img = PILImage.open(LOGO_PATH).convert("RGBA")
+        alpha = img.split()[3]
+        alpha = alpha.point(lambda a: int(a * 0.07))
+        img.putalpha(alpha)
+        buf = BytesIO()
+        img.save(buf, format="PNG")
+        buf.seek(0)
+        c.drawImage(
+            ImageReader(buf),
+            logo_x,
+            logo_y,
+            width=logo_w,
+            height=logo_h,
+            mask="auto",
+            preserveAspectRatio=True,
+        )
+    except Exception:
+        pass
 
-    lead = (
+    title = "혼동 어휘 보는 법"
+    title_size = 20
+    title_y = height - 46 * mm
+    tw = pdfmetrics.stringWidth(title, FONT_BOLD, title_size)
+    draw_text(c, title, width / 2, title_y, font=FONT_BOLD, size=title_size, color=INK, align="center")
+    c.setStrokeColor(INK)
+    c.setLineWidth(1.35)
+    c.line(width / 2 - tw / 2, title_y - 2.2 * mm, width / 2 + tw / 2, title_y - 2.2 * mm)
+
+    def wrap_lines(text: str, font: str, size: float) -> list[str]:
+        words = text.split(" ")
+        out: list[str] = []
+        cur = ""
+        for w in words:
+            trial = f"{cur} {w}".strip() if cur else w
+            if pdfmetrics.stringWidth(trial, font, size) <= max_w:
+                cur = trial
+            else:
+                if cur:
+                    out.append(cur)
+                cur = w
+        if cur:
+            out.append(cur)
+        return out
+
+    # 리드 문단 — 위·아래 간격 넓게, 두 덩어리
+    para1 = (
         "왼쪽과 오른쪽 단어를 나란히 비교하세요. "
-        "철자가 다른 글자만 빨강으로 표시됩니다. "
-        "테스트·연습에서 헷갈렸던 단어를 여기서 다시 정리하세요."
+        "철자가 다른 글자만 빨강으로 표시됩니다."
     )
-    # 본문 리드 — 2~3줄로 감싸기
+    para2 = "테스트·연습에서 헷갈렸던 단어를 여기서 다시 정리하세요."
     y = height - 58 * mm
-    words = lead.split(" ")
-    lines: list[str] = []
-    cur = ""
-    for w in words:
-        trial = f"{cur} {w}".strip() if cur else w
-        if pdfmetrics.stringWidth(trial, FONT_REGULAR, 13.5) <= max_w:
-            cur = trial
-        else:
-            if cur:
-                lines.append(cur)
-            cur = w
-    if cur:
-        lines.append(cur)
-    for line in lines:
+    y -= 4 * mm  # 제목 아래 여유
+    for line in wrap_lines(para1, FONT_REGULAR, 13.5):
         draw_text(c, line, left, y, font=FONT_REGULAR, size=13.5, color=INK, max_width=max_w)
-        y -= 7.8 * mm
+        y -= 9.2 * mm
+    y -= 5 * mm
+    for line in wrap_lines(para2, FONT_REGULAR, 13.5):
+        draw_text(c, line, left, y, font=FONT_REGULAR, size=13.5, color=INK, max_width=max_w)
+        y -= 9.2 * mm
+    y -= 8 * mm  # 리드 아래 여유
+
+    draw_text(c, "예시", left, y, font=FONT_BOLD, size=15, color=INK)
+    y -= 10 * mm
+
+    examples = [
+        "compete / complete  →  가운데 l 유무가 다릅니다.",
+        "past / paste  →  끝의 e 유무가 다릅니다.",
+    ]
+    box_pad_x = 3.2 * mm
+    box_pad_y = 2.8 * mm
+    ex_size = 13.0
+    for ex in examples:
+        text_w = min(max_w, pdfmetrics.stringWidth(ex, FONT_REGULAR, ex_size) + box_pad_x * 2)
+        box_h = 9.5 * mm
+        c.setStrokeColor(LINE)
+        c.setLineWidth(0.9)
+        c.setFillColor(LIGHT)
+        c.roundRect(left, y - box_pad_y, text_w, box_h, 1.6 * mm, fill=1, stroke=1)
+        draw_text(
+            c,
+            ex,
+            left + box_pad_x,
+            y + 1.2 * mm,
+            font=FONT_REGULAR,
+            size=ex_size,
+            color=INK,
+            max_width=text_w - box_pad_x * 2,
+        )
+        y -= box_h + 4.5 * mm
 
     y -= 6 * mm
-    draw_text(c, "예시", left, y, font=FONT_BOLD, size=15, color=INK)
-    y -= 9 * mm
+    check = "✓  "
+    split_line = "혼동 어휘는 아래 두 종류로 나뉩니다."
     draw_text(
         c,
-        "compete / complete  →  가운데 l 유무가 다릅니다.",
-        left,
-        y,
-        font=FONT_REGULAR,
-        size=13,
-        color=SLATE,
-        max_width=max_w,
-    )
-    y -= 7.5 * mm
-    draw_text(
-        c,
-        "past / paste  →  끝의 e 유무가 다릅니다.",
-        left,
-        y,
-        font=FONT_REGULAR,
-        size=13,
-        color=SLATE,
-        max_width=max_w,
-    )
-
-    y -= 12 * mm
-    draw_text(
-        c,
-        "혼동 어휘는 아래 두 종류로 나뉩니다.",
+        check + split_line,
         left,
         y,
         font=FONT_BOLD,
@@ -1795,7 +1833,7 @@ def draw_confusables_howto_page(
         color=INK,
         max_width=max_w,
     )
-    y -= 11 * mm
+    y -= 12 * mm
 
     blocks = [
         (
@@ -1811,9 +1849,9 @@ def draw_confusables_howto_page(
     ]
     for title, desc, ex in blocks:
         draw_text(c, title, left, y, font=FONT_BOLD, size=14, color=INK, max_width=max_w)
-        y -= 8 * mm
+        y -= 8.5 * mm
         draw_text(c, desc, left + 2 * mm, y, font=FONT_REGULAR, size=12.5, color=INK, max_width=max_w - 2 * mm)
-        y -= 7.2 * mm
+        y -= 7.5 * mm
         draw_text(c, ex, left + 2 * mm, y, font=FONT_REGULAR, size=12.5, color=SLATE, max_width=max_w - 2 * mm)
         y -= 12 * mm
 
