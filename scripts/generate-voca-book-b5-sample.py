@@ -2570,10 +2570,10 @@ def build_middle_days_pdf(
     global B5, POS_MEANINGS, CONFUSABLE_COMPACT
     if kyobo:
         B5 = B5_KYOBO
-        CONFUSABLE_COMPACT = True
     else:
         B5 = B5_BOOKK
-        CONFUSABLE_COMPACT = False
+    # 혼동 표는 원래 밀도 유지 (부분컬러 10쪽 초과 시 생성 단계에서 안내)
+    CONFUSABLE_COMPACT = False
     pron, pos = load_middle_meta()
     POS_MEANINGS = pos
 
@@ -2703,10 +2703,11 @@ def build_middle_days_pdf(
         c.showPage()
         page_no += 1
     conf_color_end = page_no - 1
-    if conf_color_end - conf_color_start + 1 > 10:
-        raise RuntimeError(
-            f"혼동 컬러 구간이 {conf_color_end - conf_color_start + 1}쪽입니다. "
-            "교보 부분컬러는 최대 10쪽입니다."
+    color_pages = conf_color_end - conf_color_start + 1
+    if color_pages > 10:
+        print(
+            f"[경고] 혼동 컬러 구간 {color_pages}쪽 (p.{conf_color_start}~{conf_color_end}). "
+            "교보 부분컬러 한도 10쪽 초과 - 전체 컬러 또는 흑백(빨강=회색) 검토 필요."
         )
 
     index_entries = build_word_index_entries(
@@ -2733,29 +2734,39 @@ def build_middle_days_pdf(
 
     if kyobo and not include_covers:
         note = OUT_MIDDLE / "중등_교보_부분컬러_안내.txt"
-        note.write_text(
-            "\n".join(
-                [
-                    "교보 바로출판 POD — 부분 컬러 요청 안내",
-                    "",
-                    f"내지 파일: {out_path.name}",
-                    f"판형: 188×254 mm (교보 B5/46배판)",
-                    f"총 페이지: {page_no - 1}쪽",
-                    "",
-                    "Step2: 내지인쇄 = 흑백",
-                    "Step5 요청 사항 예시:",
-                    f"p.{conf_color_start}(홀수페이지)~p.{conf_color_end}(짝수페이지) 부분 컬러 적용 요청",
-                    "",
-                    "※ PDF 파일 페이지 순서 기준 (인쇄 쪽번호 아님)",
-                    "※ 표지는 전개도 파일(중등_표지_교보.pdf)을 따로 업로드",
-                ]
-            ),
-            encoding="utf-8",
-        )
+        color_pages = conf_color_end - conf_color_start + 1
+        lines = [
+            "교보 바로출판 POD — 부분 컬러 요청 안내",
+            "",
+            f"내지 파일: {out_path.name}",
+            f"판형: 188×254 mm (교보 B5/46배판)",
+            f"총 페이지: {page_no - 1}쪽",
+            "",
+            f"혼동 구간: p.{conf_color_start}~p.{conf_color_end} ({color_pages}쪽)",
+        ]
+        if color_pages > 10:
+            lines += [
+                "",
+                "[주의] 교보 부분컬러 한도 10쪽 초과.",
+                "  - 혼동을 원래 밀도로 유지하면 부분컬러 불가",
+                "  - 선택: 내지 전체 컬러 / 흑백만(빨강은 회색) / 혼동만 다시 압축",
+            ]
+        else:
+            lines += [
+                "",
+                "Step2: 내지인쇄 = 흑백",
+                "Step5 요청 사항 예시:",
+                f"p.{conf_color_start}(홀수페이지)~p.{conf_color_end}(짝수페이지) 부분 컬러 적용 요청",
+            ]
+        lines += [
+            "",
+            "※ PDF 파일 페이지 순서 기준 (인쇄 쪽번호 아님)",
+            "※ 표지는 전개도 파일(중등_표지_교보.pdf)을 따로 업로드",
+        ]
+        note.write_text("\n".join(lines), encoding="utf-8")
         print(f"부분컬러 안내: {note}")
         print(
-            f"부분컬러 요청: p.{conf_color_start}(홀수)~p.{conf_color_end}(짝수) "
-            f"({conf_color_end - conf_color_start + 1}쪽)"
+            f"혼동 구간: p.{conf_color_start}~p.{conf_color_end} ({color_pages}쪽)"
         )
 
     return out_path
