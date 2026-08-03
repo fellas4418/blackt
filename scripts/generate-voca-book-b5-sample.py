@@ -798,7 +798,7 @@ def draw_colophon_page(
         ("발행처", "플레이온"),
         ("ISBN", "979-11-993384-0-1"),
         ("이메일", "ohryee@gmail.com"),
-        ("값", "18,000원"),
+        ("값", "16,000원"),
     ]
     label_w = 28 * mm
     for label, value in rows:
