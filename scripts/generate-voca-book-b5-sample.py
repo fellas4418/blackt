@@ -2521,9 +2521,36 @@ def draw_test_page(
     table_left = margin_left
     table_right = width - margin_right
     fold_x = (table_left + table_right) / 2
-    table_top = height - TABLE_TOP_TIGHT
-    table_bottom = TABLE_BOTTOM
-    header_h = 8 * mm
+
+    # 랜덤 40칸 등 고밀도: 안내 간격·헤더·하단을 줄여 행 높이 확보 (쪽수 증가 없음)
+    dense = len(rows) >= 32
+    if dense:
+        subtitle_y = 28.5 * mm
+        rule_y = 31.5 * mm
+        table_top = height - 33 * mm
+        table_bottom = 20 * mm
+        header_h = 6.2 * mm
+        guide_size = 8.5
+        header_size = 8.5
+        check_size = 7.5
+        word_size = 8.8
+        index_size = 6.0
+        y_header_pad = 1.6 * mm
+        blank_line_pad = 1.6 * mm
+    else:
+        subtitle_y = SUBTITLE_Y
+        rule_y = RULE_Y
+        table_top = height - TABLE_TOP_TIGHT
+        table_bottom = TABLE_BOTTOM
+        header_h = 8 * mm
+        guide_size = 9.5
+        header_size = 10.2
+        check_size = 9.0
+        word_size = 10.5
+        index_size = 7.0
+        y_header_pad = 2.2 * mm
+        blank_line_pad = 2.3 * mm
+
     row_h = (table_top - table_bottom - header_h) / len(rows)
 
     title = f"{level_tag} · DAY {day_no:02d}"
@@ -2544,14 +2571,14 @@ def draw_test_page(
         c,
         "바깥쪽 정답 면을 가운데 세로선에서 뒤로 접으세요",
         width / 2,
-        height - SUBTITLE_Y,
-        size=9.5,
+        height - subtitle_y,
+        size=guide_size,
         color=SLATE,
         align="center",
     )
     c.setStrokeColor(NAVY)
     c.setLineWidth(1.0)
-    c.line(table_left, height - RULE_Y, table_right, height - RULE_Y)
+    c.line(table_left, height - rule_y, table_right, height - rule_y)
 
     c.setFillColor(NAVY)
     c.rect(table_left, table_top - header_h, fold_x - table_left, header_h, fill=1, stroke=0)
@@ -2562,14 +2589,14 @@ def draw_test_page(
     answer_cols = [7 * mm, 33 * mm, answer_w - 40 * mm]
     test_cols = [24 * mm, 30 * mm, test_w - 54 * mm]
 
-    y_header = table_top - header_h + 2.2 * mm
+    y_header = table_top - header_h + y_header_pad
     draw_text(
         c,
         "단어",
         table_left + answer_cols[0] + answer_cols[1] / 2,
         y_header,
         font=FONT_BOLD,
-        size=10.2,
+        size=header_size,
         color=white,
         align="center",
     )
@@ -2579,7 +2606,7 @@ def draw_test_page(
         table_left + answer_cols[0] + answer_cols[1] + answer_cols[2] / 2,
         y_header,
         font=FONT_BOLD,
-        size=10.2,
+        size=header_size,
         color=white,
         align="center",
     )
@@ -2590,7 +2617,7 @@ def draw_test_page(
             fold_x + test_cols[0] * ratio,
             y_header,
             font=FONT_BOLD,
-            size=9.0,
+            size=check_size,
             color=white,
             align="center",
             max_width=test_cols[0] / 3 - 1 * mm,
@@ -2601,7 +2628,7 @@ def draw_test_page(
         fold_x + test_cols[0] + test_cols[1] / 2,
         y_header,
         font=FONT_BOLD,
-        size=10.2,
+        size=header_size,
         color=white,
         align="center",
     )
@@ -2611,7 +2638,7 @@ def draw_test_page(
         fold_x + test_cols[0] + test_cols[1] + test_cols[2] / 2,
         y_header,
         font=FONT_BOLD,
-        size=10.2,
+        size=header_size,
         color=white,
         align="center",
         max_width=test_cols[2] - 2 * mm,
@@ -2625,15 +2652,23 @@ def draw_test_page(
             c.setFillColor(LIGHT)
             c.rect(table_left, next_y, table_right - table_left, row_h, fill=1, stroke=0)
 
-        baseline = next_y + row_h / 2 - 3.0
-        draw_text(c, str(index), table_left + answer_cols[0] / 2, baseline, size=7.0, color=SLATE, align="center")
+        baseline = next_y + row_h / 2 - (word_size * 0.35)
+        draw_text(
+            c,
+            str(index),
+            table_left + answer_cols[0] / 2,
+            baseline,
+            size=index_size,
+            color=SLATE,
+            align="center",
+        )
         draw_text(
             c,
             word,
             table_left + answer_cols[0] + 1.5 * mm,
             baseline,
             font=FONT_BOLD,
-            size=10.5,
+            size=word_size,
             max_width=answer_cols[1] - 3 * mm,
         )
         draw_text(
@@ -2641,7 +2676,7 @@ def draw_test_page(
             POS_MEANINGS.get(word, meaning),
             table_left + answer_cols[0] + answer_cols[1] + 1.5 * mm,
             baseline,
-            size=10.5,
+            size=word_size,
             max_width=answer_cols[2] - 3 * mm,
         )
 
@@ -2652,14 +2687,14 @@ def draw_test_page(
             fold_x + test_cols[0] + 1.5 * mm,
             baseline,
             font=FONT_BOLD,
-            size=10.5,
+            size=word_size,
             max_width=test_cols[1] - 3 * mm,
         )
         blank_left = fold_x + test_cols[0] + test_cols[1] + 1.5 * mm
         blank_right = table_right - 1.5 * mm
         c.setStrokeColor(LINE)
         c.setLineWidth(0.4)
-        c.line(blank_left, next_y + 2.3 * mm, blank_right, next_y + 2.3 * mm)
+        c.line(blank_left, next_y + blank_line_pad, blank_right, next_y + blank_line_pad)
         y = next_y
 
     c.setStrokeColor(LINE)
@@ -2695,7 +2730,6 @@ def draw_test_page(
 
     draw_page_footer(c, page_no, level_tag)
     c.showPage()
-
 
 def draw_practice_page(
     c: canvas.Canvas,
