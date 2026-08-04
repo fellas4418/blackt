@@ -42,9 +42,6 @@ ORANGE = HexColor("#FF9900")
 PALE = HexColor("#EEF1F4")
 LOGO_SHADOW = HexColor("#636262")  # trigger-logo-v2 그림자 샘플
 
-# 책등 글씨 — 중등(~16.7mm) 기준. 두꺼운 책등에서도 글자만 키우지 않음.
-SPINE_TITLE_REF_MM = 16.7
-
 
 def level_accent(level: str):
     """레벨 배지·책등 레벨명 색. 중등=주황 / 고등=네온블루 / 토익=네온그린."""
@@ -335,9 +332,8 @@ def draw_spine(
     title_prefix = "TRIGGER VOCA  ·  "
     title_level = level
     title = title_prefix + title_level
-    # 중등 책등(~16.7mm)과 같은 글씨 크기. 책등이 두꺼워도 글자는 키우지 않음.
-    ref_band_mm = max(SPINE_TITLE_REF_MM - 2.0, 4.0)
-    title_size = ref_band_mm * (72.0 / 25.4) / 0.72 * (1.0 / 2.0)
+    # 책등 두께에 비례해 글씨 크기 결정 (중등 16.7mm 대비 고등 27.5mm면 약 1.65배)
+    title_size = (band / mm) * (72.0 / 25.4) / 0.72 * (1.0 / 2.0)
     end_margin = 10 * mm
     gap = 2.5 * mm
 
@@ -345,9 +341,8 @@ def draw_spine(
     mark_x = -(h / 2) + end_margin
     avail_end = h / 2 - end_margin
     while True:
-        # 대문자 높이 ≈ 0.72em — 크롭된 T가 이 높이에 맞춤 (책등 폭을 다 채우지 않음)
+        # 대문자 높이 ≈ 0.72em — T 마크는 제목 글씨에 맞춤
         mark_size = title_size * 0.72 * (25.4 / 72.0) * mm
-        mark_size = min(mark_size, band * 0.72)
         avail = avail_end - (mark_x + mark_size + gap)
         if title_size <= 8 or pdfmetrics.stringWidth(title, FONT_BOLD, title_size) <= avail:
             break
@@ -470,7 +465,7 @@ def build_cover_pdf(
                     "",
                     f"앞표지: Trigger 로고 + VOCA · {level} 배지(좌상, 중등=주황/고등=네온블루/토익=네온그린) · T마크(우하) · DAY 바",
                     "뒷표지: Just Follow(40pt) + QR · T마크(우하)",
-                    f"책등: T마크(왼쪽 끝) + TRIGGER VOCA · {level} (글씨 크기는 중등 책등 기준 고정)",
+                    f"책등: T마크(왼쪽 끝) + TRIGGER VOCA · {level} (글씨=책등 두께 비례)",
                     "",
                     "표지 PDF 크기(도련 3mm 포함):",
                     f"  가로 {total_w / mm:.1f} mm = 3 + {trim_w} + {spine} + {trim_w} + 3",
