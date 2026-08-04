@@ -119,8 +119,9 @@ FONT_IPA_BOLD = "PretendardBold"
 FONT_LOGO = "BlackHanSans"  # Trigger 워드마크와 맞춘 디스플레이 서체
 # 브랜드 색 — 트리거 블랙: 검정 배경 + 흰 글씨, 흑백 인쇄에서도 구분되는 무채색
 NAVY = HexColor("#0A0A0A")  # 브랜드 블랙 (헤더 바·배너·표지)
-NEON_BLUE = HexColor("#00F3FF")  # 앱 네온블루 — 표지·혼동 간지 포인트
-ORANGE = HexColor("#FF9900")  # 부가 포인트 — 레벨 배지 테두리·슬로건 마침표
+NEON_BLUE = HexColor("#00F3FF")  # 앱 네온블루 — 고등 배지·혼동 간지 포인트
+NEON_GREEN = HexColor("#39FF14")  # 토익 레벨 배지
+ORANGE = HexColor("#FF9900")  # 중등 레벨 배지 테두리·슬로건 마침표
 SLATE = HexColor("#5C5C5C")
 PALE = HexColor("#EEF1F4")
 LIGHT = HexColor("#F7F7F7")  # 줄무늬 배경
@@ -929,7 +930,9 @@ def draw_cover(
 
     badge_w, badge_h = 26 * mm, 12 * mm
     badge_x, badge_y = 18 * mm, height - 18 * mm - badge_h
-    badge_stroke = ORANGE if level_ko == "중등" else NEON_BLUE
+    badge_stroke = ORANGE if level_ko == "중등" else (
+        NEON_GREEN if level_ko in ("토익", "TOEIC") else NEON_BLUE
+    )
     c.setStrokeColor(badge_stroke)
     c.setLineWidth(1.2)
     c.roundRect(badge_x, badge_y, badge_w, badge_h, 2 * mm, fill=0, stroke=1)

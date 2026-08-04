@@ -37,9 +37,23 @@ FONT_LOGO = "BlackHanSans"  # Trigger 워드마크와 맞춘 디스플레이 서
 
 NAVY = HexColor("#0A0A0A")
 NEON_BLUE = HexColor("#00F3FF")
+NEON_GREEN = HexColor("#39FF14")  # 토익 배지(앱 --neon-green)
 ORANGE = HexColor("#FF9900")
 PALE = HexColor("#EEF1F4")
-LOGO_SHADOW = HexColor("#636262")  # trigger-logo-v2 그림자 실플
+LOGO_SHADOW = HexColor("#636262")  # trigger-logo-v2 그림자 샘플
+
+# 책등 글씨 — 중등(~16.7mm) 기준. 두꺼운 책등에서도 글자만 키우지 않음.
+SPINE_TITLE_REF_MM = 16.7
+
+
+def level_accent(level: str):
+    """레벨 배지·책등 레벨명 색. 중등=주황 / 고등=네온블루 / 토익=네온그린."""
+    if level in ("고등", "HIGH", "high"):
+        return NEON_BLUE
+    if level in ("토익", "TOEIC", "toeic"):
+        return NEON_GREEN
+    return ORANGE
+
 
 # B5 재단 사이즈 — 기본 부크크. --kyobo 시 188×254.
 PAGE_W_BOOKK = 182 * mm
@@ -184,7 +198,7 @@ def draw_front_panel(
 
     badge_w, badge_h = 26 * mm, 12 * mm
     badge_x, badge_y = 18 * mm, h - 18 * mm - badge_h
-    c.setStrokeColor(ORANGE)
+    c.setStrokeColor(level_accent(level))
     c.setLineWidth(1.2)
     c.roundRect(badge_x, badge_y, badge_w, badge_h, 2 * mm, fill=0, stroke=1)
     c.setFillColor(white)
@@ -321,8 +335,9 @@ def draw_spine(
     title_prefix = "TRIGGER VOCA  ·  "
     title_level = level
     title = title_prefix + title_level
-    # 제목은 책등 폭의 1/2, 로고는 제목 대문자와 같은 시각 높이(여백 크롭)
-    title_size = (band / mm) * (72.0 / 25.4) / 0.72 * (1.0 / 2.0)
+    # 중등 책등(~16.7mm)과 같은 글씨 크기. 책등이 두꺼워도 글자는 키우지 않음.
+    ref_band_mm = max(SPINE_TITLE_REF_MM - 2.0, 4.0)
+    title_size = ref_band_mm * (72.0 / 25.4) / 0.72 * (1.0 / 2.0)
     end_margin = 10 * mm
     gap = 2.5 * mm
 
@@ -330,8 +345,9 @@ def draw_spine(
     mark_x = -(h / 2) + end_margin
     avail_end = h / 2 - end_margin
     while True:
-        # 대문자 높이 ≈ 0.72em — 크롭된 T가 이 높이에 맞춤
-        mark_size = min(band, title_size * 0.72 * (25.4 / 72.0) * mm)
+        # 대문자 높이 ≈ 0.72em — 크롭된 T가 이 높이에 맞춤 (책등 폭을 다 채우지 않음)
+        mark_size = title_size * 0.72 * (25.4 / 72.0) * mm
+        mark_size = min(mark_size, band * 0.72)
         avail = avail_end - (mark_x + mark_size + gap)
         if title_size <= 8 or pdfmetrics.stringWidth(title, FONT_BOLD, title_size) <= avail:
             break
@@ -349,7 +365,7 @@ def draw_spine(
     c.setFont(FONT_BOLD, title_size)
     c.setFillColor(white)
     c.drawString(x, baseline, title_prefix)
-    c.setFillColor(ORANGE)
+    c.setFillColor(level_accent(level))
     c.drawString(x + prefix_w, baseline, title_level)
     c.restoreState()
 
@@ -452,9 +468,9 @@ def build_cover_pdf(
                     f"내지 페이지: {pages}쪽 → 책등 {spine}mm",
                     "  (교보 계산기 값이면 --spine 으로 그 값 사용)",
                     "",
-                    f"앞표지: Trigger 로고 + VOCA · {level} 배지(좌상) · T마크(우하) · DAY 바",
+                    f"앞표지: Trigger 로고 + VOCA · {level} 배지(좌상, 중등=주황/고등=네온블루/토익=네온그린) · T마크(우하) · DAY 바",
                     "뒷표지: Just Follow(40pt) + QR · T마크(우하)",
-                    f"책등: T마크(왼쪽 끝) + TRIGGER VOCA · {level}",
+                    f"책등: T마크(왼쪽 끝) + TRIGGER VOCA · {level} (글씨 크기는 중등 책등 기준 고정)",
                     "",
                     "표지 PDF 크기(도련 3mm 포함):",
                     f"  가로 {total_w / mm:.1f} mm = 3 + {trim_w} + {spine} + {trim_w} + 3",
