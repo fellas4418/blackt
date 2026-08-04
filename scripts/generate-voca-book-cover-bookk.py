@@ -21,7 +21,9 @@ from reportlab.pdfgen import canvas
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT_DIR = ROOT / "단어장 PDF" / "중등"
+OUT_DIR_MIDDLE = ROOT / "단어장 PDF" / "중등"
+OUT_DIR_HIGH = ROOT / "단어장 PDF" / "고등"
+OUT_DIR = OUT_DIR_MIDDLE
 LOGO_PATH = ROOT / "로고, 이미지" / "trigger-logo-v2.png"
 MARK_PATH = ROOT / "로고, 이미지" / "로고 최종.png"
 QR_PATH = ROOT / "로고, 이미지" / "qr-blackt.png"
@@ -167,6 +169,8 @@ def draw_front_panel(
     voca_size: float = 60,
     logo_top: float | None = None,
     voca_y: float | None = None,
+    level: str = "중등",
+    day_label: str = "DAY 01–50 · 1200 WORDS",
 ) -> None:
     """앞표지 — Trigger 로고 + VOCA (초기 배치)."""
     c.saveState()
@@ -185,7 +189,7 @@ def draw_front_panel(
     c.roundRect(badge_x, badge_y, badge_w, badge_h, 2 * mm, fill=0, stroke=1)
     c.setFillColor(white)
     c.setFont(FONT_BOLD, 13.5)
-    c.drawCentredString(badge_x + badge_w / 2, badge_y + badge_h / 2 - 4.8, "중등")
+    c.drawCentredString(badge_x + badge_w / 2, badge_y + badge_h / 2 - 4.8, level)
 
     logo_h = logo_w * LOGO_ASPECT
     top = h - 60 * mm if logo_top is None else logo_top
@@ -228,7 +232,7 @@ def draw_front_panel(
     c.skew(0, 10)
     c.setFillColor(NAVY)
     c.setFont(FONT_BOLD, 17.5)
-    label = "DAY 01–50 · 1200 WORDS"
+    label = day_label
     for dx, dy in ((0, 0), (0.45, 0), (0, 0.35), (0.45, 0.35)):
         c.drawCentredString(dx, dy, label)
     c.restoreState()
@@ -293,7 +297,15 @@ def draw_back_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float) 
     c.restoreState()
 
 
-def draw_spine(c: canvas.Canvas, x0: float, y0: float, spine_w: float, h: float) -> None:
+def draw_spine(
+    c: canvas.Canvas,
+    x0: float,
+    y0: float,
+    spine_w: float,
+    h: float,
+    *,
+    level: str = "중등",
+) -> None:
     """책등 — 왼쪽 끝에 T 마크, 제목과 동일 높이로 책등 폭을 거의 꽉 채움."""
     c.saveState()
     c.setFillColor(NAVY)
@@ -307,7 +319,7 @@ def draw_spine(c: canvas.Canvas, x0: float, y0: float, spine_w: float, h: float)
     c.rotate(90)
 
     title_prefix = "TRIGGER VOCA  ·  "
-    title_level = "중등"
+    title_level = level
     title = title_prefix + title_level
     # 제목은 책등 폭의 1/2, 로고는 제목 대문자와 같은 시각 높이(여백 크롭)
     title_size = (band / mm) * (72.0 / 25.4) / 0.72 * (1.0 / 2.0)
@@ -366,12 +378,19 @@ def build_cover_pdf(
     voca_y: float | None = None,
     write_note: bool = True,
     kyobo: bool = False,
+    level: str = "중등",
 ) -> Path:
-    global PAGE_W, PAGE_H
+    global PAGE_W, PAGE_H, OUT_DIR
     if kyobo:
         PAGE_W, PAGE_H = PAGE_W_KYOBO, PAGE_H_KYOBO
     else:
         PAGE_W, PAGE_H = PAGE_W_BOOKK, PAGE_H_BOOKK
+
+    OUT_DIR = OUT_DIR_HIGH if level == "고등" else OUT_DIR_MIDDLE
+    day_label = (
+        "DAY 01–50 · 2000 WORDS" if level == "고등" else "DAY 01–50 · 1200 WORDS"
+    )
+    stem = "고등_표지" if level == "고등" else "중등_표지"
 
     register_fonts()
     spine = spine_mm if spine_mm is not None else bookk_spine_mm(pages)
@@ -382,13 +401,13 @@ def build_cover_pdf(
     total_h = BLEED + PAGE_H + BLEED
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    default_name = "중등_표지_교보" if kyobo else "중등_표지"
+    default_name = f"{stem}_교보" if kyobo else stem
     out = resolve_output_path(OUT_DIR / f"{default_name}{name_suffix}.pdf")
     channel = "교보" if kyobo else "부크크"
     trim_w = 188 if kyobo else 182
     trim_h = 254 if kyobo else 257
     c = canvas.Canvas(str(out), pagesize=(total_w, total_h))
-    c.setTitle(f"트리거 보카 중등 표지 (책등 {spine}mm)")
+    c.setTitle(f"트리거 보카 {level} 표지 (책등 {spine}mm)")
     c.setAuthor("플레이온")
     c.setSubject(f"{channel} B5 표지 · {pages}p · spine {spine}mm · bleed 3mm")
 
@@ -402,7 +421,7 @@ def build_cover_pdf(
     front_x = BLEED + PAGE_W + spine_w
 
     draw_back_panel(c, back_x, y0, PAGE_W, PAGE_H)
-    draw_spine(c, spine_x, y0, spine_w, PAGE_H)
+    draw_spine(c, spine_x, y0, spine_w, PAGE_H, level=level)
     draw_front_panel(
         c,
         front_x,
@@ -413,13 +432,17 @@ def build_cover_pdf(
         voca_size=voca_size,
         logo_top=logo_top,
         voca_y=voca_y,
+        level=level,
+        day_label=day_label,
     )
 
     c.save()
 
     if write_note:
-        note_name = "중등_표지_교보_안내.txt" if kyobo else "중등_표지_안내.txt"
+        note_name = f"{stem}_교보_안내.txt" if kyobo else f"{stem}_안내.txt"
         note = OUT_DIR / note_name
+        kyobo_flag = " --kyobo" if kyobo else ""
+        high_flag = " --high" if level == "고등" else ""
         note.write_text(
             "\n".join(
                 [
@@ -429,9 +452,9 @@ def build_cover_pdf(
                     f"내지 페이지: {pages}쪽 → 책등 {spine}mm",
                     "  (교보 계산기 값이면 --spine 으로 그 값 사용)",
                     "",
-                    "앞표지: Trigger 로고 + VOCA · 중등 배지(좌상) · T마크(우하) · DAY 바",
+                    f"앞표지: Trigger 로고 + VOCA · {level} 배지(좌상) · T마크(우하) · DAY 바",
                     "뒷표지: Just Follow(40pt) + QR · T마크(우하)",
-                    "책등: T마크(왼쪽 끝) + TRIGGER VOCA · 중등",
+                    f"책등: T마크(왼쪽 끝) + TRIGGER VOCA · {level}",
                     "",
                     "표지 PDF 크기(도련 3mm 포함):",
                     f"  가로 {total_w / mm:.1f} mm = 3 + {trim_w} + {spine} + {trim_w} + 3",
@@ -441,7 +464,7 @@ def build_cover_pdf(
                     "날개: 없음",
                     "",
                     "재생성 예:",
-                    f"  python scripts/generate-voca-book-cover-bookk.py --kyobo --pages {pages} --spine {spine}",
+                    f"  python scripts/generate-voca-book-cover-bookk.py{kyobo_flag}{high_flag} --pages {pages} --spine {spine}",
                     "",
                 ]
             ),
@@ -460,12 +483,18 @@ def main() -> None:
         help="교보 B5 188×254 표지 전개도",
     )
     parser.add_argument(
+        "--high",
+        action="store_true",
+        help="고등 표지 (기본 중등)",
+    )
+    parser.add_argument(
         "--variant",
         choices=["logo-half-voca2x"],
         default=None,
         help="비교용 변형. logo-half-voca2x = 로고 1/2 · VOCA 2배 (별도 파일, 기존 유지)",
     )
     args = parser.parse_args()
+    level = "고등" if args.high else "중등"
     spine = args.spine if args.spine is not None else bookk_spine_mm(args.pages)
 
     if args.variant == "logo-half-voca2x":
@@ -480,14 +509,21 @@ def main() -> None:
             voca_y=PAGE_H - 148 * mm,
             write_note=False,
             kyobo=args.kyobo,
+            level=level,
         )
     else:
-        path = build_cover_pdf(pages=args.pages, spine_mm=args.spine, kyobo=args.kyobo)
+        path = build_cover_pdf(
+            pages=args.pages,
+            spine_mm=args.spine,
+            kyobo=args.kyobo,
+            level=level,
+        )
 
     print(f"표지: {path}")
     print(f"책등(추정): {spine} mm  ·  내지 {args.pages}쪽")
     if args.variant is None:
-        note = "중등_표지_교보_안내.txt" if args.kyobo else "중등_표지_안내.txt"
+        stem = "고등_표지" if args.high else "중등_표지"
+        note = f"{stem}_교보_안내.txt" if args.kyobo else f"{stem}_안내.txt"
         print(f"안내: {OUT_DIR / note}")
 
 

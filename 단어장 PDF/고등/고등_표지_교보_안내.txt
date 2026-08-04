@@ -1,0 +1,19 @@
+교보 표지 등록 안내
+
+파일: 고등_표지_교보.pdf
+내지 페이지: 387쪽 → 책등 27.5mm
+  (교보 계산기 값이면 --spine 으로 그 값 사용)
+
+앞표지: Trigger 로고 + VOCA · 고등 배지(좌상) · T마크(우하) · DAY 바
+뒷표지: Just Follow(40pt) + QR · T마크(우하)
+책등: T마크(왼쪽 끝) + TRIGGER VOCA · 고등
+
+표지 PDF 크기(도련 3mm 포함):
+  가로 409.5 mm = 3 + 188 + 27.5 + 188 + 3
+  세로 260.0 mm = 3 + 254 + 3
+
+레이아웃: [뒤표지] [책등] [앞표지]  ← 왼쪽→오른쪽
+날개: 없음
+
+재생성 예:
+  python scripts/generate-voca-book-cover-bookk.py --kyobo --high --pages 387 --spine 27.5
