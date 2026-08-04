@@ -2749,10 +2749,12 @@ def draw_random_lookup_page(
     gap = 5 * mm
     col_w = (right - left - gap) / 2
 
-    # 안내 문구 위·아래 간격 동일 → 남는 높이는 표에
-    band_gap = 6.5 * mm
-    subtitle_from_top = BANNER_Y + band_gap
-    table_from_top = subtitle_from_top + band_gap
+    # 배너 박스 하단 기준으로 안내 위·아래 여백을 같게 (겹침 방지)
+    banner_box_h = 8.5 * mm
+    clear = 5.0 * mm
+    subtitle_size = 10.0
+    subtitle_from_top = BANNER_Y + banner_box_h / 2 + clear + subtitle_size * 0.55
+    table_from_top = subtitle_from_top + clear + subtitle_size * 0.25
 
     draw_day_banner(c, f"{level_tag} · DAY {day_no:02d} · RANDOM", height - BANNER_Y)
     draw_text(
@@ -2760,7 +2762,7 @@ def draw_random_lookup_page(
         f"순서만 바꿔 복습 · {len(rows)} WORDS",
         width / 2,
         height - subtitle_from_top,
-        size=10.0,
+        size=subtitle_size,
         color=SLATE,
         align="center",
     )
