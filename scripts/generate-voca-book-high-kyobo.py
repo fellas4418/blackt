@@ -247,17 +247,20 @@ def build_high_days_pdf(
         day_count=day_count,
         word_count=word_count,
         page_no=page_no,
+        subtitle="순서만 바꿔 한눈에 복습",
+        note_lines=[
+            "1회독에서 TEST·PRACTICE를 마쳤으니",
+            "여기서는 섞인 순서로 단어·뜻만 확인합니다.",
+        ],
     )
     page_no += 1
-    # 랜덤: 중등과 같이 Day당 TEST 1장(40단어). 행 높이는 자동 조절.
+    # 고등 랜덤: 접기 TEST 없이 양단 단어·뜻 표 (20+20)
     for day_no, rows in enumerate(random_days, 1):
-        mod.draw_test_page(
+        mod.draw_random_lookup_page(
             c,
             level_tag="고등",
             day_no=day_no,
-            part_label="RANDOM",
             rows=rows,
-            start_index=1,
             page_no=page_no,
         )
         page_no += 1

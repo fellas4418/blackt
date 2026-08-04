@@ -1615,6 +1615,8 @@ def draw_random_review_divider(
     day_count: int,
     word_count: int,
     page_no: int,
+    subtitle: str = "단어 순서 재배치 테스트",
+    note_lines: list[str] | None = None,
 ) -> None:
     """1회독과 랜덤 복습 구간을 구분하는 표지 + 짧은 안내."""
     width, height = B5
@@ -1627,7 +1629,6 @@ def draw_random_review_divider(
     draw_divider_mark(c, width, height)
     center_y = height * 0.62
     draw_text(c, "REVIEW", width / 2, center_y + 6 * mm, font=FONT_BOLD, size=56, color=white, align="center")
-    subtitle = "단어 순서 재배치 테스트"
     subtitle_size = 16
     draw_text(
         c,
@@ -1657,12 +1658,12 @@ def draw_random_review_divider(
     margin_left, margin_right = page_margins_x(page_no)
     left = margin_left
     right = width - margin_right
-    note_lines = [
+    lines = note_lines or [
         "전체 단어 순서가 무작위로 섞여",
         "단어 뜻만으로 복습할 수 있습니다.",
     ]
     note_top = center_y - 58 * mm
-    for index, line in enumerate(note_lines):
+    for index, line in enumerate(lines):
         draw_text(
             c,
             line,
@@ -2730,6 +2731,130 @@ def draw_test_page(
 
     draw_page_footer(c, page_no, level_tag)
     c.showPage()
+
+
+def draw_random_lookup_page(
+    c: canvas.Canvas,
+    *,
+    level_tag: str,
+    day_no: int,
+    rows: list[tuple[str, str]],
+    page_no: int,
+) -> None:
+    """고등 랜덤 복습 — 접기 TEST 없이 단어·뜻 양단 표 (20+20)."""
+    width, height = B5
+    margin_left, margin_right = page_margins_x(page_no)
+    left = margin_left
+    right = width - margin_right
+    gap = 5 * mm
+    col_w = (right - left - gap) / 2
+
+    draw_day_banner(c, f"{level_tag} · DAY {day_no:02d} · RANDOM", height - BANNER_Y)
+    draw_text(
+        c,
+        f"순서만 바꿔 복습 · {len(rows)} WORDS",
+        width / 2,
+        height - SUBTITLE_Y,
+        size=10.0,
+        color=SLATE,
+        align="center",
+    )
+
+    table_top = height - TABLE_TOP_LOOSE
+    table_bottom = TABLE_BOTTOM
+    header_h = 7.5 * mm
+    half = (len(rows) + 1) // 2
+    left_rows = rows[:half]
+    right_rows = rows[half:]
+    n_rows = max(len(left_rows), len(right_rows), 1)
+    row_h = (table_top - table_bottom - header_h) / n_rows
+
+    num_w = 8 * mm
+    word_w = 32 * mm
+
+    def draw_column(x0: float, col_rows: list[tuple[str, str]], start_index: int) -> None:
+        x1 = x0 + col_w
+        c.setFillColor(NAVY)
+        c.rect(x0, table_top - header_h, col_w, header_h, fill=1, stroke=0)
+        y_h = table_top - header_h + 2.0 * mm
+        draw_text(c, "#", x0 + num_w / 2, y_h, font=FONT_BOLD, size=9.0, color=white, align="center")
+        draw_text(
+            c,
+            "단어",
+            x0 + num_w + word_w / 2,
+            y_h,
+            font=FONT_BOLD,
+            size=9.5,
+            color=white,
+            align="center",
+        )
+        draw_text(
+            c,
+            "뜻",
+            x0 + num_w + word_w + (col_w - num_w - word_w) / 2,
+            y_h,
+            font=FONT_BOLD,
+            size=9.5,
+            color=white,
+            align="center",
+        )
+
+        y = table_top - header_h
+        for offset, (word, meaning) in enumerate(col_rows):
+            next_y = y - row_h
+            if offset % 2 == 1:
+                c.setFillColor(LIGHT)
+                c.rect(x0, next_y, col_w, row_h, fill=1, stroke=0)
+            baseline = next_y + row_h / 2 - 2.8
+            idx = start_index + offset
+            mean = POS_MEANINGS.get(word, meaning)
+            draw_text(
+                c,
+                str(idx),
+                x0 + num_w / 2,
+                baseline,
+                size=7.5,
+                color=SLATE,
+                align="center",
+            )
+            draw_text(
+                c,
+                word,
+                x0 + num_w + 1.2 * mm,
+                baseline,
+                font=FONT_BOLD,
+                size=9.5,
+                max_width=word_w - 2.2 * mm,
+            )
+            draw_text(
+                c,
+                mean,
+                x0 + num_w + word_w + 1.2 * mm,
+                baseline,
+                size=8.8,
+                max_width=col_w - num_w - word_w - 2.4 * mm,
+            )
+            y = next_y
+
+        c.setStrokeColor(LINE)
+        c.setLineWidth(0.4)
+        for x in (x0, x0 + num_w, x0 + num_w + word_w, x1):
+            c.line(x, table_bottom, x, table_top)
+        c.setStrokeColor(white)
+        for x in (x0 + num_w, x0 + num_w + word_w):
+            c.line(x, table_top - header_h, x, table_top)
+        c.setStrokeColor(LINE)
+        for i in range(n_rows + 1):
+            line_y = table_top - header_h - i * row_h
+            c.line(x0, line_y, x1, line_y)
+        c.rect(x0, table_bottom, col_w, table_top - table_bottom, fill=0, stroke=1)
+
+    draw_column(left, left_rows, 1)
+    draw_column(left + col_w + gap, right_rows, 1 + len(left_rows))
+
+    draw_page_footer(c, page_no, level_tag)
+    c.showPage()
+
 
 def draw_practice_page(
     c: canvas.Canvas,
