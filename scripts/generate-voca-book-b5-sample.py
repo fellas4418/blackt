@@ -765,6 +765,10 @@ def draw_colophon_page(
     *,
     level_tag: str,
     page_no: int,
+    title: str | None = None,
+    words_line: str | None = None,
+    isbn: str | None = "979-11-993384-0-1",
+    price: str = "16,000원",
 ) -> None:
     """교보 POD 필수 판권 페이지."""
     width, height = B5
@@ -777,12 +781,15 @@ def draw_colophon_page(
     max_w = right - left
     cx = width / 2
 
+    book_title = title or f"Trigger VOCA {level_tag}"
+    book_words = words_line or "DAY 01–50 · 1,200 WORDS"
+
     y = height - 48 * mm
-    draw_text(c, "Trigger VOCA 중등", cx, y, font=FONT_BOLD, size=22, color=INK, align="center")
+    draw_text(c, book_title, cx, y, font=FONT_BOLD, size=22, color=INK, align="center")
     y -= 10 * mm
     draw_text(
         c,
-        "DAY 01–50 · 1,200 WORDS",
+        book_words,
         cx,
         y,
         font=FONT_REGULAR,
@@ -796,9 +803,12 @@ def draw_colophon_page(
         ("발행일", "2026년 8월 11일"),
         ("지은이", "Looke"),
         ("발행처", "플레이온"),
-        ("ISBN", "979-11-993384-0-1"),
+    ]
+    if isbn:
+        rows.append(("ISBN", isbn))
+    rows += [
         ("이메일", "ohryee@gmail.com"),
-        ("값", "16,000원"),
+        ("값", price),
     ]
     label_w = 28 * mm
     for label, value in rows:
@@ -1271,13 +1281,24 @@ def draw_index_pages(
     return page_no
 
 
-def draw_howto_page(c: canvas.Canvas, *, level_tag: str, page_no: int) -> None:
+def draw_howto_page(
+    c: canvas.Canvas,
+    *,
+    level_tag: str,
+    page_no: int,
+    words_per_day: int = 24,
+) -> None:
     """TEST부터 복습까지 하루 학습 순서를 안내."""
     width, height = B5
     draw_day_banner(c, "HOW TO STUDY", height - BANNER_Y)
+    lead = (
+        f"하루 {words_per_day}단어를 네 단계로 반복하세요."
+        if words_per_day <= 24
+        else f"하루 {words_per_day}단어를 20개씩 두 세트로 나눠 네 단계로 반복하세요."
+    )
     draw_text(
         c,
-        "하루 24단어를 네 단계로 반복하세요.",
+        lead,
         width / 2,
         height - SUBTITLE_Y,
         font=FONT_BOLD,
