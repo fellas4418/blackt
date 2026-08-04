@@ -2749,20 +2749,25 @@ def draw_random_lookup_page(
     gap = 5 * mm
     col_w = (right - left - gap) / 2
 
+    # 안내 문구 위·아래 간격 동일 → 남는 높이는 표에
+    band_gap = 6.5 * mm
+    subtitle_from_top = BANNER_Y + band_gap
+    table_from_top = subtitle_from_top + band_gap
+
     draw_day_banner(c, f"{level_tag} · DAY {day_no:02d} · RANDOM", height - BANNER_Y)
     draw_text(
         c,
         f"순서만 바꿔 복습 · {len(rows)} WORDS",
         width / 2,
-        height - SUBTITLE_Y,
+        height - subtitle_from_top,
         size=10.0,
         color=SLATE,
         align="center",
     )
 
-    table_top = height - TABLE_TOP_LOOSE
-    table_bottom = TABLE_BOTTOM
-    header_h = 7.5 * mm
+    table_top = height - table_from_top
+    table_bottom = 20 * mm
+    header_h = 7.2 * mm
     half = (len(rows) + 1) // 2
     left_rows = rows[:half]
     right_rows = rows[half:]
@@ -2770,21 +2775,25 @@ def draw_random_lookup_page(
     row_h = (table_top - table_bottom - header_h) / n_rows
 
     num_w = 8 * mm
-    word_w = 32 * mm
+    word_w = 36 * mm
+    word_size = 11.2
+    mean_size = 10.2
+    index_size = 8.0
+    header_size = 10.0
 
     def draw_column(x0: float, col_rows: list[tuple[str, str]], start_index: int) -> None:
         x1 = x0 + col_w
         c.setFillColor(NAVY)
         c.rect(x0, table_top - header_h, col_w, header_h, fill=1, stroke=0)
-        y_h = table_top - header_h + 2.0 * mm
-        draw_text(c, "#", x0 + num_w / 2, y_h, font=FONT_BOLD, size=9.0, color=white, align="center")
+        y_h = table_top - header_h + 1.9 * mm
+        draw_text(c, "#", x0 + num_w / 2, y_h, font=FONT_BOLD, size=header_size - 0.5, color=white, align="center")
         draw_text(
             c,
             "단어",
             x0 + num_w + word_w / 2,
             y_h,
             font=FONT_BOLD,
-            size=9.5,
+            size=header_size,
             color=white,
             align="center",
         )
@@ -2794,7 +2803,7 @@ def draw_random_lookup_page(
             x0 + num_w + word_w + (col_w - num_w - word_w) / 2,
             y_h,
             font=FONT_BOLD,
-            size=9.5,
+            size=header_size,
             color=white,
             align="center",
         )
@@ -2805,7 +2814,7 @@ def draw_random_lookup_page(
             if offset % 2 == 1:
                 c.setFillColor(LIGHT)
                 c.rect(x0, next_y, col_w, row_h, fill=1, stroke=0)
-            baseline = next_y + row_h / 2 - 2.8
+            baseline = next_y + row_h / 2 - word_size * 0.32
             idx = start_index + offset
             mean = POS_MEANINGS.get(word, meaning)
             draw_text(
@@ -2813,7 +2822,7 @@ def draw_random_lookup_page(
                 str(idx),
                 x0 + num_w / 2,
                 baseline,
-                size=7.5,
+                size=index_size,
                 color=SLATE,
                 align="center",
             )
@@ -2823,7 +2832,7 @@ def draw_random_lookup_page(
                 x0 + num_w + 1.2 * mm,
                 baseline,
                 font=FONT_BOLD,
-                size=9.5,
+                size=word_size,
                 max_width=word_w - 2.2 * mm,
             )
             draw_text(
@@ -2831,7 +2840,7 @@ def draw_random_lookup_page(
                 mean,
                 x0 + num_w + word_w + 1.2 * mm,
                 baseline,
-                size=8.8,
+                size=mean_size,
                 max_width=col_w - num_w - word_w - 2.4 * mm,
             )
             y = next_y
