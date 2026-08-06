@@ -1258,11 +1258,27 @@ function referralIdFromPhone(phone) {
   return p ? `r${p}` : "";
 }
 
+function phoneFromUserId(userId) {
+  const id = String(userId || "");
+  const ix = id.indexOf("::");
+  if (ix > 0) return normalizePhone(id.slice(0, ix));
+  return normalizePhone(id);
+}
+
 async function handleReferralSignup(env, body) {
+  const userId = String(body.user_id || "").trim();
+  const password = String(body.password || "");
+  if (!(await verifyUser(env, userId, password))) {
+    return json({ error: "인증 실패" }, 401);
+  }
   const referrerId = String(body.referrer_id || "").trim();
   const refereePhone = normalizePhone(body.referee_phone);
   if (!referrerId || !/^010\d{8}$/.test(refereePhone)) {
     return json({ error: "referrer_id/referee_phone가 필요합니다." }, 400);
+  }
+  // 본인(피추천인)만 추천 가입을 기록할 수 있음 — 타인 전화로 무단 mint 방지
+  if (phoneFromUserId(userId) !== refereePhone) {
+    return json({ error: "본인만 추천 가입을 기록할 수 있습니다." }, 403);
   }
   if (referrerId === referralIdFromPhone(refereePhone)) {
     return json({ ok: true, skipped: "self" });
@@ -1276,8 +1292,17 @@ async function handleReferralSignup(env, body) {
 }
 
 async function handleReferralClaim(env, body) {
+  const userId = String(body.user_id || "").trim();
+  const password = String(body.password || "");
+  if (!(await verifyUser(env, userId, password))) {
+    return json({ error: "인증 실패" }, 401);
+  }
   const referrerId = String(body.referrer_id || "").trim();
   if (!referrerId) return json({ error: "referrer_id가 필요합니다." }, 400);
+  const myRef = referralIdFromPhone(phoneFromUserId(userId));
+  if (!myRef || referrerId !== myRef) {
+    return json({ error: "본인 추천 코드만 정산할 수 있습니다." }, 403);
+  }
   const pending = await env.DB.prepare(
     "SELECT referee_phone FROM referral_signups WHERE referrer_id = ?1 AND credited_sharer = 0"
   )
@@ -1395,8 +1420,8 @@ async function handleLeaderboard(env, body) {
         userId === myUserId ||
         (myName && normalizeName(realName) === normalizeName(myName) && phone === myPhone));
 
+    // user_id(= phone::name)는 simple-auth 비밀번호와 동일하므로 공개 응답에 넣지 않음
     items.push({
-      user_id: userId,
       display_name: maskLeaderboardName(realName, isMe),
       completed_days: Number(row.completed_days) || 0,
       avg_accuracy: row.avg_accuracy != null ? Number(row.avg_accuracy) : null,
