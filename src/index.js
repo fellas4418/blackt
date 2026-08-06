@@ -1389,11 +1389,13 @@ async function handleLeaderboard(env, body) {
     const phone = ix > 0 ? normalizePhone(userId.slice(0, ix)) : normalizePhone(userId);
     const realName =
       displayNameFromUserId(userId, phoneNameMap) || (ix > 0 ? userId.slice(ix + 2) : "학습자");
+    // phone alone must NOT set is_me: callers can self-claim any phone and unmask
+    // display_name (= simple-auth password material). Require name+phone identity.
     const isMe =
       !!myPhone &&
-      (phone === myPhone ||
-        userId === myUserId ||
-        (myName && normalizeName(realName) === normalizeName(myName) && phone === myPhone));
+      !!myName &&
+      (userId === myUserId ||
+        (normalizeName(realName) === normalizeName(myName) && phone === myPhone));
 
     items.push({
       user_id: userId,
