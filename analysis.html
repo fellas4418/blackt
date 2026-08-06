@@ -2277,7 +2277,26 @@
 
         const params = new URLSearchParams(window.location.search);
         const workerOverride = (params.get('worker') || '').trim();
-        const WORKER_URL = (workerOverride ? workerOverride.replace(/\/$/, '') + '/' : 'https://trigger-ocr-api.ohryee.workers.dev/');
+        const ANALYSIS_WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev/';
+        function resolveAnalysisWorkerUrl(rawOverride) {
+            const raw = String(rawOverride || '').trim();
+            if (!raw) return ANALYSIS_WORKER_URL;
+            try {
+                const u = new URL(raw, window.location.origin);
+                const host = u.hostname.toLowerCase();
+                const isLoopback = host === 'localhost' || host === '127.0.0.1' || host === '[::1]';
+                const isProd = u.origin === ANALYSIS_WORKER_URL.replace(/\/$/, '');
+                if ((u.protocol !== 'http:' && u.protocol !== 'https:') || (!isProd && !isLoopback)) {
+                    return ANALYSIS_WORKER_URL;
+                }
+                u.hash = '';
+                u.search = '';
+                return u.toString().replace(/\/$/, '') + '/';
+            } catch (e) {
+                return ANALYSIS_WORKER_URL;
+            }
+        }
+        const WORKER_URL = resolveAnalysisWorkerUrl(workerOverride);
         const TRIGGER_IMG_DIR = '로고, 이미지/';
         /** 카톡 공유 링크 고정 도메인 (다른 origin 사용 금지) */
         const KAKAO_SHARE_ORIGIN = 'https://blackt.pages.dev';
