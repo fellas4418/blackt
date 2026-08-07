@@ -5397,7 +5397,7 @@
                 for(let title in groupedData) {
                     html += `
                         <div onclick="togglePassageFolder(${folderIndex})" style="color:var(--neon-blue); font-size:0.9rem; font-weight:bold; margin: 18px 0 8px 0; border-bottom:1px solid #333; padding-bottom:6px; display:flex; align-items:center; justify-content:space-between; cursor:pointer;">
-                            <span>📌 ${title} <span style="color:#888; font-size:0.75rem; font-weight:normal;">(${groupedData[title].length}개)</span></span>
+                            <span>📌 ${escapeHtml(title)} <span style="color:#888; font-size:0.75rem; font-weight:normal;">(${groupedData[title].length}개)</span></span>
                             <span id="passage-icon-${folderIndex}" style="color:#888; font-size:0.8rem;">▶</span>
                         </div>
                         <div id="passage-folder-${folderIndex}" style="display:none;">
@@ -5411,9 +5411,9 @@
                             html += `
                                 <div style="background: rgba(181, 55, 242, 0.05); border-left: 3px solid #bc13fe; padding: 12px; margin-bottom: 12px; border-radius: 4px; position: relative;">
                                     <button onclick="deleteNoteItem('grammar', ${idx}, event)" style="position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #888; font-size: 1.2rem; cursor: pointer;">×</button>
-                                    <strong style="color:#d789ff; display:block; margin-bottom:4px; padding-right:20px;">⚡ ${item.point}</strong>
-                                    <div style="color:#ddd; font-size:0.85rem; font-style:italic; margin-bottom:6px;">"${item.sentence}"</div>
-                                    <div style="color:#eee; font-size:0.9rem;">${item.explanation}</div>
+                                    <strong style="color:#d789ff; display:block; margin-bottom:4px; padding-right:20px;">⚡ ${escapeHtml(item.point)}</strong>
+                                    <div style="color:#ddd; font-size:0.85rem; font-style:italic; margin-bottom:6px;">"${escapeHtml(item.sentence)}"</div>
+                                    <div style="color:#eee; font-size:0.9rem;">${escapeHtml(item.explanation)}</div>
                                 </div>
                             `;
                         } else {
@@ -5423,8 +5423,8 @@
                                 <div class="kw-container" style="background:#1a1a1a;">
                                     <div class="kw-body">
                                         ${levelTag}
-                                        <strong style="color:#fff; font-size:1.05rem;">${item.eng}</strong> 
-                                        <span style="color:#aaa; font-size:0.9rem; margin-left:6px;">${item.kor}</span>
+                                        <strong style="color:#fff; font-size:1.05rem;">${escapeHtml(item.eng)}</strong> 
+                                        <span style="color:#aaa; font-size:0.9rem; margin-left:6px;">${escapeHtml(item.kor)}</span>
                                     </div>
                                     <button onclick="deleteNoteItem('voca', ${idx}, event)" style="background:transparent; border:none; color:#888; font-size:1.1rem; cursor:pointer;">×</button>
                                 </div>
