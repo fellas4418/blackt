@@ -780,10 +780,46 @@ function restartVocaCourseFromDay1(level) {
     return true;
 }
 
+/**
+ * 70일(코스) 완주 후 Day 1 재시작 확인.
+ * @returns {boolean} 재시작했으면 true
+ */
+function confirmAndRestartVocaCourseFromDay1(level, opts) {
+    const lvl = level || localStorage.getItem('trigger_level') || 'middle';
+    if (typeof restartVocaCourseFromDay1 !== 'function') {
+        alert('재시작 기능을 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.');
+        return false;
+    }
+    const passN = getVocaPassCount(lvl);
+    const nextRound = Math.max(1, passN) + 1;
+    if (!confirm(
+        (passN > 0 ? passN + '회차 완주 ◆\n' : '') +
+        '같은 단어 목록으로 Day 1부터 다시 시작합니다.\n' +
+        '(오답·크레딧은 유지, 진도만 리셋)\n\n' +
+        nextRound + '회차를 시작할까요?'
+    )) return false;
+    restartVocaCourseFromDay1(lvl);
+    const o = opts || {};
+    if (o.goStudy) {
+        location.href = 'study.html';
+        return true;
+    }
+    if (o.reload) {
+        location.reload();
+        return true;
+    }
+    if (o.goMain) {
+        location.href = 'index.html?tab=voca';
+        return true;
+    }
+    return true;
+}
+
 window.getVocaPassCount = getVocaPassCount;
 window.isVocaCourseComplete = isVocaCourseComplete;
 window.markVocaCoursePass = markVocaCoursePass;
 window.restartVocaCourseFromDay1 = restartVocaCourseFromDay1;
+window.confirmAndRestartVocaCourseFromDay1 = confirmAndRestartVocaCourseFromDay1;
 
 function vocaWeekAndLocal(level, absoluteDay) {
     if (typeof TriggerToeicSchedule !== 'undefined') {
@@ -1417,10 +1453,32 @@ if (typeof applyAdminPersistence === 'function') applyAdminPersistence();
             clearStudyCheckpoint();
             const passN = typeof getVocaPassCount === 'function' ? getVocaPassCount(currentLevel) : 0;
             const passLabel = passN > 0 ? `${passN}회차 완주` : '코스 완주';
-            showSystemMessage(
-                `${passLabel} ◆<br>같은 단어로 Day 1부터 다시 학습할 수 있습니다.<br><span style="color:#888;font-size:0.9rem;">메인 화면에서 「Day 1부터 다시 학습」을 눌러 주세요.</span>`
-            );
-            setTimeout(() => { location.href = 'index.html?tab=voca'; }, 2800);
+            showSystemMessage(`
+                <div style="text-align:center; padding:8px 4px;">
+                    <div style="font-size:1.35rem; color:var(--neon-green); font-weight:bold; margin-bottom:12px;">${passLabel} ◆</div>
+                    <p style="color:#ddd; font-size:1rem; line-height:1.55; margin:0 0 8px;">70일 코스를 모두 끝냈습니다.<br>같은 단어로 Day 1부터 다시 돌 수 있습니다.</p>
+                    <p style="color:#888; font-size:0.88rem; line-height:1.45; margin:0 0 20px;">(오답·크레딧은 유지, 진도만 리셋)</p>
+                    <button type="button" id="btn-course-restart-study" style="width:100%; padding:16px; background:var(--neon-blue); color:#000; border:none; border-radius:12px; font-weight:bold; cursor:pointer; font-size:1rem;">🔄 Day 1부터 다시 학습</button>
+                    <button type="button" id="btn-course-restart-main" style="width:100%; padding:14px; margin-top:10px; background:transparent; border:1px solid #444; color:#aaa; border-radius:12px; font-weight:bold; cursor:pointer;">메인으로</button>
+                </div>
+            `);
+            const restartBtn = document.getElementById('btn-course-restart-study');
+            const mainBtn = document.getElementById('btn-course-restart-main');
+            if (restartBtn) {
+                restartBtn.onclick = function () {
+                    if (typeof confirmAndRestartVocaCourseFromDay1 === 'function') {
+                        confirmAndRestartVocaCourseFromDay1(currentLevel, { goStudy: true });
+                    } else if (typeof restartVocaCourseFromDay1 === 'function') {
+                        restartVocaCourseFromDay1(currentLevel);
+                        location.href = 'study.html';
+                    }
+                };
+            }
+            if (mainBtn) {
+                mainBtn.onclick = function () {
+                    location.href = 'index.html?tab=voca';
+                };
+            }
             return;
         }
 

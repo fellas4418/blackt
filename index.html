@@ -873,6 +873,12 @@
 
             <div class="card routine-section" style="position:relative;">
                 <div style="font-size: 1.2rem; font-weight: 700; margin-bottom: 10px;">📅 10주 완성 도전하기</div>
+                <div id="course-restart-banner" style="display:none; text-align:center; padding:14px 12px; margin-bottom:12px; border-radius:10px; background:rgba(0,243,255,0.08); border:1px solid var(--neon-blue);">
+                    <p id="course-restart-banner-label" style="color:#ddd; font-size:0.88rem; margin:0 0 10px; line-height:1.45;">70일 코스를 모두 클리어했습니다.</p>
+                    <button type="button" id="btn-restart-voca-day1-top" onclick="confirmRestartVocaCourseFromDay1()" style="width:100%; padding:14px; background:rgba(0,243,255,0.15); border:1px solid var(--neon-blue); color:#fff; border-radius:8px; font-weight:bold; cursor:pointer; font-size:0.95rem;">
+                        🔄 Day 1부터 다시 학습
+                    </button>
+                </div>
                 <div class="routine-scroll-box">
                     <ul class="routine-list" id="routine-list-container"></ul>
                 </div>
@@ -1050,7 +1056,7 @@
 
     <script src="trigger-credit.js?v=20260715"></script>
     <script src="vendor/html2pdf.bundle.min.js"></script>
-    <script src="trigger-voca-pdf.js?v=20260718_pdfstripe"></script>
+    <script src="trigger-voca-pdf.js?v=20260802_pretendard"></script>
     <script src="pattern-toc.js?v=20260625"></script>
 
     <script>
@@ -1628,6 +1634,13 @@
                 confirmRestartVocaCourseFromDay1();
                 return;
             }
+            const maxDaysGate = typeof vocaTotalDaysForLevel === 'function' ? vocaTotalDaysForLevel(currentLevel) : 70;
+            const curGate = parseInt(localStorage.getItem('trigger_current_day_' + currentLevel), 10) || 1;
+            const unlockedGate = parseInt(localStorage.getItem('trigger_unlocked_day_' + currentLevel), 10) || 1;
+            if (maxDaysGate >= 1 && (curGate > maxDaysGate || unlockedGate > maxDaysGate)) {
+                confirmRestartVocaCourseFromDay1();
+                return;
+            }
             const savedDay = parseInt(localStorage.getItem(`trigger_current_day_${currentLevel}`)) || 1;
             const targetDay = Math.max(parseInt(day, 10) || 1, savedDay);
             if (savedDay !== targetDay) {
@@ -1639,6 +1652,12 @@
 
         function confirmRestartVocaCourseFromDay1() {
             const lvl = localStorage.getItem('trigger_level') || 'middle';
+            if (typeof confirmAndRestartVocaCourseFromDay1 === 'function') {
+                if (confirmAndRestartVocaCourseFromDay1(lvl, {})) {
+                    updateDashboardUI();
+                }
+                return;
+            }
             if (typeof restartVocaCourseFromDay1 !== 'function') {
                 alert('재시작 기능을 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.');
                 return;
@@ -2303,13 +2322,25 @@
             
             document.getElementById('stat-session').innerText = session > 5 ? 'Clear 리스트' : `${session} / 5`;
 
-            const courseComplete = typeof isVocaCourseComplete === 'function' && isVocaCourseComplete(lvl);
+            const courseComplete = (typeof isVocaCourseComplete === 'function' && isVocaCourseComplete(lvl))
+                || (maxDay >= 1 && (day > maxDay || unlockedDay > maxDay));
             if (courseComplete && typeof getVocaPassCount === 'function' && getVocaPassCount(lvl) < 1) {
                 localStorage.setItem('trigger_voca_pass_count_' + lvl, '1');
                 localStorage.setItem('trigger_voca_pass_pending_' + lvl, '1');
             }
 
             if (window.cooldownInterval) clearInterval(window.cooldownInterval);
+
+            const restartBanner = document.getElementById('course-restart-banner');
+            const restartBannerLabel = document.getElementById('course-restart-banner-label');
+            if (restartBanner) {
+                restartBanner.style.display = courseComplete ? 'block' : 'none';
+                if (courseComplete && restartBannerLabel) {
+                    const passNBanner = typeof getVocaPassCount === 'function' ? getVocaPassCount(lvl) : 1;
+                    restartBannerLabel.textContent = (passNBanner > 0 ? passNBanner + '회차 완주 ◆ ' : '') +
+                        '70일 코스를 모두 클리어했습니다. Day 1부터 다시 돌 수 있습니다.';
+                }
+            }
 
             if (courseComplete) {
                 const passN = typeof getVocaPassCount === 'function' ? getVocaPassCount(lvl) : 1;
@@ -2426,7 +2457,8 @@
 
             const giftSection = document.getElementById('final-gift-section');
             if (giftSection) {
-                const courseDone = typeof isVocaCourseComplete === 'function' && isVocaCourseComplete(currentLevel);
+                const courseDone = (typeof isVocaCourseComplete === 'function' && isVocaCourseComplete(currentLevel))
+                    || (totalDays >= 1 && unlockedDay > totalDays);
                 giftSection.style.display = courseDone ? 'block' : 'none';
                 if (courseDone) {
                     const isToeicNote = typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.isToeicNoteLevel(currentLevel);
@@ -3541,7 +3573,7 @@
     </script>
     <script src="praise-share.js?v=20260721_extraword"></script>
     <script src="admin-unlock.js"></script>
-    <script src="app.js?v=20260721_extraword"></script>
+    <script src="app.js?v=20260809_course_restart"></script>
     <script src="worddata.js"></script>
     <script src="worddata_toeic.js?v=20260721_official"></script>
     <script src="worddata_toeic_note.js?v=20260721_note"></script>
