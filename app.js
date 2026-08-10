@@ -774,6 +774,11 @@ function restartVocaCourseFromDay1(level) {
     localStorage.setItem('trigger_session_' + lvl, '1');
     localStorage.setItem('trigger_stats_' + lvl, '{}');
     localStorage.removeItem('trigger_voca_pass_pending_' + lvl);
+    // 서버 next_day(71)가 Day1 리셋을 다시 덮지 않도록 회차 기록 보장
+    if (getVocaPassCount(lvl) < 1) {
+        localStorage.setItem(vocaPassCountKey(lvl), '1');
+    }
+    localStorage.setItem('trigger_voca_local_authority_' + lvl, '1');
     if (typeof clearBlacktCooldownNotifySchedule === 'function') clearBlacktCooldownNotifySchedule();
     localStorage.removeItem('blackt_cooldown');
     if (typeof clearStudyCheckpoint === 'function') clearStudyCheckpoint();

@@ -1680,6 +1680,11 @@
             localStorage.setItem('trigger_session_' + lvl, '1');
             localStorage.setItem('trigger_stats_' + lvl, '{}');
             localStorage.removeItem('trigger_voca_pass_pending_' + lvl);
+            const passKey = 'trigger_voca_pass_count_' + lvl;
+            if ((parseInt(localStorage.getItem(passKey), 10) || 0) < 1) {
+                localStorage.setItem(passKey, '1');
+            }
+            localStorage.setItem('trigger_voca_local_authority_' + lvl, '1');
             if (typeof window.clearBlacktCooldownNotifySchedule === 'function') {
                 window.clearBlacktCooldownNotifySchedule();
             }
@@ -1723,8 +1728,10 @@
             if (!vocaProgress || typeof vocaProgress !== 'object') return false;
             let changed = false;
             ['middle', 'high'].forEach(function (lvl) {
-                // 1회차 이상 완주(재시작 포함) 후에는 로컬 진도가 기준 — 서버 next_day가 Day1 리셋을 덮어쓰지 않음
-                if (typeof getVocaPassCount === 'function' && getVocaPassCount(lvl) >= 1) return;
+                // Day1 재시작·2회차 이후는 로컬이 기준. 서버 next_day(71)가 진도를 되돌리지 않음
+                const passN = parseInt(localStorage.getItem('trigger_voca_pass_count_' + lvl), 10) || 0;
+                if (passN >= 1) return;
+                if (localStorage.getItem('trigger_voca_local_authority_' + lvl) === '1') return;
                 const p = vocaProgress[lvl];
                 if (!p) return;
                 const nextDay = Math.min(71, Math.max(1, parseInt(p.next_day, 10) || 1));
@@ -3615,7 +3622,7 @@
     </script>
     <script src="praise-share.js?v=20260721_extraword"></script>
     <script src="admin-unlock.js"></script>
-    <script src="app.js?v=20260810_course_restart_fix"></script>
+    <script src="app.js?v=20260810_restart_merge_fix"></script>
     <script src="worddata.js"></script>
     <script src="worddata_toeic.js?v=20260721_official"></script>
     <script src="worddata_toeic_note.js?v=20260721_note"></script>
