@@ -41,9 +41,15 @@
     }
 
     function clampToeicNoteDayKeys() {
-        const maxDay = (typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.TOEIC_NOTE_TOTAL_DAYS)
-            ? TriggerToeicSchedule.TOEIC_NOTE_TOTAL_DAYS
-            : 4;
+        // 완주 센티널은 totalDays+1 (finishSession이 currentDay+1 저장).
+        // OCR로 Day가 늘면 vocaTotalDays('toeic_note')가 base(4)보다 커진다.
+        let totalDays = 4;
+        if (typeof TriggerToeicSchedule !== 'undefined' && typeof TriggerToeicSchedule.vocaTotalDays === 'function') {
+            totalDays = TriggerToeicSchedule.vocaTotalDays('toeic_note') || 4;
+        } else if (typeof TriggerToeicSchedule !== 'undefined' && TriggerToeicSchedule.TOEIC_NOTE_TOTAL_DAYS) {
+            totalDays = TriggerToeicSchedule.TOEIC_NOTE_TOTAL_DAYS;
+        }
+        const maxDay = totalDays + 1;
         ['trigger_current_day_toeic_note', 'trigger_unlocked_day_toeic_note'].forEach(function (key) {
             const v = parseInt(localStorage.getItem(key), 10);
             if (v > maxDay) localStorage.setItem(key, String(maxDay));
