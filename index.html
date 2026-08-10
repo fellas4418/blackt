@@ -1650,19 +1650,57 @@
             location.href = 'study.html';
         }
 
+        /** app.js 미로드·캐시 꼬임에도 Day1 재시작이 되도록 index에 로직 내장 */
+        function restartVocaCourseFromDay1Local(level) {
+            const lvl = level || localStorage.getItem('trigger_level') || 'middle';
+            const prefixes = [
+                'trigger_progress_' + lvl + '_',
+                'trigger_review_done_' + lvl + '_',
+                'trigger_excluded_' + lvl + '_',
+                'trigger_excluded_done_' + lvl + '_',
+                'trigger_cycle4_study_' + lvl + '_',
+                'trigger_start_day_' + lvl + '_'
+            ];
+            const toRemove = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (!k) continue;
+                for (let p = 0; p < prefixes.length; p++) {
+                    if (k.indexOf(prefixes[p]) === 0) {
+                        toRemove.push(k);
+                        break;
+                    }
+                }
+            }
+            toRemove.forEach(function (k) {
+                localStorage.removeItem(k);
+            });
+            localStorage.setItem('trigger_current_day_' + lvl, '1');
+            localStorage.setItem('trigger_unlocked_day_' + lvl, '1');
+            localStorage.setItem('trigger_session_' + lvl, '1');
+            localStorage.setItem('trigger_stats_' + lvl, '{}');
+            localStorage.removeItem('trigger_voca_pass_pending_' + lvl);
+            if (typeof window.clearBlacktCooldownNotifySchedule === 'function') {
+                window.clearBlacktCooldownNotifySchedule();
+            }
+            localStorage.removeItem('blackt_cooldown');
+            try {
+                sessionStorage.removeItem('trigger_study_ckpt_v1');
+            } catch (e) {}
+            return true;
+        }
+
         function confirmRestartVocaCourseFromDay1() {
             const lvl = localStorage.getItem('trigger_level') || 'middle';
-            if (typeof confirmAndRestartVocaCourseFromDay1 === 'function') {
-                if (confirmAndRestartVocaCourseFromDay1(lvl, {})) {
-                    updateDashboardUI();
+            if (typeof window.confirmAndRestartVocaCourseFromDay1 === 'function') {
+                if (window.confirmAndRestartVocaCourseFromDay1(lvl, { reload: true })) {
+                    return;
                 }
                 return;
             }
-            if (typeof restartVocaCourseFromDay1 !== 'function') {
-                alert('재시작 기능을 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.');
-                return;
-            }
-            const passN = typeof getVocaPassCount === 'function' ? getVocaPassCount(lvl) : 0;
+            const passN = typeof window.getVocaPassCount === 'function'
+                ? window.getVocaPassCount(lvl)
+                : Math.max(0, parseInt(localStorage.getItem('trigger_voca_pass_count_' + lvl), 10) || 0);
             const nextRound = Math.max(1, passN) + 1;
             if (!confirm(
                 (passN > 0 ? passN + '회차 완주 ◆\n' : '') +
@@ -1670,9 +1708,13 @@
                 '(오답·크레딧은 유지, 진도만 리셋)\n\n' +
                 nextRound + '회차를 시작할까요?'
             )) return;
-            restartVocaCourseFromDay1(lvl);
+            if (typeof window.restartVocaCourseFromDay1 === 'function') {
+                window.restartVocaCourseFromDay1(lvl);
+            } else {
+                restartVocaCourseFromDay1Local(lvl);
+            }
             alert(nextRound + '회차 시작! Day 1부터 학습할 수 있습니다.');
-            updateDashboardUI();
+            location.reload();
         }
         window.confirmRestartVocaCourseFromDay1 = confirmRestartVocaCourseFromDay1;
 
@@ -3573,7 +3615,7 @@
     </script>
     <script src="praise-share.js?v=20260721_extraword"></script>
     <script src="admin-unlock.js"></script>
-    <script src="app.js?v=20260809_course_restart"></script>
+    <script src="app.js?v=20260810_course_restart_fix"></script>
     <script src="worddata.js"></script>
     <script src="worddata_toeic.js?v=20260721_official"></script>
     <script src="worddata_toeic_note.js?v=20260721_note"></script>

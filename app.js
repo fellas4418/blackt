@@ -786,10 +786,6 @@ function restartVocaCourseFromDay1(level) {
  */
 function confirmAndRestartVocaCourseFromDay1(level, opts) {
     const lvl = level || localStorage.getItem('trigger_level') || 'middle';
-    if (typeof restartVocaCourseFromDay1 !== 'function') {
-        alert('재시작 기능을 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.');
-        return false;
-    }
     const passN = getVocaPassCount(lvl);
     const nextRound = Math.max(1, passN) + 1;
     if (!confirm(
