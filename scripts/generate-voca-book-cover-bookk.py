@@ -12,7 +12,9 @@ from io import BytesIO
 from pathlib import Path
 
 from PIL import Image as PILImage
-from reportlab.lib.colors import HexColor, white
+from reportlab.graphics import renderPDF
+from reportlab.graphics.barcode import createBarcodeDrawing
+from reportlab.lib.colors import HexColor, black, white
 from reportlab.lib.units import mm
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
@@ -27,6 +29,10 @@ OUT_DIR = OUT_DIR_MIDDLE
 LOGO_PATH = ROOT / "로고, 이미지" / "trigger-logo-v2.png"
 MARK_PATH = ROOT / "로고, 이미지" / "로고 최종.png"
 QR_PATH = ROOT / "로고, 이미지" / "qr-blackt.png"
+# 교보 POD 뒤표지용 (출판사 자체 ISBN)
+ISBN_HYPHEN = "979-11-993384-0-1"
+ISBN_DIGITS = "9791199338401"
+PRICE_LABEL = "값 16,000원"
 LOGO_ASPECT = 342 / 820
 _MARK_CACHE: dict[bool, ImageReader] = {}
 _MARK_TIGHT: ImageReader | None = None
@@ -256,6 +262,32 @@ def draw_front_panel(
     c.restoreState()
 
 
+def draw_isbn_barcode_block(c: canvas.Canvas, x: float, y: float) -> None:
+    """뒤표지 좌하단 — 흰 바탕에 EAN-13 바코드 + ISBN·가격."""
+    plate_w = 72 * mm
+    plate_h = 32 * mm
+    c.setFillColor(white)
+    c.roundRect(x, y, plate_w, plate_h, 1.5 * mm, fill=1, stroke=0)
+
+    barcode = createBarcodeDrawing(
+        "EAN13",
+        value=ISBN_DIGITS,
+        barWidth=0.33 * mm,
+        barHeight=14 * mm,
+        humanReadable=False,
+    )
+    bw = float(barcode.width)
+    bx = x + (plate_w - bw) / 2
+    by = y + 12.5 * mm
+    renderPDF.draw(barcode, c, bx, by)
+
+    c.setFillColor(black)
+    c.setFont(FONT_REGULAR, 7.5)
+    c.drawCentredString(x + plate_w / 2, y + 7.2 * mm, f"ISBN {ISBN_HYPHEN}")
+    c.setFont(FONT_BOLD, 8)
+    c.drawCentredString(x + plate_w / 2, y + 2.8 * mm, PRICE_LABEL)
+
+
 def draw_back_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float) -> None:
     """뒤표지 패널."""
     c.saveState()
@@ -298,13 +330,16 @@ def draw_back_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float) 
     if QR_PATH.exists():
         c.drawImage(str(QR_PATH), box_x + qr_pad, box_y + qr_pad, width=qr_size, height=qr_size)
 
+    # 교보 POD: 뒤표지에 바코드·ISBN·가격 필수 (판권면만으로는 반려)
+    draw_isbn_barcode_block(c, 14 * mm, 14 * mm)
+
     c.setFillColor(PALE)
     c.setFont(FONT_REGULAR, 11)
-    c.drawCentredString(w / 2, 28 * mm, "펴낸곳  플레이온")
+    c.drawRightString(w - 18 * mm, 30 * mm, "펴낸곳  플레이온")
     mark_size = 14 * mm
     draw_mark(c, w - 18 * mm - mark_size, 14 * mm, mark_size)
-    c.setFont(FONT_REGULAR, 14)
-    c.drawCentredString(w / 2, 18 * mm, "TRIGGER BLACK")
+    c.setFont(FONT_REGULAR, 11)
+    c.drawRightString(w - 18 * mm, 24 * mm, "TRIGGER BLACK")
     c.restoreState()
 
 
@@ -464,7 +499,7 @@ def build_cover_pdf(
                     "  (교보 계산기 값이면 --spine 으로 그 값 사용)",
                     "",
                     f"앞표지: Trigger 로고 + VOCA · {level} 배지(좌상, 중등=주황/고등=네온블루/토익=네온그린) · T마크(우하) · DAY 바",
-                    "뒷표지: Just Follow(40pt) + QR · T마크(우하)",
+                    f"뒷표지: Just Follow(40pt) + QR · ISBN바코드({ISBN_HYPHEN}) · {PRICE_LABEL} · T마크(우하)",
                     f"책등: T마크(왼쪽 끝) + TRIGGER VOCA · {level} (글씨=책등 두께 비례)",
                     "",
                     "표지 PDF 크기(도련 3mm 포함):",

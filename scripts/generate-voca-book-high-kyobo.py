@@ -318,7 +318,7 @@ def build_high_days_pdf(
             page_no=page_no,
             title="Trigger VOCA 고등",
             words_line=f"DAY 01–{day_count:02d} · {word_count} WORDS",
-            isbn=None,  # 신청 전이면 판권에서 생략
+            isbn="979-11-993384-0-1",
             price="16,000원",
         )
         page_no += 1
@@ -344,7 +344,8 @@ def build_high_days_pdf(
             f"p.{conf_color_start}(홀수페이지)~p.{conf_color_end}(짝수페이지) 부분 컬러 적용 요청",
             "",
             "※ PDF 파일 페이지 순서 기준 (인쇄 쪽번호 아님)",
-            "※ 판권 ISBN은 발급 후 반영 예정",
+            "※ 판권 ISBN: 979-11-993384-0-1 · 발행일 2026년 7월 31일",
+            "※ 표지 뒤표지에 바코드·ISBN·가격(16,000원) 포함 필수",
             "※ 표지는 중등과 별도 전개도로 제작",
             "",
         ]
