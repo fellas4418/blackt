@@ -333,13 +333,18 @@ def draw_back_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float) 
     # 교보 POD: 뒤표지에 바코드·ISBN·가격 필수 (판권면만으로는 반려)
     draw_isbn_barcode_block(c, 14 * mm, 14 * mm)
 
+    # 우하단: T마크 아래, 그 위에 글자(겹침 방지)
+    mark_size = 12 * mm
+    mark_x = w - 18 * mm - mark_size
+    mark_y = 14 * mm
+    draw_mark(c, mark_x, mark_y, mark_size)
+    text_right = w - 18 * mm
+    brand_y = mark_y + mark_size + 3 * mm
+    pub_y = brand_y + 5.5 * mm
     c.setFillColor(PALE)
     c.setFont(FONT_REGULAR, 11)
-    c.drawRightString(w - 18 * mm, 30 * mm, "펴낸곳  플레이온")
-    mark_size = 14 * mm
-    draw_mark(c, w - 18 * mm - mark_size, 14 * mm, mark_size)
-    c.setFont(FONT_REGULAR, 11)
-    c.drawRightString(w - 18 * mm, 24 * mm, "TRIGGER BLACK")
+    c.drawRightString(text_right, pub_y, "펴낸곳  플레이온")
+    c.drawRightString(text_right, brand_y, "TRIGGER BLACK")
     c.restoreState()
 
 
