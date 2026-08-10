@@ -3233,6 +3233,8 @@ def build_middle_days_pdf(
         lines += [
             "",
             "※ PDF 파일 페이지 순서 기준 (인쇄 쪽번호 아님)",
+            "※ 판권 ISBN: 979-11-993384-0-1 · 발행일 2026년 7월 31일",
+            "※ 표지 뒤표지에 바코드·ISBN·가격(16,000원) 포함 필수",
             "※ 표지는 전개도 파일(중등_표지_교보.pdf)을 따로 업로드",
         ]
         note.write_text("\n".join(lines), encoding="utf-8")
