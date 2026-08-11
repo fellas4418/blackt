@@ -942,13 +942,15 @@ async function reassignUserId(env, oldId, newId) {
   const old = await env.DB.prepare("SELECT id, password_hash, is_premium FROM users WHERE id = ?1")
     .bind(oldId)
     .first();
+  // saved_voca/saved_grammar 는 ON DELETE CASCADE.
+  // 자식 row를 옮기기 전에 옛 users 를 지우면 학습노트가 함께 삭제된다.
+  // 순서: 새 users INSERT → 자식 UPDATE → 옛 users DELETE.
   if (old) {
     await env.DB.prepare(
       "INSERT INTO users (id, password_hash, is_premium) VALUES (?1, ?2, ?3)"
     )
       .bind(newId, old.password_hash, Number(old.is_premium) || 0)
       .run();
-    await env.DB.prepare("DELETE FROM users WHERE id = ?1").bind(oldId).run();
   }
   const tables = [
     "daily_session",
@@ -969,6 +971,9 @@ async function reassignUserId(env, oldId, newId) {
       .bind(newId, oldId)
       .run();
   } catch (e) {}
+  if (old) {
+    await env.DB.prepare("DELETE FROM users WHERE id = ?1").bind(oldId).run();
+  }
   return { ok: true };
 }
 
