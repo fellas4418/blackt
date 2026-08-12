@@ -1291,7 +1291,14 @@ async function handleReferralClaim(env, body) {
       .bind(referrerId)
       .run();
   }
-  return json({ ok: true, count });
+  // lifetime total so clients can recover credits after wipe / lost claim response
+  const totalRow = await env.DB.prepare(
+    "SELECT COUNT(*) AS n FROM referral_signups WHERE referrer_id = ?1 AND credited_sharer = 1"
+  )
+    .bind(referrerId)
+    .first();
+  const total_credited = parseInt(totalRow && totalRow.n, 10) || 0;
+  return json({ ok: true, count, total_credited });
 }
 
 function maskLeaderboardName(name, isMe) {
