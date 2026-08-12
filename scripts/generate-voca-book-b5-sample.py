@@ -81,10 +81,10 @@ TABLE_TOP_LOOSE = 46 * mm
 
 
 def page_margins_x(page_no: int) -> tuple[float, float]:
-    """(left, right). 홀수=왼쪽 끝까지, 짝수=오른쪽 끝까지."""
+    """(left, right). PDF 홀수=오른쪽 면(바깥 오른쪽), 짝수=왼쪽 면(바깥 왼쪽)."""
     if page_no % 2 == 1:
-        return MARGIN_OUTER, MARGIN_INNER
-    return MARGIN_INNER, MARGIN_OUTER
+        return MARGIN_INNER, MARGIN_OUTER
+    return MARGIN_OUTER, MARGIN_INNER
 
 
 def draw_page_footer(
@@ -99,11 +99,11 @@ def draw_page_footer(
     label = f"TRIGGER VOCA · {level_tag}"
     ink = white if dark_bg else SLATE
     if page_no % 2 == 1:
-        draw_text(c, str(page_no), margin_left, MARGIN_BOTTOM, size=10.4, color=ink)
-        draw_text(c, label, width - margin_right, MARGIN_BOTTOM, size=6.5, color=ink, align="right")
-    else:
         draw_text(c, label, margin_left, MARGIN_BOTTOM, size=6.5, color=ink)
         draw_text(c, str(page_no), width - margin_right, MARGIN_BOTTOM, size=10.4, color=ink, align="right")
+    else:
+        draw_text(c, str(page_no), margin_left, MARGIN_BOTTOM, size=10.4, color=ink)
+        draw_text(c, label, width - margin_right, MARGIN_BOTTOM, size=6.5, color=ink, align="right")
 
 
 def draw_divider_mark(c: canvas.Canvas, width: float, height: float) -> None:
