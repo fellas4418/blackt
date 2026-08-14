@@ -196,7 +196,7 @@ def draw_korean_title_two_lines(
     max_w: float = 106 * mm,
     second_width_ratio: float = 0.92,
 ) -> float:
-    """트리거(BlackHanSans) + VOCA(Pretendard Black, 가로 92%, 얕은 그림자, 민트)."""
+    """트리거(BlackHanSans) + VOCA(Pretendard Black, 가로 92%, 얕은 그림자)."""
     size1 = base_size
     while size1 > 28 and pdfmetrics.stringWidth(lines[0], FONT_LOGO, size1) > max_w:
         size1 *= 0.97
@@ -207,7 +207,7 @@ def draw_korean_title_two_lines(
 
     fonts = (FONT_LOGO, FONT_BLACK)
     sizes = (size1, size2)
-    fills = (white, NEON_BLUE)
+    fills = (white, white)
     shadow_scales = (1.0, 0.48)
     shadow_steps = (14, 8)
 
@@ -414,9 +414,9 @@ def draw_spine(
     h: float,
     *,
     level: str = "중등",
-    spine_title: str = "트리거 보카",
+    spine_title: str = "트리거 VOCA",
 ) -> None:
-    """책등 — 왼쪽 끝에 T 마크, 트리거 보카 · 레벨."""
+    """책등 — 왼쪽 끝에 T 마크, 트리거 VOCA · 레벨."""
     c.saveState()
     c.setFillColor(NAVY)
     c.rect(x0, y0, spine_w, h, fill=1, stroke=0)

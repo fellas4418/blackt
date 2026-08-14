@@ -799,7 +799,7 @@ def draw_colophon_page(
     max_w = right - left
     cx = width / 2
 
-    book_title = title or f"트리거 보카 {level_tag}"
+    book_title = title or f"트리거 VOCA {level_tag}"
     book_words = words_line or "Trigger VOCA · DAY 01–50 · 1,200 WORDS"
 
     y = height - 48 * mm
@@ -939,7 +939,7 @@ def draw_korean_title_two_lines(
     max_w: float = 106 * mm,
     second_width_ratio: float = 0.92,
 ) -> float:
-    """트리거(BlackHanSans) + VOCA(Pretendard Black, 가로 92%, 얕은 그림자, 민트)."""
+    """트리거(BlackHanSans) + VOCA(Pretendard Black, 가로 92%, 얕은 그림자)."""
     size1 = base_size
     while size1 > 28 and pdfmetrics.stringWidth(lines[0], FONT_LOGO, size1) > max_w:
         size1 *= 0.97
@@ -950,7 +950,7 @@ def draw_korean_title_two_lines(
 
     fonts = (FONT_LOGO, FONT_BLACK)
     sizes = (size1, size2)
-    fills = (white, NEON_BLUE)
+    fills = (white, white)
     shadow_scales = (1.0, 0.48)
     shadow_steps = (14, 8)
 

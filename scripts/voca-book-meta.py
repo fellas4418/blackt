@@ -22,8 +22,8 @@ class LevelBookMeta(TypedDict):
 # 중등 — 교보 등록 완료 (2026-07-31)
 MIDDLE_KYOBO: LevelBookMeta = {
     "level": "중등",
-    "formal_title": "트리거 보카 중등",
-    "main_title": "트리거 보카",
+    "formal_title": "트리거 VOCA 중등",
+    "main_title": "트리거 VOCA",
     "subtitle": "Trigger VOCA",
     "isbn_hyphen": "979-11-993384-0-1",
     "isbn_digits": "9791199338401",
@@ -37,8 +37,8 @@ MIDDLE_KYOBO: LevelBookMeta = {
 # 고등 — ISBN·발행일은 교보 서지등록과 동일하게 유지
 HIGH_KYOBO: LevelBookMeta = {
     "level": "고등",
-    "formal_title": "트리거 보카 고등",
-    "main_title": "트리거 보카",
+    "formal_title": "트리거 VOCA 고등",
+    "main_title": "트리거 VOCA",
     "subtitle": "Trigger VOCA",
     "isbn_hyphen": "979-11-993384-0-1",
     "isbn_digits": "9791199338401",
