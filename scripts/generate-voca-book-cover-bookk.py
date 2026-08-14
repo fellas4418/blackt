@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
+import math
 import sys
 from io import BytesIO
 from pathlib import Path
@@ -205,19 +206,21 @@ def draw_korean_title_two_lines(
     offsets = (half_h, -half_h)
     shadow_dx = title_size * 0.081
     shadow_dy = -title_size * 0.063
+    skew_tan = math.tan(math.radians(18))  # skew(0, 18) — y 위치마다 x 중심이 밀리므로 보정
 
     c.saveState()
     c.translate(cx, cy)
     c.skew(0, 18)
     c.setFont(FONT_LOGO, title_size)
     for line, y_off in zip(lines, offsets):
+        x_comp = -skew_tan * y_off
         c.setFillColor(LOGO_SHADOW)
         for i in range(14, 0, -1):
             t = i / 14
-            c.drawCentredString(shadow_dx * t, y_off + shadow_dy * t, line)
+            c.drawCentredString(x_comp + shadow_dx * t, y_off + shadow_dy * t, line)
         c.setFillColor(white)
         for dx, dy in ((0, 0), (0.5, 0), (0, 0.4), (0.5, 0.4)):
-            c.drawCentredString(dx, y_off + dy, line)
+            c.drawCentredString(x_comp + dx, y_off + dy, line)
     c.restoreState()
     return cy - half_h - title_size * 0.36
 
