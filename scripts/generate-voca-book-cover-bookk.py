@@ -214,26 +214,25 @@ def draw_front_panel(
     c.setFont(FONT_BOLD, 13.5)
     c.drawCentredString(badge_x + badge_w / 2, badge_y + badge_h / 2 - 4.8, level)
 
-    title_size = 52
-    title_y = h - 108 * mm
-    accent_w = 72 * mm
-    c.setStrokeColor(NEON_BLUE)
-    c.setLineWidth(2.2)
-    c.line((w - accent_w) / 2, title_y + title_size * 0.55, (w + accent_w) / 2, title_y + title_size * 0.55)
-    c.line((w - accent_w) / 2, title_y + title_size * 0.55 + 3.5, (w + accent_w) / 2, title_y + title_size * 0.55 + 3.5)
+    title_size = 60  # 구 VOCA 워드마크와 동일
+    title_max_w = 106 * mm  # 구 Trigger 로고 폭
+    while title_size > 24 and pdfmetrics.stringWidth(main_title, FONT_LOGO, title_size) > title_max_w:
+        title_size *= 0.97
+    title_y = h - 128 * mm  # 구 voca_y
 
-    shadow_dx = title_size * 0.05
-    shadow_dy = -title_size * 0.04
+    shadow_dx = title_size * 0.081
+    shadow_dy = -title_size * 0.063
     c.saveState()
     c.translate(w / 2, title_y)
-    c.skew(0, 12)
+    c.skew(0, 18)
     c.setFont(FONT_LOGO, title_size)
     c.setFillColor(LOGO_SHADOW)
-    for i in range(10, 0, -1):
-        t = i / 10
+    for i in range(14, 0, -1):
+        t = i / 14
         c.drawCentredString(shadow_dx * t, shadow_dy * t, main_title)
     c.setFillColor(white)
-    c.drawCentredString(0, 0, main_title)
+    for dx, dy in ((0, 0), (0.5, 0), (0, 0.4), (0.5, 0.4)):
+        c.drawCentredString(dx, dy, main_title)
     c.restoreState()
 
     sub_size = 18
