@@ -934,10 +934,10 @@ def draw_korean_title_two_lines(
     cy: float,
     *,
     lines: tuple[str, str] = ("트리거", "보카"),
-    base_size: float = 120,
+    base_size: float = 108,
     max_w: float = 106 * mm,
 ) -> float:
-    """한글 제목 2줄 — 구 VOCA 60pt의 2배. 반환: 블록 하단 y."""
+    """한글 제목 2줄 — BlackHanSans(VOCA와 동일). 반환: 블록 하단 y."""
     title_size = base_size
     while title_size > 28:
         widest = max(pdfmetrics.stringWidth(line, FONT_LOGO, title_size) for line in lines)
@@ -945,8 +945,9 @@ def draw_korean_title_two_lines(
             break
         title_size *= 0.97
 
-    line_gap = title_size * 1.02
-    offsets = (line_gap / 2, -line_gap / 2)
+    line_gap = title_size * 1.05
+    half_h = line_gap / 2
+    offsets = (half_h, -half_h)
     shadow_dx = title_size * 0.081
     shadow_dy = -title_size * 0.063
 
@@ -963,7 +964,7 @@ def draw_korean_title_two_lines(
         for dx, dy in ((0, 0), (0.5, 0), (0, 0.4), (0.5, 0.4)):
             c.drawCentredString(dx, y_off + dy, line)
     c.restoreState()
-    return cy - line_gap / 2 - title_size * 0.38
+    return cy - half_h - title_size * 0.36
 
 
 def draw_cover(
@@ -1011,9 +1012,11 @@ def draw_cover(
         for_dark=True,
     )
 
-    title_center_y = height - 118 * mm
+    title_zone_top = badge_y - 10 * mm
+    title_zone_bottom = height - 200 * mm
+    title_center_y = (title_zone_top + title_zone_bottom) / 2
     title_bottom = draw_korean_title_two_lines(
-        c, width / 2, title_center_y, max_w=106 * mm
+        c, width / 2, title_center_y, max_w=width - 56 * mm
     )
 
     draw_text(
