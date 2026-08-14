@@ -208,8 +208,8 @@ def draw_korean_title_two_lines(
     fonts = (FONT_LOGO, FONT_BLACK)
     sizes = (size1, size2)
     fills = (white, white)
-    shadow_scales = (1.0, 0.48)
-    shadow_steps = (14, 8)
+    shadow_scales = (1.0, 0.65)
+    shadow_steps = (14, 11)
 
     line_gap = (size1 + size2) / 2 * 1.05
     half_h = line_gap / 2
