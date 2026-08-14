@@ -191,7 +191,7 @@ def draw_korean_title_two_lines(
     cx: float,
     cy: float,
     *,
-    lines: tuple[str, str] = ("트리거", "보카"),
+    lines: tuple[str, str] = ("트리거", "VOCA"),
     base_size: float = 120,
     max_w: float = 106 * mm,
 ) -> float:
@@ -239,7 +239,7 @@ def draw_front_panel(
     main_title: str = "트리거 보카",
     subtitle: str = "Trigger VOCA",
 ) -> None:
-    """앞표지 — 트리거 보카(한글) + Trigger VOCA(소)."""
+    """앞표지 — 트리거(한글) + VOCA(영문)."""
     c.saveState()
     c.translate(x0, y0)
     c.setFillColor(NAVY)
@@ -262,14 +262,9 @@ def draw_front_panel(
     title_zone_bottom = h - 200 * mm
     # 구 영문(Trigger 로고 + VOCA)보다 블록이 내려가 보여 10mm 상향
     title_center_y = (title_zone_top + title_zone_bottom) / 2 + 10 * mm
-    title_bottom = draw_korean_title_two_lines(
+    draw_korean_title_two_lines(
         c, w / 2, title_center_y, max_w=w - 56 * mm
     )
-
-    sub_size = 18
-    c.setFillColor(PALE)
-    c.setFont(FONT_BLACK, sub_size)
-    c.drawCentredString(w / 2, title_bottom - 8 * mm, subtitle)
 
     c.setFillColor(NEON_BLUE)
     c.roundRect(28 * mm, h - 184 * mm, w - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
@@ -570,7 +565,7 @@ def build_cover_pdf(
                     f"내지 페이지: {pages}쪽 → 책등 {spine}mm",
                     "  (교보 계산기 값이면 --spine 으로 그 값 사용)",
                     "",
-                    f"앞표지: {book['main_title']} + {book['subtitle']}(소) · {level} 배지 · T마크 · DAY 바",
+                    f"앞표지: 트리거 + VOCA · {level} 배지 · T마크 · DAY 바",
                     f"뒷표지: Just Follow(40pt) + QR · ISBN바코드({book['isbn_hyphen']}) · {book['price_label']} · T마크(우하)",
                     f"책등: T마크 + {book['main_title']} · {level}",
                     f"정식명: {book['formal_title']}",

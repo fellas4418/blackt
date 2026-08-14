@@ -934,7 +934,7 @@ def draw_korean_title_two_lines(
     cx: float,
     cy: float,
     *,
-    lines: tuple[str, str] = ("트리거", "보카"),
+    lines: tuple[str, str] = ("트리거", "VOCA"),
     base_size: float = 120,
     max_w: float = 106 * mm,
 ) -> float:
@@ -1019,19 +1019,8 @@ def draw_cover(
     title_zone_bottom = height - 200 * mm
     # 구 영문(Trigger 로고 + VOCA)보다 블록이 내려가 보여 10mm 상향
     title_center_y = (title_zone_top + title_zone_bottom) / 2 + 10 * mm
-    title_bottom = draw_korean_title_two_lines(
+    draw_korean_title_two_lines(
         c, width / 2, title_center_y, max_w=width - 56 * mm
-    )
-
-    draw_text(
-        c,
-        subtitle,
-        width / 2,
-        title_bottom - 8 * mm,
-        font=FONT_BLACK,
-        size=18,
-        color=PALE,
-        align="center",
     )
 
     c.setFillColor(NEON_BLUE)
