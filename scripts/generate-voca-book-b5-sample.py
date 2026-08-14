@@ -6,8 +6,10 @@
 
 from __future__ import annotations
 
+import importlib.util
 import random
 import re
+import sys
 from difflib import SequenceMatcher
 from io import BytesIO
 from pathlib import Path
@@ -24,6 +26,7 @@ from reportlab.pdfgen import canvas
 ROOT = Path(__file__).resolve().parents[1]
 OUT_MIDDLE = ROOT / "단어장 PDF" / "중등"
 OUT_HIGH = ROOT / "단어장 PDF" / "고등"
+META_PATH = ROOT / "scripts" / "voca-book-meta.py"
 MARK_PATH = ROOT / "로고, 이미지" / "로고 최종.png"
 _MARK_CACHE: dict[bool, ImageReader] = {}
 
@@ -132,6 +135,18 @@ INK = HexColor("#20262D")
 LOGO_SHADOW = HexColor("#636262")  # trigger-logo-v2 그림자 샘플
 # Day/REVIEW/INDEX 간지 바 — 교보 부분컬러용 무채(혼동 구간만 NEON·빨강)
 DIVIDER_ACCENT = PALE
+
+
+def load_level_meta(level: str):
+    spec = importlib.util.spec_from_file_location("voca_book_meta", META_PATH)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"메타 로드 실패: {META_PATH}")
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["voca_book_meta"] = mod
+    spec.loader.exec_module(mod)
+    return mod.meta_for_level(level)
+
+
 # 교보 부분컬러(≤10쪽)용 — 혼동 표 밀도 상향
 CONFUSABLE_COMPACT = False
 
@@ -770,6 +785,7 @@ def draw_colophon_page(
     words_line: str | None = None,
     isbn: str | None = "979-11-993384-0-1",
     price: str = "16,000원",
+    pub_date: str = "2026년 7월 31일",
 ) -> None:
     """교보 POD 필수 판권 페이지."""
     width, height = B5
@@ -782,8 +798,8 @@ def draw_colophon_page(
     max_w = right - left
     cx = width / 2
 
-    book_title = title or f"Trigger VOCA {level_tag}"
-    book_words = words_line or "DAY 01–50 · 1,200 WORDS"
+    book_title = title or f"트리거 보카 {level_tag}"
+    book_words = words_line or "Trigger VOCA · DAY 01–50 · 1,200 WORDS"
 
     y = height - 48 * mm
     draw_text(c, book_title, cx, y, font=FONT_BOLD, size=22, color=INK, align="center")
@@ -801,7 +817,7 @@ def draw_colophon_page(
 
     y -= 22 * mm
     rows = [
-        ("발행일", "2026년 7월 31일"),  # ISBN(서지정보) 등록일과 동일해야 함
+        ("발행일", pub_date),
         ("지은이", "Looke"),
         ("발행처", "플레이온"),
     ]
@@ -919,6 +935,8 @@ def draw_cover(
     level_ko: str,
     day_label: str,
     words_note: str,
+    main_title: str = "트리거 보카",
+    subtitle: str = "Trigger VOCA",
 ) -> None:
     width, height = B5
     c.setFillColor(NAVY)
@@ -955,46 +973,38 @@ def draw_cover(
         for_dark=True,
     )
 
-    logo_w = 106 * mm  # Trigger 살짝 축소
-    logo_h = logo_w * LOGO_ASPECT
-    c.drawImage(
-        str(LOGO_PATH),
-        (width - logo_w) / 2,
-        height - 60 * mm - logo_h,
-        width=logo_w,
-        height=logo_h,
-        preserveAspectRatio=True,
-        anchor="c",
-        mask="auto",
-    )
+    title_size = 52
+    title_y = height - 108 * mm
+    accent_w = 72 * mm
+    c.setStrokeColor(NEON_BLUE)
+    c.setLineWidth(2.2)
+    c.line((width - accent_w) / 2, title_y + title_size * 0.55, (width + accent_w) / 2, title_y + title_size * 0.55)
+    c.line((width - accent_w) / 2, title_y + title_size * 0.55 + 3.5, (width + accent_w) / 2, title_y + title_size * 0.55 + 3.5)
 
-    voca_size = 60
-    voca_y = height - 128 * mm
-    tracking = voca_size * 0.08
-    shadow_dx = voca_size * 0.081
-    shadow_dy = -voca_size * 0.063
-
-    def draw_tracked(ox: float, oy: float) -> None:
-        widths = [pdfmetrics.stringWidth(ch, FONT_LOGO, voca_size) for ch in "VOCA"]
-        total = sum(widths) + tracking * 3
-        cursor = ox - total / 2
-        for ch, tw in zip("VOCA", widths):
-            c.drawString(cursor, oy, ch)
-            cursor += tw + tracking
-
+    shadow_dx = title_size * 0.05
+    shadow_dy = -title_size * 0.04
     c.saveState()
-    c.translate(width / 2, voca_y)
-    c.skew(0, 18)
-    c.setFont(FONT_LOGO, voca_size)
+    c.translate(width / 2, title_y)
+    c.skew(0, 12)
+    c.setFont(FONT_LOGO, title_size)
     c.setFillColor(LOGO_SHADOW)
-    steps = 14
-    for i in range(steps, 0, -1):
-        t = i / steps
-        draw_tracked(shadow_dx * t, shadow_dy * t)
+    for i in range(10, 0, -1):
+        t = i / 10
+        c.drawCentredString(shadow_dx * t, shadow_dy * t, main_title)
     c.setFillColor(white)
-    for dx, dy in ((0, 0), (0.5, 0), (0, 0.4), (0.5, 0.4)):
-        draw_tracked(dx, dy)
+    c.drawCentredString(0, 0, main_title)
     c.restoreState()
+
+    draw_text(
+        c,
+        subtitle,
+        width / 2,
+        title_y - 22 * mm,
+        font=FONT_BOLD,
+        size=18,
+        color=PALE,
+        align="center",
+    )
 
     c.setFillColor(NEON_BLUE)
     c.roundRect(28 * mm, height - 184 * mm, width - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
@@ -3043,9 +3053,10 @@ def build_middle_days_pdf(
     else:
         out_name = "중등.pdf" if include_covers else "중등_내지.pdf"
     out_path = resolve_output_path(OUT_MIDDLE / out_name)
+    book = load_level_meta("중등")
     c = canvas.Canvas(str(out_path), pagesize=B5, pageCompression=1)
     size_note = "교보 B5 188×254" if kyobo else "부크크 B5 182×257"
-    c.setTitle(f"트리거 보카 중등 Day 01-{day_count:02d} {size_note}")
+    c.setTitle(f"{book['formal_title']} Day 01-{day_count:02d} {size_note}")
     c.setAuthor("TRIGGER BLACK")
     c.setSubject(
         f"{size_note} 중등 단어장 (1회독 + 랜덤 1회독)"
@@ -3060,8 +3071,10 @@ def build_middle_days_pdf(
             c,
             level_en="MIDDLE SCHOOL",
             level_ko="중등",
-            day_label=f"DAY 01–{day_count:02d} · {word_count} WORDS",
+            day_label=book["day_label_cover"],
             words_note="1회독 + 랜덤 1회독 · Day 구분은 페이지 헤더만 사용합니다.",
+            main_title=book["main_title"],
+            subtitle=book["subtitle"],
         )
     contents_page_no = 2 if include_covers else 1
     contents = build_middle_round1_contents_entries(
@@ -3197,7 +3210,16 @@ def build_middle_days_pdf(
     )
     if kyobo:
         # 교보: 판권은 INDEX 다음 맨 뒤
-        draw_colophon_page(c, level_tag="중등", page_no=page_no)
+        draw_colophon_page(
+            c,
+            level_tag="중등",
+            page_no=page_no,
+            title=book["formal_title"],
+            words_line=book["words_line_colophon"],
+            isbn=book["isbn_hyphen"],
+            price=book["price_colophon"],
+            pub_date=book["pub_date"],
+        )
         page_no += 1
     if include_covers:
         draw_back_cover(c)
@@ -3233,8 +3255,9 @@ def build_middle_days_pdf(
         lines += [
             "",
             "※ PDF 파일 페이지 순서 기준 (인쇄 쪽번호 아님)",
-            "※ 판권 ISBN: 979-11-993384-0-1 · 발행일 2026년 7월 31일",
-            "※ 표지 뒤표지에 바코드·ISBN·가격(16,000원) 포함 필수",
+            f"※ 판권 ISBN: {book['isbn_hyphen']} · 발행일 {book['pub_date']}",
+            f"※ 정식명: {book['formal_title']}",
+            f"※ 표지 뒤표지에 바코드·ISBN·{book['price_label']} 포함 필수",
             "※ 표지는 전개도 파일(중등_표지_교보.pdf)을 따로 업로드",
         ]
         note.write_text("\n".join(lines), encoding="utf-8")

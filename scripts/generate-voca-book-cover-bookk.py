@@ -8,6 +8,8 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
+import sys
 from io import BytesIO
 from pathlib import Path
 
@@ -26,14 +28,10 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT_DIR_MIDDLE = ROOT / "단어장 PDF" / "중등"
 OUT_DIR_HIGH = ROOT / "단어장 PDF" / "고등"
 OUT_DIR = OUT_DIR_MIDDLE
-LOGO_PATH = ROOT / "로고, 이미지" / "trigger-logo-v2.png"
 MARK_PATH = ROOT / "로고, 이미지" / "로고 최종.png"
 QR_PATH = ROOT / "로고, 이미지" / "qr-blackt.png"
-# 교보 POD 뒤표지용 (출판사 자체 ISBN)
-ISBN_HYPHEN = "979-11-993384-0-1"
-ISBN_DIGITS = "9791199338401"
-PRICE_LABEL = "값 16,000원"
-LOGO_ASPECT = 342 / 820
+META_PATH = ROOT / "scripts" / "voca-book-meta.py"
+LOGO_SHADOW = HexColor("#636262")
 _MARK_CACHE: dict[bool, ImageReader] = {}
 _MARK_TIGHT: ImageReader | None = None
 
@@ -46,7 +44,17 @@ NEON_BLUE = HexColor("#00F3FF")
 NEON_GREEN = HexColor("#39FF14")  # 토익 배지(앱 --neon-green)
 ORANGE = HexColor("#FF9900")
 PALE = HexColor("#EEF1F4")
-LOGO_SHADOW = HexColor("#636262")  # trigger-logo-v2 그림자 샘플
+LOGO_SHADOW = HexColor("#636262")
+
+
+def load_level_meta(level: str):
+    spec = importlib.util.spec_from_file_location("voca_book_meta", META_PATH)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"메타 로드 실패: {META_PATH}")
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["voca_book_meta"] = mod
+    spec.loader.exec_module(mod)
+    return mod.meta_for_level(level)
 
 
 def level_accent(level: str):
@@ -182,14 +190,12 @@ def draw_front_panel(
     w: float,
     h: float,
     *,
-    logo_w: float = 106 * mm,
-    voca_size: float = 60,
-    logo_top: float | None = None,
-    voca_y: float | None = None,
     level: str = "중등",
     day_label: str = "DAY 01–50 · 1200 WORDS",
+    main_title: str = "트리거 보카",
+    subtitle: str = "Trigger VOCA",
 ) -> None:
-    """앞표지 — Trigger 로고 + VOCA (초기 배치)."""
+    """앞표지 — 트리거 보카(한글) + Trigger VOCA(소)."""
     c.saveState()
     c.translate(x0, y0)
     c.setFillColor(NAVY)
@@ -208,39 +214,32 @@ def draw_front_panel(
     c.setFont(FONT_BOLD, 13.5)
     c.drawCentredString(badge_x + badge_w / 2, badge_y + badge_h / 2 - 4.8, level)
 
-    logo_h = logo_w * LOGO_ASPECT
-    top = h - 60 * mm if logo_top is None else logo_top
-    c.drawImage(
-        str(LOGO_PATH),
-        (w - logo_w) / 2,
-        top - logo_h,
-        width=logo_w,
-        height=logo_h,
-        preserveAspectRatio=True,
-        anchor="c",
-        mask="auto",
-    )
+    title_size = 52
+    title_y = h - 108 * mm
+    accent_w = 72 * mm
+    c.setStrokeColor(NEON_BLUE)
+    c.setLineWidth(2.2)
+    c.line((w - accent_w) / 2, title_y + title_size * 0.55, (w + accent_w) / 2, title_y + title_size * 0.55)
+    c.line((w - accent_w) / 2, title_y + title_size * 0.55 + 3.5, (w + accent_w) / 2, title_y + title_size * 0.55 + 3.5)
 
-    # VOCA — Trigger와 맞춘 서체·우하 압출 그림자, 자간 살짝 확보
-    vy = h - 128 * mm if voca_y is None else voca_y
-    tracking = voca_size * 0.08
-    shadow_dx = voca_size * 0.081
-    shadow_dy = -voca_size * 0.063
+    shadow_dx = title_size * 0.05
+    shadow_dy = -title_size * 0.04
     c.saveState()
-    c.translate(w / 2, vy)
-    c.skew(0, 18)
-    c.setFont(FONT_LOGO, voca_size)
+    c.translate(w / 2, title_y)
+    c.skew(0, 12)
+    c.setFont(FONT_LOGO, title_size)
     c.setFillColor(LOGO_SHADOW)
-    steps = 14
-    for i in range(steps, 0, -1):
-        t = i / steps
-        draw_tracked_centred(
-            c, "VOCA", shadow_dx * t, shadow_dy * t, font=FONT_LOGO, size=voca_size, tracking=tracking
-        )
+    for i in range(10, 0, -1):
+        t = i / 10
+        c.drawCentredString(shadow_dx * t, shadow_dy * t, main_title)
     c.setFillColor(white)
-    for dx, dy in ((0, 0), (0.5, 0), (0, 0.4), (0.5, 0.4)):
-        draw_tracked_centred(c, "VOCA", dx, dy, font=FONT_LOGO, size=voca_size, tracking=tracking)
+    c.drawCentredString(0, 0, main_title)
     c.restoreState()
+
+    sub_size = 18
+    c.setFillColor(PALE)
+    c.setFont(FONT_BOLD, sub_size)
+    c.drawCentredString(w / 2, title_y - 22 * mm, subtitle)
 
     c.setFillColor(NEON_BLUE)
     c.roundRect(28 * mm, h - 184 * mm, w - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
@@ -249,20 +248,27 @@ def draw_front_panel(
     c.skew(0, 10)
     c.setFillColor(NAVY)
     c.setFont(FONT_BOLD, 17.5)
-    label = day_label
     for dx, dy in ((0, 0), (0.45, 0), (0, 0.35), (0.45, 0.35)):
-        c.drawCentredString(dx, dy, label)
+        c.drawCentredString(dx, dy, day_label)
     c.restoreState()
 
-    c.setFillColor(PALE)
-    c.setFont(FONT_REGULAR, 14)
     mark_size = 14 * mm
     draw_mark(c, w - 18 * mm - mark_size, 18 * mm, mark_size)
+    c.setFillColor(PALE)
+    c.setFont(FONT_REGULAR, 14)
     c.drawCentredString(w / 2, 18 * mm, "TRIGGER BLACK")
     c.restoreState()
 
 
-def draw_isbn_barcode_block(c: canvas.Canvas, x: float, y: float) -> None:
+def draw_isbn_barcode_block(
+    c: canvas.Canvas,
+    x: float,
+    y: float,
+    *,
+    isbn_digits: str,
+    isbn_hyphen: str,
+    price_label: str,
+) -> None:
     """뒤표지 좌하단 — 흰 바탕에 EAN-13 바코드 + ISBN·가격."""
     plate_w = 72 * mm
     plate_h = 32 * mm
@@ -271,7 +277,7 @@ def draw_isbn_barcode_block(c: canvas.Canvas, x: float, y: float) -> None:
 
     barcode = createBarcodeDrawing(
         "EAN13",
-        value=ISBN_DIGITS,
+        value=isbn_digits,
         barWidth=0.33 * mm,
         barHeight=14 * mm,
         humanReadable=False,
@@ -283,12 +289,22 @@ def draw_isbn_barcode_block(c: canvas.Canvas, x: float, y: float) -> None:
 
     c.setFillColor(black)
     c.setFont(FONT_REGULAR, 7.5)
-    c.drawCentredString(x + plate_w / 2, y + 7.2 * mm, f"ISBN {ISBN_HYPHEN}")
+    c.drawCentredString(x + plate_w / 2, y + 7.2 * mm, f"ISBN {isbn_hyphen}")
     c.setFont(FONT_BOLD, 8)
-    c.drawCentredString(x + plate_w / 2, y + 2.8 * mm, PRICE_LABEL)
+    c.drawCentredString(x + plate_w / 2, y + 2.8 * mm, price_label)
 
 
-def draw_back_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float) -> None:
+def draw_back_panel(
+    c: canvas.Canvas,
+    x0: float,
+    y0: float,
+    w: float,
+    h: float,
+    *,
+    isbn_digits: str,
+    isbn_hyphen: str,
+    price_label: str,
+) -> None:
     """뒤표지 패널."""
     c.saveState()
     c.translate(x0, y0)
@@ -331,7 +347,14 @@ def draw_back_panel(c: canvas.Canvas, x0: float, y0: float, w: float, h: float) 
         c.drawImage(str(QR_PATH), box_x + qr_pad, box_y + qr_pad, width=qr_size, height=qr_size)
 
     # 교보 POD: 뒤표지에 바코드·ISBN·가격 필수 (판권면만으로는 반려)
-    draw_isbn_barcode_block(c, 14 * mm, 14 * mm)
+    draw_isbn_barcode_block(
+        c,
+        14 * mm,
+        14 * mm,
+        isbn_digits=isbn_digits,
+        isbn_hyphen=isbn_hyphen,
+        price_label=price_label,
+    )
 
     # 우하단: T마크 아래, 그 위에 글자(겹침 방지)
     mark_size = 12 * mm
@@ -356,20 +379,20 @@ def draw_spine(
     h: float,
     *,
     level: str = "중등",
+    spine_title: str = "트리거 보카",
 ) -> None:
-    """책등 — 왼쪽 끝에 T 마크, 제목과 동일 높이로 책등 폭을 거의 꽉 채움."""
+    """책등 — 왼쪽 끝에 T 마크, 트리거 보카 · 레벨."""
     c.saveState()
     c.setFillColor(NAVY)
     c.rect(x0, y0, spine_w, h, fill=1, stroke=0)
 
-    # 책등 폭(짧은 변)에서 아주 살짝만 여백
     edge = 1.0 * mm
     band = max(spine_w - edge * 2, 4 * mm)
 
     c.translate(x0 + spine_w / 2, y0 + h / 2)
     c.rotate(90)
 
-    title_prefix = "TRIGGER VOCA  ·  "
+    title_prefix = f"{spine_title}  ·  "
     title_level = level
     title = title_prefix + title_level
     # 책등 두께에 비례해 글씨 크기 결정 (중등 16.7mm 대비 고등 27.5mm면 약 1.65배)
@@ -438,9 +461,8 @@ def build_cover_pdf(
         PAGE_W, PAGE_H = PAGE_W_BOOKK, PAGE_H_BOOKK
 
     OUT_DIR = OUT_DIR_HIGH if level == "고등" else OUT_DIR_MIDDLE
-    day_label = (
-        "DAY 01–50 · 2000 WORDS" if level == "고등" else "DAY 01–50 · 1200 WORDS"
-    )
+    book = load_level_meta(level)
+    day_label = book["day_label_cover"]
     stem = "고등_표지" if level == "고등" else "중등_표지"
 
     register_fonts()
@@ -458,7 +480,7 @@ def build_cover_pdf(
     trim_w = 188 if kyobo else 182
     trim_h = 254 if kyobo else 257
     c = canvas.Canvas(str(out), pagesize=(total_w, total_h))
-    c.setTitle(f"트리거 보카 {level} 표지 (책등 {spine}mm)")
+    c.setTitle(f"{book['formal_title']} 표지 (책등 {spine}mm)")
     c.setAuthor("플레이온")
     c.setSubject(f"{channel} B5 표지 · {pages}p · spine {spine}mm · bleed 3mm")
 
@@ -471,20 +493,35 @@ def build_cover_pdf(
     spine_x = BLEED + PAGE_W
     front_x = BLEED + PAGE_W + spine_w
 
-    draw_back_panel(c, back_x, y0, PAGE_W, PAGE_H)
-    draw_spine(c, spine_x, y0, spine_w, PAGE_H, level=level)
+    draw_back_panel(
+        c,
+        back_x,
+        y0,
+        PAGE_W,
+        PAGE_H,
+        isbn_digits=book["isbn_digits"],
+        isbn_hyphen=book["isbn_hyphen"],
+        price_label=book["price_label"],
+    )
+    draw_spine(
+        c,
+        spine_x,
+        y0,
+        spine_w,
+        PAGE_H,
+        level=level,
+        spine_title=book["main_title"],
+    )
     draw_front_panel(
         c,
         front_x,
         y0,
         PAGE_W,
         PAGE_H,
-        logo_w=logo_w,
-        voca_size=voca_size,
-        logo_top=logo_top,
-        voca_y=voca_y,
         level=level,
         day_label=day_label,
+        main_title=book["main_title"],
+        subtitle=book["subtitle"],
     )
 
     c.save()
@@ -503,9 +540,11 @@ def build_cover_pdf(
                     f"내지 페이지: {pages}쪽 → 책등 {spine}mm",
                     "  (교보 계산기 값이면 --spine 으로 그 값 사용)",
                     "",
-                    f"앞표지: Trigger 로고 + VOCA · {level} 배지(좌상, 중등=주황/고등=네온블루/토익=네온그린) · T마크(우하) · DAY 바",
-                    f"뒷표지: Just Follow(40pt) + QR · ISBN바코드({ISBN_HYPHEN}) · {PRICE_LABEL} · T마크(우하)",
-                    f"책등: T마크(왼쪽 끝) + TRIGGER VOCA · {level} (글씨=책등 두께 비례)",
+                    f"앞표지: {book['main_title']} + {book['subtitle']}(소) · {level} 배지 · T마크 · DAY 바",
+                    f"뒷표지: Just Follow(40pt) + QR · ISBN바코드({book['isbn_hyphen']}) · {book['price_label']} · T마크(우하)",
+                    f"책등: T마크 + {book['main_title']} · {level}",
+                    f"정식명: {book['formal_title']}",
+                    f"발행일(판권): {book['pub_date']}",
                     "",
                     "표지 PDF 크기(도련 3mm 포함):",
                     f"  가로 {total_w / mm:.1f} mm = 3 + {trim_w} + {spine} + {trim_w} + 3",

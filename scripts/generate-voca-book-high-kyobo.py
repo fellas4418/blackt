@@ -186,6 +186,7 @@ def build_high_days_pdf(
     apply_high_confusables(mod)
     pron, pos = load_high_meta(mod)
     mod.POS_MEANINGS = pos
+    book = mod.load_level_meta("고등")
 
     OUT_HIGH.mkdir(parents=True, exist_ok=True)
     day_count = len(days)
@@ -203,7 +204,7 @@ def build_high_days_pdf(
 
     c = mod.canvas.Canvas(str(out_path), pagesize=mod.B5, pageCompression=1)
     size_note = "교보 B5 188×254" if kyobo else "부크크 B5 182×257"
-    c.setTitle(f"트리거 보카 고등 Day 01-{day_count:02d} {size_note}")
+    c.setTitle(f"{book['formal_title']} Day 01-{day_count:02d} {size_note}")
     c.setAuthor("TRIGGER BLACK")
     c.setSubject(f"{size_note} 고등 단어장 내지 (1회독 + 랜덤 · 부분컬러=혼동)")
     c.setCreator("TRIGGER VOCA Book Generator")
@@ -214,8 +215,10 @@ def build_high_days_pdf(
             c,
             level_en="HIGH SCHOOL",
             level_ko="고등",
-            day_label=f"DAY 01–{day_count:02d} · {word_count} WORDS",
+            day_label=book["day_label_cover"],
             words_note="1회독 + 랜덤 1회독 · 하루 40단어(20+20).",
+            main_title=book["main_title"],
+            subtitle=book["subtitle"],
         )
 
     contents_page_no = 2 if include_covers else 1
@@ -316,10 +319,11 @@ def build_high_days_pdf(
             c,
             level_tag="고등",
             page_no=page_no,
-            title="Trigger VOCA 고등",
-            words_line=f"DAY 01–{day_count:02d} · {word_count} WORDS",
-            isbn="979-11-993384-0-1",
-            price="16,000원",
+            title=book["formal_title"],
+            words_line=book["words_line_colophon"],
+            isbn=book["isbn_hyphen"],
+            price=book["price_colophon"],
+            pub_date=book["pub_date"],
         )
         page_no += 1
     if include_covers:
@@ -344,9 +348,10 @@ def build_high_days_pdf(
             f"p.{conf_color_start}(홀수페이지)~p.{conf_color_end}(짝수페이지) 부분 컬러 적용 요청",
             "",
             "※ PDF 파일 페이지 순서 기준 (인쇄 쪽번호 아님)",
-            "※ 판권 ISBN: 979-11-993384-0-1 · 발행일 2026년 7월 31일",
-            "※ 표지 뒤표지에 바코드·ISBN·가격(16,000원) 포함 필수",
-            "※ 표지는 중등과 별도 전개도로 제작",
+            f"※ 판권 ISBN: {book['isbn_hyphen']} · 발행일 {book['pub_date']}",
+            f"※ 정식명: {book['formal_title']}",
+            f"※ 표지 뒤표지에 바코드·ISBN·{book['price_label']} 포함 필수",
+            "※ 표지는 고등_표지_교보.pdf 전개도로 업로드",
             "",
         ]
         note.write_text("\n".join(lines), encoding="utf-8")
