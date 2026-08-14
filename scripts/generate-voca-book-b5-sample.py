@@ -938,10 +938,10 @@ def draw_korean_title_two_lines(
     base_size: float = 108,
     max_w: float = 106 * mm,
 ) -> float:
-    """한글 제목 2줄 — BlackHanSans(VOCA와 동일). 반환: 블록 하단 y."""
+    """한글 제목 2줄 — Pretendard Black. 반환: 블록 하단 y."""
     title_size = base_size
     while title_size > 28:
-        widest = max(pdfmetrics.stringWidth(line, FONT_LOGO, title_size) for line in lines)
+        widest = max(pdfmetrics.stringWidth(line, FONT_BLACK, title_size) for line in lines)
         if widest <= max_w:
             break
         title_size *= 0.97
@@ -956,7 +956,7 @@ def draw_korean_title_two_lines(
     c.saveState()
     c.translate(cx, cy)
     c.skew(0, 18)
-    c.setFont(FONT_LOGO, title_size)
+    c.setFont(FONT_BLACK, title_size)
     for line, y_off in zip(lines, offsets):
         x_comp = -skew_tan * y_off
         c.setFillColor(LOGO_SHADOW)
@@ -1026,8 +1026,8 @@ def draw_cover(
         c,
         subtitle,
         width / 2,
-        title_bottom - 10 * mm,
-        font=FONT_BOLD,
+        title_bottom - 8 * mm,
+        font=FONT_BLACK,
         size=18,
         color=PALE,
         align="center",
