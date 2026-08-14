@@ -260,7 +260,8 @@ def draw_front_panel(
 
     title_zone_top = badge_y - 10 * mm
     title_zone_bottom = h - 200 * mm
-    title_center_y = (title_zone_top + title_zone_bottom) / 2
+    # 구 영문(Trigger 로고 + VOCA)보다 블록이 내려가 보여 10mm 상향
+    title_center_y = (title_zone_top + title_zone_bottom) / 2 + 10 * mm
     title_bottom = draw_korean_title_two_lines(
         c, w / 2, title_center_y, max_w=w - 56 * mm
     )
