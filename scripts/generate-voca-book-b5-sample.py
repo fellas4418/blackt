@@ -928,6 +928,44 @@ LOGO_PATH = ROOT / "로고, 이미지" / "trigger-logo-v2.png"
 LOGO_ASPECT = 342 / 820  # 세로/가로
 
 
+def draw_korean_title_two_lines(
+    c: canvas.Canvas,
+    cx: float,
+    cy: float,
+    *,
+    lines: tuple[str, str] = ("트리거", "보카"),
+    base_size: float = 120,
+    max_w: float = 106 * mm,
+) -> float:
+    """한글 제목 2줄 — 구 VOCA 60pt의 2배. 반환: 블록 하단 y."""
+    title_size = base_size
+    while title_size > 28:
+        widest = max(pdfmetrics.stringWidth(line, FONT_LOGO, title_size) for line in lines)
+        if widest <= max_w:
+            break
+        title_size *= 0.97
+
+    line_gap = title_size * 1.02
+    offsets = (line_gap / 2, -line_gap / 2)
+    shadow_dx = title_size * 0.081
+    shadow_dy = -title_size * 0.063
+
+    c.saveState()
+    c.translate(cx, cy)
+    c.skew(0, 18)
+    c.setFont(FONT_LOGO, title_size)
+    for line, y_off in zip(lines, offsets):
+        c.setFillColor(LOGO_SHADOW)
+        for i in range(14, 0, -1):
+            t = i / 14
+            c.drawCentredString(shadow_dx * t, y_off + shadow_dy * t, line)
+        c.setFillColor(white)
+        for dx, dy in ((0, 0), (0.5, 0), (0, 0.4), (0.5, 0.4)):
+            c.drawCentredString(dx, y_off + dy, line)
+    c.restoreState()
+    return cy - line_gap / 2 - title_size * 0.38
+
+
 def draw_cover(
     c: canvas.Canvas,
     *,
@@ -973,32 +1011,16 @@ def draw_cover(
         for_dark=True,
     )
 
-    title_size = 60
-    title_max_w = 106 * mm
-    while title_size > 24 and pdfmetrics.stringWidth(main_title, FONT_LOGO, title_size) > title_max_w:
-        title_size *= 0.97
-    title_y = height - 128 * mm
-
-    shadow_dx = title_size * 0.081
-    shadow_dy = -title_size * 0.063
-    c.saveState()
-    c.translate(width / 2, title_y)
-    c.skew(0, 18)
-    c.setFont(FONT_LOGO, title_size)
-    c.setFillColor(LOGO_SHADOW)
-    for i in range(14, 0, -1):
-        t = i / 14
-        c.drawCentredString(shadow_dx * t, shadow_dy * t, main_title)
-    c.setFillColor(white)
-    for dx, dy in ((0, 0), (0.5, 0), (0, 0.4), (0.5, 0.4)):
-        c.drawCentredString(dx, dy, main_title)
-    c.restoreState()
+    title_center_y = height - 118 * mm
+    title_bottom = draw_korean_title_two_lines(
+        c, width / 2, title_center_y, max_w=106 * mm
+    )
 
     draw_text(
         c,
         subtitle,
         width / 2,
-        title_y - 22 * mm,
+        title_bottom - 10 * mm,
         font=FONT_BOLD,
         size=18,
         color=PALE,

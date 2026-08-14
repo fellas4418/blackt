@@ -183,6 +183,44 @@ def draw_tracked_centred(
         cursor += tw + tracking
 
 
+def draw_korean_title_two_lines(
+    c: canvas.Canvas,
+    cx: float,
+    cy: float,
+    *,
+    lines: tuple[str, str] = ("트리거", "보카"),
+    base_size: float = 120,
+    max_w: float = 106 * mm,
+) -> float:
+    """한글 제목 2줄 — 구 VOCA 60pt의 2배. 반환: 블록 하단 y(로컬 아님, cy 기준 아래)."""
+    title_size = base_size
+    while title_size > 28:
+        widest = max(pdfmetrics.stringWidth(line, FONT_LOGO, title_size) for line in lines)
+        if widest <= max_w:
+            break
+        title_size *= 0.97
+
+    line_gap = title_size * 1.02
+    offsets = (line_gap / 2, -line_gap / 2)
+    shadow_dx = title_size * 0.081
+    shadow_dy = -title_size * 0.063
+
+    c.saveState()
+    c.translate(cx, cy)
+    c.skew(0, 18)
+    c.setFont(FONT_LOGO, title_size)
+    for line, y_off in zip(lines, offsets):
+        c.setFillColor(LOGO_SHADOW)
+        for i in range(14, 0, -1):
+            t = i / 14
+            c.drawCentredString(shadow_dx * t, y_off + shadow_dy * t, line)
+        c.setFillColor(white)
+        for dx, dy in ((0, 0), (0.5, 0), (0, 0.4), (0.5, 0.4)):
+            c.drawCentredString(dx, y_off + dy, line)
+    c.restoreState()
+    return cy - line_gap / 2 - title_size * 0.38
+
+
 def draw_front_panel(
     c: canvas.Canvas,
     x0: float,
@@ -214,31 +252,15 @@ def draw_front_panel(
     c.setFont(FONT_BOLD, 13.5)
     c.drawCentredString(badge_x + badge_w / 2, badge_y + badge_h / 2 - 4.8, level)
 
-    title_size = 60  # 구 VOCA 워드마크와 동일
-    title_max_w = 106 * mm  # 구 Trigger 로고 폭
-    while title_size > 24 and pdfmetrics.stringWidth(main_title, FONT_LOGO, title_size) > title_max_w:
-        title_size *= 0.97
-    title_y = h - 128 * mm  # 구 voca_y
-
-    shadow_dx = title_size * 0.081
-    shadow_dy = -title_size * 0.063
-    c.saveState()
-    c.translate(w / 2, title_y)
-    c.skew(0, 18)
-    c.setFont(FONT_LOGO, title_size)
-    c.setFillColor(LOGO_SHADOW)
-    for i in range(14, 0, -1):
-        t = i / 14
-        c.drawCentredString(shadow_dx * t, shadow_dy * t, main_title)
-    c.setFillColor(white)
-    for dx, dy in ((0, 0), (0.5, 0), (0, 0.4), (0.5, 0.4)):
-        c.drawCentredString(dx, dy, main_title)
-    c.restoreState()
+    title_center_y = h - 118 * mm
+    title_bottom = draw_korean_title_two_lines(
+        c, w / 2, title_center_y, max_w=106 * mm
+    )
 
     sub_size = 18
     c.setFillColor(PALE)
     c.setFont(FONT_BOLD, sub_size)
-    c.drawCentredString(w / 2, title_y - 22 * mm, subtitle)
+    c.drawCentredString(w / 2, title_bottom - 10 * mm, subtitle)
 
     c.setFillColor(NEON_BLUE)
     c.roundRect(28 * mm, h - 184 * mm, w - 56 * mm, 16 * mm, 2.5 * mm, fill=1, stroke=0)
