@@ -937,40 +937,47 @@ def draw_korean_title_two_lines(
     lines: tuple[str, str] = ("트리거", "VOCA"),
     base_size: float = 120,
     max_w: float = 106 * mm,
-    second_scale: float = 0.55,
+    second_width_ratio: float = 0.92,
 ) -> float:
-    """한글+VOCA 2줄. VOCA는 구 영문 표지처럼 작게(기본 0.55배). 반환: 블록 하단 y."""
+    """트리거(BlackHanSans) + VOCA(Pretendard Black, 가로 92%, 얕은 그림자, 민트)."""
     size1 = base_size
-    while size1 > 28:
-        w1 = pdfmetrics.stringWidth(lines[0], FONT_LOGO, size1)
-        w2 = pdfmetrics.stringWidth(lines[1], FONT_LOGO, size1 * second_scale)
-        if max(w1, w2) <= max_w:
-            break
+    while size1 > 28 and pdfmetrics.stringWidth(lines[0], FONT_LOGO, size1) > max_w:
         size1 *= 0.97
-    size2 = size1 * second_scale
-    sizes = (size1, size2)
+    w1 = pdfmetrics.stringWidth(lines[0], FONT_LOGO, size1)
+    target_w = w1 * second_width_ratio
+    w2_at_size1 = pdfmetrics.stringWidth(lines[1], FONT_BLACK, size1)
+    size2 = size1 * target_w / w2_at_size1 if w2_at_size1 else size1 * 0.8
 
-    line_gap = size1 * 0.62 + size2 * 0.48
-    offsets = (line_gap * 0.48, -line_gap * 0.52)
+    fonts = (FONT_LOGO, FONT_BLACK)
+    sizes = (size1, size2)
+    fills = (white, NEON_BLUE)
+    shadow_scales = (1.0, 0.48)
+    shadow_steps = (14, 8)
+
+    line_gap = (size1 + size2) / 2 * 1.05
+    half_h = line_gap / 2
+    offsets = (half_h, -half_h)
     skew_tan = math.tan(math.radians(18))
 
     c.saveState()
     c.translate(cx, cy)
     c.skew(0, 18)
-    for line, y_off, sz in zip(lines, offsets, sizes):
+    for line, y_off, sz, font, fill, sh_scale, steps in zip(
+        lines, offsets, sizes, fonts, fills, shadow_scales, shadow_steps
+    ):
         x_comp = -skew_tan * y_off
-        shadow_dx = sz * 0.081
-        shadow_dy = -sz * 0.063
-        c.setFont(FONT_LOGO, sz)
+        shadow_dx = sz * 0.081 * sh_scale
+        shadow_dy = -sz * 0.063 * sh_scale
+        c.setFont(font, sz)
         c.setFillColor(LOGO_SHADOW)
-        for i in range(14, 0, -1):
-            t = i / 14
+        for i in range(steps, 0, -1):
+            t = i / steps
             c.drawCentredString(x_comp + shadow_dx * t, y_off + shadow_dy * t, line)
-        c.setFillColor(white)
+        c.setFillColor(fill)
         for dx, dy in ((0, 0), (0.5, 0), (0, 0.4), (0.5, 0.4)):
             c.drawCentredString(x_comp + dx, y_off + dy, line)
     c.restoreState()
-    return cy + offsets[1] - size2 * 0.36
+    return cy - half_h - size2 * 0.36
 
 
 def draw_cover(
