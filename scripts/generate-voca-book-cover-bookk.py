@@ -48,9 +48,6 @@ ORANGE = HexColor("#FF9900")
 PALE = HexColor("#EEF1F4")
 LOGO_SHADOW = HexColor("#636262")
 
-# 책등 글씨·T마크는 중등(~16.7mm) 기준. 고등처럼 두꺼워도 글자만 키우지 않음.
-SPINE_TITLE_REF_MM = 16.7
-
 
 def load_level_meta(level: str):
     spec = importlib.util.spec_from_file_location("voca_book_meta", META_PATH)
@@ -433,9 +430,8 @@ def draw_spine(
     title_prefix = f"{spine_title}  ·  "
     title_level = level
     title = title_prefix + title_level
-    # 중등 책등(~16.7mm)과 같은 글씨 크기. 책등이 두꺼워도 글자는 키우지 않음.
-    ref_band_mm = max(SPINE_TITLE_REF_MM - 2.0, 4.0)
-    title_size = ref_band_mm * (72.0 / 25.4) / 0.72 * (1.0 / 2.0)
+    # 책등 두께에 비례해 글씨 크기 결정 (중등 16.7mm 대비 고등 27.5mm면 약 1.65배)
+    title_size = (band / mm) * (72.0 / 25.4) / 0.72 * (1.0 / 2.0)
     end_margin = 10 * mm
     gap = 2.5 * mm
 
