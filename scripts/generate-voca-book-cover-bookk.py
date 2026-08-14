@@ -194,9 +194,9 @@ def draw_korean_title_two_lines(
     lines: tuple[str, str] = ("트리거", "VOCA"),
     base_size: float = 120,
     max_w: float = 106 * mm,
-    second_width_ratio: float = 0.92,
+    second_width_ratio: float = 1.01,
 ) -> float:
-    """트리거(BlackHanSans) + VOCA(Pretendard Black, 가로 92%, 얕은 그림자)."""
+    """트리거(BlackHanSans) + VOCA(Pretendard Black, 가로 약 101%, 얕은 그림자)."""
     size1 = base_size
     while size1 > 28 and pdfmetrics.stringWidth(lines[0], FONT_LOGO, size1) > max_w:
         size1 *= 0.97
