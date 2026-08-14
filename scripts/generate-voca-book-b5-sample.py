@@ -935,7 +935,7 @@ def draw_korean_title_two_lines(
     cy: float,
     *,
     lines: tuple[str, str] = ("트리거", "보카"),
-    base_size: float = 108,
+    base_size: float = 120,
     max_w: float = 106 * mm,
 ) -> float:
     """한글 제목 2줄 — BlackHanSans(워드마크). 반환: 블록 하단 y."""
