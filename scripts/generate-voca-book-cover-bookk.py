@@ -194,28 +194,31 @@ def draw_korean_title_two_lines(
     lines: tuple[str, str] = ("트리거", "VOCA"),
     base_size: float = 120,
     max_w: float = 106 * mm,
+    second_scale: float = 0.55,
 ) -> float:
-    """한글 제목 2줄 — BlackHanSans(워드마크). 반환: 블록 하단 y."""
-    title_size = base_size
-    while title_size > 28:
-        widest = max(pdfmetrics.stringWidth(line, FONT_LOGO, title_size) for line in lines)
-        if widest <= max_w:
+    """한글+VOCA 2줄. VOCA는 구 영문 표지처럼 작게(기본 0.55배). 반환: 블록 하단 y."""
+    size1 = base_size
+    while size1 > 28:
+        w1 = pdfmetrics.stringWidth(lines[0], FONT_LOGO, size1)
+        w2 = pdfmetrics.stringWidth(lines[1], FONT_LOGO, size1 * second_scale)
+        if max(w1, w2) <= max_w:
             break
-        title_size *= 0.97
+        size1 *= 0.97
+    size2 = size1 * second_scale
+    sizes = (size1, size2)
 
-    line_gap = title_size * 1.05
-    half_h = line_gap / 2
-    offsets = (half_h, -half_h)
-    shadow_dx = title_size * 0.081
-    shadow_dy = -title_size * 0.063
+    line_gap = size1 * 0.62 + size2 * 0.48
+    offsets = (line_gap * 0.48, -line_gap * 0.52)
     skew_tan = math.tan(math.radians(18))  # skew(0, 18) — y 위치마다 x 중심이 밀리므로 보정
 
     c.saveState()
     c.translate(cx, cy)
     c.skew(0, 18)
-    c.setFont(FONT_LOGO, title_size)
-    for line, y_off in zip(lines, offsets):
+    for line, y_off, sz in zip(lines, offsets, sizes):
         x_comp = -skew_tan * y_off
+        shadow_dx = sz * 0.081
+        shadow_dy = -sz * 0.063
+        c.setFont(FONT_LOGO, sz)
         c.setFillColor(LOGO_SHADOW)
         for i in range(14, 0, -1):
             t = i / 14
@@ -224,7 +227,7 @@ def draw_korean_title_two_lines(
         for dx, dy in ((0, 0), (0.5, 0), (0, 0.4), (0.5, 0.4)):
             c.drawCentredString(x_comp + dx, y_off + dy, line)
     c.restoreState()
-    return cy - half_h - title_size * 0.36
+    return cy + offsets[1] - size2 * 0.36
 
 
 def draw_front_panel(
