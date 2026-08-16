@@ -261,17 +261,22 @@ def draw_front_panel(
 
     if level in ("고등", "HIGH", "high"):
         badge_w, badge_h = 38 * mm, 17 * mm
-        badge_font, badge_dy, badge_stroke = 19.5, 7.0, 1.8
+        badge_font, badge_dy, badge_stroke, badge_face = 27, 9.6, 1.8, FONT_BLACK
     else:
         badge_w, badge_h = 26 * mm, 12 * mm
-        badge_font, badge_dy, badge_stroke = 13.5, 4.8, 1.2
+        badge_font, badge_dy, badge_stroke, badge_face = 13.5, 4.8, 1.2, FONT_BOLD
     badge_x, badge_y = 18 * mm, h - 18 * mm - badge_h
     c.setStrokeColor(level_accent(level))
     c.setLineWidth(badge_stroke)
     c.roundRect(badge_x, badge_y, badge_w, badge_h, 2 * mm, fill=0, stroke=1)
     c.setFillColor(white)
-    c.setFont(FONT_BOLD, badge_font)
-    c.drawCentredString(badge_x + badge_w / 2, badge_y + badge_h / 2 - badge_dy, level)
+    c.setFont(badge_face, badge_font)
+    badge_cx = badge_x + badge_w / 2
+    badge_cy = badge_y + badge_h / 2 - badge_dy
+    if badge_face == FONT_BLACK:
+        for dx, dy in ((0.45, 0), (0, 0.4), (0.45, 0.4), (-0.25, 0)):
+            c.drawCentredString(badge_cx + dx, badge_cy + dy, level)
+    c.drawCentredString(badge_cx, badge_cy, level)
 
     title_zone_top = badge_y - 10 * mm
     title_zone_bottom = h - 200 * mm
