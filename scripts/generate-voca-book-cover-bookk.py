@@ -259,12 +259,8 @@ def draw_front_panel(
     c.setLineWidth(1)
     c.roundRect(10 * mm, 10 * mm, w - 20 * mm, h - 20 * mm, 4 * mm, fill=0, stroke=1)
 
-    if level in ("고등", "HIGH", "high"):
-        badge_w, badge_h = 38 * mm, 17 * mm
-        badge_font, badge_dy, badge_stroke = 27, 9.6, 1.8
-    else:
-        badge_w, badge_h = 26 * mm, 12 * mm
-        badge_font, badge_dy, badge_stroke = 13.5, 4.8, 1.2
+    badge_w, badge_h = 38 * mm, 17 * mm
+    badge_font, badge_dy, badge_stroke = 27, 9.6, 1.8
     badge_x, badge_y = 18 * mm, h - 18 * mm - badge_h
     c.setStrokeColor(level_accent(level))
     c.setLineWidth(badge_stroke)
