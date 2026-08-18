@@ -34,7 +34,7 @@ MIDDLE_KYOBO: LevelBookMeta = {
     "words_line_colophon": "Trigger VOCA · DAY 01–50 · 1,200 WORDS",
 }
 
-# 고등 — ISBN 979-11-993384-1-8 · 정가 19,000원 · 발행일 2026-08-24
+# 고등 — ISBN 979-11-993384-1-8 · 정가 19,000원 · 발행일 2026-08-18
 HIGH_KYOBO: LevelBookMeta = {
     "level": "고등",
     "formal_title": "트리거 VOCA 고등",
@@ -42,7 +42,7 @@ HIGH_KYOBO: LevelBookMeta = {
     "subtitle": "Trigger VOCA",
     "isbn_hyphen": "979-11-993384-1-8",
     "isbn_digits": "9791199338418",
-    "pub_date": "2026년 8월 24일",
+    "pub_date": "2026년 8월 18일",
     "price_label": "값 19,000원",
     "price_colophon": "19,000원",
     "day_label_cover": "DAY 01–50 · 2000 WORDS",
