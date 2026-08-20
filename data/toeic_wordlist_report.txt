@@ -1,0 +1,78 @@
+토익 고유 단어 리스트 리포트
+
+확정: data/toeic_wordlist.txt  ·  2,013단어 (해커스 30일, 완전 일치 중복 제거)
+Day별: data/toeic_wordlist_by_day.txt
+
+[원본 = 해커스 노랭이 30일]
+파싱 표제어: 2014
+고유 표제어: 2013
+원본 안 완전 일치 중복: 1
+Day 수: 30
+
+[지금 앱 worddata_toeic.js 학습일 1~5]
+슬롯: 2775  (고유 2033 + 같은 단어 재등장 742)
+고유 중 해커스 원본에 없는 학생용 추가: 20  (확정 리스트에 넣지 않음)
+
+[지금 voca_toeic.txt]
+줄: 2775  ·  고유: 2033
+
+[Day별 고유 수]
+  DAY 01 채용: 68
+  DAY 02 규칙·법률: 68
+  DAY 03 일반사무(1): 68
+  DAY 04 일반사무(2): 68
+  DAY 05 일반사무(3): 68
+  DAY 06 여가·공동체: 68
+  DAY 07 마케팅(1): 68
+  DAY 08 마케팅(2): 68
+  DAY 09 경제: 68
+  DAY 10 쇼핑: 68
+  DAY 11 쇼핑 (제품·기술): 63
+  DAY 12 생산: 58
+  DAY 13 고객서비스: 64
+  DAY 14 여행·공항: 62
+  DAY 15 계약: 68
+  DAY 16 상거래: 68
+  DAY 17 무역·배송: 68
+  DAY 18 숙박·식당: 68
+  DAY 19 수익: 68
+  DAY 20 회계: 67
+  DAY 21 회사동향: 68
+  DAY 22 미팅: 68
+  DAY 23 사원 복지: 68
+  DAY 24 인사이동: 68
+  DAY 25 교통: 68
+  DAY 26 은행: 67
+  DAY 27 투자: 68
+  DAY 28 건물·주택: 68
+  DAY 29 환경: 68
+  DAY 30 건강: 68
+
+[원본에서 제거한 완전 일치]
+  traffic congestion | 교통체증  (유지: Day 25 / 삭제: Day 26)
+
+[앱에만 있던 20개 — 확정 리스트 제외]
+  overhead rack | (머리 위의 짐 넣는) 선반
+  port | 항구
+  porter | 운반인, 짐꾼
+  reassemble | 재조립하다, 다시 모이다
+  reclaim | (분실물을) 되찾다
+  refine | 정제하다, 개선하다
+  reproduction | 모조품, 재생
+  row the boat | 배를 젓다
+  sector | 부문, 구역
+  settle on | ~을 결정하다
+  sort out | ~을 정리하다
+  stain | 얼룩
+  stop over | ~에 잠깐 들르다
+  synthetic | 합성의
+  tailor-made | 맞춤의
+  trace | (진행 과정을) 기술하다, 자취, 극소량
+  upon-ing | 하자마자
+  wear and tear | 마모, 손상
+  wear out | 닳다, 닳게 하다
+  work properly | 제대로 작동하다
+
+[유지한 철자 다른 짝 예]
+  letter of recommendation / recommendation letter / reference letter
+  (표제어가 다르면 별개. 뜻만 같아도 합치지 않음)
