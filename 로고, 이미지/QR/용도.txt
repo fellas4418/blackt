@@ -1,0 +1,10 @@
+QR 모음
+
+1. qr-blackt.png
+   용도: 단어장 뒤표지
+   연결: https://blackt.pages.dev/
+   원본: 로고, 이미지 폴더의 qr-blackt(단어장뒷표지_앱연결) 파일
+
+2. qr-tri3.png
+   용도: 문법 교재 — 3시간 영문법 강의 홈
+   연결: https://tri3.imweb.me/
