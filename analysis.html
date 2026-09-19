@@ -2275,9 +2275,24 @@
             'his', 'this', 'thus', 'bus', 'yes', 'us'
         ]);
 
+        const DEFAULT_WORKER_URL = 'https://trigger-ocr-api.ohryee.workers.dev/';
+        function isAllowedAnalysisWorkerUrl(candidate) {
+            if (!candidate || !/^https?:$/.test(candidate.protocol)) return false;
+            if (candidate.origin === new URL(DEFAULT_WORKER_URL).origin) return true;
+            const host = String(candidate.hostname || '').toLowerCase();
+            return host === 'localhost' || host === '127.0.0.1' || host === '[::1]';
+        }
+        function resolveAnalysisWorkerUrl(rawOverride) {
+            const raw = String(rawOverride || '').trim();
+            if (!raw) return DEFAULT_WORKER_URL;
+            try {
+                const candidate = new URL(raw, window.location.origin);
+                if (isAllowedAnalysisWorkerUrl(candidate)) return candidate.origin + '/';
+            } catch (e) {}
+            return DEFAULT_WORKER_URL;
+        }
         const params = new URLSearchParams(window.location.search);
-        const workerOverride = (params.get('worker') || '').trim();
-        const WORKER_URL = (workerOverride ? workerOverride.replace(/\/$/, '') + '/' : 'https://trigger-ocr-api.ohryee.workers.dev/');
+        const WORKER_URL = resolveAnalysisWorkerUrl(params.get('worker'));
         const TRIGGER_IMG_DIR = '로고, 이미지/';
         /** 카톡 공유 링크 고정 도메인 (다른 origin 사용 금지) */
         const KAKAO_SHARE_ORIGIN = 'https://blackt.pages.dev';
