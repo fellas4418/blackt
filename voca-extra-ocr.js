@@ -33,38 +33,106 @@
         return isExtraWordLevel(level) ? EXTRA_LEVEL : level;
     }
 
+    function parseLegacyDays(raw) {
+        if (!raw) return null;
+        try {
+            var parsed = JSON.parse(raw);
+            if (!parsed || typeof parsed !== 'object') return null;
+            return dayKeys(parsed).length ? parsed : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
     function migrateLegacyExtraNote() {
         try {
+            var middleDays = parseLegacyDays(localStorage.getItem('trigger_middle_note_user_days'));
+            var highDays = parseLegacyDays(localStorage.getItem('trigger_high_note_user_days'));
+
+            // Day 경계를 유지한 채 트랙별 맵을 이어 붙인다 (전체 flatten+rechunk 금지).
             if (!localStorage.getItem(STORAGE_KEY)) {
-                var allWords = [];
-                LEGACY_STORAGE_KEYS.forEach(function (key) {
-                    var raw = localStorage.getItem(key);
-                    if (!raw) return;
-                    var parsed = JSON.parse(raw);
-                    if (!parsed || typeof parsed !== 'object') return;
-                    dayKeys(parsed).forEach(function (d) {
-                        var list = parsed[String(d)];
-                        if (Array.isArray(list)) allWords = allWords.concat(list);
+                var merged = {};
+                var middleMax = 0;
+                if (middleDays) {
+                    dayKeys(middleDays).forEach(function (d) {
+                        var list = middleDays[String(d)];
+                        if (Array.isArray(list) && list.length) {
+                            merged[String(d)] = list;
+                            if (d > middleMax) middleMax = d;
+                        }
                     });
-                });
-                if (allWords.length) {
-                    var chunks = chunkWords(normalizeEntries(allWords), WORDS_PER_DAY);
-                    var days = {};
-                    chunks.forEach(function (chunk, i) {
-                        days[String(i + 1)] = chunk;
+                }
+                if (highDays) {
+                    dayKeys(highDays).forEach(function (d) {
+                        var list = highDays[String(d)];
+                        if (Array.isArray(list) && list.length) {
+                            merged[String(middleMax + d)] = list;
+                        }
                     });
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(days));
+                }
+                if (Object.keys(merged).length) {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
                 }
             }
+
+            // high_note 진도는 middle day 뒤에 붙인 오프셋을 반영.
+            var highOffset = 0;
+            if (middleDays) {
+                var mKeys = dayKeys(middleDays);
+                highOffset = mKeys.length ? mKeys[mKeys.length - 1] : 0;
+            }
+
+            var extraCur = parseInt(localStorage.getItem('trigger_current_day_' + EXTRA_LEVEL), 10) || 0;
+            var extraUn = parseInt(localStorage.getItem('trigger_unlocked_day_' + EXTRA_LEVEL), 10) || 0;
+            var extraSess = localStorage.getItem('trigger_session_' + EXTRA_LEVEL) || '';
+
+            var midCur = parseInt(localStorage.getItem('trigger_current_day_middle_note'), 10) || 0;
+            var midUn = parseInt(localStorage.getItem('trigger_unlocked_day_middle_note'), 10) || 0;
+            var midSess = localStorage.getItem('trigger_session_middle_note') || '';
+
+            var highCurRaw = parseInt(localStorage.getItem('trigger_current_day_high_note'), 10) || 0;
+            var highUnRaw = parseInt(localStorage.getItem('trigger_unlocked_day_high_note'), 10) || 0;
+            var highSess = localStorage.getItem('trigger_session_high_note') || '';
+            var highCur = highCurRaw > 0 ? highCurRaw + highOffset : 0;
+            var highUn = highUnRaw > 0 ? highUnRaw + highOffset : 0;
+
+            var hasLegacyProg = !!(midCur || midUn || highCurRaw || highUnRaw);
+            if (hasLegacyProg) {
+                var bestUn = Math.max(extraUn, midUn, highUn);
+                var bestCur = Math.max(extraCur, midCur, highCur);
+                var bestSess = extraSess || '1';
+                if (bestCur === highCur && highCur >= midCur && highCur >= extraCur) {
+                    bestSess = highSess || midSess || extraSess || '1';
+                } else if (bestCur === midCur && midCur >= extraCur) {
+                    bestSess = midSess || extraSess || '1';
+                }
+
+                if (bestUn > 0 && bestUn >= extraUn) {
+                    localStorage.setItem('trigger_unlocked_day_' + EXTRA_LEVEL, String(bestUn));
+                }
+                if (bestCur > 0 && bestCur >= extraCur) {
+                    localStorage.setItem('trigger_current_day_' + EXTRA_LEVEL, String(bestCur));
+                }
+                if (bestSess) {
+                    localStorage.setItem('trigger_session_' + EXTRA_LEVEL, String(bestSess));
+                }
+
+                LEGACY_LEVELS.forEach(function (legacyLvl) {
+                    ['trigger_current_day_', 'trigger_unlocked_day_', 'trigger_session_'].forEach(function (prefix) {
+                        localStorage.removeItem(prefix + legacyLvl);
+                    });
+                });
+            }
+
             var lvl = localStorage.getItem('trigger_level');
             if (isLegacyExtraLevel(lvl)) {
-                ['trigger_current_day_', 'trigger_unlocked_day_', 'trigger_session_'].forEach(function (prefix) {
-                    var oldVal = localStorage.getItem(prefix + lvl);
-                    if (oldVal && !localStorage.getItem(prefix + EXTRA_LEVEL)) {
-                        localStorage.setItem(prefix + EXTRA_LEVEL, oldVal);
-                    }
-                });
                 localStorage.setItem('trigger_level', EXTRA_LEVEL);
+            }
+
+            if (localStorage.getItem(STORAGE_KEY)) {
+                LEGACY_STORAGE_KEYS.forEach(function (key) {
+                    localStorage.removeItem(key);
+                });
             }
         } catch (e) {}
     }
