@@ -3,6 +3,8 @@
  */
 (function (global) {
     var STORAGE_BALANCE = 'trigger_credit_balance';
+    /** 서버 lifetime credited 건수 — claim 응답 유실·기기 이전 후 재적립용 */
+    var STORAGE_REFERRAL_APPLIED = 'trigger_referral_credits_applied';
     var DAILY_BASE = 10;
     var ACCURACY_BONUS = 5;
     var ACCURACY_BONUS_MIN = 90;
@@ -139,9 +141,25 @@
         var myId = getMyReferralId();
         if (!myId || myId.charAt(0) !== 'r') return Promise.resolve(0);
         return postReferralApi('/api/referral/claim', { referrer_id: myId }).then(function (data) {
-            var count = data && Number(data.count) > 0 ? Number(data.count) : 0;
-            if (!count) return 0;
-            return addCredit(count * APP_SHARE_REFERRAL_BONUS, '앱 공유 · 신규 가입 ' + count + '명');
+            if (!data || data.ok === false) return 0;
+            var applied = parseInt(localStorage.getItem(STORAGE_REFERRAL_APPLIED), 10) || 0;
+            var total = Number(data.total_credited);
+            var delta;
+            if (total >= 0 && !isNaN(total)) {
+                // lifetime watermark — 응답 유실·재설치 후에도 누락분만 적립
+                delta = Math.floor(total) - applied;
+            } else {
+                // 구서버 호환: batch count만 있을 때
+                var count = Number(data.count) > 0 ? Number(data.count) : 0;
+                delta = count;
+                if (delta > 0) total = applied + delta;
+            }
+            if (!(delta > 0)) return 0;
+            var gained = addCredit(delta * APP_SHARE_REFERRAL_BONUS, '앱 공유 · 신규 가입 ' + delta + '명');
+            if (gained > 0) {
+                localStorage.setItem(STORAGE_REFERRAL_APPLIED, String(Math.floor(total)));
+            }
+            return gained;
         });
     }
 
