@@ -120,14 +120,12 @@
 
         var firstDay = saved[0].day;
         var lastDay = saved[saved.length - 1].day;
+        // Keep progressive unlock. Never set unlocked=lastDay (false CLEAR + resumeDay skip)
+        // and never jump current past an in-progress day.
         var unlocked = parseInt(localStorage.getItem('trigger_unlocked_day_toeic_note'), 10) || 1;
-        if (lastDay >= unlocked) {
-            localStorage.setItem('trigger_unlocked_day_toeic_note', String(lastDay));
-            var cur = parseInt(localStorage.getItem('trigger_current_day_toeic_note'), 10) || 1;
-            if (cur < firstDay) {
-                localStorage.setItem('trigger_current_day_toeic_note', String(firstDay));
-                localStorage.setItem('trigger_session_toeic_note', '1');
-            }
+        var cur = parseInt(localStorage.getItem('trigger_current_day_toeic_note'), 10) || 1;
+        if (cur >= firstDay && unlocked < firstDay) {
+            localStorage.setItem('trigger_unlocked_day_toeic_note', String(firstDay));
         }
         return {
             total: normalized.length,

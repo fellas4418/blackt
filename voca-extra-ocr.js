@@ -200,14 +200,12 @@
         var lastDay = saved[saved.length - 1].day;
         initProgressIfNeeded(level);
         var progressLevel = EXTRA_LEVEL;
+        // Keep progressive unlock. Never set unlocked=lastDay (false CLEAR + resumeDay skip)
+        // and never jump current past an in-progress day.
         var unlocked = parseInt(localStorage.getItem('trigger_unlocked_day_' + progressLevel), 10) || 1;
-        if (lastDay >= unlocked) {
-            localStorage.setItem('trigger_unlocked_day_' + progressLevel, String(lastDay));
-            var cur = parseInt(localStorage.getItem('trigger_current_day_' + progressLevel), 10) || 1;
-            if (cur < firstDay) {
-                localStorage.setItem('trigger_current_day_' + progressLevel, String(firstDay));
-                localStorage.setItem('trigger_session_' + progressLevel, '1');
-            }
+        var cur = parseInt(localStorage.getItem('trigger_current_day_' + progressLevel), 10) || 1;
+        if (cur >= firstDay && unlocked < firstDay) {
+            localStorage.setItem('trigger_unlocked_day_' + progressLevel, String(firstDay));
         }
         return {
             total: normalized.length,
