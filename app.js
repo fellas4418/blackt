@@ -755,12 +755,18 @@ function restartVocaCourseFromDay1(level) {
         'trigger_cycle4_study_' + lvl + '_',
         'trigger_start_day_' + lvl + '_'
     ];
+    // toeic_ 가 toeic_note_ 를 삼키지 않도록, prefix 뒤가 글자면 다른 레벨로 본다
+    const isOwnLevelDayKey = function (key, prefix) {
+        if (key.indexOf(prefix) !== 0) return false;
+        const rest = key.slice(prefix.length);
+        return rest.length > 0 && !/^[A-Za-z]/.test(rest);
+    };
     const toRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
         const k = localStorage.key(i);
         if (!k) continue;
         for (let p = 0; p < prefixes.length; p++) {
-            if (k.indexOf(prefixes[p]) === 0) {
+            if (isOwnLevelDayKey(k, prefixes[p])) {
                 toRemove.push(k);
                 break;
             }
